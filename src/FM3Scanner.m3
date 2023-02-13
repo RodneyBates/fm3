@@ -1,19 +1,19 @@
 
 (* -----------------------------------------------------------------------1- *)
-(* This file is part of the the RM3 Modula-3 compiler.                       *)
-(* Copyright 2023..2023, Rodney M. Bates.                                    *)
+(* This file is part of the FM3 Modula-3 compiler.                           *)
+(* Copyright 2023,       Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-MODULE RM3canner 
+MODULE FM3canner 
 
 ; IMPORT TextIntTbl
-
+; IMPORT TextWr 
 ; IMPORT UniRd 
-; IMPORT UnsafeUniRd 
+; IMPORT UnsafeUniRd
 
-
+; IMPORT FM3Base 
 
 ; FROM Assertions IMPORT Assert , CantHappen 
 ; FROM Failures IMPORT Backout  
@@ -23,7 +23,6 @@ MODULE RM3canner
 ; IMPORT M3Tok 
 ; IMPORT MessageCodes 
 ; IMPORT PortTypes 
-; IMPORT ScannerIf 
 ; IMPORT Strings 
 
 ; TYPE AFT = MessageCodes . T 
@@ -60,83 +59,92 @@ MODULE RM3canner
     ; M3InitTokStrings . InitPh ( PhTable )  
     END InitTables 
 
-; TYPE ScanReaderTyp 
+; TYPE ScanStateTyp 
        = RECORD 
-           SrLink : ScanReaderRefTyp := NIL 
-         ; SrUniRd : UniRd . T := NIL 
-         ; SrUnitNo : INTEGER 
-         ; SrLineNo : INTEGER 
-         ; SrCharPos : INTEGER 
-         ; SrWCh : WIDECHAR 
-         END (* ScanReaderTyp *) 
+           SsHash : FM3Utils . HashTyp 
+         ; SsLink : ScanStateRefTyp := NIL 
+         ; SsUniRd : UniRd . T := NIL 
+         ; SsUnitNo : INTEGER 
+         ; SsLineNo : INTEGER 
+         ; SsCharPos : INTEGER 
+         ; SsTokStringWr : Wr . T := NIL 
+         ; SsWCh : WIDECHAR 
+         END (* ScanStateTyp *) 
 
-; TYPE ScanReaderRefTyp = REF ScanReaderTyp 
+; TYPE ScanStateRefTyp = REF ScanStateTyp 
 
-; VAR GTopScanReaderRef : ScanReaderRefTyp := NIL 
-  (* SrUniRd of every node on this stack is kept locked until popped. *) 
-; VAR GScanReaderCt := 0
-; VAR GScanReaderDepth := 0
-; VAR GMaxScanReaderDepth := 0   
+; VAR GTopScanStateRef : ScanStateRefTyp := NIL 
+  (* SsUniRd of every node on this stack is kept locked until popped. *) 
+; VAR GScanStateCt := 0
+; VAR GScanStateDepth := 0
+; VAR GMaxScanStateDepth := 0   
 
-(* These are cached copies of fields of GTopScanReaderRef, for a bit 
-   faster access. *) 
+(* These are cached copies of fields of GTopScanStateRef, for a bit 
+   faster access. (Or is it?) *) 
+; VAR GHash : FM3Utils . HashTyp 
 ; VAR GUniRd : UniRd . T 
 ; VAR GLineNo : INTEGER 
 ; VAR GCharPos : INTEGER 
+; VAR GTokStringWr := Wr . T 
 ; VAR GWCh : WIDECHAR 
 
 (* EXPORTED: *) 
 ; PROCEDURE PushReader ( NewUniRd : UniRd . T ; UnitNo : INTEGER ) 
   (* PRE: NewUniRd is open and ready to be read. but not locked. *) 
 
-  = VAR LScanReaderRef : ScanReaderRefTyp 
+  = VAR LScanStateRef : ScanStateRefTyp 
 
   ; BEGIN 
       Tread . Acquire ( NewUniRd ) 
-    ; GTopScanReaderRef . SrLineNo := GLineNo 
-    ; GTopScanReaderRef . SrCharPos := GCharPos  
-    ; GTopScanReaderRef . SrWCh := GWCh 
-    ; LScanReaderRef := NEW ( ScanReaderRefTyp ) 
-    ; LScanReaderRef ^ . SrLink := GTopScanReaderRef 
-    ; LScanReaderRef ^ . SrUniRd := NewUniRd 
-    ; LScanReaderRef ^ . SrUnitNo := UnitNo 
-    ; LScanReaderRef ^ . SrLineNo := 0 
+    ; GTopScanStateRef . SsLineNo := GLineNo 
+    ; GTopScanStateRef . SsCharPos := GCharPos  
+    ; GTopScanStateRef . SsTokStringWr := GTokStringWr  
+    ; GTopScanStateRef . SsWCh := GWCh 
+    ; GTopScanStateRef . Ss := GHash  
+    ; LScanStateRef := NEW ( ScanStateRefTyp ) 
+    ; LScanStateRef ^ . SsLink := GTopScanStateRef 
+    ; LScanStateRef ^ . SsUniRd := NewUniRd 
+    ; LScanStateRef ^ . SsUnitNo := UnitNo 
+    ; LScanStateRef ^ . SsLineNo := 0 
+    ; LScanStateRef ^ . SsTokStringWr := NIL  
     ; GLineNo := 0 
-    ; LScanReaderRef ^ . SrCharPos : 0   
+    ; LScanStateRef ^ . SsCharPos : 0   
     ; GLineNo := 0 
-    ; GTopScanReaderRef := LScanReaderRef 
+    ; GTopScanStateRef := LScanStateRef 
     ; GUniRd := NewUniRd 
     ; GWCh := UnsafeUniRd ( GUniRd ) 
-    ; GTopScanReaderRef . GWCh := GWCh
-    ; INC ( GScanReaderCt ) 
-    ; INC ( GScanReaderDepth ) 
-    ; GMaxScanReaderDepth := MAX ( GMaxScanReaderDepth , GScanReaderDepth ) 
+    ; GTopScanStateRef . GWCh := GWCh
+    ; INC ( GScanStateCt ) 
+    ; INC ( GScanStateDepth ) 
+    ; GMaxScanStateDepth := MAX ( GMaxScanStateDepth , GScanStateDepth ) 
     END PushReader 
 
 (* EXPORTED: *) 
 ; PROCEDURE PopReader ( ) : UniRd . T (* Previous reader. *)  
 
-  = VAR LScanReaderRef : ScanReaderRefTyp 
+  = VAR LScanStateRef : ScanStateRefTyp 
 
   ; BEGIN 
-      IF GTopScanReaderRef = NIL THEN RETURN NIL END (* IF *) 
-    ; LScanReaderRef := GTopScanReaderRef 
-    ; GTopScanReaderRef := LScanReaderRef . SrLink 
-    ; GLineNo := GTopScanReaderRef . SrLineNo 
-    ; GCharPos := GTopScanReaderRef . SrCharPos 
-    ; GWCh := GTopScanReaderRef . SrWCh 
-    ; UniRd . Close ( LScanReaderRef . SrUniRd )  
-    ; Thread . Release ( LScanReaderRef . SrUniRd ) 
-    ; DEC ( GScanReaderDepth ) 
-    ; RETURN LScanReaderRef 
+      IF GTopScanStateRef = NIL THEN RETURN NIL END (* IF *) 
+    ; LScanStateRef := GTopScanStateRef 
+    ; GTopScanStateRef := LScanStateRef . SsLink 
+    ; GLineNo := GTopScanStateRef . SsLineNo 
+    ; GCharPos := GTopScanStateRef . SsCharPos 
+    ; GTokStringWr := GTopScanStateRef . SsTokStringWr 
+    ; GHash := GTopScanStateRef . SsHash 
+    ; GWCh := GTopScanStateRef . SsWCh 
+    ; UniRd . Close ( LScanStateRef . SsUniRd )  
+    ; Thread . Release ( LScanStateRef . SsUniRd ) 
+    ; DEC ( GScanStateDepth ) 
+    ; RETURN LScanStateRef 
     END PopReader 
 
 (* EXPORTED: *) 
 ; PROCEDURE CurrentUnitNo ( ) : INTEGER 
 
   = BEGIN 
-      IF GTopScanReaderRef = NIL THEN RETURN - 1 END (* IF *) 
-    ; RETURN GTopScanReaderRef . SrUnitNo 
+      IF GTopScanStateRef = NIL THEN RETURN - 1 END (* IF *) 
+    ; RETURN GTopScanStateRef . SsUnitNo 
     END CurrentUnitNo 
 
 (* EXPORTED: *) 
@@ -213,40 +221,40 @@ MODULE RM3canner
            Fortunately, it is harmless to call it multiple times 
            without incrementing Pos. *) 
 
-  ; PROCEDURE BegOfTok ( ) 
+  ; PROCEDURE BegOfTok 
+      ( Tok : FM3Base . TokTyp := FM3Base . TokNull ; DoText := FALSE ) 
     RAISES { Backout } 
 
     = BEGIN (* BegOfTok *) 
-        IF Pos > 0 
-        THEN 
-          ScannerIf . ConsumeChars 
-            ( Sif 
-            , (* VAR *) State 
-            , Pos 
-            , (* VAR *) InString 
-            , (* VAR *) AreAllBlanks 
-            ) 
-        ; InLength := Strings . Length ( InString ) 
-        ; Pos := 0 
-        END (* IF *) 
+        GCurrentTok . TrTok := Tok 
       ; GCurrentTok . TrLineNo := GLineNo 
-      ; GCurrentTok . TrCharPos := GCharPos  
+      ; GCurrentTok . TrCharPos := GCharPos 
+      ; IF DoText 
+        THEN GTokStringWr := TextWr . T 
+        ELSE GTokStringWr := NIL 
+        END (*IF*)
       END BegOfTok 
 
   ; PROCEDURE DeliverTok 
-      ( Tok : LbeStd . TokTyp ; MakeIdle : BOOLEAN := TRUE ) 
+      ( Tok : LbeStd . TokTyp ; AtomDict : FM3TextDict . T  ) 
     RAISES { Backout } 
 
     = BEGIN (* DeliverTok *) 
-        ScannerIf . AccumSlice ( Sif , TokString ) 
-      ; IF MakeIdle THEN State := LbeStd . SsIdle END (* IF *) 
-      ; ScannerIf . DeliverTok 
-          ( Sif , State , Pos , Tok , InString , AreAllBlanks ) 
-      ; InLength := Strings . Length ( InString ) 
-      ; Pos := 0 
-      ; Strings . MakeEmpty ( TokString ) 
+        IF GTokStringWr = NIL 
+        THEN 
+          GCurrentTok . TrText := NIL 
+        ; GCurrentTok . TrHash := FM3Utils . HashNull 
+        ; GCurrentTok . TrAtom := Fm3Base . AtomNull 
+        ELSE 
+          GCurrentTok . TrText := TextWr . ToText ( GTokStringWr ) 
+        ; GCurrentTok . TrHash := GHash 
+        ; GCurrentTok . TrAtom 
+            := FM3TextDict . MakeAtom 
+                 ( AtomDict , GCurrentTok . TrText , Ghash ) 
+        END (*IF*) 
+      ; RETURN 
       END DeliverTok 
-
+(*
   ; PROCEDURE AppendAndDeliverTok ( Tok : LbeStd . TokTyp ) 
     RAISES { Backout } 
 
@@ -255,6 +263,7 @@ MODULE RM3canner
       ; INC ( Pos ) 
       ; DeliverTok ( Tok ) 
       END AppendAndDeliverTok 
+*)
 
   ; PROCEDURE NextChar ( ) 
     RAISES { Backout } 
@@ -274,19 +283,19 @@ MODULE RM3canner
           LCh2 := UnsafeUniRd . FastGetWideCh ( GUniRd ) 
         ; IF LCh2 = LF 
           THEN INC ( GCharPos )
-          (* Leave GWCh = CR, as a cononical new line. *)
+          (* Leave GWCh = CR.  It'a cononical new line. *)
           ELSE UnsafeUniRd . FastUnGetWideCodePoint ( GUnird ) 
           END (* IF *) 
         ELSIF GWCh IN  SET OF CHAR { LF , FF , VT , NEL } 
               OR GWCh = WPS 
               OR GWCh = WLS
         THEN  
-          GWCh := CR   
+          GWCh := CR (* Canonical new line. *) 
         END (* IF *) 
-
-
-        Strings . AppendCharInPlace ( TokString , Ch ) 
-
+      ; IF GTokStringWr # NIL 
+        THEN 
+          Wr . PutWideChar ( GTokStringWr , GWCh ) 
+        END (* IF *) 
       END NextChar 
 
   ; PROCEDURE LexErrorChars ( Code : LbeStd . ErrCodeTyp ) 
@@ -836,8 +845,8 @@ MODULE RM3canner
       END (* TRY EXCEPT *) 
     END Scan 
 
-; BEGIN (* RM3Scanner *) 
+; BEGIN (* FM3Scanner *) 
     InitTables ( ) 
   ; LangUtil . RegisterScanner ( LbeStd . LangM3 , Scan ) 
-  END R3Scanner 
+  END FM3Scanner 
 . 

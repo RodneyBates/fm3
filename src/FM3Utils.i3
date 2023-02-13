@@ -6,23 +6,18 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-INTERFACE FM3Scanner
+INTERFACE FM3Utils
 
-; IMPORT FM3SrcToks 
-; IMPORT FM3Base 
+; TYPE HashTyp = LONGINT 
 
-; TYPE TokRecTyp
-  = RECORD
-      TrHash : FM3Utils . HashTyp
-    ; TrLineNo : INTEGER := 0 
-    ; TrCharPos : INTEGER := 0 
-    ; TrTok : Tok : FM3Base . TokTyp := FM3Base . TokNull  
-    ; TrText   : TEXT := "" 
-    END (* TokRecTyp *)
+; PROCEDURE HashOfText ( Key : TEXT ) : HashTyp 
 
-; VAR GCurrentTok : TokRecTyp 
+; PROCEDURE GroundHash ( ) : HashTyp  
 
-; PROCEDURE Scan ( Cr : SchutzCoroutine . T ) 
+; PROCEDURE ContributeToHash ( OldHash , Contribution : HashTyp ) : HashTyp
+  (* A value of GroundHash(), altered by a series of ContributeToHash
+     calls is a hash of the contributions.  Assume the order of the
+     contributions affects the hash value. *) 
 
-; END FM3Scanner 
-. 
+; END FM3Utils
+.

@@ -6,23 +6,11 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-INTERFACE FM3Scanner
+INTERFACE FM3Base 
+(* Widely used stuff for FM3. *) 
 
-; IMPORT FM3SrcToks 
-; IMPORT FM3Base 
+; TYPE TokTyp = INTEGER
+; CONST TokNull = FIRST ( INTEGER )
 
-; TYPE TokRecTyp
-  = RECORD
-      TrHash : FM3Utils . HashTyp
-    ; TrLineNo : INTEGER := 0 
-    ; TrCharPos : INTEGER := 0 
-    ; TrTok : Tok : FM3Base . TokTyp := FM3Base . TokNull  
-    ; TrText   : TEXT := "" 
-    END (* TokRecTyp *)
-
-; VAR GCurrentTok : TokRecTyp 
-
-; PROCEDURE Scan ( Cr : SchutzCoroutine . T ) 
-
-; END FM3Scanner 
-. 
+; END FM3Base
+.

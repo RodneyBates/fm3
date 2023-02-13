@@ -6,23 +6,25 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-INTERFACE FM3Scanner
+INTERFACE FM3TextDict
 
-; IMPORT FM3SrcToks 
 ; IMPORT FM3Base 
 
-; TYPE TokRecTyp
-  = RECORD
-      TrHash : FM3Utils . HashTyp
-    ; TrLineNo : INTEGER := 0 
-    ; TrCharPos : INTEGER := 0 
-    ; TrTok : Tok : FM3Base . TokTyp := FM3Base . TokNull  
-    ; TrText   : TEXT := "" 
-    END (* TokRecTyp *)
+; TYPE T <: REFANY
 
-; VAR GCurrentTok : TokRecTyp 
+; TYPE KeyTyp = TEXT
+; TYPE ValType = INTEGER 
 
-; PROCEDURE Scan ( Cr : SchutzCoroutine . T ) 
+; PROCEDURE NewFixed ( Size : INTEGER ) T  
 
-; END FM3Scanner 
-. 
+; PROCEDURE NewGrowable ( Size : INTEGER ) T
+
+; PROCEDURE Lookup ( Key : KeyTyp ; Hash : FM3Base . HashTyp ) : ValTyp
+  (* If NIL, this procedure will compute it internally.  Otherwise,
+     it must match Key, as computed by FM3Utils.TextHash. *)  
+
+; PROCEDURE MakeAtom ( Key : KeyTyp ; Hash : FM3Base . HashTyp ) : ValTyp  
+
+; END FM3TextDict
+.
+

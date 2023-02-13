@@ -6,23 +6,19 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-INTERFACE FM3Scanner
+MODULE FM3Globals
 
-; IMPORT FM3SrcToks 
-; IMPORT FM3Base 
+; IMPORT FM3TextDict 
 
-; TYPE TokRecTyp
-  = RECORD
-      TrHash : FM3Utils . HashTyp
-    ; TrLineNo : INTEGER := 0 
-    ; TrCharPos : INTEGER := 0 
-    ; TrTok : Tok : FM3Base . TokTyp := FM3Base . TokNull  
-    ; TrText   : TEXT := "" 
-    END (* TokRecTyp *)
+; PROCEDURE Init ( )
 
-; VAR GCurrentTok : TokRecTyp 
+  = BEGIN
+      IdentDict := FM3TextDict . NewGrowable ( IdentDictSize ) 
+    ; TextDict : FM3Dict . . NewGrowable ( TextDictSize ) 
+    ; TextValDict : FM3Dict . . NewGrowable ( TextValSize ) 
+    END Init
 
-; PROCEDURE Scan ( Cr : SchutzCoroutine . T ) 
-
-; END FM3Scanner 
-. 
+; BEGIN
+    Init ( ) 
+  END FM3Globals
+.
