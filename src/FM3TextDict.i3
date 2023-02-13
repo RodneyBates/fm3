@@ -13,18 +13,50 @@ INTERFACE FM3TextDict
 ; TYPE T <: REFANY
 
 ; TYPE KeyTyp = TEXT
-; TYPE ValType = INTEGER 
+; TYPE ValTyp = INTEGER 
 
-; PROCEDURE NewFixed ( Size : INTEGER ) T  
+(* Sizes are count of Key-value pairs.  Any extra space needed by
+   the internal data structure will be added internally. *)
 
-; PROCEDURE NewGrowable ( Size : INTEGER ) T
+; PROCEDURE NewFixed ( MaxSize : INTEGER ; TwoPhase : BOOLEAN ) T
+  (* Will not cater to growth beyond MaxSize Key-value pairs. *)
+  (* If TwoPhase, all calls on either Insert or MakeAtom must precede
+     a single call on Finalize, before any calls on Lookup. *)
+  
+; PROCEDURE PhaseTwo ( Dict : T ) 
 
-; PROCEDURE Lookup ( Key : KeyTyp ; Hash : FM3Base . HashTyp ) : ValTyp
-  (* If NIL, this procedure will compute it internally.  Otherwise,
-     it must match Key, as computed by FM3Utils.TextHash. *)  
+; PROCEDURE NewGrowable ( InitSize : INTEGER ) T
+  (* InitSize is an initial Key-value pair estimate.  Will auto-expand
+     beyond this, if necessary. *) 
 
-; PROCEDURE MakeAtom ( Key : KeyTyp ; Hash : FM3Base . HashTyp ) : ValTyp  
+(* All Key-Hash pairs below must match, as as computed by FM3Utils.TextHash *)
 
-; END FM3TextDict
+; PROCEDURE Insert
+    ( Dict : T
+    ; Key : KeyTyp
+    ; Hash : FM3Base . HashTyp
+    ; Value : ValTyp
+    )
+  (* Using the value given.  Change the value, if already present. *) 
+
+; PROCEDURE MakeAtom
+    ( Dict : T
+    ; Key : KeyTyp
+    ; Hash : FM3Base . HashTyp
+    ; VAR NextAtom : ValType
+    )
+  : ValTyp
+  (* If Key is absent, assign a new atom value, post-incrementing NextAtom,
+     and add the pair.  Either way, return the atom now associated with Key. *)
+
+; PROCEDURE Lookup
+    ( Dict : T
+    ; Key : KeyTyp
+    ; Hash : FM3Base . HashTyp
+    ; VAR (*OUT*) Val ValTyp
+    )
+  : BOOLEAN (* Was found. *)
+
+; END FM3TextDict 
 .
 

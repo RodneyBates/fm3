@@ -10,6 +10,7 @@ INTERFACE FM3Globals
 
 ; IMPORT FM3TextDict 
 
+; VAR RwDict : FM3Dict . T 
 ; VAR IdentDict : FM3Dict . T 
 ; VAR TextDict : FM3Dict . T (* TEXT literals, as in source code. *)  
 ; VAR TextValDict : FM3Dict . T (* Internal text values *)

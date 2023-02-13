@@ -37,6 +37,8 @@ MODULE FM3canner
 ; CONST WPS =  W'\x2029'  
 (* Also CR immediately followed by LF *)  
 
+; CONST WideLastOfChar : WIDECHAR := LAST ( CHAR ) 
+
 ; CONST GoodChars 
     = SET OF CHAR 
         { LbeStd . CharEndOfImage , LbeStd . CharNewLine , ' ' , '.' , ':' 
@@ -87,9 +89,10 @@ MODULE FM3canner
 ; VAR GCharPos : INTEGER 
 ; VAR GTokStringWr := Wr . T 
 ; VAR GWCh : WIDECHAR 
+; VAR GCh : CHAR 
 
 (* EXPORTED: *) 
-; PROCEDURE PushReader ( NewUniRd : UniRd . T ; UnitNo : INTEGER ) 
+; PROCEDURE PushState ( NewUniRd : UniRd . T ; UnitNo : INTEGER ) 
   (* PRE: NewUniRd is open and ready to be read. but not locked. *) 
 
   = VAR LScanStateRef : ScanStateRefTyp 
@@ -100,6 +103,7 @@ MODULE FM3canner
     ; GTopScanStateRef . SsCharPos := GCharPos  
     ; GTopScanStateRef . SsTokStringWr := GTokStringWr  
     ; GTopScanStateRef . SsWCh := GWCh 
+    ; GTopScanStateRef . SsCh := GCh 
     ; GTopScanStateRef . Ss := GHash  
     ; LScanStateRef := NEW ( ScanStateRefTyp ) 
     ; LScanStateRef ^ . SsLink := GTopScanStateRef 
@@ -113,14 +117,15 @@ MODULE FM3canner
     ; GTopScanStateRef := LScanStateRef 
     ; GUniRd := NewUniRd 
     ; GWCh := UnsafeUniRd ( GUniRd ) 
-    ; GTopScanStateRef . GWCh := GWCh
+    ; GTopScanStateRef . GWCh := GWCh 
+    ; GCh := MIN ( GWCh , WideLastOfChar )  
     ; INC ( GScanStateCt ) 
     ; INC ( GScanStateDepth ) 
     ; GMaxScanStateDepth := MAX ( GMaxScanStateDepth , GScanStateDepth ) 
-    END PushReader 
+    END PushState 
 
 (* EXPORTED: *) 
-; PROCEDURE PopReader ( ) : UniRd . T (* Previous reader. *)  
+; PROCEDURE PopState ( ) : UniRd . T (* Previous reader. *)  
 
   = VAR LScanStateRef : ScanStateRefTyp 
 
@@ -133,11 +138,12 @@ MODULE FM3canner
     ; GTokStringWr := GTopScanStateRef . SsTokStringWr 
     ; GHash := GTopScanStateRef . SsHash 
     ; GWCh := GTopScanStateRef . SsWCh 
+    ; GCh := GTopScanStateRef . SsCh 
     ; UniRd . Close ( LScanStateRef . SsUniRd )  
     ; Thread . Release ( LScanStateRef . SsUniRd ) 
     ; DEC ( GScanStateDepth ) 
     ; RETURN LScanStateRef 
-    END PopReader 
+    END PopState 
 
 (* EXPORTED: *) 
 ; PROCEDURE CurrentUnitNo ( ) : INTEGER 
@@ -221,21 +227,29 @@ MODULE FM3canner
            Fortunately, it is harmless to call it multiple times 
            without incrementing Pos. *) 
 
-  ; PROCEDURE BegOfTok 
-      ( Tok : FM3Base . TokTyp := FM3Base . TokNull ; DoText := FALSE ) 
+  ; PROCEDURE BegOfTok ( Tok : FM3Base . TokTyp := FM3Base . TokNull ) 
     RAISES { Backout } 
 
     = BEGIN (* BegOfTok *) 
         GCurrentTok . TrTok := Tok 
       ; GCurrentTok . TrLineNo := GLineNo 
       ; GCurrentTok . TrCharPos := GCharPos 
-      ; IF DoText 
-        THEN GTokStringWr := TextWr . T 
-        ELSE GTokStringWr := NIL 
-        END (*IF*)
+      ; GTokStringWr := NIL 
       END BegOfTok 
 
-  ; PROCEDURE DeliverTok 
+  ; PROCEDURE BegOfTextTok 
+      ( Tok : FM3Base . TokTyp := FM3Base . TokNull ) 
+    RAISES { Backout } 
+
+    = BEGIN (* BegOfTextTok *) 
+        GCurrentTok . TrTok := Tok 
+      ; GCurrentTok . TrLineNo := GLineNo 
+      ; GCurrentTok . TrCharPos := GCharPos 
+      ; GTokStringWr := TextWr . T 
+      ; GHash := FM3Util . HashGround ( ) 
+      END BegOfTextTok 
+
+  ; PROCEDURE FinishTok 
       ( Tok : LbeStd . TokTyp ; AtomDict : FM3TextDict . T  ) 
     RAISES { Backout } 
 
@@ -252,7 +266,25 @@ MODULE FM3canner
             := FM3TextDict . MakeAtom 
                  ( AtomDict , GCurrentTok . TrText , Ghash ) 
         END (*IF*) 
-      ; RETURN 
+      END FinishTok 
+
+  ; PROCEDURE FinishAtomTok ( AtomDict : FM3TextDict . T ) 
+    RAISES { Backout } 
+
+    = BEGIN (* FinishAtomTok *) 
+        GCurrentTok . TrText := TextWr . ToText ( GTokStringWr ) 
+      ; GCurrentTok . TrHash := GHash 
+      ; GCurrentTok . TrAtom 
+          := FM3TextDict . MakeAtom 
+               ( AtomDict , GCurrentTok . TrText , Ghash ) 
+      END FinishAtomTok 
+
+  ; PROCEDURE DeliverTok 
+      ( Tok : LbeStd . TokTyp ; AtomDict : FM3TextDict . T  ) 
+    RAISES { Backout } 
+
+    = BEGIN (* DeliverTok *) 
+        RETURN 
       END DeliverTok 
 (*
   ; PROCEDURE AppendAndDeliverTok ( Tok : LbeStd . TokTyp ) 
@@ -271,26 +303,28 @@ MODULE FM3canner
     = VAR LWCh : WIDECHAR 
 
     ; BEGIN (* NextChar *) 
-        IF GWCh = CR 
+        IF GCh = CR 
         THEN 
           INC ( GLineNo ) 
         ; GCharPos := 0 
         END (* IF *) 
       ; GWCh := UnsafeUniRd . GetWideCh ( ) 
+      ; GCh := MIN ( GWCh , WideLastOfChar )  
       ; INC ( GCharPos )
-      ; IF GWCh = CR 
+      ; IF GCh = CR 
         THEN 
           LCh2 := UnsafeUniRd . FastGetWideCh ( GUniRd ) 
         ; IF LCh2 = LF 
           THEN INC ( GCharPos )
-          (* Leave GWCh = CR.  It'a cononical new line. *)
+          (* Leave GCh and GWCh = CR.  It'a cononical new line. *)
           ELSE UnsafeUniRd . FastUnGetWideCodePoint ( GUnird ) 
           END (* IF *) 
-        ELSIF GWCh IN  SET OF CHAR { LF , FF , VT , NEL } 
+        ELSIF GCh IN  SET OF CHAR { LF , FF , VT , NEL } 
               OR GWCh = WPS 
               OR GWCh = WLS
         THEN  
           GWCh := CR (* Canonical new line. *) 
+        ; GCh := CR 
         END (* IF *) 
       ; IF GTokStringWr # NIL 
         THEN 
@@ -312,19 +346,23 @@ MODULE FM3canner
   ; PROCEDURE Ident ( ) 
     RAISES { Backout } 
 
-    = VAR LIntTok : INTEGER 
+    = VAR LRwTok : FM3Base . TokTyp 
+    ; VAR LIsRw : BOOLEAN 
 
     ; BEGIN (* Ident *) 
-        BegOfTok ( ) 
-      ; WHILE Ch 
+        BegOfTextTok ( ) 
+      ; WHILE GCh 
               IN SET OF CHAR { 'a' .. 'z' , 'A' .. 'Z' , '_' , '0' .. '9' } 
         DO NextChar ( ) 
         END (* WHILE *) 
-      ; IF RwTable . get ( Strings . ToText ( TokString ) , LIntTok ) 
-        THEN 
-          DeliverTok ( LIntTok ) 
-        ELSE 
-          DeliverTok ( M3Tok . Id ) 
+      ; GCurrentTok . TrText := TextWr . ToText ( GTokStringWr ) 
+      ; GCurrentTok . TrHash := GHash 
+      ; LIsRw 
+          := FM3TextDict . Lookup 
+               ( FM3Globals . RwDict , GText , GHash , LRwTok ) 
+      ; IF LIsRw 
+        THEN GCurrentTok . TrTok := LRwTok 
+        ELSE GCurrentTok . TrTok := FM3Tok . Id 
         END (* IF *) 
       END Ident 
 
@@ -333,11 +371,12 @@ MODULE FM3canner
 
     = VAR LIntTok : INTEGER 
 
-    ; BEGIN (* Ident *) 
-        BegOfTok ( ) 
+    ; BEGIN (* Placeholder *) 
+        BegOfTextTok ( ) 
       ; NextChar ( ) 
-      ; WHILE Ch 
-              IN SET OF CHAR { 'a' .. 'z' , 'A' .. 'Z' , '_' , '0' .. '9' } 
+      ; WHILE GWCh >= LAST ( CHAR ) 
+              AND GWCh 
+                  IN SET OF CHAR { 'a' .. 'z' , 'A' .. 'Z' , '_' , '0' .. '9' } 
         DO NextChar ( ) 
         END (* WHILE *)
       ; IF Ch = LbeStd . RightPlaceholderDelimChar 
@@ -361,33 +400,33 @@ MODULE FM3canner
     RAISES { Backout } 
 
     = BEGIN (* Number *) 
-        BegOfTok ( ) 
-      ; WHILE Ch IN SET OF CHAR { '0' .. '9' } 
+        BegOfTextTok ( FM3Tok . Number , DoText := TRUE ) 
+      ; WHILE GCh IN SET OF CHAR { '0' .. '9' } 
         DO NextChar ( ) 
         END (* WHILE *)
-      ; CASE Ch
+      ; CASE GCh
         OF '_' 
         => NextChar ( ) 
-        ; IF Ch IN SET OF CHAR { '0' .. '9' , 'A' .. 'F' , 'a' .. 'f' } 
+        ; IF GCh IN SET OF CHAR { '0' .. '9' , 'A' .. 'F' , 'a' .. 'f' } 
           THEN 
-            WHILE Ch IN SET OF CHAR { '0' .. '9' , 'A' .. 'F' , 'a' .. 'f' } 
+            WHILE GCh IN SET OF CHAR { '0' .. '9' , 'A' .. 'F' , 'a' .. 'f' } 
             DO NextChar ( ) 
             END (* WHILE *) 
           ELSE 
             ScannerIf . LexErr ( Sif , LbeStd . LeNoHexDigit ) 
           END (* IF *) 
-        ; DeliverTok ( M3Tok . Number ) 
-        ; RETURN 
+        ; GCurrentTok . TrTok := FM3Tok . Number 
+        ; FinishAtomTok ( M3Tok . Number ) 
+
         | '.' 
         => INC ( Pos ) 
-        ; EnsureOneChar ( ) 
-        ; IF Ch = '.' 
-          THEN PutBackChar ( '.' ) 
+        ; NextChar ( ) 
+        ; IF GCh = '.' 
+          THEN PutBackChar ( ) 
           ELSE
-            Strings . AppendCharInPlace ( TokString , '.' ) 
-          ; IF Ch IN SET OF CHAR { '0' .. '9' } 
+            IF GCh IN SET OF CHAR { '0' .. '9' } 
             THEN 
-              WHILE Ch IN SET OF CHAR { '0' .. '9' } 
+              WHILE GCh IN SET OF CHAR { '0' .. '9' } 
               DO NextChar ( ) 
               END (* WHILE *) 
             ELSE 
@@ -395,60 +434,61 @@ MODULE FM3canner
             END (* IF *) 
           END (* IF *) 
         ELSE 
-        END  
-      ; CASE Ch
-        OF 'E' , 'e' , 'D' , 'd' , 'X' , 'x'  
+        END (*CASE*)  
+      ; IF GCh
+           IN SET OF CHAR { 'E' , 'e' , 'D' , 'd' , 'X' , 'x' }  
         => NextChar ( ) 
-        ; CASE Ch 
-          OF '+' , '-' 
-          => NextChar ( ) 
-          ELSE 
-          END 
-        ; IF  Ch IN SET OF CHAR { '0' .. '9' } 
+        ; IF GChIN SET OF CHAR { '+' , '-' }  
+          THE  NextChar ( ) 
+          END (* IF *) 
+        ; IF GCh IN SET OF CHAR { '0' .. '9' } 
           THEN 
-            WHILE Ch IN SET OF CHAR { '0' .. '9' } 
+            WHILE GCh IN SET OF CHAR { '0' .. '9' } 
             DO NextChar ( ) 
-            END (* WHILE *)
+            END (*WHILE*)
           ELSE 
             ScannerIf . LexErr ( Sif , LbeStd . LeNoExponentDigit ) 
           END (* IF *) 
         ELSE 
         END  
-      ; DeliverTok ( M3Tok . Number ) 
+      ; GCurrentTok . TrText := TextWr . ToText ( GTokStringWr ) 
+      ; GCurrentTok . TrHash := GHash 
+      ; GCurrentTok . TrTok := FM3Tok . Number  
       END Number 
 
   ; PROCEDURE String ( ) 
     RAISES { Backout } 
 
-    = VAR LCount : PortTypes . Int32Typ 
+    = VAR LCount : INTEGER 
 
     ; BEGIN (* String *) 
-        BegOfTok ( ) 
+        BegOfTextTok ( ) 
       ; NextChar ( ) (* Consume the opening quote. *) 
       ; LOOP 
-          CASE Ch 
-          OF LbeStd . CharEndOfImage , LbeStd . CharNewLine 
+          CASE GCh 
+          OF CR , EOI 
           => ScannerIf . LexErr ( Sif , LbeStd . LeUnclosedString ) 
-          ; Strings . AppendCharInPlace ( TokString , '"' ) 
-          ; DeliverTok ( M3Tok . TextLit ) 
+          ; Wr . PutChar ( GTokStringWr  , '"' ) 
+          ; GCurrentTok . Tok := FM3Tok . TextLit  
           ; EXIT 
 
           | '"' 
-          => AppendAndDeliverTok ( M3Tok . TextLit ) 
+          => Wr . PutChar ( GTokStringWr , GCh ) 
+          ; GCurrentTok . Tok := FM3Tok . TextLit 
           ; EXIT 
 
           | '\\' 
           => NextChar ( ) 
-          ; CASE Ch 
+          ; CASE GCh 
             OF LbeStd . CharEndOfImage , LbeStd . CharNewLine 
             => ScannerIf . LexErr ( Sif , LbeStd . LeUnclosedString ) 
-            ; Strings . AppendCharInPlace ( TokString , '"' ) 
-            ; DeliverTok ( M3Tok . TextLit ) 
+            ; Wr . PutChar ( GTokStringWr  , '"' ) 
+            ; GCurrentTok . Tok := FM3Tok . TextLit  
             ; EXIT 
 
             | '0' .. '7' 
             => LCount := 3 
-            ; WHILE LCount > 0 AND Ch IN SET OF CHAR { '0' .. '7' } 
+            ; WHILE LCount > 0 AND GCh IN SET OF CHAR { '0' .. '7' } 
               DO NextChar ( ) 
               ; DEC ( LCount ) 
               END (* WHILE *) 
@@ -462,7 +502,7 @@ MODULE FM3canner
 
             ELSE 
               NextChar ( ) (* For now, just allow anything to be escaped. *) 
-            END (* CASE *) 
+            END (*CASE*) 
 
           ELSE 
             NextChar ( ) 
@@ -476,27 +516,27 @@ MODULE FM3canner
     = VAR LCount : PortTypes . Int32Typ 
 
     ; BEGIN (* CharLit *) 
-        BegOfTok ( ) 
+        BegOfTextTok ( ) 
       ; NextChar ( ) (* Consume the opening quote. *) 
-      ; CASE Ch 
+      ; CASE GCh 
         OF LbeStd . CharEndOfImage , LbeStd . CharNewLine 
         => ScannerIf . LexErr ( Sif , LbeStd . LeUnclosedChar ) 
-        ; Strings . AppendCharInPlace ( TokString , '\'' ) 
-        ; DeliverTok ( M3Tok . CharLit ) 
+        ; Wr . PutChar ( GTokStringWr  , '\'' ) 
+        ; GCurrentTok . Tok := FM3Tok . CharLit 
         ; RETURN 
 
         | '\\' 
         => NextChar ( ) 
-        ; CASE Ch 
+        ; CASE GCh 
           OF LbeStd . CharEndOfImage , LbeStd . CharNewLine 
           => ScannerIf . LexErr ( Sif , LbeStd . LeUnclosedChar ) 
-          ; Strings . AppendCharInPlace ( TokString , '\'' ) 
-          ; DeliverTok ( M3Tok . CharLit )
+          ; Wr . PutChar ( GTokStringWr  , '\'' ) 
+          ; GCurrentTok . Tok := FM3Tok . CharLit 
           ; RETURN  
 
           | '0' .. '7' 
           => LCount := 3 
-          ; WHILE LCount > 0 AND Ch IN SET OF CHAR { '0' .. '7' } 
+          ; WHILE LCount > 0 AND GCh IN SET OF CHAR { '0' .. '7' } 
             DO NextChar ( ) 
             ; DEC ( LCount ) 
             END (* WHILE *) 
@@ -515,13 +555,13 @@ MODULE FM3canner
         ELSE 
           NextChar ( ) 
         END (* CASE *) 
-      ; IF Ch = '\'' 
+      ; IF GCh = '\'' 
         THEN  
           NextChar ( ) 
         ELSE 
-          Strings . AppendCharInPlace ( TokString , '\'' ) 
+          Wr . PutChar ( GTokStringWr  , '\'' ) 
         END (* IF *) 
-      ; DeliverTok ( M3Tok . CharLit ) 
+      ; GCurrentTok . Tok := FM3Tok . CharLit  
       END CharLit 
 
   ; PROCEDURE CommentSuffix ( ) 
@@ -533,41 +573,41 @@ MODULE FM3canner
       ; LOOP (* Thru chars in comment *) 
           (* INVARIANT: EnsureOneChar ( ) has been done since the last 
                         INC ( Pos ) *) 
-          CASE Ch 
+          CASE GCh 
           OF LbeStd . CharEndOfImage 
           => State := SaveState 
           ; INC ( Pos )  (* Consume the Char, but do not append to token. *) 
-          ; DeliverTok ( LbeStd . Tok__CmntAtEndOfLine , TRUE )
+          ; GCurrentTok . Tok := FLbeStd . Tok__CmntAtEndOfLine , TRUE )
           ; EXIT 
           | LbeStd . CharNewLine 
           => State := SaveState 
           ; INC ( Pos )  (* Consume the Char, but do not append to token. *) 
-          ; DeliverTok ( LbeStd . Tok__CmntAtEndOfLine , FALSE )
+          ; GCurrentTok . Tok := FLbeStd . Tok__CmntAtEndOfLine , FALSE )
           ; EXIT 
           | '(' 
-          => Strings . AppendCharInPlace ( TokString , '(' ) 
+          => Wr . PutChar ( GTokStringWr  , '(' ) 
           ; INC ( Pos ) 
           ; EnsureOneChar ( ) 
-          ; IF Ch = '*' 
+          ; IF GCh = '*' 
             THEN 
-              Strings . AppendCharInPlace ( TokString , '*' ) 
+              Wr . PutChar ( GTokStringWr  , '*' ) 
             ; INC ( SaveState , 2 ) 
             ; INC ( Pos ) 
             ; EnsureOneChar ( ) 
             END (* IF *) 
 
           | '*' 
-          => Strings . AppendCharInPlace ( TokString , '*' ) 
+          => Wr . PutChar ( GTokStringWr  , '*' ) 
           ; INC ( Pos ) 
           ; EnsureOneChar ( ) 
-          ; IF Ch = ')' 
+          ; IF GCh = ')' 
             THEN 
-              Strings . AppendCharInPlace ( TokString , ')' ) 
+              Wr . PutChar ( GTokStringWr  , ')' ) 
             ; INC ( Pos ) 
             ; IF SaveState = LbeStd . SsInCmnt 
               THEN 
                 State := SaveState 
-              ; DeliverTok ( LbeStd . Tok__Cmnt ) 
+              ; GCurrentTok . Tok := FLbeStd . Tok__Cmnt  
               ; EXIT 
               ELSE 
                 DEC ( SaveState , 2 ) 
@@ -575,7 +615,7 @@ MODULE FM3canner
               END (* IF *) 
             END (* IF *) 
           ELSE 
-            Strings . AppendCharInPlace ( TokString , Ch ) 
+            Wr . PutChar ( GTokStringWr  , GCh ) 
           ; INC ( Pos ) 
           ; EnsureOneChar ( ) 
           END (* CASE *) 
@@ -591,41 +631,41 @@ MODULE FM3canner
       ; LOOP (* Thru chars in comment *) 
           (* INVARIANT: EnsureOneChar ( ) has been done since the last 
                         INC ( Pos ) *) 
-          CASE Ch 
+          CASE GCh 
           OF LbeStd . CharEndOfImage 
           => State := SaveState 
           ; INC ( Pos )  (* Consume the Nl, but do not append to token. *) 
-          ; DeliverTok ( LbeStd . Tok__CmntAtEndOfLine , TRUE )
+          ; GCurrentTok . Tok := FLbeStd . Tok__CmntAtEndOfLine , TRUE 
           ; EXIT 
           | LbeStd . CharNewLine 
           => State := SaveState 
           ; INC ( Pos )  (* Consume the Nl, but do not append to token. *) 
-          ; DeliverTok ( LbeStd . Tok__CmntAtEndOfLine , FALSE )
+          ; GCurrentTok . Tok := FLbeStd . Tok__CmntAtEndOfLine , FALSE 
           ; EXIT 
           | '<' 
-          => Strings . AppendCharInPlace ( TokString , '<' ) 
+          => Wr . PutChar ( GTokStringWr  , '<' ) 
           ; INC ( Pos ) 
           ; EnsureOneChar ( ) 
-          ; IF Ch = '*' 
+          ; IF GCh = '*' 
             THEN 
-              Strings . AppendCharInPlace ( TokString , '*' ) 
+              Wr . PutChar ( GTokStringWr  , '*' ) 
             ; INC ( SaveState , 2 ) 
             ; INC ( Pos ) 
             ; EnsureOneChar ( ) 
             END (* IF *) 
 
           | '*' 
-          => Strings . AppendCharInPlace ( TokString , '*' ) 
+          => Wr . PutChar ( GTokStringWr  , '*' ) 
           ; INC ( Pos ) 
           ; EnsureOneChar ( ) 
-          ; IF Ch = '>' 
+          ; IF GCh = '>' 
             THEN 
-              Strings . AppendCharInPlace ( TokString , '>' ) 
+              Wr . PutChar ( GTokStringWr  , '>' ) 
             ; INC ( Pos ) 
             ; IF SaveState = LbeStd . SsInCmnt + 1 
               THEN 
                 State := SaveState 
-              ; DeliverTok ( LbeStd . Tok__Cmnt ) 
+              ; GCurrentTok . Tok := FLbeStd . Tok__Cmnt  
               ; EXIT 
               ELSE 
                 DEC ( SaveState , 2 ) 
@@ -633,7 +673,7 @@ MODULE FM3canner
               END (* IF *) 
             END (* IF *) 
           ELSE 
-            Strings . AppendCharInPlace ( TokString , Ch ) 
+            Wr . PutChar ( GTokStringWr  , GCh ) 
           ; INC ( Pos ) 
           ; EnsureOneChar ( ) 
           END (* CASE *) 
@@ -655,12 +695,12 @@ MODULE FM3canner
       ; LOOP (* Through tokens, not necessarily successive ones. *) 
           (* (Non-)INVARIANT: EnsureOneChar has not necessarily been done. *) 
           EnsureOneChar ( ) 
-        ; IF Ch = LbeStd . CharNewLine 
+        ; IF GCh = LbeStd . CharNewLine 
           THEN 
             INC ( Pos )   
           ELSIF State >= LbeStd . SsInCmnt 
           THEN 
-            BegOfTok ( ) 
+            BegOfTextTok ( ) 
           ; IF ( ( State - LbeStd . SsInCmnt ) MOD 2 ) = 0 
             THEN 
               CommentSuffix ( ) 
@@ -671,12 +711,12 @@ MODULE FM3canner
           THEN 
             CantHappen ( AFT . A_M3Scanner_Scan_StateInToken ) 
           ELSE (* State = LbeStd . SsIdle *) 
-            CASE Ch 
+            CASE GCh 
             OF ' ' , LbeStd . CharNewLine , LbeStd . CharTab 
             => INC ( Pos ) 
             | LbeStd . CharEndOfImage 
-            => BegOfTok ( ) 
-            ; DeliverTok ( LbeStd . Tok__EndOfImage ) 
+            => BegOfTextTok ( ) 
+            ; GCurrentTok . Tok := FLbeStd . Tok__EndOfImage  
             | 'a' .. 'z' , 'A' .. 'Z'   
             => Ident ( )
 
@@ -694,143 +734,141 @@ MODULE FM3canner
 
             | '(' 
             => BegOfTok ( ) 
-            ; Strings . AppendCharInPlace ( TokString , Ch ) 
             ; INC ( Pos ) 
             ; State := LbeStd . SsInTok 
             ; EnsureOneChar ( ) 
-            ; IF Ch = '*' 
+            ; IF GCh = '*' 
               THEN 
-                Strings . AppendCharInPlace ( TokString , Ch ) 
+                BegOfTextTok ( ) 
+              ; Wr . PutChar ( GTokStringWr  , '(' ) 
+              ; Wr . PutChar ( GTokStringWr  , '*' ) 
               ; INC ( Pos ) 
               ; EnsureOneChar ( ) 
               ; State := LbeStd . SsInCmnt 
               ; CommentSuffix ( ) 
               ELSE 
-                DeliverTok ( M3Tok . OpenParen_Tok ) 
+                BegOfTok ( )
+              ; GCurrentTok . Tok := FM3Tok . OpenParen_Tok  
               END (* IF *) 
 
             | '<' 
             => BegOfTok ( ) 
-            ; Strings . AppendCharInPlace ( TokString , Ch ) 
             ; INC ( Pos ) 
-            ; State := LbeStd . SsInTok 
             ; EnsureOneChar ( ) 
-            ; CASE Ch 
+            ; CASE GCh 
               OF  '=' 
-              => AppendAndDeliverTok ( M3Tok . LessEqual_Tok ) 
+              => BegOfTok ( ) 
+              ; GCurrentTok . Tok := FM3Tok . LessEqual_Tok  
               |  ':' 
-              => AppendAndDeliverTok ( M3Tok . Subtype_Tok ) 
+              => BegOfTok ( )
+              ; GCurrentTok . Tok := FM3Tok . Subtype_Tok  
               |  '*' 
-              => Strings . AppendCharInPlace ( TokString , Ch ) 
+              => BegOfTextTok ( )
               ; INC ( Pos ) 
               ; EnsureOneChar ( ) 
-              ; State := LbeStd . SsInCmnt + 1  
               ; PragmaSuffix ( ) 
               ELSE 
-                DeliverTok ( M3Tok . Less_Tok ) 
+                GCurrentTok . Tok := FM3Tok . Less_Tok  
               END (* CASE *) 
 
             | ':' 
             => BegOfTok ( ) 
-            ; Strings . AppendCharInPlace ( TokString , Ch ) 
             ; INC ( Pos ) 
-            ; State := LbeStd . SsInTok 
             ; EnsureOneChar ( ) 
-            ; IF Ch = '=' 
-              THEN 
-                AppendAndDeliverTok ( M3Tok . Becomes_Tok ) 
-              ELSE 
-                DeliverTok ( M3Tok . Colon_Tok ) 
+            ; IF GCh = '=' 
+              THEN GCurrentTok . Tok := FM3Tok . Becomes_Tok  
+              ELSE GCurrentTok . Tok := FM3Tok . Colon_Tok  
               END (* IF *) 
 
             | '.' 
             => BegOfTok ( ) 
-            ; Strings . AppendCharInPlace ( TokString , Ch ) 
             ; INC ( Pos ) 
-            ; State := LbeStd . SsInTok 
             ; EnsureOneChar ( ) 
-            ; IF Ch = '.' 
-              THEN 
-                AppendAndDeliverTok ( M3Tok . Ellipsis_Tok ) 
-              ELSE 
-                DeliverTok ( M3Tok . Dot_Tok ) 
+            ; IF GCh = '.' 
+              THEN GCurrentTok . Tok := FM3Tok . Ellipsis_Tok  
+              ELSE GCurrentTok . Tok := FM3Tok . Dot_Tok 
               END (* IF *) 
 
             | '=' 
             => BegOfTok ( ) 
-            ; Strings . AppendCharInPlace ( TokString , Ch ) 
             ; INC ( Pos ) 
-            ; State := LbeStd . SsInTok 
             ; EnsureOneChar ( ) 
-            ; IF Ch = '>' 
-              THEN 
-                AppendAndDeliverTok ( M3Tok . Arrow_Tok ) 
-              ELSE 
-                DeliverTok ( M3Tok . Equal_Tok ) 
+            ; IF GCh = '>' 
+              THEN GCurrentTok . Tok := FM3Tok . Arrow_Tok 
+              ELSE GCurrentTok . Tok := FM3Tok . Equal_Tok  
               END (* IF *) 
 
             | '>' 
             => BegOfTok ( ) 
-            ; Strings . AppendCharInPlace ( TokString , Ch ) 
             ; INC ( Pos ) 
-            ; State := LbeStd . SsInTok 
             ; EnsureOneChar ( ) 
-            ; IF Ch = '=' 
-              THEN 
-                AppendAndDeliverTok ( M3Tok . GreaterEqual_Tok ) 
-              ELSE 
-                DeliverTok ( M3Tok . Greater_Tok ) 
+            ; IF GCh = '=' 
+              THEN GCurrentTok . Tok := FM3Tok . GreaterEqual_Tok 
+              ELSE GCurrentTok . Tok := FM3Tok . Greater_Tok 
               END (* IF *) 
 
             | '+' 
             => BegOfTok ( ) 
-            ; AppendAndDeliverTok ( M3Tok . Plus_Tok ) 
+            ; GCurrentTok . Tok := FM3Tok . Plus_Tok  
+
             | '-' 
             => BegOfTok ( ) 
-            ; AppendAndDeliverTok ( M3Tok . Minus_Tok ) 
+            ; GCurrentTok . Tok := FM3Tok . Minus_Tok  
+
             | '^' 
             => BegOfTok ( ) 
-            ; AppendAndDeliverTok ( M3Tok . Deref_Tok ) 
+            ; GCurrentTok . Tok := FM3Tok . Deref_Tok  
+
             | '#' 
             => BegOfTok ( ) 
-            ; AppendAndDeliverTok ( M3Tok . Unequal_Tok ) 
+            ; GCurrentTok . Tok := FM3Tok . Unequal_Tok  
+
             | ';' 
             => BegOfTok ( ) 
-            ; AppendAndDeliverTok ( M3Tok . Semicolon_Tok ) 
+            ; GCurrentTok . Tok := FM3Tok . Semicolon_Tok  
+
             | '[' 
             => BegOfTok ( ) 
-            ; AppendAndDeliverTok ( M3Tok . OpenBracket_Tok ) 
+            ; GCurrentTok . Tok := FM3Tok . OpenBracket_Tok  
+
             | ']' 
             => BegOfTok ( ) 
-            ; AppendAndDeliverTok ( M3Tok . CloseBracket_Tok ) 
+            ; GCurrentTok . Tok := FM3Tok . CloseBracket_Tok  
+
             | '{' 
             => BegOfTok ( ) 
-            ; AppendAndDeliverTok ( M3Tok . OpenBrace_Tok ) 
+            ; GCurrentTok . Tok := FM3Tok . OpenBrace_Tok  
+
             | '}' 
             => BegOfTok ( ) 
-             ; AppendAndDeliverTok ( M3Tok . CloseBrace_Tok ) 
+            ; GCurrentTok . Tok := FM3Tok . CloseBrace_Tok  
+
             | ')' 
             => BegOfTok ( ) 
-            ; AppendAndDeliverTok ( M3Tok . CloseParen_Tok ) 
+            ; GCurrentTok . Tok := FM3Tok . CloseParen_Tok  
+
             | ',' 
             => BegOfTok ( ) 
-            ; AppendAndDeliverTok ( M3Tok . Comma_Tok ) 
+            ; GCurrentTok . Tok := FM3Tok . Comma_Tok  
+
             | '&' 
             => BegOfTok ( ) 
-            ; AppendAndDeliverTok ( M3Tok . Ampersand_Tok ) 
+            ; GCurrentTok . Tok := FM3Tok . Ampersand_Tok  
+
             | '|' 
             => BegOfTok ( ) 
-            ; AppendAndDeliverTok ( M3Tok . Stroke_Tok ) 
+            ; GCurrentTok . Tok := FM3Tok . Stroke_Tok  
+
             | '*' 
             => BegOfTok ( ) 
-            ; AppendAndDeliverTok ( M3Tok . Star_Tok ) 
+            ; GCurrentTok . Tok := FM3Tok . Star_Tok  
+
             | '/' 
             => BegOfTok ( ) 
-            ; AppendAndDeliverTok ( M3Tok . Slash_Tok ) 
+            ; GCurrentTok . Tok := FM3Tok . Slash_Tok  
 
             ELSE 
               BegOfTok ( ) 
-            ; Strings . AppendCharInPlace ( TokString , Ch ) 
             ; INC ( Pos ) 
             ; LexErrorChars ( LbeStd . LeBadChars ) 
             END (* CASE *) 
@@ -840,7 +878,7 @@ MODULE FM3canner
       => <* FATAL Backout *> 
         BEGIN 
           BegOfTok ( ) 
-        ; DeliverTok ( LbeStd . Tok__Unknown ) 
+        ; GCurrentTok . Tok := FLbeStd . Tok__Unknown  
         END (* Block *) 
       END (* TRY EXCEPT *) 
     END Scan 
