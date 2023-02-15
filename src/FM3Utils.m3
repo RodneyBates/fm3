@@ -34,9 +34,7 @@ MODULE FM3Utils
   ; BEGIN
       LResult
         := BitArith . Xor
-             ( BitArith . Shift ( OldHash , ShiftFactor )
-             , Contribution 
-             )
+             ( BitArith . Shift ( OldHash , ShiftFactor ) , Contribution )
     ; RETURN LResult 
     END ContributeToHash
 
@@ -53,7 +51,7 @@ MODULE FM3Utils
       DO
         LResult
           := ContributeToHash
-               ( LResult , VAL ( Text . GetChar ( Key , RI ) , HashTyp ) )  
+               ( LResult , VAL ( Text . GetWideChar ( Key , RI ) , HashTyp ) )  
       END (*FOR*) 
     ; RETURN LResult 
     END HashOfText 

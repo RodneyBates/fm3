@@ -39,21 +39,24 @@ INTERFACE FM3TextDict
     )
   (* Using the value given.  Change the value, if already present. *) 
 
+; CONST AtomNull : ValTyp = 0 (* Avoid atom value zero. *) 
+
 ; PROCEDURE MakeAtom
     ( Dict : T
     ; Key : KeyTyp
     ; Hash : FM3Base . HashTyp
-    ; VAR NextAtom : ValType
+    ; VAR (* IN OUT *) NextAtom : ValType
     )
   : ValTyp
-  (* If Key is absent, assign a new atom value, post-incrementing NextAtom,
-     and add the pair.  Either way, return the atom now associated with Key. *)
+  (* If Key is absent from Dict, assign a new atom value, post-incrementing
+     NextAtom, and add the pair.  Either way, return the atom now associated
+     with Key. *)
 
 ; PROCEDURE Lookup
     ( Dict : T
     ; Key : KeyTyp
     ; Hash : FM3Base . HashTyp
-    ; VAR (*OUT*) Val ValTyp
+    ; VAR (*OUT*) Val : ValTyp
     )
   : BOOLEAN (* Was found. *)
 
