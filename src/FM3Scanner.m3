@@ -11,7 +11,6 @@ MODULE FM3canner
 ; IMPORT CharVarArray AS CVarArray 
 ; IMPORT WidecharVarArray AS WCVarArray
 ; IMPORT TextIntTbl
-; IMPORT TextWr 
 ; IMPORT UniRd 
 ; IMPORT UnsafeUniRd
 
@@ -53,9 +52,6 @@ MODULE FM3canner
         } 
       + EOLCHARS
 
-; VAR RwTable : TextIntTbl . Default 
-; VAR PhTable : TextIntTbl . Default 
-
 ; PROCEDURE InitTables ( ) 
 
   = BEGIN 
@@ -73,7 +69,10 @@ MODULE FM3canner
          ; SsUnitNo : INTEGER 
          ; SsLineNo : INTEGER 
          ; SsCharPos : INTEGER 
-         ; SsPragma1stTok := FALSE          
+         ; SsCharsAtomDict : FM3CharsAtom . T 
+         ; SsWideCharsAtomDict : FM3WideCharsAtom . T 
+         ; SsAtBegOfPragma := FALSE 
+           (* ^The immediately preceding token was "<*". *)
          ; SsWCh : WIDECHAR 
          ; SsChars : CVarArray . T  
          ; SsWideChars : WCVarArray . T  
@@ -100,7 +99,7 @@ MODULE FM3canner
     ; LSsRef ^ . SsUniRd := NewUniRd 
     ; LSsRef ^ . SsUnitNo := UnitNo 
     ; LSsRef ^ . SsLineNo := 0 
-    ; LSsRef ^ . SsPragma1stTok := FALSE 
+    ; LSsRef ^ . SsAtBegOfPragma := FALSE 
     ; GTopSsRef . SsLineNo := 0 
     ; LSsRef ^ . SsCharPos : 0   
     ; GTopSsRef := LSsRef 
@@ -137,11 +136,10 @@ MODULE FM3canner
 (* EXPORTED: *) 
 ; PROCEDURE Scan ( ) 
 
-  = VAR LWCVarArr : WidecharVarArray . T
-  ; VAR LCVarArr : CharVarArray . T  
-  ; VAR LHash : FM3Utils . HashTyp 
-  ; VAR LPragma1stTok := FALSE 
-
+  = VAR ScWCharVarArr : WidecharVarArray . T
+  ; VAR ScCharVarArr : CharVarArray . T  
+  ; VAR ScHash : FM3Utils . HashTyp 
+  ; VAR ScAtBegOfPragma := FALSE 
 
   ; VAR Sif : ScannerIf . ScanIfTyp 
   ; VAR InString : Strings . StringTyp 
@@ -159,8 +157,8 @@ MODULE FM3canner
         GCurTokRef ^ . TrTok := Tok 
       ; GCurTokRef ^ . TrHash := FM3Utils . HashNull 
       ; GCurTokRef ^ . TrAtom := FM3Base . AtomNull 
-      ; LCVarArr := NIL 
-      ; LWCVarArr := NIL 
+      ; ScCharVarArr := NIL 
+      ; ScWCharVarArr := NIL 
       END BegOfPlainTok 
 
   ; PROCEDURE BegOfTokWInfo ( Tok : FM3Base . TokTyp := FM3Base . TokNull ) 
@@ -217,8 +215,8 @@ MODULE FM3canner
     = BEGIN (* LexErrorChars *) 
         BegOfTokWInfo ( ) 
       ; GCurTokRef ^ . TrAtom := FM3Base . AtomNull 
-      ; LCVarArr := NIL 
-      ; LWCVarArr := WCVarArray . New ( NUL , IntRange . T { 0 , 120 } ) 
+      ; ScCharVarArr := NIL 
+      ; ScWCharVarArr := WCVarArray . New ( NUL , IntRange . T { 0 , 120 } ) 
       ; NextChar ( ) 
       ; WHILE ( GTopSsRef . SsWCh > WLastOfChar 
                 AND GTopSsRef . SsWCh # WLS 
@@ -227,7 +225,7 @@ MODULE FM3canner
         DO NextChar ( ) END 
         END (*WHILE*) 
       ; GCurTokRef ^ . TrWideChars 
-          := FM3Utils . WideCharsFromWCVarArr ( LCVarArr ) 
+          := FM3Utils . WideCharsFromWCVarArr ( ScCharVarArr ) 
       ; GCurTokRef ^ . TrTok := FM3Toks . TkLexErrChars 
       END LexErrorChars 
 
@@ -244,25 +242,36 @@ MODULE FM3canner
               IN SET OF CHAR { 'a' .. 'z' , 'A' .. 'Z' , '_' , '0' .. '9' } 
         DO 
           ContributeToHash 
-            ( LHash , VAL ( GTopSsRef . SsCh , FM3Utils . HashTyp ) 
-        ; LSs := CVarArray . TouchedRange ( LCVarArr ) . Hi + 1 
+            ( ScHash , VAL ( GTopSsRef . SsCh , FM3Utils . HashTyp ) 
+        ; LSs := CVarArray . TouchedRange ( ScCharVarArr ) . Hi + 1 
         ; CVarArray . Assign 
-            ( LCVarArr , LSs , VAL ( GTopSsRef . SsWCh , CHAR ) ) 
+            ( ScCharVarArr , LSs , VAL ( GTopSsRef . SsWCh , CHAR ) ) 
         ; NextChar ( ) 
         END (* WHILE *) 
-      ; GCurTokRef ^ . TrHash := LHash 
-      ; IF GCurrentStat . Ss1stPragma 
-           AND FM3TextDict . Lookup 
-                 ( FM3Globals . PragmaDict , GText , LHash , (*OUT*) LRwTok ) 
+      ; GCurTokRef ^ . TrHash := ScHash 
+      ; GCurTokRef . TrChars := FM3Utils . CharsFromCVarArr ( ScCharVarArr ) 
+      ; IF ScAtBegOfPragma 
+           AND FM3CharsIntDict . Lookup
+                 ( FM3Globals . PgRwDict 
+                 , GCurTokRef . TrChars  
+                 , ScHash 
+                 , (*OUT*) LRwTok 
+                 ) 
         THEN GCurTokRef ^ . TrTok := LRwTok 
-        ELSIF FM3TextDict . Lookup 
-                ( FM3Globals . RwDict , GText , LHash , (*OUT*) LRwTok ) 
+        ELSIF FM3CharsIntDict . Lookup 
+                ( FM3Globals . M3RwDict 
+                , GCurTokRef . TrChars 
+                , ScHash 
+                , (*OUT*) LRwTok 
+                ) 
         THEN GCurTokRef ^ . TrTok := LRwTok 
         ELSE 
-          GCurTokRef ^ . TrChars := FM3Utils . CharsFromCVarArr ( LCVarArr ) 
           GCurTokRef ^ . TrAtom 
-            := FM3TextDict . MakeCAtom 
-                 ( IdentDict , GCurTokRef ^ . TrChars , LHash ) 
+            := FM3CharsAtom . MakeAtom 
+                 ( FM3Globals . IdentAtomDict 
+                 , GCurTokRef ^ . TrChars 
+                 , ScHash 
+                 ) 
         ; GCurTokRef ^ . TrTok := FM3Tok . TkIdent
         END (* IF *) 
       END IdentSuffix 
@@ -276,26 +285,26 @@ MODULE FM3canner
     ; BEGIN (* Number *) 
         BegOfTokWInfo ( FM3Tok . TkNumber ) 
       ; GCurTokRef . TrAtom := FM3Base . AtomNull (* Overlaid later? *) 
-      ; LCVarArr := CVarArray . New ( NUL , CharRange . T { 0 , 40 } ) 
-      ; LWCVarArr := NIL 
-      ; LHash := FM3Utils. HashGround ( ) 
+      ; ScCharVarArr := CVarArray . New ( NUL , CharRange . T { 0 , 40 } ) 
+      ; ScWCharVarArr := NIL 
+      ; ScHash := FM3Utils. HashGround ( ) 
       ; WHILE GTopSsRef . SsCh IN SET OF CHAR { '0' .. '9' } 
         DO ContribToHash 
-             ( (*IN OUT*) LHash 
+             ( (*IN OUT*) ScHash 
              , VAL ( GTopSsRef . SsCh , FM3Utils . HashTyp ) 
              )
-        ; LSs := CVarArray . TouchedRange ( LCVarArr ) . Hi + 1 
-        ; CVarArray . Assign ( LCVarArr , LSs , GTopSsRef . SsCh ) 
+        ; LSs := CVarArray . TouchedRange ( ScCharVarArr ) . Hi + 1 
+        ; CVarArray . Assign ( ScCharVarArr , LSs , GTopSsRef . SsCh ) 
         ; NextChar ( ) 
         END (* WHILE *)
       ; CASE GTopSsRef . SsCh
         OF '_' 
         => ContribToHash 
-             ( (*IN OUT*) LHash 
+             ( (*IN OUT*) ScHash 
              , VAL ( GTopSsRef . SsCh , FM3Utils . HashTyp ) 
              )
-        ; LSs := CVarArray . TouchedRange ( LCVarArr ) . Hi + 1 
-        ; CVarArray . Assign ( LCVarArr , LSs , GTopSsRef . SsCh ) 
+        ; LSs := CVarArray . TouchedRange ( ScCharVarArr ) . Hi + 1 
+        ; CVarArray . Assign ( ScCharVarArr , LSs , GTopSsRef . SsCh ) 
         ; NextChar ( ) 
         ; IF GTopSsRef . SsCh 
              IN SET OF CHAR { '0' .. '9' , 'A' .. 'F' , 'a' .. 'f' } 
@@ -303,11 +312,11 @@ MODULE FM3canner
             WHILE GTopSsRef . SsCh 
             IN SET OF CHAR { '0' .. '9' , 'A' .. 'F' , 'a' .. 'f' } 
             DO ContribToHash 
-                 ( (*IN OUT*) LHash 
+                 ( (*IN OUT*) ScHash 
                  , VAL ( GTopSsRef . SsCh , FM3Utils . HashTyp ) 
                  )
-            ; LSs := CVarArray . TouchedRange ( LCVarArr ) . Hi + 1 
-            ; CVarArray . Assign ( LCVarArr , LSs , GTopSsRef . SsCh ) 
+            ; LSs := CVarArray . TouchedRange ( ScCharVarArr ) . Hi + 1 
+            ; CVarArray . Assign ( ScCharVarArr , LSs , GTopSsRef . SsCh ) 
             ; NextChar ( ) 
             END (* WHILE *) 
           ELSE 
@@ -323,11 +332,11 @@ MODULE FM3canner
             THEN 
               WHILE GTopSsRef . SsCh IN SET OF CHAR { '0' .. '9' } 
               DO ContribToHash 
-                   ( (*IN OUT*) LHash 
+                   ( (*IN OUT*) ScHash 
                    , VAL ( GTopSsRef . SsCh , FM3Utils . HashTyp ) 
                    )
-              ; LSs := CVarArray . TouchedRange ( LCVarArr ) . Hi + 1 
-              ; CVarArray . Assign ( LCVarArr , LSs , GTopSsRef . SsCh ) 
+              ; LSs := CVarArray . TouchedRange ( ScCharVarArr ) . Hi + 1 
+              ; CVarArray . Assign ( ScCharVarArr , LSs , GTopSsRef . SsCh ) 
               ; NextChar ( ) 
               END (* WHILE *) 
             ELSE 
@@ -339,31 +348,31 @@ MODULE FM3canner
       ; IF GTopSsRef . SsCh
            IN SET OF CHAR { 'E' , 'e' , 'D' , 'd' , 'X' , 'x' }  
         => ContribToHash 
-             ( (*IN OUT*) LHash 
+             ( (*IN OUT*) ScHash 
              , VAL ( GTopSsRef . SsCh , FM3Utils . HashTyp ) 
              )
-        ; LSs := CVarArray . TouchedRange ( LCVarArr ) . Hi + 1 
-        ; CVarArray . Assign ( LCVarArr , LSs , GTopSsRef . SsCh ) 
+        ; LSs := CVarArray . TouchedRange ( ScCharVarArr ) . Hi + 1 
+        ; CVarArray . Assign ( ScCharVarArr , LSs , GTopSsRef . SsCh ) 
         ; NextChar ( ) 
         ; IF GTopSsRef . SsCh IN SET OF CHAR { '+' , '-' }  
           THEN 
              ContribToHash 
-               ( (*IN OUT*) LHash 
+               ( (*IN OUT*) ScHash 
                , VAL ( GTopSsRef . SsCh , FM3Utils . HashTyp ) 
                )
-          ; LSs := CVarArray . TouchedRange ( LCVarArr ) . Hi + 1 
-          ; CVarArray . Assign ( LCVarArr , LSs , GTopSsRef . SsCh ) 
+          ; LSs := CVarArray . TouchedRange ( ScCharVarArr ) . Hi + 1 
+          ; CVarArray . Assign ( ScCharVarArr , LSs , GTopSsRef . SsCh ) 
           ; NextChar ( ) 
           END (* IF *) 
         ; IF GTopSsRef . SsCh IN SET OF CHAR { '0' .. '9' } 
           THEN 
             WHILE GTopSsRef . SsCh IN SET OF CHAR { '0' .. '9' } 
             DO ContribToHash 
-                 ( (*IN OUT*) LHash 
+                 ( (*IN OUT*) ScHash 
                  , VAL ( GTopSsRef . SsCh , FM3Utils . HashTyp ) 
                  )
-            ; LSs := CVarArray . TouchedRange ( LCVarArr ) . Hi + 1 
-            ; CVarArray . Assign ( LCVarArr , LSs , GTopSsRef . SsCh ) 
+            ; LSs := CVarArray . TouchedRange ( ScCharVarArr ) . Hi + 1 
+            ; CVarArray . Assign ( ScCharVarArr , LSs , GTopSsRef . SsCh ) 
             ; NextChar ( ) 
             END (*WHILE*)
           ELSE 
@@ -371,11 +380,14 @@ MODULE FM3canner
           END (* IF *) 
         ELSE 
         END  
-      ; GCurTokRef ^ . TrHash := LHash 
-      ; GCurTokRef ^ . TrChars := FM3Utils . CharsFromCVarArr ( LCVarArr ) 
+      ; GCurTokRef ^ . TrHash := ScHash 
+      ; GCurTokRef ^ . TrChars := FM3Utils . CharsFromCVarArr ( ScCharVarArr ) 
       ; GCurTokRef ^ . TrAtom 
-          := FM3TextDict . MakeCAtom 
-               ( IdentDict , GCurTokRef ^ . TrChars , LHash ) 
+          := FM3CharsAtom . MakeAtom 
+               ( GTopSsRef ^ . SsNumberAtomDict 
+               , GCurTokRef ^ . TrChars 
+               , ScHash 
+               ) 
      (* ^Of doubtful use. *) 
       ; GCurTokRef ^ . TrTok := FM3Tok . Number 
       END Number 
@@ -419,15 +431,15 @@ MODULE FM3canner
 
     ; BEGIN 
         ContribToHash 
-          ( (*IN OUT*) LHash , VAL ( WCh , FM3Utils . HashTyp ) )
+          ( (*IN OUT*) ScHash , VAL ( WCh , FM3Utils . HashTyp ) )
       ; IF Wide 
         THEN 
-          LSs := WCVarArray . TouchedRange ( LWCVarArr ) . Hi + 1 
-        ; WCVarArray . Assign ( LWCVarArr , LSs , GTopSsRef . SsWCh ) 
+          LSs := WCVarArray . TouchedRange ( ScWCharVarArr ) . Hi + 1 
+        ; WCVarArray . Assign ( ScWCharVarArr , LSs , GTopSsRef . SsWCh ) 
         ELSE 
-          LSs := CVarArray . TouchedRange ( LCVarArr ) . Hi + 1 
+          LSs := CVarArray . TouchedRange ( ScCharVarArr ) . Hi + 1 
         ; CVarArray . Assign 
-            ( LCVarArr , LSs , VAL ( GTopSsRef . SsWCh , CHAR ) ) 
+            ( ScCharVarArr , LSs , VAL ( GTopSsRef . SsWCh , CHAR ) ) 
         END (* IF *) 
       ; NextChar ( ) 
       END IncludeChar ) 
@@ -609,8 +621,8 @@ MODULE FM3canner
 
     ; BEGIN (* WideTextLit *) 
         BegOfTokWInfo ( )
-      ; LCVarArr := NIL 
-      ; LWCVarArr := WCVarArray . New ( WNULL , IntRange . T { 0 , 100 } ) 
+      ; ScCharVarArr := NIL 
+      ; ScWCharVarArr := WCVarArray . New ( WNULL , IntRange . T { 0 , 100 } ) 
       ; LNextCharSs := 0  
       ; NextChar ( ) (* Consume the opening double quote. *) 
 
@@ -629,19 +641,22 @@ MODULE FM3canner
             LCharVal := EscapeSeq ( Wide := TRUE , Text := TRUE ) 
           ELSE (* Ordinary character. *) 
             ContribToHash 
-              ( (*IN OUT*) LHash , VAL ( LCharVal , FM3Utils . HashTyp ) )
-          ; LSs := CVarArray . TouchedRange ( LCVarArr ) . Hi + 1 
-          ; WCVarArray . Assign ( LWCVarArr , LSs , GTopSsRef . SsWCh , WIDECHAR ) 
+              ( (*IN OUT*) ScHash , VAL ( LCharVal , FM3Utils . HashTyp ) )
+          ; LSs := CVarArray . TouchedRange ( ScCharVarArr ) . Hi + 1 
+          ; WCVarArray . Assign ( ScWCharVarArr , LSs , GTopSsRef . SsWCh , WIDECHAR ) 
           ; NextChar ( ) 
           END (*IF*) 
         END (*LOOP*) 
 
-      ; GCurTokRef ^ . TrHash := LHash 
+      ; GCurTokRef ^ . TrHash := ScHash 
       ; GCurTokRef ^ . TrWideChars 
-          := FM3Utils . WideCharsToWCArray ( LWCVarArr ) 
+          := FM3Utils . WideCharsToWCArray ( ScWCharVarArr ) 
       ; GCurTokRef ^ . TrAtom 
-          := FM3WideCharsDict . MakeAtom 
-               ( WideCharsDict , GCurTokRef ^ . TrWideChars , LHash ) 
+          := FM3WCharsAtom . MakeAtom 
+               ( GTopSsRef ^ . SsWideCharsAtomDict 
+               , GCurTokRef ^ . TrWideChars 
+               , ScHash 
+               ) 
       ; GCurTokRef ^ . Tok := FM3Tok . TkWideTextLit 
       END WideTextLit 
 
@@ -683,7 +698,10 @@ MODULE FM3canner
       END CommentSuffix 
 
   ; BEGIN (* Scan *) 
-      TRY 
+      ScAtBegOfPragma := GCurSsRef ^ . SsAtBegOfPragma 
+    ; GCurSsRef ^ . SsAtBegOfPragma := FALSE 
+
+    ; TRY 
         LOOP (* Skip uninteresting chars. *) 
           IF GTopSsRef . SsWCh = WEOF 
           THEN 
@@ -703,10 +721,7 @@ MODULE FM3canner
           END (*IF*) 
         END (*LOOP*) 
           
-      ; LPragma1stTok := LSsRef ^ . SsPragma1stTok 
-      ; LSsRef ^ . SsPragma1stTok := FALSE 
-
-        CASE GTopSsRef . SsCh 
+      ; CASE GTopSsRef . SsCh 
         OF 'w' , 'W'
         => LCh := GTopSsRef . SsCh
         ; NextChar ( )
@@ -719,22 +734,22 @@ MODULE FM3canner
             WideTextLit ( LCh )
           ELSE (* An identifier starting with w or W. *)
             BegOfTokWInfo ( )
-          ; LCVarArr := CVarArray . New ( NUL , CharRange . T { 0 , 160 } ) 
-          ; LWCVarArr := NIL 
-          ; LHash := FM3Utils. HashGround ( ) 
+          ; ScCharVarArr := CVarArray . New ( NUL , CharRange . T { 0 , 160 } ) 
+          ; ScWCharVarArr := NIL 
+          ; ScHash := FM3Utils. HashGround ( ) 
           ; ContribToHash 
-              ( (*IN OUT*) LHash , VAL ( LTok , FM3Utils . HashTyp ) )
-          ; LSs := CVarArray . TouchedRange ( LCVarArr ) . Hi + 1 
-          ; CVarArray . Assign ( LCVarArr , LSs , LCh ) 
+              ( (*IN OUT*) ScHash , VAL ( LTok , FM3Utils . HashTyp ) )
+          ; LSs := CVarArray . TouchedRange ( ScCharVarArr ) . Hi + 1 
+          ; CVarArray . Assign ( ScCharVarArr , LSs , LCh ) 
           ; NextChar ( ) 
           ; IdentSuffix ( ) 
 
         | 'a' .. 'v' , 'x .. 'z' , 'A' .. 'V' , 'X' .. 'Z' , '_'    
           (* Other identifier. *) 
         => BegOfTokWInfo ( )
-        ; LCVarArr := CVarArray . New ( NUL , CharRange . T { 0 , 80 } ) 
-        ; LWCVarArr := NIL 
-        ; LHash := FM3Utils. HashGround ( ) 
+        ; ScCharVarArr := CVarArray . New ( NUL , CharRange . T { 0 , 80 } ) 
+        ; ScWCharVarArr := NIL 
+        ; ScHash := FM3Utils. HashGround ( ) 
         ; IdentSuffix ( )
 
         | '0' .. '9' 
@@ -746,8 +761,8 @@ MODULE FM3canner
 
         | '"' (* TEXT literal. *)  
         => BegOfTokWInfo ( )
-        ; LCVarArr := CVarArray . New ( NUL , CharRange . T { 0 , 160 } ) 
-        ; LWCVarArr := NIL
+        ; ScCharVarArr := CVarArray . New ( NUL , CharRange . T { 0 , 160 } ) 
+        ; ScWCharVarArr := NIL
         ; TextLit ( Wide := FALSE ) 
 
         | '(' 
@@ -774,7 +789,7 @@ MODULE FM3canner
           | W'*' 
           => (* Opening pragma delimiter. *)
             NextChar ( )
-          ; GTopSsRef ^ . SsPragma1stTok := TRUE 
+          ; GTopSsRef ^ . SsAtBegOfPragma := TRUE 
           ; GCurTokRef ^ . Tok := FM3Tok . TkTkPragmaOpen  
           ELSE 
             GCurTokRef ^ . Tok := FM3Tok . TkTkLessThan 

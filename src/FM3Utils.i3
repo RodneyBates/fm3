@@ -14,10 +14,10 @@ INTERFACE FM3Utils
 
 ; PROCEDURE GroundHash ( ) : HashTyp  
 
-; PROCEDURE ContributeToHash ( OldHash , Contribution : HashTyp ) : HashTyp
-  (* A value of GroundHash(), altered by a series of ContributeToHash
+; PROCEDURE ContribToHash ( VAR (*IN OUT*) Hash , Contribution : HashTyp ) 
+  (* A value of GroundHash(), altered by a series of ContribToHash
      calls is a hash of the contributions.  Assume the order of the
-     contributions affects the hash value. *) 
+     contributions affects the hash value. *)
 
 ; END FM3Utils
 .

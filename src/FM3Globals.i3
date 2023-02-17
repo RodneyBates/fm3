@@ -8,16 +8,17 @@
 
 INTERFACE FM3Globals
 
+; IMPORT TextIntTbl 
+
 ; IMPORT FM3TextDict 
 
-; VAR RwDict : FM3Dict . T 
-; VAR IdentDict : FM3Dict . T 
-; VAR TextDict : FM3Dict . T (* TEXT literals, as in source code. *)  
-; VAR TextValDict : FM3Dict . T (* Internal text values *)
+; VAR M3RwDict : Fm3CharsIntDict . I 
+; VAR PgRwDict : Fm3CharsIntDict . T 
+; VAR IdentAtomDict : FM3CharsAtomDict . T 
 
 ; VAR IdentDictSize := 1500
-; VAR TextDictSize := 600
-; VAR TextValDictSize := 600
+; VAR CharsDictSize := 600
+; VAR WideCharsDictSize := 600
 
 ; PROCEDURE Init ( ) 
 
