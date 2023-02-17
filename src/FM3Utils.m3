@@ -24,8 +24,8 @@ MODULE FM3Utils
     END GroundHash 
 
 (*EXPORTED:*)
-; PROCEDURE ContributeToHash ( OldHash , Contribution : HashTyp ) : HashTyp
-  (* A value of GroundHash(), altered by a series of ContributeToHash
+; PROCEDURE ContribToHash ( VAR (*IN OUT*) Hash , Contribution : HashTyp ) 
+  (* A value of GroundHash(), altered by a series of ContribToHash
      calls is a hash of the contributions.  Assume the order of the
      contributions affects the hash value. *)
 
@@ -35,7 +35,7 @@ MODULE FM3Utils
       LResult
         := BitArith . Xor
              ( BitArith . Shift ( OldHash , ShiftFactor ) , Contribution )
-    ; RETURN LResult 
+    ; Hash := LResult 
     END ContributeToHash
 
 (*EXPORTED:*)
@@ -49,9 +49,10 @@ MODULE FM3Utils
     ; LLength := Text . Length ( Key )
     ; FOR RI := 0 TO LLength - 1
       DO
-        LResult
-          := ContributeToHash
-               ( LResult , VAL ( Text . GetWideChar ( Key , RI ) , HashTyp ) )  
+        ContribToHash
+          ( (*IN OUT*) LResult
+          , VAL ( Text . GetWideChar ( Key , RI ) , HashTyp )
+          )  
       END (*FOR*) 
     ; RETURN LResult 
     END HashOfText 
