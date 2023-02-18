@@ -6,7 +6,9 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-(* Map keys of an type to compactly-numbered, internally-generated
+GENERIC MODULE FM3Atom ( KeyTyp , ValTyp )
+
+(* KeyTyp dec(* Map keys of an type to compactly-numbered, internally-generated
    integer values called "atom".  Repeated adding of the same keyu
    valud, as decided by function "Equal" will get the same atom value. 
 
@@ -20,12 +22,18 @@ GENERIC INTERFACE FM3Atom ( KeyTyp )
 
 ; IMPORT FM3Base 
 
-; TYPE T <: REFANY
+; REVEAL T =
+    BRANDED "FM3(" & KeyTyp . Brand & ")Atom"_0.1"
+    REF RECORD 
+    EMD (*RECORD*)
 
-; TYPE EqProc = PROCEDURE Equal ( Left , Right : T ) : BOOLEAN
 
 ; PROCEDURE New ( Equal : EqProc ; InitSize : CARDINAL ) T 
   (* A new, empty table of Key-value/atom pairs. *) 
+
+  = BEGIN 
+      RETURN NEW ( T ) 
+    END New 
   
 ; PROCEDURE MakeAtom
     ( Dict : T
@@ -40,12 +48,14 @@ GENERIC INTERFACE FM3Atom ( KeyTyp )
   (* Size is an initial estimate of the eventual number of Keys. 
      Internal allocations will be expanded if and when needed.  *)
 
-  (* FM3Base . AtomNull will not be assigned by MakeAtom. *) 
-
   (* You can use a hash function of your choice, but all Hash values 
      passed to MakeAtom for a given table T must be computed 
-     consistently from the adjacent Key value by the same function. *)
+     consistently from the adjacent Key value by the same function. *) 
 
-; END FM3Atom
+  = BEGIN 
+      RETURN FM3Base . AtomNull 
+    END MakeAtom 
+
+; END FM3Dict 
 .
 
