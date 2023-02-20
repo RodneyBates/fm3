@@ -682,6 +682,9 @@ MODULE FM3Scanner
         THEN 
         ELSIF GTopSsRef . SsCh = '\\' 
         THEN LWCh := EscapeSeq ( Wide , Text := FALSE ) 
+        ELSIF NOT Wide AND TopSsRef . SsWCh > WLastOfChar 
+        THEN 
+          ErrorSs ( "Character literal is beyond the range of CHAR." ) 
         ELSE
           LWCh := GTopSsRef . SsWCh 
         ; NextChar ( ) 
