@@ -711,19 +711,20 @@ MODULE FM3Scanner
             NO Tr fields have been initialized. *) 
 
     = VAR LSs : INTEGER 
-    ; VAR LWCharVal : WIDECHAR 
+    ; VAR LBadCharCt : INTEGER 
+    ; VAR LCharVal : CHAR 
     ; VAR LLoc : TEXT 
     ; VAR LMsg : TEXT 
 
     ; BEGIN (* WideTextLit *) 
         BegOfTokWInfo ( )
-      ; ScCharVarArr := NIL 
-      ; ScWCharVarArr := VarArr_WChar . New ( WNUL , IntRangeTyp { 0 , 100 } ) 
+      ; ScCharVarArr := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 100 } ) 
+      ; ScWCharVarArr := NIL 
       ; NextChar ( ) (* Consume the opening double quote. *) 
 
       ; LOOP (* Thru' chars of text literal. *) 
           IF NOT LineCharExists
-                   ( "Unclosed " , Wide := TRUE , Text := TRUE 
+                   ( "Unclosed " , Wide := FALSE , Text := TRUE 
                    , Msg2 := " literal"
                    ) 
           THEN EXIT 
@@ -732,29 +733,43 @@ MODULE FM3Scanner
             NextChar ( ) 
           ; EXIT 
           ELSIF GTopSsRef . SsCh = '\\' 
-          THEN LWCharVal := EscapeSeq ( Wide := TRUE , Text := TRUE ) 
+          THEN LCharVal := EscapeSeq ( Wide := FALSE , Text := TRUE ) 
+          ELSIF GTopSsRef . SsWCh > WLastOfChar 
+          THEN 
+            LBadCharCt := 0
+          ; REPEAT 
+              INC ( LBadCharCt )               
+            ; NextChar ( ) 
+            UNTIL GTopSsRef . SsWCh <= WLastOfChar 
+                  OR GTopSsRef . SsWCh = WEOF 
+          ; ErrorSs 
+              ( "Text literal has " 
+                & Fmt . Int ( LBadCharCt ) 
+                & " characters beyond the range of CHAR."
+              , - LBadCharCt
+              ) 
           ELSE (* Ordinary character. *) 
-            LWCharVal := GTopSsRef . SsWCh 
+            LCharVal := GTopSsRef . SsWCh 
           ; NextChar ( ) 
           END (*IF*) 
         ; FM3Utils . ContribToHash 
             ( (*IN OUT*) ScHash 
-            , VAL ( ORD ( LWCharVal ) , FM3Utils . HashTyp ) 
+            , VAL ( ORD ( LCharVal ) , FM3Utils . HashTyp ) 
             )
-        ; LSs := VarArr_WChar . TouchedRange ( ScWCharVarArr ) . Hi + 1 
-        ; VarArr_WChar . Assign ( ScWCharVarArr , LSs , LWCharVal ) 
+        ; LSs := VarArr_Char . TouchedRange ( ScCharVarArr ) . Hi + 1 
+        ; VarArr_Char . Assign ( ScCharVarArr , LSs , LCharVal ) 
         END (*LOOP*) 
 
       ; GCurTokRef ^ . TrHash := ScHash 
-      ; GCurTokRef ^ . TrWideChars 
-          := FM3Utils . WCharVarArrayToOAWChar ( ScWCharVarArr ) 
+      ; GCurTokRef ^ . TrChars 
+          := FM3Utils . CharVarArrayToOAChar ( ScCharVarArr ) 
       ; GCurTokRef ^ . TrAtom 
-          := FM3Atom_OAWideChars . MakeAtom 
-               ( GTopSsRef ^ . SsWideCharsAtom 
-               , GCurTokRef ^ . TrWideChars 
+          := FM3Atom_OAChars . MakeAtom 
+               ( GTopSsRef ^ . SsCharsAtom 
+               , GCurTokRef ^ . TrChars 
                , ScHash 
                ) 
-      ; GCurTokRef ^ . TrTok := FM3Toks . TkWideTextLit 
+      ; GCurTokRef ^ . TrTok := FM3Toks . TkTextLit 
       END TextLit 
 
   ; PROCEDURE WideTextLit ( ) 
