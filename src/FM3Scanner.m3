@@ -19,7 +19,8 @@ MODULE FM3Scanner
 ; IMPORT FM3Atom_OAChars 
 ; IMPORT FM3Atom_OAWideChars 
 ; IMPORT FM3Base
-; IMPORT FM3Dict_OAChars_Int 
+; IMPORT FM3Dict_OAChars_Int
+; IMPORT FM3Errors 
 ; IMPORT FM3Globals
 ; IMPORT FM3Toks 
 ; IMPORT FM3Utils 
@@ -72,10 +73,6 @@ MODULE FM3Scanner
 ; PROCEDURE InitTables ( ) 
 
   = BEGIN 
-      RwTable := NEW ( TextIntTbl . Default ) . init ( sizeHint := 61 )
-    ; FM3InitTokStrings . InitRw ( RwTable )  
-    ; PhTable := NEW ( TextIntTbl . Default ) . init ( sizeHint := 235 ) 
-    ; FM3InitTokStrings . InitPh ( PhTable )  
     END InitTables 
 
 ; TYPE ScanStateTyp 
@@ -86,13 +83,13 @@ MODULE FM3Scanner
          ; SsUnitNo : INTEGER 
          ; SsLineNo : INTEGER 
          ; SsCharPos : INTEGER 
-         ; SsIdentAtomDict : FM3Atom_OAChars . T (* Identifiers. *)  
-         ; SsNumberAtomDict : FM3Atom_OAChars . T (* Numeric literals. *)  
-         ; SsCharsAtomDict : FM3Atom_OAChars . T (* TEXT literals. *) 
-         ; SsWideCharsAtomDict : FM3Atom_OAWideChars . T 
-             (* ^Wide TEXT literals. *)
+         ; SsIdentAtom : FM3Atom_OAChars . T (* Identifiers. *)  
+         ; SsNumberAtom : FM3Atom_OAChars . T (* Numeric literals. *)  
+         ; SsCharsAtom : FM3Atom_OAChars . T (* TEXT literals. *) 
+         ; SsWideCharsAtom : FM3Atom_OAWideChars . T (* ^Wide TEXT literals. *)
          ; SsChars : VarArr_Char . T  
          ; SsWideChars : VarArr_WChar . T  
+         ; SsFileName : TEXT 
          ; SsWCh : WIDECHAR 
          ; SsCh : CHAR 
          ; SsAtBegOfPragma := FALSE 
@@ -108,20 +105,33 @@ MODULE FM3Scanner
 ; VAR GMaxScanStateDepth := 0   
 
 (* EXPORTED: *) 
-; PROCEDURE PushState ( NewUniRd : UniRd . T ; UnitNo : INTEGER ) 
+; PROCEDURE PushState 
+     ( NewUniRd : UniRd . T ; FileName : TEXT ; UnitNo : INTEGER ) 
   (* PRE: NewUniRd is open and ready to be read. but not locked. *) 
 
   = VAR LSsRef : ScanStateRefTyp 
 
   ; BEGIN 
-      Thread . Acquire ( NewUniRd ) 
-    ; LSsRef := NEW ( ScanStateRefTyp ) 
+(* Thread . Acquire ( NewUniRd ) 
+   Apparently, UniRd.T is NOT a MUTEX! 
+    ; *) 
+      LSsRef := NEW ( ScanStateRefTyp ) 
     ; LSsRef ^ . SsLink := GTopSsRef 
     ; LSsRef ^ . SsUnitNo := UnitNo 
     ; LSsRef ^ . SsUniRd := NewUniRd 
+    ; LSsRef ^ . SsFileName := FileName 
     ; LSsRef ^ . SsLineNo := 0 
     ; LSsRef ^ . SsCharPos := 0   
     ; LSsRef ^ . SsAtBegOfPragma := FALSE 
+    ; LSsRef ^ . SsIdentAtom 
+        := FM3Atom_OAChars . New ( FM3Globals . IdentInitAtomSize ) 
+    ; LSsRef ^ . SsNumberAtom 
+        := FM3Atom_OAChars . New ( FM3Globals . NumberInitAtomSize ) 
+    ; LSsRef ^ . SsCharsAtom 
+        := FM3Atom_OAChars . New ( FM3Globals . TextInitAtomSize ) 
+    ; LSsRef ^ . SsWideCharsAtom 
+        := FM3Atom_OAWideChars . New ( FM3Globals . WideInitTextAtomSize ) 
+
     ; TRY 
         LSsRef ^ . SsWCh := UnsafeUniRd . FastGetWideChar( LSsRef ^ . SsUniRd ) 
       ; LSsRef ^ . SsCh := MIN ( GTopSsRef . SsWCh , WLastOfChar )  
@@ -146,9 +156,10 @@ MODULE FM3Scanner
     ; LSsRef := GTopSsRef 
     ; GTopSsRef := LSsRef ^ . SsLink 
     ; UniRd . Close ( LSsRef . SsUniRd )  
-    ; Thread . Release ( LSsRef . SsUniRd ) 
+(*  ; Thread . Release ( LSsRef . SsUniRd ) 
+      Apparently, UniRd.T is NOT a MUTEX! *) 
     ; DEC ( GScanStateDepth ) 
-    ; RETURN LSsRef 
+    ; RETURN LSsRef ^ . SsUniRd   
     END PopState 
 
 (* EXPORTED: *) 
@@ -163,8 +174,8 @@ MODULE FM3Scanner
   (* Report at the beginning of the current token. *) 
  
   = BEGIN 
-      Error 
-        ( GFileName 
+      FM3Errors . Err  
+        ( GTopSsRef ^ . SsFileName 
         , GCurTokRef ^ . TrLineNo 
         , CharPos 
         , Msg 
@@ -172,11 +183,11 @@ MODULE FM3Scanner
     END ErrorPos 
 
 ; PROCEDURE ErrorTok ( Msg : TEXT ; Adjust := 0 )
-  (* Report at the beginning of the current token. *) 
+  (* Report relative to the beginning of the current token. *) 
  
   = BEGIN 
-      Error 
-        ( GFileName 
+      FM3Errors . Err 
+        ( GTopSsRef ^ . SsFileName 
         , GCurTokRef ^ . TrLineNo 
         , GCurTokRef ^ . TrCharPos + Adjust  
         , Msg 
@@ -187,8 +198,8 @@ MODULE FM3Scanner
   (* Report at the current spot in the input *) 
 
   = BEGIN 
-      Error 
-        ( GFileName 
+      FM3Errors . Err 
+        ( GTopSsRef ^ . SsFileName 
         , GTopSsRef ^ . SsLineNo  
         , GTopSsRef ^ . SsCharPos + Adjust 
         , Msg 
@@ -215,12 +226,12 @@ MODULE FM3Scanner
       ; ScWCharVarArr := NIL 
       END BegOfPlainTok 
 
-  ; PROCEDURE BegOfTokWInfo ( Tok : FM3Base . TokTyp := FM3Base . TokNull ) 
+  ; PROCEDURE BegOfTokWInfo ( ) 
     RAISES { Backout } 
 
     = BEGIN (* BegOfTokWInfo *) 
-        GCurTokRef ^ . TrTok := Tok 
-      ; GCurTokRef ^ . TrWCh := WNUL  
+(* TODO: INLINE-ME *) 
+        GCurTokRef ^ . TrWCh := WNUL  
       ; GCurTokRef . TrHash := FM3Utils . GroundHash ( ) 
       END BegOfTokWInfo 
 
@@ -343,7 +354,7 @@ MODULE FM3Scanner
         ELSE 
           GCurTokRef ^ . TrAtom 
             := FM3Atom_OAChars . MakeAtom 
-                 ( GTopSsRef . SsIdentAtomDict 
+                 ( GTopSsRef . SsIdentAtom
                  , GCurTokRef ^ . TrChars 
                  , ScHash 
                  ) 
@@ -359,12 +370,12 @@ MODULE FM3Scanner
     ; VAR LTok : FM3Toks . TokTyp 
 
     ; BEGIN (* Number *) 
-        BegOfTokWInfo ( FM3Toks . TkNumber ) 
+        BegOfTokWInfo ( ) 
       ; GCurTokRef . TrAtom := FM3Base . AtomNull (* Overlaid later? *) 
       ; ScCharVarArr := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 40 } ) 
       ; ScWCharVarArr := NIL 
       ; ScHash := FM3Utils. GroundHash ( ) 
-      ; LTok := FM3Toks . TkIntLiteral 
+      ; LTok := FM3Toks . TkIntLit 
       ; REPEAT 
           FM3Utils . ContribToHash 
             ( (*IN OUT*) ScHash 
@@ -377,7 +388,7 @@ MODULE FM3Scanner
         
       ; CASE GTopSsRef . SsCh
         OF '_' 
-        => LTok := FM3Toks . TkBasedLiteral 
+        => LTok := FM3Toks . TkBasedLit 
         ; FM3Utils . ContribToHash 
             ( (*IN OUT*) ScHash 
             , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
@@ -411,7 +422,7 @@ MODULE FM3Scanner
                         ( GTopSsRef ^ . SsUniRd ) 
             *> 
           ELSE
-            LTok := FM3Toks . TkRealLiteral 
+            LTok := FM3Toks . TkRealLit 
           ; IF GTopSsRef . SsCh IN SET OF CHAR { '0' .. '9' } 
             THEN 
               REPEAT 
@@ -432,9 +443,9 @@ MODULE FM3Scanner
              IN SET OF CHAR { 'E' , 'e' , 'D' , 'd' , 'X' , 'x' }  
           THEN 
             IF GTopSsRef . SsCh IN SET OF CHAR { 'D' , 'd' }
-            THEN LTok := FM3Toks . TkLongRealLiteral 
+            THEN LTok := FM3Toks . TkLongRealLit 
             ELSIF GTopSsRef . SsCh IN SET OF CHAR { 'X' , 'x' }
-            THEN LTok := FM3Toks . TkExtendedLiteral 
+            THEN LTok := FM3Toks . TkExtendedLit 
             END (*IF*) 
           ; FM3Utils . ContribToHash 
                ( (*IN OUT*) ScHash 
@@ -476,7 +487,7 @@ MODULE FM3Scanner
 (* CHECK: Is an atom for a numeric literal character string really needed? *) 
       ; GCurTokRef ^ . TrAtom 
           := FM3Atom_OAChars . MakeAtom 
-               ( GTopSsRef ^ . SsNumberAtomDict 
+               ( GTopSsRef ^ . SsNumberAtom 
                , GCurTokRef ^ . TrChars 
                , ScHash 
                ) 
@@ -643,10 +654,10 @@ MODULE FM3Scanner
               & LitTypeName [ Wide , (*Text:=*) FALSE ]
               & " literal: 16_"
               & Fmt . Pad 
-                  ( Fmt . Int ( LIntVal , base = 16 ) , LPadDigitCt , '0' )
+                  ( Fmt . Int ( LIntVal , base := 16 ) , LPadDigitCt , '0' )
               & ", max value is 16_"
               & Fmt . Pad 
-                  ( Fmt . Int ( LMaxIntVal , base = 16 ) , LPadDigitCt , '0' )
+                  ( Fmt . Int ( LMaxIntVal , base := 16 ) , LPadDigitCt , '0' )
             )
         END (*IF*) 
       ; RETURN VAL ( LIntVal , WIDECHAR ) 
@@ -739,7 +750,7 @@ MODULE FM3Scanner
           := FM3Utils . WCharVarArrayToOAWChar ( ScWCharVarArr ) 
       ; GCurTokRef ^ . TrAtom 
           := FM3Atom_OAWideChars . MakeAtom 
-               ( GTopSsRef ^ . SsWideCharsAtomDict 
+               ( GTopSsRef ^ . SsWideCharsAtom 
                , GCurTokRef ^ . TrWideChars 
                , ScHash 
                ) 
@@ -793,7 +804,7 @@ MODULE FM3Scanner
           := FM3Utils . WCharVarArrayToOAWChar ( ScWCharVarArr ) 
       ; GCurTokRef ^ . TrAtom 
           := FM3Atom_OAWideChars . MakeAtom 
-               ( GTopSsRef ^ . SsWideCharsAtomDict 
+               ( GTopSsRef ^ . SsWideCharsAtom 
                , GCurTokRef ^ . TrWideChars 
                , ScHash 
                ) 
@@ -934,9 +945,9 @@ MODULE FM3Scanner
           => (* Opening pragma delimiter. *)
             NextChar ( )
           ; GTopSsRef ^ . SsAtBegOfPragma := TRUE 
-          ; GCurTokRef ^ . TrTok := FM3Toks . TkPragmaOpen  
+          ; GCurTokRef ^ . TrTok := FM3Toks . TkOpenPragma 
           ELSE 
-            GCurTokRef ^ . TrTok := FM3Toks . TkLessThan 
+            GCurTokRef ^ . TrTok := FM3Toks . TkLess
           END (* CASE *) 
 
         | '*' 
@@ -945,7 +956,7 @@ MODULE FM3Scanner
         ; IF GTopSsRef . SsWCh = W'>'
           THEN (* Closing pragma delimiter. *) 
             NextChar ( )
-          ; GCurTokRef ^ . TrTok := FM3Toks . TkPragmaClose 
+          ; GCurTokRef ^ . TrTok := FM3Toks . TkClosePragma
           ELSE GCurTokRef ^ . TrTok := FM3Toks . TkStar
           END (*IF*) 
 
@@ -1067,7 +1078,7 @@ MODULE FM3Scanner
       => <* FATAL Backout *> 
         BEGIN 
           BegOfPlainTok ( ) 
-        ; GCurTokRef ^ . TrTok := FM3Toks . Tkunknown  
+        ; GCurTokRef ^ . TrTok := FM3Toks . TkUnknown  
         END (* Block *) 
       END (* TRY EXCEPT *) 
     END NextTok 

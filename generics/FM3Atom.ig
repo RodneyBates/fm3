@@ -8,13 +8,14 @@
 
 (* Map keys of an type to compactly-numbered, internally-generated
    integer values called "atom".  Repeated adding of the same keyu
-   valud, as decided by function "Equal" will get the same atom value. 
+   value, as decided by function "Equal" will get the same atom value.
+*) 
 
 GENERIC INTERFACE FM3Atom ( KeyTyp ) 
 
 (* KeyTyp declares:
      TYPE T Type of Keys
-     CONST AreEqual : EqProcTyp
+     VAR Compare : CompareProcTyp 
      CONST Brand = whatever you like.
 *) 
 
@@ -22,14 +23,15 @@ GENERIC INTERFACE FM3Atom ( KeyTyp )
 
 ; TYPE T <: REFANY
 
-; TYPE EqProc = PROCEDURE Equal ( Left , Right : T ) : BOOLEAN
+; TYPE CompareProcTyp
+    = PROCEDURE ( Left , Right : KeyTyp . T ) : FM3Base . CompareTyp 
 
-; PROCEDURE New ( Equal : EqProc ; InitSize : CARDINAL ) T 
+; PROCEDURE New ( InitSize : CARDINAL ) : T 
   (* A new, empty table of Key-value/atom pairs. *) 
   
 ; PROCEDURE MakeAtom
     ( Dict : T
-    ; Key : KeyTyp
+    ; Key : KeyTyp . T 
     ; Hash : FM3Base . HashTyp
     )
   : FM3Base . AtomTyp 

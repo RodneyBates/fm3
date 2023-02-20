@@ -36,7 +36,8 @@ INTERFACE FM3Scanner
 
 ; VAR GCurTokRef : TokRefTyp 
 
-; PROCEDURE PushState ( NewUniRd : UniRd . T ; UnitNo : INTEGER ) 
+; PROCEDURE PushState 
+     ( NewUniRd : UniRd . T ; FileName : TEXT ; UnitNo : INTEGER ) 
   (* PRE: NewUniRd is open and ready to be read. but not locked. *) 
 
 ; PROCEDURE PopState ( ) : UniRd . T (* Previous reader. *)  

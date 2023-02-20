@@ -24,9 +24,10 @@ INTERFACE FM3Globals
 ; VAR TextAtom : FM3Atom_OAChars . T (* TEXT literal values. *) 
 ; VAR WideTextAtom : FM3Atom_OAWideChars . T (* Wide TEXT literal valuies. *) 
 
-; VAR IdentAtomSize := 1500
-; VAR TextAtomSize := 600
-; VAR WideTextAtomSize := 600
+; VAR IdentInitAtomSize := 1500
+; VAR NumberInitAtomSize := 600
+; VAR TextInitAtomSize := 600
+; VAR WideInitTextAtomSize := 600
 
 ; PROCEDURE Init ( ) 
 

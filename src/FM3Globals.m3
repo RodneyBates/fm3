@@ -20,10 +20,7 @@ MODULE FM3Globals
 ; PROCEDURE Init ( )
 
   = BEGIN
-      IdentAtom := FM3Atom_OAChars . NewGrowable ( IdentAtomSize ) 
-    ; TextAtom := FM3Atom_OAChars . NewGrowable ( TextAtomSize ) 
-    ; WideTextAtom := FM3Atom_OAWideChars . NewGrowable ( WideTextAtomSize )
-(* TODO: Populate RwDict *) 
+
     END Init
 
 ; PROCEDURE InitM3RwTbl ( )
