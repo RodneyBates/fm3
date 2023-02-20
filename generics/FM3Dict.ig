@@ -6,14 +6,14 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-GENERIC INTERFACE FM3Dict ( KeyTyp , ValTyp )
+GENERIC INTERFACE FM3Dict ( Key , Value )
 
-(* KeyTyp declares:
+(* Key declares:
      . T
      . Hash
      . Brand.
 
-   ValTyp declares:
+   Value declares:
      . T
      . Default, a member of T
      . Brand 
@@ -21,20 +21,18 @@ GENERIC INTERFACE FM3Dict ( KeyTyp , ValTyp )
 
 ; IMPORT FM3Base 
 
-; TYPE T <:
-    BRANDED"FM3(" & KeyTyp . Brand & "," & ValTyp , Brand & ")Dict_0.1"
-    REFANY
+; TYPE T <: REFANY
 
 (* Sizes are count of Key-value pairs.  Any extra space needed by
    the internal data structure will be added internally. *)
 
-; PROCEDURE NewFixed ( MaxSize : INTEGER ; TwoPhase : BOOLEAN ) T
+; PROCEDURE NewFixed ( MaxSize : INTEGER ; TwoPhase : BOOLEAN ) : T
   (* Will not support growth beyond MaxSize Key-value pairs. *)
   (* If TwoPhase, all calls on Insert must precede a single call
      on Finalize, before any calls on Lookup.  There may be
      efficiency benefits to these restrictions. *)
   
-; PROCEDURE NewGrowable ( InitSize : INTEGER ) T
+; PROCEDURE NewGrowable ( InitSize : INTEGER ) : T
   (* InitSize is an initial Key-value pair estimate.
      Will auto-expand beyond this, if necessary. *) 
 
@@ -44,9 +42,9 @@ GENERIC INTERFACE FM3Dict ( KeyTyp , ValTyp )
 
 ; PROCEDURE Insert
     ( Dict : T
-    ; Key : KeyTyp 
+    ; Key : Key . T  
     ; Hash : FM3Base . HashTyp
-    ; Value : ValTyp
+    ; Value : Value . T 
     )
   (* Using the value given.  Change the value, if already present. *) 
 
@@ -54,9 +52,9 @@ GENERIC INTERFACE FM3Dict ( KeyTyp , ValTyp )
 
 ; PROCEDURE Lookup
     ( Dict : T
-    ; Key : KeyTyp
+    ; Key : Key . T 
     ; Hash : FM3Base . HashTyp
-    ; VAR (*OUT*) Val : ValTyp
+    ; VAR (*OUT*) Val : Value . T 
     )
   : BOOLEAN (* Was found. *)
 

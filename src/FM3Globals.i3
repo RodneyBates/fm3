@@ -10,15 +10,23 @@ INTERFACE FM3Globals
 
 ; IMPORT TextIntTbl 
 
-; IMPORT FM3TextDict 
+; IMPORT FM3Dict_OAChars_Int  
 
-; VAR M3RwDict : Fm3CharsIntDict . I 
-; VAR PgRwDict : Fm3CharsIntDict . T 
-; VAR IdentAtomDict : FM3CharsAtomDict . T 
+; IMPORT FM3Atom_OAChars
+; IMPORT FM3Atom_OAWideChars
 
-; VAR IdentDictSize := 1500
-; VAR CharsDictSize := 600
-; VAR WideCharsDictSize := 600
+; VAR M3RwDict : FM3Dict_OAChars_Int . T 
+; VAR PgRwDict : FM3Dict_OAChars_Int . T
+
+(* All 3 Atom dictionaries need to be one per comp. unit. *) 
+
+; VAR IdentAtom : FM3Atom_OAChars . T (* Identifiers. *) 
+; VAR TextAtom : FM3Atom_OAChars . T (* TEXT literal values. *) 
+; VAR WideTextAtom : FM3Atom_OAWideChars . T (* Wide TEXT literal valuies. *) 
+
+; VAR IdentAtomSize := 1500
+; VAR TextAtomSize := 600
+; VAR WideTextAtomSize := 600
 
 ; PROCEDURE Init ( ) 
 

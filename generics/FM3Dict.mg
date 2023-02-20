@@ -6,30 +6,30 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-GENERIC MOODLE FM3Dict ( KeyTyp , ValTyp )
+GENERIC MODULE FM3Dict ( Key , Value )
 
-(* KeyTyp declares:
+(* Key declares:
      . T
      . Hash
-     . Brand.
+     . Brand 
 
-   ValTyp declares:
+   Value declares:
      . T
      . Default, a member of T
-     . Brand 
+     . Brands 
 *) 
 
 ; IMPORT FM3Base 
 
 ; REVEAL T
-    = BRANDED"FM3(" & KeyTyp . Brand & "," & ValTyp , Brand & ")Dict_0.1"
+    = BRANDED "Fm3Dict_" & Key . Brand & "_" & Value . Brand 
       REF RECORD
           END (*RECORD*) 
 
 (* Sizes are count of Key-value pairs.  Any extra space needed by
    the internal data structure will be added internally. *)
 
-; PROCEDURE NewFixed ( MaxSize : INTEGER ; TwoPhase : BOOLEAN ) T
+; PROCEDURE NewFixed ( MaxSize : INTEGER ; TwoPhase : BOOLEAN ) : T
   (* Will not support growth beyond MaxSize Key-value pairs. *)
   (* If TwoPhase, all calls on Insert must precede a single call
      on Finalize, before any calls on Lookup.  There may be
@@ -39,7 +39,7 @@ GENERIC MOODLE FM3Dict ( KeyTyp , ValTyp )
       RETURN NEW ( T ) 
     END NewFixed 
   
-; PROCEDURE NewGrowable ( InitSize : INTEGER ) T
+; PROCEDURE NewGrowable ( InitSize : INTEGER ) : T
   (* InitSize is an initial Key-value pair estimate.
      Will auto-expand beyond this, if necessary. *) 
 
@@ -53,22 +53,25 @@ GENERIC MOODLE FM3Dict ( KeyTyp , ValTyp )
 
 ; PROCEDURE Insert
     ( Dict : T
-    ; Key : KeyTyp 
+    ; Key : Key . T  
     ; Hash : FM3Base . HashTyp
-    ; Value : ValTyp
+    ; Value : Value . T 
     )
   (* Using the value given.  Change the value, if already present. *) 
 
   = BEGIN
-    END insert 
+    END Insert 
 
 ; PROCEDURE PhaseTwo ( Dict : T ) 
 
+  = BEGIN
+    END PhaseTwo 
+
 ; PROCEDURE Lookup
     ( Dict : T
-    ; Key : KeyTyp
+    ; Key : Key . T 
     ; Hash : FM3Base . HashTyp
-    ; VAR (*OUT*) Val : ValTyp
+    ; VAR (*OUT*) Val : Value . T 
     )
   : BOOLEAN (* Was found. *)
 
@@ -76,6 +79,7 @@ GENERIC MOODLE FM3Dict ( KeyTyp , ValTyp )
       RETURN FALSE 
     END Lookup 
 
-; END FM3Dict 
+; BEGIN
+  END FM3Dict 
 .
 

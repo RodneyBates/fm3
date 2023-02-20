@@ -8,13 +8,15 @@
 
 GENERIC INTERFACE FM3OpenArray ( Elem ) 
 
-(* Elem declares T, A type that has built-in "<" and ">" defined on it.  
+(* Elem declares T, A type that has built-in "<" and ">" defined on it. *)
 
 ; IMPORT FM3Base 
 
 ; TYPE T = REF ARRAY OF Elem . T 
 
-; PROCEDURE Compare ( Left , Right : T ) : FM3Base . CmpTyp 
+; CONST Brand = "FM3OpenArray"
+
+; PROCEDURE Compare ( Left , Right : T ) : FM3Base . CompareTyp 
 
 ; END FM3OpenArray 
 .

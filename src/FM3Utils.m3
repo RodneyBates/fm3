@@ -11,10 +11,13 @@ MODULE FM3Utils
 ; IMPORT Long AS BitArith
 ; IMPORT Text 
 
-; VAR GoundHashVar := 17345
+; IMPORT IntCharVarArray AS VarArr_Char 
+; IMPORT IntWideCharVarArray AS VarArr_WChar
+
+; VAR GroundHashVar := 17345L
 ; VAR ShiftFactor := 7 
   (* Don't be changing this while hash computations and their uses
-     are going on! )
+     are going on! *)
 
 (*EXPORTED:*)
 ; PROCEDURE GroundHash ( ) : HashTyp
@@ -24,7 +27,8 @@ MODULE FM3Utils
     END GroundHash 
 
 (*EXPORTED:*)
-; PROCEDURE ContribToHash ( VAR (*IN OUT*) Hash , Contribution : HashTyp ) 
+; PROCEDURE ContribToHash
+    ( VAR (*IN OUT*) Hash : HashTyp ; Contribution : HashTyp ) 
   (* A value of GroundHash(), altered by a series of ContribToHash
      calls is a hash of the contributions.  Assume the order of the
      contributions affects the hash value. *)
@@ -34,9 +38,9 @@ MODULE FM3Utils
   ; BEGIN
       LResult
         := BitArith . Xor
-             ( BitArith . Shift ( OldHash , ShiftFactor ) , Contribution )
+             ( BitArith . Shift ( Hash , ShiftFactor ) , Contribution )
     ; Hash := LResult 
-    END ContributeToHash
+    END ContribToHash
 
 (*EXPORTED:*)
 ; PROCEDURE HashOfText ( Key : TEXT ) : HashTyp
@@ -51,11 +55,46 @@ MODULE FM3Utils
       DO
         ContribToHash
           ( (*IN OUT*) LResult
-          , VAL ( Text . GetWideChar ( Key , RI ) , HashTyp )
+          , VAL ( ORD ( Text . GetWideChar ( Key , RI ) ) , HashTyp )
           )  
       END (*FOR*) 
     ; RETURN LResult 
-    END HashOfText 
+    END HashOfText
 
-; END FM3Utils
+(*EXPORTED:*)
+; PROCEDURE CharVarArrayToOAChar
+    ( VarArr : VarArr_Char . T ) : REF ARRAY OF CHAR
+
+  = BEGIN
+(* COMPLETEME *) 
+      RETURN NIL 
+    END CharVarArrayToOAChar
+
+(*EXPORTED:*)
+; PROCEDURE WCharVarArrayToOAWChar
+    ( VarArr : VarArr_WChar . T ) : REF ARRAY OF WIDECHAR 
+
+  = BEGIN
+(* COMPLETEME *) 
+      RETURN NIL 
+    END WCharVarArrayToOAWChar
+
+; PROCEDURE TextLiteral ( READONLY Chars : REF ARRAY OF CHAR ) : TEXT
+  (* Insert quotes and escapes. *) 
+
+  = BEGIN
+(* COMPLETEME *) 
+      RETURN NIL 
+    END TextLiteral 
+
+; PROCEDURE WideTextLiteral ( READONLY WChars : REF ARRAY OF WIDECHAR ) : TEXT
+  (* Insert quotes and escapes. *) 
+
+  = BEGIN
+(* COMPLETEME *) 
+      RETURN NIL 
+    END WideTextLiteral 
+
+; BEGIN
+  END FM3Utils 
 .
