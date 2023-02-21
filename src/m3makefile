@@ -1,0 +1,37 @@
+
+%(* -----------------------------------------------------------------------1- *)
+%(* This file is part of the FM3 Modula-3 compiler.                           *)
+%(* Copyright 2023        Rodney M. Bates.                                    *)
+%(* rodney.m.bates@acm.org                                                    *)
+%(* Licensed under the MIT License.                                           *)
+%(* -----------------------------------------------------------------------2- *)
+
+
+% m3makefile for FM3.
+
+build_standalone ( ) 
+
+%m3_option("-commands")
+%m3_option("-verbose")
+
+include_dir("generics") 
+include_dir("instantiations")
+include_dir("utils")
+
+import("m3core")
+import("libm3")
+
+import("libunicode")
+import("libvararray")
+
+module("FM3Scanner")
+module("FM3Base")
+module("FM3Errors")
+module("FM3Globals")
+module("FM3Toks")
+
+implementation("FM3")
+
+program("FM3")
+
+
