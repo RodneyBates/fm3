@@ -337,19 +337,11 @@ MODULE FM3Scanner
       ; GCurTokRef . TrChars 
           := FM3Utils . CharVarArrayToOAChar ( ScCharVarArr ) 
       ; IF ScAtBegOfPragma 
-           AND FM3Dict_OAChars_Int . Lookup
-                 ( FM3Globals . PgRwDict 
-                 , GCurTokRef . TrChars  
-                 , ScHash 
-                 , (*OUT*) LRwTok 
-                 ) 
+           AND FM3Globals . PgRwDict . lookup  
+                 ( GCurTokRef . TrChars , ScHash , (*OUT*) LRwTok ) 
         THEN GCurTokRef ^ . TrTok := LRwTok 
-        ELSIF FM3Dict_OAChars_Int . Lookup 
-                ( FM3Globals . M3RwDict 
-                , GCurTokRef . TrChars 
-                , ScHash 
-                , (*OUT*) LRwTok 
-                ) 
+        ELSIF FM3Globals . M3RwDict . lookup  
+                ( GCurTokRef . TrChars , ScHash , (*OUT*) LRwTok ) 
         THEN GCurTokRef ^ . TrTok := LRwTok 
         ELSE 
           GCurTokRef ^ . TrAtom 
@@ -682,7 +674,7 @@ MODULE FM3Scanner
         THEN 
         ELSIF GTopSsRef . SsCh = '\\' 
         THEN LWCh := EscapeSeq ( Wide , Text := FALSE ) 
-        ELSIF NOT Wide AND TopSsRef . SsWCh > WLastOfChar 
+        ELSIF NOT Wide AND GTopSsRef . SsWCh > WLastOfChar 
         THEN 
           ErrorSs ( "Character literal is beyond the range of CHAR." ) 
         ELSE
