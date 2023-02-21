@@ -1,0 +1,14 @@
+
+%(* -----------------------------------------------------------------------1- *)
+%(* This file is part of the FM3 Modula-3 compiler.                           *)
+%(* Copyright 2023        Rodney M. Bates.                                    *)
+%(* rodney.m.bates@acm.org                                                    *)
+%(* Licensed under the MIT License.                                           *)
+%(* -----------------------------------------------------------------------2- *)
+
+module("FM3OpenArray_Char") 
+module("FM3OpenArray_WideChar") 
+module("FM3Atom_OAChars") 
+module("FM3Atom_OAWideChars") 
+module("FM3Dict_OAChars_Int") 
+
