@@ -24,6 +24,8 @@ GENERIC INTERFACE FM3Dict ( KeyInterface , ValueInterface )
 ; CONST
     Brand = "FM3Dict0.1_" & KeyInterface . Brand & "_" & ValueInterface . Brand 
 
+; EXCEPTION Error ( TEXT ) 
+
 ; TYPE T <: Public
 
 ; TYPE Public
@@ -52,11 +54,13 @@ GENERIC INTERFACE FM3Dict ( KeyInterface , ValueInterface )
 (* Sizes are count of Key-value pairs.  Any extra space needed by
    the internal data structure will be added internally. *)
 
-; PROCEDURE NewFixed ( MaxSize : INTEGER ; TwoPhase : BOOLEAN ) : T
+; PROCEDURE NewFixed ( MaxSize : INTEGER ) : T
   (* Will not support growth beyond MaxSize Key-value pairs. *)
-  (* If TwoPhase, all calls on Insert must precede a single call
-     on Finalize, before any calls on Lookup.  There may be
-     efficiency benefits to these restrictions. *)
+  (* All calls on insert must precede a single call on finalize,
+     before any calls on lookup.  Also, duplicate keys will result
+     in duplicate entries, with possibly different values, and
+     nondeterministic lookup results.  If MaxSize is low, there
+     will be efficiency benefits to accepting these restrictions. *)
   
 ; PROCEDURE NewGrowable ( InitSize : INTEGER ) : T
   (* InitSize is an initial Key-value pair estimate.
