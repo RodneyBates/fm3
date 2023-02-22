@@ -16,7 +16,7 @@ GENERIC INTERFACE FM3OpenArray ( Elem )
 
 ; CONST Brand = "FM3OpenArray0.1"
 
-; PROCEDURE Compare ( Left , Right : T ) : FM3Base . CompareTyp 
+; PROCEDURE Compare ( READONLY Left , Right : T ) : FM3Base . CompareTyp 
 
 ; END FM3OpenArray 
 .

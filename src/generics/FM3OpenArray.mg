@@ -13,7 +13,8 @@ GENERIC MODULE FM3OpenArray ( Elem )
 ; IMPORT FM3Base
 ; FROM FM3Base IMPORT CmpLT , CmpEQ , CmpGT 
 
-; PROCEDURE Compare ( Left , Right : T ) : FM3Base . CompareTyp 
+(*EXPORTED:*)
+; PROCEDURE Compare ( READONLY Left , Right : T ) : FM3Base . CompareTyp 
 
   = VAR LLeftLen , LRightLen : CARDINAL
   ; VAR LSs : CARDINAL 
@@ -31,7 +32,7 @@ GENERIC MODULE FM3OpenArray ( Elem )
     ; LOOP
         IF LSs >= LLeftLen THEN RETURN CmpEQ END (* IF *)
       ; IF Left ^ [ LSs ] < Right ^ [ LSs ] THEN RETURN CmpLT END (* IF *)
-      ; IF Left ^ [ LSs ] < Right ^ [ LSs ] THEN RETURN CmpGT END (* IF *)
+      ; IF Left ^ [ LSs ] > Right ^ [ LSs ] THEN RETURN CmpGT END (* IF *)
       ; INC ( LSs ) 
       END (*LOOP*) 
     END Compare  

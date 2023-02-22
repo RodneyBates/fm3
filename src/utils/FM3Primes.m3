@@ -125,6 +125,7 @@ MODULE FM3Primes
       END (* LOOP *) 
     END FillTableUpTo  
 
+(*EXPORTED:*)
 ; PROCEDURE NextLargerOrEqualPrime ( Arg : PrimeTyp ) : PrimeTyp
 
   = BEGIN

@@ -6,14 +6,14 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-GENERIC INTERFACE FM3Dict ( Key , Value )
+GENERIC INTERFACE FM3Dict ( KeyInterface , ValueInterface )
 
-(* Key declares:
+(* KeyInterface declares:
      . T
      . Hash
      . Brand.
 
-   Value declares:
+   ValueInterface declares:
      . T
      . Default, a member of T
      . Brand 
@@ -21,15 +21,18 @@ GENERIC INTERFACE FM3Dict ( Key , Value )
 
 ; IMPORT FM3Base 
 
+; CONST
+    Brand = "FM3Dict0.1_" & KeyInterface . Brand & "_" & ValueInterface . Brand 
+
 ; TYPE T <: Public
 
 ; TYPE Public
     = OBJECT METHODS
         insert
-          ( Key : Key . T  
+          ( Key : KeyInterface . T  
           ; Hash : FM3Base . HashTyp
-          ; Value : Value . T
-          ; VAR OldValue : Value . T (* Meaningful IFF returns TRUE. *) 
+          ; Value : ValueInterface . T
+          ; VAR OldValue : ValueInterface . T (* Meaningful IFF returns TRUE. *) 
           ; DoUpdate : BOOLEAN := FALSE
             (* ^If Key is already present, update its Velue.
                Otherwise, leave the value unchanged. *) 
@@ -39,9 +42,9 @@ GENERIC INTERFACE FM3Dict ( Key , Value )
       ; enterPhaseTwo ( ) 
 
       ; lookup
-          ( Key : Key . T 
+          ( Key : KeyInterface . T 
           ; Hash : FM3Base . HashTyp
-          ; VAR (*OUT*) Val : Value . T 
+          ; VAR (*OUT*) Val : ValueInterface . T 
           )
         : BOOLEAN (* Was found. *)
       END (*Public*) 
