@@ -15,8 +15,8 @@ INTERFACE FM3Globals
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars
 
-; VAR M3RwDict : FM3Dict_OAChars_Int . T 
-; VAR PgRwDict : FM3Dict_OAChars_Int . T
+; VAR M3RwDict : FM3Dict_OAChars_Int . GrowableTyp  
+; VAR PgRwDict : FM3Dict_OAChars_Int . GrowableTyp 
 
 (* All 3 Atom dictionaries need to be one per comp. unit. *) 
 

@@ -239,7 +239,6 @@ MODULE FM3Scanner
     RAISES { Backout } 
 
     = VAR LWCh : WIDECHAR 
-    ; VAR LWCh2 : CHAR 
 
     ; BEGIN (* NextChar *) 
         IF GTopSsRef . SsCh = CR 
@@ -259,8 +258,8 @@ MODULE FM3Scanner
       ; INC ( GTopSsRef . SsCharPos )
       ; IF GTopSsRef . SsCh = CR 
         THEN 
-          LWCh2 := UnsafeUniRd . FastGetWideChar ( GTopSsRef ^ . SsUniRd ) 
-        ; IF LWCh2 = LF 
+          LWCh := UnsafeUniRd . FastGetWideChar ( GTopSsRef ^ . SsUniRd ) 
+        ; IF LWCh = LF 
           THEN INC ( GTopSsRef . SsCharPos )
           (* Leave GTopSsRef.SsCh and .SsWCh = CR: canonical new line. *)
           ELSE 
@@ -319,8 +318,7 @@ MODULE FM3Scanner
     (* PRE: The identifier is already started, possibly non-empty. *) 
 
     = VAR LSs : INTEGER 
-    ; VAR LRwTok : FM3Base . TokTyp 
-    ; VAR LIsRw : BOOLEAN 
+    ; VAR LIntTok : INTEGER 
 
     ; BEGIN (* Ident *) 
         WHILE GTopSsRef . SsCh 
@@ -337,12 +335,19 @@ MODULE FM3Scanner
       ; GCurTokRef . TrChars 
           := FM3Utils . CharVarArrayToOAChar ( ScCharVarArr ) 
       ; IF ScAtBegOfPragma 
-           AND FM3Globals . PgRwDict . lookup  
-                 ( GCurTokRef . TrChars , ScHash , (*OUT*) LRwTok ) 
-        THEN GCurTokRef ^ . TrTok := LRwTok 
-        ELSIF FM3Globals . M3RwDict . lookup  
-                ( GCurTokRef . TrChars , ScHash , (*OUT*) LRwTok ) 
-        THEN GCurTokRef ^ . TrTok := LRwTok 
+           AND FM3Dict_OAChars_Int . LookupGrowable 
+                 ( FM3Globals . PgRwDict 
+                 , GCurTokRef . TrChars 
+                 , ScHash 
+                 , (*OUT*) LIntTok 
+                 ) 
+        THEN GCurTokRef ^ . TrTok := LIntTok 
+        ELSIF FM3Dict_OAChars_Int . LookupGrowable 
+                ( FM3Globals . M3RwDict 
+                , GCurTokRef . TrChars 
+                , ScHash 
+                , (*OUT*) LIntTok ) 
+        THEN GCurTokRef ^ . TrTok := LIntTok 
         ELSE 
           GCurTokRef ^ . TrAtom 
             := FM3Atom_OAChars . MakeAtom 
@@ -549,7 +554,6 @@ MODULE FM3Scanner
     ; VAR LIntVal : INTEGER 
     ; VAR LMaxIntVal : INTEGER 
     ; VAR LDigitChars : SET OF CHAR
-    ; VAR LWCh : WIDECHAR 
     ; VAR LDigitCount : FM3Base . Card8Typ
     ; VAR LShift : FM3Base . Card8Typ
     ; VAR LChIntVal : FM3Base . Card8Typ
@@ -708,8 +712,6 @@ MODULE FM3Scanner
     = VAR LSs : INTEGER 
     ; VAR LBadCharCt : INTEGER 
     ; VAR LCharVal : CHAR 
-    ; VAR LLoc : TEXT 
-    ; VAR LMsg : TEXT 
 
     ; BEGIN (* WideTextLit *) 
         BegOfTokWInfo ( )
@@ -775,8 +777,6 @@ MODULE FM3Scanner
 
     = VAR LSs : INTEGER 
     ; VAR LWCharVal : WIDECHAR 
-    ; VAR LLoc : TEXT 
-    ; VAR LMsg : TEXT 
 
     ; BEGIN (* WideTextLit *) 
         BegOfTokWInfo ( )

@@ -29,114 +29,105 @@ GENERIC MODULE FM3Dict ( KeyInterface , ValueInterface )
     ; RowValue : ValueInterface . T 
     END (*RECORD*)
     
-; TYPE KindTyp = { DkHashed , DkUnsorted , DkSorted , DkFSM } 
+; TYPE StateTyp = { DsHashed , DsUnsorted , DsSorted } 
 
-; REVEAL T
-    = Public
-      BRANDED Brand 
+; REVEAL Private 
+    = BRANDED "Fm3Dict_BaseTyp"
       OBJECT
-        DctTableRef : REF ARRAY OF RowTyp
-      ; DctOccupiedCt : INTEGER := 0 
-      ; DctKind : KindTyp
-      ; DctGrowable : BOOLEAN := FALSE 
-      END (*T*)
+        DbTableRef : REF ARRAY OF RowTyp := NIL 
+      ; DbHashFunc : HashFuncTyp := NIL 
+      ; DbOccupiedCt : INTEGER := 0 
+      ; DbState := StateTyp . DsUnsorted 
+      ; DbHashed : BOOLEAN := FALSE 
+      END (*Private*)
 
-; TYPE THashTyp
-    = T OBJECT OVERRIDES
-          insert := HashInsert
-        ; enterPhaseTwo := NullPhaseTwo
-        ; lookup := HashLookup
-        END (*THashTyp*) 
+; TYPE DictBaseTyp = Private
 
-; TYPE TBinSchTyp
-    = T OBJECT OVERRIDES
-          insert := BinSchInsert
-        ; enterPhaseTwo := BinSchPhaseTwo
-        ; lookup := BinSchLookup
-        END (*TBinSchTyp*) 
+; REVEAL GrowableTyp
+    = DictBaseTyp
+      BRANDED "Fm3Dict_GrowableTyp"
+      OBJECT 
+      END (*GrowableTyp*) 
 
-; VAR GMaxTwoPhaseSize := 15  
+; REVEAL FixedTyp 
+    = DictBaseTyp 
+      BRANDED "Fm3Dict_FixedTyp"
+      OBJECT 
+      END (*FixedTyp*) 
+
+; VAR GMaxFixedSize := 15  
+
+(* Growable dictionaries: *)
+
+(* Growable dictionaries will be auto-expanded as needed.
+   Duplicate Key insertions leave only one entry.  Insertions
+   and Lookups can be interspersed arbitrarily
+*) 
 
 (* Sizes are count of rows.  Any extra space needed by
    the internal data structure will be added internally. *)
 
-(* Rework this.  This mixture of fixed tables (which are binsch),
-   hash tables that were created as such and hash tables that were
-   created as fixed, but implemented as hashed on grounds of size
-   would embarrass Rube Goldberg.
-   As it is, the actual data structure used is reflected by which
-   method overrides get called, while the original creation is
-   encoded in DctKind.  Overrides for hash tables could be called
-   for either kind of table creation.
-*) 
+(* You can use a hash function of your choice, but all Hash values passed
+   to a given dictionary instance must be computed from the adjacent value
+   of Key by the HashFunc supplied to New* when creating the dictionary. *)
+
+(* If the hash pseudo-value 0L is provided along with a Key, it will be
+   computed internally using HashFunc. *) 
+
+; CONST GHashDefault = 13L (* Any random prime. *)
+  (* More keys than this, and a hash table implementation will be used. *) 
 
 (*EXPORTED:*)
-; PROCEDURE NewFixed ( MaxSize : INTEGER ) : T
-  (* Will not support growth beyond MaxSize rows. *)
-  (* If TwoPhase, all calls on Insert must precede a single call
-     on Finalize, before any calls on Lookup.  There may be
-     efficiency benefits to these restrictions. *)
+; PROCEDURE NewGrowable
+    ( InitKeyCt : INTEGER ; HashFunc : HashFuncTyp ) : GrowableTyp 
+      (* InitKeyCt is an initial  estimate.  The dictionary will be
+         auto-expanded as needed. *) 
 
-  = VAR LNew : T
-  ; VAR LTableNumber : INTEGER  
-
-  ; BEGIN
-      IF MaxSize <= GMaxTwoPhaseSize
-      THEN (* Really use the sorted data structure. *)
-        LNew := NEW ( TBinSchTyp )  
-      ; LNew . DctOccupiedCt := 0 
-      ; LTableNumber := MaxSize 
-      ; LNew . DctGrowable := FALSE  
-      ; LNew . DctKind := KindTyp . DkUnsorted  
-      ELSE (* Use the hash table anyway. *) 
-        LNew := NEW ( THashTyp )  
-      ; LNew . DctKind := KindTyp . DkHashed
-      ; LTableNumber := MaxSize + MaxSize DIV 2
-      ; LTableNumber := FM3Primes . NextLargerOrEqualPrime ( LTableNumber )
-      ; LNew . DctGrowable := FALSE (* But still enforce the restrictions. *) 
-      ; LNew . DctOccupiedCt := 0
-      ; LNew . DctKind := KindTyp . DkUnsorted
-        (* ^Not really true, but this will force enforcement of fixed
-           restrictions, while the method overrides will convey what it
-           really is. *) 
-      END (*IF*)
-    ; LNew . DctTableRef := NEW ( REF ARRAY OF RowTyp , LTableNumber )
-    ; RETURN LNew 
-    END NewFixed 
-  
-(*EXPORTED:*)
-; PROCEDURE NewGrowable ( InitSize : INTEGER ) : T
-  (* InitSize is an initial Key-value pair estimate.
-     Will auto-expand beyond this, if necessary. *) 
-
-  = VAR LNew : T
+  = VAR LNew : GrowableTyp 
   ; VAR LTableNumber : INTEGER 
 
   ; BEGIN
-      LNew := NEW ( THashTyp )  
-    ; LTableNumber := InitSize + InitSize DIV 2
+      LNew := NEW ( GrowableTyp )  
+    ; LTableNumber := InitKeyCt + InitKeyCt DIV 2
     ; LTableNumber := FM3Primes . NextLargerOrEqualPrime ( LTableNumber )
-    ; LNew . DctTableRef := NEW ( REF ARRAY OF RowTyp , LTableNumber )
-    ; LNew . DctOccupiedCt := 0  (* Not used. *) 
-    ; LNew . DctGrowable := TRUE  
-    ; LNew . DctKind := KindTyp . DkHashed 
+    ; LNew . DbTableRef := NEW ( REF ARRAY OF RowTyp , LTableNumber )
+    ; LNew . DbHashFunc := HashFunc 
+    ; LNew . DbOccupiedCt := 0  (* Not used. *) 
+    ; LNew . DbHashed := TRUE  
+    ; LNew . DbState := StateTyp . DsHashed 
     ; RETURN LNew 
     END NewGrowable 
 
-(* You can use a hash function of your choice, but all Hash values 
-   passed in below must be computed from the adjacent value of Key
-   by the same function. *)
-
-; CONST GDefaultHash = 13L (* Any random prime. *)  
-
-; PROCEDURE HashInsert
-    ( DictHash : THashTyp 
+(*EXPORTED:*)
+; PROCEDURE InsertGrowable 
+    ( DictHash : GrowableTyp  
     ; Key : KeyInterface . T  
     ; Hash : FM3Base . HashTyp
     ; Value : ValueInterface . T
-    ; VAR OldValue : ValueInterface . T (* Meaningful IFF returns TRUE. *) 
+    ; VAR (*OUT*) OldValue : ValueInterface . T
+      (* ^Meaningful IFF InsertGrowable returns TRUE. *) 
     ; DoUpdate : BOOLEAN := FALSE
-      (* ^If Key is already present, update its Velue.
+      (* ^If Key is already present, update its Value.
+         Otherwise, leave the value unchanged. *) 
+    )
+  : BOOLEAN (* Key was already present. *) 
+  (* All this does is ensure what was created as a fixed dictionary,
+     and could still be using the fixed data structure, is not passed
+     in here.  *) 
+
+  = BEGIN
+      RETURN HashInsert ( DictHash , Key , Hash , Value , OldValue , DoUpdate ) 
+    END InsertGrowable 
+
+; PROCEDURE HashInsert
+    ( Dict : DictBaseTyp  
+    ; Key : KeyInterface . T  
+    ; Hash : FM3Base . HashTyp
+    ; Value : ValueInterface . T
+    ; VAR (*OUT*) OldValue : ValueInterface . T
+      (* ^Meaningful IFF InsertGrowable returns TRUE. *) 
+    ; DoUpdate : BOOLEAN := FALSE
+      (* ^If Key is already present, update its Value.
          Otherwise, leave the value unchanged. *) 
     )
   : BOOLEAN (* Key was already present. *) 
@@ -147,26 +138,23 @@ GENERIC MODULE FM3Dict ( KeyInterface , ValueInterface )
   ; VAR LResult : BOOLEAN 
 
   ; BEGIN
-      IF DictHash . DctKind = KindTyp . DkSorted 
-      THEN RAISE Error ( "Insert into fixed dictionary after enterPhaseTwo.")
-      END (*IF*) 
-    ; IF Hash = 0L THEN Hash := GDefaultHash END (*IF*)
+      IF Hash = 0L THEN Hash := Dict . DbHashFunc ( Key ) END (*IF*)
       (* Hash = 0L is reserved to mean row is unoccupied. *) 
-    ; LTableNumber := NUMBER ( DictHash . DctTableRef ^ ) 
+    ; LTableNumber := NUMBER ( Dict . DbTableRef ^ ) 
     ; LOrigProbe := VAL ( Hash MOD VAL ( LTableNumber , LONGINT ) , INTEGER )  
     ; LProbe := LOrigProbe 
     ; LSkip
         := VAL ( Hash MOD VAL ( LTableNumber - 1 , LONGINT ) , INTEGER ) + 1
       (* 0 < LSkip < LTableNumber. *) 
     ; LOOP
-        WITH WRow = DictHash . DctTableRef ^ [ LProbe ]
+        WITH WRow = Dict . DbTableRef ^ [ LProbe ]
         DO IF WRow . RowHash = 0L (* A free slot. *)
           THEN (* Fill it. *)
             WRow . RowHash := Hash
           ; WRow . RowKey := Key
           ; WRow . RowValue := Value 
-          ; INC ( DictHash . DctOccupiedCt ) 
-          ; GrowHash ( DictHash ) 
+          ; INC ( Dict . DbOccupiedCt ) 
+          ; GrowHash ( Dict ) 
           ; LResult := FALSE
           ; EXIT 
           ELSIF Hash = WRow . RowHash
@@ -185,85 +173,99 @@ GENERIC MODULE FM3Dict ( KeyInterface , ValueInterface )
           END (*IF*) 
         END (*WITH*)
       END (*LOOP*)
-    ; INC ( DictHash . DctOccupiedCt )
     ; RETURN LResult 
     END HashInsert
 
-; PROCEDURE NullPhaseTwo ( Dict : T ) 
+; PROCEDURE RebuildHash
+    ( Dict : DictBaseTyp
+    ; FromTableRef : REF ARRAY OF RowTyp
+    ; NewNumber : INTEGER
+    )
 
-  = BEGIN
-      Dict . DctKind := KindTyp . DkSorted
-      (* ^To disallow subsequent insertions. *)
-    END NullPhaseTwo
-
-; PROCEDURE GrowHash ( DictHash : THashTyp )
-
-  = VAR LOldNumber : INTEGER
-  ; VAR LOldOccupiedCt : INTEGER
-  ; VAR LOldTableRef : REF ARRAY OF RowTyp 
-  ; VAR LNewNumber : INTEGER
-  ; VAR LJunkValue : ValueInterface . T
+  = VAR LJunkValue : ValueInterface . T
   ; VAR LDuplicate : BOOLEAN 
 
   ; BEGIN
-      LOldNumber := NUMBER ( DictHash . DctTableRef ^ )
-    ; LOldOccupiedCt := DictHash . DctOccupiedCt
-    ; IF LOldOccupiedCt + LOldOccupiedCt DIV 3 < LOldNumber (* < 75% full *)
-      THEN RETURN
-      END (*IF*) 
-    ; LNewNumber := LOldOccupiedCt * 2
-    ; LNewNumber := FM3Primes . NextLargerOrEqualPrime ( LNewNumber )
-    
-    ; LOldTableRef := DictHash . DctTableRef
-    ; DictHash . DctTableRef := NEW ( REF ARRAY OF RowTyp , LNewNumber )
+      Dict . DbTableRef := NEW ( REF ARRAY OF RowTyp , NewNumber )
 
-    ; FOR RI := 0 TO LAST ( LOldTableRef ^ )
-      DO WITH WOldRow = LOldTableRef ^ [ RI ] 
+    ; FOR RI := 0 TO LAST ( FromTableRef ^ )
+      DO WITH WOldRow = FromTableRef ^ [ RI ] 
         DO IF WOldRow . RowHash # 0L (* Row is occupied. *) 
           THEN 
-            LDuplicate
+            LDuplicate 
               := HashInsert
-                   ( DictHash
+                   ( Dict
                    , WOldRow . RowKey
                    , WOldRow . RowHash
                    , WOldRow . RowValue
                    , (*OUT*) LJunkValue
                    , DoUpdate := FALSE
                    )
-          ; <* ASSERT NOT LDuplicate *>
           END (*IF*) 
         END (*WITH*) 
       END (*FOR*) 
-    ; LOldTableRef := NIL 
+    END RebuildHash 
+ 
+; PROCEDURE GrowHash ( Dict : DictBaseTyp )
+
+  = VAR LOldNumber : INTEGER
+  ; VAR LOldOccupiedCt : INTEGER
+  ; VAR LOldTableRef : REF ARRAY OF RowTyp 
+  ; VAR LNewNumber : INTEGER
+
+  ; BEGIN
+      LOldNumber := NUMBER ( Dict . DbTableRef ^ )
+    ; LOldOccupiedCt := Dict . DbOccupiedCt
+    ; IF LOldOccupiedCt + LOldOccupiedCt DIV 3 < LOldNumber (* < 75% full *)
+      THEN RETURN
+      END (*IF*) 
+    ; LNewNumber := LOldOccupiedCt * 2
+    ; LNewNumber := FM3Primes . NextLargerOrEqualPrime ( LNewNumber )
+    ; LOldTableRef := Dict . DbTableRef
+    ; RebuildHash ( Dict , LOldTableRef , LNewNumber )  
     END GrowHash 
 
+(*EXPORTED:*)
+; PROCEDURE LookupGrowable 
+    ( DictHash : GrowableTyp
+    ; Key : KeyInterface . T 
+    ; Hash : FM3Base . HashTyp
+    ; VAR (*OUT*) Value : ValueInterface . T 
+    )
+  : BOOLEAN (* Was found. *)
+  (* All this does is ensure what was created as a fixed dictionary,
+     and could still be using the fixed data structure, is not passed
+     in here.  *) 
+
+  = BEGIN
+      RETURN HashLookup ( DictHash , Key , Hash , Value ) 
+    END LookupGrowable 
+
 ; PROCEDURE HashLookup
-    ( DictHash : THashTyp 
+    ( DictBase : DictBaseTyp 
     ; Key : KeyInterface . T 
     ; Hash : FM3Base . HashTyp
     ; VAR (*OUT*) Val : ValueInterface . T 
     )
   : BOOLEAN (* Was found. *)
+  (* This requires that DictBase actually point to a hashed dictionary, even
+     though it might have been created as Fixed.  Callers must insure this. *) 
 
   = VAR LTableNumber : INTEGER
   ; VAR LProbe , LOrigProbe : INTEGER
   ; VAR LSkip : INTEGER 
 
   ; BEGIN
-      IF DictHash . DctKind = KindTyp . DkUnsorted 
-      THEN RAISE Error ( "Lookup in fixed dictionary before enterPhaseTwo.")
-      END (*IF*) 
-
-    ; IF Hash = 0L THEN Hash := GDefaultHash END (*IF*)
+      IF Hash = 0L THEN Hash := GHashDefault END (*IF*)
       (* 0 < LSkip < LTableNumber. *) 
-    ; LTableNumber := NUMBER ( DictHash . DctTableRef ^ ) 
+    ; LTableNumber := NUMBER ( DictBase . DbTableRef ^ ) 
     ; LOrigProbe := VAL ( Hash MOD VAL ( LTableNumber , LONGINT ) , INTEGER ) 
     ; LProbe := LOrigProbe 
     ; LSkip
         := VAL ( Hash MOD VAL ( LTableNumber - 1 , LONGINT ) , INTEGER ) + 1  
       (* 0 < LSkip < LTableNumber. *) 
     ; LOOP
-        WITH WRow = DictHash . DctTableRef ^ [ LProbe ]
+        WITH WRow = DictBase . DbTableRef ^ [ LProbe ]
         DO IF WRow . RowHash = 0L (* A free slot, key not present. *)
           THEN RETURN FALSE 
           ELSIF Hash = WRow . RowHash
@@ -282,65 +284,120 @@ GENERIC MODULE FM3Dict ( KeyInterface , ValueInterface )
       END (*LOOP*)
     END HashLookup
 
-; PROCEDURE BinSchInsert
-    ( Dict : TBinSchTyp 
+(* Fixed dictionaries have some restrictions, but may be more compact
+   and possibly faster, if you can with them and if MaxKeyCt is smallish. 
+   They do not support growth beyond MaxKeyCt Keys. 
+   All calls on InsertFixed must precede a call on FinalizeFixed,
+   before any calls on LookupFixed.  Also, duplicate keys will result
+   in undetected duplicate entries, with different values, and
+   nondeterministic results from LookupFixed.
+*) 
+
+(*EXPORTED:*)
+; PROCEDURE NewFixed
+    ( MaxKeyCt : INTEGER ; HashFunc : HashFuncTyp ) : FixedTyp 
+
+  = VAR LNew : FixedTyp
+  ; VAR LTableNumber : INTEGER  
+
+  ; BEGIN
+      IF MaxKeyCt <= GMaxFixedSize
+      THEN (* Really do use the sorted data structure. *)
+        LNew := NEW ( FixedTyp )  
+      ; LNew . DbOccupiedCt := 0 
+      ; LTableNumber := MaxKeyCt 
+      ; LNew . DbHashed := FALSE  
+      ; LNew . DbState := StateTyp . DsUnsorted  
+      ELSE (* Use the hash table anyway. *) 
+        LNew := NEW ( FixedTyp )  
+      ; LTableNumber := MaxKeyCt + MaxKeyCt DIV 2
+      ; LTableNumber := FM3Primes . NextLargerOrEqualPrime ( LTableNumber )
+      ; LNew . DbOccupiedCt := 0
+      ; LNew . DbHashed := TRUE 
+      END (*IF*)
+    ; LNew . DbHashFunc := HashFunc 
+    ; LNew . DbTableRef := NEW ( REF ARRAY OF RowTyp , LTableNumber )
+    ; RETURN LNew 
+    END NewFixed 
+  
+(*EXPORTED:*)
+; PROCEDURE InsertFixed 
+    ( DictFixed : FixedTyp  
     ; Key : KeyInterface . T  
     ; Hash : FM3Base . HashTyp
     ; Value : ValueInterface . T
-    ; VAR OldValue : ValueInterface . T (* Meaningful IFF returns TRUE. *) 
-    ; DoUpdate : BOOLEAN := FALSE
-      (* ^If Key is already present, update its Velue.
-         Otherwise, leave the value unchanged. *) 
     )
-  : BOOLEAN (* Key was already present. *)
+  RAISES { Error } 
+
+  = VAR LOldValue : ValueInterface . T
+  ; VAR LFound : BOOLEAN
+
+  ; BEGIN
+      IF DictFixed . DbHashed
+      THEN
+        LFound := HashInsert
+          ( DictFixed , Key , Hash , Value , LOldValue , DoUpdate := FALSE ) 
+      ELSIF DictFixed . DbState # StateTyp . DsUnsorted 
+      THEN RAISE Error ( "Lookup in fixed dictionary after Finalize.")
+      ELSE BinSchInsert ( DictFixed , Key , Hash , Value ) 
+      END (*IF*) 
+    END InsertFixed
+
+; PROCEDURE BinSchInsert
+    ( DictFixed : FixedTyp 
+    ; Key : KeyInterface . T  
+    ; Hash : FM3Base . HashTyp
+    ; Value : ValueInterface . T
+    )
+  RAISES { Error } 
 
   = VAR LTableNumber : INTEGER
   ; VAR LEmptySs , LParentSs : INTEGER (* Place waiting to be filled. *)  
   ; VAR LOrphanRow : RowTyp (* Row waiting for a place to fit in.*) 
 
   ; BEGIN
-      IF Dict . DctKind = KindTyp . DkSorted 
-      THEN RAISE Error ( "Insert into fixed dictionary after enterPhaseTwo.")
+      IF DictFixed . DbState = StateTyp . DsSorted 
+      THEN RAISE Error ( "Insert into fixed dictionary after Finalize." ) 
       END (*IF*) 
-    ; IF Hash = 0L THEN Hash := GDefaultHash END (*IF*)
+    ; IF Hash = 0L THEN Hash := GHashDefault END (*IF*)
       (* 0 < LSkip < LTableNumber. *) 
-    ; LTableNumber := NUMBER ( Dict . DctTableRef ^ )
-    ; IF Dict . DctOccupiedCt >= LTableNumber
+    ; LTableNumber := NUMBER ( DictFixed . DbTableRef ^ )
+    ; IF DictFixed . DbOccupiedCt >= LTableNumber
       THEN (* Convert to hash form.*) 
       ELSE 
-        LEmptySs := Dict . DctOccupiedCt
+        LEmptySs := DictFixed . DbOccupiedCt
       ; LOrphanRow . RowHash := Hash
       ; LOrphanRow . RowKey := Key
       ; LOrphanRow . RowValue := Value
       ; LOOP (* Bubble up. *)
           IF LEmptySs = 0 
           THEN (* Done bubbling at the top. *) 
-            Dict . DctTableRef ^ [ 0 ] := LOrphanRow 
+            DictFixed . DbTableRef ^ [ 0 ] := LOrphanRow 
           ; EXIT
           ELSE
             LParentSs := ( LEmptySs - 1 ) DIV 2
           ; IF KeyInterface . Compare
                  ( LOrphanRow . RowKey
-                 , Dict . DctTableRef ^ [ LParentSs ] . RowKey
+                 , DictFixed . DbTableRef ^ [ LParentSs ] . RowKey
                  )
                # CmpGT
             THEN (* Can store the orphan here and be done. *)
-              Dict . DctTableRef ^ [ LEmptySs ] := LOrphanRow
+              DictFixed . DbTableRef ^ [ LEmptySs ] := LOrphanRow
             ; EXIT
             ELSE (* Must bubble a level. *)
-              Dict . DctTableRef ^ [ LEmptySs ]
-                := Dict . DctTableRef ^ [ LParentSs ]
+              DictFixed . DbTableRef ^ [ LEmptySs ]
+                := DictFixed . DbTableRef ^ [ LParentSs ]
             ; LEmptySs := LParentSs
             (* And loop. *) 
             END (*IF*)
           END (*IF*)
         END (*LOOP*)
-      ; INC ( Dict . DctOccupiedCt )
+      ; INC ( DictFixed . DbOccupiedCt )
       END (*IF*)
-    ; RETURN FALSE 
     END BinSchInsert 
 
-; PROCEDURE BinSchPhaseTwo ( Dict : T ) 
+(*EXPORTED:*)
+; PROCEDURE Finalize ( DictFixed : FixedTyp ) 
 
   = VAR LTableNumber : INTEGER
   ; VAR LSs , LGreaterSs : INTEGER 
@@ -349,36 +406,37 @@ GENERIC MODULE FM3Dict ( KeyInterface , ValueInterface )
   ; VAR LCompare : [ -1 .. 1 ] 
   
   ; BEGIN
-      IF Dict . DctKind # KindTyp . DkUnsorted THEN RETURN END (*IF*) 
+      IF DictFixed . DbState # StateTyp . DsUnsorted THEN RETURN END (*IF*) 
          (* ^Let's give a pass to duplicate calls here. *)  
-    ; IF Dict . DctOccupiedCt <= 1 (* Aleady trivially sorted.. *)
+    ; IF DictFixed . DbOccupiedCt <= 1 (* Aleady trivially sorted.. *)
       THEN
-        Dict . DctKind := KindTyp . DkSorted
+        DictFixed . DbState := StateTyp . DsSorted
       ; RETURN
       END (*IF*) 
-    ; LTableNumber := NUMBER ( Dict . DctTableRef ^ )
-    ; FOR RSs := Dict . DctOccupiedCt - 1 TO 1 BY - 1 
+    ; LTableNumber := NUMBER ( DictFixed . DbTableRef ^ )
+    ; FOR RSs := DictFixed . DbOccupiedCt - 1 TO 1 BY - 1 
       DO 
-        LReinsertRow := Dict . DctTableRef ^ [ RSs ] (* Make space. *) 
-      ; Dict . DctTableRef ^ [ RSs ] := Dict . DctTableRef ^ [ 0 ]
+        LReinsertRow := DictFixed . DbTableRef ^ [ RSs ] (* Make space. *) 
+      ; DictFixed . DbTableRef ^ [ RSs ] := DictFixed . DbTableRef ^ [ 0 ]
       ; LSs := 0 
       ; LOOP 
           LLeftChildSs := ( LSs * 2 ) + 1 
         ; LRightChildSs := LLeftChildSs + 1 
         ; IF LLeftChildSs >= RSs 
           THEN (* No children. We are done. *) 
-            Dict . DctTableRef ^ [ LSs ] := LReinsertRow 
+            DictFixed . DbTableRef ^ [ LSs ] := LReinsertRow 
           ; EXIT
           ELSE (* We at least have a left child. *)  
-            LLeftRow := Dict . DctTableRef ^ [ LLeftChildSs ] 
+            LLeftRow := DictFixed . DbTableRef ^ [ LLeftChildSs ] 
           ; IF LRightChildSs >= RSs 
             THEN (* No right child. Treat left as greater child. *)  
               LGreaterSs := LLeftChildSs 
             ; LGreaterRow := LLeftRow 
             ELSE (* Both a left and right child. *) 
-              LRightRow := Dict . DctTableRef ^ [ LRightChildSs ] 
+              LRightRow := DictFixed . DbTableRef ^ [ LRightChildSs ] 
             ; LCompare 
-                := KeyInterface . Compare ( LLeftRow . RowKey , LRightRow . RowKey)
+                := KeyInterface . Compare
+                     ( LLeftRow . RowKey , LRightRow . RowKey)
             ; IF LCompare = CmpGT 
               THEN (* Left is greater child. *) 
                 LGreaterSs := LLeftChildSs 
@@ -390,39 +448,42 @@ GENERIC MODULE FM3Dict ( KeyInterface , ValueInterface )
             END (* IF *) 
           END (* IF *) 
         ; LCompare 
-            := KeyInterface . Compare ( LReinsertRow . RowKey , LGreaterRow . RowKey ) 
+            := KeyInterface . Compare
+                 ( LReinsertRow . RowKey , LGreaterRow . RowKey ) 
         ; IF LCompare = CmpGT  
           THEN (* Parent is greatest of 3.  We are done. *) 
-            Dict . DctTableRef ^ [ LSs ] := LReinsertRow 
+            DictFixed . DbTableRef ^ [ LSs ] := LReinsertRow 
           ; EXIT 
           ELSE (* Move the greater child up to the current slot, creating
                   space to push the current item down to. *) 
-            Dict . DctTableRef ^ [ LSs ] := LGreaterRow 
+            DictFixed . DbTableRef ^ [ LSs ] := LGreaterRow 
           ; LSs := LGreaterSs 
           END (* IF *) 
         END (* LOOP *)  
       END (* FOR *)
-    ; Dict . DctKind := KindTyp . DkSorted 
-    END BinSchPhaseTwo
+    ; DictFixed . DbState := StateTyp . DsSorted 
+    END Finalize 
 
-; PROCEDURE BinSchLookup
-    ( Dict : TBinSchTyp 
+(*EXPORTED:*)
+; PROCEDURE LookupFixed  
+    ( DictFixed : FixedTyp
     ; Key : KeyInterface . T 
     ; <*UNUSED*> Hash : FM3Base . HashTyp
     ; VAR (*OUT*) Val : ValueInterface . T 
     )
   : BOOLEAN (* Was found. *)
+  RAISES { Error } 
 
   = VAR LLo , LHi , LProbe : INTEGER
   ; VAR LCompare : [ -1 .. 1 ] 
 
   ; BEGIN
-      IF Dict . DctKind = KindTyp . DkUnsorted 
-      THEN RAISE Error ( "Lookup in fixed dictionary before enterPhaseTwo.")
+      IF DictFixed . DbState = StateTyp . DsUnsorted 
+      THEN RAISE Error ( "Lookup in fixed dictionary before Finalize." ) 
       END (*IF*)
       
     ; LLo := 0
-    ; LHi := Dict . DctOccupiedCt
+    ; LHi := DictFixed . DbOccupiedCt
     (* INVARIANT: Sought entry, if present, is at subscript S,
                   where Lo <= S < LHi *) 
     ; LOOP
@@ -430,18 +491,17 @@ GENERIC MODULE FM3Dict ( KeyInterface , ValueInterface )
       ; LProbe := ( LLo + LHi ) DIV 2
       ; LCompare
           := KeyInterface . Compare
-               ( Key , Dict . DctTableRef ^ [ LProbe ] . RowKey )
+               ( Key , DictFixed . DbTableRef ^ [ LProbe ] . RowKey )
       ; IF LCompare = CmpEQ
         THEN (* Lucky early find. *) 
-          Val := Dict . DctTableRef ^ [ LProbe ] . RowValue 
+          Val := DictFixed . DbTableRef ^ [ LProbe ] . RowValue 
         ; RETURN TRUE
         ELSIF LCompare = CmpLT THEN LHi := LProbe 
         ELSE LLo := LProbe + 1
         END (*IF*) 
       END (*LOOP*) 
-    END BinSchLookup
+    END LookupFixed
 
 ; BEGIN
   END FM3Dict 
 .
-

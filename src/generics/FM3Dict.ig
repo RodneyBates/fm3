@@ -24,51 +24,89 @@ GENERIC INTERFACE FM3Dict ( KeyInterface , ValueInterface )
 ; CONST
     Brand = "FM3Dict0.1_" & KeyInterface . Brand & "_" & ValueInterface . Brand 
 
-; EXCEPTION Error ( TEXT ) 
+; EXCEPTION Error ( TEXT )
 
-; TYPE T <: Public
+(* For Hash parameters, You can use a hash function of your choice, as
+   long as It is always the same for a given Key value, onsistent
+   for all calls involving a single dictionary, never produces 0L,
+   and is always the same for a given Key value. 
 
-; TYPE Public
-    = OBJECT METHODS
-        insert
-          ( Key : KeyInterface . T  
-          ; Hash : FM3Base . HashTyp
-          ; Value : ValueInterface . T
-          ; VAR OldValue : ValueInterface . T (* Meaningful IFF returns TRUE. *) 
-          ; DoUpdate : BOOLEAN := FALSE
-            (* ^If Key is already present, update its Velue.
-               Otherwise, leave the value unchanged. *) 
-          )
-        : BOOLEAN (* Key was already present. *) 
+   If you don't already have it for a Key you pass in, you can leave
+   parameter Hash as 0L and the procedure will compute it, using the
+   function passed to HashFunction.
+*)
 
-      ; enterPhaseTwo ( ) 
+; TYPE HashFuncTyp = PROCEDURE ( Key : KeyInterface . T ) : FM3Base . HashTyp 
+   
+(* Fixed dictionaries. *) 
 
-      ; lookup
-          ( Key : KeyInterface . T 
-          ; Hash : FM3Base . HashTyp
-          ; VAR (*OUT*) Val : ValueInterface . T 
-          )
-        : BOOLEAN (* Was found. *)
-      END (*Public*) 
+(* Fixed dictionaries have some restrictions, but may be more compact
+   and possibly faster, if you can with them and if MaxKeyCt is smallish. 
+   They do not support growth beyond MaxKeyCt Keys. 
+   All calls on InsertFixed must precede a call on FinalizeFixed,
+   before any calls on LookupFixed.  Also, duplicate keys will result
+   in undetected duplicate entries, with different values, and
+   nondeterministic results from LookupFixed.
+*) 
 
-(* Sizes are count of Key-value pairs.  Any extra space needed by
-   the internal data structure will be added internally. *)
+; TYPE Private <: REFANY
 
-; PROCEDURE NewFixed ( MaxSize : INTEGER ) : T
-  (* Will not support growth beyond MaxSize Key-value pairs. *)
-  (* All calls on insert must precede a single call on finalize,
-     before any calls on lookup.  Also, duplicate keys will result
-     in duplicate entries, with possibly different values, and
-     nondeterministic lookup results.  If MaxSize is low, there
-     will be efficiency benefits to accepting these restrictions. *)
-  
-; PROCEDURE NewGrowable ( InitSize : INTEGER ) : T
-  (* InitSize is an initial Key-value pair estimate.
-     Will auto-expand beyond this, if necessary. *) 
+; TYPE FixedTyp <: Private 
+; TYPE GrowableTyp <: Private 
 
-(* You can use a hash function of your choice, but all Hash values 
-   passed in below must be computed from the adjacent Key value
-   by the same function. *)
+; PROCEDURE NewFixed
+    ( MaxKeyCt : INTEGER ; HashFunc : HashFuncTyp ) : FixedTyp 
+
+; PROCEDURE InsertFixed 
+    ( Dict : FixedTyp  
+    ; Key : KeyInterface . T  
+    ; Hash : FM3Base . HashTyp
+    ; Value : ValueInterface . T
+    )
+  RAISES { Error }  
+
+; PROCEDURE Finalize ( Dict : FixedTyp ) 
+
+; PROCEDURE LookupFixed  
+    ( Dict : FixedTyp
+    ; Key : KeyInterface . T 
+    ; Hash : FM3Base . HashTyp
+    ; VAR (*OUT*) Val : ValueInterface . T 
+    )
+  : BOOLEAN (* Was found. *)
+  RAISES { Error } 
+
+(* Growable dictionaries: *)
+
+(* Growable dictionaries will be auto-expanded as needed.
+   Duplicate Key insertions leave only one entry.  Insertions
+   and Lookups can be interspersed arbitrarily
+*) 
+
+; PROCEDURE NewGrowable
+    ( InitKeyCt : INTEGER ; HashFunc : HashFuncTyp ) : GrowableTyp 
+      (* InitKeyCt is an initial  estimate.  *) 
+
+; PROCEDURE InsertGrowable 
+    ( Dict : GrowableTyp  
+    ; Key : KeyInterface . T  
+    ; Hash : FM3Base . HashTyp
+    ; Value : ValueInterface . T
+    ; VAR (*OUT*) OldValue : ValueInterface . T
+      (* ^Meaningful IFF InsertGrowable returns TRUE. *) 
+    ; DoUpdate : BOOLEAN := FALSE
+      (* ^If Key is already present, update its Value.
+         Otherwise, leave the value unchanged. *) 
+    )
+  : BOOLEAN (* Key was already present. *) 
+
+; PROCEDURE LookupGrowable 
+    ( Dict : GrowableTyp
+    ; Key : KeyInterface . T 
+    ; Hash : FM3Base . HashTyp
+    ; VAR (*OUT*) Val : ValueInterface . T 
+    )
+  : BOOLEAN (* Was found. *)
 
 ; END FM3Dict 
 .
