@@ -19,8 +19,6 @@ MODULE FM3LexTable
 ; IMPORT FM3LexTableRep 
 ; IMPORT FM3Base 
 
-; TYPE AFT = MessageCodes . T 
-
 (*EXPORTED*) 
 ; PROCEDURE ToText ( Table : T ; Value : ValueTyp ) : TEXT 
   (* NIL if Value not in Table. *) 
@@ -47,9 +45,9 @@ MODULE FM3LexTable
 
   = VAR LNameSs : INTEGER 
   ; VAR LNameLast : INTEGER 
-  ; VAR LStateNo : FM3LexTableRep . StateNoTyp 
+  ; VAR LStateNo : StateNoTyp 
+  ; VAR LTransition : StateNoTyp 
   ; VAR LChar : CHAR 
-  ; VAR LTransition : FM3LexTableRep . StateTyp 
 
   ; BEGIN 
       IF Table = NIL 
@@ -87,24 +85,22 @@ MODULE FM3LexTable
 
 (*EXPORTED*) 
 ; PROCEDURE ValueFromText ( Table : T ; Name : TEXT ) : ValueTyp 
-  RAISES { Backout } 
   (* ValueNull if Name is not in Table. *) 
 
   = VAR LChars : ARRAY [ 0 .. MaxStringLength - 1 ] OF CHAR 
   ; VAR LLength : INTEGER 
 
   ; BEGIN
-      Assert 
-        ( Text . Length ( Name ) <= MaxStringLength 
-        , AFT . A_ValueFromText_StringTooLong 
-        ) 
-    ; Text . SetChars ( LChars , Name ) 
+      <* ASSERT Text . Length ( Name ) <= MaxStringLength 
+         , "StringTooLong." 
+      *> 
+      Text . SetChars ( LChars , Name ) 
     ; LLength := MIN ( Text . Length ( Name ) , MaxStringLength ) 
     ; RETURN ValueFromChars ( Table , SUBARRAY ( LChars , 0 , LLength ) ) 
     END ValueFromText 
 
 (*EXPORTED*)
-; PROCEDURE IncrInit ( Table : T ) : StateTyp
+; PROCEDURE IncrInit ( <* UNUSED *> Table : T ) : StateNoTyp
   (* Initialize for char-at-a-time lookup *)
 
   = BEGIN
@@ -113,7 +109,7 @@ MODULE FM3LexTable
     
 (*EXPORTED*)
 ; PROCEDURE IncrNext
-    ( Table : T ; Char : CHAR ; VAR (*IN OUT*) State : StateTyp ) 
+    ( Table : T ; Char : CHAR ; VAR (*IN OUT*) State : StateNoTyp ) 
   : ValueTyp
   (* Supply one character to an incremental lookup.  State must be what was
      returned by the last IncrInit or IncrNext, and using the same Table.
@@ -122,7 +118,7 @@ MODULE FM3LexTable
      Caller must call with 
      ValueUnrecognized means, well, unrecognized? *)
      
-  = VAR LTransition : FM3LexTableRep . StateTyp
+  = VAR LTransition : StateNoTyp
   
   ; BEGIN
       WITH WState = Table ^ . StatesRef ^ [ State ] 
@@ -137,7 +133,7 @@ MODULE FM3LexTable
           ELSIF LTransition = FM3LexTableRep . NoTransition 
           THEN RETURN ValueUnrecognized 
           ELSE
-            StateNo := LTransition
+            State := LTransition
           ; RETURN ValueNull 
           END (* IF *) 
         END (* IF *) 
