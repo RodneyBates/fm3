@@ -8,7 +8,7 @@
 
 INTERFACE FM3Chars
 
-; TYPE T = REF ARRAY OF Char
+; TYPE T = REF ARRAY OF CHAR
 
 ; CONST Brand = "FM3Chars"
 

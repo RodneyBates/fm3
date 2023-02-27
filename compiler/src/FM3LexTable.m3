@@ -16,10 +16,7 @@ MODULE FM3LexTable
 
 ; IMPORT Text 
 
-; FROM Assertions IMPORT Assert 
-; FROM Failures IMPORT Backout 
 ; IMPORT FM3LexTableRep 
-; IMPORT MessageCodes 
 ; IMPORT FM3Base 
 
 ; TYPE AFT = MessageCodes . T 
@@ -115,9 +112,9 @@ MODULE FM3LexTable
     END IncrInit
     
 (*EXPORTED*)
-; PROCEURE IncrNext
+; PROCEDURE IncrNext
     ( Table : T ; Char : CHAR ; VAR (*IN OUT*) State : StateTyp ) 
-  : Value : ValueTyp
+  : ValueTyp
   (* Supply one character to an incremental lookup.  State must be what was
      returned by the last IncrInit or IncrNext, and using the same Table.
      Supply NullChar as and only-as the last in the string. 

@@ -6,4 +6,4 @@
 %(* Licensed under the MIT License.                                           *)
 %(* -----------------------------------------------------------------------2- *)
 
-module("FM3LexTableRep.i3")
+interface("FM3LexTableRep")

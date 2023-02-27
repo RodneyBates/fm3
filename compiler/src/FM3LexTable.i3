@@ -21,13 +21,13 @@ INTERFACE FM3LexTable
 ; CONST ValueNull = LAST ( ValueTyp )
 ; CONST ValueUnrecognized = ValueNull - 1 
 
-; TYPE StateTyp : FM3Base . Int32Typ 
+; TYPE StateTyp = FM3Base . Int32Typ 
 
 ; TYPE T <: REFANY
 
 ; TYPE ValidCharTyp = [ ' ' .. '~' ] (* Printable chars. *)   
 ; CONST NullChar 
-    = VAL ( ORD ( FIRST ( FM3LexTable . ValidCharTyp ) ) - 1 , CHAR ) 
+    = VAL ( ORD ( FIRST ( ValidCharTyp ) ) - 1 , CHAR ) 
 
 ; PROCEDURE ToText ( Table : T ; Value : ValueTyp ) : TEXT 
   (* NIL if Value not in Table. *) 
@@ -42,13 +42,9 @@ INTERFACE FM3LexTable
 ; PROCEDURE IncrInit ( Table : T ) : StateTyp
   (* Initialize for char-at-a-time lookup *)
 
-  = BEGIN
-      RETURN 0 
-    END IncrInit
-    
-; PROCEURE IncrNext
+; PROCEDURE IncrNext
     ( Table : T ; Char : CHAR ; VAR (*IN OUT*) State : StateTyp ) 
-  : Value : ValueTyp
+  : ValueTyp
   (* Supply one character to an incremental lookup.  State must be what was
      returned by the last IncrInit or IncrNext, and using the same Table.
      Supply NullChar as and only-as the last in the string. 

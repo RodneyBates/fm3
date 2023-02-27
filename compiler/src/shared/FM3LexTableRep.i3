@@ -11,9 +11,9 @@ INTERFACE FM3LexTableRep
 ; IMPORT FM3Base 
 ; IMPORT FM3LexTable   
 
-; CONST NoTransition = LAST ( StateTyp ) 
+; CONST NoTransition = LAST ( StateNoTyp ) 
 ; CONST LastRealTransition = NoTransition - 1 
-; CONST FirstNegResultValue = FIRST ( StateTyp ) 
+; CONST FirstNegResultValue = FIRST ( StateNoTyp ) 
 (* Negative "transitions" are mapped-to values, biased by FirstNegResultValue. 
    NoTransition means there is none.  
    Nonnegative transitions < NoTransition are unbiased states to go to. 
