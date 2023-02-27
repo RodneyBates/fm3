@@ -6,35 +6,4 @@
 %(* Licensed under the MIT License.                                           *)
 %(* -----------------------------------------------------------------------2- *)
 
-
-% m3makefile for FM3.
-
-build_standalone ( ) 
-
-%m3_option("-commands")
-%m3_option("-verbose")
-
-include_dir("generics") 
-include_dir("instantiations")
-include_dir("utils")
-include_dir("shared")
-
-import("m3core")
-import("libm3")
-
-import("libunicode")
-import("libvararray")
-
-module("FM3Scanner")
-module("FM3LesTable")
-module("FM3Base")
-module("FM3Chars")
-module("FM3Errors")
-module("FM3Globals")
-module("FM3Toks")
-
-implementation("FM3")
-
-program("FM3")
-
-
+module("FM3LexTableRep.i3")
