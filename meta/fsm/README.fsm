@@ -1,0 +1,9 @@
+Program to build, off-line, tables for a finite state machine that
+will scan a set of fixed character strings and convert them to integer
+codes.
+
+To be compiled, it needs file ../../compiler/src/shared/FM3LexTableRep.i3,
+which is also needed by the compiler itself.
+
+FM3LexTable.[im]3 are a runtime for these tables.
+
