@@ -27,13 +27,13 @@ GENERIC INTERFACE FM3Dict ( KeyInterface , ValueInterface )
 ; EXCEPTION Error ( TEXT )
 
 (* For Hash parameters, You can use a hash function of your choice, as
-   long as It is always the same for a given Key value, onsistent
-   for all calls involving a single dictionary, never produces 0L,
+   long as It is always the same for a given Key value, consistent for all
+   calls involving a single dictionary, never produces FM3Utils.HashNull,
    and is always the same for a given Key value. 
 
    If you don't already have it for a Key you pass in, you can leave
-   parameter Hash as 0L and the procedure will compute it, using the
-   function passed to HashFunction.
+   parameter Hash as FM3Utils.HashNull and the procedure will compute it,
+   using the function passed to HashFunction.
 *)
 
 ; TYPE HashFuncTyp = PROCEDURE ( Key : KeyInterface . T ) : FM3Base . HashTyp 

@@ -21,10 +21,12 @@ GENERIC MODULE FM3Dict ( KeyInterface , ValueInterface )
 ; IMPORT FM3Base
 ; FROM FM3Base IMPORT CmpLT , CmpEQ , CmpGT 
 ; IMPORT FM3Primes 
+; IMPORT FM3Utils 
 
 ; TYPE RowTyp
   = RECORD
-      RowHash : FM3Base . HashTyp := 0L (* Which means this row is empty. *)  
+      RowHash : FM3Base . HashTyp := FM3Utils.HashNull
+      (* Which means this row is empty. *)  
     ; RowKey : KeyInterface . T
     ; RowValue : ValueInterface . T 
     END (*RECORD*)
@@ -71,8 +73,8 @@ GENERIC MODULE FM3Dict ( KeyInterface , ValueInterface )
    to a given dictionary instance must be computed from the adjacent value
    of Key by the HashFunc supplied to New* when creating the dictionary. *)
 
-(* If the hash pseudo-value 0L is provided along with a Key, it will be
-   computed internally using HashFunc. *) 
+(* If the hash pseudo-value FM3Utils.HashNull is provided along with a Key,
+   the hash value will be computed internally using HashFunc. *) 
 
 ; CONST GHashDefault = 13L (* Any random prime. *)
   (* More keys than this, and a hash table implementation will be used. *) 
@@ -138,8 +140,10 @@ GENERIC MODULE FM3Dict ( KeyInterface , ValueInterface )
   ; VAR LResult : BOOLEAN 
 
   ; BEGIN
-      IF Hash = 0L THEN Hash := Dict . DbHashFunc ( Key ) END (*IF*)
-      (* Hash = 0L is reserved to mean row is unoccupied. *) 
+      IF Hash = FM3Utils.HashNull
+      THEN Hash := Dict . DbHashFunc ( Key )
+        (* ^FM3Utils.HashNull is reserved to mean row is unoccupied. *) 
+      END (*IF*)
     ; LTableNumber := NUMBER ( Dict . DbTableRef ^ ) 
     ; LOrigProbe := VAL ( Hash MOD VAL ( LTableNumber , LONGINT ) , INTEGER )  
     ; LProbe := LOrigProbe 
@@ -148,7 +152,7 @@ GENERIC MODULE FM3Dict ( KeyInterface , ValueInterface )
       (* 0 < LSkip < LTableNumber. *) 
     ; LOOP
         WITH WRow = Dict . DbTableRef ^ [ LProbe ]
-        DO IF WRow . RowHash = 0L (* A free slot. *)
+        DO IF WRow . RowHash = FM3Utils.HashNull (* A free slot. *)
           THEN (* Fill it. *)
             WRow . RowHash := Hash
           ; WRow . RowKey := Key
@@ -190,7 +194,7 @@ GENERIC MODULE FM3Dict ( KeyInterface , ValueInterface )
 
     ; FOR RI := 0 TO LAST ( FromTableRef ^ )
       DO WITH WOldRow = FromTableRef ^ [ RI ] 
-        DO IF WOldRow . RowHash # 0L (* Row is occupied. *) 
+        DO IF WOldRow . RowHash # FM3Utils.HashNull (* Row is occupied. *) 
           THEN 
             LDuplicate 
               := HashInsert
@@ -256,7 +260,7 @@ GENERIC MODULE FM3Dict ( KeyInterface , ValueInterface )
   ; VAR LSkip : INTEGER 
 
   ; BEGIN
-      IF Hash = 0L THEN Hash := GHashDefault END (*IF*)
+      IF Hash = FM3Utils.HashNull THEN Hash := GHashDefault END (*IF*)
       (* 0 < LSkip < LTableNumber. *) 
     ; LTableNumber := NUMBER ( DictBase . DbTableRef ^ ) 
     ; LOrigProbe := VAL ( Hash MOD VAL ( LTableNumber , LONGINT ) , INTEGER ) 
@@ -266,7 +270,8 @@ GENERIC MODULE FM3Dict ( KeyInterface , ValueInterface )
       (* 0 < LSkip < LTableNumber. *) 
     ; LOOP
         WITH WRow = DictBase . DbTableRef ^ [ LProbe ]
-        DO IF WRow . RowHash = 0L (* A free slot, key not present. *)
+        DO IF WRow . RowHash = FM3Utils.HashNull
+              (* A free slot, key not present. *)
           THEN RETURN FALSE 
           ELSIF Hash = WRow . RowHash
                 AND KeyInterface . Compare ( WRow . RowKey , Key ) = CmpEQ
@@ -359,7 +364,7 @@ GENERIC MODULE FM3Dict ( KeyInterface , ValueInterface )
       IF DictFixed . DbState = StateTyp . DsSorted 
       THEN RAISE Error ( "Insert into fixed dictionary after Finalize." ) 
       END (*IF*) 
-    ; IF Hash = 0L THEN Hash := GHashDefault END (*IF*)
+    ; IF Hash = FM3Utils.HashNull THEN Hash := GHashDefault END (*IF*)
       (* 0 < LSkip < LTableNumber. *) 
     ; LTableNumber := NUMBER ( DictFixed . DbTableRef ^ )
     ; IF DictFixed . DbOccupiedCt >= LTableNumber
