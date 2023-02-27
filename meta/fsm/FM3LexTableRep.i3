@@ -11,22 +11,17 @@ INTERFACE FM3LexTableRep
 ; IMPORT FM3Base 
 ; IMPORT FM3LexTable   
 
-; TYPE TransitionTyp = FM3Base . Int16Typ 
-; CONST NoTransition = LAST ( TransitionTyp ) 
+; CONST NoTransition = LAST ( StateTyp ) 
 ; CONST LastRealTransition = NoTransition - 1 
-; CONST FirstRealValue = FIRST ( TransitionTyp ) 
-(* Negative "transitions" are mapped-to values, biased by FirstRealValue . 
+; CONST FirstNegResultValue = FIRST ( StateTyp ) 
+(* Negative "transitions" are mapped-to values, biased by FirstNegResultValue. 
    NoTransition means there is none.  
    Nonnegative transitions < NoTransition are unbiased states to go to. 
 *) 
-
-; CONST NullChar 
-    = VAL ( ORD ( FIRST ( FM3LexTable . ValidCharTyp ) ) - 1 , CHAR ) 
-
 ; TYPE StateNoTyp = [ 0 .. LastRealTransition ] 
 
 ; TYPE SpaceSsTyp = FM3Base . Card32Typ 
-; TYPE SpaceTyp = ARRAY (* SpaceSsTyp *) OF TransitionTyp  
+; TYPE SpaceTyp = ARRAY (* SpaceSsTyp *) OF StateTyp  
   (* A single array of transitions with concatenated transition subranges for
      the various states, in no particular order. *) 
 ; TYPE SpaceRefTyp = REF SpaceTyp 

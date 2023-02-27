@@ -24,7 +24,7 @@ MODULE FM3LexTable
 
 ; TYPE AFT = MessageCodes . T 
 
-(* VISIBLE: *) 
+(*EXPORTED*) 
 ; PROCEDURE ToText ( Table : T ; Value : ValueTyp ) : TEXT 
   (* NIL if Value not in Table. *) 
 
@@ -43,7 +43,7 @@ MODULE FM3LexTable
       END (* IF *) 
     END ToText 
 
-(* VISIBLE: *) 
+(*EXPORTED*) 
 ; PROCEDURE ValueFromChars ( Table : T ; READONLY Name : ARRAY OF CHAR ) 
   : ValueTyp 
   (* ValueNull if Name is not in Table. *) 
@@ -52,7 +52,7 @@ MODULE FM3LexTable
   ; VAR LNameLast : INTEGER 
   ; VAR LStateNo : FM3LexTableRep . StateNoTyp 
   ; VAR LChar : CHAR 
-  ; VAR LTransition : FM3LexTableRep . TransitionTyp 
+  ; VAR LTransition : FM3LexTableRep . StateTyp 
 
   ; BEGIN 
       IF Table = NIL 
@@ -65,21 +65,19 @@ MODULE FM3LexTable
       ; LStateNo := 0 
       ; LOOP 
           IF LNameSs > LNameLast 
-          THEN LChar := FM3LexTableRep . NullChar 
-          ELSE 
-            LChar := Name [ LNameSs ] 
+          THEN LChar := NullChar 
+          ELSE LChar := Name [ LNameSs ] 
           END (* IF *) 
         ; WITH WState = Table ^ . StatesRef ^ [ LStateNo ] 
-          DO 
-            IF LChar < WState . Min OR LChar > WState . Max 
-            THEN RETURN ValueNull 
+          DO IF LChar < WState . Min OR LChar > WState . Max 
+            THEN RETURN ValueUnrecognized 
             ELSE 
               LTransition 
                 := Table ^ . SpaceRef [ ORD ( LChar ) + WState . SpaceBias ] 
             ; IF LTransition < 0 
-              THEN RETURN LTransition - FM3LexTableRep . FirstRealValue 
+              THEN RETURN LTransition - FM3LexTableRep . FirstNegResultValue 
               ELSIF LTransition = FM3LexTableRep . NoTransition 
-              THEN RETURN ValueNull 
+              THEN RETURN ValueUnrecognized 
               ELSE 
                 LStateNo := LTransition 
               ; INC ( LNameSs ) 
@@ -88,11 +86,9 @@ MODULE FM3LexTable
           END (* WITH *) 
         END (* LOOP *) 
       END (* IF *) 
-    END ValueFromChars  
+    END ValueFromChars
 
-; CONST MaxStringLength = 512 
-
-(* VISIBLE: *) 
+(*EXPORTED*) 
 ; PROCEDURE ValueFromText ( Table : T ; Name : TEXT ) : ValueTyp 
   RAISES { Backout } 
   (* ValueNull if Name is not in Table. *) 
@@ -109,6 +105,49 @@ MODULE FM3LexTable
     ; LLength := MIN ( Text . Length ( Name ) , MaxStringLength ) 
     ; RETURN ValueFromChars ( Table , SUBARRAY ( LChars , 0 , LLength ) ) 
     END ValueFromText 
+
+(*EXPORTED*)
+; PROCEDURE IncrInit ( Table : T ) : StateTyp
+  (* Initialize for char-at-a-time lookup *)
+
+  = BEGIN
+      RETURN 0 
+    END IncrInit
+    
+(*EXPORTED*)
+; PROCEURE IncrNext
+    ( Table : T ; Char : CHAR ; VAR (*IN OUT*) State : StateTyp ) 
+  : Value : ValueTyp
+  (* Supply one character to an incremental lookup.  State must be what was
+     returned by the last IncrInit or IncrNext, and using the same Table.
+     Supply NullChar as and only-as the last in the string. 
+     ValueNull means not enough information, commonly more charasters needed.
+     Caller must call with 
+     ValueUnrecognized means, well, unrecognized? *)
+     
+  = VAR LTransition : FM3LexTableRep . StateTyp
+  
+  ; BEGIN
+      WITH WState = Table ^ . StatesRef ^ [ State ] 
+      DO 
+        IF Char < WState . Min OR Char > WState . Max 
+        THEN RETURN ValueUnrecognized 
+        ELSE 
+          LTransition 
+            := Table ^ . SpaceRef [ ORD ( Char ) + WState . SpaceBias ] 
+        ; IF LTransition < 0 
+          THEN RETURN LTransition - FM3LexTableRep . FirstNegResultValue 
+          ELSIF LTransition = FM3LexTableRep . NoTransition 
+          THEN RETURN ValueUnrecognized 
+          ELSE
+            StateNo := LTransition
+          ; RETURN ValueNull 
+          END (* IF *) 
+        END (* IF *) 
+      END (* WITH *) 
+    END IncrNext 
+
+; CONST MaxStringLength = 512 
 
 ; BEGIN 
   END FM3LexTable 
