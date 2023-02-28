@@ -24,31 +24,27 @@ MODULE FM3Scanner
 ; IMPORT FM3Globals
 ; IMPORT FM3Toks 
 ; IMPORT FM3Utils 
+
 ; IMPORT IntRanges 
 ; IMPORT IntCharVarArray AS VarArr_Char 
 ; IMPORT IntWideCharVarArray AS VarArr_WChar
-
-(*
-; FROM Assertions IMPORT Assert , CantHappen 
-; IMPORT LangUtil  
-; IMPORT LbeStd 
-; IMPORT M3InitTokStrings 
-; IMPORT M3Tok 
-; IMPORT PortTypes 
-; IMPORT Strings
-*)
 
 ; TYPE IntRangeTyp = IntRanges . RangeTyp
 
 (* New line and end-of-file characters: *) 
 ; CONST LF =  '\x0A' (* = '\n' *)
-; CONST CR =  '\x0D' (* = '\r' *)
+; CONST VT =  '\x0B' (* = '\v' *) 
 ; CONST FF =  '\x0C' (* = '\f' *) 
-; CONST VT =  '\x09' (* = '\t' *) 
+; CONST CR =  '\x0D' (* = '\r' *)
+
 ; CONST NEL = '\x85'  
 ; CONST WLS =  W'\x2028'  
 ; CONST WPS =  W'\x2029'  
+; CONST EOLCHARS = SET OF CHAR { LF , CR , FF , VT , NEL } 
 (* Also CR immediately followed by LF *)  
+
+; CONST BS =  '\x08' (* = '\t' *)
+; CONST TAB =  '\x09' (* = '\t' *) 
 ; CONST WEOF = W'\X7000' (* Use a unicode app-specific value. *) 
 ; CONST WNUL = W'\X7001' (* Use a unicode app-specific value. *)
 ; CONST WCR = W'\r' 
@@ -57,7 +53,6 @@ MODULE FM3Scanner
 
 ; CONST WLastOfChar : WIDECHAR = LAST ( CHAR ) 
 
-; CONST EOLCHARS = SET OF CHAR { LF , CR , FF , VT , NEL } 
 ; CONST M3Chars 
     = SET OF CHAR 
         { ' ' , '.' , ':' 
@@ -232,7 +227,7 @@ MODULE FM3Scanner
     = VAR LWCh : WIDECHAR 
 
     ; BEGIN (* NextChar *) 
-        IF GTopSsRef . SsCh = CR 
+        IF GTopSsRef . SsCh = LF 
         THEN 
 (* TODO: Decide how to indicate new line to client. *) 
           INC ( GTopSsRef . SsLineNo ) 
@@ -260,19 +255,21 @@ MODULE FM3Scanner
           ; RETURN 
           END (*EXCEPT*) 
         ; IF LWCh = WLF 
-          THEN INC ( GTopSsRef . SsCharPos )
-          (* Leave GTopSsRef.SsCh and .SsWCh = CR: canonical new line. *)
+          THEN 
+            INC ( GTopSsRef . SsCharPos )
+          ; GTopSsRef . SsWCh := WLF (* canonical new line. *)
+          ; GTopSsRef . SsCh := LF
           ELSE 
-            <* ASSERT UnsafeUniRd . FastUnGetCodePoint 
-                        ( GTopSsRef ^ . SsUniRd ) 
+            <* ASSERT 
+                 UnsafeUniRd . FastUnGetCodePoint ( GTopSsRef ^ . SsUniRd )
             *> 
           END (* IF *) 
         ELSIF GTopSsRef . SsCh IN  SET OF CHAR { LF , FF , VT , NEL } 
               OR GTopSsRef . SsWCh = WPS 
               OR GTopSsRef . SsWCh = WLS
         THEN  
-          GTopSsRef . SsWCh := WCR (* Canonical new line. *) 
-        ; GTopSsRef . SsCh := CR 
+          GTopSsRef . SsWCh := WLF (* Canonical new line. *) 
+        ; GTopSsRef . SsCh := LF 
         END (* IF *) 
       END NextChar 
 
@@ -503,7 +500,7 @@ MODULE FM3Scanner
     ; BEGIN
         IF GTopSsRef . SsWCh # WEOF 
         THEN 
-          IF GTopSsRef . SsCh # CR 
+          IF GTopSsRef . SsCh # LF 
           THEN RETURN TRUE 
           ELSE LLoc := " at end of line." 
           END (*IF*)  
@@ -847,7 +844,8 @@ MODULE FM3Scanner
             LexErrorChars ( ) 
           ; EXIT 
           END (*IF*) 
-        ELSIF GTopSsRef . SsCh IN SET OF CHAR { ' ' , CR , LF , FF , VT }  
+        ELSIF GTopSsRef . SsCh 
+              IN SET OF CHAR { ' ' , CR , LF , FF , VT , TAB }  
         THEN NextChar ( ) 
         ELSE EXIT  
         END (*IF*) 
