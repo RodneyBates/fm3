@@ -429,16 +429,17 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
                    , DictFixed . DbTableRef ^ [ LParentSs ] . RowKey
                    )
           ; CASE LKeyCmp
-            OF CmpEq
-            => RAISE Error ( ¨Duplicate Key inserted into fixed table." ) 
+            OF CmpEQ
+            => RAISE Error ( "Duplicate Key inserted into fixed table." ) 
             | CmpLT (* Can store the orphan here and be done. *)
             => DictFixed . DbTableRef ^ [ LEmptySs ] := LOrphanRow
-            ; EXIT
-            | CmpGt (* Must bubble a level. *)
+              ; EXIT
+            | CmpGT (* Must bubble a level. *)
             => DictFixed . DbTableRef ^ [ LEmptySs ]
                  := DictFixed . DbTableRef ^ [ LParentSs ]
-            ; LEmptySs := LParentSs
-            (* And loop. *) 
+              ; LEmptySs := LParentSs
+              (* And loop. *)
+            ELSE 
             END (*CASE*)
           END (*IF*)
         END (*LOOP*)
@@ -474,8 +475,9 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
                  , DictFixed . DbTableRef ^ [ RRemoveSs + 1 ] . RowKey
                  )
                = CmpEQ 
-        THEN RAISE Error ( ¨Duplicate Key found sorting fixed table.¨ ) 
-        LOrphanRow := DictFixed . DbTableRef ^ [ RRemoveSs ] (* Make space. *) 
+        THEN RAISE Error ( "Duplicate Key found sorting fixed table." )
+        END (*IF*) 
+      ; LOrphanRow := DictFixed . DbTableRef ^ [ RRemoveSs ] (* Make space. *) 
       ; DictFixed . DbTableRef ^ [ RRemoveSs ] := DictFixed . DbTableRef ^ [ 0 ]
       ; LEmptySs := 0 (* Start at top. *) 
       ; LOOP (* Sink orphan toward bottom. *) 
