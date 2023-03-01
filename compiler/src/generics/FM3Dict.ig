@@ -6,14 +6,14 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-GENERIC INTERFACE FM3Dict ( KeyInterface , ValueInterface )
+GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
 
-(* KeyInterface declares:
+(* KeyGenformal declares:
      . T
      . Hash
      . Brand.
 
-   ValueInterface declares:
+   ValueGenformal declares:
      . T
      . Default, a member of T
      . Brand 
@@ -22,7 +22,7 @@ GENERIC INTERFACE FM3Dict ( KeyInterface , ValueInterface )
 ; IMPORT FM3Base 
 
 ; CONST
-    Brand = "FM3Dict0.1_" & KeyInterface . Brand & "_" & ValueInterface . Brand 
+    Brand = "FM3Dict0.1_" & KeyGenformal . Brand & "_" & ValueGenformal . Brand 
 
 ; EXCEPTION Error ( TEXT )
 
@@ -36,14 +36,14 @@ GENERIC INTERFACE FM3Dict ( KeyInterface , ValueInterface )
    using the function passed to HashFunction.
 *)
 
-; TYPE HashFuncTyp = PROCEDURE ( Key : KeyInterface . T ) : FM3Base . HashTyp 
+; TYPE HashFuncTyp = PROCEDURE ( Key : KeyGenformal . T ) : FM3Base . HashTyp 
    
 (* Fixed dictionaries. *) 
 
 (* Fixed dictionaries have some restrictions, but may be more compact
    and possibly faster, if you can with them and if MaxKeyCt is smallish. 
    They do not support growth beyond MaxKeyCt Keys. 
-   All calls on InsertFixed must precede a call on FinalizeFixed,
+   All calls on InsertFixed must precede a call on FinalizeFixedFixed,
    before any calls on LookupFixed.  Also, duplicate keys will result
    in undetected duplicate entries, with different values, and
    nondeterministic results from LookupFixed.
@@ -54,24 +54,28 @@ GENERIC INTERFACE FM3Dict ( KeyInterface , ValueInterface )
 ; TYPE FixedTyp <: Private 
 ; TYPE GrowableTyp <: Private 
 
+; VAR GMaxFixedSize := 15  
+  (* More keys than this, and a hash table implementation will be
+     used for a fixed dictionary. *) 
+
 ; PROCEDURE NewFixed
     ( MaxKeyCt : INTEGER ; HashFunc : HashFuncTyp ) : FixedTyp 
 
 ; PROCEDURE InsertFixed 
     ( Dict : FixedTyp  
-    ; Key : KeyInterface . T  
+    ; Key : KeyGenformal . T  
     ; Hash : FM3Base . HashTyp
-    ; Value : ValueInterface . T
+    ; Value : ValueGenformal . T
     )
   RAISES { Error }  
 
-; PROCEDURE Finalize ( Dict : FixedTyp ) 
+; PROCEDURE FinalizeFixed ( Dict : FixedTyp ) 
 
 ; PROCEDURE LookupFixed  
     ( Dict : FixedTyp
-    ; Key : KeyInterface . T 
+    ; Key : KeyGenformal . T 
     ; Hash : FM3Base . HashTyp
-    ; VAR (*OUT*) Val : ValueInterface . T 
+    ; VAR (*OUT*) Val : ValueGenformal . T 
     )
   : BOOLEAN (* Was found. *)
   RAISES { Error } 
@@ -89,10 +93,10 @@ GENERIC INTERFACE FM3Dict ( KeyInterface , ValueInterface )
 
 ; PROCEDURE InsertGrowable 
     ( Dict : GrowableTyp  
-    ; Key : KeyInterface . T  
+    ; Key : KeyGenformal . T  
     ; Hash : FM3Base . HashTyp
-    ; Value : ValueInterface . T
-    ; VAR (*OUT*) OldValue : ValueInterface . T
+    ; Value : ValueGenformal . T
+    ; VAR (*OUT*) OldValue : ValueGenformal . T
       (* ^Meaningful IFF InsertGrowable returns TRUE. *) 
     ; DoUpdate : BOOLEAN := FALSE
       (* ^If Key is already present, update its Value.
@@ -102,9 +106,9 @@ GENERIC INTERFACE FM3Dict ( KeyInterface , ValueInterface )
 
 ; PROCEDURE LookupGrowable 
     ( Dict : GrowableTyp
-    ; Key : KeyInterface . T 
+    ; Key : KeyGenformal . T 
     ; Hash : FM3Base . HashTyp
-    ; VAR (*OUT*) Val : ValueInterface . T 
+    ; VAR (*OUT*) Val : ValueGenformal . T 
     )
   : BOOLEAN (* Was found. *)
 
