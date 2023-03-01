@@ -104,6 +104,7 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
          Otherwise, leave the value unchanged. *) 
     )
   : BOOLEAN (* Key was already present. *) 
+  RAISES { Error } 
 
 ; PROCEDURE LookupGrowable 
     ( Dict : GrowableTyp
@@ -112,6 +113,7 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
     ; VAR (*OUT*) Val : ValueGenformal . T 
     )
   : BOOLEAN (* Was found. *)
+  RAISES { Error } 
 
 ; END FM3Dict 
 .

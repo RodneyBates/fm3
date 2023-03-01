@@ -114,7 +114,8 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
       (* ^If Key is already present, update its Value.
          Otherwise, leave the value unchanged. *) 
     )
-  : BOOLEAN (* Key was already present. *) 
+  : BOOLEAN (* Key was already present. *)
+  RAISES { Error } 
   (* About all this does is ensure what was created as a fixed dictionary,
      and could still be using the fixed data structure, is not passed
      in here.  *) 
@@ -144,7 +145,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
          Otherwise, leave the value unchanged. *) 
     )
   : BOOLEAN (* Key was already present. *)
-  (* PRE: Hash # FM3Utils.HashNull. *) 
+  RAISES { Error } 
 
   = VAR LTableNumber : INTEGER
   ; VAR LProbe , LOrigProbe : INTEGER
@@ -184,8 +185,8 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
           ELSE
             LProbe := ( LProbe + LSkip ) MOD LTableNumber
           ; IF LProbe = LOrigProbe
-            THEN <* ASSERT FALSE , "Hash table overflow." *>
-         (* ELSE loop *) 
+            THEN RAISE Error ( "Hash table overflow." ) 
+            ELSE (* Loop. *) 
             END (*IF*) 
           END (*IF*) 
         END (*WITH*)
@@ -198,6 +199,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
     ; FromTableRef : REF ARRAY OF RowTyp
     ; NewNumber : INTEGER 
     )
+  RAISES { Error } 
 
   = VAR LJunkValue : ValueGenformal . T
   ; VAR LDuplicate : BOOLEAN
@@ -220,15 +222,15 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
                    , (*OUT*) LJunkValue
                    , DoUpdate := FALSE
                    )
-          ; <* ASSERT LDuplicatesAreOK OR NOT LDuplicate
-                      , "Duplicate key while hashing a fixed table."
-            *> 
+          ; IF LDuplicate AND NOT LDuplicatesAreOK
+            THEN RAISE Error ( "Duplicate key while hashing a fixed table." ) 
+            END (*IF*) 
           END (*IF*) 
         END (*WITH*) 
       END (*FOR*) 
     END RebuildHash 
  
-; PROCEDURE GrowHash ( DictBase : DictBaseTyp )
+; PROCEDURE GrowHash ( DictBase : DictBaseTyp ) RAISES { Error } 
 
   = VAR LOldNumber : INTEGER
   ; VAR LOldOccupiedCt : INTEGER
@@ -255,6 +257,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
     ; VAR (*OUT*) Value : ValueGenformal . T 
     )
   : BOOLEAN (* Was found. *)
+  RAISES { Error } 
   (* About all this does is ensure what was created as a fixed dictionary,
      and could still be using the fixed data structure, is not passed
      in here.  *) 
@@ -277,6 +280,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
     ; VAR (*OUT*) Val : ValueGenformal . T 
     )
   : BOOLEAN (* Was found. *)
+  RAISES { Error } 
   (* PRE: Hash # FM3Utils.HashNull. *) 
   (* This requires that DictBase actually point to a hashed dictionary, even
      though it might have been created as Fixed.  Callers must insure this. *) 
@@ -310,8 +314,8 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
           ELSE
             LProbe := ( LProbe + LSkip ) MOD LTableNumber
           ; IF LProbe = LOrigProbe
-            THEN <* ASSERT FALSE , "Hash table overfull." *>
-         (* ELSE loop *) 
+            THEN RAISE Error ( "Hash table overfull." ) 
+            ELSE (* Loop. *) 
             END (*IF*) 
           END (*IF*) 
         END (*WITH*)
@@ -379,9 +383,10 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
           ( DictFixed , Key , Hash , Value , (*OUT*) LOldValue
           , DoUpdate := FALSE
           )
-      ; <* ASSERT NOT LFound
-                  , "Duplicate Key inserted in sorted dictionary."
-        *> 
+      ; IF LFound
+        THEN RAISE
+          Error ( "Duplicate Key inserted in sorted dictionary." ) 
+        END (*IF*) 
       ELSIF DictFixed . DbState # StateTyp . DsUnsorted 
       THEN RAISE Error ( "Lookup in fixed dictionary after FinalizeFixed.")
       ELSE SortedTableInsert ( DictFixed , Key , Hash , Value ) 
