@@ -38,21 +38,19 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
 
 ; TYPE HashFuncTyp = PROCEDURE ( Key : KeyGenformal . T ) : FM3Base . HashTyp 
    
+; TYPE Private <: REFANY
+
 (* Fixed dictionaries. *) 
 
 (* Fixed dictionaries have some restrictions, but may be more compact
    and possibly faster, if you can with them and if MaxKeyCt is smallish. 
-   They do not support growth beyond MaxKeyCt Keys. 
    All calls on InsertFixed must precede a call on FinalizeFixedFixed,
    before any calls on LookupFixed.  Also, duplicate keys will result
-   in undetected duplicate entries, with different values, and
-   nondeterministic results from LookupFixed.
+   Error's being raised, or possibly in undetected duplicate entries,
+   with different values, and nondeterministic results from LookupFixed.
 *) 
 
-; TYPE Private <: REFANY
-
 ; TYPE FixedTyp <: Private 
-; TYPE GrowableTyp <: Private 
 
 ; VAR GMaxFixedSize := 15  
   (* More keys than this, and a hash table implementation will be
@@ -69,7 +67,8 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
     )
   RAISES { Error }  
 
-; PROCEDURE FinalizeFixed ( Dict : FixedTyp ) 
+; PROCEDURE FinalizeFixed ( Dict : FixedTyp ) RAISES { Error }
+
 
 ; PROCEDURE LookupFixed  
     ( Dict : FixedTyp
@@ -86,6 +85,8 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
    Duplicate Key insertions leave only one entry.  Insertions
    and Lookups can be interspersed arbitrarily
 *) 
+
+; TYPE GrowableTyp <: Private 
 
 ; PROCEDURE NewGrowable
     ( InitKeyCt : INTEGER ; HashFunc : HashFuncTyp ) : GrowableTyp 

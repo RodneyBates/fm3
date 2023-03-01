@@ -318,13 +318,12 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
       END (*LOOP*)
     END HashLookup
 
-(* Fixed dictionaries have some restrictions, but will be more compact and 
-   possibly faster, if you can live with them and if MaxKeyCt is moderate. 
-   They do not support growth beyond MaxKeyCt Keys. 
-   All calls on InsertFixed must precede a call on FinalizeFixed,
+(* Fixed dictionaries have some restrictions, but may be more compact
+   and possibly faster, if you can with them and if MaxKeyCt is smallish. 
+   All calls on InsertFixed must precede a call on FinalizeFixedFixed,
    before any calls on LookupFixed.  Also, duplicate keys will result
-   in undetected duplicate entries, with different values, and
-   nondeterministic results from LookupFixed.
+   Error's being raised, or possibly in undetected duplicate entries,
+   with different values, and nondeterministic results from LookupFixed.
 *) 
 
 (*EXPORTED:*)
@@ -401,7 +400,8 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
   = VAR LTableNumber : INTEGER
   ; VAR LEmptySs : INTEGER (* Place waiting to be filled. *)  
   ; VAR LParentSs : INTEGER 
-  ; VAR LOrphanRow : RowTyp (* Row waiting for a place to fit in.*) 
+  ; VAR LOrphanRow : RowTyp (* Row waiting for a place to fit in.*)
+  ; VAR LKeyCmp : FM3Base . CompareTyp 
 
   ; BEGIN
       IF DictFixed . DbState = StateTyp . DsSorted 
@@ -423,20 +423,23 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
           ; EXIT
           ELSE
             LParentSs := ( LEmptySs - 1 ) DIV 2
-          ; IF KeyGenformal . Compare
-                 ( LOrphanRow . RowKey
-                 , DictFixed . DbTableRef ^ [ LParentSs ] . RowKey
-                 )
-               # CmpGT (* = LE *) 
-            THEN (* Can store the orphan here and be done. *)
-              DictFixed . DbTableRef ^ [ LEmptySs ] := LOrphanRow
+          ; LKeyCmp
+              := KeyGenformal . Compare
+                   ( LOrphanRow . RowKey
+                   , DictFixed . DbTableRef ^ [ LParentSs ] . RowKey
+                   )
+          ; CASE LKeyCmp
+            OF CmpEq
+            => RAISE Error ( ¨Duplicate Key inserted into fixed table." ) 
+            | CmpLT (* Can store the orphan here and be done. *)
+            => DictFixed . DbTableRef ^ [ LEmptySs ] := LOrphanRow
             ; EXIT
-            ELSE (* Must bubble a level. *)
-              DictFixed . DbTableRef ^ [ LEmptySs ]
-                := DictFixed . DbTableRef ^ [ LParentSs ]
+            | CmpGt (* Must bubble a level. *)
+            => DictFixed . DbTableRef ^ [ LEmptySs ]
+                 := DictFixed . DbTableRef ^ [ LParentSs ]
             ; LEmptySs := LParentSs
             (* And loop. *) 
-            END (*IF*)
+            END (*CASE*)
           END (*IF*)
         END (*LOOP*)
       ; INC ( DictFixed . DbOccupiedCt )
@@ -445,13 +448,14 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 
 (*EXPORTED:*)
 ; PROCEDURE FinalizeFixed ( DictFixed : FixedTyp )
+  RAISES { Error }
   (* Do phase 2 of heapsort. *) 
 
   = VAR LTableNumber : INTEGER
-  ; VAR LSs , LGreaterSs : INTEGER 
+  ; VAR LEmptySs , LGreaterChildSs : INTEGER 
   ; VAR LLeftChildSs , LRightChildSs : INTEGER 
-  ; VAR LReinsertRow , LLeftRow , LRightRow , LGreaterRow : RowTyp 
-  ; VAR LCompare : [ -1 .. 1 ] 
+  ; VAR LOrphanRow , LLeftChildRow , LRightChildRow , LGreaterChildRow : RowTyp 
+  ; VAR LCompare : FM3Base . CompareTyp 
   
   ; BEGIN
       IF DictFixed . DbState # StateTyp . DsUnsorted THEN RETURN END (*IF*) 
@@ -462,53 +466,60 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
       ; RETURN
       END (*IF*) 
     ; LTableNumber := NUMBER ( DictFixed . DbTableRef ^ )
-    ; FOR RSs := DictFixed . DbOccupiedCt - 1 TO 1 BY - 1 
-      DO 
-        LReinsertRow := DictFixed . DbTableRef ^ [ RSs ] (* Make space. *) 
-      ; DictFixed . DbTableRef ^ [ RSs ] := DictFixed . DbTableRef ^ [ 0 ]
-      ; LSs := 0 
-      ; LOOP 
-          LLeftChildSs := ( LSs * 2 ) + 1 
+    ; FOR RRemoveSs := DictFixed . DbOccupiedCt - 1 TO 1 BY - 1 
+      DO (* All rows. *)
+        IF RRemoveSs + 1 < DictFixed . DbOccupiedCt 
+           AND KeyGenformal . Compare
+                 ( DictFixed . DbTableRef ^ [ RRemoveSs ] . RowKey
+                 , DictFixed . DbTableRef ^ [ RRemoveSs + 1 ] . RowKey
+                 )
+               = CmpEQ 
+        THEN RAISE Error ( ¨Duplicate Key found sorting fixed table.¨ ) 
+        LOrphanRow := DictFixed . DbTableRef ^ [ RRemoveSs ] (* Make space. *) 
+      ; DictFixed . DbTableRef ^ [ RRemoveSs ] := DictFixed . DbTableRef ^ [ 0 ]
+      ; LEmptySs := 0 (* Start at top. *) 
+      ; LOOP (* Sink orphan toward bottom. *) 
+          LLeftChildSs := ( LEmptySs * 2 ) + 1 
         ; LRightChildSs := LLeftChildSs + 1 
-        ; IF LLeftChildSs >= RSs 
+        ; IF LLeftChildSs >= RRemoveSs 
           THEN (* No children. We are done. *) 
-            DictFixed . DbTableRef ^ [ LSs ] := LReinsertRow 
+            DictFixed . DbTableRef ^ [ LEmptySs ] := LOrphanRow 
           ; EXIT
           ELSE (* We at least have a left child. *)  
-            LLeftRow := DictFixed . DbTableRef ^ [ LLeftChildSs ] 
-          ; IF LRightChildSs >= RSs 
+            LLeftChildRow := DictFixed . DbTableRef ^ [ LLeftChildSs ] 
+          ; IF LRightChildSs >= RRemoveSs 
             THEN (* No right child. Treat left as greater child. *)  
-              LGreaterSs := LLeftChildSs 
-            ; LGreaterRow := LLeftRow 
+              LGreaterChildSs := LLeftChildSs 
+            ; LGreaterChildRow := LLeftChildRow 
             ELSE (* Both a left and right child. *) 
-              LRightRow := DictFixed . DbTableRef ^ [ LRightChildSs ] 
+              LRightChildRow := DictFixed . DbTableRef ^ [ LRightChildSs ] 
             ; LCompare 
                 := KeyGenformal . Compare
-                     ( LLeftRow . RowKey , LRightRow . RowKey)
+                     ( LLeftChildRow . RowKey , LRightChildRow . RowKey)
             ; IF LCompare = CmpGT 
               THEN (* Left is greater child. *) 
-                LGreaterSs := LLeftChildSs 
-              ; LGreaterRow := LLeftRow 
+                LGreaterChildSs := LLeftChildSs 
+              ; LGreaterChildRow := LLeftChildRow 
               ELSE 
-                LGreaterSs := LRightChildSs 
-              ; LGreaterRow := LRightRow 
+                LGreaterChildSs := LRightChildSs 
+              ; LGreaterChildRow := LRightChildRow 
               END (* IF *) 
             END (* IF *) 
           END (* IF *) 
         ; LCompare 
             := KeyGenformal . Compare
-                 ( LReinsertRow . RowKey , LGreaterRow . RowKey ) 
+                 ( LOrphanRow . RowKey , LGreaterChildRow . RowKey ) 
         ; IF LCompare = CmpGT  
           THEN (* Parent is greatest of 3.  We are done. *) 
-            DictFixed . DbTableRef ^ [ LSs ] := LReinsertRow 
+            DictFixed . DbTableRef ^ [ LEmptySs ] := LOrphanRow 
           ; EXIT 
           ELSE (* Move the greater child up to the current slot, creating
                   space to push the current item down to. *) 
-            DictFixed . DbTableRef ^ [ LSs ] := LGreaterRow 
-          ; LSs := LGreaterSs 
+            DictFixed . DbTableRef ^ [ LEmptySs ] := LGreaterChildRow 
+          ; LEmptySs := LGreaterChildSs 
           END (* IF *) 
-        END (* LOOP *)  
-      END (* FOR *)
+        END (* LOOP Sink orphan. *)  
+      END (* FOR All rows. *)
     ; DictFixed . DbState := StateTyp . DsSorted 
     END FinalizeFixed 
 
