@@ -13,6 +13,18 @@ GENERIC MODULE FM3OpenArray ( Elem )
 ; IMPORT FM3Base
 ; FROM FM3Base IMPORT CmpLT , CmpEQ , CmpGT 
 
+(* So far, we don't need one of these: 
+(*EXPORTED:*)
+; PROCEDURE Hashfunc ( READONLY Key : T ) : FM3Base . HashTyp )
+
+  = VAR LResult : FM3Base . HashTyp 
+
+  ; BEGIN
+      LResult := FM3Base . HashGround ( )
+    ; FOR 
+    END HashFunc
+*) 
+
 (*EXPORTED:*)
 ; PROCEDURE Compare ( READONLY Left , Right : T ) : FM3Base . CompareTyp 
 

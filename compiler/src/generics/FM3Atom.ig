@@ -11,9 +11,9 @@
    value, as decided by function "Equal" will get the same atom value.
 *) 
 
-GENERIC INTERFACE FM3Atom ( KeyTyp ) 
+GENERIC INTERFACE FM3Atom ( DictGenformal ) 
 
-(* KeyTyp declares:
+(*  declares:
      TYPE T Type of Keys
      VAR Compare : CompareProcTyp 
      CONST Brand = whatever you like.
@@ -23,15 +23,20 @@ GENERIC INTERFACE FM3Atom ( KeyTyp )
 
 ; TYPE T <: REFANY
 
-; TYPE CompareProcTyp
-    = PROCEDURE ( Left , Right : KeyTyp . T ) : FM3Base . CompareTyp 
+; TYPE KeyTyp = DictGenformal . KeyTyp
 
-; PROCEDURE New ( InitSize : CARDINAL ) : T 
+; TYPE HashFuncTyp = DictGenformal . HashFuncTyp 
+
+; TYPE CompareProcTyp
+    = PROCEDURE ( Left , Right : KeyTyp ) : FM3Base . CompareTyp 
+
+; PROCEDURE New
+    ( InitSize : CARDINAL ; StartAtom : INTEGER ; HashFunc : HashFuncTyp ) : T 
   (* A new, empty table of Key-value/atom pairs. *) 
   
 ; PROCEDURE MakeAtom
     ( Dict : T
-    ; Key : KeyTyp . T 
+    ; Key : KeyTyp 
     ; Hash : FM3Base . HashTyp
     )
   : FM3Base . AtomTyp 

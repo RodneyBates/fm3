@@ -36,7 +36,9 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
    using the function passed to HashFunction.
 *)
 
-; TYPE HashFuncTyp = PROCEDURE ( Key : KeyGenformal . T ) : FM3Base . HashTyp 
+; TYPE KeyTyp = KeyGenformal . T 
+
+; TYPE HashFuncTyp = PROCEDURE ( Key : KeyTyp ) : FM3Base . HashTyp 
    
 ; TYPE Private <: REFANY
 
@@ -61,7 +63,7 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
 
 ; PROCEDURE InsertFixed 
     ( Dict : FixedTyp  
-    ; Key : KeyGenformal . T  
+    ; Key : KeyTyp  
     ; Hash : FM3Base . HashTyp
     ; Value : ValueGenformal . T
     )
@@ -69,10 +71,9 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
 
 ; PROCEDURE FinalizeFixed ( Dict : FixedTyp ) RAISES { Error }
 
-
 ; PROCEDURE LookupFixed  
     ( Dict : FixedTyp
-    ; Key : KeyGenformal . T 
+    ; Key : KeyTyp 
     ; Hash : FM3Base . HashTyp
     ; VAR (*OUT*) Val : ValueGenformal . T 
     )
@@ -94,7 +95,7 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
 
 ; PROCEDURE InsertGrowable 
     ( Dict : GrowableTyp  
-    ; Key : KeyGenformal . T  
+    ; Key : KeyTyp  
     ; Hash : FM3Base . HashTyp
     ; Value : ValueGenformal . T
     ; VAR (*OUT*) OldValue : ValueGenformal . T
@@ -108,7 +109,7 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
 
 ; PROCEDURE LookupGrowable 
     ( Dict : GrowableTyp
-    ; Key : KeyGenformal . T 
+    ; Key : KeyTyp 
     ; Hash : FM3Base . HashTyp
     ; VAR (*OUT*) Val : ValueGenformal . T 
     )

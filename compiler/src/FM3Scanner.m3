@@ -116,13 +116,17 @@ MODULE FM3Scanner
     ; LSsRef ^ . SsCharPos := 0   
     ; LSsRef ^ . SsAtBegOfPragma := FALSE 
     ; LSsRef ^ . SsIdentAtom 
-        := FM3Atom_OAChars . New ( FM3Globals . IdentInitAtomSize ) 
+        := FM3Atom_OAChars . New 
+             ( FM3Globals . IdentInitAtomSize , 1 , NIL ) 
     ; LSsRef ^ . SsNumberAtom 
-        := FM3Atom_OAChars . New ( FM3Globals . NumberInitAtomSize ) 
+        := FM3Atom_OAChars . New 
+             ( FM3Globals . NumberInitAtomSize , 1 , NIL ) 
     ; LSsRef ^ . SsCharsAtom 
-        := FM3Atom_OAChars . New ( FM3Globals . TextInitAtomSize ) 
+        := FM3Atom_OAChars . New 
+             ( FM3Globals . TextInitAtomSize , 1 , NIL ) 
     ; LSsRef ^ . SsWideCharsAtom 
-        := FM3Atom_OAWideChars . New ( FM3Globals . WideInitTextAtomSize ) 
+        := FM3Atom_OAWideChars . New 
+             ( FM3Globals . WideInitTextAtomSize , 1 , NIL ) 
 
     ; TRY 
         LSsRef ^ . SsWCh := UnsafeUniRd . FastGetWideChar( LSsRef ^ . SsUniRd ) 

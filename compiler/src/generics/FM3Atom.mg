@@ -11,7 +11,7 @@
    valud, as decided by function "Equal" will get the same atom value.
 *) 
 
-GENERIC MODULE FM3Atom ( KeyTyp )
+GENERIC MODULE FM3Atom ( DictGenformal )
 
 (* KeyTyp declares:
      TYPE T Type of Keys
@@ -22,26 +22,37 @@ GENERIC MODULE FM3Atom ( KeyTyp )
 ; IMPORT FM3Base 
 
 ; REVEAL T =
-    BRANDED "FM3Atom_" & KeyTyp . Brand & "_0.1"
+    BRANDED "FM3Atom_" & DictGenformal . Brand & "_0.1"
     REF RECORD
-      AtNextAtom : FM3Base . AtomTyp := 1 
+      AtGrowableDict : DictGenformal  . GrowableTyp 
+    ; AtNextAtom : FM3Base . AtomTyp := 1 
     END (*RECORD*)
 
-; PROCEDURE New ( InitSize : CARDINAL ) : T 
+(*EXPORTED:*)
+; PROCEDURE New
+    ( InitSize : CARDINAL ; StartAtom : INTEGER ; HashFunc : HashFuncTyp ) : T 
   (* A new, empty table of Key-value/atom pairs. *) 
 
-  = BEGIN 
-      RETURN NEW ( T ) 
+  = VAR LResult : T
+
+  ; BEGIN
+      LResult
+        := NEW ( T ) 
+    ; LResult . AtGrowableDict
+        := DictGenformal . NewGrowable ( InitSize , HashFunc )
+    ; LResult . AtNextAtom := StartAtom 
+    ; RETURN LResult 
     END New 
   
+(*EXPORTED:*)
 ; PROCEDURE MakeAtom
-    ( Dict : T
-    ; Key : KeyTyp . T 
+    ( AtomDict : T 
+    ; Key : KeyTyp  
     ; Hash : FM3Base . HashTyp
     )
   : FM3Base . AtomTyp 
-  (* If Key is absent from Dict, assign a new atom value and 
-     add a Key-to-atom entry to Dict.  Either way, return the 
+  (* If Key is absent from AtomDict, assign a new atom value and 
+     add a Key-to-atom entry to AtomDict.  Either way, return the 
      atom now associated with Key. *)
 
   (* Size is an initial estimate of the eventual number of Keys. 
@@ -51,8 +62,23 @@ GENERIC MODULE FM3Atom ( KeyTyp )
      passed to MakeAtom for a given table T must be computed 
      consistently from the adjacent Key value by the same function. *) 
 
-  = BEGIN 
-      RETURN FM3Base . AtomNull 
+  = VAR LNewValue , LOldValue: INTEGER
+  ; VAR LFound : BOOLEAN 
+
+  ; BEGIN
+      LNewValue := AtomDict . AtNextAtom 
+    ; LFound 
+        := DictGenformal. InsertGrowable 
+             ( AtomDict . AtGrowableDict
+             , Key , Hash , LNewValue , (*OUT*) LOldValue
+             , DoUpdate := FALSE 
+             )
+    ; IF LFound
+      THEN RETURN LOldValue
+      ELSE
+        INC ( AtomDict . AtNextAtom )
+      ; RETURN LNewValue 
+      END (*IF*) 
     END MakeAtom 
 
 ; BEGIN

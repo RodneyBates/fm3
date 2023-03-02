@@ -30,7 +30,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
   = RECORD
       RowHash : FM3Base . HashTyp := FM3Utils.HashNull
       (* Which means this row is empty. *)  
-    ; RowKey : KeyGenformal . T
+    ; RowKey : KeyTyp
     ; RowValue : ValueGenformal . T 
     END (*RECORD*)
     
@@ -105,7 +105,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 (*EXPORTED:*)
 ; PROCEDURE InsertGrowable 
     ( DictHash : GrowableTyp  
-    ; Key : KeyGenformal . T  
+    ; Key : KeyTyp  
     ; Hash : FM3Base . HashTyp
     ; Value : ValueGenformal . T
     ; VAR (*OUT*) OldValue : ValueGenformal . T
@@ -135,7 +135,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 
 ; PROCEDURE HashInsert
     ( DictBase : DictBaseTyp  
-    ; Key : KeyGenformal . T  
+    ; Key : KeyTyp  
     ; Hash : FM3Base . HashTyp
     ; Value : ValueGenformal . T
     ; VAR (*OUT*) OldValue : ValueGenformal . T
@@ -252,7 +252,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 (*EXPORTED:*)
 ; PROCEDURE LookupGrowable 
     ( DictHash : GrowableTyp
-    ; Key : KeyGenformal . T 
+    ; Key : KeyTyp 
     ; Hash : FM3Base . HashTyp
     ; VAR (*OUT*) Value : ValueGenformal . T 
     )
@@ -275,7 +275,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 
 ; PROCEDURE HashLookup
     ( DictBase : DictBaseTyp 
-    ; Key : KeyGenformal . T 
+    ; Key : KeyTyp 
     ; Hash : FM3Base . HashTyp
     ; VAR (*OUT*) Val : ValueGenformal . T 
     )
@@ -358,7 +358,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 (*EXPORTED:*)
 ; PROCEDURE InsertFixed 
     ( DictFixed : FixedTyp  
-    ; Key : KeyGenformal . T  
+    ; Key : KeyTyp  
     ; Hash : FM3Base . HashTyp
     ; Value : ValueGenformal . T
     )
@@ -395,7 +395,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 
 ; PROCEDURE SortedTableInsert
     ( DictFixed : FixedTyp 
-    ; Key : KeyGenformal . T  
+    ; Key : KeyTyp  
     ; Hash : FM3Base . HashTyp
     ; Value : ValueGenformal . T
     )
@@ -533,7 +533,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 (*EXPORTED:*)
 ; PROCEDURE LookupFixed  
     ( DictFixed : FixedTyp
-    ; Key : KeyGenformal . T 
+    ; Key : KeyTyp 
     ; Hash : FM3Base . HashTyp
     ; VAR (*OUT*) Val : ValueGenformal . T 
     )

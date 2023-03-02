@@ -7,6 +7,6 @@
 (* -----------------------------------------------------------------------2- *)
 
 INTERFACE FM3Atom_OAChars
-  = FM3Atom ( FM3OpenArray_Char )
+  = FM3Atom ( FM3Dict_OAChars_Int )
 END FM3Atom_OAChars  
 .

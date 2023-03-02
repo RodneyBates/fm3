@@ -7,6 +7,6 @@
 (* -----------------------------------------------------------------------2- *)
 
 MODULE FM3Atom_OAWideChars
-  = FM3Atom ( FM3OpenArray_WideChar )
+  = FM3Atom ( FM3Dict_OAWideChars_Int )
 END FM3Atom_OAWideChars  
 .
