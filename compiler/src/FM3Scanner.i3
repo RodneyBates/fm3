@@ -15,6 +15,29 @@ INTERFACE FM3Scanner
 ; IMPORT FM3OpenArray_WideChar 
 ; IMPORT FM3Utils
 
+(* Things expected from a scanner by an lalr-generated parser: *)
+
+; TYPE tPosition
+    = RECORD
+        Line : INTEGER
+      ; Column : INTEGER 
+      END tPosition 
+
+; TYPE tScanAttribute
+    = RECORD
+        Position : tPosition
+        (* Negative value of Position.Column means has an argument. *) 
+      ; ArgValue : LONGINT
+      END (* tScanAttribute *)
+
+; VAR Attribute : REF tScanAttribute
+  (* We wamt multiple instances of this for nested source files, but lalr
+     treats it as a global record.  We make it a REF and, Unusually, rely
+     on Modula-3's implicit dereferencing of REF RECORD for lalr-generated
+     code's access. *) 
+
+(* End of things expected from a scaner by an lalr-generated parser: *) 
+
 ; TYPE TokRecTyp
   = RECORD
       TrLineNo : INTEGER := 0 
@@ -44,7 +67,7 @@ INTERFACE FM3Scanner
 
 ; PROCEDURE CurrentUnitNo ( ) : INTEGER 
 
-; PROCEDURE NextTok ( ) 
+; PROCEDURE GetToken ( ) 
 
 ; END FM3Scanner 
 . 

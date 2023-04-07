@@ -36,7 +36,9 @@ INTERFACE FM3Toks
 (* Source code tokens.  These are near the high end of 2^14-1.
    They will not occur in intermediate streams.  This seemingly strange
    numbering was easy to produce, without individual manual editing.
-*) 
+*)
+
+((* Make sure these match the tokens in FM3Parser.lalr. *) 
 ; CONST TkRwAND = 433 (* = "AND" *) 
 ; CONST TkRwANY = 434 (* = "ANY" *) 
 ; CONST TkRwARRAY = 435 (* = "ARRAY" *) 

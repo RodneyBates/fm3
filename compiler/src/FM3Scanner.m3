@@ -44,7 +44,7 @@ MODULE FM3Scanner
 (* Also CR immediately followed by LF *)  
 
 ; CONST BS =  '\x08' (* = '\t' *)
-; CONST TAB =  '\x09' (* = '\t' *) 
+; CONST TAB =  '\x09' (* = '\t' *)
 ; CONST WEOF = W'\X7000' (* Use a unicode app-specific value. *) 
 ; CONST WNUL = W'\X7001' (* Use a unicode app-specific value. *)
 ; CONST WCR = W'\r' 
@@ -78,10 +78,10 @@ MODULE FM3Scanner
          ; SsUnitNo : INTEGER 
          ; SsLineNo : INTEGER 
          ; SsCharPos : INTEGER 
-         ; SsIdentAtom : FM3Atom_OAChars . T (* Identifiers. *)  
-         ; SsNumberAtom : FM3Atom_OAChars . T (* Numeric literals. *)  
-         ; SsCharsAtom : FM3Atom_OAChars . T (* TEXT literals. *) 
-         ; SsWideCharsAtom : FM3Atom_OAWideChars . T (* ^Wide TEXT literals. *)
+         ; SsIdentAtomDict : FM3Atom_OAChars . T (* Identifiers. *)  
+         ; SsNumberAtomDict : FM3Atom_OAChars . T (* Numeric literals. *)  
+         ; SsCharsAtomDict : FM3Atom_OAChars . T (* TEXT literals. *) 
+         ; SsWCharsAtomDict : FM3Atom_OAWideChars . T (* ^Wide TEXT literals. *)
          ; SsChars : VarArr_Char . T  
          ; SsWideChars : VarArr_WChar . T  
          ; SsFileName : TEXT 
@@ -94,7 +94,6 @@ MODULE FM3Scanner
 ; TYPE ScanStateRefTyp = REF ScanStateTyp 
 
 ; VAR GTopSsRef : ScanStateRefTyp := NIL 
-  (* SsUniRd of every node on this stack is kept locked until popped. *) 
 ; VAR GScanStateCt := 0
 ; VAR GScanStateDepth := 0
 ; VAR GMaxScanStateDepth := 0   
@@ -115,22 +114,25 @@ MODULE FM3Scanner
     ; LSsRef ^ . SsLineNo := 0 
     ; LSsRef ^ . SsCharPos := 0   
     ; LSsRef ^ . SsAtBegOfPragma := FALSE 
-    ; LSsRef ^ . SsIdentAtom 
+    ; LSsRef ^ . SsIdentAtomDict 
         := FM3Atom_OAChars . New 
              ( FM3Globals . IdentInitAtomSize , 1 , NIL ) 
-    ; LSsRef ^ . SsNumberAtom 
+    ; LSsRef ^ . SsNumberAtomDict 
         := FM3Atom_OAChars . New 
              ( FM3Globals . NumberInitAtomSize , 1 , NIL ) 
-    ; LSsRef ^ . SsCharsAtom 
+    ; LSsRef ^ . SsCharsAtomDict 
         := FM3Atom_OAChars . New 
              ( FM3Globals . TextInitAtomSize , 1 , NIL ) 
-    ; LSsRef ^ . SsWideCharsAtom 
+    ; LSsRef ^ . SsWCharsAtomDict 
         := FM3Atom_OAWideChars . New 
              ( FM3Globals . WideInitTextAtomSize , 1 , NIL ) 
 
     ; TRY 
         LSsRef ^ . SsWCh := UnsafeUniRd . FastGetWideChar( LSsRef ^ . SsUniRd ) 
-      ; LSsRef ^ . SsCh := MIN ( GTopSsRef . SsWCh , WLastOfChar )  
+      ; IF GTopSsRef . SsWCh <= WLastOfChar 
+        THEN GTopSsRef . SsCh := GTopSsRef . SsWCh 
+        ELSE GTopSsRef . SsCh := NUL 
+        END (*IF*) 
       EXCEPT 
       | Thread . Alerted => (* Ignore *)  
       | Rd . EndOfFile , Rd . Failure 
@@ -171,7 +173,7 @@ MODULE FM3Scanner
     ; RETURN GTopSsRef . SsUnitNo 
     END CurrentUnitNo 
 
-; PROCEDURE ErrorPos ( CharPos : INTEGER ; Msg : TEXT )
+; PROCEDURE ErrorAtPos ( CharPos : INTEGER ; Msg : TEXT )
   (* Report at CharPos of the current line. *) 
  
   = BEGIN 
@@ -181,9 +183,9 @@ MODULE FM3Scanner
         , CharPos 
         , Msg 
         )
-    END ErrorPos 
+    END ErrorAtPos 
 
-; PROCEDURE ErrorTok ( Msg : TEXT ; Adjust := 0 )
+; PROCEDURE ErrorAtTok ( Msg : TEXT ; Adjust := 0 )
   (* Report relative to the beginning of the current token. *) 
  
   = BEGIN 
@@ -193,9 +195,9 @@ MODULE FM3Scanner
         , GCurTokRef ^ . TrCharPos + Adjust  
         , Msg 
         )
-    END ErrorTok 
+    END ErrorAtTok 
 
-; PROCEDURE ErrorSs ( Msg : TEXT ; Adjust := 0 ) 
+; PROCEDURE ErrorAtSs ( Msg : TEXT ; Adjust := 0 ) 
   (* Report relative to the current spot in the input *) 
 
   = BEGIN 
@@ -205,10 +207,29 @@ MODULE FM3Scanner
         , GTopSsRef ^ . SsCharPos + Adjust 
         , Msg 
         ) 
-    END ErrorSs 
+    END ErrorAtSs 
+
+; PROCEDURE AppendChar ( VarArr : VarArr_Char . T ; Ch : CHAR ) 
+
+  = VAR LSs : INTEGER 
+
+  ; BEGIN 
+      LSs := VarArr_Char . TouchedRange ( VarArr ) . Hi + 1 
+    ; VarArr_Char . Assign ( VarArr , LSs , Ch ) 
+    END AppendChar 
+
+; PROCEDURE AppendWChar ( VarArr : VarArr_WChar . T ; WCh : WIDECHAR ) 
+
+  = VAR LSs : INTEGER 
+
+  ; BEGIN 
+      LSs := VarArr_WChar . TouchedRange ( VarArr ) . Hi + 1 
+    ; VarArr_WChar . Assign ( VarArr , LSs , WCh ) 
+    END AppendWChar 
+
 
 (* EXPORTED: *) 
-; PROCEDURE NextTok ( ) 
+; PROCEDURE GetToken ( ) 
 
   = VAR ScWCharVarArr : VarArr_WChar . T
   ; VAR ScCharVarArr : VarArr_Char . T  
@@ -216,11 +237,10 @@ MODULE FM3Scanner
   ; VAR ScCh : CHAR 
   ; VAR ScAtBegOfPragma := FALSE 
 
-  ; PROCEDURE BegOfPlainTok ( Tok : FM3Base . TokTyp := FM3Base . TokNull ) 
+  ; PROCEDURE BegOfPlainTok ( ) 
 
     = BEGIN (* BegOfPlainTok *) 
-        GCurTokRef ^ . TrTok := Tok 
-      ; GCurTokRef ^ . TrHash := FM3Utils . HashNull 
+        GCurTokRef ^ . TrHash := FM3Utils . HashNull 
       ; GCurTokRef ^ . TrAtom := FM3Base . AtomNull 
       ; ScCharVarArr := NIL 
       ; ScWCharVarArr := NIL 
@@ -245,8 +265,11 @@ MODULE FM3Scanner
         => GTopSsRef . SsWCh := WEOF 
         ;  GTopSsRef . SsCh := NUL 
         ; RETURN 
-        END (*EXCEPT*) 
-      ; GTopSsRef . SsCh := MIN ( GTopSsRef . SsWCh , WLastOfChar )  
+        END (*EXCEPT*)
+      ; IF GTopSsRef . SsWCh <= WLastOfChar 
+        THEN GTopSsRef . SsCh := GTopSsRef . SsWCh 
+        ELSE GTopSsRef . SsCh := NUL 
+        END (*IF*) 
       ; INC ( GTopSsRef . SsCharPos )
       ; IF GTopSsRef . SsWCh = WCR 
         THEN 
@@ -280,10 +303,8 @@ MODULE FM3Scanner
   ; PROCEDURE LexErrorChars ( ) 
     (* PRE: First bad char is in GTopSsRef . SsWCh. *)  
 
-    = VAR LSs : INTEGER 
-    ; VAR LCharCt : INTEGER 
+    = VAR LCharCt : INTEGER 
     ; VAR LBadCharText : TEXT 
-
 
     ; BEGIN (* LexErrorChars *)  
         ScCharVarArr := NIL 
@@ -294,8 +315,7 @@ MODULE FM3Scanner
                 AND GTopSsRef . SsWCh # WPS 
               ) OR NOT GTopSsRef . SsCh IN M3Chars 
         DO 
-          LSs := VarArr_WChar . TouchedRange ( ScWCharVarArr ) . Hi + 1 
-        ; VarArr_WChar . Assign ( ScWCharVarArr , LSs , GTopSsRef . SsWCh ) 
+          AppendWChar ( ScWCharVarArr , GTopSsRef . SsWCh ) 
         ; INC ( LCharCt ) 
         ; NextChar ( )
         END (*WHILE*) 
@@ -303,7 +323,7 @@ MODULE FM3Scanner
           := FM3Utils . WCharVarArrayToOAWChar ( ScWCharVarArr ) 
       ; LBadCharText 
           := FM3Utils . WideTextLiteral ( GCurTokRef ^ . TrWideChars ) 
-      ; ErrorTok 
+      ; ErrorAtTok 
           ( Fmt . Int ( LCharCt ) 
             & " illegal characters: " 
             & LBadCharText 
@@ -311,22 +331,22 @@ MODULE FM3Scanner
       ; GCurTokRef ^ . TrTok := FM3Toks . TkLexErrChars 
       END LexErrorChars 
 
+  ; CONST IdentFollowChars 
+            = SET OF CHAR { 'A' .. 'F' , 'a' .. 'f' , '0' .. '9' , '_' }
+
   ; PROCEDURE IdentSuffix ( ) 
     (* PRE: The identifier is already started, possibly non-empty. *) 
 
-    = VAR LSs : INTEGER 
-    ; VAR LIntTok : INTEGER 
+    = VAR LIntTok : INTEGER 
 
     ; BEGIN (* Ident *) 
-        WHILE GTopSsRef . SsCh 
-              IN SET OF CHAR { 'a' .. 'z' , 'A' .. 'Z' , '_' , '0' .. '9' } 
+        WHILE GTopSsRef . SsCh IN IdentFollowChars 
         DO 
           FM3Utils . ContribToHash 
             ( (*IN OUT*) ScHash 
             , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
             ) 
-        ; LSs := VarArr_Char . TouchedRange ( ScCharVarArr ) . Hi + 1 
-        ; VarArr_Char . Assign ( ScCharVarArr , LSs , GTopSsRef . SsCh ) 
+        ; AppendChar ( ScCharVarArr , GTopSsRef . SsCh ) 
         ; NextChar ( ) 
         END (* WHILE *) 
       ; GCurTokRef ^ . TrHash := ScHash 
@@ -349,7 +369,7 @@ MODULE FM3Scanner
         ELSE 
           GCurTokRef ^ . TrAtom 
             := FM3Atom_OAChars . MakeAtom 
-                 ( GTopSsRef . SsIdentAtom
+                 ( GTopSsRef . SsIdentAtomDict
                  , GCurTokRef ^ . TrChars 
                  , ScHash 
                  ) 
@@ -357,11 +377,12 @@ MODULE FM3Scanner
         END (* IF *) 
       END IdentSuffix 
 
+  ; CONST DigitChars = SET OF CHAR { '0' .. '9' , 'A' .. 'F' , 'a' .. 'f' }
+
   ; PROCEDURE Number ( ) 
     (* PRE: GTopSsRef . SsCh is a digit.  TextTok not started. *)  
 
-    = VAR LSs : INTEGER 
-    ; VAR LTok : FM3Toks . TokTyp 
+    = VAR LTok : FM3Toks . TokTyp 
 
     ; BEGIN (* Number *) 
         ScHash := FM3Utils . GroundHash ( ) 
@@ -374,8 +395,7 @@ MODULE FM3Scanner
             ( (*IN OUT*) ScHash 
             , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
             )
-        ; LSs := VarArr_Char . TouchedRange ( ScCharVarArr ) . Hi + 1 
-        ; VarArr_Char . Assign ( ScCharVarArr , LSs , GTopSsRef . SsCh ) 
+        ; AppendChar ( ScCharVarArr , GTopSsRef . SsCh ) 
         ; NextChar ( ) 
         UNTIL NOT GTopSsRef . SsCh IN SET OF CHAR { '0' .. '9' } 
         
@@ -386,25 +406,20 @@ MODULE FM3Scanner
             ( (*IN OUT*) ScHash 
             , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
             )
-        ; LSs := VarArr_Char . TouchedRange ( ScCharVarArr ) . Hi + 1 
-        ; VarArr_Char . Assign ( ScCharVarArr , LSs , GTopSsRef . SsCh ) 
+        ; AppendChar ( ScCharVarArr , GTopSsRef . SsCh ) 
         ; NextChar ( ) 
-        ; IF GTopSsRef . SsCh 
-             IN SET OF CHAR { '0' .. '9' , 'A' .. 'F' , 'a' .. 'f' } 
+        ; IF GTopSsRef . SsCh IN DigitChars  
           THEN 
             REPEAT 
               FM3Utils . ContribToHash 
                 ( (*IN OUT*) ScHash 
                 , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
                 )
-            ; LSs := VarArr_Char . TouchedRange ( ScCharVarArr ) . Hi + 1 
-            ; VarArr_Char . Assign ( ScCharVarArr , LSs , GTopSsRef . SsCh ) 
+            ; AppendChar ( ScCharVarArr , GTopSsRef . SsCh ) 
             ; NextChar ( )  
-            UNTIL NOT GTopSsRef . SsCh 
-                      IN SET OF CHAR { '0' .. '9' , 'A' .. 'F' , 'a' .. 'f' } 
-
+            UNTIL NOT GTopSsRef . SsCh IN DigitChars 
           ELSE 
-            ErrorSs ( "Based literal has no digit" ) 
+            ErrorAtSs ( "Based literal has no digit" ) 
           END (* IF *) 
 
         | '.' 
@@ -423,12 +438,11 @@ MODULE FM3Scanner
                   ( (*IN OUT*) ScHash 
                   , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
                   )
-              ; LSs := VarArr_Char . TouchedRange ( ScCharVarArr ) . Hi + 1 
-              ; VarArr_Char . Assign ( ScCharVarArr , LSs , GTopSsRef . SsCh ) 
+              ; AppendChar ( ScCharVarArr , GTopSsRef . SsCh ) 
               ; NextChar ( ) 
               UNTIL NOT GTopSsRef . SsCh IN SET OF CHAR { '0' .. '9' } 
             ELSE 
-              ErrorSs ( "Floating point literal has no fractional digit" ) 
+              ErrorAtSs ( "Floating point literal has no fractional digit" ) 
             END (* IF *) 
           END (* IF *) 
         ; IF GTopSsRef . SsCh
@@ -443,8 +457,7 @@ MODULE FM3Scanner
                ( (*IN OUT*) ScHash 
                , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
                )
-          ; LSs := VarArr_Char . TouchedRange ( ScCharVarArr ) . Hi + 1 
-          ; VarArr_Char . Assign ( ScCharVarArr , LSs , GTopSsRef . SsCh ) 
+          ; AppendChar ( ScCharVarArr , GTopSsRef . SsCh ) 
           ; NextChar ( ) 
           ; IF GTopSsRef . SsCh IN SET OF CHAR { '+' , '-' }  
             THEN 
@@ -452,8 +465,7 @@ MODULE FM3Scanner
                  ( (*IN OUT*) ScHash 
                  , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
                  )
-            ; LSs := VarArr_Char . TouchedRange ( ScCharVarArr ) . Hi + 1 
-            ; VarArr_Char . Assign ( ScCharVarArr , LSs , GTopSsRef . SsCh ) 
+            ; AppendChar ( ScCharVarArr , GTopSsRef . SsCh ) 
             ; NextChar ( ) 
             END (* IF *) 
           ; IF GTopSsRef . SsCh IN SET OF CHAR { '0' .. '9' } 
@@ -463,12 +475,11 @@ MODULE FM3Scanner
                   ( (*IN OUT*) ScHash 
                   , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
                   )
-              ; LSs := VarArr_Char . TouchedRange ( ScCharVarArr ) . Hi + 1 
-              ; VarArr_Char . Assign ( ScCharVarArr , LSs , GTopSsRef . SsCh ) 
+              ; AppendChar ( ScCharVarArr , GTopSsRef . SsCh ) 
               ; NextChar ( ) 
               UNTIL NOT GTopSsRef . SsCh IN SET OF CHAR { '0' .. '9' } 
             ELSE 
-              ErrorSs ( "Floating point literal has no exponent digit." ) 
+              ErrorAtSs ( "Floating point literal has no exponent digit." ) 
             END (* IF *) 
           ELSE 
           END (*IF*)  
@@ -477,10 +488,11 @@ MODULE FM3Scanner
       ; GCurTokRef ^ . TrHash := ScHash 
       ; GCurTokRef ^ . TrChars 
           := FM3Utils . CharVarArrayToOAChar ( ScCharVarArr ) 
-(* CHECK: Is an atom for a numeric literal character string really needed? *) 
+(* CHECK: Is an atom for a numeric literal character string really needed? 
+          Probably only the binary version of the value. *) 
       ; GCurTokRef ^ . TrAtom 
           := FM3Atom_OAChars . MakeAtom 
-               ( GTopSsRef ^ . SsNumberAtom 
+               ( GTopSsRef ^ . SsNumberAtomDict 
                , GCurTokRef ^ . TrChars 
                , ScHash 
                ) 
@@ -511,14 +523,14 @@ MODULE FM3Scanner
         ELSE LLoc := " at end of file."
         END (*IF*)  
       ; LMsg := Msg1 & LitTypeName [ Wide , Text ] & Msg2 & LLoc 
-      ; ErrorSs ( LMsg )  
+      ; ErrorAtSs ( LMsg )  
       ; RETURN FALSE 
       END LineCharExists 
 
   ; CONST EscapeChars 
       = SET OF CHAR { '\n' , '\t' , '\r' , '\f' , '\\' , '\'' , '\"' }
-  ; CONST OctalDigits = SET OF CHAR { '0' .. '7' } 
-  ; CONST HexDigits = SET OF CHAR { '0' .. '9' , 'a' .. 'f' , 'A' .. 'F' }
+  ; CONST OctalDigits = SET OF [ '0' .. 'f' ] { '0' .. '7' } 
+  ; CONST HexDigits = SET OF [ '0' .. 'f' ] { '0' .. '9' , 'a' .. 'f' , 'A' .. 'F' }
   ; CONST HexTagChars = SET OF CHAR { 'x' , 'X' } 
   ; CONST UnicodeTagChars = SET OF CHAR { 'u' , 'U' } 
 
@@ -530,7 +542,9 @@ MODULE FM3Scanner
     = VAR LCharPos : INTEGER 
     ; VAR LIntVal : INTEGER 
     ; VAR LMaxIntVal : INTEGER 
-    ; VAR LDigitChars : SET OF CHAR
+    ; VAR LDigitChars : SET OF [ '0' .. 'f' ] 
+    ; VAR LBase : INTEGER  
+    ; VAR LBaseText : TEXT 
     ; VAR LDigitCount : FM3Base . Card8Typ
     ; VAR LShift : FM3Base . Card8Typ
     ; VAR LChIntVal : FM3Base . Card8Typ
@@ -557,7 +571,9 @@ MODULE FM3Scanner
         THEN 
           IF Wide THEN LDigitCount := 6 ELSE LDigitCount := 3 END (*IF*) 
         ; LDigitChars := OctalDigits 
-        ; LShift := 3 (* times 8 *)
+        ; LShift := 3 (* times 8 *) 
+        ; LBase := 8 
+        ; LBaseText := "8_" 
         ELSIF GTopSsRef . SsCh IN HexTagChars
         THEN  
           NextChar ( ) (* Consume the hex tag 'x' or 'X' *) 
@@ -570,11 +586,13 @@ MODULE FM3Scanner
         ; IF Wide THEN LDigitCount := 4 ELSE LDigitCount := 2 END (*IF*)
         ; LDigitChars := HexDigits 
         ; LShift := 4 (* times 16 *)  
+        ; LBase := 16 
+        ; LBaseText := "16_" 
         ELSIF GTopSsRef . SsCh IN UnicodeTagChars 
         THEN 
           IF NOT Wide 
           THEN  
-            ErrorSs
+            ErrorAtSs
               ( "Unicode escape in non-wide "
                 & LitTypeName [ Wide , (*Text:=*) FALSE ]
                 & " literal."
@@ -590,13 +608,15 @@ MODULE FM3Scanner
         ; LDigitCount := 6 
         ; LDigitChars := HexDigits 
         ; LShift := 4 (* times 16 *) 
+        ; LBase := 16 
+        ; LBaseText := "16_" 
         END (*IF*) 
 
       ; LIntVal := 0 
       ; LOOP (* Thru' LDigitCount chars IN LDigitChars. *)
           IF NOT GTopSsRef . SsCh IN LDigitChars
           THEN 
-            ErrorSs
+            ErrorAtSs
               ( "Short escape sequence in "
                 & LitTypeName [ Wide , (*Text:=*) FALSE ]
                 & " literal."
@@ -620,24 +640,25 @@ MODULE FM3Scanner
       ; IF LIntVal > LMaxIntVal 
         THEN 
           IF Wide THEN LPadDigitCt := 6 ELSE LPadDigitCt := 2 END (*IF*)
-        ; ErrorPos 
+        ; ErrorAtPos 
             ( LCharPos 
             , "Out-of-range escape value in "
               & LitTypeName [ Wide , (*Text:=*) FALSE ]
-              & " literal: 16_"
+              & " literal: " & LBaseText 
               & Fmt . Pad 
-                  ( Fmt . Int ( LIntVal , base := 16 ) , LPadDigitCt , '0' )
-              & ", max value is 16_"
+                  ( Fmt . Int ( LIntVal , base := LBase ) , LPadDigitCt , '0' )
+              & ", max value is " & LBaseText 
               & Fmt . Pad 
-                  ( Fmt . Int ( LMaxIntVal , base := 16 ) , LPadDigitCt , '0' )
-            )
+                  ( Fmt . Int ( LMaxIntVal , base := LBase ) , LPadDigitCt , '0' )
+            ) 
+        ; LIntVal := 0 
         END (*IF*) 
       ; RETURN VAL ( LIntVal , WIDECHAR ) 
       END EscapeSeq 
 
   ; PROCEDURE CharLit ( Wide : BOOLEAN ) 
     (* PRE: GTopSsRef . SsCh is opening single quote, nothing done. *) 
-    (* POST: TrTok is NOT set. *) 
+    (* (NON-) POST: TrTok is NOT set. *) 
 
     = VAR LWCh : WIDECHAR 
 
@@ -655,7 +676,14 @@ MODULE FM3Scanner
         THEN LWCh := EscapeSeq ( Wide , Text := FALSE ) 
         ELSIF NOT Wide AND GTopSsRef . SsWCh > WLastOfChar 
         THEN 
-          ErrorSs ( "Character literal is beyond the range of CHAR." )
+(* TODO: put this check inside EscapeSeq, and display the value
+         in octal, if it was so specified. *) 
+          ErrorAtSs 
+            ( "Character literal value 16_" 
+              & Fmt . Pad 
+                  ( Fmt . Int ( ORD ( GTopSsRef . SsWCh ) , base := 16 ) , 6 , '0' ) 
+              & " is beyond the range of CHAR."
+            )
         ; LWCh := WNUL 
         ELSE
           LWCh := GTopSsRef . SsWCh 
@@ -672,25 +700,25 @@ MODULE FM3Scanner
         ELSIF GTopSsRef . SsCh = '\'' 
         THEN NextChar ( ) 
         ELSE 
-          ErrorSs
+          ErrorAtSs
             ( "No closing quote on "
               & LitTypeName [ Wide , (*Text:=*) FALSE ]
-              & " Literal"
+              & " Literal."
             )
         END (* IF *) 
       END CharLit 
 
   ; PROCEDURE TextLit ( ) 
+    (* Only non-wide text lits. *) 
     (* PRE: GTopSsRef . SsCh is the opening double quote. 
             NO Tr fields have been initialized. *) 
 
-    = VAR LSs : INTEGER 
-    ; VAR LBadCharCt : INTEGER 
+    = VAR LBadCharCt : INTEGER 
     ; VAR LCharVal : CHAR 
 
     ; BEGIN (* TextLit *) 
         ScHash := FM3Utils . GroundHash ( ) 
-      ; ScCharVarArr := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 100 } ) 
+      ; ScCharVarArr := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 200 } ) 
       ; ScWCharVarArr := NIL 
       ; NextChar ( ) (* Consume the opening double quote. *) 
 
@@ -714,7 +742,7 @@ MODULE FM3Scanner
             ; NextChar ( ) 
             UNTIL GTopSsRef . SsWCh = WEOF 
                   OR GTopSsRef . SsWCh <= WLastOfChar 
-          ; ErrorSs 
+          ; ErrorAtSs 
               ( "Text literal has " 
                 & Fmt . Int ( LBadCharCt ) 
                 & " characters beyond the range of CHAR."
@@ -729,8 +757,7 @@ MODULE FM3Scanner
             ( (*IN OUT*) ScHash 
             , VAL ( ORD ( LCharVal ) , FM3Utils . HashTyp ) 
             )
-        ; LSs := VarArr_Char . TouchedRange ( ScCharVarArr ) . Hi + 1 
-        ; VarArr_Char . Assign ( ScCharVarArr , LSs , LCharVal ) 
+        ; AppendChar ( ScCharVarArr , LCharVal ) 
         END (*LOOP*) 
 
       ; GCurTokRef ^ . TrHash := ScHash 
@@ -738,10 +765,11 @@ MODULE FM3Scanner
           := FM3Utils . CharVarArrayToOAChar ( ScCharVarArr ) 
       ; GCurTokRef ^ . TrAtom 
           := FM3Atom_OAChars . MakeAtom 
-               ( GTopSsRef ^ . SsCharsAtom 
+               ( GTopSsRef ^ . SsCharsAtomDict 
                , GCurTokRef ^ . TrChars 
                , ScHash 
                ) 
+      ; ScCharVarArr := NIL 
       ; GCurTokRef ^ . TrTok := FM3Toks . TkTextLit 
       END TextLit 
 
@@ -750,17 +778,16 @@ MODULE FM3Scanner
             GTopSsRef . SsCh is the opening double quote. 
             NO Tr fields have been initialized. *) 
 
-    = VAR LSs : INTEGER 
-    ; VAR LWCharVal : WIDECHAR 
+    = VAR LWCharVal : WIDECHAR 
 
     ; BEGIN (* WideTextLit *) 
         ScHash := FM3Utils . GroundHash ( ) 
       ; ScCharVarArr := NIL 
       ; ScWCharVarArr 
-          := VarArr_WChar . New ( WNUL , IntRangeTyp { 0 , 100 } ) 
+          := VarArr_WChar . New ( WNUL , IntRangeTyp { 0 , 200 } ) 
       ; NextChar ( ) (* Consume the opening double quote. *) 
 
-      ; LOOP (* Thru' chars of text literal. *) 
+      ; LOOP (* Thru' chars of wide text literal. *) 
           IF NOT LineCharExists
                    ( "Unclosed " , Wide := TRUE , Text := TRUE 
                    , Msg2 := " literal"
@@ -779,9 +806,8 @@ MODULE FM3Scanner
         ; FM3Utils . ContribToHash 
             ( (*IN OUT*) ScHash 
             , VAL ( ORD ( LWCharVal ) , FM3Utils . HashTyp ) 
-            )
-        ; LSs := VarArr_WChar . TouchedRange ( ScWCharVarArr ) . Hi + 1 
-        ; VarArr_WChar . Assign ( ScWCharVarArr , LSs , LWCharVal ) 
+            ) 
+        ; AppendWChar ( ScWCharVarArr , LWCharVal ) 
         END (*LOOP*) 
 
       ; GCurTokRef ^ . TrHash := ScHash 
@@ -789,10 +815,11 @@ MODULE FM3Scanner
           := FM3Utils . WCharVarArrayToOAWChar ( ScWCharVarArr ) 
       ; GCurTokRef ^ . TrAtom 
           := FM3Atom_OAWideChars . MakeAtom 
-               ( GTopSsRef ^ . SsWideCharsAtom 
+               ( GTopSsRef ^ . SsWCharsAtomDict 
                , GCurTokRef ^ . TrWideChars 
                , ScHash 
                ) 
+      ; ScWCharVarArr := NIL 
       ; GCurTokRef ^ . TrTok := FM3Toks . TkWideTextLit 
       END WideTextLit 
 
@@ -806,7 +833,7 @@ MODULE FM3Scanner
       ; LOOP (* Thru chars in comment *) 
           IF GTopSsRef . SsWCh = WEOF  
           THEN 
-            ErrorTok ( "Comment unclosed at end-of-file" )  
+            ErrorAtTok ( "Comment unclosed at end-of-file" )  
           ELSIF GTopSsRef . SsWCh = W'(' 
           THEN 
             NextChar ( ) 
@@ -829,12 +856,12 @@ MODULE FM3Scanner
         END (*LOOP*) 
       END CommentSuffix 
 
-  ; BEGIN (* NextTok *) 
+  ; BEGIN (* GetToken *) 
       ScAtBegOfPragma := GTopSsRef ^ . SsAtBegOfPragma 
     ; GTopSsRef ^ . SsAtBegOfPragma := FALSE 
     ; GCurTokRef ^ . TrWCh := WNUL  
     ; GCurTokRef ^ . TrAtom := FM3Base . AtomNull 
-    ; LOOP (* Skip uninteresting chars. *) 
+    ; LOOP (* Skip non-token chars. *) 
         IF GTopSsRef . SsWCh = WEOF 
         THEN 
           GCurTokRef ^ . TrTok := FM3Toks . TkEOF 
@@ -878,17 +905,17 @@ MODULE FM3Scanner
         ; FM3Utils . ContribToHash 
             ( (*IN OUT*) ScHash 
             , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
-            )
+            ) (* The 'w' or 'W'. *) 
         ; VarArr_Char . Assign ( ScCharVarArr , 0 , GTopSsRef . SsCh ) 
         ; NextChar ( ) 
         ; IdentSuffix ( ) 
         END (*IF*)
 
-      | 'a' .. 'v' , 'x' .. 'z' , 'A' .. 'V' , 'X' .. 'Z' , '_'    
+      | 'a' .. 'v' , 'x' .. 'z' , 'A' .. 'V' , 'X' .. 'Z' 
         (* Other identifier. *) 
       => GCurTokRef ^ . TrWCh := WNUL  
       ; ScHash := FM3Utils . GroundHash ( ) 
-      ; ScCharVarArr := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 80 } ) 
+      ; ScCharVarArr := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 160 } ) 
       ; ScWCharVarArr := NIL 
       ; IdentSuffix ( )
 
@@ -916,14 +943,14 @@ MODULE FM3Scanner
       | '<' 
       => BegOfPlainTok ( ) 
       ; NextChar ( ) 
-      ; CASE GTopSsRef . SsWCh 
-        OF W'=' 
+      ; CASE GTopSsRef . SsCh 
+        OF '=' 
         => NextChar ( ) 
         ; GCurTokRef ^ . TrTok := FM3Toks . TkLessEqual  
-        | W':' 
+        | ':' 
         => NextChar ( ) 
         ; GCurTokRef ^ . TrTok := FM3Toks . TkSubtype  
-        | W'*' 
+        | '*' 
         => (* Opening pragma delimiter. *)
           NextChar ( )
         ; GTopSsRef ^ . SsAtBegOfPragma := TRUE 
@@ -935,7 +962,7 @@ MODULE FM3Scanner
       | '*' 
       => BegOfPlainTok ( )
       ; NextChar ( )
-      ; IF GTopSsRef . SsWCh = W'>'
+      ; IF GTopSsRef . SsCh = '>'
         THEN (* Closing pragma delimiter. *) 
           NextChar ( )
         ; GCurTokRef ^ . TrTok := FM3Toks . TkClosePragma
@@ -1055,17 +1082,22 @@ MODULE FM3Scanner
       ELSE (* Other values in CHAR *) 
         LexErrorChars ( ) 
       END (* CASE *) 
-    END NextTok 
+    END GetToken 
 
-; VAR GEscapeCharMap := ARRAY CHAR OF CHAR { '\X00' , .. } 
+; VAR GEscapeCharMap := ARRAY [ '\"' .. 't' ] OF CHAR { '\X00' , .. } 
 
 ; PROCEDURE InitEscapeCharMap ( )
 
   = BEGIN
+(* Do we really want to recognize the capital letters? *) 
       GEscapeCharMap [ 'n' ] :=  '\n'  
+    ; GEscapeCharMap [ 'N' ] :=  '\n'  
     ; GEscapeCharMap [ 't' ] :=  '\t' 
+    ; GEscapeCharMap [ 'T' ] :=  '\t' 
     ; GEscapeCharMap [ 'r' ] :=  '\r' 
+    ; GEscapeCharMap [ 'R' ] :=  '\r' 
     ; GEscapeCharMap [ 'f' ] :=  '\f' 
+    ; GEscapeCharMap [ 'F' ] :=  '\f' 
     ; GEscapeCharMap [ '\\' ] :=  '\\' 
     ; GEscapeCharMap [ '\'' ] :=  '\'' 
     ; GEscapeCharMap [ '\"' ] :=  '\"'

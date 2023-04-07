@@ -83,7 +83,77 @@ MODULE FM3Utils
   (* Insert quotes and escapes. *) 
 
   = BEGIN
-(* COMPLETEME *) 
+(* COMPLETEME *)
+
+(* From Schutz, Misc.m3: ---------------------------------------
+(* EXPORTED: *) 
+; PROCEDURE EscapeText ( String : TEXT ) : TEXT 
+(* Add Modula-3 TEXT literal escapes. Do not add enclosing double quotes. *) 
+
+  = <* FATAL Thread . Alerted *> 
+    <* FATAL Wr . Failure *> 
+    <* FATAL Rd . Failure *> 
+    <* FATAL Rd . EndOfFile *> 
+    VAR C : CHAR 
+
+  ; BEGIN (* EscapeText *)
+      IF String = NIL THEN RETURN "" END (* IF *) 
+    ; EVAL WrT . init ( ) 
+    ; EVAL RdT . init ( String ) 
+    ; WHILE NOT Rd . EOF ( RdT ) 
+      DO 
+        C := Rd . GetChar ( RdT ) 
+      ; CASE C 
+        OF '\"' , '\'' , '\\' 
+        => Wr . PutChar ( WrT , '\\' ) 
+        ; Wr . PutChar ( WrT , C ) 
+        | '\n' 
+        => Wr . PutChar ( WrT , '\\' ) 
+        ; Wr . PutChar ( WrT , 'n' ) 
+        | '\t' 
+        => Wr . PutChar ( WrT , '\\' ) 
+        ; Wr . PutChar ( WrT , 't' ) 
+        | '\r' 
+        => Wr . PutChar ( WrT , '\\' ) 
+        ; Wr . PutChar ( WrT , 'r' ) 
+        | '\f' 
+        => Wr . PutChar ( WrT , '\\' ) 
+        ; Wr . PutChar ( WrT , 'f' ) 
+        | ' ' .. '!' , '#' .. '&' , '(' .. '[' , ']' .. '~'
+        , LbeStd . LeftPlaceholderDelimChar   
+        , LbeStd . RightPlaceholderDelimChar   
+(* FIXME: Make this adapt to placeholder delimiter strings of length > 1. *) 
+        => Wr . PutChar ( WrT , C ) 
+        ELSE 
+          Wr . PutChar ( WrT , '\\' ) 
+(* TODO: Use hex instead of octal here. *) 
+        ; Wr . PutText 
+            ( WrT 
+            , Fmt . Pad 
+                ( Fmt . Int ( ORD ( C ) , base := 8 ) 
+                , length := 3 
+                , padChar := '0' 
+                , align := Fmt . Align . Right 
+                ) 
+            ) 
+        END (* CASE *) 
+      END (* WHILE *) 
+    ; RETURN TextWr . ToText ( WrT ) 
+    END EscapeText 
+
+(* EXPORTED: *) 
+; PROCEDURE QuoteText ( String : TEXT ) : TEXT 
+  (* Add escape sequences and string quotes. *) 
+
+  = BEGIN 
+      RETURN "\"" & EscapeText ( String ) & "\""  
+    END QuoteText 
+
+   ------------------------------------------------------------- *) 
+
+
+
+
       RETURN NIL 
     END TextLiteral 
 
@@ -94,6 +164,23 @@ MODULE FM3Utils
 (* COMPLETEME *) 
       RETURN NIL 
     END WideTextLiteral 
+
+(* EXPORTED: *) 
+; PROCEDURE TextToRefArrayChars ( TextVal : TEXT) : REF ARRAY OF CHAR
+  (* WARNING: Don't try this unless you know there are no characters
+              outside the range of CHAR in TextVal. *) 
+
+  = VAR LLength : INTEGER
+  ; VAR LRef : REF ARRAY OF CHAR
+
+  ; BEGIN
+      IF TextVal = NIL THEN TextVal := "" END (*IF*)
+    ; LLength := Text . Length ( TextVal )
+    ; LRef := NEW ( REF ARRAY OF CHAR , LLength + 1 )
+    ; Text . SetChars ( LRef ^ , TextVal )
+    ; LRef ^ [ LLength ] := '\000'
+    ; RETURN LRef 
+  END  TextToRefArrayChars;
 
 ; BEGIN
   END FM3Utils 

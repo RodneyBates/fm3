@@ -36,5 +36,9 @@ INTERFACE FM3Utils
 ; PROCEDURE WideTextLiteral ( READONLY WChars : REF ARRAY OF WIDECHAR ) : TEXT
   (* Insert quotes and escapes. *) 
 
+; PROCEDURE TextToRefArrayChars ( TextVal : TEXT) : REF ARRAY OF CHAR
+  (* WARNING: Don't try this unless you know there are no characters
+              outside the range of CHAR in TextVal. *) 
+
 ; END FM3Utils
 .
