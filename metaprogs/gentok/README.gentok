@@ -1,0 +1,4 @@
+gentok.  A program to generate token declarations, with
+some expanding into related groups and auto-numbering.
+Used for the intermediate token codes in FM3.
+
