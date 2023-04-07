@@ -8,7 +8,7 @@
 
 (* File FM3Parser.lalr.  lalr specification for FM3Parser. *)
 
-SCANNER FM3Scanmner
+SCANNER FM3Scanner
 
 PARSER FM3Parser
 
@@ -124,5 +124,53 @@ TOKEN
 (* Productions. *) 
 RULE
 
+(* Compilation units: *) 
+
+Compilation : GenInterface . 
+Compilation : InstInterface . 
+Compilation : GenModule . 
+Compilation : InstModule .
+Compilation : Interface . 
+Compilation : Module .
+
+GenInterface :
+    TkRwGENERIC TkRwINTERFACE TkIdent GenFormalsList TkSemioclon
+    ImportList DeclList TkRwEND TkIdent TkDot . 
+
+InstInterface :
+    OptUnsafe TkRwINTERFACE TkIdent TkEqual
+    TkIdent GenActals TkRwEND TkIdent TkDot . 
+
+GenModule :
+    TkRwGENERIC TkRwMODULE TkIdent GenFormalsList TkSemioclon
+    ImportList Block TkRwEND TkIdent TkDot . 
+
+InstModule :
+    OptUnsafeTkRwMODULE TkIdent Exports TkEqual
+    TkIdent GenActals TkRwEND TkIdent TkDot . 
+
+Interface :
+    OptUnsafe TkRwINTERFACE TkIdent TkSemicolon
+    ImportList DeclList TkRwEND TkIdent TkDot .
+
+Module :
+    OptUnsafe TkRwMODULE TkIdent Exports TkSemicolon
+    ImportList Block TkRwEND TkIdent TkDot .
+
+OptUnsafe : TkUNSAFE { $$ . Bool := TRUE; } .
+OptUnsafe : { $$ . Bool := FALSE; }.
+
+Exports : { } .
+Exports : IdentList { }.
+
+IdentList : { $$ . Int := 0; } .
+IdentList : IdentList Ident
+              { i := $1.int;
+                (* $1(Ident) is already on the patch stack *)
+                PushPatch ( EndExportId (i);
+                PushPatch ( BegExportIdPostponed (i);
+                $2 . Int := i; (* Needed? will be popped now. *) 
+                $$ . Int := i;
+              } .
 
 (* END of FM3Parser.lalr. *) 
