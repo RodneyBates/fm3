@@ -1,5 +1,4 @@
 
-
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2023        Rodney M. Bates.                                    *)
@@ -15,14 +14,17 @@ EXPORTS Main
 
 ; IMPORT FileRd
 ; IMPORT FileWr
+; IMPORT Long 
 ; IMPORT OSError
 ; IMPORT Rd
 ; IMPORT Stdio
 ; IMPORT Text 
 ; IMPORT TextRd 
-; IMPORT TextWr 
+; IMPORT TextWr
+; IMPORT Word 
 ; IMPORT Wr
 
+; IMPORT IntSets 
 ; IMPORT Layout 
 
 ; <* IMPLICIT*> EXCEPTION Terminate 
@@ -31,15 +33,16 @@ EXPORTS Main
 ; CONST SkipChars = SET OF CHAR { } 
 
 ; VAR GInputRdT : Rd . T
+; VAR GInputLineNo : INTEGER := 1 
 ; VAR GNextInChar : CHAR
-; VAR GEof : BOOLEAN := TRUE 
+; VAR GAtEof : BOOLEAN := TRUE 
 
 ; PROCEDURE MessageLine ( Mst : TEXT )
 
   = BEGIN
       Wr . PutText ( Stdio . stderr , "In Line " ) 
     ; Wr . PutText ( Stdio . stderr , Fmt . Int ( GInputLineNo ) ) 
-      Wr . PutText ( Stdio . stderr , ", " ) 
+    ; Wr . PutText ( Stdio . stderr , ", " ) 
     ; Wr . PutText ( Stdio . stderr , Msg  ) 
     ; Wr . PutText ( Stdio . stderr , Wr . EOF )
     ; Wr . Flush ( Stdio . stderr )
@@ -63,6 +66,7 @@ EXPORTS Main
         ; RAISE Terminate 
         END (*EXCEPT*)
       END (*IF*)
+    ; GInputLineNo := 1 
     ; GNextInChar := '\X00'
     ; ConsumeChar ( )
     ; RETURN LResult 
@@ -95,13 +99,13 @@ EXPORTS Main
                  Otherwise, nothing is different. *) 
 
     = BEGIN
-        IF GNextInChar = GEof
+        IF GNextInChar = GAtEof
         THEN
           IF Rquired
           THEN
           END (*IF*) 
         END (*IF*) 
-        IF GNextInChar = Delim [ 0 ] 
+      ; IF GNextInChar = Delim [ 0 ] 
         THEN
           ConsumeChar ( )
         ; IF GNextInChar = Delim [ 1 ] 
@@ -150,7 +154,7 @@ EXPORTS Main
     END GetTok 
 
 ; VAR GOutputWrT : Wr . T 
-; GOStr : Layout . T 
+; GOStream : Layout . T 
 
 ; PROCEDURE OpenOutput ( FileName : TEXT ) : Wr . T 
 
@@ -170,7 +174,7 @@ EXPORTS Main
         ; LResult := NIL 
         ; RAISE Terminate 
         END (*EXCEPT*)
-      ; GOStream := Layout . Init ( GOStream , GOutputWr )
+      ; GOStream := Layout . Init ( GOStream , LResult )
       END (*IF*)
     ; RETURN LResult 
     END OpenOutput
@@ -182,7 +186,7 @@ EXPORTS Main
 
   = BEGIN
       GInputFileName := "-" 
-    ; GOutputFileName := "-" 
+    ; GOutputFileName := "FM3Toks" 
     END Options
 
 ; PROCEDURE TokEq ( Tok : TEXT ; Wanted : TEXT ) : BOOLEAN
@@ -194,21 +198,24 @@ EXPORTS Main
       THEN IF Wanted = NIL
         THEN RETURN TRUE
         ELSE RETURN FALSE
+        END (*IF*)
       ELSIF Wanted = NIL THEN RETURN FALSE
       END (*IF*)
-    ; LTokLen := Text . Len ( Tok ) 
-    ; LWantedLen := Text . Len ( Tok )
+    ; LTokLen := Text . Length ( Tok ) 
+    ; LWantedLen := Text . Length ( Tok )
     ; IF LTokLen # LWantedLen
       THEN RETURN FALSE
       ELSIF LTokLen = 0
       THEN RETURN TRUE
-      ELSE RETURN Text . Eq ( Tok , Wanted )
+      ELSE RETURN Text . Equal ( Tok , Wanted )
       END (*IF*)
     END TokEq
 
 ; VAR GIndentToks : INTEGER
 ; VAR GConstTag : TEXT
-; VAR GSavedToksRef : REF ARRAY OF TEXT
+; VAR GSavedToksRef : REF ARRAY OF TEXT 
+; VAR GArgSet1Arg : IntSets . T 
+; VAR GArgSet2Args : IntSets . T 
 ; VAR GMaxToks := 500 (* Non-expanding, hopefully enough. *)
 ; VAR GMinTokDone := FALSE 
 
@@ -219,9 +226,9 @@ EXPORTS Main
     ; Layout . PutText ( GOStream , GConstTag ) 
     ; GConstTag := "; CONST" (* For the future. *) 
     ; Layout . PutText ( GOStream , " "  )
-    ; Layout . PutText ( GOStream Name ) 
-    ; Layout . PutText ( GOStream " = " ) 
-    ; Layout . PutText ( GOStream , Fmt . Int ( GNextTokNo ) 
+    ; Layout . PutText ( GOStream , Name ) 
+    ; Layout . PutText ( GOStream , " = " ) 
+    ; Layout . PutText ( GOStream , Fmt . Int ( GNextTokNo ) ) 
     ; Layout . PutEol ( GOStream )
     ; Layout . PutEol ( GOStream )
     END PutTokNo
@@ -236,26 +243,89 @@ EXPORTS Main
       ; Layout . PutEol ( GOStream )
       ; GMinTokDone := TRUE 
       END (*IF*)
-    END MaybePutMinTokNo 
+    END MaybePutMinTokNo
 
-; PROCEDURE PutOneTok ( Name : TEXT )
+; VAR EqualSignPos := 40
+
+; PROCEDURE CompressedLongintHex ( IntL : LONGINT ) : TEXT
+  (* Only the hex digits themselves. *) 
+
+  = CONST TwoTo6thL = Long. Shift ( 1 , 6L ) 
+
+  ; VAR LResidue : LONGINT 
+  ; VAR LBitsLong : LONGINT 
+  ; VAR LBits : INTEGER
+  ; VAR LBytesDoneCt : INTEGER
+  ; VAR LResult : TEXT 
+  ; VAR LWrT : TextWr . T 
+
+  ; BEGIN
+      LResidue := IntL
+    ; LBytesDoneCt := 0
+    ; LWrT := TextWr . New ( ) 
+    ; LOOP
+        IF LBytesDoneCt >= 8
+        THEN
+          LBitsLong := Long . And ( LResidue , 16_FF )
+        ; LBits := VAL ( LBitsLong , INTEGER )  
+        ; Wr . PutText ( LWrT , Fmt . Unsigned ( LBits ) ) 
+        ; EXIT
+        END (*IF*) 
+      ; LBitsLong := Long . And ( LResidue , 16_7F )
+      ; LBits := VAL ( LBitsLong , INTEGER )  
+      ; LResidue := LResidue DIV TwoTo6thL 
+      ; IF LResidue # 0 AND LResidue # 16_FFFFFFFFFFFFFFFF  
+        THEN (* More bytes will follow. *) 
+          LBits := Word . And ( LBits , 16_80 )
+        ; Wr . PutText ( LWrT , Fmt . Unsigned ( LBits ) )
+        ; LResidue := LReside DIV 2L 
+        ; INC ( LBytesDoneCt ) 
+        ELSE (* Finishing with < 9 bytes. *) 
+          Wr . PutText ( LWrT , Fmt . Unsigned ( LBits ) ) 
+        ; EXIT 
+        END (*IF*) 
+      ; INC ( LBytesDoneCt ) 
+      END (*LOOP*)
+    ; LResult := TextWr . ToText ( LWrT )
+    ; RETURN LResult 
+    END CompressedLongintHex 
+
+; PROCEDURE EmitOneTok ( Name : TEXT ; ArgCt : INTEGER )
 
   = BEGIN
       MaybePutMinTokNo ( ) 
     ; GSavedToksRef ^ [ GNextTokNo ] := Name 
     ; Layout . PadAbs ( GOStream , GIndentToks )
-    ; Layout . PutText ( GOStream , GConstTag  )
+    ; Layout . PutText ( GOStream , GConstTag )
     ; GConstTag := "; CONST " (* For the future. *) 
     ; Layout . PutText ( GOStream , " "  )
     ; Layout . PutText ( GOStream , Name )
+    ; IF ArgCt >= 0
+      THEN
+        Layout . PutText ( GOStream , " (*" )
+      ; Layout . PutText ( GOStream , Fmt . Int ( ArgCt) )
+      ; Layout . PutText ( GOStream , "*)" )
+      ; IF ArgCt >= 1
+        THEN GTokSet1Arg := IntSets . Include ( GTokSet1Arg , GNextTokNo )
+        END (*IF*) 
+      ; IF ArgCt >= 2
+        THEN GTokSet2Args := IntSets . Include ( GTokSet2Args , GNextTokNo )
+        END (*IF*) 
+      END (*IF*)
+    ; Layout . PadAbs ( GOStream , GIndentToks + EqualSignPos )
     ; Layout . PutText ( GOStream , " = "  )
     ; Layout . PutText ( GOStream , Fmt . Int ( GNextTokNo ) )
+ 
+    ; Layout . PadAbs ( GOStream , GIndentToks + EqualSignPos + CompressedPos )
+    ; Layout . PutText ( GOStream , "(* 16_"  )
+    ; Layout . PutText ( GOStream , CompressedLongintHex ( GNextTokNo ) )
+    ; Layout . PutText ( GOStream , "*)" )
     ; Layout . PutEol ( GOStream )
  
     ; INC ( GNextTokNo ) 
-    END PutOneTok 
+    END EmitOneTok
 
-; PROCEDURE EmitListToks ( RootName : TEXT )
+; PROCEDURE EmitListToks ( RootName : TEXT ; ArgCtList , ArgCtElmt : INTEGER )
 
   = BEGIN
       Layout . PadAbs ( GOStream , GIndentToks )
@@ -264,14 +334,14 @@ EXPORTS Main
     ; Layout . PutText ( GOStream , ": *)" )
     ; Layout . PutEol ( GOStream )
 
-    ; PutOneTok ( RootName & "Lt" )  
-    ; PutOneTok ( RootName & "LtTemp" )  
-    ; PutOneTok ( RootName & "LtPatch" )  
-    ; PutOneTok ( RootName & "LtSub" )  
-    ; PutOneTok ( RootName & "LtSubTemp" )  
-    ; PutOneTok ( RootName & "LtSubPatch" )  
-    ; PutOneTok ( RootName & "RtSub" )  
-    ; PutOneTok ( RootName & "Rt" )  
+    ; EmitOneTok ( RootName & "Lt" , ArgCtList )  
+    ; EmitOneTok ( RootName & "LtTemp" , ArgCtList )  
+    ; EmitOneTok ( RootName & "LtPatch" , ArgCtList )  
+    ; EmitOneTok ( RootName & "Rt" , ArgCtList )  
+    ; EmitOneTok ( RootName & "LtElmt" , ArgCtElmt )  
+    ; EmitOneTok ( RootName & "LtElmtTemp" , ArgCtElmt )  
+    ; EmitOneTok ( RootName & "LtElmtPatch" , ArgCtElmt )  
+    ; EmitOneTok ( RootName & "RtElmt" , ArgCtElmt )  
     ; Layout . PutEol ( GOStream )
     END EmitListToks 
 
@@ -279,47 +349,112 @@ EXPORTS Main
 ; VAR GNextTokNo : INTEGER
 ; VAR GMinTokNo : INTEGER
 ; VAR GInterfaceName := "FM3Toks"
-; VAR GModuleName := "FM3Toks: 
+; VAR GModuleName := "FM3Toks" 
 
 ; PROCEDURE Args ( ) 
 
    = BEGIN
+(* It's too early to do this: *) 
        GInterfaceFileName := GInterfaceName & ".i3"  
      ; GModuleFileName := GModuleName & ".m3"  
      END Args 
 
-; PROCEDURE InterfaceProlog ( )
+; PROCEDURE EmitInterfaceProlog ( )
 
   = BEGIN
       Layout . PutText ( "(* This file generated by GenTok program. *)" ) 
     ; Layout . PutEol ( GOStream )
     ; Layout . PutEol ( GOStream )
 
-    ; Layout . PutText ( GOStream "INTERFACE " ) 
+    ; Layout . PutText ( GOStream , "INTERFACE " ) 
     ; Layout . PutText ( GOStream , GInterfaceName ) 
     ; Layout . PutEol ( GOStream )
     ; Layout . PutEol ( GOStream )
-    END InterfaceProlog
+    END EmitInterfaceProlog
 
-; PROCEDURE InterfaceEpilog ( )
+; PROCEDURE EmitInterfaceDecls ( )
 
-  = BEGIN 
+  = BEGIN
       Layout . PadAbs ( GOStream , GIndentToks )
     ; Layout . PutText 
-        ( GOStream "; PROCEDURE Image ( TokNo : INTEGER ) : TEXT ) 
+        ( GOStream , "; PROCEDURE Image ( TokNo : INTEGER ) : TEXT " ) 
     ; Layout . PutEol ( GOStream )
     ; Layout . PutEol ( GOStream )
     
+    ; Layout . PadAbs ( GOStream , GIndentToks )
+    ; Layout . PutText ( GOStream , "; VAR ToksWGE1Args : IntSets . T" )
+    ; Layout . PutEol ( GOStream )
+    ; Layout . PutEol ( GOStream )
+
+    ; Layout . PadAbs ( GOStream , GIndentToks )
+    ; Layout . PutText ( GOStream , "; VAR ToksWGE2Args : IntSets . T" )
+    ; Layout . PutEol ( GOStream )
+    ; Layout . PutEol ( GOStream )
+
+    ; Layout . PadAbs ( GOStream , GIndentToks )
+    ; Layout . PutText ( GOStream , "; CONST LtToTemp = 1 " )  
+    ; Layout . PutEol ( GOStream )
+
+    ; Layout . PadAbs ( GOStream , GIndentToks )
+    ; Layout . PutText ( GOStream , "; CONST LtToPatch = 2 " ) 
+    ; Layout . PutEol ( GOStream )
+
+    ; Layout . PadAbs ( GOStream , GIndentToks )
+    ; Layout . PutText ( GOStream , "; CONST LToRt = 3 " )  
+    ; Layout . PutEol ( GOStream )
+    END EmitInterfaceDecls
+
+(* Just coding fodder: 
+
+    ; Layout . PutText ( GOStream ) 
+    ; Layout . PutText ( GOStream ) 
+    ; Layout . PutText ( GOStream ) 
+
+    ; Layout . PutEol ( GOStream )
+
+    ; Layout . PutText ( GOStream ) 
+    ; Layout . PutText ( GOStream ) 
+    ; Layout . PutText ( GOStream ) 
+    ; Layout . PutEol ( GOStream )
+    ; Layout . PutText ( GOStream ) 
+    ; Layout . PutText ( GOStream ) 
+    ; Layout . PutText ( GOStream ) 
+    ; Layout . PutText ( GOStream ) 
+    ; Layout . PutText ( GOStream ) 
+
+    ; Layout . PutEol ( GOStream )
+    ; Layout . PutText ( GOStream ) 
+    ; Layout . PutText ( GOStream ) 
+    ; Layout . PutText ( GOStream ) 
+    ; Layout . PutText ( GOStream ) 
+    ; Layout . PutText ( GOStream ) 
+    ; Layout . PutEol ( GOStream )
+    ; Layout . PutText ( GOStream ) 
+    ; Layout . PutText ( GOStream ) 
+    ; Layout . PutText ( GOStream ) 
+    ; Layout . PutText ( GOStream ) 
+    ; Layout . PutText ( GOStream ) 
+    ; Layout . PutEol ( GOStream )
+    ; Layout . PutEol ( GOStream )
+    ; Layout . PutEol ( GOStream )
+    ; Layout . PutEol ( GOStream )
+    ; Layout . PutEol ( GOStream )
+    ; Layout . PutEol ( GOStream )
+*)
+
+; PROCEDURE EmitInterfaceEpilog ( )
+
+  = BEGIN 
       Layout . PadAbs ( GOStream , GIndentToks )
     ; Layout . PutText ( GOStream , "; END " )
     ; Layout . PutText ( GOStream , InterfaceName ) 
     ; Layout . PutEol ( GOStream )
 
-      Layout . PadAbs ( GOStream , GIndentToks )
-    ; Layout . PutText ( GOStream "." ) 
+    ; Layout . PadAbs ( GOStream , GIndentToks )
+    ; Layout . PutText ( GOStream , "." ) 
     ; Layout . PutEol ( GOStream )
     ; Layout . PutEol ( GOStream )
-    END InterfaceEpilog 
+    END EmitInterfaceEpilog 
 
 ; PROCEDURE SkipComments ( ) 
 
@@ -346,77 +481,150 @@ EXPORTS Main
 
 ; VAR GToken : TEXT 
 
-; PROCEDURE GenInterfaceToks ( )
+; PROCEDURE GetTokArgCt ( Kind : TEXT ) : INTEGER
+  (* -1 means none found.  Otherwise, 0, 1 or 2.
+     Consumed if any number found
+  *) 
 
-  = VAR LValue : INTEGER 
+  = VAR LValue : INTEGER
 
   ; BEGIN
-    ; LOOP
+      IF NOT IsNum ( GToken , ((*VAR*) LValue ) ) 
+      THEN RETURN - 1
+      ELSIF LValue IN SET OF INTEGER { 0 , 1 , 2 }
+      THEN
+        GToken := GetTok ( ) 
+      ; RETURN LValue
+      ELSE
+        IF Kind # NIL
+        THEN 
+          MessageLine 
+            ( "Bad " & Kind & " argument count: " & Fmt . Int ( LValue ) 
+            & ", must be 0, 1, or 2.  Using 0. " 
+            )
+        END (*IF*)
+      ; RETURN 0 
+      END (*IF*) 
+    END GetTokArgCt 
+
+; PROCEDURE GenTokConsts ( )
+
+  = VAR LValue : INTEGER
+  ; VAR LArgCtList , LArgCtElmt : INTEGER 
+  ; VAR LIsRel , LIsAbs : BOOEAN  
+
+  ; BEGIN
+      LOOP
         CopyComments ( ) 
 
-        (* Unit name, but it's too late now. *)
+      (* Unit name, but it's too late now. *)
       ; IF TokEq ( GToken , "UNITNAME" )
         THEN
           MessageLine ( "Too late for a UNITNAME, ignored." )
         ; GToken := GetTok ( )
         ; IF GToken = NIL THEN RAISE Terminate END (*IF*) 
         ; IF IsIdent ( GToken ) THEN GToken := GetTok ( ) END (*IF*)
-
-        (* Relative Number. *) 
-        IF TokEq ( "+" ) 
+        END (*IF*) 
+ 
+      (* Token Numbering. *)
+      ; IF TokEq ( "REL" )
+        THEN
+          LIsRel := TRUE 
+        ; LIsAbs := FALSE 
+        ELSIF TokEq ( "ABS" )
+        THEN
+          LIsAbs := TRUE
+        ; LIsRel := FALSE 
+        END (*IF*)
+        
+      ; IF LIsRel OR LIsAbs
         THEN 
           GToken := GetTok ( ) 
         ; IF GToken = NIL
           THEN
-            MessageLine ( "Premature EOF loking for a relative number." )
+            MessageLine ( "Premature EOF loking for a token number." )
           ; RAISE Terminate
-          ELSIF IsNum ( GToken , ((*VAR*) LValue ) 
-          THEN INC ( GNextTokNo , LValue ) 
-          ELSE 
-            MessageLine ( "Invalid relative number: " & GToken & ", ignored.")
-          ELSE 
-            INC ( GNextTokNo , LValue ) 
+          ELSIF NOT IsNum ( GToken , ((*VAR*) LValue ) )  
+          THEN 
+            MessageLine ( "Invalid token number: " & GToken & ", ignored.")
+          ELSE
+            IF LIsRel
+            THEN INC ( GNextTokNo , LValue )
+            ELSE
+              IF LValue < GNextTokNo 
+              THEN 
+                MessageLine 
+                  ( "Decreasing token number: "
+                    & GToken & ", retaining current value: " 
+                    & Fmt . Int ( LValue )
+                  )
+              ELSE 
+                GNextTokNo := LValue
+              END (*IF*) 
+            END (*IF*) 
           ; GToken := GetTok ( ) 
           END (*IF*)
-        END (*IF*) 
 
-        (* Absolute Number. *) 
-        IF IsNum ( GToken , ((*VAR*) LValue ) 
-        THEN 
-          IF LValue < GNextTokNo 
-          THEN 
-            MessageLine 
-              ( "Decreasing token number: "
-                & GToken & ", retaining current value: " 
-                & Fmt . Int ( LValue )
-              )
-          ELSE 
-            GNextTokNo := LValue
-          END (*IF*) 
-        ; GToken := GetTok ( ) 
-
-        (* List tokens. *) 
-        IF TokEq ( GToken , "LIST" )  
+        (* List construct tokens. *) 
+        ELSIF TokEq ( GToken , "LIST" )  
         THEN 
           GToken := GetTok () 
         ; IF GToken = NIL 
           THEN
             MessageLine ( "Premature EOF looking for a list root name." )
           ; RAISE Terminate
-          ELSIF IsIdent ( GToken )
+          ELSIF NOT IsIdent ( GToken )
           THEN
-            EmitListToks ( GToken ) (* Will consume. *) 
-          ELSE
             MessageLine
-              ( "Invalid list root name: " & GToken & ", using stdout. )
+              ( "Invalid list root name: " & GToken & ", ignoring." )
+          ; LArgCtList := GetTokArgCt ( NIL ) 
+          ; LArgCtElmt := GetTokArgCt ( NIL ) 
+          ELSE
+            LRootName := GToken 
+          ; LArgCtList := GetTokArgCt ( "list"  ) 
+          ; LArgCtElmt := GetTokArgCt ( "list element" ) 
+          ; EmitListToks ( LRootName , LArgCtList , LArgCtElmt ) 
           END (*IF*) 
-        ; GToken := GetToken 
+        ; GToken := GetToken
 
-        ELSE LRelative := FALSE 
+        (* Fixed construct tokens. *) 
+        ELSIF TokEq ( GToken , "FIXED" )  
+        THEN 
+          GToken := GetTok () 
+        ; IF GToken = NIL 
+          THEN
+            MessageLine ( "Premature EOF looking for a fixed root name." )
+          ; RAISE Terminate
+          ELSIF NOT IsIdent ( GToken )
+          THEN
+            MessageLine
+              ( "Invalid fixed root name: " & GToken & ", ignoring." )
+          ; WHILE IsIdent ( GToken ) 
+            DO LSubName := GToken
+            ; LArgCtSub := GetTokArgCt ( "interior token"  ) 
+            ; GToken := GetTok ()  
+            END (*WHILE*) 
+          ELSE
+            LRootName := GToken 
+          ; LArgCtFixed := GetTokArgCt ( "fixed"  ) 
+          ; EmitOneTok ( RootName & "Lt" , ArgCtFixed )  
+          ; EmitOneTok ( RootName & "LtTemp" , ArgCtFixed )  
+          ; EmitOneTok ( RootName & "LtPatch" , ArgCtFixed )
+          ; EmitOneTok ( RootName & "Rt" , ArgCtFixed )  
+
+          ; WHILE IsIdent ( GToken ) 
+            DO LSubName := GToken
+            ; LArgCtSub := GetTokArgCt ( "interior token"  ) 
+            ; EmitOneTok ( RootName & LSubName & "Lt" , ArgCtSub )  
+            ; EmitOneTok ( RootName & LSubName & "LtTemp" , ArgCtSub )  
+            ; EmitOneTok ( RootName & LSubName & "LtPatch" , ArgCtSub )
+            ; EmitOneTok ( RootName & LSubName & "Rt" , ArgCtSub )
+            ; GToken := GetTok ()  
+            END (*WHILE*) 
+          END (*IF*) 
         END (*IF*) 
       END (*LOOP*)
-
-    END GenInterfaceToks 
+    END GenTokConsts 
 
 ; PROCEDURE Pass1 ( )
 
@@ -453,32 +661,32 @@ EXPORTS Main
       END (*IF*)
       
     ; GOutputWrT := OpenOutput ( GInterfaceFileName )
-    ; GenInterfaceProlog ( ) 
-    ; GenInterfaceToks ( )
-    ; GenInterfaceEpilog
+    ; EmitInterfaceProlog ( ) 
+    ; GenTokConsts ( )
+    ; EmitInterfaceEpilog ( ) 
     ; IF GInputRdT # Stdio . stdin THEN Rd . Close ( GInputRdT ) END (*IF*) 
     ; IF GOutputWr # Stdio . stdout THEN Wr . Close ( GOutputWrT ) END (*IF*) 
     END Pass1
     
-; PROCEDURE GenModuleProlog ( )
+; PROCEDURE EmitModuleProlog ( )
 
   = BEGIN
       Layout . PutText ( "(* This file generated by GenTok program. *)" ) 
     ; Layout . PutEol ( GOStream )
     ; Layout . PutEol ( GOStream )
 
-    ; Layout . PutText ( GOStream "MODULE " ) 
+    ; Layout . PutText ( GOStream , "MODULE " ) 
     ; Layout . PutText ( GOStream , ModuleName ) 
     ; Layout . PutEol ( GOStream )
     ; Layout . PutEol ( GOStream )
-    END GenModuleProlog 
+    END EmitModuleProlog 
 
 ; PROCEDURE GenImageProc ( Min , Max : INTEGER ) 
 
   = BEGIN 
       Layout . PadAbs ( GOStream , GIndentToks )
     ; Layout . PutText 
-        ( GOStream "; PROCEDURE Image ( TokNo : INTEGER ) : TEXT ) 
+        ( GOStream , "; PROCEDURE Image ( TokNo : INTEGER ) : TEXT " ) 
     ; Layout . PutEol ( GOStream )
     ; Layout . PutEol ( GOStream )
 
@@ -512,59 +720,22 @@ EXPORTS Main
     ; Layout . PutText ( GOStream , "END (*CASE*) " ) 
     ; Layout . PutEol ( GOStream )
 
-    ; Layout . PadAbs ( GOStream , GIndentToks +  )
+    ; Layout . PadAbs ( GOStream , GIndentToks )
     ; Layout . PutText ( GOStream , "END Image " ) 
     ; Layout . PutEol ( GOStream )
     ; Layout . PutEol ( GOStream )
     END GenImageProc 
 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
+; PROCEDURE GenTokSet ( Name : TEXT ) 
 
-    ; Layout . PutEol ( GOStream )
+  = BEGIN 
+    END GenTokSet 
 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PutEol ( GOStream )
-
-
-
-      Layout . PadAbs ( GOStream , GIndentToks )
-      Layout . PadAbs ( GOStream , GIndentToks )
-      Layout . PadAbs ( GOStream , GIndentToks )
-      Layout . PadAbs ( GOStream , GIndentToks + 4 )
-      
-; PROCEDURE GenModuleEpilog ( )
+; PROCEDURE EmitModuleEpilog ( )
 
   = BEGIN 
     
-    ; Layout . PadAbs ( GOStream , GIndentToks )
+      Layout . PadAbs ( GOStream , GIndentToks )
     ; Layout . PutText ( GOStream , "; BEGIN " )
     ; Layout . PutEol ( GOStream )
     
@@ -573,19 +744,19 @@ EXPORTS Main
     ; Layout . PutText ( GOStream , ModuleName ) 
     ; Layout . PutEol ( GOStream )
 
-      Layout . PadAbs ( GOStream , GIndentToks )
-    ; Layout . PutText ( GOStream "." ) 
+    ; Layout . PadAbs ( GOStream , GIndentToks )
+    ; Layout . PutText ( GOStream , "." ) 
     ; Layout . PutEol ( GOStream )
     ; Layout . PutEol ( GOStream )
-    END GenModuleEpilog 
+    END EmitModuleEpilog 
 
 ; PROCEDURE Pass2 ( )
 
   = BEGIN
       OpenOutput ( GModuleFileName )
-    ; GenModuleProlog ( ) 
-    ; GenImageProc ( GMinhTokNo , GNextTokNo - 1 ) 
-    ; GenModuleEpilog
+    ; EmitModuleProlog ( ) 
+    ; GenImageProc ( GMinTokNo , GNextTokNo - 1 ) 
+    ; EmitModuleEpilog ( ) 
     ; IF GOutputWr # Stdio . stdout THEN Wr . Close ( GOutputWrT ) END (*IF*) 
     END Pass2
     
@@ -599,6 +770,8 @@ EXPORTS Main
     ; GConstTag := "  CONST"
     ; GSavedToksRef := NEW ( REF ARRAY OF TEXT , GMsxToks )
     ; GSavedToksRef ^ := ARRAY OF TEXT { NIL , .. } 
+    ; GArgSet1Arg := IntSets . Empty ( )  
+    ; GArgSet2Args := IntSets . Empty ( ) 
     END Init 
 
 ; BEGIN 
