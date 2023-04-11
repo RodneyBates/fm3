@@ -18,6 +18,7 @@ EXPORTS Main
 ; IMPORT Fmt 
 ; IMPORT Long 
 ; IMPORT OSError
+; IMPORT Pickle2 AS Pickle 
 ; IMPORT Rd
 ; IMPORT Stdio
 ; IMPORT Text 
@@ -158,22 +159,55 @@ EXPORTS Main
 
 ; PROCEDURE IsNum ( Token : TEXT ; VAR Value : INTEGER ) : BOOLEAN
 
-  = BEGIN
-(* IMPLEMENT ME. *) 
-      RETURN FALSE
+  = VAR LLen , LCharNo , LValue : INTEGER
+  ; VAR LChar : CHAR 
+
+  ; BEGIN
+      IF Token = NIL THEN RETURN FALSE END (*IF*)
+    ; LLen := Text . Length ( Token )
+    ; IF LLen <= 0 THEN RETURN FALSE END (*IF*) 
+    ; LValue := 0
+    ; LCharNo := 0
+    ; LOOP
+        IF LCharNo >= LLen THEN EXIT END (*IF*)
+      ; LChar := Text . GetChar ( Token , LCharNo ) 
+      ; IF NOT LChar IN Digits THEN RETURN FALSE END (*IF*)
+      ; LValue := LValue * 10 + ORD ( LChar ) - ORD ( '0' )  
+      ; INC ( LCharNo ) 
+      END (*LOOP*) 
+    ; Value := LValue
+    ; RETURN TRUE 
     END IsNum
+
+; CONST Letters = SET OF CHAR { 'A' .. 'Z' , 'a' .. 'z' }
+; CONST Digits = SET OF CHAR { '0' .. '9' }
+; CONST LettersNDigits = Letters + Digits 
 
 ; PROCEDURE IsIdent ( Token : TEXT ) : BOOLEAN
 
-  = BEGIN
-(* IMPLEMENT ME. *) 
-      RETURN FALSE
+  = VAR LLen , LCharNo : INTEGER
+
+  ; BEGIN
+      IF Token = NIL THEN RETURN FALSE END (*IF*)
+    ; LLen := Text . Length ( Token )
+    ; IF LLen <= 0 THEN RETURN FALSE END (*IF*) 
+    ; IF NOT Text . GetChar ( Token , 1 ) IN Letters
+      THEN RETURN FALSE
+      END (*IF*)
+    ; LCharNo := 1
+    ; LOOP
+        IF LCharNo >= LLen THEN RETURN TRUE END (*IF*)
+      ; IF NOT Text . GetChar ( Token , LCharNo ) IN LettersNDigits
+        THEN RETURN FALSE
+        END (*IF*)
+      ; INC ( LCharNo ) 
+      END (*LOOP*) 
     END IsIdent 
 
 ; VAR GOutputWrT : Wr . T 
 ; GOStream : Layout . T 
 
-; PROCEDURE OpenOutput ( FileName : TEXT ) : Layout . T 
+; PROCEDURE OpenOutput ( FileName : TEXT ) : Wr . T 
 
   = VAR LResult : Layout . T
   ; VAR LWrT : Wr . T 
@@ -192,9 +226,15 @@ EXPORTS Main
         ; LResult := NIL 
         ; RAISE Terminate 
         END (*EXCEPT*)
-      ; LResult := Layout . Init ( GOStream , LWrT )
-      END (*IF*)    ; RETURN LResult 
+      END (*IF*)
+    ; RETURN LWrT 
     END OpenOutput
+
+; PROCEDURE OpenLayout ( LayoutStream : Layout . T ; Sink : Wr . T ) 
+
+  = BEGIN
+      EVAL Layout . Init ( LayoutStream , Sink )
+    END OpenLayout 
 
 ; PROCEDURE CloseLayout ( VAR LayoutStream : Layout . T )
 
@@ -209,6 +249,7 @@ EXPORTS Main
 ; VAR GInputFileName : TEXT 
 ; VAR GInterfaceFileName : TEXT
 ; VAR GModuleFileName : TEXT
+; VAR GPickleFileName : TEXT
 
 ; PROCEDURE Options ( )
 
@@ -239,7 +280,7 @@ EXPORTS Main
 
 ; VAR GIndentToks : INTEGER
 ; VAR GConstTag : TEXT
-; VAR GSavedToksRef : REF ARRAY OF TEXT 
+; VAR GTokNamesArrayRef : REF ARRAY OF TEXT 
 ; VAR GTokSet1Arg : IntSets . T 
 ; VAR GTokSet2Args : IntSets . T 
 ; VAR GMaxToks := 500 (* Non-expanding, hopefully enough. *)
@@ -322,7 +363,7 @@ EXPORTS Main
 
   = BEGIN
       MaybePutMinTokNo ( ) 
-    ; GSavedToksRef ^ [ GNextTokNo ] := Name 
+    ; GTokNamesArrayRef ^ [ GNextTokNo ] := Name 
     ; Layout . PadAbs ( GOStream , GIndentToks )
     ; Layout . PutText ( GOStream , GConstTag )
     ; GConstTag := "; CONST " (* For the future. *) 
@@ -379,13 +420,11 @@ EXPORTS Main
 ; VAR GMinTokNo : INTEGER
 ; VAR GInterfaceName := "FM3Toks"
 ; VAR GModuleName := "FM3Toks" 
+; VAR GPickleName := "FM3Toks" 
 
 ; PROCEDURE Args ( ) 
 
    = BEGIN
-(* It's too early to do this: *) 
-       GInterfaceFileName := GInterfaceName & ".i3"  
-     ; GModuleFileName := GModuleName & ".m3"  
      END Args 
 
 ; PROCEDURE EmitInterfaceProlog ( )
@@ -685,6 +724,7 @@ EXPORTS Main
         ; GModuleName := GToken 
         ; GInterfaceFileName := GInterfaceName & ".i3"  
         ; GModuleFileName := GModuleName & ".m3"  
+        ; GPickleFileName := GPickleName & ".pkl"  
         ELSE
           MessageLine
             ( "Invalid filename : \"" & GToken & ", using " & GInterfaceName )
@@ -692,7 +732,8 @@ EXPORTS Main
       ; GToken := GetTok ( ) 
       END (*IF*)
       
-    ; GOStream := OpenOutput ( GInterfaceFileName )
+    ; GOutputWrT := OpenOutput ( GInterfaceFileName ) 
+    ; OpenLayout ( GOStream , GOutputWrT )
     ; EmitInterfaceProlog ( ) 
     ; GenTokConsts ( )
     ; EmitInterfaceEpilog ( ) 
@@ -733,13 +774,13 @@ EXPORTS Main
 
     ; FOR RI := Min TO Max
       DO
-        IF GSavedToksRef ^ [ RI ] # NIL
+        IF GTokNamesArrayRef ^ [ RI ] # NIL
         THEN 
           Layout . PadAbs ( GOStream , GIndentToks + 6 )
         ; Layout . PutText ( GOStream , "| " ) 
         ; Layout . PutText ( GOStream , Fmt . Int ( RI ) ) 
         ; Layout . PutText ( GOStream , " => \"" ) 
-        ; Layout . PutText ( GOStream , GSavedToksRef ^ [ RI ] ) 
+        ; Layout . PutText ( GOStream , GTokNamesArrayRef ^ [ RI ] ) 
         ; Layout . PutText ( GOStream , "\"") 
         ; Layout . PutEol ( GOStream )
         END (*IF*) 
@@ -786,12 +827,49 @@ EXPORTS Main
 ; PROCEDURE Pass2 ( )
 
   = BEGIN
-      GOStream := OpenOutput ( GModuleFileName )
+      GOutputWrT := OpenOutput ( GInterfaceFileName ) 
+    ; OpenLayout ( GOStream , GOutputWrT )
     ; EmitModuleProlog ( ) 
     ; GenImageProc ( GMinTokNo , GNextTokNo - 1 ) 
     ; EmitModuleEpilog ( )
     ; CloseLayout ( GOStream ) 
     END Pass2
+
+; CONST FM3FileTag = "FM3" 
+; CONST FM3FileKindTokPkl = "A"
+; CONST FM3Magic
+    = ARRAY [ 0 .. 3 ] OF CHAR 
+        { VAL ( 16_A2 , CHAR ) , VAL ( 16_0B , CHAR )
+        , VAL ( 16_9F , CHAR ) , VAL ( 16_D9 , CHAR )
+        }
+
+(* TODO: Move this somewere universal & fix it up, maybe date & time, e.g.? *)
+; PROCEDURE PicklePrefix ( ) : TEXT 
+
+  = VAR LResult : TEXT
+  
+  ; BEGIN
+      LResult
+        := FM3FileTag & FM3FileKindTokPkl & Text . FromChars ( FM3Magic )
+    ; RETURN LResult 
+    END PicklePrefix 
+
+; PROCEDURE WritePickle ( )
+
+  = BEGIN
+      GOutputWrT := OpenOutput ( GPickleFileName )
+    ; TRY
+        Wr . PutText ( GOutputWrT , (* FM3Utils . *) PicklePrefix ( ) )
+      ; Pickle . Write
+          ( GOutputWrT , GTokNamesArrayRef , write16BitWidechar := FALSE ) 
+      ; Pickle . Write
+          ( GOutputWrT , GTokSet1Arg , write16BitWidechar := FALSE ) 
+      ; Pickle . Write
+          ( GOutputWrT , GTokSet2Args , write16BitWidechar := FALSE )
+      FINALLY
+        Wr . Close ( GOutputWrT )  
+      END (*FINALLY*)
+    END WritePickle 
 
 ; PROCEDURE Init ( )
   = BEGIN 
@@ -799,9 +877,9 @@ EXPORTS Main
     ; GNextTokNo := 0
     ; GMinTokNo := 0
     ; GConstTag := "  CONST"
-    ; GSavedToksRef := NEW ( REF ARRAY OF TEXT , GMaxToks )
-    ; FOR RI := FIRST ( GSavedToksRef ^ ) TO LAST ( GSavedToksRef ^ )
-      DO GSavedToksRef ^ [ RI ] := NIL
+    ; GTokNamesArrayRef := NEW ( REF ARRAY OF TEXT , GMaxToks )
+    ; FOR RI := FIRST ( GTokNamesArrayRef ^ ) TO LAST ( GTokNamesArrayRef ^ )
+      DO GTokNamesArrayRef ^ [ RI ] := NIL
       END (*FOR*)
     ; GTokSet1Arg := IntSets . Empty ( )  
     ; GTokSet2Args := IntSets . Empty ( ) 
@@ -815,7 +893,9 @@ EXPORTS Main
   
     TRY 
       Init ( )
-    ; Pass1 ( ) 
+    ; Pass1 ( )
+    ; Pass2 ( )
+    ; WritePickle () 
     EXCEPT Terminate => 
     END (*EXCEPT*)
   ; IF GInputRdT # Stdio . stdin THEN Rd . Close ( GInputRdT ) END (*IF*) 
