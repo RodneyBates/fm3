@@ -161,16 +161,22 @@ OptUnsafe : TkUNSAFE { $$ . Bool := TRUE; } .
 OptUnsafe : { $$ . Bool := FALSE; }.
 
 Exports : { } .
-Exports : IdentList { }.
+Exports : StkRwExports IdentList { }.
 
-IdentList : { $$ . Int := 0; } .
-IdentList : IdentList Ident
-              { i := $1.int;
-                (* $1(Ident) is already on the patch stack *)
-                PushPatch ( EndExportId (i);
-                PushPatch ( BegExportIdPostponed (i);
-                $2 . Int := i; (* Needed? will be popped now. *) 
-                $$ . Int := i;
-              } .
+IdentList : .
+IdentList : IdentListSub 
+    { i := $1.Int;
+      PushTok ( TkIdListRt (i+1);
+      PushTokPost ( TkIdListLtPost ($1,i+1);
+    } .
 
-(* END of FM3Parser.lalr. *) 
+IdentListSub : { $$ . Int := 0; } .
+IdentListSub : IdentListSub TkComma Ident
+    { i := $1.Int;
+      PushTok ( TkIdListRt (i);
+      PushTokPost ( TkIdListRtPost ($1,i);
+      $$ . Int := i+1;
+    } .
+
+(* END of FM3Parser.lalr. *)
+
