@@ -35,6 +35,10 @@ EXPORTS Main
 ; CONST EofChar = '\XFF'
 ; CONST CR = '\n'
 ; CONST LF = '\r' 
+; CONST Letters = SET OF CHAR { 'A' .. 'Z' , 'a' .. 'z' }
+; CONST Digits = SET OF CHAR { '0' .. '9' }
+; CONST LettersNDigits = Letters + Digits 
+
 ; VAR TokChars := SET OF CHAR { '!' .. '~' } 
 
 ; VAR GInputRdT : Rd . T
@@ -232,6 +236,75 @@ EXPORTS Main
       END (*LOOP*)
     END GetTok
 
+; PROCEDURE SkipComments ( ) 
+
+  = BEGIN 
+      WHILE <*NOWARN*> GToken # EOFToken
+            AND Text . Length ( GToken ) >= 2
+            AND Text . Equal ( Text . Sub ( GToken , 0 , 2 ) , "(*")
+      DO GToken := GetTok ( ) 
+      END (*WHILE*)
+    END SkipComments 
+
+; PROCEDURE CopyComments ( ) 
+
+  = BEGIN 
+      WHILE <*NOWARN*> GToken # EOFToken
+            AND Text . Length ( GToken ) >= 2
+            AND Text . Equal ( Text . Sub ( GToken , 0 , 2 ) , "(*")
+      DO (* It's a comment, and so is this. *) 
+        Layout . PutText ( GOStream , GToken )
+      ; Layout . PutEol ( GOStream ) 
+      ; GToken := GetTok ( ) 
+      END (*WHILE*)
+    END CopyComments 
+
+; PROCEDURE GetTokArgCt ( Kind : TEXT ) : INTEGER
+  (* -1 means none found.  Otherwise, 0, 1, 2, or 3.
+     Consumed if non-negative number found
+  *) 
+
+  = VAR LValue : INTEGER
+
+  ; BEGIN
+      IF NOT IsNum ( GToken , ((*VAR*) LValue ) ) 
+      THEN RETURN - 1
+      ELSIF LValue IN SET OF [ 0 .. 7 ] { 0 , 1 , 2 , 3 }
+      THEN
+        GToken := GetTok ( ) 
+      ; RETURN LValue
+      ELSE
+        IF Kind # NIL
+        THEN 
+          MessageLine 
+            ( "Bad " & Kind & " argument count: " & Fmt . Int ( LValue ) 
+            & ", must be 0, 1, or 2.  Using 0. " 
+            )
+        ; GToken := GetTok ( ) 
+        END (*IF*)
+      ; RETURN 0 
+      END (*IF*) 
+    END GetTokArgCt 
+
+; PROCEDURE TokEq ( Tok : TEXT ; Wanted : TEXT ) : BOOLEAN
+
+  = VAR LTokLen , LWantedLen : INTEGER
+
+  ; BEGIN
+      IF <*NOWARN*> Tok = EOFToken OR Tok = NIL THEN RETURN FALSE END (*IF*)
+    ; IF <*NOWARN*> Wanted = EOFToken OR Wanted = NIL
+      THEN RETURN FALSE
+      END (*IF*)
+    ; LTokLen := Text . Length ( Tok ) 
+    ; LWantedLen := Text . Length ( Wanted )
+    ; IF LTokLen # LWantedLen
+      THEN RETURN FALSE
+      ELSIF LTokLen = 0
+      THEN RETURN TRUE
+      ELSE RETURN Text . Equal ( Tok , Wanted )
+      END (*IF*)
+    END TokEq
+
 ; PROCEDURE IsNum ( Token : TEXT ; VAR Value : INTEGER ) : BOOLEAN
 
   = VAR LLen , LCharNo , LValue : INTEGER
@@ -253,10 +326,6 @@ EXPORTS Main
     ; Value := LValue
     ; RETURN TRUE 
     END IsNum
-
-; CONST Letters = SET OF CHAR { 'A' .. 'Z' , 'a' .. 'z' }
-; CONST Digits = SET OF CHAR { '0' .. '9' }
-; CONST LettersNDigits = Letters + Digits 
 
 ; PROCEDURE IsIdent ( Token : TEXT ) : BOOLEAN
 
@@ -324,25 +393,6 @@ EXPORTS Main
       ; LayoutT := NIL 
       END (*IF*)
     END CloseLayout
-
-; PROCEDURE TokEq ( Tok : TEXT ; Wanted : TEXT ) : BOOLEAN
-
-  = VAR LTokLen , LWantedLen : INTEGER
-
-  ; BEGIN
-      IF <*NOWARN*> Tok = EOFToken OR Tok = NIL THEN RETURN FALSE END (*IF*)
-    ; IF <*NOWARN*> Wanted = EOFToken OR Wanted = NIL
-      THEN RETURN FALSE
-      END (*IF*)
-    ; LTokLen := Text . Length ( Tok ) 
-    ; LWantedLen := Text . Length ( Wanted )
-    ; IF LTokLen # LWantedLen
-      THEN RETURN FALSE
-      ELSIF LTokLen = 0
-      THEN RETURN TRUE
-      ELSE RETURN Text . Equal ( Tok , Wanted )
-      END (*IF*)
-    END TokEq
 
 ; PROCEDURE PutSimpleTokDecl ( Name : TEXT ; TokNo : INTEGER )
 
@@ -490,11 +540,6 @@ EXPORTS Main
     ; Layout . PutEol ( GOStream )
     END EmitListToks 
 
-; PROCEDURE Args ( ) 
-
-   = BEGIN
-     END Args 
-
 ; PROCEDURE EmitInterfaceProlog ( )
 
   = BEGIN
@@ -599,56 +644,6 @@ EXPORTS Main
     ; Layout . PutEol ( GOStream )
     END EmitInterfaceEpilog 
 
-; PROCEDURE SkipComments ( ) 
-
-  = BEGIN 
-      WHILE <*NOWARN*> GToken # EOFToken
-            AND Text . Length ( GToken ) >= 2
-            AND Text . Equal ( Text . Sub ( GToken , 0 , 2 ) , "(*")
-      DO GToken := GetTok ( ) 
-      END (*WHILE*)
-    END SkipComments 
-
-; PROCEDURE CopyComments ( ) 
-
-  = BEGIN 
-      WHILE <*NOWARN*> GToken # EOFToken
-            AND Text . Length ( GToken ) >= 2
-            AND Text . Equal ( Text . Sub ( GToken , 0 , 2 ) , "(*")
-      DO (* It's a comment, and so is this. *) 
-        Layout . PutText ( GOStream , GToken )
-      ; Layout . PutEol ( GOStream ) 
-      ; GToken := GetTok ( ) 
-      END (*WHILE*)
-    END CopyComments 
-
-; PROCEDURE GetTokArgCt ( Kind : TEXT ) : INTEGER
-  (* -1 means none found.  Otherwise, 0, 1, 2, or 3.
-     Consumed if non-negative number found
-  *) 
-
-  = VAR LValue : INTEGER
-
-  ; BEGIN
-      IF NOT IsNum ( GToken , ((*VAR*) LValue ) ) 
-      THEN RETURN - 1
-      ELSIF LValue IN SET OF [ 0 .. 7 ] { 0 , 1 , 2 , 3 }
-      THEN
-        GToken := GetTok ( ) 
-      ; RETURN LValue
-      ELSE
-        IF Kind # NIL
-        THEN 
-          MessageLine 
-            ( "Bad " & Kind & " argument count: " & Fmt . Int ( LValue ) 
-            & ", must be 0, 1, or 2.  Using 0. " 
-            )
-        ; GToken := GetTok ( ) 
-        END (*IF*)
-      ; RETURN 0 
-      END (*IF*) 
-    END GetTokArgCt 
-
 ; PROCEDURE GenTokConsts ( )
 
   = VAR LValue : INTEGER
@@ -731,7 +726,6 @@ EXPORTS Main
           ; LArgCtElmt := GetTokArgCt ( "list element" ) 
           ; EmitListToks ( LRootName , LArgCtList , LArgCtElmt ) 
           END (*IF*) 
-; Wr . Flush (GOutputWrT )
 
         (* Fixed construct tokens. *) 
         ELSIF TokEq ( GToken , "FIXED" )  
@@ -781,7 +775,6 @@ EXPORTS Main
           ; Layout . PutEol ( GOStream )
           ; GToken := GetTok ( )  
             END (*WHILE*) 
-; Wr . Flush (GOutputWrT ) 
           END (*IF*)
         ELSE
           MessageLine ( "Unrecognized token: " & GToken ) 
@@ -1001,6 +994,11 @@ EXPORTS Main
     ; GTokSet2Args := IntSets . Empty ( ) 
     ; GAtEof := FALSE
     END Init 
+
+; PROCEDURE Args ( ) 
+
+   = BEGIN
+     END Args 
 
 ; <* FATAL Thread . Alerted *>
   <* FATAL Wr . Failure *>
