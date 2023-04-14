@@ -2,14 +2,7 @@
 
 import("libm3")
 
-%interface("IntForOrdSets")
-%interface("BitNoTable")
-%generic_module("OrdSets")
-%module("UnsafeUtils")
-%module("IntSets")
 include_dir("../../../sharedsrc/intsetssrc") 
-
-%module("Layout")
 include_dir("../../../sharedsrc/layoutsrc") 
 
 implementation ("GenTok")
