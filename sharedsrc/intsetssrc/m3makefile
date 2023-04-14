@@ -1,0 +1,7 @@
+% m3makefile for source files needed to get IntSets. 
+
+interface("IntForOrdSets")
+interface("BitNoTable")
+generic_module("OrdSets")
+module("UnsafeUtils")
+module("IntSets")
