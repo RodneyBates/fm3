@@ -22,7 +22,6 @@ EXPORTS Main
 ; IMPORT Rd
 ; IMPORT Stdio
 ; IMPORT Text 
-; IMPORT TextRd 
 ; IMPORT TextWr
 ; IMPORT Thread 
 ; IMPORT Word 
@@ -44,6 +43,38 @@ EXPORTS Main
 ; VAR GInputLineNo : INTEGER := 1 
 ; VAR GNextInChar : CHAR
 ; VAR GAtEof : BOOLEAN := FALSE  
+
+; VAR GOutputWrT : Wr . T 
+; VAR GOStream : Layout . T 
+
+; VAR GInputFileName : TEXT 
+; VAR GInterfaceFileName : TEXT
+; VAR GModuleFileName : TEXT
+; VAR GPickleFileName : TEXT
+
+; VAR GSemiTab : INTEGER
+; VAR GArgCtTab : INTEGER := 40 (* Absolute *) 
+; VAR GEqualSignTab : INTEGER := 52 (* Absolute *) 
+; VAR GCompressedTab : INTEGER := 8 (* Relative *) 
+; VAR GTokNoPad : INTEGER := 5 
+; VAR GConstTag : TEXT
+; VAR GTokNamesArrayRef : REF ARRAY OF TEXT 
+; VAR GTokSetTemp : IntSets . T 
+; VAR GTokSetPatch : IntSets . T 
+; VAR GTokSet1Arg : IntSets . T 
+; VAR GTokSet2Args : IntSets . T 
+; VAR GTokSet3Args : IntSets . T 
+; VAR GMaxToks := 41000 (* Non-expanding, hopefully enough. *)
+; VAR GMinTokDone := FALSE 
+
+; VAR GNextTokNo : INTEGER
+; VAR GMinTokNo : INTEGER
+; VAR GInputName := "FM3Toks" 
+; VAR GInterfaceName := "FM3Toks"
+; VAR GModuleName := "FM3Toks" 
+; VAR GPickleName := "FM3Toks" 
+
+; VAR GToken : TEXT 
 
 ; PROCEDURE MessageLine ( Msg : TEXT )
 
@@ -68,7 +99,7 @@ EXPORTS Main
       ELSE
         TRY 
           LResult := FileRd . Open ( FileName )
-        EXCEPT OSError . E ( Code )
+        EXCEPT OSError . E ( <*UNUSED*> Code )
         => MessageLine ( "Unable to open input file " & FileName )
         ; LResult := NIL 
         ; RAISE Terminate 
@@ -248,9 +279,6 @@ EXPORTS Main
       END (*LOOP*) 
     END IsIdent 
 
-; VAR GOutputWrT : Wr . T 
-; GOStream : Layout . T 
-
 ; PROCEDURE OpenOutput ( FileName : TEXT ) : Wr . T 
 
   = VAR LWrT : Wr . T 
@@ -263,7 +291,7 @@ EXPORTS Main
       ELSE
         TRY 
           LWrT  := FileWr . Open ( FileName ) 
-        EXCEPT OSError . E ( Code )
+        EXCEPT OSError . E ( <*UNUSED*> Code )
         => MessageLine ( "Unable to open output file " & FileName ) 
         ; LWrT := NIL 
         ; RAISE Terminate 
@@ -297,11 +325,6 @@ EXPORTS Main
       END (*IF*)
     END CloseLayout
 
-; VAR GInputFileName : TEXT 
-; VAR GInterfaceFileName : TEXT
-; VAR GModuleFileName : TEXT
-; VAR GPickleFileName : TEXT
-
 ; PROCEDURE TokEq ( Tok : TEXT ; Wanted : TEXT ) : BOOLEAN
 
   = VAR LTokLen , LWantedLen : INTEGER
@@ -320,20 +343,6 @@ EXPORTS Main
       ELSE RETURN Text . Equal ( Tok , Wanted )
       END (*IF*)
     END TokEq
-
-; VAR GSemiTab : INTEGER
-; VAR GArgCtTab : INTEGER := 40 (* Absolute *) 
-; VAR GEqualSignTab : INTEGER := 52 (* Absolute *) 
-; VAR GCompressedTab : INTEGER := 8 (* Relative *) 
-; VAR GTokNoPad : INTEGER := 5 
-; VAR GConstTag : TEXT
-; VAR GTokNamesArrayRef : REF ARRAY OF TEXT 
-; VAR GTokSetTemp : IntSets . T 
-; VAR GTokSetPatch : IntSets . T 
-; VAR GTokSet1Arg : IntSets . T 
-; VAR GTokSet2Args : IntSets . T 
-; VAR GMaxToks := 41000 (* Non-expanding, hopefully enough. *)
-; VAR GMinTokDone := FALSE 
 
 ; PROCEDURE PutSimpleTokDecl ( Name : TEXT ; TokNo : INTEGER )
 
@@ -431,6 +440,9 @@ EXPORTS Main
       ; IF ArgCt >= 2
         THEN GTokSet2Args := IntSets . Include ( GTokSet2Args , GNextTokNo )
         END (*IF*) 
+      ; IF ArgCt >= 3
+        THEN GTokSet3Args := IntSets . Include ( GTokSet3Args , GNextTokNo )
+        END (*IF*) 
       END (*IF*)
     ; Layout . PadAbs ( GOStream , GEqualSignTab )
     ; Layout . PutText ( GOStream , " = "  )
@@ -477,13 +489,6 @@ EXPORTS Main
     ; EmitOneTok ( RootName & "RtElmt" , ArgCtOfElmt )  
     ; Layout . PutEol ( GOStream )
     END EmitListToks 
-
-; VAR GNextTokNo : INTEGER
-; VAR GMinTokNo : INTEGER
-; VAR GInputName := "FM3Toks" 
-; VAR GInterfaceName := "FM3Toks"
-; VAR GModuleName := "FM3Toks" 
-; VAR GPickleName := "FM3Toks" 
 
 ; PROCEDURE Args ( ) 
 
@@ -580,44 +585,6 @@ EXPORTS Main
     ; Layout . PutEol ( GOStream )
     END EmitInterfaceDecls
 
-(* Just coding fodder: 
-
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-
-    ; Layout . PutEol ( GOStream )
-
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutText ( GOStream ) 
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PutEol ( GOStream )
-*)
-
 ; PROCEDURE EmitInterfaceEpilog ( )
 
   = BEGIN 
@@ -655,10 +622,8 @@ EXPORTS Main
       END (*WHILE*)
     END CopyComments 
 
-; VAR GToken : TEXT 
-
 ; PROCEDURE GetTokArgCt ( Kind : TEXT ) : INTEGER
-  (* -1 means none found.  Otherwise, 0, 1 or 2.
+  (* -1 means none found.  Otherwise, 0, 1, 2, or 3.
      Consumed if non-negative number found
   *) 
 
@@ -667,7 +632,7 @@ EXPORTS Main
   ; BEGIN
       IF NOT IsNum ( GToken , ((*VAR*) LValue ) ) 
       THEN RETURN - 1
-      ELSIF LValue IN SET OF [ 0 .. 7 ] { 0 , 1 , 2 }
+      ELSIF LValue IN SET OF [ 0 .. 7 ] { 0 , 1 , 2 , 3 }
       THEN
         GToken := GetTok ( ) 
       ; RETURN LValue
@@ -984,21 +949,41 @@ EXPORTS Main
   = BEGIN
       GOutputWrT := OpenOutput ( GPickleFileName )
     ; TRY
-        Wr . PutText ( GOutputWrT , (* FM3Utils . *) PicklePrefix ( ) )
-      ; Pickle . Write
-          ( GOutputWrT , GTokNamesArrayRef , write16BitWidechar := FALSE ) 
-      ; Pickle . Write
-          ( GOutputWrT , GTokSetTemp , write16BitWidechar := FALSE ) 
-      ; Pickle . Write
-          ( GOutputWrT , GTokSetPatch , write16BitWidechar := FALSE )
-      ; Pickle . Write
-          ( GOutputWrT , GTokSet1Arg , write16BitWidechar := FALSE ) 
-      ; Pickle . Write
-          ( GOutputWrT , GTokSet2Args , write16BitWidechar := FALSE )
+        TRY 
+          Wr . PutText ( GOutputWrT , (* FM3Utils . *) PicklePrefix ( ) )
+        ; Pickle . Write
+            ( GOutputWrT , GTokNamesArrayRef , write16BitWidechar := FALSE ) 
+        ; Pickle . Write
+            ( GOutputWrT , GTokSetTemp , write16BitWidechar := FALSE ) 
+        ; Pickle . Write
+            ( GOutputWrT , GTokSetPatch , write16BitWidechar := FALSE )
+        ; Pickle . Write
+            ( GOutputWrT , GTokSet1Arg , write16BitWidechar := FALSE ) 
+        ; Pickle . Write
+            ( GOutputWrT , GTokSet2Args , write16BitWidechar := FALSE )
+        ; Pickle . Write
+            ( GOutputWrT , GTokSet3Args , write16BitWidechar := FALSE )
+        EXCEPT ELSE
+          MessageLine ( "Unable to write pickle file" & GPickleFileName ) 
+        END (*EXCEPT*)
       FINALLY
         Wr . Close ( GOutputWrT )  
       END (*FINALLY*)
-    END WritePickle 
+    END WritePickle
+
+; (* For calling within a debugger *) 
+  PROCEDURE IntImage ( Val : IntSets . ValidElemT ) : TEXT
+  
+  = BEGIN
+      RETURN Fmt . Int ( Val ) 
+    END IntImage 
+
+; <*UNUSED*> (* For calling within a debugger *) 
+  PROCEDURE IntSetImage ( Set : IntSets . T ) : TEXT
+
+  = BEGIN
+      RETURN IntSets . Image ( Set , IntImage , "     " , 80 ) 
+    END IntSetImage 
 
 ; PROCEDURE Init ( )
   = BEGIN 
@@ -1025,6 +1010,7 @@ EXPORTS Main
   
     TRY 
       Init ( )
+    ; Args ( ) 
     ; Pass1 ( )
     ; Pass2 ( )
     ; WritePickle ( ) 
