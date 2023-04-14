@@ -29,7 +29,7 @@ EXPORTS Main
 
 ; IMPORT IntSets 
 ; IMPORT Layout
-; IMPORT VarArray_Int_Refany
+; IMPORT VarArray_Int_Refany AS IntRefArray 
 
 ; <* IMPLICIT*> EXCEPTION Terminate 
 
@@ -63,7 +63,7 @@ EXPORTS Main
 ; VAR GCompressedTab : INTEGER := 8 (* Relative *) 
 ; VAR GTokNoPad : INTEGER := 5 
 ; VAR GConstTag : TEXT
-; VAR GTokNamesArrayRef : REF ARRAY OF TEXT 
+; VAR GTokNamesArrayRef : IntRefArray . T 
 ; VAR GTokSetTemp : IntSets . T 
 ; VAR GTokSetPatch : IntSets . T 
 ; VAR GTokSet1Arg : IntSets . T 
@@ -473,7 +473,7 @@ EXPORTS Main
 ; PROCEDURE EmitOneTok ( Name : TEXT ; ArgCt : INTEGER )
 
   = BEGIN
-      GTokNamesArrayRef ^ [ GNextTokNo ] := Name 
+      IntRefArray . Assign ( GTokNamesArrayRef , GNextTokNo , Name ) 
     ; Layout . PadAbs ( GOStream , GSemiTab )
     ; Layout . PutText ( GOStream , GConstTag )
     ; GConstTag := "; CONST" (* For the future. *) 
@@ -846,7 +846,9 @@ EXPORTS Main
 
 ; PROCEDURE GenImageProc ( Min , Max : INTEGER ) 
 
-  = BEGIN 
+  = VAR LName : TEXT
+
+  ; BEGIN 
       Layout . PadAbs ( GOStream , GSemiTab )
     ; Layout . PutText 
         ( GOStream , "; PROCEDURE Image ( TokNo : INTEGER ) : TEXT " ) 
@@ -863,13 +865,15 @@ EXPORTS Main
 
     ; FOR RI := Min TO Max
       DO
-        IF GTokNamesArrayRef ^ [ RI ] # NIL
+        LName := IntRefArray . Fetch ( GTokNamesArrayRef , RI )
+           (* ^Implied NARROW *) 
+      ; IF LName # NIL
         THEN 
           Layout . PadAbs ( GOStream , GSemiTab + 6 )
         ; Layout . PutText ( GOStream , "| " ) 
         ; Layout . PutText ( GOStream , Fmt . Int ( RI ) ) 
         ; Layout . PutText ( GOStream , " => RETURN \"" ) 
-        ; Layout . PutText ( GOStream , GTokNamesArrayRef ^ [ RI ] ) 
+        ; Layout . PutText ( GOStream , LName ) 
         ; Layout . PutText ( GOStream , "\"") 
         ; Layout . PutEol ( GOStream )
         END (*IF*) 
@@ -985,10 +989,7 @@ EXPORTS Main
     ; GNextTokNo := 0
     ; GMinTokNo := 0
     ; GConstTag := "; CONST"
-    ; GTokNamesArrayRef := NEW ( REF ARRAY OF TEXT , GMaxToks )
-    ; FOR RI := FIRST ( GTokNamesArrayRef ^ ) TO LAST ( GTokNamesArrayRef ^ )
-      DO GTokNamesArrayRef ^ [ RI ] := NIL
-      END (*FOR*)
+    ; GTokNamesArrayRef := IntRefArray . New ( NIL ) 
     ; GTokSetTemp := IntSets . Empty ( )  
     ; GTokSetPatch := IntSets . Empty ( )  
     ; GTokSet1Arg := IntSets . Empty ( )  
