@@ -4,6 +4,7 @@ import("libm3")
 
 include_dir("../../../sharedsrc/intsetssrc") 
 include_dir("../../../sharedsrc/layoutsrc") 
+include_dir("../../../sharedsrc/vararraysrc") 
 
 implementation ("GenTok")
 Program("gentok")

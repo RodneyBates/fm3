@@ -1,0 +1,9 @@
+% m3makefile for vararray, integer to refany.
+
+import("libm3")
+
+generic_module("Ranges")
+generic_module("VarArray")
+
+module("Ranges_Int")
+module("VarArray_Int_Refany")

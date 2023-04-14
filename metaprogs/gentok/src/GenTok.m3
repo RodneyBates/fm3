@@ -28,7 +28,8 @@ EXPORTS Main
 ; IMPORT Wr
 
 ; IMPORT IntSets 
-; IMPORT Layout 
+; IMPORT Layout
+; IMPORT VarArray_Int_Refany
 
 ; <* IMPLICIT*> EXCEPTION Terminate 
 
