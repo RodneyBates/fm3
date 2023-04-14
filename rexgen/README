@@ -1,0 +1,3 @@
+This directory is a sidetracked start at using rex to generate
+a scanner for FM3.  I decided it would be easier to adapt the
+Modula-3 scanner from Schutz.  
