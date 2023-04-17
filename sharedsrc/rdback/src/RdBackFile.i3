@@ -25,22 +25,22 @@ INTERFACE RdBackFile
 ; TYPE ByteTyp = File . Byte 
 
 ; PROCEDURE Create
-    ( Filename : TEXT ; Truncate := FALSE ) : T
+    ( Filename : TEXT ; Truncate (* To empty. *) := FALSE ) : T
   RAISES { OSError . E , Preexists }   
 
 ; PROCEDURE Open ( Filename : TEXT ) : T RAISES { OSError . E }   
 
-; PROCEDURE LengthL ( RBFile : T ) : LONGCARD RAISES { OSError . E }
+; PROCEDURE LengthL ( RbFile : T ) : LONGCARD RAISES { OSError . E }
   (* Number of bytes in the file. *) 
 
-; PROCEDURE IsEmpty ( RBFile : T ) : BOOLEAN RAISES { OSError . E }
+; PROCEDURE IsEmpty ( RbFile : T ) : BOOLEAN RAISES { OSError . E }
   (* Possibly faster than Length(F)=0L. *) 
 
-; PROCEDURE Close ( RBFile : T ) RAISES { OSError . E }
+; PROCEDURE Close ( RbFile : T ) RAISES { OSError . E }
 
-; PROCEDURE Put ( RBFile : T ; Value : ByteTyp )  RAISES { OSError . E }  
+; PROCEDURE Put ( RbFile : T ; Value : ByteTyp )  RAISES { OSError . E }  
 
-; PROCEDURE GetBwd ( RBFile : T ) : ByteTyp  RAISES { BOF , OSError . E }  
+; PROCEDURE GetBwd ( RbFile : T ) : ByteTyp  RAISES { BOF , OSError . E }  
 
 ; END RdBackFile
 .
