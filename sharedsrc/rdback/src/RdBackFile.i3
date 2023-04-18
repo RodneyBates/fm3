@@ -9,7 +9,11 @@
 (* A file that can be written (one byte at at time) normally, or
    read backwards.  Writes and reads can be interspersed, in which
    case, it behaves abstractly as a stack.
-   It is maintained on a disk file.
+   
+   It is maintained on a disk file during use, thus could grow
+   very large, letting the OS deal with space, possibly in memory.
+   
+   It also can be closed and reopened later.
 *) 
 
 INTERFACE RdBackFile
