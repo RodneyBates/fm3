@@ -317,8 +317,6 @@ MODULE RdBackFile
         WriteBuffer ( RbFile , RbFile . RbBuffer , RbFile . RbNextIn , "Close" )
       END (*IF*) 
 
-(* HELP!  How can we truncate a RegularFile?  *)
-
     ; IF FALSE (* Disable this for now, because: *) 
                (* But we don't have even a full Truncate library call. *)
          AND RbFile . RbLengthL = 0L
