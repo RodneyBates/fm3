@@ -7,13 +7,16 @@
 (* -----------------------------------------------------------------------2- *)
 
 (* A file that can be written (one byte at at time) normally, or
-   read backwards.  Writes and reads can be interspersed, in which
-   case, it behaves abstractly as a stack.
+   read backwards, either way, only at the right end.  Writes and
+   reads can be interspersed, in which case, it behaves abstractly
+   as a stack.
    
-   It is maintained on a disk file during use, thus could grow
-   very large, letting the OS deal with space, possibly in memory.
+   It is maintained on a disk file during use, thus could grow very
+   large, letting the OS deal with space management, possibly in memory.
    
-   It also can be closed and reopened later.
+   It also can be closed and reopened later.  When closed, its contents
+   are indistinguishable from and interchangable with a plain file, thus
+   handled by FileRd or FileWr. 
 *) 
 
 INTERFACE RdBackFile
@@ -38,13 +41,13 @@ INTERFACE RdBackFile
   (* Number of bytes in the file. *) 
 
 ; PROCEDURE IsEmpty ( RbFile : T ) : BOOLEAN RAISES { OSError . E }
-  (* Possibly faster than Length(F)=0L. *) 
+  (* Possibly faster than LengthL(F)=0L. *) 
 
 ; PROCEDURE Close ( RbFile : T ) RAISES { OSError . E }
 
-; PROCEDURE Put ( RbFile : T ; Value : ByteTyp )  RAISES { OSError . E }  
+; PROCEDURE Put ( RbFile : T ; Value : ByteTyp ) RAISES { OSError . E }  
 
-; PROCEDURE GetBwd ( RbFile : T ) : ByteTyp  RAISES { BOF , OSError . E }  
+; PROCEDURE GetBwd ( RbFile : T ) : ByteTyp RAISES { BOF , OSError . E }  
 
 ; END RdBackFile
 .
