@@ -27,9 +27,8 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
 ; EXCEPTION Error ( TEXT )
 
 (* For Hash parameters, You can use a hash function of your choice, as
-   long as It is always the same for a given Key value, consistent for all
-   calls involving a single dictionary, never produces FM3Utils.HashNull,
-   and is always the same for a given Key value. 
+   long as it is always the same for a given Key value, consistent for all
+   calls involving a single dictionary, and never produces FM3Utils.HashNull,
 
    If you don't already have it for a Key you pass in, you can leave
    parameter Hash as FM3Utils.HashNull and the procedure will compute it,
@@ -45,11 +44,12 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
 (* Fixed dictionaries. *) 
 
 (* Fixed dictionaries have some restrictions, but may be more compact
-   and possibly faster, if you can with them and if MaxKeyCt is smallish. 
-   All calls on InsertFixed must precede a call on FinalizeFixedFixed,
-   before any calls on LookupFixed.  Also, duplicate keys will result
-   Error's being raised, or possibly in undetected duplicate entries,
-   with different values, and nondeterministic results from LookupFixed.
+   and possibly faster, if you can live with them and if MaxKeyCt is
+   smallish.  All calls on InsertFixed must happen before one call on
+   FinalizeFixedFixed, before any calls on LookupFixed.  Also, duplicate
+   keys will result Error's being raised, or possibly in undetected
+   duplicate entries, with different values, and nondeterministic
+   results from LookupFixed.
 *) 
 
 ; TYPE FixedTyp <: Private 

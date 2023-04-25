@@ -6,12 +6,18 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-(* Map keys of an type to compactly-numbered, internally-generated
-   integer values called "atom".  Repeated adding of the same keyu
+(* Map keys of a type to compactly-numbered, internally-generated
+   integer values called "atoms".  Repeated adding of the same key
    value, as decided by function "Equal" will get the same atom value.
 *) 
 
-GENERIC INTERFACE FM3Atom ( DictGenformal ) 
+GENERIC INTERFACE FM3Atom ( DictGenformal )
+
+(* DictGenFormal must provide declarations for:
+     TYPE KeyTyp:  Type of Keys.  Not an open array type.
+     TYPE HashFuncTyp: PROCEDURE (READONLY Key : KeyTyp) : FM3Base.HashTyp
+     CONST Brand = whatever you like.
+*) 
 
 (*  declares:
      TYPE T Type of Keys

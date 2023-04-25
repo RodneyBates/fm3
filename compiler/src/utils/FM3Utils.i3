@@ -14,8 +14,6 @@ INTERFACE FM3Utils
 ; TYPE HashTyp = LONGINT
 ; CONST HashNull = 0L
 
-; PROCEDURE HashOfText ( Key : TEXT ) : HashTyp 
-
 ; PROCEDURE GroundHash ( ) : HashTyp  
 
 ; PROCEDURE ContribToHash 
@@ -23,6 +21,12 @@ INTERFACE FM3Utils
   (* A value of GroundHash(), altered by a series of ContribToHash
      calls is a hash of the contributions.  Assume the order of the
      contributions affects the hash value. *)
+
+; PROCEDURE HashOfText ( Key : TEXT ) : HashTyp 
+
+; PROCEDURE HashOfOAChars ( READONLY Key : ARRAY OF CHAR ) : HashTyp
+
+; PROCEDURE HashOfOAWChars ( READONLY Key : ARRAY OF WIDECHAR ) : HashTyp
 
 ; PROCEDURE CharVarArrayToOAChar
     ( VarArr : VarArr_Char . T ) : REF ARRAY OF CHAR 

@@ -12,7 +12,7 @@ SCANNER FM3Scanner
 
 PARSER FM3Parser
 
-(* Stuff to go into the parser interface. *) 
+/* Stuff to go into the parser interface. */ 
 EXPORT { }
 
 (* Stuff to go at front of the parser module, at global scope. *)
@@ -134,7 +134,7 @@ Compilation : Interface .
 Compilation : Module .
 
 GenInterface :
-    TkRwGENERIC TkRwINTERFACE TkIdent GenFormalsList TkSemioclon
+    TkRwGENERIC TkRwINTERFACE TkIdent GenFormalsList TkSemicolon
     ImportList DeclList TkRwEND TkIdent TkDot . 
 
 InstInterface :
@@ -142,7 +142,7 @@ InstInterface :
     TkIdent GenActals TkRwEND TkIdent TkDot . 
 
 GenModule :
-    TkRwGENERIC TkRwMODULE TkIdent GenFormalsList TkSemioclon
+    TkRwGENERIC TkRwMODULE TkIdent GenFormalsList TkSemicolon
     ImportList Block TkRwEND TkIdent TkDot . 
 
 InstModule :
@@ -165,18 +165,28 @@ Exports : StkRwExports IdentList { }.
 
 IdentList : .
 IdentList : IdentListSub 
-    { i := $1.Int;
-      PushTok ( TkIdListRt (i+1);
-      PushTokPost ( TkIdListLtPost ($1,i+1);
+    { i := $1.Int
+      PushTok ( TkIdentListRt (i+1);
+      PushTokPatch ( TkIdentListLtPatch ($1,i+1);
     } .
 
 IdentListSub : { $$ . Int := 0; } .
 IdentListSub : IdentListSub TkComma Ident
     { i := $1.Int;
-      PushTok ( TkIdListRt (i);
-      PushTokPost ( TkIdListRtPost ($1,i);
+      PushTok ( TkIdentListRtElem (i);
+      PushTokPatch ( TkIdentListRtElemPatch ($1,i);
       $$ . Int := i+1;
     } .
+
+GenFormalsList : IdentList . 
+
+GenActuals : IdentList .
+
+DeclList : . 
+
+Block : . 
+
+
 
 (* END of FM3Parser.lalr. *)
 

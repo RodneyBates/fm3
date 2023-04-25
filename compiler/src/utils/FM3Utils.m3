@@ -43,7 +43,7 @@ MODULE FM3Utils
     END ContribToHash
 
 (*EXPORTED:*)
-; PROCEDURE HashOfText ( Key : TEXT ) : HashTyp
+; PROCEDURE HashOfText ( READONLY Key : TEXT ) : HashTyp
 
   = VAR LResult : HashTyp
   ; VAR LLength : CARDINAL 
@@ -60,6 +60,40 @@ MODULE FM3Utils
       END (*FOR*) 
     ; RETURN LResult 
     END HashOfText
+
+(*EXPORTED:*)
+; PROCEDURE HashOfOAChars ( READONLY Key : ARRAY OF CHAR ) : HashTyp
+
+  = VAR LResult : HashTyp
+  ; VAR LLength : CARDINAL 
+
+  ; BEGIN
+      LResult := GroundHash ( )
+    ; LLength := NUMBER ( Key )
+    ; FOR RI := 0 TO LLength - 1
+      DO
+        ContribToHash
+          ( (*IN OUT*) LResult , VAL ( ORD ( Key [ RI ] ) , HashTyp ) )  
+      END (*FOR*) 
+    ; RETURN LResult 
+    END HashOfOAChars 
+
+(*EXPORTED:*)
+; PROCEDURE HashOfOAWChars ( READONLY Key : ARRAY OF WIDECHAR ) : HashTyp
+
+  = VAR LResult : HashTyp
+  ; VAR LLength : CARDINAL 
+
+  ; BEGIN
+      LResult := GroundHash ( )
+    ; LLength := NUMBER ( Key )
+    ; FOR RI := 0 TO LLength - 1
+      DO
+        ContribToHash
+          ( (*IN OUT*) LResult , VAL ( ORD ( Key [ RI ] ) , HashTyp ) )  
+      END (*FOR*) 
+    ; RETURN LResult 
+    END HashOfOAWChars 
 
 (*EXPORTED:*)
 ; PROCEDURE CharVarArrayToOAChar

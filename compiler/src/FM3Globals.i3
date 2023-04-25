@@ -15,19 +15,22 @@ INTERFACE FM3Globals
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars
 
+; VAR PathSep := "/"
+(*FIXME: ^Get the host-OS-dependent value for this. *)
+
+(* File names of internal and generated  files: *) 
+; VAR PatchStackSuffix := ".Patch"
+; VAR UnnestStackSuffix := ".Unnest"
+; VAR ParsePassSuffix := ".ParsePass"
+
 ; VAR M3RwDict : FM3Dict_OAChars_Int . GrowableTyp  
 ; VAR PgRwDict : FM3Dict_OAChars_Int . GrowableTyp 
 
-(* All 3 Atom dictionaries need to be one per comp. unit. *) 
-
-; VAR IdentAtom : FM3Atom_OAChars . T (* Identifiers. *) 
-; VAR TextAtom : FM3Atom_OAChars . T (* TEXT literal values. *) 
-; VAR WideTextAtom : FM3Atom_OAWideChars . T (* Wide TEXT literal valuies. *) 
-
 ; VAR IdentInitAtomSize := 1500
 ; VAR NumberInitAtomSize := 600
-; VAR TextInitAtomSize := 600
-; VAR WideInitTextAtomSize := 600
+; VAR CharsInitAtomSize := 600
+; VAR WCharsInitTextAtomSize := 600
+; VAR FirstRealAtom := 1 
 
 ; PROCEDURE Init ( ) 
 

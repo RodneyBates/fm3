@@ -49,7 +49,6 @@ INTERFACE FM3LexTable
      returned by the last IncrInit or IncrNext, and using the same Table.
      Supply NullChar as and only-as the last in the string. 
      ValueNull means not enough information, commonly more charasters needed.
-     Caller must call with 
      ValueUnrecognized means, well, unrecognized? *)
      
 ; END FM3LexTable 

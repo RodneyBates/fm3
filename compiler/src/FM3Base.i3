@@ -43,11 +43,11 @@ INTERFACE FM3Base
 
 ; TYPE Card64Typ = [ 0L .. 16_7FFFFFFFFFFFFFFFL ] 
   (* ^64 bit cardinal *)
-  (* Works on a 32- or 4-bit host. *) 
+  (* Works on a 32- or 64-bit host. *) 
 
 ; TYPE Int64Typ = [ - 16_7FFFFFFFFFFFFFFFL - 1L .. 16_7FFFFFFFFFFFFFFFL ] 
   (* ^64 bit integer *) 
-  (* Works on a 32- or 4-bit host. *) 
+  (* Works on a 32- or 64-bit host. *) 
 
 ; PROCEDURE IntImage ( Value : INTEGER ) : TEXT 
   (* Result never has blanks. *) 

@@ -8,20 +8,30 @@
 
 (* Things needed by the Cocktail-lalr-generated parser. *)
 
-INTERFACE ParsSem
+MODULE ParsSem
 
-; TYPE tScanAttribute
-    = RECORD
-        SaPosition : 
-      END (* tScanAttribute *) 
 
-; TYPE tParsAttribute
-    = RECORD
-        PaScan : tScanAttribute
-      ; PaConstructPtr : INTEGER
-      ; PaListItemNo : INTEGER 
-      END (* tParsAttribute *) 
+; IMPORT RdBAckFile 
+; IMPORT FMTTokSupport 
+; FROM FMTTokSupport IMPORT TokTup , TokNull , RtToLtPatch
 
-; END ParsSem 
+; TYPE ByteNoTyp = RdBackFile . ByteNoTyp 
+
+; PROCEDURE List
+    ( SubByteNo : ByteNoTyp ; RtTok : TokTyp ; LtPatchTok : TokTyp := TokNull )
+
+  = VAR LSubDelimNo : RdBackFile . ByteNoTyp
+
+  ; BEGIN
+      IF LtPatchTok = TokNull
+      THEN LtPatchTok := RtToLtPatch ( RtTok )
+      END (*IF*)
+    ; PushDelim ( RtTok , SubByteNo + 1 )
+    ; PuchDelim ( LtPatchTok 
+    END List 
+
+; BEGIN
+  END ParsSem 
 .
+
 

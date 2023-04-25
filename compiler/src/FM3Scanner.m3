@@ -70,15 +70,18 @@ MODULE FM3Scanner
   = BEGIN 
     END InitTables 
 
+; TYPE tScanAttribute = ScanStateTyp
+; TYPE PositionTyp = RECORD Line , Column : FM3Base . Card32Typ 
 ; TYPE ScanStateTyp 
        = RECORD 
-           SsHash : FM3Utils . HashTyp 
+           Position : PositionTyp (* Accomodate lalr-generated parser. *)  
+         ; SsHash : FM3Utils . HashTyp 
          ; SsLink : ScanStateRefTyp := NIL 
          ; SsUniRd : UniRd . T := NIL 
          ; SsUnitNo : INTEGER 
-         ; SsLineNo : INTEGER 
-         ; SsCharPos : INTEGER 
-         ; SsIdentAtomDict : FM3Atom_OAChars . T (* Identifiers. *)  
+         ; SsUnitRef : FM3Units . UnitRefTyp 
+((*TODO: Move some of these: to Units.UnitTyp.*) 
+         ; SsIdentAtomDict : FM3Atom_OAChars . T (* Identifiers. *)   
          ; SsNumberAtomDict : FM3Atom_OAChars . T (* Numeric literals. *)  
          ; SsCharsAtomDict : FM3Atom_OAChars . T (* TEXT literals. *) 
          ; SsWCharsAtomDict : FM3Atom_OAWideChars . T (* ^Wide TEXT literals. *)
@@ -111,8 +114,8 @@ MODULE FM3Scanner
     ; LSsRef ^ . SsUnitNo := UnitNo 
     ; LSsRef ^ . SsUniRd := NewUniRd 
     ; LSsRef ^ . SsFileName := FileName 
-    ; LSsRef ^ . SsLineNo := 0 
-    ; LSsRef ^ . SsCharPos := 0   
+    ; LSsRef ^ . Position . Line := 0 
+    ; LSsRef ^ . Position . Column := 0   
     ; LSsRef ^ . SsAtBegOfPragma := FALSE 
     ; LSsRef ^ . SsIdentAtomDict 
         := FM3Atom_OAChars . New 
@@ -203,8 +206,8 @@ MODULE FM3Scanner
   = BEGIN 
       FM3Errors . Err 
         ( GTopSsRef ^ . SsFileName 
-        , GTopSsRef ^ . SsLineNo  
-        , GTopSsRef ^ . SsCharPos + Adjust 
+        , GTopSsRef ^ . Position . Line  
+        , GTopSsRef ^ . Position . Column + Adjust 
         , Msg 
         ) 
     END ErrorAtSs 
@@ -254,8 +257,8 @@ MODULE FM3Scanner
         IF GTopSsRef . SsCh = LF 
         THEN 
 (* TODO: Decide how to indicate new line to client. *) 
-          INC ( GTopSsRef . SsLineNo ) 
-        ; GTopSsRef . SsCharPos := 0 
+          INC ( GTopSsRef . Position . Line ) 
+        ; GTopSsRef . Position . Column := 0 
         END (* IF *) 
       ; TRY GTopSsRef . SsWCh 
               := UnsafeUniRd . FastGetWideChar ( GTopSsRef ^ . SsUniRd ) 
@@ -270,7 +273,7 @@ MODULE FM3Scanner
         THEN GTopSsRef . SsCh := GTopSsRef . SsWCh 
         ELSE GTopSsRef . SsCh := NUL 
         END (*IF*) 
-      ; INC ( GTopSsRef . SsCharPos )
+      ; INC ( GTopSsRef . Position . Column )
       ; IF GTopSsRef . SsWCh = WCR 
         THEN 
           TRY LWCh := UnsafeUniRd . FastGetWideChar ( GTopSsRef ^ . SsUniRd ) 
@@ -283,7 +286,7 @@ MODULE FM3Scanner
           END (*EXCEPT*) 
         ; IF LWCh = WLF 
           THEN 
-            INC ( GTopSsRef . SsCharPos )
+            INC ( GTopSsRef . Position . Column )
           ; GTopSsRef . SsWCh := WLF (* canonical new line. *)
           ; GTopSsRef . SsCh := LF
           ELSE 
@@ -553,7 +556,7 @@ MODULE FM3Scanner
 
     ; BEGIN 
         IF Wide THEN LMaxIntVal := 16_10FFFF ELSE LMaxIntVal := 16_FF END (*IF*)
-      ; LCharPos := GTopSsRef . SsCharPos  
+      ; LCharPos := GTopSsRef . Position . Column  
       ; NextChar ( ) (* Consume backslash.*) 
       ; IF NOT LineCharExists
                  ( "Empty escape sequence in " , Wide , Text 
@@ -882,8 +885,8 @@ MODULE FM3Scanner
         END (*IF*) 
       END (*LOOP*) 
 
-    ; GCurTokRef ^ . TrLineNo := GTopSsRef ^ . SsLineNo 
-    ; GCurTokRef ^ . TrCharPos := GTopSsRef ^ . SsCharPos 
+    ; GCurTokRef ^ . TrLineNo := GTopSsRef ^ . Position . Line 
+    ; GCurTokRef ^ . TrCharPos := GTopSsRef ^ . Position . Column 
 
     ; CASE GTopSsRef . SsCh 
       OF 'w' , 'W'

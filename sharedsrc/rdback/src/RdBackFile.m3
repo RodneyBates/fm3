@@ -43,7 +43,7 @@ MODULE RdBackFile
 ; TYPE BlockTyp = ARRAY BlockSsTyp OF ByteTyp 
 
 ; REVEAL T
-  = BRANDED "RdBackFile.T" REF RECORD
+  = BRANDED "gRdBackFile.T" REF RECORD
       RbLengthL : LONGCARD := 0L (* Byte count of current abstract contents. *) 
     ; RbDiskLengthL : LONGCARD := 0L (* Byte count of the disk file. *)   
     ; RbBlockNo : INTEGER := - 1 (* Current block number. *)
