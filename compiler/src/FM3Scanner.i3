@@ -13,9 +13,16 @@ INTERFACE FM3Scanner
 ; IMPORT FM3Base
 ; IMPORT FM3OpenArray_Char 
 ; IMPORT FM3OpenArray_WideChar 
+; IMPORT FM3Units 
 ; IMPORT FM3Utils
 
 (* Things expected from a scanner by an lalr-generated parser: *)
+
+; VAR Attribute : REF tScanAttribute
+  (* We want multiple instances of this for nested source files, but lalr
+     treats it as a global record.  We make it a REF and, unusually, rely
+     on Modula-3's implicit dereferencing of REF RECORD for lalr-generated
+     code's access to its fields. *) 
 
 ; TYPE tPosition
     = RECORD
@@ -26,50 +33,34 @@ INTERFACE FM3Scanner
 ; TYPE tScanAttribute
     = RECORD
         Position : tPosition (* Lalr-generated code stores into this. *)
-      ; TokRec : TokRecTyp
-        (* Is this too extravagant, putting all these fields in here? *)
+      (* Fields beyond here are not accessed by Lalr-generated parser code. *) 
+      ; SaArgValue : LONGINT
+        (* ORD (either TrAtom or TrWCh). *) 
+      ; SaHash : FM3Base . HashTyp
+        (* ^Of any TrTok with a meaningful TrWideChars or TrChars field. *) 
+      ; SaAtom : FM3Base . AtomTyp
+        (* ^Of any TrTok with a meaningful TrWideChars or TrChars field. *) 
+      ; SaLineNo : INTEGER := 0 
+      ; SaCharPos : INTEGER := 0 
+      ; SaWideChars : FM3OpenArray_WideChar . T 
+        (* ^Converted RT memory value of wide TEXT literal or lex error
+            chars. *) 
+      ; SaChars : FM3OpenArray_Char . T 
+        (* ^Identifier, Numeric literal, or Converted RT memory value of
+           TEXT literal, or . *) 
+      ; SaTok : FM3Base . TokTyp := FM3Base . TokNull  
+      ; SaWCh : WIDECHAR (* Value of [WIDE]CHAR literal. *)
       END (* tScanAttribute *)
-
-; VAR Attribute : REF tScanAttribute
-  (* We want multiple instances of this for nested source files, but lalr
-     treats it as a global record.  We make it a REF and, unusually, rely
-     on Modula-3's implicit dereferencing of REF RECORD for lalr-generated
-     code's access to its fields. *) 
 
 (* End of things expected from a scanner by an lalr-generated parser: *) 
 
-; TYPE TokRecTyp
-  = RECORD
-    ; TrArgValue : LONGINT
-      (* If TrHasArg, one of TrWideChars, TrChars, TrWCh. *) 
-    ; TrHash : FM3Base . HashTyp
-      (* ^Of anything with a meaningful TrWideChars or TrChars field. *) 
-    ; TrAtom : FM3Base . AtomTyp
-      (* ^Of anything with a meaningful TrWideChars or TrChars field. *) 
-    ; TrLineNo : INTEGER := 0 
-    ; TrCharPos : INTEGER := 0 
-    ; TrWideChars : FM3OpenArray_WideChar . T 
-      (* ^Converted RT memory value of wide TEXT literal or lex error chars. *) 
-    ; TrChars : FM3OpenArray_Char . T 
-      (* ^Identifier, Numeric literal, or Converted RT memory value of
-         TEXT literal, or . *) 
-    ; TrTok : FM3Base . TokTyp := FM3Base . TokNull  
-    ; TrWCh : WIDECHAR (* Value of [WIDE]CHAR literal. *)
-    ; TrArgCt : Fm3Base . Card8Typ
-        (* 0 means TrArgValue.  3 means TrArgValue, TrHash, and TrAtom. *)  
-    END (* TokRecTyp *)
-
-; TYPE TokRefTyp = REF TokRecTyp 
-
-; VAR GCurTokRef : TokRefTyp 
-
 ; PROCEDURE PushState 
-     ( NewUniRd : UniRd . T ; FileName : TEXT ; UnitNo : INTEGER ) 
+     ( NewUniRd : UniRd . T ; UnitRef : FM3Units . UnitRefTyp ) 
   (* PRE: NewUniRd is open and ready to be read. but not locked. *) 
 
 ; PROCEDURE PopState ( ) : UniRd . T (* Previous reader. *)  
 
-; PROCEDURE CurrentUnitNo ( ) : INTEGER 
+; PROCEDURE CurrentUnitNo ( ) : FM3Units . UnitNoTyp 
 
 ; PROCEDURE GetToken ( ) 
 
