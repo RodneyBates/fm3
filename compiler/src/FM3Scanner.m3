@@ -72,7 +72,7 @@ MODULE FM3Scanner
     END InitTables 
 
 ; TYPE tScanAttribute = ScanStateTyp
-; TYPE PositionTyp = RECORD Line , Column : FM3Base . Card32Typ 
+; TYPE PositionTyp = RECORD Line , Column : FM3Base . Card32Typ END 
 ; TYPE ScanStateTyp 
        = RECORD 
            Position : PositionTyp (* Accomodate lalr-generated parser. *)  
@@ -94,7 +94,7 @@ MODULE FM3Scanner
 
 (* EXPORTED: *) 
 ; PROCEDURE PushState 
-     ( NewUniRd : UniRd . T ; UnitRef : FM3Units ; UnitRefTyp ) 
+     ( NewUniRd : UniRd . T ; UnitRef : FM3Units . UnitRefTyp ) 
   (* PRE: NewUniRd is open and ready to be read. but not locked. *) 
 
   = VAR LSsRef : ScanStateRefTyp 
@@ -162,7 +162,7 @@ MODULE FM3Scanner
 ; PROCEDURE CurrentUnitNo ( ) : FM3Units . UnitNoTyp  
 
   = BEGIN 
-      IF GTopSsRef = NIL THEN FM3Units . UnitNoNull END (* IF *) 
+      IF GTopSsRef = NIL THEN RETURN FM3Units . UnitNoNull END (*IF*) 
     ; RETURN GTopSsRef . SsUnitRef ^ . UntUnitNo  
     END CurrentUnitNo 
 

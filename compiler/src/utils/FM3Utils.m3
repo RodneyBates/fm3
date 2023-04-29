@@ -43,7 +43,7 @@ MODULE FM3Utils
     END ContribToHash
 
 (*EXPORTED:*)
-; PROCEDURE HashOfText ( READONLY Key : TEXT ) : HashTyp
+; PROCEDURE HashOfText ( Key : TEXT ) : HashTyp
 
   = VAR LResult : HashTyp
   ; VAR LLength : CARDINAL 
@@ -214,7 +214,7 @@ MODULE FM3Utils
     ; Text . SetChars ( LRef ^ , TextVal )
     ; LRef ^ [ LLength ] := '\000'
     ; RETURN LRef 
-  END  TextToRefArrayChars;
+    END TextToRefArrayChars 
 
 ; BEGIN
   END FM3Utils 

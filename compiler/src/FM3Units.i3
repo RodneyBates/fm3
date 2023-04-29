@@ -8,16 +8,17 @@
 
 INTERFACE FM3Units
 
-; IMPORT Decls 
+; IMPORT FM3Decls 
 ; IMPORT FM3Atom_OAChars
-; IMPORT Scopes 
+; IMPORT FM3Scopes 
 
-; TYPE UnitNoTyp : INTEGER
-; CONST UnitNoNull := - 1 
+; TYPE UnitNoTyp = INTEGER
+; CONST UnitNoNull = - 1 
 ; TYPE UnitRefTyp = REF UnitTyp
 ; TYPE UnitTyp
     = RECORD
-        UntUnitNo : UnitNoTyp := UnitNoNull 
+        UntUnitNo : UnitNoTyp := UnitNoNull
+      ; UntStackLink : UnitRefTyp := NIL 
       ; UntSrcFileName : TEXT := NIL 
       ; UntSrcFilePath : TEXT := NIL(* Without simple name. *) 
       ; UntWorkFilePath : TEXT := NIL

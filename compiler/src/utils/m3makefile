@@ -6,5 +6,8 @@
 %(* Licensed under the MIT License.                                           *)
 %(* -----------------------------------------------------------------------2- *)
 
+module("FM3Compress")
+module("FM3Files")
+module("FM3Messages")
 module("FM3Primes")
 module("FM3Utils")

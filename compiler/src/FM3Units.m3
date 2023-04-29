@@ -8,7 +8,7 @@
 
 MODULE FM3Units
 
-; FROM Messages IMPORT FATAL
+; FROM FM3Messages IMPORT Fatal
 ; IMPORT VarArray_Int_Refany 
 
 ; VAR NextUnitNo : INTEGER := 1 
@@ -22,7 +22,7 @@ MODULE FM3Units
   ; BEGIN
       LUnitRef := NEW ( UnitRefTyp )
     ; IF LUnitRef = NIL
-      THEN FATAL ( "Allocation of a FM3Units.UnitRefTyp failed." )
+      THEN Fatal ( "Allocation of a FM3Units.UnitRefTyp failed." )
       END 
 
     ; LUnitNo := NextUnitNo

@@ -1,7 +1,7 @@
 INTERFACE FM3Decls
 
 ; CONST DeclNoNull = LAST ( DeclNoTyp ) 
-; TYPE DeclNoTyp : INTEGER
+; TYPE DeclNoTyp = INTEGER
 ; TYPE DeclRefTyp = REF DeclTyp
 ; TYPE DeclTyp
     = RECORD

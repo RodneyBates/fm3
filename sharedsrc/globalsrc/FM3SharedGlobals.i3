@@ -10,25 +10,31 @@ INTERFACE FM3SharedGlobals
 
 ; FROM File IMPORT Byte  
 
-(* Tag characters for files: *)
+(* FileTag characters for files: *)
 
 (* For all FM3-specific file formats: Don't compress these. *) 
-; CONST FM3TagLt
+; CONST FM3FileTagLt
     = ARRAY [ 0 .. 2 ] OF Byte
-      { VAL ( 'F' , Byte ) , VAL ( 'M' , Byte , VAL ( '3' , Byte ) }
+      { VAL ( ORD ( 'F' ) , Byte )
+      , VAL ( ORD ( 'M' ) , Byte )
+      , VAL ( ORD ( '3' ) , Byte )
+      }
   (* For normal forward reading. *) 
 
-; CONST FM3TagRtBwd
+; CONST FM3FileTagRtBwd
     = ARRAY [ 0 .. 2 ] OF Byte
-      { VAL ( '3' , Byte ) , VAL ( 'M' , Byte , VAL ( 'F' , Byte ) }
+      { VAL ( ORD ( '3' ) , Byte )
+      , VAL ( ORD ( 'M' ) , Byte )
+      , VAL ( ORD ( 'F' ) , Byte )
+      }
   (* For backward reading. *)
 
 (* Specific Filekinds: These are all single ASCII chars,
    so compression would be an identity. *) 
 
-; CONST FM3TagRdBackLt = VAL ( 'A' , Byte )
+; CONST FM3FileTagRdBackLt = VAL ( ORD ( 'A' ) , Byte )
   (* Left end of FM3RdBackFile. *) 
-; CONST FM3TagRdBackRt = VAL ( 'B' , Byte ) 
+; CONST FM3FileTagRdBackRt = VAL ( ORD ( 'B' ) , Byte ) 
   (* Right end of FM3RdBackFile. *) 
 
 ; END FM3SharedGlobals

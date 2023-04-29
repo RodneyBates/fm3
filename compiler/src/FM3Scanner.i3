@@ -28,7 +28,7 @@ INTERFACE FM3Scanner
     = RECORD
         Line : INTEGER
       ; Column : INTEGER 
-      END tPosition 
+      END (*tPosition*) 
 
 ; TYPE tScanAttribute
     = RECORD

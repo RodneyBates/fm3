@@ -9,17 +9,21 @@
 MODULE FM3Files
 
 ; IMPORT FileRd 
-; FROM Messages IMPORT FATAL
-; IMPORT OSError 
+; IMPORT OSError
+; IMPORT PathName 
 ; IMPORT Rd
 ; IMPORT UniRd 
 
+; IMPORT FM3Globals 
+; FROM FM3Messages IMPORT Fatal
+
 (*EXPORTED*) 
 ; PROCEDURE OpenUniRd
-    ( FileName , PathHame , Note1 , NOte2 : TEXT := "" ) : UniRd . T
+    ( FileName , PathHame , Note1 , Note2 : TEXT := "" ) : UniRd . T
 
   = VAR LFullFileName : TEXT
-  ; VAR LRdT : Rd . T 
+  ; VAR LRdT : Rd . T
+  ; VAR LResult UniRd . T 
   
   ; BEGIN
       LFullFileName := PathName & FMGlobals . PathSep & FileName 
@@ -27,7 +31,7 @@ MODULE FM3Files
        LRdT := FileRd . Open ( LFullFileName ) 
       EXCEPT
       | OSError . E ( EMsg ) 
-      => FATAL
+      => Fatal
            ( "Unable to open " , Note1 , Note2 , LFullFileName
            , ": OSError.E(" , EMsg , ")."
            ) 

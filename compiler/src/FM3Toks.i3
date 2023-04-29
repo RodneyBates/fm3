@@ -38,7 +38,7 @@ INTERFACE FM3Toks
    numbering was easy to produce, without individual manual editing.
 *)
 
-((* Make sure these match the tokens in FM3Parser.lalr. *) 
+(* Make sure these match the tokens in FM3Parser.lalr. *) 
 ; CONST TkRwAND = 433 (* = "AND" *) 
 ; CONST TkRwANY = 434 (* = "ANY" *) 
 ; CONST TkRwARRAY = 435 (* = "ARRAY" *) 
