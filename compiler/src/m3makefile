@@ -19,6 +19,7 @@ include_dir("instantiations")
 include_dir("utils")
 include_dir("shared")
 include_dir("../../sharedsrc/globalsrc")
+include_dir("../../sharedsrc/intsetssrc")
 include_dir("../../sharedsrc/rdbacksrc")
 include_dir("../../sharedsrc/vararraysrc")
 

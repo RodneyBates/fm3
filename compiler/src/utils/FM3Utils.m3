@@ -8,6 +8,7 @@
 
 MODULE FM3Utils
 
+; IMPORT AtomList 
 ; IMPORT Long AS BitArith
 ; IMPORT Text 
 
@@ -118,6 +119,8 @@ MODULE FM3Utils
 
   = BEGIN
 (* COMPLETEME *)
+      RETURN NIL 
+    END TextLiteral 
 
 (* From Schutz, Misc.m3: ---------------------------------------
 (* EXPORTED: *) 
@@ -188,9 +191,6 @@ MODULE FM3Utils
 
 
 
-      RETURN NIL 
-    END TextLiteral 
-
 ; PROCEDURE WideTextLiteral ( READONLY WChars : REF ARRAY OF WIDECHAR ) : TEXT
   (* Insert quotes and escapes. *) 
 
@@ -215,6 +215,12 @@ MODULE FM3Utils
     ; LRef ^ [ LLength ] := '\000'
     ; RETURN LRef 
     END TextToRefArrayChars 
+
+; PROCEDURE AtomListToText ( AL : AtomList . T ): TEXT
+
+  = BEGIN
+      RETURN NIL 
+    END AtomListToText 
 
 ; BEGIN
   END FM3Utils 

@@ -34,13 +34,16 @@ MODULE RdBackFile
 ; IMPORT Thread 
 ; IMPORT Wr
 
+; IMPORT FM3Messages
+; IMPORT FM3Utils
+
 ; CONST Beginning = RegularFile . Origin . Beginning
 
 ; CONST BlockSize = 16_400 
 ; CONST BlockSizeL = VAL ( BlockSize , LONGINT ) 
 
 ; TYPE BlockSsTyp = [ 0 .. BlockSize - 1 ] 
-; TYPE BlockTyp = ARRAY BlockSsTyp OF ByteTyp 
+; TYPE BlockTyp = ARRAY BlockSsTyp OF File . Byte 
 
 ; REVEAL T
   = BRANDED "gRdBackFile.T" REF RECORD
@@ -222,6 +225,7 @@ MODULE RdBackFile
 
 (*EXPORTED*)
 ; PROCEDURE MaxLengthL ( RbFile : T ) : LONGCARD RAISES { OSError . E }
+  (* Max LengthL ever was since Create or Open. *) 
 
   = BEGIN
       IF RbFile = NIL THEN Raise ( "LengthL, NIL file." ) END (*IF*) 
@@ -330,8 +334,7 @@ MODULE RdBackFile
                ) 
     END WriteBuffer
 
-; PROCEDURE SimpleClose ( RbFile : T ) RAISES { OSError . E }
-
+; PROCEDURE SimpleClose ( RbFile : T ) 
   = BEGIN
       TRY RbFile . RbFileHandle . close ( ) 
       EXCEPT OSError . E 
@@ -347,7 +350,7 @@ MODULE RdBackFile
     END TempFileName 
 
 (*EXPORTED*)
-; PROCEDURE Close ( RbFile : T ) RAISES { OSError . E }
+; PROCEDURE Close ( RbFile : T ) 
 
   = VAR LTempFile : T
   ; VAR LFileName : TEXT
@@ -427,7 +430,6 @@ MODULE RdBackFile
              ) 
         END (*EXCEPT*) 
       END (*IF*) 
-
     END Close 
 
 (*EXPORTED*)
@@ -460,9 +462,9 @@ MODULE RdBackFile
     END Put 
 
 (*EXPORTED*)
-; PROCEDURE GetBwd ( RbFile : T ) : ByteTyp  RAISES { BOF , OSError . E }  
+; PROCEDURE GetBwd ( RbFile : T ) : ByteTyp RAISES { OSError . E , BOF }  
 
-  = VAR LResult : ByteTyp 
+  = VAR LResult : ByteTyp
 
   ; BEGIN
       IF RbFile = NIL THEN Raise ( "GetBwd" , ", NIL file." ) END (*IF*) 
@@ -483,13 +485,20 @@ MODULE RdBackFile
       
     (* Fetch the desired byte. *) 
     ; DEC ( RbFile . RbBlockNextIn )
-    ; LResult := RbFile . RbBuffer [ RbFile . RbBlockNextIn ] 
+    ; LResult := RbFile . RbBuffer [ RbFile . RbBlockNextIn ]  
     ; DEC ( RbFile . RbLengthL )
     ; RETURN LResult 
     END GetBwd 
 
 ; BEGIN
-    GLogWrT := FileWr . Open ( "FM3Log") 
+    TRY 
+      GLogWrT := FileWr . Open ( "FM3Log")
+    EXCEPT OSError . E ( EMsg )
+    => FM3Messages . Log (* Oh the irony. *) 
+         ( " Unable to open log file " , FM3Messages . LogFileName
+         , ", OSError.E(" , FM3Utils . AtomListToText ( EMsg ) , ")."
+         )
+    END (*EXCEPT*)
   END RdBackFile
 .
 

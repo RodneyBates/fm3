@@ -10,6 +10,7 @@ module("FM3OpenArray_Char")
 module("FM3OpenArray_WideChar") 
 module("FM3Atom_OAChars") 
 module("FM3Atom_OAWideChars") 
+module("FM3Dict_Int_Int") 
 module("FM3Dict_OAChars_Int") 
 module("FM3Dict_OAWideChars_Int") 
 

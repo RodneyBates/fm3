@@ -1,19 +1,23 @@
 INTERFACE FM3Scopes
 
-; IMPORT Decls 
-; IMPORT FM3Atom_OAChars
+; IMPORT IntSets
+; IMPORT VarArray_Int_Refany 
 
-; CONST ScopeNoNull = LAST ( ScopeNoTyp ) 
-; TYPE ScopeNoTyp : INTEGER
+; IMPORT FM3Base
+; IMPORT FM3Dict_Int_Int
+
+; CONST ScopeNoNull = FM3Base . AtomNull 
+; TYPE ScopeNoTyp = FM3Base . AtomTyp 
 ; TYPE ScopeRefTyp = REF ScopeTyp
 ; TYPE ScopeTyp
     = RECORD
         ScpNumber : ScopeNoTyp (* A self-reference. *) 
       ; ScpDecldIdSet : IntSets . T (* IdentNos declared. *) 
-      ; ScpDeclDict : FM3Dict_Int_Int (* IdentNo to Decl no. *)
+      ; ScpDeclDict : FM3Dict_Int_Int . GrowableTyp (* IdentNo to Decl no. *)
       ; ScpDeclCt : INTEGER
-      ; ScpOwningDeclNo : Decls . DeclNoTyp := Decls . DeclNoNull 
-      ; ScpNextDeclNo : Decls . DeclNoTyp 
+      (* This: would be : FM3Decls . DeclNoTyp := FM3Decls . DeclNoNull,
+         but that would create cyclic imports. *)
+      ; ScpOwningDeclNo : FM3Base . AtomTyp := FM3Base . AtomNull
       END (*ScopeTyp*)
 
 ; TYPE ScopeMapTyp

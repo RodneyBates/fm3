@@ -1,0 +1,16 @@
+(* Input file FM3Toks.gentok, for metaprogram GenTok. *)
+
+UNITNAME FM3TokDef
+
+(* A little space at the bottom. *) 
+ABS 5
+
+FIXED TkGenInt 1
+        
+
+LIST TkIdentList 1 (* List element count *)
+                 1 (* List element number *)
+
+FIXED TkWhile 1
+        Do 1
+

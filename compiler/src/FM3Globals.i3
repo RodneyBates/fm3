@@ -29,7 +29,8 @@ INTERFACE FM3Globals
 ; VAR IdentInitAtomSize := 1500
 ; VAR NumberInitAtomSize := 600
 ; VAR CharsInitAtomSize := 600
-; VAR WCharsInitTextAtomSize := 600
+; VAR WideCharsInitAtomSize := 600
+
 ; VAR FirstRealAtom := 1 
 
 ; PROCEDURE Init ( ) 

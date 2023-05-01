@@ -21,7 +21,6 @@
 
 INTERFACE RdBackFile
 
-; IMPORT File
 ; IMPORT OSError 
 
 ; EXCEPTION Preexists
@@ -29,7 +28,7 @@ INTERFACE RdBackFile
 
 ; TYPE T <: REFANY
 
-; TYPE ByteTyp = File . Byte 
+; TYPE ByteTyp = [ 0 .. 16_FF ] 
 
 ; PROCEDURE Create
     ( Filename : TEXT ; Truncate (* To empty. *) := FALSE ) : T
@@ -40,14 +39,17 @@ INTERFACE RdBackFile
 ; PROCEDURE LengthL ( RbFile : T ) : LONGCARD RAISES { OSError . E }
   (* Number of bytes in the file. *) 
 
+; PROCEDURE MaxLengthL ( RbFile : T ) : LONGCARD RAISES { OSError . E }
+  (* Max LengthL ever was since Create or Open. *) 
+
 ; PROCEDURE IsEmpty ( RbFile : T ) : BOOLEAN RAISES { OSError . E }
   (* Possibly faster than LengthL(F)=0L. *) 
 
-; PROCEDURE Close ( RbFile : T ) RAISES { OSError . E }
+; PROCEDURE Close ( RbFile : T ) 
 
 ; PROCEDURE Put ( RbFile : T ; Value : ByteTyp ) RAISES { OSError . E }  
 
-; PROCEDURE GetBwd ( RbFile : T ) : ByteTyp RAISES { BOF , OSError . E }  
+; PROCEDURE GetBwd ( RbFile : T ) : ByteTyp RAISES { OSError . E , BOF }  
 
 ; END RdBackFile
 .

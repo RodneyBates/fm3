@@ -12,6 +12,8 @@ INTERFACE FM3Messages
 
   (* Fatal amd Log go immediatly to stderr and optionally to a log file. *) 
 
+; VAR LogFileName := "FM3Log"
+
 ; PROCEDURE Fatal ( t1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL )
   RAISES { Terminate }
   (* Also terminates the program. *) 

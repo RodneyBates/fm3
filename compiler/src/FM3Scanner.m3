@@ -71,22 +71,6 @@ MODULE FM3Scanner
   = BEGIN 
     END InitTables 
 
-; TYPE tScanAttribute = ScanStateTyp
-; TYPE PositionTyp = RECORD Line , Column : FM3Base . Card32Typ END 
-; TYPE ScanStateTyp 
-       = RECORD 
-           Position : PositionTyp (* Accomodate lalr-generated parser. *)  
-         ; SsLink : ScanStateRefTyp := NIL 
-         ; SsUniRd : UniRd . T := NIL 
-         ; SsUnitRef : FM3Units . UnitRefTyp 
-         ; SsWCh : WIDECHAR 
-         ; SsCh : CHAR 
-         ; SsAtBegOfPragma := FALSE 
-           (* ^The immediately-preceding token was "<*". *)
-         END (* ScanStateTyp *) 
-
-; TYPE ScanStateRefTyp = REF ScanStateTyp 
-
 ; VAR GTopSsRef : ScanStateRefTyp := NIL 
 ; VAR GScanStateCt := 0
 ; VAR GScanStateDepth := 0
@@ -115,10 +99,10 @@ MODULE FM3Scanner
              ( FM3Globals . NumberInitAtomSize , 1 , NIL ) 
     ; LSsRef ^ . SsUnitRef ^ . UntCharsAtomDict 
         := FM3Atom_OAChars . New 
-             ( FM3Globals . TextInitAtomSize , 1 , NIL ) 
+             ( FM3Globals . CharsInitAtomSize , 1 , NIL ) 
     ; LSsRef ^ . SsUnitRef ^ . UntWCharsAtomDict 
         := FM3Atom_OAWideChars . New 
-             ( FM3Globals . WideInitTextAtomSize , 1 , NIL ) 
+             ( FM3Globals . WideCharsInitAtomSize , 1 , NIL ) 
 
     ; TRY 
         LSsRef ^ . SsWCh := UnsafeUniRd . FastGetWideChar( LSsRef ^ . SsUniRd ) 

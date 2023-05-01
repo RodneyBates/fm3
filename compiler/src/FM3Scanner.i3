@@ -11,24 +11,24 @@ INTERFACE FM3Scanner
 ; IMPORT UniRd 
 
 ; IMPORT FM3Base
-; IMPORT FM3OpenArray_Char 
-; IMPORT FM3OpenArray_WideChar 
+; IMPORT FM3OpenArray_Char
+; IMPORT FM3OpenArray_WideChar
 ; IMPORT FM3Units 
-; IMPORT FM3Utils
 
 (* Things expected from a scanner by an lalr-generated parser: *)
-
-; VAR Attribute : REF tScanAttribute
-  (* We want multiple instances of this for nested source files, but lalr
-     treats it as a global record.  We make it a REF and, unusually, rely
-     on Modula-3's implicit dereferencing of REF RECORD for lalr-generated
-     code's access to its fields. *) 
+(* Accomodate lalr-generated parser's spellings. *)
 
 ; TYPE tPosition
     = RECORD
         Line : INTEGER
       ; Column : INTEGER 
       END (*tPosition*) 
+
+; VAR Attribute : REF tScanAttribute
+  (* We want multiple instances of this for nested source files, but lalr
+     treats it as a global record.  We make it a REF and, unusually, rely
+     on Modula-3's implicit dereferencing of REF RECORD for lalr-generated
+     code's access to its fields. *) 
 
 ; TYPE tScanAttribute
     = RECORD
@@ -52,7 +52,19 @@ INTERFACE FM3Scanner
       ; SaWCh : WIDECHAR (* Value of [WIDE]CHAR literal. *)
       END (* tScanAttribute *)
 
-(* End of things expected from a scanner by an lalr-generated parser: *) 
+; TYPE ScanStateRefTyp = REF ScanStateTyp 
+
+; TYPE ScanStateTyp 
+       = RECORD 
+           Position : tPosition   
+         ; SsLink : ScanStateRefTyp := NIL 
+         ; SsUniRd : UniRd . T := NIL 
+         ; SsUnitRef : FM3Units . UnitRefTyp 
+         ; SsWCh : WIDECHAR 
+         ; SsCh : CHAR 
+         ; SsAtBegOfPragma := FALSE 
+           (* ^The immediately-preceding token was "<*". *)
+         END (* ScanStateTyp *) 
 
 ; PROCEDURE PushState 
      ( NewUniRd : UniRd . T ; UnitRef : FM3Units . UnitRefTyp ) 

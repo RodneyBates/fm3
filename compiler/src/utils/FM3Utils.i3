@@ -8,6 +8,8 @@
 
 INTERFACE FM3Utils
 
+; IMPORT AtomList 
+
 ; IMPORT IntCharVarArray AS VarArr_Char 
 ; IMPORT IntWideCharVarArray AS VarArr_WChar
 
@@ -42,7 +44,9 @@ INTERFACE FM3Utils
 
 ; PROCEDURE TextToRefArrayChars ( TextVal : TEXT) : REF ARRAY OF CHAR
   (* WARNING: Don't try this unless you know there are no characters
-              outside the range of CHAR in TextVal. *) 
+              outside the range of CHAR in TextVal. *)
+              
+; PROCEDURE AtomListToText ( AL : AtomList . T ): TEXT 
 
 ; END FM3Utils
 .

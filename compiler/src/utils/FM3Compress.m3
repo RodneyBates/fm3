@@ -28,12 +28,10 @@ UNSAFE MODULE FM3Compress
    significant sign bits, but Write procedures do not produce these. 
 *)   
 
-; IMPORT Compiler
 ; IMPORT OSError 
 ; IMPORT RdBackFile 
-; IMPORT Thread 
+; FROM RdBackFile IMPORT ByteTyp  
 ; IMPORT Long
-; IMPORT Wr
 
 ; CONST DivL = Long . Divide 
 ; CONST AndL = Long . And 
@@ -107,62 +105,63 @@ UNSAFE MODULE FM3Compress
                     THEN (* Eight bytes are not enough. *)
 
                       (* All 9 bytes 8..0 required. Emit byte 8 in entirity. *)
-                        Put ( File , RSL ( ValueL , 56 ) ) 
+                        Put ( File , VAL ( RSL ( ValueL , 56 ) , ByteTyp ) ) 
 
                     (* Now byte 7, with continue bit. *) 
-                    ; Put ( File , OrL ( AndL  ( RSL ( ValueL , 49 ) , 16_7F ) , 16_80 ) )
+                    ; Put ( File , VAL ( OrL ( AndL  ( RSL ( ValueL , 49 ) , 16_7FL ) , 16_80L ) , ByteTyp ) )
 
                     ELSE (* Bytes 7..0 required. Emit byte 7 w/o continue bit. *)
-                      Put ( File , AndL ( RSL ( ValueL , 49 ) , 16_7F ) ) 
+                      Put ( File , VAL ( AndL ( RSL ( ValueL , 49 ) , 16_7FL ) , ByteTyp ) ) 
                     END (*IF*)
 
                   (* Now byte 6, with continue bit. *) 
-                  ; Put ( File , OrL ( AndL  ( RSL ( ValueL , 42 ) , 16_7F ) , 16_80 ) )
+
+                  ; Put ( File , VAL ( OrL ( AndL  ( RSL ( ValueL , 42 ) , 16_7FL ) , 16_80L ) , ByteTyp ) )
 
                   ELSE (* Bytes 6..0 required. Emit byte 6 w/o continue bit. *)
-                    Put ( File , AndL ( RSL ( ValueL , 42 ) , 16_7F ) ) 
+                    Put ( File , VAL ( AndL ( RSL ( ValueL , 42 ) , 16_7FL ) , ByteTyp ) ) 
                   END (*IF*)
 
                 (* Now byte 5, with continue bit. *) 
-                ; Put ( File , OrL ( AndL  ( RSL ( ValueL , 35 ) , 16_7F ) , 16_80 ) )
+                ; Put ( File , VAL ( OrL ( AndL  ( RSL ( ValueL , 35 ) , 16_7FL ) , 16_80L ) , ByteTyp ) )
 
                 ELSE (* Bytes 5..0 required. Emit byte 5 w/o continue bit. *)
-                  Put ( File , AndL ( RSL ( ValueL , 35 ) , 16_7F ) ) 
+                  Put ( File , VAL ( AndL ( RSL ( ValueL , 35 ) , 16_7FL ) , ByteTyp ) ) 
                 END (*IF*)
 
               (* Now byte 4, with continue bit. *) 
-              ; Put ( File , OrL ( AndL  ( RSL ( ValueL , 28 ) , 16_7F ) , 16_80 ) )
+              ; Put ( File , VAL ( OrL ( AndL  ( RSL ( ValueL , 28 ) , 16_7FL ) , 16_80L ) , ByteTyp ) )
 
               ELSE (* Bytes 4..0 required. Emit byte 4 w/o continue bit. *)
-                Put ( File , AndL ( RSL ( ValueL , 28 ) , 16_7F ) ) 
+                Put ( File , VAL ( AndL ( RSL ( ValueL , 28 ) , 16_7FL ) , ByteTyp ) ) 
               END (*IF*)
               
             (* Now byte 3, with continue bit. *) 
-            ; Put ( File , OrL ( AndL  ( RSL ( ValueL , 21 ) , 16_7F ) , 16_80 ) )
+            ; Put ( File , VAL ( OrL ( AndL  ( RSL ( ValueL , 21 ) , 16_7FL ) , 16_80L ) , ByteTyp ) )
 
             ELSE (* Bytes 3..0 required. Emit byte 3 w/o continue bit. *)
-              Put ( File , AndL ( RSL ( ValueL , 21 ) , 16_7F ) ) 
+              Put ( File , VAL ( AndL ( RSL ( ValueL , 21 ) , 16_7FL ) , ByteTyp ) ) 
             END (*IF*) 
 
           (*Now byte 2, with continue bit. *) 
-          ; Put ( File , OrL ( AndL  ( RSL ( ValueL , 14 ) , 16_7F ) , 16_80 ) )
+          ; Put ( File , VAL ( OrL ( AndL  ( RSL ( ValueL , 14 ) , 16_7FL ) , 16_80L ) , ByteTyp ) )
           
           ELSE (* Byte 2..0 required. Emit byte 2 w/o continue bit. *)
-            Put ( File , AndL ( RSL ( ValueL , 14 ) , 16_7F ) )
+            Put ( File , VAL ( AndL ( RSL ( ValueL , 14 ) , 16_7FL ) , ByteTyp ) )
           END (*IF*) 
 
         (* Now byte 1, with continue bit. *) 
-        ; Put ( File , OrL ( AndL  ( RSL ( ValueL , 7 ) , 16_7F ) , 16_80 ) )
+        ; Put ( File , VAL ( OrL ( AndL  ( RSL ( ValueL , 7 ) , 16_7FL ) , 16_80L ) , ByteTyp ) )
         
         ELSE (* Bytes 1 & 0 required. Emit byte 1 w/o continue bit. *)
-          Put ( AndL ( RSL ( ValueL , 7 , 16_7F ) ) ) 
+          Put ( File , VAL ( AndL ( RSL ( ValueL , 7 ) , 16_7FL ) , ByteTyp ) )  
         END (*IF*)
         
       (* Now byte 0, with continue bit. *) 
-      ; Put ( File , OrL ( AndL ( ValueL , 16_7F ) , 16_80 ) )
+      ; Put ( File , VAL ( OrL ( AndL ( ValueL , 16_7FL ) , 16_80L ) , ByteTyp ) )
       
       ELSE (* Byte 0 alone suffices, w/o continue bit. *)
-        Put ( File , AndL ( ValueL , 16_7F ) ) 
+        Put ( File , VAL ( AndL ( ValueL , 16_7FL ) , ByteTyp ) ) 
       END (*IF*) 
     END PutBwd
 
@@ -179,132 +178,132 @@ UNSAFE MODULE FM3Compress
       LSignBitsL := DivL ( ValueL , TwoTo6thL ) 
     ; IF LSignBitsL = 16_FFFFFFFFFFFFFFFFL OR LSignBitsL = 0L
       THEN (* Rightmost 7 bits of LResidueL are the leftmost byte needed. *)
-        Put ( File , AndL ( LResidueL , 16_7F ) )
+        Put ( File , VAL ( AndL ( LResidueL , 16_7FL ) , ByteTyp ) )
       ; RETURN
       END (*IF*) 
-    ; Put ( File , OrL ( AndL ( LResidueL , 16_7F ) , 16_80 ) ) 
+    ; Put ( File , VAL ( OrL ( AndL ( LResidueL , 16_7FL ) , 16_80L ) , ByteTyp ) ) 
 
     (* Byte 1. *) 
     ; LResidueL := RSL ( ValueL , 7 )  
     ; LSignBitsL := DivL ( LResidueL , TwoTo6thL ) 
     ; IF LSignBitsL = 16_FFFFFFFFFFFFFFFFL OR LSignBitsL = 0L
       THEN (* Rightmost 7 bits of LResidueL are the leftmost byte needed. *)
-        Put ( File , AndL ( LResidueL , 16_7F ) )
+        Put ( File , VAL ( AndL ( LResidueL , 16_7FL ) , ByteTyp ) )
       ; RETURN
       END (*IF*) 
-    ; Put ( File , OrL ( AndL ( LResidueL , 16_7F ) , 16_80 ) ) 
+    ; Put ( File , VAL ( OrL ( AndL ( LResidueL , 16_7FL ) , 16_80L ) , ByteTyp ) ) 
 
     (* Byte 2. *) 
     ; LResidueL := RSL ( LResidueL , 7 )  
     ; LSignBitsL := DivL ( LResidueL , TwoTo6thL ) 
     ; IF LSignBitsL = 16_FFFFFFFFFFFFFFFFL OR LSignBitsL = 0L
       THEN (* Rightmost 7 bits of LResidueL are the leftmost byte needed. *)
-        Put ( File , AndL ( LResidueL , 16_7F ) )
+        Put ( File , VAL ( AndL ( LResidueL , 16_7FL ) , ByteTyp ) )
       ; RETURN
       END (*IF*) 
-    ; Put ( File , OrL ( AndL ( LResidueL , 16_7F ) , 16_80 ) ) 
+    ; Put ( File , VAL ( OrL ( AndL ( LResidueL , 16_7FL ) , 16_80L ) , ByteTyp ) ) 
 
     (* Byte 3. *) 
     ; LResidueL := RSL ( LResidueL , 7 )  
     ; LSignBitsL := DivL ( LResidueL , TwoTo6thL ) 
     ; IF LSignBitsL = 16_FFFFFFFFFFFFFFFFL OR LSignBitsL = 0L
       THEN (* Rightmost 7 bits of LResidueL are the leftmost byte needed. *)
-        Put ( File , AndL ( LResidueL , 16_7F ) )
+        Put ( File , VAL ( AndL ( LResidueL , 16_7FL ) , ByteTyp ) )
       ; RETURN
       END (*IF*) 
-    ; Put ( File , OrL ( AndL ( LResidueL , 16_7F ) , 16_80 ) ) 
+    ; Put ( File , VAL ( OrL ( AndL ( LResidueL , 16_7FL ) , 16_80L ) , ByteTyp ) ) 
 
     (* Byte 4. *) 
     ; LResidueL := RSL ( LResidueL , 7 )  
     ; LSignBitsL := DivL ( LResidueL , TwoTo6thL ) 
     ; IF LSignBitsL = 16_FFFFFFFFFFFFFFFFL OR LSignBitsL = 0L
       THEN (* Rightmost 7 bits of LResidueL are the leftmost byte needed. *)
-        Put ( File , AndL ( LResidueL , 16_7F ) )
+        Put ( File , VAL ( AndL ( LResidueL , 16_7FL ) , ByteTyp ) )
       ; RETURN
       END (*IF*) 
-    ; Put ( File , OrL ( AndL ( LResidueL , 16_7F ) , 16_80 ) ) 
+    ; Put ( File , VAL ( OrL ( AndL ( LResidueL , 16_7FL ) , 16_80L ) , ByteTyp ) ) 
 
     (* Byte 5. *) 
     ; LResidueL := RSL ( LResidueL , 7 )  
     ; LSignBitsL := DivL ( LResidueL , TwoTo6thL ) 
     ; IF LSignBitsL = 16_FFFFFFFFFFFFFFFFL OR LSignBitsL = 0L
       THEN (* Rightmost 7 bits of LResidueL are the leftmost byte needed. *)
-        Put ( File , AndL ( LResidueL , 16_7F ) )
+        Put ( File , VAL ( AndL ( LResidueL , 16_7FL ) , ByteTyp ) )
       ; RETURN
       END (*IF*) 
-    ; Put ( File , OrL ( AndL ( LResidueL , 16_7F ) , 16_80 ) ) 
+    ; Put ( File , VAL ( OrL ( AndL ( LResidueL , 16_7FL ) , 16_80L ) , ByteTyp ) ) 
 
     (* Byte 6. *) 
     ; LResidueL := RSL ( LResidueL , 7 )  
     ; LSignBitsL := DivL ( LResidueL , TwoTo6thL ) 
     ; IF LSignBitsL = 16_FFFFFFFFFFFFFFFFL OR LSignBitsL = 0L
       THEN (* Rightmost 7 bits of LResidueL are the leftmost byte needed. *)
-        Put ( File , AndL ( LResidueL , 16_7F ) )
+        Put ( File , VAL ( AndL ( LResidueL , 16_7FL ) , ByteTyp ) )
       ; RETURN
       END (*IF*) 
-    ; Put ( File , OrL ( AndL ( LResidueL , 16_7F ) , 16_80 ) ) 
+    ; Put ( File , VAL ( OrL ( AndL ( LResidueL , 16_7FL ) , 16_80L ) , ByteTyp ) ) 
 
     (* Byte 7. *) 
     ; LResidueL := RSL ( LResidueL , 7 )  
     ; LSignBitsL := DivL ( LResidueL , TwoTo6thL ) 
     ; IF LSignBitsL = 16_FFFFFFFFFFFFFFFFL OR LSignBitsL = 0L
       THEN (* Rightmost 7 bits of LResidueL are the leftmost byte needed. *)
-        Put ( File , AndL ( LResidueL , 16_7F ) )
+        Put ( File , VAL ( AndL ( LResidueL , 16_7FL ) , ByteTyp ) )
       ; RETURN
       END (*IF*) 
-    ; Put ( File , OrL ( AndL ( LResidueL , 16_7F ) , 16_80 ) ) 
+    ; Put ( File , VAL ( OrL ( AndL ( LResidueL , 16_7FL ) , 16_80L ) , ByteTyp ) ) 
 
     (* Byte 8. *) 
     ; LResidueL := RSL ( LResidueL , 7 )  
       (* The rightmost 8 bits of LResidueL are the final leftmost byte.
          The other bits have had all zeros shifted into them. *)
-    ; Put ( File , LResidueL )
+    ; Put ( File , VAL ( LResidueL , ByteTyp ) )
     END PutFwd 
 
 (*EXPORTED*) 
 ; PROCEDURE GetBwd  ( File : RdBackFile . T ) : LONGINT
-  RAISES { OSError . E } 
+  RAISES { OSError . E , RdBackFile . BOF } 
   (* Read and decode compressed bytes from File.  Treat them as
      being in least- to most-significant order. *)
 
   = VAR LResultL : LONGINT
-  ; VAR LByte : RdBackFile . ByteTyp 
+  ; VAR LByteL : LONGINT 
 
   ; BEGIN
-      LByte := GetRdBack ( File ) 
-    ; LResultL := AndL ( LByte , 16_7F )
-    ; IF AndL ( LByte , 16_80 ) # 0L
+      LByteL := VAL ( GetRdBack ( File ) , LONGINT )  
+    ; LResultL := AndL ( LByteL , 16_7FL )
+    ; IF AndL ( LByteL , 16_80L ) # 0L
       THEN (* Byte 1 follows. *)
-        LByte := GetRdBack ( File ) 
-      ; LResultL := OrL ( LResultL , LSL ( AndL ( LByte , 16_7F ) , 7 ) ) 
-      ; IF AndL ( LByte , 16_80 ) # 0L
+        LByteL := VAL ( GetRdBack ( File ) , LONGINT )  
+      ; LResultL := OrL ( LResultL , LSL ( AndL ( LByteL , 16_7FL ) , 7 ) ) 
+      ; IF AndL ( LByteL , 16_80L ) # 0L
         THEN (* Byte 2 follows. *)
-          LByte := GetRdBack ( File ) 
-        ; LResultL := OrL ( LResultL , LSL ( AndL ( LByte , 16_7F ) , 14 ) ) 
-        ; IF AndL ( LByte , 16_80 ) # 0L
+          LByteL := VAL ( GetRdBack ( File ) , LONGINT )  
+        ; LResultL := OrL ( LResultL , LSL ( AndL ( LByteL , 16_7FL ) , 14 ) ) 
+        ; IF AndL ( LByteL , 16_80L ) # 0L
           THEN (* Byte 3 follows. *)
-            LByte := GetRdBack ( File ) 
-          ; LResultL := OrL ( LResultL , LSL ( AndL ( LByte , 16_7F ) , 21 ) ) 
-          ; IF AndL ( LByte , 16_80 ) # 0L
+            LByteL := VAL ( GetRdBack ( File ) , LONGINT )  
+          ; LResultL := OrL ( LResultL , LSL ( AndL ( LByteL , 16_7FL ) , 21 ) ) 
+          ; IF AndL ( LByteL , 16_80L ) # 0L
             THEN (* Byte 4 follows. *)
-              LByte := GetRdBack ( File ) 
-            ; LResultL := OrL ( LResultL , LSL ( AndL ( LByte , 16_7F ) , 28 ) ) 
-            ; IF AndL ( LByte , 16_80 ) # 0L
+              LByteL := VAL ( GetRdBack ( File ) , LONGINT )  
+            ; LResultL := OrL ( LResultL , LSL ( AndL ( LByteL , 16_7FL ) , 28 ) ) 
+            ; IF AndL ( LByteL , 16_80L ) # 0L
               THEN (* Byte 5 follows. *)
-                LByte := GetRdBack ( File ) 
-              ; LResultL := OrL ( LResultL , LSL ( AndL ( LByte , 16_7F ) , 35 ) ) 
-              ; IF AndL ( LByte , 16_80 ) # 0L
+                LByteL := VAL ( GetRdBack ( File ) , LONGINT )  
+              ; LResultL := OrL ( LResultL , LSL ( AndL ( LByteL , 16_7FL ) , 35 ) ) 
+              ; IF AndL ( LByteL , 16_80L ) # 0L
                 THEN (* Byte 6 follows. *)
-                  LByte := GetRdBack ( File ) 
-                ; LResultL := OrL ( LResultL , LSL ( AndL ( LByte , 16_7F ) , 42 ) ) 
-                ; IF AndL ( LByte , 16_80 ) # 0L
+                  LByteL := VAL ( GetRdBack ( File ) , LONGINT )  
+                ; LResultL := OrL ( LResultL , LSL ( AndL ( LByteL , 16_7FL ) , 42 ) ) 
+                ; IF AndL ( LByteL , 16_80L ) # 0L
                   THEN (* Byte 7 follows. *)
-                    LByte := GetRdBack ( File ) 
-                  ; LResultL := OrL ( LResultL , LSL ( AndL ( LByte , 16_7F ) , 49 ) ) 
-                  ; IF AndL ( LByte , 16_80 ) # 0L
+                    LByteL := VAL ( GetRdBack ( File ) , LONGINT )  
+                  ; LResultL := OrL ( LResultL , LSL ( AndL ( LByteL , 16_7FL ) , 49 ) ) 
+                  ; IF AndL ( LByteL , 16_80L ) # 0L
                     THEN (* Byte 8 follows. *)
-                      LByte := GetRdBack ( File ) 
-                    ; LResultL := OrL ( LResultL , LSL ( AndL ( LByte , 16_FF ) , 49 ) ) 
+                      LByteL := VAL ( GetRdBack ( File ) , LONGINT )  
+                    ; LResultL := OrL ( LResultL , LSL ( AndL ( LByteL , 16_FFL ) , 49 ) ) 
                     END (*IF*) 
                   END (*IF*) 
                 END (*IF*) 

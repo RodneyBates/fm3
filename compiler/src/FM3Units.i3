@@ -8,9 +8,13 @@
 
 INTERFACE FM3Units
 
+; IMPORT VarArray_Int_Refany 
+
 ; IMPORT FM3Decls 
 ; IMPORT FM3Atom_OAChars
-; IMPORT FM3Scopes 
+; IMPORT FM3Atom_OAWideChars
+; IMPORT FM3Scopes
+; IMPORT RdBackFile 
 
 ; TYPE UnitNoTyp = INTEGER
 ; CONST UnitNoNull = - 1 
@@ -35,8 +39,8 @@ INTERFACE FM3Units
       ; UntCharsAtomDict : FM3Atom_OAChars . T := NIL(* TEXT literals. *) 
       ; UntWCharsAtomDict : FM3Atom_OAWideChars . T := NIL
           (* ^Wide TEXT literals. *)
-      ; UntScopes : Scopes . ScopeMapTyp := NIL 
-      ; UntDecls : Decls . DeclMapTyp := NIL
+      ; UntScopes : FM3Scopes . ScopeMapTyp := NIL 
+      ; UntDecls : FM3Decls . DeclMapTyp := NIL
       END (*UnitTyp*)
 
 ; TYPE UnitMapTyp = VarArray_Int_Refany . T (* Map UnitNoTyp to UnitRefTyp. *)

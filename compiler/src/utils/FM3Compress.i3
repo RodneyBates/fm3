@@ -40,7 +40,7 @@ INTERFACE FM3Compress
   (* Write compressed bytes to File, in least- to most-significant order. *)
 
 ; PROCEDURE GetBwd  ( File : RdBackFile . T ) : LONGINT
-  RAISES { OSError . E } 
+  RAISES { OSError . E , RdBackFile . BOF } 
   (* Read and decode compressed bytes from File.  Treat them as
      being in least- to most-significant order. *)
 

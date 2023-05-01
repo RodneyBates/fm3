@@ -1,13 +1,16 @@
 INTERFACE FM3Decls
 
+; IMPORT FM3Scopes
+; IMPORT VarArray_Int_Refany
+
 ; CONST DeclNoNull = LAST ( DeclNoTyp ) 
 ; TYPE DeclNoTyp = INTEGER
 ; TYPE DeclRefTyp = REF DeclTyp
 ; TYPE DeclTyp
     = RECORD
         DclNumber : DeclNoTyp (* A self-reference. *) 
-      ; DclParentScopeNo : Scopes . ScopeNoTyp (* Containing scope *) 
-      ; DclSelfScopeNo : Scopes . ScopeNoTyp (* If declares a scope *) 
+      ; DclParentScopeNo : FM3Scopes . ScopeNoTyp (* Containing scope *) 
+      ; DclSelfScopeNo : FM3Scopes . ScopeNoTyp (* If declares a scope *) 
       END (*DeclTyp*)
 
 ; TYPE DeclMapTyp
