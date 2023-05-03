@@ -8,9 +8,13 @@
 
 MODULE FM3Messages
 
+; IMPORT AtomList 
+
+; IMPORT FM3Utils
+
   (* Fatal amd Log go immediatly to stderr and optionally to a log file. *) 
 
-(*EXPPORTED*)
+(*EXPORTED*)
 ; PROCEDURE Fatal ( t1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL )
   RAISES { Terminate }
   (* Also terminates the program. *)
@@ -18,7 +22,7 @@ MODULE FM3Messages
   = BEGIN
     END Fatal  
 
-(*EXPPORTED*)
+(*EXPORTED*)
 ; PROCEDURE Log ( t1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL ) 
 
   = BEGIN
@@ -27,35 +31,44 @@ MODULE FM3Messages
 (* Within a unit, Info, Warning, and Error are collected, sorted by
    line/column, and written to stdout at the end of the unit. *)
 
-(*EXPPORTED*)
+(*EXPORTED*)
 ; PROCEDURE StartUnit ( )
 
   = BEGIN
     END StartUnit 
 
-(*EXPPORTED*)
+(*EXPORTED*)
 ; PROCEDURE EndUnit ( )
 
   = BEGIN
     END EndUnit 
 
-(*EXPPORTED*)
+(*EXPORTED*)
 ; PROCEDURE Info ( t1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL )
 
   = BEGIN
     END Info 
 
-(*EXPPORTED*)
+(*EXPORTED*)
 ; PROCEDURE Warning ( t1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL )
 
   = BEGIN
     END Warning
 
-(*EXPPORTED*)
+(*EXPORTED*)
 ; PROCEDURE Error ( t1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL )
 
   = BEGIN
     END Error
+
+(*EXPORTED*)
+; PROCEDURE AtomListToOSError ( AL : AtomList . T ): TEXT
+
+  = BEGIN
+      RETURN "OSError.E("
+             & FM3Utils . AtomListToText ( AL )
+             & ")" 
+    END AtomListToOSError  
 
 ; BEGIN
   END FM3Messages

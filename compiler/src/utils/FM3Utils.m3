@@ -63,14 +63,14 @@ MODULE FM3Utils
     END HashOfText
 
 (*EXPORTED:*)
-; PROCEDURE HashOfOAChars ( READONLY Key : ARRAY OF CHAR ) : HashTyp
+; PROCEDURE HashOfOAChars ( Key : REF ARRAY OF CHAR ) : HashTyp
 
   = VAR LResult : HashTyp
   ; VAR LLength : CARDINAL 
 
   ; BEGIN
       LResult := GroundHash ( )
-    ; LLength := NUMBER ( Key )
+    ; LLength := NUMBER ( Key ^ )
     ; FOR RI := 0 TO LLength - 1
       DO
         ContribToHash
@@ -80,14 +80,14 @@ MODULE FM3Utils
     END HashOfOAChars 
 
 (*EXPORTED:*)
-; PROCEDURE HashOfOAWChars ( READONLY Key : ARRAY OF WIDECHAR ) : HashTyp
+; PROCEDURE HashOfOAWChars ( Key : REF ARRAY OF WIDECHAR ) : HashTyp
 
   = VAR LResult : HashTyp
   ; VAR LLength : CARDINAL 
 
   ; BEGIN
       LResult := GroundHash ( )
-    ; LLength := NUMBER ( Key )
+    ; LLength := NUMBER ( Key ^ )
     ; FOR RI := 0 TO LLength - 1
       DO
         ContribToHash

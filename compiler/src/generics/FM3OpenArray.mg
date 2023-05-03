@@ -15,7 +15,7 @@ GENERIC MODULE FM3OpenArray ( Elem )
 
 (* So far, we don't need one of these: 
 (*EXPORTED:*)
-; PROCEDURE Hashfunc ( READONLY Key : T ) : FM3Base . HashTyp )
+; PROCEDURE Hashfunc ( Key : T ) : FM3Base . HashTyp )
 
   = VAR LResult : FM3Base . HashTyp 
 

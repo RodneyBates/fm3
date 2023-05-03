@@ -8,6 +8,8 @@
 
 INTERFACE FM3Messages
 
+; IMPORT AtomList 
+
 ; <*IMPLICIT*> EXCEPTION Terminate 
 
   (* Fatal amd Log go immediatly to stderr and optionally to a log file. *) 
@@ -31,6 +33,8 @@ INTERFACE FM3Messages
 ; PROCEDURE Warning ( t1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL ) 
 
 ; PROCEDURE Error ( t1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL ) 
+
+; PROCEDURE AtomListToOSError ( AL : AtomList . T ): TEXT 
 
 ; END FM3Messages
 .

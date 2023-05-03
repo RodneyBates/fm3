@@ -165,16 +165,16 @@ Exports : StkRwExports IdentList { }.
 
 IdentList : .
 IdentList : IdentListSub 
-    { i := $1.Int
-      PushTok ( TkIdentListRt (i+1);
-      PushTokPatch ( TkIdentListLtPatch ($1,i+1);
+    { i := $1.Int;
+      PushTok ( TkIdentListRt (i+1));
+      PushTokPatch ( TkIdentListLtPatch ($1,i+1));
     } .
 
 IdentListSub : { $$ . Int := 0; } .
 IdentListSub : IdentListSub TkComma Ident
     { i := $1.Int;
-      PushTok ( TkIdentListRtElem (i);
-      PushTokPatch ( TkIdentListRtElemPatch ($1,i);
+      PushTok ( TkIdentListRtElem (i));
+      PushTokPatch ( TkIdentListRtElemPatch ($1,i));
       $$ . Int := i+1;
     } .
 

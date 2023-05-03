@@ -8,7 +8,8 @@
 
 INTERFACE FM3CLArgs
 
-; VAR SrcFileName : TEXT 
+; VAR SrcFileName : TEXT := NIL 
+; VAR DoKeep : BOOLEAN := FALSE 
 
 ; END FM3CLArgs
 .

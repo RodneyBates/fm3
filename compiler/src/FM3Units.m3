@@ -4,7 +4,7 @@
 (* Copyright 2023        Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
-(* -----------------------------------------------------------------------2- *)
+(* -----------------------------------------------------------------------2- *) 
 
 MODULE FM3Units
 
@@ -30,14 +30,14 @@ MODULE FM3Units
     
     ; LUnitRef . UntUnitNo := LUnitNo
     ; LUnitRef . UntSrcFileName := NIL 
-    ; LUnitRef . UntSrcFilePath := NIL(* Without simple name. *) 
-    ; LUnitRef . UntWorkFilePath := NIL
+    ; LUnitRef . UntSrcFilePrefix := NIL(* Without simple name. *) 
+    ; LUnitRef . UntWorkFilePrefix := NIL
     ; LUnitRef . UntPatchStackName := NIL
     ; LUnitRef . UntPatchStackRdBack := NIL
-    ; LUnitRef . UntMaxPatchStackDepth := 0 
+    ; LUnitRef . UntMaxPatchStackDepth := 0L 
     ; LUnitRef . UntUnnestStackName := NIL
     ; LUnitRef . UntUnnestStackRdBack := NIL
-    ; LUnitRef . UntMaxUnnestStackDepth := 0 
+    ; LUnitRef . UntMaxUnnestStackDepth := 0L 
     ; LUnitRef . UntParsePassName := NIL
     ; LUnitRef . UntParsePassRdBack := NIL
     ; LUnitRef . UntIdentAtomDict := NIL (* Identifiers. *)   
@@ -47,13 +47,14 @@ MODULE FM3Units
     ; LUnitRef . UntScopes := NIL 
     ; LUnitRef . UntDecls := NIL
 
-    ; VarArray_Int_Refany . Assign ( UnitMap , LUnitNo , LUnitRef ) 
+    ; VarArray_Int_Refany . Assign ( UnitMap , LUnitNo , LUnitRef )
+    ; RETURN LUnitRef 
     END New
     
 
 ; BEGIN
     NextUnitNo := 1
-  ; UnitMap := VarArray_Int_Refany . New ( UnitNoNull , InitialAlloc := 10 )  
+  ; UnitMap := VarArray_Int_Refany . New ( NIL )  
   END FM3Units
 .
 

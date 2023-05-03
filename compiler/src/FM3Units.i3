@@ -24,14 +24,14 @@ INTERFACE FM3Units
         UntUnitNo : UnitNoTyp := UnitNoNull
       ; UntStackLink : UnitRefTyp := NIL 
       ; UntSrcFileName : TEXT := NIL 
-      ; UntSrcFilePath : TEXT := NIL(* Without simple name. *) 
-      ; UntWorkFilePath : TEXT := NIL
+      ; UntSrcFilePrefix : TEXT := NIL(* Without simple name. *) 
+      ; UntWorkFilePrefix : TEXT := NIL
       ; UntPatchStackName : TEXT := NIL
       ; UntPatchStackRdBack : RdBackFile . T := NIL
-      ; UntMaxPatchStackDepth : INTEGER := 0 
+      ; UntMaxPatchStackDepth : LONGINT := 0L 
       ; UntUnnestStackName : TEXT := NIL
       ; UntUnnestStackRdBack : RdBackFile . T := NIL
-      ; UntMaxUnnestStackDepth : INTEGER 
+      ; UntMaxUnnestStackDepth : LONGINT := 0L 
       ; UntParsePassName : TEXT := NIL
       ; UntParsePassRdBack : RdBackFile . T := NIL
       ; UntIdentAtomDict : FM3Atom_OAChars . T := NIL (* Identifiers. *)   
@@ -41,6 +41,10 @@ INTERFACE FM3Units
           (* ^Wide TEXT literals. *)
       ; UntScopes : FM3Scopes . ScopeMapTyp := NIL 
       ; UntDecls : FM3Decls . DeclMapTyp := NIL
+      ; UntScanResult : INTEGER 
+      ; UntParseResult : INTEGER 
+      ; UntParsePassResult : INTEGER 
+        
       END (*UnitTyp*)
 
 ; TYPE UnitMapTyp = VarArray_Int_Refany . T (* Map UnitNoTyp to UnitRefTyp. *)

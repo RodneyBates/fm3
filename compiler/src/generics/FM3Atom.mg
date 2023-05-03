@@ -47,7 +47,7 @@ GENERIC MODULE FM3Atom ( DictGenformal )
 (*EXPORTED:*)
 ; PROCEDURE MakeAtom
     ( AtomDict : T 
-    ; Key : KeyTyp  
+    ; READONLY Key : KeyTyp  
     ; Hash : FM3Base . HashTyp
     )
   : FM3Base . AtomTyp 

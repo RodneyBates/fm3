@@ -8,9 +8,9 @@
 
 (* Parser.m3. *) 
 
-MODULE FM3Parser;
+  MODULE FM3Parser;
 
-IMPORT FM3Scanner;
+  IMPORT FM3Scanner;
 
 IMPORT Fmt, OSError, Rd, Thread, Text, Word, Wr;
 
@@ -23,7 +23,7 @@ IMPORT Errors (* From Reusem3. *);
 
 CONST
    yyInitStackSize      = 100;
-   yyStackExpansionFactor = 2.0 
+   yyStackExpansionFactor = 2.0;
    yyNoState            = 0;
 
    yyFirstTerminal          = 0;
@@ -43,7 +43,7 @@ CONST
    yyStopState              = 68;
 
 TYPE
-   yyTableElmt          = SHORTCARD;
+   yyTableElmt          = SHORTCARD (*In M2, [0..2^16-1.*);
 
    (* The conversion to Modula-3 is very fragile, in part due to the
       use of unsafe address arithmetic.
@@ -103,7 +103,7 @@ VAR
    yyTableFile          : System.tFile;
    
 (* From Parser.m30.orig: *) 
-    PROCEDURE ExpandStateStack ( VAR Stack : yyStackTyp , ToSize : INTEGER ) =
+    PROCEDURE ExpandStateStack ( VAR Stack : yyStackTyp ; ToSize : INTEGER ) =
 
       VAR LOldStack : yyStackTyp;
       VAR LStackNumber : INTEGER; 
@@ -113,13 +113,13 @@ VAR
         THEN
           LOldStack := Stack; 
           Stack := NEW ( yyStackTyp , ToSize );
-          SUBARRAY ( Stack ^ , 0 LStackNumber ) := LOldStack ^;
+          SUBARRAY ( Stack ^ , 0 , LStackNumber ) := LOldStack ^;
           LOldStack := NIL; 
-        END; ll
+        END;
       END ExpandStateStack; 
 
     PROCEDURE ExpandAttributeStack
-      ( VAR Stack : yyAttributeStackTyp , ToSize : INTEGER ) =
+      ( VAR Stack : yyAttributeStackTyp ; ToSize : INTEGER ) =
 
       VAR LOldStack : yyAttributeStackTyp;
       VAR LStackNumber : INTEGER; 
@@ -129,7 +129,7 @@ VAR
         THEN
           LOldStack := Stack; 
           Stack := NEW ( yyAttributeStackTyp , ToSize );
-          SUBARRAY ( Stack ^ , 0 LStackNumber ) := LOldStack ^;
+          SUBARRAY ( Stack ^ , 0 , LStackNumber ) := LOldStack ^;
           LOldStack := NIL; 
         END; 
       END ExpandAttributeStack; 
@@ -235,7 +235,7 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
    END TokenName;
 
 (*EXPORTED*)
-PROCEDURE FM3Parser (): CARDINAL =
+  PROCEDURE FM3Parser (): CARDINAL =
 (* line 22 "FM3Parser.lalr" *)
  
    VAR
@@ -250,7 +250,7 @@ PROCEDURE FM3Parser (): CARDINAL =
       yyStateStack      : yyStackType;
       yyAttributeStack  : yyAttributeStackType;
       yySynAttribute    : tParsAttribute;       (* synthesized attribute *)
-   yyRepairAttribute : FM3Scanner.tScanAttribute;
+     yyRepairAttribute : FM3Scanner.tScanAttribute;
       yyRepairToken     : yySymbolRange;
       yyTCombPtr        : yyTCombTypePtr;
       yyNCombPtr        : yyNCombTypePtr;
@@ -258,14 +258,14 @@ PROCEDURE FM3Parser (): CARDINAL =
       yyErrorCount      : CARDINAL;
       yyTokenString     : ARRAY [0..127] OF CHAR;
 
- BEGIN (* FM3Parser *) 
-   BeginFM3Parser;
+   BEGIN (* FM3Parser *) 
+     BeginFM3Parser ();
       yyState           := yyStartState;
-   yyTerminal        := FM3Scanner.GetToken ();
+     yyTerminal        := FM3Scanner.GetToken ();
       yyStateStackSize  := yyInitStackSize;
       yyAttrStackSize   := yyInitStackSize;
-      yyStateStack := NEW ( yStateStackType , yyStateStackSize )
-      yyAttributeStack := NEW ( yyAttributeStackType , yyStateStackSize ) 
+      yyStateStack := NEW ( yStateStackType , yyStateStackSize );
+      yyAttributeStack := NEW ( yyAttributeStackType , yyStateStackSize ); 
       yyStackLAST := LAST ( yyStateStack ^ ) (* Of yyAttributeStack too. *);
       yyStackPtr        := 0;
       yyErrorCount      := 0;
@@ -284,7 +284,7 @@ PROCEDURE FM3Parser (): CARDINAL =
          IF yyStackPtr >= yyStackLAST 
          THEN
             yyStateStackSize
-              := MAX ( NUMBER ( yyStateStack ^ ) * 2 , yyStackPtr + 2 ) 
+              := MAX ( NUMBER ( yyStateStack ^ ) * 2 , yyStackPtr + 2 ); 
             ExpandStateStack ( yyStateStack , yyStateStackSize ); 
             ExpandAttributeStack ( yyAttributeStack , yyStateStackSize );
             yyStackLAST
@@ -301,7 +301,7 @@ PROCEDURE FM3Parser (): CARDINAL =
                             ( LOOPHOLE ( yyTBasePtr [yyState] ,INTEGER) 
                               + yyTerminal * BYTESIZE (yyTCombType)
                             , yyTCombTypePtr
-                            );g
+                            );
             IF yyTCombPtr^.Check = yyState 
             THEN
                yyState := yyTCombPtr^.Next;
@@ -318,12 +318,12 @@ PROCEDURE FM3Parser (): CARDINAL =
                   yyState := Next (yyState, yyRepairToken);
                   IF yyState <= yyLastReadTermState 
                   THEN (* read or read terminal reduce ? *)
-                  FM3Scanner.ErrorAttribute 
+                    FM3Scanner.ErrorAttribute 
                        (yyRepairToken, yyRepairAttribute);
                      TokenName (yyRepairToken, yyTokenString);
                      FrontErrors.ErrorMessageI 
                        (FrontErrors.TokenInserted, FrontErrors.Repair,
-                     FM3Scanner.Attribute.Position, FrontErrors.eArray, 
+                       FM3Scanner.Attribute.Position, FrontErrors.eArray, 
                         ADR (yyTokenString[FIRST(yyTokenString)])
                        );
                      IF yyState >= yyFirstFinalState 
@@ -353,102 +353,102 @@ PROCEDURE FM3Parser (): CARDINAL =
             IF yyState <= yyLastReadTermState 
             THEN (* read terminal reduce ? *)
                INC (yyStackPtr);
-            yyAttributeStack^ [yyStackPtr].Scan := FM3Scanner.Attribute;
-            yyTerminal := FM3Scanner.GetToken ();
+              yyAttributeStack^ [yyStackPtr].Scan := FM3Scanner.Attribute;
+              yyTerminal := FM3Scanner.GetToken ();
                yyIsRepairing := FALSE;
             END (* IF *) ;
 
             LOOP (* Through successive reductions *)
 CASE yyState OF
-  | 68: (* _0000_ : Compilation _EndOfFile .*)
+  | 68 =>  (* _0000_ : Compilation _EndOfFile .*)
   yyStateStack := NIL;
   yyAttributeStack := NIL;
   RETURN yyErrorCount;
 
-  | 69,60: (* Compilation : GenInterface .*)
+  | 69,60 =>  (* Compilation : GenInterface .*)
   DEC (yyStackPtr, 1); yyNonterminal := 524;
 
-  | 70,61: (* Compilation : InstInterface .*)
+  | 70,61 =>  (* Compilation : InstInterface .*)
   DEC (yyStackPtr, 1); yyNonterminal := 524;
 
-  | 71,62: (* Compilation : GenModule .*)
+  | 71,62 =>  (* Compilation : GenModule .*)
   DEC (yyStackPtr, 1); yyNonterminal := 524;
 
-  | 72,63: (* Compilation : InstModule .*)
+  | 72,63 =>  (* Compilation : InstModule .*)
   DEC (yyStackPtr, 1); yyNonterminal := 524;
 
-  | 73,64: (* Compilation : Interface .*)
+  | 73,64 =>  (* Compilation : Interface .*)
   DEC (yyStackPtr, 1); yyNonterminal := 524;
 
-  | 74,65: (* Compilation : Module .*)
+  | 74,65 =>  (* Compilation : Module .*)
   DEC (yyStackPtr, 1); yyNonterminal := 524;
 
-  | 75,52: (* GenInterface : TkRwGENERIC TkRwINTERFACE TkIdent GenFormalsList TkSemicolon ImportList DeclList TkRwEND TkIdent TkDot .*)
+  | 75,52 =>  (* GenInterface : TkRwGENERIC TkRwINTERFACE TkIdent GenFormalsList TkSemicolon ImportList DeclList TkRwEND TkIdent TkDot .*)
   DEC (yyStackPtr, 10); yyNonterminal := 523;
 
-  | 76,55: (* InstInterface : OptUnsafe TkRwINTERFACE TkIdent TkEqual TkIdent GenActals TkRwEND TkIdent TkDot .*)
+  | 76,55 =>  (* InstInterface : OptUnsafe TkRwINTERFACE TkIdent TkEqual TkIdent GenActals TkRwEND TkIdent TkDot .*)
   DEC (yyStackPtr, 9); yyNonterminal := 525;
 
-  | 77,53: (* GenModule : TkRwGENERIC TkRwMODULE TkIdent GenFormalsList TkSemicolon ImportList Block TkRwEND TkIdent TkDot .*)
+  | 77,53 =>  (* GenModule : TkRwGENERIC TkRwMODULE TkIdent GenFormalsList TkSemicolon ImportList Block TkRwEND TkIdent TkDot .*)
   DEC (yyStackPtr, 10); yyNonterminal := 526;
 
-  | 78,57: (* InstModule : OptUnsafeTkRwMODULE TkIdent Exports TkEqual TkIdent GenActals TkRwEND TkIdent TkDot .*)
+  | 78,57 =>  (* InstModule : OptUnsafeTkRwMODULE TkIdent Exports TkEqual TkIdent GenActals TkRwEND TkIdent TkDot .*)
   DEC (yyStackPtr, 9); yyNonterminal := 527;
 
-  | 79,54: (* Interface : OptUnsafe TkRwINTERFACE TkIdent TkSemicolon ImportList DeclList TkRwEND TkIdent TkDot .*)
+  | 79,54 =>  (* Interface : OptUnsafe TkRwINTERFACE TkIdent TkSemicolon ImportList DeclList TkRwEND TkIdent TkDot .*)
   DEC (yyStackPtr, 9); yyNonterminal := 528;
 
-  | 80,56: (* Module : OptUnsafe TkRwMODULE TkIdent Exports TkSemicolon ImportList Block TkRwEND TkIdent TkDot .*)
+  | 80,56 =>  (* Module : OptUnsafe TkRwMODULE TkIdent Exports TkSemicolon ImportList Block TkRwEND TkIdent TkDot .*)
   DEC (yyStackPtr, 10); yyNonterminal := 529;
 
-  | 81,67: (* OptUnsafe : TkUNSAFE .*)
+  | 81,67 =>  (* OptUnsafe : TkUNSAFE .*)
   DEC (yyStackPtr, 1); yyNonterminal := 534;
 (* line 160 of "FM3Parser.lalr" *)
    yySynAttribute . Bool := TRUE; 
-  | 82: (* OptUnsafe : .*)
+  | 82 =>  (* OptUnsafe : .*)
 yyNonterminal := 534;
 (* line 161 of "FM3Parser.lalr" *)
    yySynAttribute . Bool := FALSE; 
-  | 83: (* Exports : .*)
+  | 83 =>  (* Exports : .*)
 yyNonterminal := 538;
 (* line 163 of "FM3Parser.lalr" *)
    
-  | 84,66: (* Exports : StkRwExports IdentList .*)
+  | 84,66 =>  (* Exports : StkRwExports IdentList .*)
   DEC (yyStackPtr, 2); yyNonterminal := 538;
 (* line 164 of "FM3Parser.lalr" *)
    
-  | 85: (* IdentList : .*)
+  | 85 =>  (* IdentList : .*)
 yyNonterminal := 541;
 
-  | 86: (* IdentList : IdentListSub .*)
+  | 86 =>  (* IdentList : IdentListSub .*)
   DEC (yyStackPtr, 1); yyNonterminal := 541;
 (* line 168 of "FM3Parser.lalr" *)
-   i := yyAttributeStack^[yyStackPtr+1].Int
-        PushTok ( TkIdentListRt (i+1);
-        PushTokPatch ( TkIdentListLtPatch (yyAttributeStack^[yyStackPtr+1],i+1);
+   i := yyAttributeStack^[yyStackPtr+1].Int;
+        PushTok ( TkIdentListRt (i+1));
+        PushTokPatch ( TkIdentListLtPatch (yyAttributeStack^[yyStackPtr+1],i+1));
       
-  | 87: (* IdentListSub : .*)
+  | 87 =>  (* IdentListSub : .*)
 yyNonterminal := 542;
 (* line 173 of "FM3Parser.lalr" *)
    yySynAttribute . Int := 0; 
-  | 88,59: (* IdentListSub : IdentListSub TkComma Ident .*)
+  | 88,59 =>  (* IdentListSub : IdentListSub TkComma Ident .*)
   DEC (yyStackPtr, 3); yyNonterminal := 542;
 (* line 175 of "FM3Parser.lalr" *)
    i := yyAttributeStack^[yyStackPtr+1].Int;
-        PushTok ( TkIdentListRtElem (i);
-        PushTokPatch ( TkIdentListRtElemPatch (yyAttributeStack^[yyStackPtr+1],i);
+        PushTok ( TkIdentListRtElem (i));
+        PushTokPatch ( TkIdentListRtElemPatch (yyAttributeStack^[yyStackPtr+1],i));
         yySynAttribute . Int := i+1;
       
-  | 89,58: (* GenFormalsList : IdentList .*)
+  | 89,58 =>  (* GenFormalsList : IdentList .*)
   DEC (yyStackPtr, 1); yyNonterminal := 531;
 
-  | 90: (* GenActuals : IdentList .*)
+  | 90 =>  (* GenActuals : IdentList .*)
   DEC (yyStackPtr, 1); yyNonterminal := 544;
 
-  | 91: (* DeclList : .*)
+  | 91 =>  (* DeclList : .*)
 yyNonterminal := 533;
 
-  | 92: (* Block : .*)
+  | 92 =>  (* Block : .*)
 yyNonterminal := 536;
 
 END;
@@ -473,12 +473,12 @@ END;
 
          ELSE (* read *)
             INC (yyStackPtr);
-         yyAttributeStack^ [yyStackPtr].Scan := FM3Scanner.Attribute;
-         yyTerminal := FM3Scanner.GetToken ();
+           yyAttributeStack^ [yyStackPtr].Scan := FM3Scanner.Attribute;
+           yyTerminal := FM3Scanner.GetToken ();
             yyIsRepairing := FALSE;
          END (* IF *);
       END (* LOOP *) ;
- END FM3Parser;
+   END FM3Parser;
 
 PROCEDURE ErrorRecovery (
       VAR Terminal      : yySymbolRange ;
@@ -498,10 +498,10 @@ PROCEDURE ErrorRecovery (
          TokenName ( Terminal , TokenArray );
          Strings.ArrayToString (TokenArray, TokenString);
          FrontErrors.ErrorMessageI (FrontErrors.SyntaxError, FrontErrors.Error, 
-         FM3Scanner.Attribute.Position, FrontErrors.eString, ADR(TokenString) );
+          FM3Scanner.Attribute.Position, FrontErrors.eString, ADR(TokenString) );
 
    (* 2. report the set of expected terminal symbols *)
-      ContinueSet:= IntSets . Empty ( ) 
+      ContinueSet:= IntSets . Empty ( ); 
       ComputeContinuation (StateStack, StackSize, StackPtr, ContinueSet);
       Strings.AssignEmpty (ContinueString);
       FOR Token := IntSets.Minimum (ContinueSet) TO IntSets.Maximum (ContinueSet) DO
@@ -515,24 +515,24 @@ PROCEDURE ErrorRecovery (
          END;
       END;
       FrontErrors.ErrorMessageI (FrontErrors.ExpectedTokens, FrontErrors.Information,
-      FM3Scanner.Attribute.Position, FrontErrors.eString, ADR (ContinueString));
+       FM3Scanner.Attribute.Position, FrontErrors.eString, ADR (ContinueString));
       ContinueSet := NIL;
 
    (* 3. compute the set of terminal symbols for restart of the parse *)
-      RestartSet := IntSets . Empty ( )
+      RestartSet := IntSets . Empty ( );
       ComputeRestartPoints (StateStack, StackSize, StackPtr, RestartSet);
 
    (* 4. skip terminal symbols until a restart point is reached *)
       TokensSkipped := FALSE;
       WHILE NOT IntSets.IsElement (Terminal, RestartSet) DO
-      Terminal := FM3Scanner.GetToken ();
-         TokensSkipped := TRUE;
+       Terminal := FM3Scanner.GetToken ();
+        TokensSkipped := TRUE;
       END;
       RestartSet := NIL;
 
    (* 5. report the restart point *)
       IF TokensSkipped THEN
-      FrontErrors.ErrorMessage (FrontErrors.RestartPoint, FrontErrors.Information, FM3Scanner.Attribute.Position);
+       FrontErrors.ErrorMessage (FrontErrors.RestartPoint, FrontErrors.Information, FM3Scanner.Attribute.Position);
       END;
    END ErrorRecovery;
 
@@ -603,7 +603,7 @@ PROCEDURE IsContinuation (
             State := Next (Stack^ [StackPtr], Nonterminal);
             IF StackPtr >= StackSize THEN
               ExpandStateStack
-                (Stack, MAX (NUMBER ( Stack ^ ) * 2 , StackPtr + 2 ) )
+                (Stack, MAX (NUMBER ( Stack ^ ) * 2 , StackPtr + 2 ) );
               StackSize := NUMBER (Stack^); 
             END;
             INC (StackPtr);
@@ -639,13 +639,13 @@ PROCEDURE ComputeRestartPoints (
          State:= ParseStack^ [RStackPtr];
          Stack^ [RStackPtr] := State;
       END;
-      ContinueSet := IntSets . Empty ( )
+      ContinueSet := IntSets . Empty ( );
       State := Stack^ [StackPtr];
 
       LOOP
          IF StackPtr >= StackSize THEN
             ExpandStateStack
-              (Stack, MAX (NUMBER (Stack ^) * 2 , StackPtr + 2 ) )
+              (Stack, MAX (NUMBER (Stack ^) * 2 , StackPtr + 2 ) );
             StackSize := NUMBER (Stack^); 
          END;
          Stack^ [StackPtr] := State;
@@ -899,25 +899,26 @@ PROCEDURE yyErrorCheck (ErrorCode: INTEGER; Info: INTEGER) =
      END;
    END yyErrorCheck;
 
-PROCEDURE BeginFM3Parser =
+  PROCEDURE BeginFM3Parser ()=
    BEGIN
 (* line 25 "FM3Parser.lalr" *)
  
       IF NOT yyIsInitialized THEN
          yyIsInitialized := TRUE;
-         yyGetTables;
+         yyGetTables();
       END;
    END BeginFM3Parser;
 
 (*EXPORTED*)
-PROCEDURE CloseFM3Parser =
+  PROCEDURE CloseFM3Parser ()=
    BEGIN
 (* line 28 "FM3Parser.lalr" *)
  
    END CloseFM3Parser;
 
 BEGIN
+    <*ASSERT BYTESIZE (yyTableElmt) = 2 *>
     yyIsInitialized := FALSE;
-    ParsTabName := 'FM3Parser.Tab';
-END FM3Parser.
+     ParsTabName := "FM3Parser.Tab";
+  END FM3Parser.
 

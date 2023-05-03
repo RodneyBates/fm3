@@ -15,7 +15,7 @@ GENERIC INTERFACE FM3Atom ( DictGenformal )
 
 (* DictGenFormal must provide declarations for:
      TYPE KeyTyp:  Type of Keys.  Not an open array type.
-     TYPE HashFuncTyp: PROCEDURE (READONLY Key : KeyTyp) : FM3Base.HashTyp
+     TYPE HashFuncTyp: PROCEDURE (Key : KeyTyp) : FM3Base.HashTyp
      CONST Brand = whatever you like.
 *) 
 
@@ -42,7 +42,7 @@ GENERIC INTERFACE FM3Atom ( DictGenformal )
   
 ; PROCEDURE MakeAtom
     ( Dict : T
-    ; Key : KeyTyp 
+    ; READONLY Key : KeyTyp 
     ; Hash : FM3Base . HashTyp
     )
   : FM3Base . AtomTyp 

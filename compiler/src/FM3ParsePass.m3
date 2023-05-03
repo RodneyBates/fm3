@@ -15,97 +15,124 @@ MODULE FM3ParsePass
       to a file ready to be read backwards.
    4. Pull constructs that have a scope of identifiers out to the left
       of their containing scope constructs.
-   5. Build a compact dictionary mapping identifier atoms to decl atoms
-      for each scope.
-   6. Build a global table of atom-accessed Units.UnitTyp records for
+   5. Build a global table of atom-accessed Units.UnitTyp records for
       compilation units,
-   7. For each unit, build atom-accessed records for identifiers, scopes,
+   6. For each unit, build atom-accessed records for identifiers, scopes,
       and declarations.
+   7. For each scope, build a compact dictionary mapping identifier
+      to decl atoms.
    8. Resolve some identifier occurrences to decl atoms and insert these
       into the token stream.
 *)
 
+; IMPORT FS 
+; IMPORT OSError
+; IMPORT Pathname 
 ; IMPORT UniRd 
 
+; IMPORT FM3Atom_OAChars
+; IMPORT FM3Atom_OAWideChars
+; IMPORT FM3Base 
 ; IMPORT FM3CLArgs 
-; IMPORT FM3Files 
+; IMPORT FM3Decls 
+; IMPORT FM3Files
 ; IMPORT FM3Globals 
-; FROM FM3Messages IMPORT Fatal
+; IMPORT FM3Messages 
+; FROM FM3Messages IMPORT Info , Fatal , Log
 ; IMPORT FM3Parser
-; IMPORT FM3Scanner 
+; IMPORT FM3Scanner
+; IMPORT FM3Scopes
+; IMPORT FM3Units 
+; IMPORT FM3Utils 
 ; IMPORT RdBackFile
 
-; FROM FM3SharedGlobals
-  IMPORT
-    FM3FileTagLt , FM3FileTagRtBwd , FM3FileTagRdBackLt , FM3FileTagRdBackRt 
+; FROM FM3SharedGlobals IMPORT
+    FM3FileTagLt , FM3FileTagRtBwd , FM3FileTagRdBackLt , FM3FileTagRdBackRt
+
+; FROM File IMPORT Byte  
+
+; VAR FileTagVersion := VAL ( ORD ( '1' ) , Byte )  
 
 ; CONST LeftFileTagLen
-    = BYTESIZE ( FM3FileTagLeft )
-    + BYTESIZE ( FM3FileTagRdBackBOF )
+    = BYTESIZE ( FM3FileTagLt )
+    + BYTESIZE ( FM3FileTagRdBackLt )
     + BYTESIZE ( FileTagVersion )
 
-; PROCEDURE FindFilePath ( FileName : TEXT ; Why : TEXT ) : TEXT
+; CONST ALOSE = FM3Messages . AtomListToOSError 
+
+(* 
+; PROCEDURE FindFilePrefix ( FileName : TEXT ; Why : TEXT ) : TEXT
 
   = VAR LResult : TEXT
   
   ; BEGIN
       TRY
-        LResult := FS . GetAbsolutePathName ( FileName )
-      EXCEPT OSError . E ( Msg )
+        LResult := Pathname . Prefix  ( FileName )
+      EXCEPT OSError . E ( EMsg )
       => Fatal ( "Unable to get absolute path for "
-               , FileName , ", " , Why , " (OSError.E(" , Msg , "))." 
+               , FileName , ", " , Why , ": " , ALOSE ( EMsg ) , "."  
                ) 
       END (*EXCEPT*) 
-(* FIXME: I think GetAbsolutePathName may include the sinple name,
-          which is hot consistent with how we are using it. 
-*) 
     ; RETURN LResult 
-    END FindFilePath
+    END FindFilePrefix
+*)
 
-; PROCEDURE OpenUnit ( FileName : TEXT ; Why : TEXT ) : Units . UnitRefTyp
+; PROCEDURE OpenUnit ( FileName : TEXT ) : FM3Units . UnitRefTyp
 
-  = VAR LPathName : TEXT 
-  ; VAR LUniRd : UniRd . T 
+  = VAR LFullFileName : TEXT 
+  ; VAR LPathPrefix : TEXT 
+  ; VAR LUniRd : UniRd . T
+  ; VAR LUnitRef : FM3Units . UnitRefTyp 
 
   ; BEGIN
-      LPathName := FindFilePath ( FileName , " for source file " )
+      LPathPrefix := Pathname . Prefix ( FileName )
     ; LUniRd
         := FM3Files . OpenUniRd
-             ( LPathName , FileName , " source file " , NIL ) 
+             ( LPathPrefix , FileName , " source file " , NIL ) 
     ; LUnitRef := FM3Units . New ( )
     ; LUnitRef ^ . UntSrcFileName := FileName 
-    ; LUnitRef ^ . UntSrcFilePath := LPathName  
-    ; LUnitRef ^ . UntWorkFilePath := "." 
+    ; LUnitRef ^ . UntSrcFilePrefix := LPathPrefix  
+    ; LUnitRef ^ . UntWorkFilePrefix := "." 
 (* TODO: Provide a path here. *) 
     ; LUnitRef ^ . UntPatchStackName
         := FileName & FM3Globals . PatchStackSuffix   
     ; LUnitRef ^ . UntUnnestStackName
-        := FileName & FM3Globals. UntUnnestStackSuffix   
+        := FileName & FM3Globals. UnnestStackSuffix   
     ; LUnitRef ^ . UntParsePassName
         := FileName & FM3Globals. ParsePassSuffix   
     ; TRY
-        LFileName
-          := LUnitRef ^ . UntWorkFilePath & FM3Globals . PathSep
-             & LUnitRef ^ . UntPatchStackName 
+        LFullFileName
+          := Pathname . Join
+               ( LUnitRef ^ . UntWorkFilePrefix 
+               , LUnitRef ^ . UntPatchStackName
+               , NIL
+               ) 
       ; LUnitRef ^ . UntPatchStackRdBack
-          := RdBackFile . Create ( LFileName , Truncate := TRUE )
-      ; LFileName
-          := LUnitRef ^ . UntWorkFilePath & FM3Globals . PathSep
-             & LUnitRef ^ . UntUnnestStackName 
+          := RdBackFile . Create ( LFullFileName , Truncate := TRUE )
+      ; LFullFileName
+          := Pathname . Join
+               ( LUnitRef ^ . UntWorkFilePrefix 
+               , LUnitRef ^ . UntUnnestStackName
+               , NIL
+               )
       ; LUnitRef ^ . UntUnnestStackRdBack
-          := RdBackFile . Create ( LFileName , Truncate := TRUE )
-      ; LFileName
-          := LUnitRef ^ . UntWorkFilePath & FM3Globals . PathSep
-             & LUnitRef ^ . UntParsePassName 
+          := RdBackFile . Create ( LFullFileName , Truncate := TRUE )
+      ; LFullFileName
+          := Pathname . Join
+               ( LUnitRef ^ . UntWorkFilePrefix 
+               , LUnitRef ^ . UntParsePassName
+               , NIL
+               )
       ; LUnitRef ^ . UntParsePassRdBack
-          := RdBackFile . Create ( LFileName , Truncate := TRUE )
+          := RdBackFile . Create ( LFullFileName , Truncate := TRUE )
       EXCEPT
       | OSError . E ( EMsg ) 
-      => Fatal ( "Unable to open " , LFileName , ": OSError.E(" , EMsg , ").") 
+      => Fatal
+           ( "Unable to open " , LFullFileName , ": " , ALOSE ( EMsg) , "." ) 
       | RdBackFile . Preexists
       => Fatal
            ( "Unable to open "
-           , LFileName
+           , LFullFileName
            , ", already exists and is nonempty."
            )
       END (*EXCEPT*)
@@ -132,61 +159,87 @@ MODULE FM3ParsePass
              )
 
     ; LUnitRef ^ . UntWCharsAtomDict
-        := FM3Atom_OAChars . New
-             ( FM3Globals . WCharsInitAtomSize
+        := FM3Atom_OAWideChars . New
+             ( FM3Globals . WideCharsInitAtomSize
              , StartAtom := FM3Globals . FirstRealAtom
              , HashFunc := FM3Utils . HashOfOAWChars
              )
 
-    ; LUnitRef ^ . UntScopes := Scopes . NewMap ( )  
-    ; LUnitRef ^ . UntDecls := Decls . NewMap
+    ; LUnitRef ^ . UntScopes := FM3Scopes . NewMap ( )  
+    ; LUnitRef ^ . UntDecls := FM3Decls . NewMap ( ) 
 
     ; FM3Scanner . PushState ( LUniRd , LUnitRef ) 
     END OpenUnit 
 
-; PROCEDURE DeleteFile ( PathName : FileName ) 
+; PROCEDURE DeleteFile ( PathPrefix , FileName : TEXT ) 
 
   = BEGIN 
       TRY  
-        FS . DeleteFile ( PathName ) 
-      EXCEPT OSError . E ( Msg )
-      => Log ( "Unable to remove "
-             , FileName , ", " , Why , " (OSError.E(" , Msg , "))." 
+        FS . DeleteFile ( Pathname . Join ( PathPrefix , FileName , NIL ) ) 
+      EXCEPT OSError . E ( EMsg )
+      => Log ( "Unable to remove " , FileName , ": " , ALOSE ( EMsg ) , "." 
              ) 
       END (*EXCEPT*) 
     END DeleteFile 
 
-; PROCEDURE CloseUnit ( UnitRef : FM3Units . UnitRefTyp )
-
+; PROCEDURE CloseUnit ( UnitRef : FM3Units . UnitRefTyp ) 
   = BEGIN
-      FM3Scanner . PopState ( )
+      UnitRef . UntParsePassResult := 0 
+    ; EVAL FM3Scanner . PopState ( )
     ; UnitRef ^ . UntMaxPatchStackDepth
         := RdBackFile . MaxLengthL ( UnitRef ^ . UntPatchStackRdBack ) 
+    ; Log ( "Patch stack " , UnitRef ^ . UntPatchStackName , " peak size = "
+          , FM3Base . Int64Image  ( UnitRef ^ . UntMaxPatchStackDepth ) , "."  
+          ) 
+    ; TRY
+        IF NOT RdBackFile . IsEmpty ( UnitRef ^ . UntPatchStackRdBack )
+        THEN
+          UnitRef . UntParsePassResult := 1 
+        ; Log ( "Patch stack " , UnitRef ^ . UntPatchStackName
+              , " final size = "
+              , FM3Base . Int64Image
+                  ( RdBackFile . LengthL ( UnitRef ^ . UntPatchStackRdBack ) )
+              ) 
+        ; Fatal ( "Patch stack is not empty." ) 
+        END (*IF*)
+      FINALLY 
+        RdBackFile . Close (  UnitRef ^ . UntPatchStackRdBack )
+      ; IF NOT FM3CLArgs . DoKeep
+        THEN FS . DeleteFile ( UnitRef ^ . UntPatchStackName )
+        END (*IF*)
+      END (*FINALLY*)
+
     ; UnitRef ^ . UntMaxUnnestStackDepth
-        := RdBackFile . MaxLengthL ( UnitRef ^ . UntUnnestStackRdBack ) 
-    ; IF NOT RdBackFile . IsEmpty ( UnitRef ^ . UntPatchStackRdBack )
-      THEN
-        Fatal
-          ( "Patch stack " , UnitRef ^ . UntPatchStackName , " is not empty." ) 
-      END (*IF*) 
-    ; RdBackFile . Close (  UnitRef ^ . UntPatchStackRdBack ) 
-    ; FS . DeleteFile ( UnitRef ^ . UntUnnestStackName ) 
-    ; IF NOT RdBackFile . IsEmpty ( UnitRef ^ . UntUnnestStackRdBack )
-      THEN
-        Fatal
-          ( "Unnest stack " , UnitRef ^ . UntUnnestStackName , " is not empty." ) 
-      END (*IF*) 
-    ; RdBackFile . Close (  UnitRef ^ . UntUnnestStackRdBack )
-    ; FS . DeleteFile ( UnitRef ^ . UntUnnestStackName ) 
+        := RdBackFile . MaxLengthL ( UnitRef ^ . UntUnnestStackRdBack )
+    ; Log ( "Unnest stack " , UnitRef ^ . UntUnnestStackName , " peak size = "
+          , FM3Base . Int64Image  ( UnitRef ^ . UntMaxUnnestStackDepth ) , "." 
+          ) 
+    ; TRY 
+        IF NOT RdBackFile . IsEmpty ( UnitRef ^ . UntUnnestStackRdBack )
+        THEN
+          UnitRef . UntParsePassResult := 2 
+        ; Log ( "Unnest stack " , UnitRef ^ . UntUnnestStackName
+              , " final size = "
+              , FM3Base . Int64Image
+                  ( RdBackFile . LengthL ( UnitRef ^ . UntUnnestStackRdBack ) ) 
+              ) 
+        ; Fatal ( "Unnest stack is not empty." )
+        END (*IF*)
+      FINALLY 
+        RdBackFile . Close (  UnitRef ^ . UntUnnestStackRdBack )
+      ; IF NOT FM3CLArgs . DoKeep
+        THEN FS . DeleteFile ( UnitRef ^ . UntUnnestStackName )
+        END (*IF*)
+      END (*FINALLY*)
+
     ; Info ( "Parse pass output file "
-           , UnitRef ^ . UntParsePassName
-           , " has " 
+           , UnitRef ^ . UntParsePassName , " has " 
            , FM3Base . Int64Image 
-               ( RdBackFule . LengthL ( UnitRef ^ . UntParsePassRdBack) ) 
+               ( RdBackFile . LengthL ( UnitRef ^ . UntParsePassRdBack) ) 
            , " bytes."
            ) 
     ; RdBackFile . Close (  UnitRef ^ . UntParsePassRdBack )
-(* TODO: More stats: max sizes of stacks, code point counts. *) 
+(* TODO: code point counts. *)
     END CloseUnit 
 
 ; PROCEDURE CompileUnit ( SrcFileName : TEXT )
@@ -195,14 +248,15 @@ MODULE FM3ParsePass
 
   ; BEGIN
       Info ( "Compiling " , SrcFileName , "..." ) 
-    ; LUnitRef := OpenUnit ( SrcFileName , " compiler temp " )
-    ; LUnitRef . UntStackLink := CurrentUnitRef
-    ; CurrentUnitRef := LUnitRef 
-    ; FM3Parser . Parser ( )
-    ; FM3Parser . CloseParser ( )
+    ; LUnitRef := OpenUnit ( SrcFileName )
+    ; LUnitRef . UntStackLink := FM3Globals . CurrentUnitRef
+    ; FM3Globals . CurrentUnitRef := LUnitRef 
+    ; LUnitRef ^ . UntParseResult := FM3Parser . FM3Parser ( )
+(* TODO:           ^Something with this? *) 
+    ; FM3Parser . CloseFM3Parser  ( )
     ; CloseUnit ( LUnitRef ) 
-    ; Info ( "Finished compiling " , SrcFileName , "..." )
-    ; CurrentUnitRef := LUnitRef . UntStackLink 
+    ; Info ( "Finished compiling " , SrcFileName , "." )
+    ; FM3Globals . CurrentUnitRef := LUnitRef . UntStackLink 
     END CompileUnit
 
 ; PROCEDURE Run ( )
@@ -211,7 +265,7 @@ MODULE FM3ParsePass
 
   ; BEGIN
       LSrcFileName := FM3CLArgs . SrcFileName
-    ; CompileUnit ( LsrcFileName ) 
+    ; CompileUnit ( LSrcFileName ) 
     END Run 
 
 ; BEGIN

@@ -74,7 +74,8 @@ INTERFACE FM3Base
 ; CONST CmpGT = 1 
 ; CONST CmpNR = 2 (* No relation.*) 
 
-; TYPE HashTyp = LONGINT 
+; TYPE HashTyp = LONGINT
+; CONST HashNull = 0L 
 
 ; END FM3Base
 .

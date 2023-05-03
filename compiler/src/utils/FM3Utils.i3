@@ -8,13 +8,15 @@
 
 INTERFACE FM3Utils
 
-; IMPORT AtomList 
+; IMPORT AtomList
+
+; IMPORT FM3Base 
 
 ; IMPORT IntCharVarArray AS VarArr_Char 
 ; IMPORT IntWideCharVarArray AS VarArr_WChar
 
-; TYPE HashTyp = LONGINT
-; CONST HashNull = 0L
+; TYPE HashTyp = FM3Base . HashTyp
+; CONST HashNull = FM3Base . HashNull 
 
 ; PROCEDURE GroundHash ( ) : HashTyp  
 
@@ -26,9 +28,9 @@ INTERFACE FM3Utils
 
 ; PROCEDURE HashOfText ( Key : TEXT ) : HashTyp 
 
-; PROCEDURE HashOfOAChars ( READONLY Key : ARRAY OF CHAR ) : HashTyp
+; PROCEDURE HashOfOAChars ( Key : REF ARRAY OF CHAR ) : HashTyp
 
-; PROCEDURE HashOfOAWChars ( READONLY Key : ARRAY OF WIDECHAR ) : HashTyp
+; PROCEDURE HashOfOAWChars ( Key : REF ARRAY OF WIDECHAR ) : HashTyp
 
 ; PROCEDURE CharVarArrayToOAChar
     ( VarArr : VarArr_Char . T ) : REF ARRAY OF CHAR 

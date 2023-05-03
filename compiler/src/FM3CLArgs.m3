@@ -9,7 +9,8 @@
 MODULE FM3CLArgs
 
 ; BEGIN
-    SrcFileName := "test1.m3"
+    SrcFileName := "test1.m3" (* Temporary, during development *)
+  ; DoKeep := TRUE (* Temporary, during development *) 
   END FM3CLArgs
 .
 
