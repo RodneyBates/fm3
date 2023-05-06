@@ -8,7 +8,8 @@
 
 INTERFACE FM3Units
 
-; IMPORT VarArray_Int_Refany 
+; IMPORT VarArray_Int_Refany
+; IMPORT Wr 
 
 ; IMPORT FM3Decls 
 ; IMPORT FM3Atom_OAChars
@@ -24,7 +25,9 @@ INTERFACE FM3Units
         UntUnitNo : UnitNoTyp := UnitNoNull
       ; UntStackLink : UnitRefTyp := NIL 
       ; UntSrcFileName : TEXT := NIL 
-      ; UntSrcFilePrefix : TEXT := NIL(* Without simple name. *) 
+      ; UntSrcFilePrefix : TEXT := NIL(* Without simple name. *)
+      ; UntCompLogName : TEXT := NIL 
+      ; UntCompLogWrT : Wr . T := NIL 
       ; UntWorkFilePrefix : TEXT := NIL
       ; UntPatchStackName : TEXT := NIL
       ; UntPatchStackRdBack : RdBackFile . T := NIL

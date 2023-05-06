@@ -4,6 +4,8 @@ INTERFACE FM3ParsePass
 
 ; VAR CurrentUnitRef : FM3Units . UnitRefTyp
 
+; PROCEDURE Run ( ) 
+
 ; END FM3ParsePass
 .
 

@@ -8,16 +8,26 @@
 
 (* Things needed by the Cocktail-lalr-generated parser. *)
 
-INTERFACE ParsSem
+INTERFACE FM3ParseSem
 
-; TYPE tParsAttribute (* Lalr expects it to be so named. *) 
+; IMPORT FM3Scanner
+; IMPORT FM3TokDef 
+
+; TYPE tParsAttribute (* Lalr expects this and field Scan to be so named. *) 
     = RECORD
-        PaScan : tScanAttribute
+        Scan : FM3Scanner . tScanAttribute
       ; PaConstructPtr : INTEGER
-      ; PaListItemNo : INTEGER 
-      END (* tParsAttribute *) 
+      ; PaListItemNo : INTEGER
+      ; PaInt : INTEGER
+      ; PaLong : LONGINT 
+      ; PaBool : BOOLEAN 
+      END (* tParsAttribute *)
 
-; END ParsSem 
+; PROCEDURE PushTok ( Tok : FM3TokDef . TokTyp ; Arg0 : LONGINT )
+
+; PROCEDURE PushTokPatch ( Tok : FM3TokDef . TokTyp ; Arg0 , Arg1 : LONGINT )
+
+; END FM3ParseSem 
 .
 
 

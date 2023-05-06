@@ -18,19 +18,22 @@ INTERFACE FM3Scanner
 (* Things expected from a scanner by an lalr-generated parser: *)
 (* Accomodate lalr-generated parser's spellings. *)
 
-; TYPE tPosition
+; TYPE M2SHORTCARD = [ 0 .. 16_FFFF ]
+
+; TYPE tPosition (*lalr*)
     = RECORD
-        Line : INTEGER
-      ; Column : INTEGER 
+        Line : M2SHORTCARD 
+      ; Column : M2SHORTCARD
+(*FIXME: M2SHORTCARD is for compatibility with reusem3/Positions.tPosition.
+         These are probably adiquate, but maybe 32 bits would be better
+         here.  Exactly how to do this without undue
+         dependency of cocktail m3 on FM3 is unclear.
+*) 
       END (*tPosition*) 
 
-; VAR Attribute : REF tScanAttribute
-  (* We want multiple instances of this for nested source files, but lalr
-     treats it as a global record.  We make it a REF and, unusually, rely
-     on Modula-3's implicit dereferencing of REF RECORD for lalr-generated
-     code's access to its fields. *) 
+; VAR Attribute : tScanAttribute (*lalr*)
 
-; TYPE tScanAttribute
+; TYPE tScanAttribute (*lalr*)
     = RECORD
         Position : tPosition (* Lalr-generated code stores into this. *)
       (* Fields beyond here are not accessed by Lalr-generated parser code. *) 
@@ -52,19 +55,12 @@ INTERFACE FM3Scanner
       ; SaWCh : WIDECHAR (* Value of [WIDE]CHAR literal. *)
       END (* tScanAttribute *)
 
-; TYPE ScanStateRefTyp = REF ScanStateTyp 
+; PROCEDURE GetToken ( ) : INTEGER (*lalr*)
 
-; TYPE ScanStateTyp 
-       = RECORD 
-           Position : tPosition   
-         ; SsLink : ScanStateRefTyp := NIL 
-         ; SsUniRd : UniRd . T := NIL 
-         ; SsUnitRef : FM3Units . UnitRefTyp 
-         ; SsWCh : WIDECHAR 
-         ; SsCh : CHAR 
-         ; SsAtBegOfPragma := FALSE 
-           (* ^The immediately-preceding token was "<*". *)
-         END (* ScanStateTyp *) 
+; PROCEDURE ErrorAttribute
+    ( Token : CARDINAL ; VAR Attribute : tScanAttribute ) (*lalr*)
+  (* This is dependent only on the language, not code being compiled, so 
+     a single instance suffices. *) 
 
 ; PROCEDURE PushState 
      ( NewUniRd : UniRd . T ; UnitRef : FM3Units . UnitRefTyp ) 
@@ -73,8 +69,6 @@ INTERFACE FM3Scanner
 ; PROCEDURE PopState ( ) : UniRd . T (* Previous reader. *)  
 
 ; PROCEDURE CurrentUnitNo ( ) : FM3Units . UnitNoTyp 
-
-; PROCEDURE GetToken ( ) 
 
 ; END FM3Scanner 
 . 

@@ -6,16 +6,19 @@
     Further changes in https://github.com/RodneyBates/cocktail
 *) 
 
-INTERFACE FM3Parser;
+  INTERFACE FM3Parser;
 
-(* line 16 "FM3Parser.lalr" *)
- 
+(* line 17 "FM3Parser.lalr" *)
+ IMPORT FM3ParseSem;
 
-VAR ParsTabName	: ARRAY [0..128] OF CHAR;
+    TYPE tParsAttribute = FM3ParseSem . tParsAttribute; 
+  
+
+VAR ParsTabName	: TEXT; 
 
 PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT);
 
-PROCEDURE FM3Parser (): CARDINAL;
-PROCEDURE CloseFM3Parser () ;
+  PROCEDURE FM3Parser (): CARDINAL;
+  PROCEDURE CloseFM3Parser ();
 
-END FM3Parser.
+  END FM3Parser.

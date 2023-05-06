@@ -8,7 +8,8 @@
 
 (* Parser.m3. *) 
 
-  MODULE FM3Parser;
+  UNSAFE MODULE FM3Parser;
+(*^ BEWARE! lalr loses this character. *) 
 
   IMPORT FM3Scanner;
 
@@ -18,8 +19,10 @@ IMPORT Positions, FrontErrors, Strings, IntSets, System;
 
 IMPORT Errors (* From Reusem3. *);
 
-(* line 19 "FM3Parser.lalr" *)
- 
+(* line 24 "FM3Parser.lalr" *)
+ FROM FM3ParseSem IMPORT PushTok , PushTokPatch;
+    IMPORT FM3TokDef AS TD;
+  
 
 CONST
    yyInitStackSize      = 100;
@@ -43,7 +46,9 @@ CONST
    yyStopState              = 68;
 
 TYPE
-   yyTableElmt          = SHORTCARD (*In M2, [0..2^16-1.*);
+   M2SHORTCARD = [ 0 .. 16_FFFF ];
+   yyTableElmt = M2SHORTCARD;
+CONST yyTableElmtBits = BITSIZE ( yyTableElmt );
 
    (* The conversion to Modula-3 is very fragile, in part due to the
       use of unsafe address arithmetic.
@@ -62,21 +67,25 @@ TYPE
       BIT FOR types, at times.  Actual cases where this has happened are
       replaced by two-step copies with an intermediate, unpacked temporary.
   
-      These BITS FOR types must occupy exactly a SHORTCARD, when used
+      These BITS FOR types must occupy exactly a Modula2-SHORTCARD, when used
       as elements or fields, but must their have subrange bounds when
       used as array subscript types. There a few places where a scalar
-      of one of these also must occupy exactly a SHORTCARD. 
+      of one of these also must occupy exactly a Modula2-SHORTCARD. 
    *)
-   
+CONST
+   yyFirstFinalState    = yyFirstReadTermState;
+   yyLastState          = yyLastReduceState;
+
+TYPE
    yyTCombRangePacked      = BITS yyTableElmtBits FOR [0 .. yyTableMax];
    yyNCombRangePacked      = BITS yyTableElmtBits
                              FOR [yyLastTerminal + 1 .. yyNTableMax];
    yyStateRange            = [0 .. yyLastState];
    yyStateRangePacked      = BITS yyTableElmtBits FOR yyStateRange;
-   yyReadRangePacked       = BITS yyTableElmtBits
-                             FOR [yyFirstReadState .. yyLastReadState];
+   yyReadRange             = [yyFirstReadState .. yyLastReadState];
+   yyReadRangePacked       = BITS yyTableElmtBits FOR yyReadRange;
    yyReadReduceRangePacked = BITS yyTableElmtBits
-                             FOR [yyFirstReadTermState ..yyLastReadNontermState];
+                             FOR [yyFirstReadTermState .. yyLastReadNontermState];
    yyReduceRangePacked     = BITS yyTableElmtBits
                              FOR [yyFirstReduceState .. yyLastReduceState];
    yySymbolRange           = [yyFirstSymbol .. yyLastSymbol];
@@ -103,32 +112,32 @@ VAR
    yyTableFile          : System.tFile;
    
 (* From Parser.m30.orig: *) 
-    PROCEDURE ExpandStateStack ( VAR Stack : yyStackTyp ; ToSize : INTEGER ) =
+    PROCEDURE ExpandStateStack ( VAR Stack : yyStackType ; ToSize : INTEGER ) =
 
-      VAR LOldStack : yyStackTyp;
+      VAR LOldStack : yyStackType;
       VAR LStackNumber : INTEGER; 
       BEGIN
         LStackNumber := NUMBER ( Stack ^ );
         IF LStackNumber < ToSize
         THEN
           LOldStack := Stack; 
-          Stack := NEW ( yyStackTyp , ToSize );
+          Stack := NEW ( yyStackType , ToSize );
           SUBARRAY ( Stack ^ , 0 , LStackNumber ) := LOldStack ^;
           LOldStack := NIL; 
         END;
       END ExpandStateStack; 
 
     PROCEDURE ExpandAttributeStack
-      ( VAR Stack : yyAttributeStackTyp ; ToSize : INTEGER ) =
+      ( VAR Stack : yyAttributeStackType ; ToSize : INTEGER ) =
 
-      VAR LOldStack : yyAttributeStackTyp;
+      VAR LOldStack : yyAttributeStackType;
       VAR LStackNumber : INTEGER; 
       BEGIN
         LStackNumber := NUMBER ( Stack ^ );
         IF LStackNumber < ToSize
         THEN
           LOldStack := Stack; 
-          Stack := NEW ( yyAttributeStackTyp , ToSize );
+          Stack := NEW ( yyAttributeStackType , ToSize );
           SUBARRAY ( Stack ^ , 0 , LStackNumber ) := LOldStack ^;
           LOldStack := NIL; 
         END; 
@@ -236,7 +245,7 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
 
 (*EXPORTED*)
   PROCEDURE FM3Parser (): CARDINAL =
-(* line 22 "FM3Parser.lalr" *)
+(* line 29 "FM3Parser.lalr" *)
  
    VAR
       yyState           : yyStateRange;
@@ -245,6 +254,7 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
       yyStackPtr        : yyStackPtrType;
       yyStackLAST       : INTEGER;
       yyStateStackSize  : INTEGER;
+      yyAttrStackSize := yyStateStackSize; 
       (* yyStackPtr, yyStackLAST, and yyStateStackSize always apply equally
          to yyStateStack and yyAttributeStack. *)
       yyStateStack      : yyStackType;
@@ -256,7 +266,7 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
       yyNCombPtr        : yyNCombTypePtr;
       yyIsRepairing     : BOOLEAN;
       yyErrorCount      : CARDINAL;
-      yyTokenString     : ARRAY [0..127] OF CHAR;
+      yyTokenString     : TEXT (*ARRAY [0..127] OF CHAR*);
 
    BEGIN (* FM3Parser *) 
      BeginFM3Parser ();
@@ -264,7 +274,7 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
      yyTerminal        := FM3Scanner.GetToken ();
       yyStateStackSize  := yyInitStackSize;
       yyAttrStackSize   := yyInitStackSize;
-      yyStateStack := NEW ( yStateStackType , yyStateStackSize );
+      yyStateStack := NEW ( yyStackType , yyStateStackSize );
       yyAttributeStack := NEW ( yyAttributeStackType , yyStateStackSize ); 
       yyStackLAST := LAST ( yyStateStack ^ ) (* Of yyAttributeStack too. *);
       yyStackPtr        := 0;
@@ -403,41 +413,43 @@ CASE yyState OF
 
   | 81,67 =>  (* OptUnsafe : TkUNSAFE .*)
   DEC (yyStackPtr, 1); yyNonterminal := 534;
-(* line 160 of "FM3Parser.lalr" *)
-   yySynAttribute . Bool := TRUE; 
+(* line 166 of "FM3Parser.lalr" *)
+   yySynAttribute . PaBool := TRUE; 
   | 82 =>  (* OptUnsafe : .*)
 yyNonterminal := 534;
-(* line 161 of "FM3Parser.lalr" *)
-   yySynAttribute . Bool := FALSE; 
+(* line 167 of "FM3Parser.lalr" *)
+   yySynAttribute . PaBool := FALSE; 
   | 83 =>  (* Exports : .*)
 yyNonterminal := 538;
-(* line 163 of "FM3Parser.lalr" *)
+(* line 169 of "FM3Parser.lalr" *)
    
   | 84,66 =>  (* Exports : StkRwExports IdentList .*)
   DEC (yyStackPtr, 2); yyNonterminal := 538;
-(* line 164 of "FM3Parser.lalr" *)
+(* line 170 of "FM3Parser.lalr" *)
    
   | 85 =>  (* IdentList : .*)
 yyNonterminal := 541;
 
   | 86 =>  (* IdentList : IdentListSub .*)
   DEC (yyStackPtr, 1); yyNonterminal := 541;
-(* line 168 of "FM3Parser.lalr" *)
-   i := yyAttributeStack^[yyStackPtr+1].Int;
-        PushTok ( TkIdentListRt (i+1));
-        PushTokPatch ( TkIdentListLtPatch (yyAttributeStack^[yyStackPtr+1],i+1));
+(* line 174 of "FM3Parser.lalr" *)
+   WITH i = yyAttributeStack^[yyStackPtr+1] . PaInt
+        DO PushTok ( TD . TkIdentListRt , i+1);
+          PushTokPatch ( TD . TkIdentListLtPatch , 0 , i+1);
+        END (*WITH*); 
       
   | 87 =>  (* IdentListSub : .*)
 yyNonterminal := 542;
-(* line 173 of "FM3Parser.lalr" *)
-   yySynAttribute . Int := 0; 
+(* line 180 of "FM3Parser.lalr" *)
+   yySynAttribute . PaInt := 0; 
   | 88,59 =>  (* IdentListSub : IdentListSub TkComma Ident .*)
   DEC (yyStackPtr, 3); yyNonterminal := 542;
-(* line 175 of "FM3Parser.lalr" *)
-   i := yyAttributeStack^[yyStackPtr+1].Int;
-        PushTok ( TkIdentListRtElem (i));
-        PushTokPatch ( TkIdentListRtElemPatch (yyAttributeStack^[yyStackPtr+1],i));
-        yySynAttribute . Int := i+1;
+(* line 182 of "FM3Parser.lalr" *)
+   WITH i = yyAttributeStack^[yyStackPtr+1] . PaInt
+        DO PushTok ( TD . TkIdentListRtElem , i );
+          PushTokPatch ( TD . TkIdentListRtElemPatch , 0 , i );
+          yySynAttribute . PaInt := i+1;
+        END (*WITH*); 
       
   | 89,58 =>  (* GenFormalsList : IdentList .*)
   DEC (yyStackPtr, 1); yyNonterminal := 531;
@@ -491,12 +503,13 @@ PROCEDURE ErrorRecovery (
       RestartSet        : IntSets . T;
       Token             : yySymbolRange;
       TokenArray        : ARRAY [0..127] OF CHAR;
+      TokenText         : TEXT;
       TokenString       : Strings.tString;
       ContinueString    : Strings.tString;
    BEGIN
    (* 1. report the error *)
-         TokenName ( Terminal , TokenArray );
-         Strings.ArrayToString (TokenArray, TokenString);
+         TokenName ( Terminal , TokenText );
+         Strings.TextToString (TokenArray, TokenText);
          FrontErrors.ErrorMessageI (FrontErrors.SyntaxError, FrontErrors.Error, 
           FM3Scanner.Attribute.Position, FrontErrors.eString, ADR(TokenString) );
 
@@ -506,8 +519,8 @@ PROCEDURE ErrorRecovery (
       Strings.AssignEmpty (ContinueString);
       FOR Token := IntSets.Minimum (ContinueSet) TO IntSets.Maximum (ContinueSet) DO
          IF IntSets.IsElement (Token, ContinueSet) THEN
-            TokenName (Token, TokenArray);
-            Strings.ArrayToString (TokenArray, TokenString);
+            TokenName (Token, TokenText);
+            Strings.TextToString (TokenText, TokenString);
             IF (Strings.Length (ContinueString) + Strings.Length (TokenString) + 1 <= Strings.cMaxStrLength) THEN
                Strings.Concatenate (ContinueString, TokenString);
                Strings.Append (ContinueString, ' ');
@@ -901,7 +914,7 @@ PROCEDURE yyErrorCheck (ErrorCode: INTEGER; Info: INTEGER) =
 
   PROCEDURE BeginFM3Parser ()=
    BEGIN
-(* line 25 "FM3Parser.lalr" *)
+(* line 32 "FM3Parser.lalr" *)
  
       IF NOT yyIsInitialized THEN
          yyIsInitialized := TRUE;
@@ -912,7 +925,7 @@ PROCEDURE yyErrorCheck (ErrorCode: INTEGER; Info: INTEGER) =
 (*EXPORTED*)
   PROCEDURE CloseFM3Parser ()=
    BEGIN
-(* line 28 "FM3Parser.lalr" *)
+(* line 35 "FM3Parser.lalr" *)
  
    END CloseFM3Parser;
 

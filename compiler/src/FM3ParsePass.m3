@@ -258,7 +258,8 @@ MODULE FM3ParsePass
     ; Info ( "Finished compiling " , SrcFileName , "." )
     ; FM3Globals . CurrentUnitRef := LUnitRef . UntStackLink 
     END CompileUnit
-
+    
+(*EXPORTED*)
 ; PROCEDURE Run ( )
 
   = VAR LSrcFileName : TEXT
