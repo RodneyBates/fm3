@@ -1,9 +1,13 @@
 % m3makefile for vararray, integer to refany.
 
 import("libm3")
+import("libvararray")
 
 %generic_module("Ranges") % This is installed in /usr/local/cm3/pkg/libvararray/src/
 %generic_module("VarArray") % This is installed in /usr/local/cm3/pkg/libvararray/src/
+
+
+
 
 module("Ranges_Int")
 module("VarArray_Int_Refany")

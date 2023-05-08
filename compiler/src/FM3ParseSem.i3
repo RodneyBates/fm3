@@ -12,6 +12,7 @@ INTERFACE FM3ParseSem
 
 ; IMPORT FM3Scanner
 ; IMPORT FM3TokDef 
+; FROM FM3TokDef IMPORT TokTyp  
 
 ; TYPE tParsAttribute (* Lalr expects this and field Scan to be so named. *) 
     = RECORD
@@ -23,9 +24,9 @@ INTERFACE FM3ParseSem
       ; PaBool : BOOLEAN 
       END (* tParsAttribute *)
 
-; PROCEDURE PushTok ( Tok : FM3TokDef . TokTyp ; Arg0 : LONGINT )
+; PROCEDURE PushTok ( Tok : TokTyp ; Arg0 : LONGINT )
 
-; PROCEDURE PushTokPatch ( Tok : FM3TokDef . TokTyp ; Arg0 , Arg1 : LONGINT )
+; PROCEDURE PushTokPatch ( Tok : TokTyp ; Arg0 , Arg1 : LONGINT )
 
 ; END FM3ParseSem 
 .

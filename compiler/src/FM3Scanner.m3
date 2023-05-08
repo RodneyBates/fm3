@@ -239,7 +239,7 @@ MODULE FM3Scanner
 
 
 (* EXPORTED: *) 
-; PROCEDURE GetToken ( ) INTEGER  
+; PROCEDURE GetToken ( ) : INTEGER (*lalr*)  
 
   = VAR ScWCharVarArr : VarArr_WChar . T
   ; VAR ScCharVarArr : VarArr_Char . T  
@@ -875,7 +875,7 @@ MODULE FM3Scanner
         IF GTopSsRef . SsWCh = WEOF 
         THEN 
           Attribute . SaTok := FM3Toks . TkEOF 
-        ; RETURN 
+        ; RETURN FM3Toks . TkEOF 
         ELSIF GTopSsRef . SsWCh > WLastOfChar 
         THEN 
           IF GTopSsRef . SsWCh = WLS OR GTopSsRef . SsWCh = WPS 

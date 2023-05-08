@@ -266,7 +266,8 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
       yyNCombPtr        : yyNCombTypePtr;
       yyIsRepairing     : BOOLEAN;
       yyErrorCount      : CARDINAL;
-      yyTokenString     : TEXT (*ARRAY [0..127] OF CHAR*);
+      yyText            : TEXT; 
+      yyTokenStringxxx     : TEXT (*ARRAY [0..127] OF CHAR*);
 
    BEGIN (* FM3Parser *) 
      BeginFM3Parser ();
@@ -330,11 +331,10 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
                   THEN (* read or read terminal reduce ? *)
                     FM3Scanner.ErrorAttribute 
                        (yyRepairToken, yyRepairAttribute);
-                     TokenName (yyRepairToken, yyTokenString);
-                     FrontErrors.ErrorMessageI 
+                     TokenName (yyRepairToken, yyText);
+                     FrontErrors.ErrorMessageTraced
                        (FrontErrors.TokenInserted, FrontErrors.Repair,
-                       FM3Scanner.Attribute.Position, FrontErrors.eArray, 
-                        ADR (yyTokenString[FIRST(yyTokenString)])
+                       FM3Scanner.Attribute.Position, FrontErrors.eText, yyText 
                        );
                      IF yyState >= yyFirstFinalState 
                      THEN (* avoid second push *)
@@ -433,22 +433,22 @@ yyNonterminal := 541;
   | 86 =>  (* IdentList : IdentListSub .*)
   DEC (yyStackPtr, 1); yyNonterminal := 541;
 (* line 174 of "FM3Parser.lalr" *)
-   WITH i = yyAttributeStack^[yyStackPtr+1] . PaInt
-        DO PushTok ( TD . TkIdentListRt , i+1);
-          PushTokPatch ( TD . TkIdentListLtPatch , 0 , i+1);
+   WITH i = yyAttributeStack^[yyStackPtr+1] . PaLong
+        DO PushTok ( TD . TkIdentListRt , i+1L);
+          PushTokPatch ( TD . TkIdentListLtPatch , 0L , i+1L);
         END (*WITH*); 
       
   | 87 =>  (* IdentListSub : .*)
 yyNonterminal := 542;
 (* line 180 of "FM3Parser.lalr" *)
-   yySynAttribute . PaInt := 0; 
+   yySynAttribute . PaLong := 0L; 
   | 88,59 =>  (* IdentListSub : IdentListSub TkComma Ident .*)
   DEC (yyStackPtr, 3); yyNonterminal := 542;
 (* line 182 of "FM3Parser.lalr" *)
-   WITH i = yyAttributeStack^[yyStackPtr+1] . PaInt
+   WITH i = yyAttributeStack^[yyStackPtr+1] . PaLong
         DO PushTok ( TD . TkIdentListRtElem , i );
-          PushTokPatch ( TD . TkIdentListRtElemPatch , 0 , i );
-          yySynAttribute . PaInt := i+1;
+          PushTokPatch ( TD . TkIdentListLtElemPatch , 0L , i );
+          yySynAttribute . PaLong := i+1L;
         END (*WITH*); 
       
   | 89,58 =>  (* GenFormalsList : IdentList .*)
@@ -509,9 +509,9 @@ PROCEDURE ErrorRecovery (
    BEGIN
    (* 1. report the error *)
          TokenName ( Terminal , TokenText );
-         Strings.TextToString (TokenArray, TokenText);
-         FrontErrors.ErrorMessageI (FrontErrors.SyntaxError, FrontErrors.Error, 
-          FM3Scanner.Attribute.Position, FrontErrors.eString, ADR(TokenString) );
+         FrontErrors.ErrorMessageTraced
+           (FrontErrors.SyntaxError, FrontErrors.Error, 
+          FM3Scanner.Attribute.Position, FrontErrors.eText, TokenText);
 
    (* 2. report the set of expected terminal symbols *)
       ContinueSet:= IntSets . Empty ( ); 

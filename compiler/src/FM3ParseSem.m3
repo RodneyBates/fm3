@@ -11,6 +11,9 @@
 MODULE FM3ParseSem
 
 ; IMPORT FM3TokDef 
+; FROM FM3TokDef IMPORT TokTyp 
+; FROM FM3TokDef IMPORT LtToTemp , LtToPatch , LtToRt
+; FROM FM3TokDef IMPORT RtToTemp , RtToPatch , RtToLt
 ; IMPORT RdBackFile 
 (* ; IMPORT FM3TokSupport 
    ; FROM FM3TokSupport IMPORT TokTup , TokNull , RtToLtPatch
@@ -20,12 +23,12 @@ MODULE FM3ParseSem
 
 ; CONST TokNull = 0
 
-; PROCEDURE PushTok ( Tok : FM3TokDef . TokTyp ; Arg0 : LONGINT )
+; PROCEDURE PushTok ( Tok : TokTyp ; Arg0 : LONGINT )
 
   = BEGIN
     END PushTok 
 
-; PROCEDURE PushTokPatch ( Tok : FM3TokDef . TokTyp ; Arg0 , Arg1 : LONGINT )
+; PROCEDURE PushTokPatch ( Tok : TokTyp ; Arg0 , Arg1 : LONGINT )
 
   = BEGIN
     END PushTokPatch 
@@ -42,10 +45,10 @@ MODULE FM3ParseSem
 
   ; BEGIN
       IF LtPatchTok = TokNull
-      THEN LtPatchTok := RtToLtPatch ( RtTok )
+      THEN LtPatchTok := RtTok + RtToPatch 
       END (*IF*)
-    ; PushDelim ( RtTok , SubByteNo + 1 )
-    ; PushDelim ( LtPatchTok )  
+    ; PushDelim ( RtTok , SubByteNo + 1L )
+    ; PushDelim ( LtPatchTok , SubByteNo + 1L )  
     END List 
 
 ; BEGIN

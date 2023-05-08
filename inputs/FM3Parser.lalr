@@ -171,18 +171,18 @@ Exports : StkRwExports IdentList { }.
 
 IdentList : .
 IdentList : IdentListSub 
-    { WITH i = $1 . PaInt
-      DO PushTok ( TD . TkIdentListRt , i+1);
-        PushTokPatch ( TD . TkIdentListLtPatch , 0 , i+1);
+    { WITH i = $1 . PaLong
+      DO PushTok ( TD . TkIdentListRt , i+1L);
+        PushTokPatch ( TD . TkIdentListLtPatch , 0L , i+1L);
       END (*WITH*); 
     } .
 
-IdentListSub : { $$ . PaInt := 0; } .
+IdentListSub : { $$ . PaLong := 0L; } .
 IdentListSub : IdentListSub TkComma Ident
-    { WITH i = $1 . PaInt
+    { WITH i = $1 . PaLong
       DO PushTok ( TD . TkIdentListRtElem , i );
-        PushTokPatch ( TD . TkIdentListRtElemPatch , 0 , i );
-        $$ . PaInt := i+1;
+        PushTokPatch ( TD . TkIdentListLtElemPatch , 0L , i );
+        $$ . PaLong := i+1L;
       END (*WITH*); 
     } .
 

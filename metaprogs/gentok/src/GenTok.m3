@@ -514,7 +514,7 @@ EXPORTS Main
     END EmitOneTok
 
 ; PROCEDURE EmitListToks
-    ( RootName : TEXT ; ArgCtOfList , ArgCtOfElmt : INTEGER )
+    ( RootName : TEXT ; ArgCtOfList , ArgCtOfElem : INTEGER )
 
   = BEGIN
       MaybePutMinTokNo ( ) 
@@ -532,12 +532,12 @@ EXPORTS Main
     ; EmitOneTok ( RootName & "Rt" , ArgCtOfList )
     ; Layout . PutEol ( GOStream )
     
-    ; EmitOneTok ( RootName & "LtElmt" , ArgCtOfElmt )  
+    ; EmitOneTok ( RootName & "LtElem" , ArgCtOfElem )  
     ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
-    ; EmitOneTok ( RootName & "LtElmtTemp" , ArgCtOfElmt )  
+    ; EmitOneTok ( RootName & "LtElemTemp" , ArgCtOfElem )  
     ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
-    ; EmitOneTok ( RootName & "LtElmtPatch" , ArgCtOfElmt + 1 )  
-    ; EmitOneTok ( RootName & "RtElmt" , ArgCtOfElmt )  
+    ; EmitOneTok ( RootName & "LtElemPatch" , ArgCtOfElem + 1 )  
+    ; EmitOneTok ( RootName & "RtElem" , ArgCtOfElem )  
     ; Layout . PutEol ( GOStream )
     END EmitListToks 
 
@@ -555,7 +555,8 @@ EXPORTS Main
     ; Layout . PutEol ( GOStream )
     ; Layout . PutEol ( GOStream )
     
-    ; Layout . PutText ( GOStream , "  CONST Dummy = 0" ) 
+    ; Layout . PadAbs ( GOStream , GSemiTab )
+    ; Layout . PutText ( GOStream , "; IMPORT IntSets" ) 
     ; Layout . PutEol ( GOStream )
     ; Layout . PutEol ( GOStream )
     END EmitInterfaceProlog
@@ -564,6 +565,11 @@ EXPORTS Main
 
   = BEGIN
       Layout . PadAbs ( GOStream , GSemiTab )
+    ; Layout . PutText ( GOStream , "; TYPE TokTyp = INTEGER " ) 
+    ; Layout . PutEol ( GOStream )
+    ; Layout . PutEol ( GOStream )
+    
+    ; Layout . PadAbs ( GOStream , GSemiTab )
     ; Layout . PutText 
         ( GOStream , "; PROCEDURE Image ( TokNo : INTEGER ) : TEXT " ) 
     ; Layout . PutEol ( GOStream )
@@ -628,6 +634,38 @@ EXPORTS Main
         )
     ; Layout . PutEol ( GOStream )
 
+    ; Layout . PadAbs ( GOStream , GSemiTab )
+    ; Layout . PutText ( GOStream , "; CONST RtToLt = - 3    " )  
+    ; Layout . PutEol ( GOStream )
+
+    ; Layout . PadAbs ( GOStream , 8 )
+    ; Layout . PutText
+        ( GOStream
+        , "(* ^Add this to Rt tokcode to get corresponding Lt tokcode. *)"
+        )
+    ; Layout . PutEol ( GOStream )
+
+    ; Layout . PadAbs ( GOStream , GSemiTab )
+    ; Layout . PutText ( GOStream , "; CONST RtToTemp = - 2    " )  
+    ; Layout . PutEol ( GOStream )
+
+    ; Layout . PadAbs ( GOStream , 8 )
+    ; Layout . PutText
+        ( GOStream
+        , "(* ^Add this to Rt tokcode to get corresponding LtTemp tokcode. *)"
+        )
+    ; Layout . PutEol ( GOStream )
+
+    ; Layout . PutText ( GOStream , "; CONST RtToPatch = - 1    " )  
+    ; Layout . PutEol ( GOStream )
+
+    ; Layout . PadAbs ( GOStream , 8 )
+    ; Layout . PutText
+        ( GOStream
+        , "(* ^Add this to Rt tokcode to get corresponding LtPatch tokcode. *)"
+        )
+    ; Layout . PutEol ( GOStream )
+
     ; Layout . PutEol ( GOStream )
     END EmitInterfaceDecls
 
@@ -648,7 +686,7 @@ EXPORTS Main
 ; PROCEDURE GenTokConsts ( )
 
   = VAR LValue : INTEGER
-  ; VAR LArgCtList , LArgCtElmt : INTEGER
+  ; VAR LArgCtList , LArgCtElem : INTEGER
   ; VAR LRootName : TEXT 
   ; VAR LSubName : TEXT
   ; VAR LArgCtFixed : [ - 1 .. 7 ]
@@ -719,13 +757,13 @@ EXPORTS Main
             MessageLine
               ( "Invalid list root name: " & GToken & ", ignoring." )
           ; LArgCtList := GetTokArgCt ( NIL ) 
-          ; LArgCtElmt := GetTokArgCt ( NIL ) 
+          ; LArgCtElem := GetTokArgCt ( NIL ) 
           ELSE
             LRootName := GToken 
           ; GToken := GetTok ( )
           ; LArgCtList := GetTokArgCt ( "list"  ) 
-          ; LArgCtElmt := GetTokArgCt ( "list element" ) 
-          ; EmitListToks ( LRootName , LArgCtList , LArgCtElmt ) 
+          ; LArgCtElem := GetTokArgCt ( "list element" ) 
+          ; EmitListToks ( LRootName , LArgCtList , LArgCtElem ) 
           END (*IF*) 
 
         (* Fixed construct tokens. *) 
@@ -880,7 +918,7 @@ EXPORTS Main
       END (*FOR*)
       
     ; Layout . PadAbs ( GOStream , GSemiTab + 6 )
-    ; Layout . PutText ( GOStream , "ELSE " ) 
+    ; Layout . PutText ( GOStream , "ELSE RETURN \"<TokUndef>\"" ) 
     ; Layout . PutEol ( GOStream )
 
     ; Layout . PadAbs ( GOStream , GSemiTab + 6 )
@@ -993,7 +1031,8 @@ EXPORTS Main
     ; GTokSetTemp := IntSets . Empty ( )  
     ; GTokSetPatch := IntSets . Empty ( )  
     ; GTokSet1Arg := IntSets . Empty ( )  
-    ; GTokSet2Args := IntSets . Empty ( ) 
+    ; GTokSet2Args := IntSets . Empty ( )
+    ; GSemiTab := 0
     ; GAtEof := FALSE
     END Init 
 
