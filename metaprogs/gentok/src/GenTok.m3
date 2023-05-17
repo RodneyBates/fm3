@@ -18,6 +18,8 @@ EXPORTS Main
 ; IMPORT Fmt 
 ; IMPORT Long 
 ; IMPORT OSError
+; IMPORT Params
+; IMPORT Pathname
 ; IMPORT Pickle2 AS Pickle 
 ; IMPORT Rd
 ; IMPORT Stdio
@@ -53,9 +55,10 @@ EXPORTS Main
 ; VAR GOStream : Layout . T 
 
 ; VAR GInputFileName : TEXT 
-; VAR GInterfaceFileName : TEXT
-; VAR GModuleFileName : TEXT
-; VAR GPickleFileName : TEXT
+; VAR GInterfaceFullName : TEXT
+; VAR GModuleFullName : TEXT
+; VAR GPickleFullName : TEXT
+; VAR GOutputDirName : TEXT := ""
 
 ; VAR GSemiTab : INTEGER
 ; VAR GArgCtTab : INTEGER := 40 (* Absolute *) 
@@ -69,7 +72,6 @@ EXPORTS Main
 ; VAR GTokSet1Arg : IntSets . T 
 ; VAR GTokSet2Args : IntSets . T 
 ; VAR GTokSet3Args : IntSets . T 
-; VAR GMaxToks := 41000 (* Non-expanding, hopefully enough. *)
 ; VAR GMinTokDone := FALSE 
 
 ; VAR GNextTokNo : INTEGER
@@ -80,6 +82,205 @@ EXPORTS Main
 ; VAR GPickleName := "FM3Toks" 
 
 ; VAR GToken : TEXT 
+
+; CONST VersionString = "0.1"
+; VAR GDoHelp : BOOLEAN := FALSE 
+; VAR GDoCountSrcToks : BOOLEAN := FALSE
+; VAR GDoGenSrcToks : BOOLEAN := FALSE
+; VAR GDoCountIntToks : BOOLEAN := FALSE
+; VAR GDoGenIntToks : BOOLEAN := FALSE
+; VAR GDoGenInterface : BOOLEAN := FALSE
+; VAR GDoGenModule : BOOLEAN := FALSE
+; VAR GDoImageFunc : BOOLEAN := FALSE
+; VAR GDoGenLexTable : BOOLEAN := FALSE
+
+; TYPE TokKindTyp = { TkNull , TkList , TkFixed , TkSrc }
+; VAR GTokKind := TokKindTyp . TkNull  
+; CONST TokKindSetInt
+    = SET OF TokKindTyp { TokKindTyp . TkList , TokKindTyp . TkFixed } 
+
+; PROCEDURE SetArgDefaults ( )
+
+  = BEGIN
+      GDoHelp := FALSE 
+    ; GDoCountSrcToks := FALSE
+    ; GDoGenSrcToks := FALSE
+    ; GDoCountIntToks := FALSE
+    ; GDoGenIntToks := FALSE
+    ; GDoGenInterface := FALSE
+    ; GDoGenModule := FALSE
+    ; GDoImageFunc := FALSE
+    ; GDoGenLexTable := FALSE
+
+    ; GInputFileName := "Toks" 
+    ; GOutputDirName := "."
+    END SetArgDefaults 
+
+; EXCEPTION HelpExc 
+
+; PROCEDURE ParseArgs ( )
+
+  = VAR PaArgCt : INTEGER
+  ; VAR PaArgNo : INTEGER
+  ; VAR PaArgLen : INTEGER
+  ; VAR PaArgText : TEXT 
+
+  ; BEGIN
+
+      PaArgCt := Params . Count 
+    ; PaArgNo := 1
+
+    ; PROCEDURE FetchArg ( MinLen : INTEGER := 1 ) RAISES { HelpExc } 
+
+      = BEGIN
+          PaArgText := Params . Get ( PaArgNo )
+        ; IF PaArgText = NIL THEN PaArgText := "" END (*IF*)
+        ; PaArgLen := Text . Length ( PaArgText )
+        ; IF PaArgLen < MinLen  
+          THEN
+            GDoHelp := TRUE
+          ; RAISE HelpExc 
+          END (*IF*)
+        END FetchArg 
+
+    ; PROCEDURE ArgWMore ( ) : TEXT RAISES { HelpExc }  
+
+      = VAR LResult : TEXT
+
+      ; BEGIN
+          IF PaArgLen > 2
+          THEN LResult := Text . Sub ( PaArgText , 2 , PaArgLen - 2 )
+          ELSE
+            INC ( PaArgNo )
+          ; IF PaArgNo >= PaArgCt
+            THEN (* No value. *)
+              GDoHelp := TRUE 
+            ; RAISE HelpExc
+            END (*IF*) 
+          ; FetchArg ( MinLen := 1 ) 
+          ; LResult := PaArgText 
+          END (*IF*)
+        ; RETURN LResult 
+        END ArgWMore
+        
+    ; VAR LArgPrefix : TEXT 
+    ; BEGIN
+        TRY 
+          WHILE PaArgNo < PaArgCt DO
+            FetchArg ( MinLen := 2 ) 
+          ; LArgPrefix := Text . Sub ( PaArgText , 0 , 2 )
+          ; IF Text . Equal ( LArgPrefix , "-h" )
+            THEN
+              GDoHelp:= TRUE 
+            ; RAISE HelpExc 
+            ELSIF Text . Equal ( LArgPrefix , "-v" )
+            THEN 
+              DisplayVersion ( )
+            ; RAISE Terminate 
+            ELSIF Text . Equal ( LArgPrefix , "-s" )
+            THEN GDoCountSrcToks := TRUE 
+            ELSIF Text . Equal ( LArgPrefix , "-S" )
+            THEN
+              GDoCountSrcToks := TRUE 
+            ; GDoGenSrcToks := TRUE 
+            ; GDoGenInterface := TRUE 
+            ELSIF Text . Equal ( LArgPrefix , "-t" )
+            THEN GDoCountIntToks := TRUE 
+            ELSIF Text . Equal ( LArgPrefix , "-T" )
+            THEN
+              GDoCountIntToks := TRUE 
+            ; GDoGenIntToks := TRUE 
+            ; GDoGenInterface := TRUE 
+            ELSIF Text . Equal ( LArgPrefix , "-n" )
+            THEN
+              GDoImageFunc := TRUE 
+            ; GDoGenInterface := TRUE 
+            ; GDoGenModule := TRUE 
+            ELSIF Text . Equal ( LArgPrefix , "-l" )
+            THEN GDoGenLexTable := TRUE 
+            ELSIF Text . Equal ( LArgPrefix , "-F" )
+            THEN GInputFileName := ArgWMore ( ) 
+            ELSIF Text . Equal ( LArgPrefix , "-D" )
+            THEN GOutputDirName := ArgWMore ( ) 
+            ELSE
+              GDoHelp := TRUE
+            ; RAISE HelpExc 
+            END (*IF*)
+          ; INC ( PaArgNo )
+          END (*WHILE*)
+        EXCEPT HelpExc
+        => DisplayVersion ( )
+        ; IF GDoHelp THEN DisplayHelp ( ) END (*IF*)
+        ; RAISE Terminate 
+        END (*EXCEPT*)
+      END (*BEGIN*)
+    END ParseArgs
+
+; PROCEDURE DisplayVersion ( )
+
+  = BEGIN
+      Wr . PutText ( Stdio . stderr , Params . Get ( 0 ) ) 
+    ; Wr . PutText
+        ( Stdio . stderr , ": Program to generate tokens, version. " ) 
+    ; Wr . PutText ( Stdio . stderr , VersionString ) 
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+    END DisplayVersion 
+
+; PROCEDURE DisplayHelp ( )
+
+  = BEGIN
+      Wr . PutText ( Stdio . stderr , "Usage: ") 
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+    ; Wr . PutText ( Stdio . stderr , Params . Get ( 0 ) ) 
+    ; Wr . PutText ( Stdio . stderr , " Options infile (default stdin)" ) 
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+    
+    ; Wr . PutText ( Stdio . stderr , "  -v Display version and exit." ) 
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+
+    ; Wr . PutText ( Stdio . stderr , "  -h Display this help and exit." ) 
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+
+    ; Wr . PutText ( Stdio . stderr , "  -s Count and number source tokens." ) 
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+
+    ; Wr . PutText
+        ( Stdio . stderr , "  -S Declare source tokens (implies -s)." ) 
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+
+    ; Wr . PutText
+        ( Stdio . stderr , "  -t Count and number intermediate tokens." ) 
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+
+    ; Wr . PutText
+        ( Stdio . stderr , "  -T Declare intermediate  tokens (implies -t)." ) 
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+
+    ; Wr . PutText
+        ( Stdio . stderr , "  -n Generate Image function (tokNo to string map)." ) 
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+    ; Wr . PutText
+        ( Stdio . stderr , "       (implies generate a MODULE too." ) 
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+
+    ; Wr . PutText ( Stdio . stderr , "  -l Generate lexer table pickle file." )
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+
+    ; Wr . PutText
+        ( Stdio . stderr , "  -F <prefix> of generated file names." ) 
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+    ; Wr . PutText
+        ( Stdio . stderr , "       (default: \"Toks\"." ) 
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+
+    ; Wr . PutText
+        ( Stdio . stderr , "  -D <directory> to put output files into." ) 
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+    ; Wr . PutText
+        ( Stdio . stderr , "    (default: \".\"." ) 
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+
+    END DisplayHelp 
 
 ; PROCEDURE MessageLine ( Msg : TEXT )
 
@@ -146,9 +347,9 @@ EXPORTS Main
       END (*IF*) 
     END ConsumeChar
 
-; TYPE TwoChar = ARRAY [ 0 .. 1 ] OF CHAR
-; CONST OpenCmnt = TwoChar { '(' , '*' } 
-; CONST CloseCmnt = TwoChar { '*' , ')' } 
+; TYPE TwoCharTyp = ARRAY [ 0 .. 1 ] OF CHAR
+; CONST OpenCmnt = TwoCharTyp { '(' , '*' } 
+; CONST CloseCmnt = TwoCharTyp { '*' , ')' } 
 
 ; PROCEDURE GetTok ( Required : BOOLEAN := TRUE ) : TEXT 
   (* Here, "Tok" refers to a token of the input language to
@@ -161,7 +362,7 @@ EXPORTS Main
   ; VAR LResult : TEXT 
   ; VAR LCommentDepth : INTEGER := 0 
 
-  ; PROCEDURE StartsWithDelim ( Delim : TwoChar )
+  ; PROCEDURE StartsWithDelim ( Delim : TwoCharTyp )
     : BOOLEAN (* Delim found, consumed, and copied to LWrT.
                  Otherwise, nothing is different. *) 
 
@@ -331,18 +532,19 @@ EXPORTS Main
 ; PROCEDURE IsIdent ( Token : TEXT ) : BOOLEAN
 
   = VAR LLen , LCharNo : INTEGER
+  ; LChar : CHAR 
 
   ; BEGIN
       IF <*NOWARN*> Token = NIL OR Token = EOFToken THEN RETURN FALSE END (*IF*)
     ; LLen := Text . Length ( Token )
     ; IF LLen <= 0 THEN RETURN FALSE END (*IF*) 
-    ; IF NOT Text . GetChar ( Token , 0 ) IN Letters
-      THEN RETURN FALSE
-      END (*IF*)
+    ; LChar := Text . GetChar ( Token , 0 ) 
+    ; IF NOT LChar IN Letters THEN RETURN FALSE END (*IF*)
     ; LCharNo := 1
     ; LOOP
         IF LCharNo >= LLen THEN RETURN TRUE END (*IF*)
-      ; IF NOT Text . GetChar ( Token , LCharNo ) IN LettersNDigits
+      ; LChar := Text . GetChar ( Token , LCharNo ) 
+      ; IF NOT LChar IN LettersNDigits
         THEN RETURN FALSE
         END (*IF*)
       ; INC ( LCharNo ) 
@@ -425,7 +627,7 @@ EXPORTS Main
 ; CONST TwoTo6thL = Long . Shift ( 1L , 6 ) 
 
 ; PROCEDURE CompressedHex ( IntL : LONGINT ) : TEXT
-  (* Only the hex digits themselves. *) 
+  (* Only the hex digits themselves.  Display them LSB on left. *) 
 
   = VAR LResidue : LONGINT 
   ; VAR LBitsL : LONGINT 
@@ -470,9 +672,11 @@ EXPORTS Main
     ; RETURN LResult 
     END CompressedHex
 
-; PROCEDURE EmitOneTok ( Name : TEXT ; ArgCt : INTEGER )
+; PROCEDURE EmitTok ( Name : TEXT ; ArgCt : INTEGER )
+  (* PRE: Are generating this token. *) 
 
-  = BEGIN
+  = <* FATAL IntRefArray . AllocationFailure *>
+    BEGIN
       IntRefArray . Assign ( GTokNamesArrayRef , GNextTokNo , Name ) 
     ; Layout . PadAbs ( GOStream , GSemiTab )
     ; Layout . PutText ( GOStream , GConstTag )
@@ -499,7 +703,7 @@ EXPORTS Main
     ; Layout . PutText ( GOStream , " = "  )
     ; Layout . PutText
         ( GOStream , Fmt . Pad ( Fmt . Int ( GNextTokNo ) , GTokNoPad ) )
- 
+
     ; Layout . PadAbs
         ( GOStream 
         , GEqualSignTab + GCompressedTab 
@@ -509,37 +713,117 @@ EXPORTS Main
         ( GOStream , CompressedHex ( VAL ( GNextTokNo , LONGINT ) ) )
     ; Layout . PutText ( GOStream , "*)" )
     ; Layout . PutEol ( GOStream )
- 
     ; INC ( GNextTokNo ) 
-    END EmitOneTok
+    END EmitTok
 
-; PROCEDURE EmitListToks
-    ( RootName : TEXT ; ArgCtOfList , ArgCtOfElem : INTEGER )
+; PROCEDURE EmitListToks ( ) 
 
-  = BEGIN
-      MaybePutMinTokNo ( ) 
-    ; Layout . PadAbs ( GOStream , GSemiTab )
-    ; Layout . PutText ( GOStream , "(* LIST " )
-    ; Layout . PutText ( GOStream , RootName )
-    ; Layout . PutText ( GOStream , ": *)" )
-    ; Layout . PutEol ( GOStream )
+  = VAR LArgCtOfList , LArgCtOfElem : [ - 1 .. 7 ] 
+  ; VAR LRootName : TEXT 
 
-    ; EmitOneTok ( RootName & "Lt" , ArgCtOfList )  
-    ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
-    ; EmitOneTok ( RootName & "LtTemp" , ArgCtOfList )  
-    ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
-    ; EmitOneTok ( RootName & "LtPatch" , ArgCtOfList + 1 )  
-    ; EmitOneTok ( RootName & "Rt" , ArgCtOfList )
-    ; Layout . PutEol ( GOStream )
-    
-    ; EmitOneTok ( RootName & "LtElem" , ArgCtOfElem )  
-    ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
-    ; EmitOneTok ( RootName & "LtElemTemp" , ArgCtOfElem )  
-    ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
-    ; EmitOneTok ( RootName & "LtElemPatch" , ArgCtOfElem + 1 )  
-    ; EmitOneTok ( RootName & "RtElem" , ArgCtOfElem )  
-    ; Layout . PutEol ( GOStream )
+  ; BEGIN
+      LRootName := GToken 
+    ; GToken := GetTok ( )
+    ; LArgCtOfList := GetTokArgCt ( "list"  ) 
+    ; LArgCtOfElem := GetTokArgCt ( "list element" ) 
+    ; IF GDoGenIntToks
+      THEN 
+        MaybePutMinTokNo ( ) 
+      ; Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText ( GOStream , "(* LIST " )
+      ; Layout . PutText ( GOStream , LRootName )
+      ; Layout . PutText ( GOStream , ": *)" )
+      ; Layout . PutEol ( GOStream )
+
+      ; EmitTok ( LRootName & "Lt" , LArgCtOfList )  
+      ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
+      ; EmitTok ( LRootName & "LtTemp" , LArgCtOfList )  
+      ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
+      ; EmitTok ( LRootName & "LtPatch" , LArgCtOfList + 1 )  
+      ; EmitTok ( LRootName & "Rt" , LArgCtOfList )
+      ; Layout . PutEol ( GOStream )
+
+      ; EmitTok ( LRootName & "LtElem" , LArgCtOfElem )  
+      ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
+      ; EmitTok ( LRootName & "LtElemTemp" , LArgCtOfElem )  
+      ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
+      ; EmitTok ( LRootName & "LtElemPatch" , LArgCtOfElem + 1 )  
+      ; EmitTok ( LRootName & "RtElem" , LArgCtOfElem )  
+      ; Layout . PutEol ( GOStream )
+      ELSIF GDoCountIntToks
+      THEN INC ( GNextTokNo , 8 ) 
+      END (*IF*) 
     END EmitListToks 
+
+; PROCEDURE EmitFixedToks ( ) 
+
+  = VAR LArgCtFixed , LArgCtSub : [ - 1 .. 7 ] 
+  ; VAR LRootName , LSubName : TEXT 
+
+  ; BEGIN
+      LRootName := GToken 
+    ; GToken := GetTok ( )  
+    ; LArgCtFixed := GetTokArgCt ( "fixed"  ) 
+    ; IF GDoGenIntToks
+      THEN 
+        MaybePutMinTokNo ( ) 
+      ; Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText ( GOStream , "(* FIXED " )
+      ; Layout . PutText ( GOStream , LRootName )
+      ; Layout . PutText ( GOStream , ": *)" )
+      ; Layout . PutEol ( GOStream )
+
+      ; EmitTok ( LRootName & "Lt" , LArgCtFixed )  
+      ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
+      ; EmitTok ( LRootName & "LtTemp" , LArgCtFixed )  
+      ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
+      ; EmitTok ( LRootName & "LtPatch" , LArgCtFixed + 1 )
+      ; EmitTok ( LRootName & "Rt" , LArgCtFixed )  
+      ; Layout . PutEol ( GOStream )
+      ELSIF GDoCountIntToks
+      THEN INC ( GNextTokNo , 4 ) 
+      END (*IF*) 
+
+    ; WHILE IsIdent ( GToken ) 
+      DO LSubName := GToken
+      ; GToken := GetTok ( )  
+      ; LArgCtSub := GetTokArgCt ( "interior token" ) 
+      ; IF GDoGenIntToks
+        THEN 
+          EmitTok ( LRootName & LSubName & "Lt" , LArgCtSub )  
+        ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
+        ; EmitTok ( LRootName & LSubName & "LtTemp" , LArgCtSub )  
+        ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
+        ; EmitTok ( LRootName & LSubName & "LtPatch" , LArgCtSub + 1 )
+        ; EmitTok ( LRootName & LSubName & "Rt" , LArgCtSub )
+        ; Layout . PutEol ( GOStream )
+        ELSIF GDoCountIntToks
+        THEN INC ( GNextTokNo , 4 ) 
+        END (*IF*) 
+      END (*WHILE*) 
+    END EmitFixedToks 
+
+; PROCEDURE EmitSrcTok ( )
+
+  = VAR LSrcName : TEXT 
+
+  ; BEGIN
+      LSrcName := GToken 
+    ; GToken := GetTok ( )  
+    ; IF GDoGenSrcToks
+      THEN 
+        MaybePutMinTokNo ( ) 
+      ; Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText ( GOStream , "(* SRC " )
+      ; Layout . PutText ( GOStream , LSrcName )
+      ; Layout . PutText ( GOStream , ": *)" )
+      ; Layout . PutEol ( GOStream )
+      ; EmitTok ( GToken , - 1 )  
+      ; Layout . PutEol ( GOStream )
+      ELSIF GDoCountSrcToks
+      THEN INC ( GNextTokNo ) 
+      END (*IF*) 
+    END EmitSrcTok
 
 ; PROCEDURE EmitInterfaceProlog ( )
 
@@ -569,104 +853,110 @@ EXPORTS Main
     ; Layout . PutEol ( GOStream )
     ; Layout . PutEol ( GOStream )
     
-    ; Layout . PadAbs ( GOStream , GSemiTab )
-    ; Layout . PutText 
-        ( GOStream , "; PROCEDURE Image ( TokNo : INTEGER ) : TEXT " ) 
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PutEol ( GOStream )
+    ; IF GDoImageFunc
+      THEN
+        Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText 
+          ( GOStream , "; PROCEDURE Image ( TokNo : INTEGER ) : TEXT " ) 
+      ; Layout . PutEol ( GOStream )
+      ; Layout . PutEol ( GOStream )
+      END (*IF*) 
     
-    ; Layout . PadAbs ( GOStream , GSemiTab )
-    ; Layout . PutText ( GOStream , "; VAR TokSetTemp : IntSets . T" )
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PutEol ( GOStream )
+    ; IF GDoGenSrcToks
+      THEN
+        Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText ( GOStream , "; VAR TokSetTemp : IntSets . T" )
+      ; Layout . PutEol ( GOStream )
+      ; Layout . PutEol ( GOStream )
 
-    ; Layout . PadAbs ( GOStream , GSemiTab )
-    ; Layout . PutText ( GOStream , "; VAR TokSetPatch : IntSets . T" )
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PutEol ( GOStream )
+      ; Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText ( GOStream , "; VAR TokSetPatch : IntSets . T" )
+      ; Layout . PutEol ( GOStream )
+      ; Layout . PutEol ( GOStream )
 
-    ; Layout . PadAbs ( GOStream , GSemiTab )
-    ; Layout . PutText ( GOStream , "; VAR TokSetW1Arg : IntSets . T" )
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PadAbs ( GOStream , GSemiTab )
-    ; Layout . PutText ( GOStream , "   (* ^At least one argument. *)" )
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PutEol ( GOStream )
+      ; Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText ( GOStream , "; VAR TokSetW1Arg : IntSets . T" )
+      ; Layout . PutEol ( GOStream )
+      ; Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText ( GOStream , "   (* ^At least one argument. *)" )
+      ; Layout . PutEol ( GOStream )
+      ; Layout . PutEol ( GOStream )
 
-    ; Layout . PadAbs ( GOStream , GSemiTab )
-    ; Layout . PutText ( GOStream , "; VAR TokSetArgs : IntSets . T" )
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PadAbs ( GOStream , GSemiTab )
-    ; Layout . PutText ( GOStream , "   (* ^At least two arguments. *)" )
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PutEol ( GOStream )
+      ; Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText ( GOStream , "; VAR TokSetArgs : IntSets . T" )
+      ; Layout . PutEol ( GOStream )
+      ; Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText ( GOStream , "   (* ^At least two arguments. *)" )
+      ; Layout . PutEol ( GOStream )
+      ; Layout . PutEol ( GOStream )
 
-    ; Layout . PadAbs ( GOStream , GSemiTab )
-    ; Layout . PutText ( GOStream , "; CONST LtToTemp = 1" )  
-    ; Layout . PutEol ( GOStream )
-    
-    ; Layout . PadAbs ( GOStream , 8 )
-    ; Layout . PutText
-        ( GOStream
-        , "(* ^Add this to Lt tokcode to get corresponding LtTemp tokcode. *)"
-        )
-    ; Layout . PutEol ( GOStream )
+      ; Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText ( GOStream , "; CONST LtToTemp = 1" )  
+      ; Layout . PutEol ( GOStream )
 
-    ; Layout . PadAbs ( GOStream , GSemiTab )
-    ; Layout . PutText ( GOStream , "; CONST LtToPatch = 2 " ) 
-    ; Layout . PutEol ( GOStream )
+      ; Layout . PadAbs ( GOStream , 8 )
+      ; Layout . PutText
+          ( GOStream
+          , "(* ^Add this to Lt tokcode to get corresponding LtTemp tokcode. *)"
+          )
+      ; Layout . PutEol ( GOStream )
 
-    ; Layout . PadAbs ( GOStream , 8 )
-    ; Layout . PutText
-        ( GOStream
-        , "(* ^Add this to Lt tokcode to get corresponding LtPatch tokcode. *)"
-        )
-    ; Layout . PutEol ( GOStream )
+      ; Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText ( GOStream , "; CONST LtToPatch = 2 " ) 
+      ; Layout . PutEol ( GOStream )
 
-    ; Layout . PadAbs ( GOStream , GSemiTab )
-    ; Layout . PutText ( GOStream , "; CONST LtToRt = 3    " )  
-    ; Layout . PutEol ( GOStream )
+      ; Layout . PadAbs ( GOStream , 8 )
+      ; Layout . PutText
+          ( GOStream
+          , "(* ^Add this to Lt tokcode to get corresponding LtPatch tokcode. *)"
+          )
+      ; Layout . PutEol ( GOStream )
 
-    ; Layout . PadAbs ( GOStream , 8 )
-    ; Layout . PutText
-        ( GOStream
-        , "(* ^Add this to Lt tokcode to get corresponding Rt tokcode. *)"
-        )
-    ; Layout . PutEol ( GOStream )
+      ; Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText ( GOStream , "; CONST LtToRt = 3    " )  
+      ; Layout . PutEol ( GOStream )
 
-    ; Layout . PadAbs ( GOStream , GSemiTab )
-    ; Layout . PutText ( GOStream , "; CONST RtToLt = - 3    " )  
-    ; Layout . PutEol ( GOStream )
+      ; Layout . PadAbs ( GOStream , 8 )
+      ; Layout . PutText
+          ( GOStream
+          , "(* ^Add this to Lt tokcode to get corresponding Rt tokcode. *)"
+          )
+      ; Layout . PutEol ( GOStream )
 
-    ; Layout . PadAbs ( GOStream , 8 )
-    ; Layout . PutText
-        ( GOStream
-        , "(* ^Add this to Rt tokcode to get corresponding Lt tokcode. *)"
-        )
-    ; Layout . PutEol ( GOStream )
+      ; Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText ( GOStream , "; CONST RtToLt = - 3    " )  
+      ; Layout . PutEol ( GOStream )
 
-    ; Layout . PadAbs ( GOStream , GSemiTab )
-    ; Layout . PutText ( GOStream , "; CONST RtToTemp = - 2    " )  
-    ; Layout . PutEol ( GOStream )
+      ; Layout . PadAbs ( GOStream , 8 )
+      ; Layout . PutText
+          ( GOStream
+          , "(* ^Add this to Rt tokcode to get corresponding Lt tokcode. *)"
+          )
+      ; Layout . PutEol ( GOStream )
 
-    ; Layout . PadAbs ( GOStream , 8 )
-    ; Layout . PutText
-        ( GOStream
-        , "(* ^Add this to Rt tokcode to get corresponding LtTemp tokcode. *)"
-        )
-    ; Layout . PutEol ( GOStream )
+      ; Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText ( GOStream , "; CONST RtToTemp = - 2    " )  
+      ; Layout . PutEol ( GOStream )
 
-    ; Layout . PutText ( GOStream , "; CONST RtToPatch = - 1    " )  
-    ; Layout . PutEol ( GOStream )
+      ; Layout . PadAbs ( GOStream , 8 )
+      ; Layout . PutText
+          ( GOStream
+          , "(* ^Add this to Rt tokcode to get corresponding LtTemp tokcode. *)"
+          )
+      ; Layout . PutEol ( GOStream )
 
-    ; Layout . PadAbs ( GOStream , 8 )
-    ; Layout . PutText
-        ( GOStream
-        , "(* ^Add this to Rt tokcode to get corresponding LtPatch tokcode. *)"
-        )
-    ; Layout . PutEol ( GOStream )
+      ; Layout . PutText ( GOStream , "; CONST RtToPatch = - 1    " )  
+      ; Layout . PutEol ( GOStream )
 
-    ; Layout . PutEol ( GOStream )
+      ; Layout . PadAbs ( GOStream , 8 )
+      ; Layout . PutText
+          ( GOStream
+          , "(* ^Add this to Rt tokcode to get corresponding LtPatch tokcode. *)"
+          )
+      ; Layout . PutEol ( GOStream )
+
+      ; Layout . PutEol ( GOStream )
+      END (*IF*) 
     END EmitInterfaceDecls
 
 ; PROCEDURE EmitInterfaceEpilog ( )
@@ -686,11 +976,6 @@ EXPORTS Main
 ; PROCEDURE GenTokConsts ( )
 
   = VAR LValue : INTEGER
-  ; VAR LArgCtList , LArgCtElem : INTEGER
-  ; VAR LRootName : TEXT 
-  ; VAR LSubName : TEXT
-  ; VAR LArgCtFixed : [ - 1 .. 7 ]
-  ; VAR LArgCtSub : [  - 1  .. 7 ]
   ; VAR LIsRel , LIsAbs : BOOLEAN  
 
   ; BEGIN
@@ -707,114 +992,81 @@ EXPORTS Main
         ; IF IsIdent ( GToken ) THEN GToken := GetTok ( ) END (*IF*)
         END (*IF*) 
  
-      (* Token Numbering. *)
-      ; LIsAbs := FALSE 
-      ; LIsRel := FALSE 
+      (* Token Numbering commands. *)
       ; IF TokEq ( GToken , "REL" )
-        THEN LIsRel := TRUE 
+        THEN
+          LIsRel := TRUE 
+        ; LIsAbs := FALSE 
         ELSIF TokEq ( GToken , "ABS" )
-        THEN LIsAbs := TRUE
+        THEN
+          LIsAbs := TRUE
+        ; LIsRel := FALSE 
         END (*IF*)
-        
       ; IF LIsRel OR LIsAbs
         THEN 
           GToken := GetTok ( ) 
         ; IF GToken = EOFToken
           THEN
-            MessageLine ( "Premature EOF loking for a token number." )
+            MessageLine ( "Premature EOF looking for a token number." )
           ; RAISE Terminate
-          ELSIF NOT IsNum ( GToken , ((*VAR*) LValue ) )  
+          ELSIF NOT IsNum ( GToken , (*VAR*) LValue )   
           THEN 
             MessageLine ( "Invalid token number: " & GToken & ", ignored.")
           ELSE
-            IF LIsRel
-            THEN INC ( GNextTokNo , LValue )
-            ELSE (* => IsAbs *) 
-              IF LValue < GNextTokNo 
-              THEN 
-                MessageLine 
-                  ( "Would-be decreasing token number: "
-                    & GToken & ", retaining current value: " 
-                    & Fmt . Int ( LValue )
-                  )
-              ELSE 
-                GNextTokNo := LValue
-              END (*IF*) 
-            END (*IF*) 
-          ; GToken := GetTok ( ) 
+            GToken := GetTok ( ) (* The number. *)  
+          ; IF GDoCountIntToks AND GTokKind IN TokKindSetInt
+               OR GDoCountSrcToks AND GTokKind = TokKindTyp . TkSrc
+            THEN (* Execute the command. *)  
+              IF LIsRel
+              THEN INC ( GNextTokNo , LValue )
+              ELSE (* => IsAbs *) 
+                IF LValue < GNextTokNo 
+                THEN 
+                  MessageLine 
+                    ( "Would-be decreasing token number: "
+                      & GToken & ", retaining current value: " 
+                      & Fmt . Int ( LValue )
+                    )
+                ELSE 
+                  GNextTokNo := LValue
+                END (*IF*) 
+              END (*IF*)
+            END (*IF*)
           END (*IF*)
 
-        (* List construct tokens. *) 
+        (* Token kind commands. *) 
         ELSIF TokEq ( GToken , "LIST" )  
-        THEN 
-          GToken := GetTok () 
-        ; IF GToken = EOFToken 
-          THEN
-            MessageLine ( "Premature EOF looking for a list root name." )
-          ; RAISE Terminate
-          ELSIF NOT IsIdent ( GToken )
-          THEN
-            MessageLine
-              ( "Invalid list root name: " & GToken & ", ignoring." )
-          ; LArgCtList := GetTokArgCt ( NIL ) 
-          ; LArgCtElem := GetTokArgCt ( NIL ) 
-          ELSE
-            LRootName := GToken 
-          ; GToken := GetTok ( )
-          ; LArgCtList := GetTokArgCt ( "list"  ) 
-          ; LArgCtElem := GetTokArgCt ( "list element" ) 
-          ; EmitListToks ( LRootName , LArgCtList , LArgCtElem ) 
-          END (*IF*) 
-
-        (* Fixed construct tokens. *) 
+        THEN
+          GTokKind := TokKindTyp . TkList 
+        ; GToken := GetTok ( ) 
         ELSIF TokEq ( GToken , "FIXED" )  
         THEN 
-          GToken := GetTok () 
-        ; IF GToken = EOFToken 
-          THEN
-            MessageLine ( "Premature EOF looking for a fixed root name." )
-          ; RAISE Terminate
-          ELSIF NOT IsIdent ( GToken )
-          THEN
-            MessageLine
-              ( "Invalid fixed root name: " & GToken & ", ignoring." )
-          ; WHILE IsIdent ( GToken ) 
-            DO LSubName := GToken
-            ; LArgCtSub := GetTokArgCt ( "interior token"  ) 
-            END (*WHILE*) 
-          ELSE
-            MaybePutMinTokNo ( ) 
-          ; LRootName := GToken 
-          ; GToken := GetTok ()  
-          ; Layout . PadAbs ( GOStream , GSemiTab )
-          ; Layout . PutText ( GOStream , "(* FIXED " )
-          ; Layout . PutText ( GOStream , LRootName )
-          ; Layout . PutText ( GOStream , ": *)" )
-          ; Layout . PutEol ( GOStream )
+          GTokKind := TokKindTyp . TkFixed  
+        ; GToken := GetTok ( ) 
+        ELSIF TokEq ( GToken , "SRC" )  
+        THEN 
+          GTokKind := TokKindTyp . TkSrc 
+        ; GToken := GetTok ( )
+        ELSIF  IsIdent ( GToken )
+        THEN
+          CASE GTokKind OF
+          | TokKindTyp . TkNull
+          => MessageLine ( "No token kind specified, assuming SRC." )
+          ; GTokKind := TokKindTyp . TkSrc 
+          
+          | TokKindTyp . TkList (* List construct tokens. *)
+          => EmitListToks ( ) 
+            
+          | TokKindTyp . TkFixed (* Fixed construct tokens. *)
+          => EmitFixedToks ( ) 
 
-          ; LArgCtFixed := GetTokArgCt ( "fixed"  ) 
-          ; EmitOneTok ( LRootName & "Lt" , LArgCtFixed )  
-          ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
-          ; EmitOneTok ( LRootName & "LtTemp" , LArgCtFixed )  
-          ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
-          ; EmitOneTok ( LRootName & "LtPatch" , LArgCtFixed + 1 )
-          ; EmitOneTok ( LRootName & "Rt" , LArgCtFixed )  
-          ; Layout . PutEol ( GOStream )
-
-          ; WHILE IsIdent ( GToken ) 
-            DO LSubName := GToken
-            ; GToken := GetTok ()  
-            ; LArgCtSub := GetTokArgCt ( "interior token" ) 
-            ; EmitOneTok ( LRootName & LSubName & "Lt" , LArgCtSub )  
-            ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
-            ; EmitOneTok ( LRootName & LSubName & "LtTemp" , LArgCtSub )  
-            ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
-            ; EmitOneTok ( LRootName & LSubName & "LtPatch" , LArgCtSub + 1 )
-            ; EmitOneTok ( LRootName & LSubName & "Rt" , LArgCtSub )
-          ; Layout . PutEol ( GOStream )
-          ; GToken := GetTok ( )  
-            END (*WHILE*) 
-          END (*IF*)
+          | TokKindTyp . TkSrc (* Source token. *)
+          => EmitSrcTok ( ) 
+          END (*CASE*)
+          
+        ; IF TokEq ( GToken , "." ) 
+          THEN GToken := GetTok ( )
+          END (*IF*) 
         ELSE
           MessageLine ( "Unrecognized token: " & GToken ) 
         ; GToken := GetTok ( )  
@@ -826,8 +1078,7 @@ EXPORTS Main
 ; PROCEDURE Pass1 ( )
 
   = BEGIN
-      GInputFileName := GInputName & ".gentok" 
-    ; GInputRdT := OpenInput ( GInputFileName )
+      GInputRdT := OpenInput ( GInputFileName )
     ; IF Rd . EOF ( GInputRdT )
       THEN 
         MessageLine ( "Empty input file: " & GInputFileName )
@@ -854,11 +1105,14 @@ EXPORTS Main
         END (*IF*) 
       END (*IF*)
       
-    ; GInterfaceFileName := GInterfaceName & ".i3"  
-    ; GModuleFileName := GModuleName & ".m3"  
-    ; GPickleFileName := GPickleName & ".pkl"
+    ; GInterfaceFullName
+        := Pathname . Join ( GOutputDirName , GInterfaceName , ".i3" )   
+    ; GModuleFullName
+        := Pathname . Join ( GOutputDirName , GModuleName , ".m3" )
+    ; GPickleFullName
+        := Pathname . Join ( GOutputDirName , GPickleName , ".pkl" ) 
     
-    ; GOutputWrT := OpenOutput ( GInterfaceFileName )
+    ; GOutputWrT := OpenOutput ( GInterfaceFullName )
     ; GOStream := OpenLayout ( GOutputWrT )
     ; EmitInterfaceProlog ( ) 
     ; EmitInterfaceDecls ( ) 
@@ -886,49 +1140,52 @@ EXPORTS Main
 
   = VAR LName : TEXT
 
-  ; BEGIN 
-      Layout . PadAbs ( GOStream , GSemiTab )
-    ; Layout . PutText 
-        ( GOStream , "; PROCEDURE Image ( TokNo : INTEGER ) : TEXT " ) 
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PutEol ( GOStream )
+  ; BEGIN
+      IF GDoImageFunc
+      THEN 
+        Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText 
+          ( GOStream , "; PROCEDURE Image ( TokNo : INTEGER ) : TEXT " ) 
+      ; Layout . PutEol ( GOStream )
+      ; Layout . PutEol ( GOStream )
 
-    ; Layout . PadAbs ( GOStream , GSemiTab + 2 )
-    ; Layout . PutText ( GOStream , "= BEGIN " ) 
-    ; Layout . PutEol ( GOStream )
-    
-    ; Layout . PadAbs ( GOStream , GSemiTab + 6 )
-    ; Layout . PutText ( GOStream , "CASE TokNo OF " ) 
-    ; Layout . PutEol ( GOStream )
+      ; Layout . PadAbs ( GOStream , GSemiTab + 2 )
+      ; Layout . PutText ( GOStream , "= BEGIN " ) 
+      ; Layout . PutEol ( GOStream )
 
-    ; FOR RI := Min TO Max
-      DO
-        LName := IntRefArray . Fetch ( GTokNamesArrayRef , RI )
-           (* ^Implied NARROW *) 
-      ; IF LName # NIL
-        THEN 
-          Layout . PadAbs ( GOStream , GSemiTab + 6 )
-        ; Layout . PutText ( GOStream , "| " ) 
-        ; Layout . PutText ( GOStream , Fmt . Int ( RI ) ) 
-        ; Layout . PutText ( GOStream , " => RETURN \"" ) 
-        ; Layout . PutText ( GOStream , LName ) 
-        ; Layout . PutText ( GOStream , "\"") 
-        ; Layout . PutEol ( GOStream )
-        END (*IF*) 
-      END (*FOR*)
-      
-    ; Layout . PadAbs ( GOStream , GSemiTab + 6 )
-    ; Layout . PutText ( GOStream , "ELSE RETURN \"<TokUndef>\"" ) 
-    ; Layout . PutEol ( GOStream )
+      ; Layout . PadAbs ( GOStream , GSemiTab + 6 )
+      ; Layout . PutText ( GOStream , "CASE TokNo OF " ) 
+      ; Layout . PutEol ( GOStream )
 
-    ; Layout . PadAbs ( GOStream , GSemiTab + 6 )
-    ; Layout . PutText ( GOStream , "END (*CASE*) " ) 
-    ; Layout . PutEol ( GOStream )
+      ; FOR RI := Min TO Max
+        DO
+          LName := IntRefArray . Fetch ( GTokNamesArrayRef , RI )
+             (* ^Implied NARROW *) 
+        ; IF LName # NIL
+          THEN 
+            Layout . PadAbs ( GOStream , GSemiTab + 6 )
+          ; Layout . PutText ( GOStream , "| " ) 
+          ; Layout . PutText ( GOStream , Fmt . Int ( RI ) ) 
+          ; Layout . PutText ( GOStream , " => RETURN \"" ) 
+          ; Layout . PutText ( GOStream , LName ) 
+          ; Layout . PutText ( GOStream , "\"") 
+          ; Layout . PutEol ( GOStream )
+          END (*IF*) 
+        END (*FOR*)
 
-    ; Layout . PadAbs ( GOStream , GSemiTab + 4 )
-    ; Layout . PutText ( GOStream , "END Image " ) 
-    ; Layout . PutEol ( GOStream )
-    ; Layout . PutEol ( GOStream )
+      ; Layout . PadAbs ( GOStream , GSemiTab + 6 )
+      ; Layout . PutText ( GOStream , "ELSE RETURN \"<TokUndef>\"" ) 
+      ; Layout . PutEol ( GOStream )
+
+      ; Layout . PadAbs ( GOStream , GSemiTab + 6 )
+      ; Layout . PutText ( GOStream , "END (*CASE*) " ) 
+      ; Layout . PutEol ( GOStream )
+
+      ; Layout . PadAbs ( GOStream , GSemiTab + 4 )
+      ; Layout . PutText ( GOStream , "END Image " ) 
+      ; Layout . PutEol ( GOStream )
+      ; Layout . PutEol ( GOStream )
+      END (*IF*) 
     END GenImageProc 
 
 ; PROCEDURE EmitModuleEpilog ( )
@@ -953,7 +1210,7 @@ EXPORTS Main
 ; PROCEDURE Pass2 ( )
 
   = BEGIN
-      GOutputWrT := OpenOutput ( GModuleFileName ) 
+      GOutputWrT := OpenOutput ( GModuleFullName ) 
     ; GOStream := OpenLayout ( GOutputWrT )
     ; EmitModuleProlog ( ) 
     ; GenImageProc ( GMinTokNo , GNextTokNo - 1 ) 
@@ -983,7 +1240,7 @@ EXPORTS Main
 ; PROCEDURE WritePickle ( )
 
   = BEGIN
-      GOutputWrT := OpenOutput ( GPickleFileName )
+      GOutputWrT := OpenOutput ( GPickleFullName )
     ; TRY
         TRY 
           Wr . PutText ( GOutputWrT , (* FM3Utils . *) PicklePrefix ( ) )
@@ -1000,7 +1257,7 @@ EXPORTS Main
         ; Pickle . Write
             ( GOutputWrT , GTokSet3Args , write16BitWidechar := FALSE )
         EXCEPT ELSE
-          MessageLine ( "Unable to write pickle file" & GPickleFileName ) 
+          MessageLine ( "Unable to write pickle file" & GPickleFullName ) 
         END (*EXCEPT*)
       FINALLY
         Wr . Close ( GOutputWrT )  
@@ -1022,7 +1279,8 @@ EXPORTS Main
     END IntSetImage 
 
 ; PROCEDURE Init ( )
-  = BEGIN 
+  = <* FATAL IntRefArray . AllocationFailure *>
+    BEGIN 
       GMinTokDone := FALSE
     ; GNextTokNo := 0
     ; GMinTokNo := 0
@@ -1032,14 +1290,10 @@ EXPORTS Main
     ; GTokSetPatch := IntSets . Empty ( )  
     ; GTokSet1Arg := IntSets . Empty ( )  
     ; GTokSet2Args := IntSets . Empty ( )
+    ; GTokSet3Args := IntSets . Empty ( )
     ; GSemiTab := 0
     ; GAtEof := FALSE
     END Init 
-
-; PROCEDURE Args ( ) 
-
-   = BEGIN
-     END Args 
 
 ; <* FATAL Thread . Alerted *>
   <* FATAL Wr . Failure *>
@@ -1049,13 +1303,13 @@ EXPORTS Main
   
     TRY 
       Init ( )
-    ; Args ( ) 
+    ; SetArgDefaults ( )
+    ; ParseArgs ( ) 
     ; Pass1 ( )
     ; Pass2 ( )
     ; WritePickle ( ) 
     EXCEPT Terminate => 
     END (*EXCEPT*)
-  ; CloseLayout ( GOStream ) 
   END GenTok
 .
 

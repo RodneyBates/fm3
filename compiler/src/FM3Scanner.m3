@@ -1150,7 +1150,7 @@ MODULE FM3Scanner
     ; GDigitCharMap [ 'D' ] := 13 
     ; GDigitCharMap [ 'E' ] := 14 
     ; GDigitCharMap [ 'F' ] := 15 
-    END InitDigitCharMap 
+    END InitDigitCharMap
 
 ; BEGIN (* FM3Scanner *) 
     InitEscapeCharMap ( ) 
