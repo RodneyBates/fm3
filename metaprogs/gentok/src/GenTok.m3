@@ -23,12 +23,15 @@ EXPORTS Main
 ; IMPORT Pickle2 AS Pickle 
 ; IMPORT Rd
 ; IMPORT Stdio
+
 ; IMPORT Text 
 ; IMPORT TextWr
 ; IMPORT Thread 
 ; IMPORT Word 
 ; IMPORT Wr
 
+; IMPORT FM3BuildLexMachine 
+; IMPORT FM3LexTable
 ; IMPORT IntSets 
 ; IMPORT Layout
 ; IMPORT VarArray_Int_Refany AS IntRefArray 
@@ -57,8 +60,10 @@ EXPORTS Main
 ; VAR GInputFileName : TEXT 
 ; VAR GInterfaceFullName : TEXT
 ; VAR GModuleFullName : TEXT
-; VAR GPickleFullName : TEXT
-; VAR GOutputDirName : TEXT := ""
+; VAR GSetsFullName : TEXT
+; VAR GIntFsmFullName : TEXT
+; VAR GSrcFsmFullName : TEXT
+; VAR GOutputDirName : TEXT := "."
 
 ; VAR GSemiTab : INTEGER
 ; VAR GArgCtTab : INTEGER := 40 (* Absolute *) 
@@ -79,20 +84,24 @@ EXPORTS Main
 ; VAR GInputName := "FM3Toks" 
 ; VAR GInterfaceName := "FM3Toks"
 ; VAR GModuleName := "FM3Toks" 
-; VAR GPickleName := "FM3Toks" 
+; VAR GSetsName := "FM3TokSets" 
+; VAR GIntFsmName := "FM3IntFsm" 
+; VAR GSrcFsmName := "FM3SrcFsm" 
 
 ; VAR GToken : TEXT 
 
 ; CONST VersionString = "0.1"
 ; VAR GDoHelp : BOOLEAN := FALSE 
-; VAR GDoCountSrcToks : BOOLEAN := FALSE
-; VAR GDoGenSrcToks : BOOLEAN := FALSE
-; VAR GDoCountIntToks : BOOLEAN := FALSE
-; VAR GDoGenIntToks : BOOLEAN := FALSE
 ; VAR GDoGenInterface : BOOLEAN := FALSE
 ; VAR GDoGenModule : BOOLEAN := FALSE
 ; VAR GDoImageFunc : BOOLEAN := FALSE
-; VAR GDoGenLexTable : BOOLEAN := FALSE
+; VAR GDoCountIntToks : BOOLEAN := FALSE
+; VAR GDoGenIntToks : BOOLEAN := FALSE
+; VAR GDoGenSets : BOOLEAN := FALSE
+; VAR GDoGenIntFsm : BOOLEAN := FALSE
+; VAR GDoCountSrcToks : BOOLEAN := FALSE
+; VAR GDoGenSrcToks : BOOLEAN := FALSE
+; VAR GDoGenSrcFsm : BOOLEAN := FALSE
 
 ; TYPE TokKindTyp = { TkNull , TkList , TkFixed , TkSrc }
 ; VAR GTokKind := TokKindTyp . TkNull  
@@ -103,17 +112,22 @@ EXPORTS Main
 
   = BEGIN
       GDoHelp := FALSE 
-    ; GDoCountSrcToks := FALSE
-    ; GDoGenSrcToks := FALSE
-    ; GDoCountIntToks := FALSE
-    ; GDoGenIntToks := FALSE
     ; GDoGenInterface := FALSE
     ; GDoGenModule := FALSE
     ; GDoImageFunc := FALSE
-    ; GDoGenLexTable := FALSE
+    ; GDoCountIntToks := FALSE
+    ; GDoGenIntToks := FALSE
+    ; GDoGenSets := FALSE
+    ; GDoGenIntFsm := FALSE
+    ; GDoCountSrcToks := FALSE
+    ; GDoGenSrcToks := FALSE
+    ; GDoGenSrcFsm := FALSE
 
     ; GInputFileName := "Toks" 
     ; GOutputDirName := "."
+    ; GSetsName := "FM3TokSets" 
+    ; GIntFsmName := "FM3IntFsm" 
+    ; GSrcFsmName := "FM3SrcFsm" 
     END SetArgDefaults 
 
 ; EXCEPTION HelpExc 
@@ -196,8 +210,12 @@ EXPORTS Main
               GDoImageFunc := TRUE 
             ; GDoGenInterface := TRUE 
             ; GDoGenModule := TRUE 
+            ELSIF Text . Equal ( LArgPrefix , "-c" )
+            THEN GDoGenSets := TRUE 
             ELSIF Text . Equal ( LArgPrefix , "-l" )
-            THEN GDoGenLexTable := TRUE 
+            THEN GDoGenIntFsm := TRUE 
+            ELSIF Text . Equal ( LArgPrefix , "-L" )
+            THEN GDoGenSrcFsm := TRUE 
             ELSIF Text . Equal ( LArgPrefix , "-F" )
             THEN GInputFileName := ArgWMore ( ) 
             ELSIF Text . Equal ( LArgPrefix , "-D" )
@@ -213,6 +231,17 @@ EXPORTS Main
         ; IF GDoHelp THEN DisplayHelp ( ) END (*IF*)
         ; RAISE Terminate 
         END (*EXCEPT*)
+      ; IF GDoGenIntFsm AND GDoGenSrcFsm
+        THEN
+          Wr . PutText
+            ( Stdio . stderr , "-l and -L are mutually exclusive." ) 
+        ; Wr . PutText ( Stdio . stderr , "  Doing -L only." ) 
+        ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+        ELSIF GDoGenIntFsm 
+        THEN
+          Wr . PutText ( Stdio . stderr , "-l is not yet implemented." ) 
+        ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+        END (*IF*)
       END (*BEGIN*)
     END ParseArgs
 
@@ -257,13 +286,26 @@ EXPORTS Main
     ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
 
     ; Wr . PutText
-        ( Stdio . stderr , "  -n Generate Image function (tokNo to string map)." ) 
+        ( Stdio . stderr , "  -c Emit intermediate token property sets." ) 
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+    
+    ; Wr . PutText
+        ( Stdio . stderr , "  -l Generate internal token lex table." ) 
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+
+    ; Wr . PutText
+        ( Stdio . stderr , "  -L Generate source token spelling lex table." ) 
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+
+    ; Wr . PutText
+        ( Stdio . stderr , "  -l and -L are mutually exclusive." ) 
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+
+    ; Wr . PutText
+        ( Stdio . stderr , "  -n Generate Image function (tokNo-to-string map)." ) 
     ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
     ; Wr . PutText
         ( Stdio . stderr , "       (implies generate a MODULE too." ) 
-    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
-
-    ; Wr . PutText ( Stdio . stderr , "  -l Generate lexer table pickle file." )
     ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
 
     ; Wr . PutText
@@ -551,6 +593,20 @@ EXPORTS Main
       END (*LOOP*) 
     END IsIdent 
 
+; PROCEDURE IsString ( Token : TEXT ; ) : BOOLEAN
+
+  = VAR LLen : INTEGER
+
+  ; BEGIN
+      IF <*NOWARN*> Token = NIL OR Token = EOFToken THEN RETURN FALSE END (*IF*)
+    ; LLen := Text . Length ( Token )
+    ; IF LLen <= 1 THEN RETURN FALSE END (*IF*)
+(*TODO: make this handle literal quotes inside the string. *)
+    ; IF Text . GetChar ( Token , 0 ) # '\"' THEN RETURN FALSE END (*IF*)
+    ; IF Text . GetChar ( Token , LLen - 1 ) # '\"' THEN RETURN FALSE END (*IF*)
+    ; RETURN TRUE 
+    END IsString
+
 ; PROCEDURE OpenOutput ( FileName : TEXT ) : Wr . T 
 
   = VAR LWrT : Wr . T 
@@ -673,7 +729,10 @@ EXPORTS Main
     END CompressedHex
 
 ; PROCEDURE EmitTok ( Name : TEXT ; ArgCt : INTEGER )
-  (* PRE: Are generating this token. *) 
+  (* PRE: Are generating this token.
+     No parsing or input consuming done.
+     ArgCt < 0 => not emitted.
+  *) 
 
   = <* FATAL IntRefArray . AllocationFailure *>
     BEGIN
@@ -704,11 +763,8 @@ EXPORTS Main
     ; Layout . PutText
         ( GOStream , Fmt . Pad ( Fmt . Int ( GNextTokNo ) , GTokNoPad ) )
 
-    ; Layout . PadAbs
-        ( GOStream 
-        , GEqualSignTab + GCompressedTab 
-        )
-    ; Layout . PutText ( GOStream , " (* 16_"  )
+    ; Layout . PadAbs ( GOStream , GEqualSignTab + GCompressedTab )
+    ; Layout . PutText ( GOStream , " (*16_"  )
     ; Layout . PutText
         ( GOStream , CompressedHex ( VAL ( GNextTokNo , LONGINT ) ) )
     ; Layout . PutText ( GOStream , "*)" )
@@ -790,26 +846,40 @@ EXPORTS Main
       ; LArgCtSub := GetTokArgCt ( "interior token" ) 
       ; IF GDoGenIntToks
         THEN 
-          EmitTok ( LRootName & LSubName & "Lt" , LArgCtSub )  
+          EmitTok ( LRootName & LSubName , LArgCtSub )  
         ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
-        ; EmitTok ( LRootName & LSubName & "LtTemp" , LArgCtSub )  
+        ; EmitTok ( LRootName & LSubName & "Temp" , LArgCtSub )  
         ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
-        ; EmitTok ( LRootName & LSubName & "LtPatch" , LArgCtSub + 1 )
-        ; EmitTok ( LRootName & LSubName & "Rt" , LArgCtSub )
+        ; EmitTok ( LRootName & LSubName & "Patch" , LArgCtSub + 1 )
         ; Layout . PutEol ( GOStream )
         ELSIF GDoCountIntToks
-        THEN INC ( GNextTokNo , 4 ) 
+        THEN INC ( GNextTokNo , 3 ) 
         END (*IF*) 
       END (*WHILE*) 
     END EmitFixedToks 
 
 ; PROCEDURE EmitSrcTok ( )
 
-  = VAR LSrcName : TEXT 
+  = VAR LSrcName : TEXT
+  ; VAR LString : TEXT
+  ; VAR LStringLen : INTEGER 
+  ; VAR LNoQuoteString : TEXT 
 
   ; BEGIN
       LSrcName := GToken 
-    ; GToken := GetTok ( )  
+    ; GToken := GetTok ( )
+    ; IF IsString ( GToken )
+      THEN
+        LString := GToken 
+      ; GToken := GetTok ( )
+      ; IF GDoGenSrcFsm
+        THEN
+          LStringLen := Text . Length ( LString ) 
+        ; LNoQuoteString := Text . Sub ( LString , 1 , LStringLen - 2 ) 
+        ; FM3BuildLexMachine . AddPair
+            ( LNoQuoteString , GNextTokNo , ReverseMap := FALSE )  
+        END (*IF*) 
+      END (*IF*)
     ; IF GDoGenSrcToks
       THEN 
         MaybePutMinTokNo ( ) 
@@ -1077,7 +1147,9 @@ EXPORTS Main
 
 ; PROCEDURE Pass1 ( )
 
-  = BEGIN
+  = VAR LIntFsm , LSrcFsm : FM3LexTable . T
+
+  ; BEGIN
       GInputRdT := OpenInput ( GInputFileName )
     ; IF Rd . EOF ( GInputRdT )
       THEN 
@@ -1097,8 +1169,9 @@ EXPORTS Main
         THEN
           GInterfaceName := GToken
         ; GModuleName := GToken 
-        ; GPickleName := GToken
-        ; GToken := GetTok ( )
+        ; GSetsName := GToken
+        ; GIntFsmName := GToken
+        ; GSrcFsmName := GToken
         ELSE
           MessageLine
             ( "Invalid filename : \"" & GToken & ", using " & GInterfaceName )
@@ -1109,16 +1182,34 @@ EXPORTS Main
         := Pathname . Join ( GOutputDirName , GInterfaceName , ".i3" )   
     ; GModuleFullName
         := Pathname . Join ( GOutputDirName , GModuleName , ".m3" )
-    ; GPickleFullName
-        := Pathname . Join ( GOutputDirName , GPickleName , ".pkl" ) 
+    ; GSetsFullName
+        := Pathname . Join ( GOutputDirName , GSetsName , "Sets.pkl" ) 
+    ; GIntFsmFullName
+        := Pathname . Join ( GOutputDirName , GIntFsmName , "IntFsm.pkl" ) 
+    ; GSrcFsmFullName
+        := Pathname . Join ( GOutputDirName , GSrcFsmName , "SrcFsm.pkl" ) 
     
     ; GOutputWrT := OpenOutput ( GInterfaceFullName )
     ; GOStream := OpenLayout ( GOutputWrT )
     ; EmitInterfaceProlog ( ) 
-    ; EmitInterfaceDecls ( ) 
+    ; EmitInterfaceDecls ( )
+    ; IF GDoGenIntFsm OR GDoGenSrcFsm
+      THEN
+        FM3BuildLexMachine . MakeEmpty ( )
+      END (*IF*)
     ; GenTokConsts ( )
     ; EmitInterfaceEpilog ( ) 
     ; CloseLayout ( GOStream )  
+    ; IF GDoGenIntFsm
+      THEN
+        LIntFsm := FM3BuildLexMachine . Build ( )
+      ; EmitFsmPickle ( GIntFsmFullName , FM3FileKindIntPkl , LIntFsm )  
+      END (*IF*)
+    ; IF GDoGenSrcFsm
+      THEN
+        LSrcFsm := FM3BuildLexMachine . Build ( )
+      ; EmitFsmPickle ( GSrcFsmFullName , FM3FileKindSrcPkl , LSrcFsm )  
+      END (*IF*)
     END Pass1
     
 ; PROCEDURE EmitModuleProlog ( )
@@ -1218,8 +1309,11 @@ EXPORTS Main
     ; CloseLayout ( GOStream ) 
     END Pass2
 
+(* TODO: Move These somewhere shared: (FM3Utils?) *)
 ; CONST FM3FileTag = "FM3" 
-; CONST FM3FileKindTokPkl = "A"
+; CONST FM3FileKindIntPkl = 'A'
+; CONST FM3FileKindSrcPkl = 'B'
+
 ; CONST FM3Magic
     = ARRAY [ 0 .. 3 ] OF CHAR 
         { VAL ( 16_A2 , CHAR ) , VAL ( 16_0B , CHAR )
@@ -1227,42 +1321,72 @@ EXPORTS Main
         }
 
 (* TODO: Move this somewere universal & fix it up, maybe date & time, e.g.? *)
-; PROCEDURE PicklePrefix ( ) : TEXT 
+; PROCEDURE FM3FilePrefix ( Kind : CHAR ) : TEXT 
 
   = VAR LResult : TEXT
   
   ; BEGIN
       LResult
-        := FM3FileTag & FM3FileKindTokPkl & Text . FromChars ( FM3Magic )
+        := FM3FileTag & Text . FromChar ( Kind ) & Text . FromChars ( FM3Magic )
     ; RETURN LResult 
-    END PicklePrefix 
+    END FM3FilePrefix 
 
-; PROCEDURE WritePickle ( )
+; PROCEDURE EmitSetsPickle ( )
 
-  = BEGIN
-      GOutputWrT := OpenOutput ( GPickleFullName )
-    ; TRY
-        TRY 
-          Wr . PutText ( GOutputWrT , (* FM3Utils . *) PicklePrefix ( ) )
+  = VAR LWrT : Wr . T
+
+  ; BEGIN
+      IF GDoGenSets
+      THEN
+        LWrT := OpenOutput ( GSetsFullName )
+      ; TRY (*FINALLY*) 
+          TRY (*EXCEPT*)
+            Wr . PutText
+              ( LWrT , (* FM3Utils . *) FM3FilePrefix ( FM3FileKindIntPkl ) )
+          ; Pickle . Write
+              ( LWrT , GTokNamesArrayRef , write16BitWidechar := FALSE ) 
+          ; Pickle . Write
+              ( LWrT , GTokSetTemp , write16BitWidechar := FALSE ) 
+          ; Pickle . Write
+              ( LWrT , GTokSetPatch , write16BitWidechar := FALSE )
+          ; Pickle . Write
+              ( LWrT , GTokSet1Arg , write16BitWidechar := FALSE ) 
+          ; Pickle . Write
+              ( LWrT , GTokSet2Args , write16BitWidechar := FALSE )
+          ; Pickle . Write
+              ( LWrT , GTokSet3Args , write16BitWidechar := FALSE )
+          EXCEPT ELSE
+            MessageLine ( "Unable to write pickle file" & GSetsFullName ) 
+          END (*EXCEPT*)
+        FINALLY
+          Wr . Close ( LWrT )  
+        END (*FINALLY*)
+      END (*IF*)
+    END EmitSetsPickle
+
+; PROCEDURE EmitFsmPickle
+    ( FullName : TEXT
+    ; FileKind : CHAR 
+    ; LexTable : FM3LexTable . T
+    )
+
+  = VAR LWrT : Wr . T
+
+  ; BEGIN
+      LWrT := OpenOutput ( FullName )
+    ; TRY (*FINALLY*)
+        TRY (*EXCEPT*)
+          Wr . PutText
+            ( LWrT , (* FM3Utils . *) FM3FilePrefix ( FileKind ) )
         ; Pickle . Write
-            ( GOutputWrT , GTokNamesArrayRef , write16BitWidechar := FALSE ) 
-        ; Pickle . Write
-            ( GOutputWrT , GTokSetTemp , write16BitWidechar := FALSE ) 
-        ; Pickle . Write
-            ( GOutputWrT , GTokSetPatch , write16BitWidechar := FALSE )
-        ; Pickle . Write
-            ( GOutputWrT , GTokSet1Arg , write16BitWidechar := FALSE ) 
-        ; Pickle . Write
-            ( GOutputWrT , GTokSet2Args , write16BitWidechar := FALSE )
-        ; Pickle . Write
-            ( GOutputWrT , GTokSet3Args , write16BitWidechar := FALSE )
+            ( LWrT , LexTable , write16BitWidechar := FALSE )
         EXCEPT ELSE
-          MessageLine ( "Unable to write pickle file" & GPickleFullName ) 
+          MessageLine ( "Unable to write pickle file \"" & FullName & "\"." ) 
         END (*EXCEPT*)
       FINALLY
-        Wr . Close ( GOutputWrT )  
+        Wr . Close ( LWrT )  
       END (*FINALLY*)
-    END WritePickle
+    END EmitFsmPickle
 
 ; (* For calling within a debugger *) 
   PROCEDURE IntImage ( Val : IntSets . ValidElemT ) : TEXT
@@ -1300,14 +1424,12 @@ EXPORTS Main
   <* FATAL Rd . Failure *>
   <* FATAL Rd . EndOfFile *>
   BEGIN (*GenTok*)
-  
     TRY 
       Init ( )
     ; SetArgDefaults ( )
     ; ParseArgs ( ) 
     ; Pass1 ( )
     ; Pass2 ( )
-    ; WritePickle ( ) 
     EXCEPT Terminate => 
     END (*EXCEPT*)
   END GenTok

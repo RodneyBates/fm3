@@ -39,11 +39,11 @@ MODULE FM3BuildLexMachine
            MapRef : MapRefTyp := NIL 
          ; MinOccupied : MapSsTyp := LAST ( MapSsTyp ) 
          ; MaxOccupied : MapSsTyp := FIRST ( MapSsTyp ) 
-         ; StateNo : FM3LexTableRep . StateNoTyp := 0 
+         ; StateNo : FM3LexTable . StateNoTyp := 0 
          END 
 
 ; VAR GMachine : TempStateTyp := NIL 
-; VAR GNextStateNo : FM3LexTableRep . StateNoTyp := 0 
+; VAR GNextStateNo : FM3LexTable . StateNoTyp := 0 
 ; VAR GRuleCt : FM3Base . Int32Typ := 0 
 ; VAR GMinValue : FM3LexTable . ValueTyp := LAST ( FM3LexTable . ValueTyp ) 
 ; VAR GMaxValue : FM3LexTable . ValueTyp := FIRST ( FM3LexTable . ValueTyp ) 
@@ -59,11 +59,11 @@ MODULE FM3BuildLexMachine
     ; GMaxValue := FIRST ( FM3LexTable . ValueTyp ) 
     END MakeEmpty 
 
-; PROCEDURE NextStateNo ( VAR Next : FM3LexTableRep . StateNoTyp ) 
-  : FM3LexTableRep . StateNoTyp  
+; PROCEDURE NextStateNo ( VAR Next : FM3LexTable . StateNoTyp ) 
+  : FM3LexTable . StateNoTyp  
   (* Has SIDE EFFECTS! *) 
 
-  = VAR LResult : FM3LexTableRep . StateNoTyp 
+  = VAR LResult : FM3LexTable . StateNoTyp 
 
   ; BEGIN 
       LResult := Next
@@ -206,14 +206,14 @@ MODULE FM3BuildLexMachine
 
 ; PROCEDURE BuildPass1 
     ( VAR States : FM3LexTableRep . StatesTyp 
-    ; VAR TotalTransitionCt : FM3LexTableRep . TransitionTyp 
+    ; VAR TotalTransitionCt : FM3LexTable . StateNoTyp 
     )  
   (* Renumber states in preorder.
      Fill in fields of States. 
      Count Total Transitions
   *) 
 
-  = VAR P1NextStateNo : FM3LexTableRep . StateNoTyp := 0
+  = VAR P1NextStateNo : FM3LexTable . StateNoTyp := 0
 
   ; PROCEDURE P1Recurse ( TempState : TempStateTyp ) 
 
@@ -230,8 +230,7 @@ MODULE FM3BuildLexMachine
           ; WState . SpaceBias 
               := TotalTransitionCt - ORD ( TMult . MinOccupied )    
           ; INC ( TotalTransitionCt 
-                , ORD ( TMult . MaxOccupied ) 
-                  - ORD ( TMult . MinOccupied ) + 1 
+                , ORD ( TMult . MaxOccupied ) - ORD ( TMult . MinOccupied ) + 1
                 ) 
           ; FOR RI := TMult . MinOccupied TO TMult . MaxOccupied   
             DO P1Recurse ( TMult . MapRef ^ [ RI ] ) 
@@ -253,7 +252,7 @@ MODULE FM3BuildLexMachine
 
   = PROCEDURE P2Recurse 
       ( TempState : TempStateTyp 
-      ; VAR ParentTransition : FM3LexTableRep . TransitionTyp 
+      ; VAR ParentTransition : FM3LexTable . StateNoTyp 
       ) 
 
     = BEGIN 
@@ -275,7 +274,8 @@ MODULE FM3BuildLexMachine
           END (* WITH *)  
 
         | SingletonTempStateTyp ( TSingle ) 
-        => ParentTransition := TSingle . Value + FM3LexTableRep . FirstRealValue 
+        => ParentTransition
+             := TSingle . Value + FM3LexTableRep . FirstNegResultValue
         ; IF TSingle . ReverseMap 
           THEN 
             WITH WRef 
@@ -289,7 +289,7 @@ MODULE FM3BuildLexMachine
         END (* TYPECASE *) 
       END P2Recurse 
 
-  ; VAR LDontCareTransition : FM3LexTableRep . TransitionTyp 
+  ; VAR LDontCareTransition : FM3LexTable . StateNoTyp 
 
   ; BEGIN (* BuildPass2 *) 
       P2Recurse ( GMachine , (* VAR *) LDontCareTransition ) 
@@ -299,7 +299,7 @@ MODULE FM3BuildLexMachine
 ; PROCEDURE Build ( ) : FM3LexTable . T 
 
   = VAR LResult : FM3LexTable . T
-  ; VAR LTotalTransitionCt : FM3LexTableRep . TransitionTyp 
+  ; VAR LTotalTransitionCt : FM3LexTable . StateNoTyp 
 
   ; BEGIN 
       LResult := NEW ( FM3LexTable . T ) 

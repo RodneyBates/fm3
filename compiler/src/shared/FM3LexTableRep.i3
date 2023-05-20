@@ -19,6 +19,9 @@ INTERFACE FM3LexTableRep
    Nonnegative transitions < NoTransition are unbiased states to go to. 
 *) 
 
+; CONST NullChar 
+    = VAL ( ORD ( FIRST ( FM3LexTable . ValidCharTyp ) ) - 1 , CHAR ) 
+
 ; TYPE SpaceSsTyp = FM3Base . Card32Typ 
 ; TYPE SpaceTyp = ARRAY (* SpaceSsTyp *) OF FM3LexTable . StateNoTyp  
   (* A single array of transitions with concatenated transition subranges for

@@ -7,3 +7,5 @@
 %(* -----------------------------------------------------------------------2- *)
 
 interface("FM3LexTableRep")
+module("FM3Base")
+module("FM3LexTable")
