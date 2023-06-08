@@ -188,9 +188,6 @@ MODULE FM3Utils
 
    ------------------------------------------------------------- *) 
 
-
-
-
 ; PROCEDURE WideTextLiteral ( READONLY WChars : REF ARRAY OF WIDECHAR ) : TEXT
   (* Insert quotes and escapes. *) 
 
@@ -215,12 +212,6 @@ MODULE FM3Utils
     ; LRef ^ [ LLength ] := '\000'
     ; RETURN LRef 
     END TextToRefArrayChars 
-
-; PROCEDURE AtomListToText ( AL : AtomList . T ): TEXT
-
-  = BEGIN
-      RETURN NIL 
-    END AtomListToText 
 
 ; BEGIN
   END FM3Utils 

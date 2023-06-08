@@ -35,7 +35,7 @@ MODULE RdBackFile
 ; IMPORT Wr
 
 ; IMPORT FM3Messages
-; IMPORT FM3Utils
+; IMPORT FM3SharedUtils
 
 ; CONST Beginning = RegularFile . Origin . Beginning
 
@@ -496,7 +496,7 @@ MODULE RdBackFile
     EXCEPT OSError . E ( EMsg )
     => FM3Messages . Log (* Oh the irony. *) 
          ( " Unable to open log file " , FM3Messages . LogFileName
-         , ", OSError.E(" , FM3Utils . AtomListToText ( EMsg ) , ")."
+         , ", OSError.E(" , FM3SharedUtils . AtomListToText ( EMsg ) , ")."
          )
     END (*EXCEPT*)
   END RdBackFile

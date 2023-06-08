@@ -18,8 +18,9 @@ include_dir("generics")
 include_dir("instantiations")
 include_dir("utils")
 include_dir("shared")
+include_dir("../../sharedsrc/utilsrc")
 include_dir("../../sharedsrc/globalsrc")
-%include_dir("../../sharedsrc/intsetssrc") %Thiw is already in frontm3.
+%include_dir("../../sharedsrc/intsetssrc") %This is already in frontm3.
 include_dir("../../sharedsrc/rdbacksrc")
 include_dir("../../sharedsrc/vararraysrc")
 
@@ -33,8 +34,6 @@ import("libvararray")
 
 module("FM3CLArgs")
 module("FM3Scanner")
-module("FM3LexTable")
-module("FM3Base")
 %module("FM3Chars")
 module("FM3Errors")
 module("FM3Globals")

@@ -9,10 +9,11 @@
 INTERFACE FM3Messages
 
 ; IMPORT AtomList 
+; IMPORT Thread 
 
 ; <*IMPLICIT*> EXCEPTION Terminate 
 
-  (* Fatal amd Log go immediatly to stderr and optionally to a log file. *) 
+  (* Fatal and Log go immediatly to stderr and optionally to a log file. *) 
 
 ; VAR LogFileName := "FM3Log"
 
@@ -20,20 +21,28 @@ INTERFACE FM3Messages
   RAISES { Terminate }
   (* Also terminates the program. *) 
 
-; PROCEDURE Log ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL ) 
+; PROCEDURE Log
+    ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL ) 
+  RAISES { Thread . Alerted } 
 
 (* Within a unit, Info, Warning, and Error are collected, sorted by
    line/column, and written to stdout at the end of the unit. *)
 
-; PROCEDURE Info ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL ) 
+; PROCEDURE Info
+    ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL ) 
+  RAISES { Thread . Alerted } 
 
-; PROCEDURE Warning ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL ) 
+; PROCEDURE
+    Warning ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL ) 
+  RAISES { Thread . Alerted } 
 
-; PROCEDURE Error ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL ) 
+; PROCEDURE Error
+    ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL ) 
+  RAISES { Thread . Alerted } 
 
-; PROCEDURE StartUnit ( UnitName : TEXT )
+; PROCEDURE StartUnit ( UnitName : TEXT ) RAISES { Thread . Alerted } 
 
-; PROCEDURE EndUnit ( UnitName : TEXT )
+; PROCEDURE EndUnit ( UnitName : TEXT ) RAISES { Thread . Alerted } 
 
 ; PROCEDURE AtomListToOSError ( AL : AtomList . T ): TEXT 
 

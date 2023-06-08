@@ -48,7 +48,5 @@ INTERFACE FM3Utils
   (* WARNING: Don't try this unless you know there are no characters
               outside the range of CHAR in TextVal. *)
               
-; PROCEDURE AtomListToText ( AL : AtomList . T ): TEXT 
-
 ; END FM3Utils
 .

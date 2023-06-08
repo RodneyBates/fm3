@@ -15,10 +15,8 @@ MODULE FM3Files
 ; IMPORT UniEncoding 
 ; IMPORT UniRd 
 
-; FROM FM3Messages IMPORT Fatal
-; IMPORT FM3Utils 
-
-; CONST ALT = FM3Utils . AtomListToText
+; IMPORT FM3Messages 
+; IMPORT FM3SharedUtils 
 
 ; VAR SrcEnc : UniEncoding . Encoding := UniEncoding . Encoding . ISO8859_1
       (* UTF8 is a reasonable alternative. *)   
@@ -37,11 +35,13 @@ MODULE FM3Files
        LRdT := FileRd . Open ( LFullFileName ) 
       EXCEPT
       | OSError . E ( EMsg ) 
-      => Fatal
+      => FM3Messages . Fatal
            ( "Unable to open " , Note1 , Note2 , LFullFileName
-           , ": OSError.E(" , ALT ( EMsg ) , ")."
+           , ": OSError.E(" , FM3SharedUtils . AtomListToText ( EMsg ) , ")."
            ) 
       END (*EXCEPT*)
+
+(*TODO: Use FM3ShharedUtils.OpenRd for all above. *)
     ; LResult := UniRd . New ( LRdT , SrcEnc )
     ; RETURN LResult 
     END OpenUniRd
