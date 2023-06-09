@@ -9,7 +9,9 @@
 INTERFACE FM3SharedUtils
 
 ; IMPORT AtomList 
-; IMPORT Rd 
+; IMPORT Rd
+
+; IMPORT FM3Base 
 
 ; EXCEPTION FatalError ( TEXT ) 
 
@@ -37,6 +39,8 @@ INTERFACE FM3SharedUtils
     ( FileName : TEXT := "" ; ExpectedFileKind : FileKindTyp )
   : Rd . T
   RAISES { FatalError } 
+
+; PROCEDURE IntHash ( Val : INTEGER ) : FM3Base . HashTyp
 
 ; VAR GResourcePathName := "." 
   (* ^Since this is a shared compiler/metaprogs interface, clients

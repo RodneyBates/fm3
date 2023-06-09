@@ -20,6 +20,8 @@ MODULE FM3SharedUtils
 ; IMPORT Thread  
 ; IMPORT Wr  
 
+; IMPORT FM3Base 
+
 ; CONST FM3FileTag = "FM3"
 ; VAR TagLength := Text . Length ( FM3FileTag ) 
 
@@ -227,6 +229,13 @@ MODULE FM3SharedUtils
       END (*IF*)
     ; RETURN LRdT 
     END OpenResourceRd
+
+(*EXPORTED*) 
+; PROCEDURE IntHash ( Val : INTEGER ) : FM3Base . HashTyp
+
+  = BEGIN
+      RETURN VAL ( Val , FM3Base . HashTyp ) 
+    END IntHash 
 
 ; BEGIN
   END FM3SharedUtils 

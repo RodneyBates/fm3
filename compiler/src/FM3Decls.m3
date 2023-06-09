@@ -6,14 +6,16 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-INTERFACE FM3Decls
+MODULE FM3Decls
 
-; IMPORT FM3Base
+; IMPORT IntRanges 
+
 ; IMPORT FM3Scopes
 ; IMPORT VarArray_Int_Refany
 
-; CONST DeclNoNull = FM3Base . AtomNull 
-; TYPE DeclNoTyp = FM3Base . AtomTyp 
+(* From the interface: 
+; CONST DeclNoNull = LAST ( DeclNoTyp ) 
+; TYPE DeclNoTyp = INTEGER
 ; TYPE DeclRefTyp = REF DeclTyp
 ; TYPE DeclTyp
     = RECORD
@@ -22,13 +24,23 @@ INTERFACE FM3Decls
       ; DclSelfScopeRef : FM3Scopes . ScopeRefTyp (* If this declares a scope *) 
       END (*DeclTyp*)
 
-; CONST DefaultInitDeclCt = 100
-
 ; TYPE DeclMapTyp
-    = VarArray_Int_Refany . T (* Map  DeclNoTyp to DeclRefTyp. *)
+    = VarArray_Int_Refany . T (* Map DeclNoTyp to DeclRefTyp. *)
+*) 
 
+; VAR NextDeclNo : DeclNoTyp := 0 
+
+(*EXPORTED*) 
 ; PROCEDURE NewMap ( InitDeclCt := DefaultInitDeclCt ) : DeclMapTyp
 
+  = BEGIN
+      NextDeclNo := 0 
+    ; RETURN
+        VarArray_Int_Refany . New
+          ( NIL , IntRanges . RangeTyp {  0 , InitDeclCt - 1 } ) 
+    END NewMap
+
+(*EXPORTED*) 
 ; PROCEDURE NewDecl
     ( Map : DeclMapTyp
     ; ExpectedNo : DeclNoTyp 
@@ -38,6 +50,22 @@ INTERFACE FM3Decls
   (* Allocate and connect a DeclNo and DeclRef. *)
   (* IF ExpectedNo >= 0, result must match. *)  
 
-; END FM3Decls
+  = VAR LDeclNo : DeclNoTyp  
+  ; VAR LDeclRef : DeclRefTyp
+
+  ; BEGIN
+      LDeclNo := NextDeclNo
+    ; <* ASSERT LDeclNo = ExpectedNo *>
+      INC ( NextDeclNo )
+    ; LDeclRef := NEW ( DeclRefTyp )
+    ; LDeclRef . DclNumber := LDeclNo  
+    ; LDeclRef . DclParentScopeRef := ParentScopeRef  
+    ; LDeclRef . DclSelfScopeRef := NIL 
+    ; VarArray_Int_Refany . Assign ( Map , LDeclNo , LDeclRef )
+    ; RETURN LDeclNo 
+    END NewDecl 
+
+; BEGIN
+  END FM3Decls
 .
 
