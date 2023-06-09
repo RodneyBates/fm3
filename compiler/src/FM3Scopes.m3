@@ -16,25 +16,6 @@ MODULE FM3Scopes
 ; IMPORT FM3Dict_Int_Int
 ; IMPORT FM3SharedUtils 
 
-(* Stuff from the interface:  
-; CONST ScopeNoNull = FM3Base . AtomNull 
-; TYPE ScopeNoTyp = FM3Base . AtomTyp 
-; TYPE ScopeRefTyp = REF ScopeTyp
-; TYPE ScopeTyp
-    = RECORD
-        ScpNumber : ScopeNoTyp (* A self-reference. *) 
-      ; ScpDecldIdSet : IntSets . T (* IdentNos declared. *) 
-      ; ScpDeclDict : FM3Dict_Int_Int . GrowableTyp (* IdentNo to Decl no. *)
-      ; ScpDeclCt : INTEGER
-      (* This: would be : FM3Decls . DeclNoTyp := FM3Decls . DeclNoNull,
-         but that would create cyclic imports. *)
-      ; ScpOwningDeclNo : FM3Base . AtomTyp := FM3Base . AtomNull
-      END (*ScopeTyp*)
-
-; TYPE ScopeMapTyp
-    = VarArray_Int_Refany . T (* Map ScopeNoTyp to ScopeRefTyp. *)
-*) 
-
 ; VAR NextScopeNo : ScopeNoTyp := 0 
 
 (*EXPORTED*) 
