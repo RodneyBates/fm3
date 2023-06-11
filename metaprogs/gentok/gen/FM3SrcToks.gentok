@@ -1,0 +1,111 @@
+
+(* -----------------------------------------------------------------------1- *)
+(* This file is part of the FM3 Modula-3 compiler.                           *)
+(* Copyright 2023        Rodney M. Bates.                                    *)
+(* rodney.m.bates@acm.org                                                    *)
+(* Licensed under the MIT License.                                           *)
+(* -----------------------------------------------------------------------2- *)
+
+(* Input file FM3SrcTok.gentok, to metaprogram GenTok. *)
+
+(* SRC will start copying of comments to output. *)
+UNITNAME FM3SrcTok
+
+(* Source tokens for FM3 Modula-3 compiler. *)
+
+ABS 16384 (* Just above 2-byte compressed values. *) 
+
+SRC 
+
+   StkRwAND            "AND" .   
+   StkRwANY            "ANY" .   
+   StkRwARRAY          "ARRAY" .   
+   StkRwAS             "AS" .   
+   StkRwBEGIN          "BEGIN" .   
+   StkRwBITS           "BITS" .   
+   StkRwBRANDED        "BRANDED" .   
+   StkRwBY             "BY" .   
+   StkRwCASE           "CASE" .   
+   StkRwCONST          "CONST" .   
+   StkRwDIV            "DIV" .   
+   StkRwDO             "DO" .   
+   StkRwELSE           "ELSE" .   
+   StkRwELSIF          "ELSIF" .   
+   StkRwEND            "END" .   
+   StkRwEVAL           "EVAL" .   
+   StkRwEXCEPT         "EXCEPT" .   
+   StkRwEXCEPTION      "EXCEPTION" .   
+   StkRwEXIT           "EXIT" .   
+   StkRwEXPORTS        "EXPORTS" .   
+   StkRwFINALLY        "FINALLY" .   
+   StkRwFOR            "FOR" .   
+   StkRwFROM           "FROM" .   
+   StkRwGENERIC        "GENERIC" .   
+   StkRwIF             "IF" .   
+   StkRwIMPORT         "IMPORT" .   
+   StkRwIN             "IN" .   
+   StkRwINTERFACE      "INTERFACE" .   
+   StkRwLOCK           "LOCK" .   
+   StkRwLOOP           "LOOP" .   
+   StkRwMETHODS        "METHODS" .   
+   StkRwMOD            "MOD" .   
+   StkRwMODULE         "MODULE" .   
+   StkRwNOT            "NOT" .   
+   StkRwOBJECT         "OBJECT" .   
+   StkRwOF             "OF" .   
+   StkRwOR             "OR" .   
+   StkRwOVERRIDES      "OVERRIDES" .   
+   StkRwPROCEDURE      "PROCEDURE" .   
+   StkRwRAISE          "RAISE" .   
+   StkRwRAISES         "RAISES" .   
+   StkRwREADONLY       "READONLY" .   
+   StkRwRECORD         "RECORD" .   
+   StkRwREF            "REF" .   
+   StkRwREPEAT         "REPEAT" .   
+   StkRwRETURN         "RETURN" .   
+   StkRwREVEAL         "REVEAL" .   
+   StkRwROOT           "ROOT" .   
+   StkRwSET            "SET" .   
+   StkRwTHEN           "THEN" .   
+   StkRwTO             "TO" .   
+   StkRwTRY            "TRY" .   
+   StkRwTYPE           "TYPE" .   
+   StkRwTYPECASE       "TYPECASE" .   
+   StkRwUNSAFE         "UNSAFE" .   
+   StkRwUNTIL          "UNTIL" .   
+   StkRwUNTRACED       "UNTRACED" .   
+   StkRwVALUE          "VALUE" .   
+   StkRwVAR            "VAR" .   
+   StkRwWHILE          "WHILE" .   
+   StkRwWITH           "WITH" .   
+   StkSemicolon . 
+   StkDot . 
+   StkEqual . 
+   StkOpenParen . 
+   StkCloseParen . 
+   StkComma . 
+   StkColon . 
+   StkSubtype . 
+   StkBecomes . 
+   StkOpenBrace . 
+   StkCloseBrace . 
+   StkStroke . 
+   StkArrow . 
+   StkEllipsis . 
+   StkOpenBracket . 
+   StkCloseBracket . 
+   StkUnequal . 
+   StkLess . 
+   StkGreater . 
+   StkLessEqual . 
+   StkGreaterEqual . 
+   StkPlus . 
+   StkMinus . 
+   StkAmpersand . 
+   StkStar . 
+   StkSlash . 
+   StkDeref . 
+   StkOpenPragma . 
+   StkClosePragma .
+
+(* Endll FM3SrcTok.gentok *) 
