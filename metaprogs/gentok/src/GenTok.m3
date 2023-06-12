@@ -88,7 +88,8 @@ EXPORTS Main
 ; VAR GIntFsmName : TEXT 
 ; VAR GSrcFsmName : TEXT 
 
-; VAR GToken : TEXT 
+; VAR GToken : TEXT
+; VAR GCopyingConsts := FALSE 
 
 ; CONST VersionString = "0.1"
 ; VAR GDoHelp : BOOLEAN := FALSE 
@@ -506,8 +507,15 @@ EXPORTS Main
             ; ConsumeChar ( ) 
             END (*IF*) 
           END (*LOOP*)
+
         ; LResult := TextWr . ToText ( LWrT )
-        ; RETURN LResult 
+        ; IF GCopyingConsts AND GOStream # NIL THEN
+            Layout . PutText ( GOStream , LResult )
+          ; Layout . PutEol ( GOStream ) 
+          END (*IF*) 
+(*
+        ; RETURN LResult
+*)
         ELSE (* A token. *) 
           LOOP (* Thru' the token, i.e., while in TokChars. *) 
             Wr . PutChar ( LWrT , GNextInChar )
@@ -522,7 +530,8 @@ EXPORTS Main
 
 ; PROCEDURE SkipComments ( ) 
 
-  = BEGIN 
+  = BEGIN
+RETURN ; 
       WHILE <*NOWARN*> GToken # EOFToken
             AND Text . Length ( GToken ) >= 2
             AND Text . Equal ( Text . Sub ( GToken , 0 , 2 ) , "(*")
@@ -533,6 +542,7 @@ EXPORTS Main
 ; PROCEDURE CopyComments ( ) 
 
   = BEGIN 
+RETURN ; 
       WHILE <*NOWARN*> GToken # EOFToken
             AND Text . Length ( GToken ) >= 2
             AND Text . Equal ( Text . Sub ( GToken , 0 , 2 ) , "(*")
@@ -866,7 +876,7 @@ EXPORTS Main
   ; BEGIN
       LRootName := GToken 
     ; GToken := GetTok ( )  
-    ; LArgCtFixed := GetTokArgCt ( "fixed"  ) 
+    ; LArgCtFixed := GetTokArgCt ( "fixed" ) 
     ; IF GDoGenIntToks
       THEN 
         MaybePutMinTokNo ( ) 
@@ -1331,7 +1341,8 @@ EXPORTS Main
         ELSE
           MessageLine
             ( "Invalid filename : \"" & GToken & ", using " & GInterfaceName )
-        END (*IF*) 
+        END (*IF*)
+      ; GCopyingConsts := TRUE 
       END (*IF*)
       
     ; IF GDoGenInterface
@@ -1341,6 +1352,8 @@ EXPORTS Main
       ; EmitInterfaceProlog ( ) 
       ; EmitInterfaceDecls ( )
       ; GenTokConsts ( )
+      ; GCopyingConsts := TRUE 
+      
       ; EmitInterfaceEpilog ( ) 
       ; CloseLayout ( GOStream )
       END (*IF*) 
@@ -1572,6 +1585,7 @@ EXPORTS Main
     ; GTokSet3Args := IntSets . Empty ( )
     ; GSemiTab := 0
     ; GAtEof := FALSE
+    ; GCopyingConsts := FALSE 
     END Init 
 
 ; <* FATAL Thread . Alerted *>
