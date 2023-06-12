@@ -11,8 +11,8 @@
 INTERFACE FM3ParseSem
 
 ; IMPORT FM3Scanner
-; IMPORT FM3TokDef 
-; FROM FM3TokDef IMPORT TokTyp  
+; IMPORT FM3IntToks 
+; FROM FM3IntToks IMPORT TokTyp  
 
 ; TYPE tParsAttribute (* Lalr expects this and field Scan to be so named. *) 
     = RECORD

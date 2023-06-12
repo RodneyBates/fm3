@@ -10,10 +10,10 @@
 
 MODULE FM3ParseSem
 
-; IMPORT FM3TokDef 
-; FROM FM3TokDef IMPORT TokTyp 
-; FROM FM3TokDef IMPORT LtToTemp , LtToPatch , LtToRt
-; FROM FM3TokDef IMPORT RtToTemp , RtToPatch , RtToLt
+; IMPORT FM3IntToks 
+; FROM FM3IntToks IMPORT TokTyp 
+; FROM FM3IntToks IMPORT LtToTemp , LtToPatch , LtToRt
+; FROM FM3IntToks IMPORT RtToTemp , RtToPatch , RtToLt
 ; IMPORT RdBackFile 
 (* ; IMPORT FM3TokSupport 
    ; FROM FM3TokSupport IMPORT TokTup , TokNull , RtToLtPatch
