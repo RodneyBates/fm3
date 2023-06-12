@@ -31,7 +31,11 @@ INTERFACE FM3Globals
 
 ; VAR FirstRealAtom := 1
 
-; VAR CurrentUnitRef : FM3Units . UnitRefTyp 
+; VAR CurrentUnitRef : FM3Units . UnitRefTyp
+
+; VAR ResourcePathName : TEXT := "."
+  (* ^Set this from a CLI option. *)
+
 
 ; PROCEDURE Init ( ) 
 

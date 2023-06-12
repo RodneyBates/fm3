@@ -28,7 +28,8 @@ INTERFACE FM3SharedUtils
 ; PROCEDURE FileKindImage ( Kind : FileKindTyp ) : TEXT
 
 ; CONST FM3FileKindIntPkl = 'A'
-; CONST FM3FileKindSrcPkl = 'B'
+; CONST FM3FileKindM3RwPkl = 'B'
+; CONST FM3FileKindPgRwPkl = 'C'
 
 ; PROCEDURE FilePrefix ( Kind : CHAR ) : TEXT
 
@@ -42,7 +43,7 @@ INTERFACE FM3SharedUtils
 
 ; PROCEDURE IntHash ( Val : INTEGER ) : FM3Base . HashTyp
 
-; VAR GResourcePathName := "." 
+; VAR ResourcePathName := "." 
   (* ^Since this is a shared compiler/metaprogs interface, clients
      need to set it as desired. *) 
 ; END FM3SharedUtils 

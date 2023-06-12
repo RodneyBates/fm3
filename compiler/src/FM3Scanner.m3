@@ -1,4 +1,3 @@
-
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3sfm3dict Modula-3 compiler.                   *)
 (* Copyright 2023        Rodney M. Bates.                                    *)
@@ -8,7 +7,8 @@
 
 MODULE FM3Scanner 
 
-; IMPORT Fmt 
+; IMPORT Fmt
+; IMPORT Pickle2 
 ; IMPORT Rd
 ; IMPORT TextIntTbl
 ; IMPORT Thread 
@@ -22,7 +22,9 @@ MODULE FM3Scanner
 ; IMPORT FM3Dict_OAChars_Int
 ; IMPORT FM3Errors 
 ; IMPORT FM3Globals
-; IMPORT FM3Toks 
+; IMPORT FM3LexTable
+; IMPORT FM3SharedUtils 
+; IMPORT FM3SrcToks 
 ; IMPORT FM3Units
 ; IMPORT FM3Utils 
 
@@ -237,6 +239,16 @@ MODULE FM3Scanner
     ; VarArr_WChar . Assign ( VarArr , LSs , WCh ) 
     END AppendWChar 
 
+; PROCEDURE ContribToFsm ( Char : CHAR )  
+
+  = BEGIN 
+      IF GCurRwValue = FM3LexTable . ValueUnrecognized 
+      THEN (* Keep it that way. *) 
+      ELSE (* Need more chars. *) 
+        GCurRwValue 
+          := FM3LexTable . IncrNext ( GCurRwLexTable , Char , GCurRwState )
+      END (*IF*) 
+    END ContribToFsm 
 
 (* EXPORTED: *) 
 ; PROCEDURE GetToken ( ) : INTEGER (*lalr*)  
@@ -338,31 +350,50 @@ MODULE FM3Scanner
             & " illegal characters: " 
             & LBadCharText 
             ) 
-      ; Attribute . SaTok := FM3Toks . TkLexErrChars 
+      ; Attribute . SaTok := FM3SrcToks . StkLexErrChars 
       END LexErrorChars 
 
   ; CONST IdentFollowChars 
             = SET OF CHAR { 'A' .. 'F' , 'a' .. 'f' , '0' .. '9' , '_' }
+
+  ; PROCEDURE StartIdent ( ) 
+
+    = BEGIN 
+        IF ScAtBegOfPragma 
+        THEN GCurRwLexTable := GPgRwLexTable 
+        ELSE GCurRwLexTable := GM3RwLexTable 
+        END (*IF*) 
+      ; GCurRwState := FM3LexTable . IncrInit ( GCurRwLexTable ) 
+      ; GCurRwValue := FM3LexTable . ValueNull 
+      END StartIdent 
 
   ; PROCEDURE IdentSuffix ( ) 
     (* PRE: The identifier is already started, possibly non-empty. *) 
 
     = VAR LIntTok : INTEGER 
 
-    ; BEGIN (* Ident *) 
+    ; BEGIN (* IdentSuffix *) 
         WHILE GTopSsRef . SsCh IN IdentFollowChars 
         DO 
-          FM3Utils . ContribToHash 
+          ContribToFsm ( GTopSsRef . SsCh ) 
+        ; FM3Utils . ContribToHash 
             ( (*IN OUT*) ScHash 
             , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
             ) 
         ; AppendChar ( ScCharVarArr , GTopSsRef . SsCh ) 
         ; NextChar ( ) 
         END (* WHILE *) 
+ 
       ; Attribute . SaHash := ScHash 
       ; Attribute . SaChars 
           := FM3Utils . CharVarArrayToOAChar ( ScCharVarArr ) 
-      ; IF ScAtBegOfPragma 
+      ; GCurRwValue 
+          := FM3LexTable . IncrNext 
+               ( GCurRwLexTable , FM3LexTable . NullChar , GCurRwState )
+      ; IF GCurRwValue # FM3LexTable . ValueUnrecognized  
+           AND GCurRwValue # FM3LexTable . ValueNull 
+        THEN Attribute . SaTok := GCurRwValue  
+        ELSIF ScAtBegOfPragma 
            AND FM3Dict_OAChars_Int . LookupGrowable 
                  ( FM3Globals . PgRwDict 
                  , Attribute . SaChars 
@@ -383,7 +414,7 @@ MODULE FM3Scanner
                  , Attribute . SaChars 
                  , ScHash 
                  ) 
-        ; Attribute . SaTok := FM3Toks . TkIdent
+        ; Attribute . SaTok := FM3SrcToks . StkIdent
         END (* IF *) 
       END IdentSuffix 
 
@@ -392,14 +423,14 @@ MODULE FM3Scanner
   ; PROCEDURE Number ( ) 
     (* PRE: GTopSsRef . SsCh is a digit.  TextTok not started. *)  
 
-    = VAR LTok : FM3Toks . TokTyp 
+    = VAR LTok : FM3SrcToks . TokTyp 
 
     ; BEGIN (* Number *) 
         ScHash := FM3Utils . GroundHash ( ) 
       ; Attribute . SaAtom := FM3Base . AtomNull (* Overlaid later? *) 
       ; ScCharVarArr := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 40 } ) 
       ; ScWCharVarArr := NIL 
-      ; LTok := FM3Toks . TkIntLit 
+      ; LTok := FM3SrcToks . StkIntLit 
       ; REPEAT 
           FM3Utils . ContribToHash 
             ( (*IN OUT*) ScHash 
@@ -411,7 +442,7 @@ MODULE FM3Scanner
         
       ; CASE GTopSsRef . SsCh
         OF '_' 
-        => LTok := FM3Toks . TkBasedLit 
+        => LTok := FM3SrcToks . StkBasedLit 
         ; FM3Utils . ContribToHash 
             ( (*IN OUT*) ScHash 
             , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
@@ -440,7 +471,7 @@ MODULE FM3Scanner
                         ( GTopSsRef ^ . SsUniRd ) 
             *> 
           ELSE
-            LTok := FM3Toks . TkRealLit 
+            LTok := FM3SrcToks . StkRealLit 
           ; IF GTopSsRef . SsCh IN SET OF CHAR { '0' .. '9' } 
             THEN 
               REPEAT 
@@ -459,9 +490,9 @@ MODULE FM3Scanner
              IN SET OF CHAR { 'E' , 'e' , 'D' , 'd' , 'X' , 'x' }  
           THEN 
             IF GTopSsRef . SsCh IN SET OF CHAR { 'D' , 'd' }
-            THEN LTok := FM3Toks . TkLongRealLit 
+            THEN LTok := FM3SrcToks . StkLongRealLit 
             ELSIF GTopSsRef . SsCh IN SET OF CHAR { 'X' , 'x' }
-            THEN LTok := FM3Toks . TkExtendedLit 
+            THEN LTok := FM3SrcToks . StkExtendedLit 
             END (*IF*) 
           ; FM3Utils . ContribToHash 
                ( (*IN OUT*) ScHash 
@@ -780,7 +811,7 @@ MODULE FM3Scanner
                , ScHash 
                ) 
       ; ScCharVarArr := NIL 
-      ; Attribute . SaTok := FM3Toks . TkTextLit 
+      ; Attribute . SaTok := FM3SrcToks . StkTextLit 
       END TextLit 
 
   ; PROCEDURE WideTextLit ( ) 
@@ -830,7 +861,7 @@ MODULE FM3Scanner
                , ScHash 
                ) 
       ; ScWCharVarArr := NIL 
-      ; Attribute . SaTok := FM3Toks . TkWideTextLit 
+      ; Attribute . SaTok := FM3SrcToks . StkWideTextLit 
       END WideTextLit 
 
   ; PROCEDURE CommentSuffix ( ) 
@@ -874,8 +905,8 @@ MODULE FM3Scanner
     ; LOOP (* Skip non-token chars. *) 
         IF GTopSsRef . SsWCh = WEOF 
         THEN 
-          Attribute . SaTok := FM3Toks . TkEOF 
-        ; RETURN FM3Toks . TkEOF 
+          Attribute . SaTok := FM3SrcToks . StkEOF 
+        ; RETURN FM3SrcToks . StkEOF 
         ELSIF GTopSsRef . SsWCh > WLastOfChar 
         THEN 
           IF GTopSsRef . SsWCh = WLS OR GTopSsRef . SsWCh = WPS 
@@ -902,7 +933,7 @@ MODULE FM3Scanner
       ; IF GTopSsRef . SsCh = '\''
         THEN (* WIDECHAR literal. *) 
           CharLit ( Wide := TRUE ) 
-        ; Attribute . SaTok := FM3Toks . TkWideCharLit  
+        ; Attribute . SaTok := FM3SrcToks . StkWideCharLit  
         ELSIF GTopSsRef . SsCh = '\"'
         THEN (* Wide TEXT literal. *)
           WideTextLit ( )
@@ -912,6 +943,8 @@ MODULE FM3Scanner
         ; ScCharVarArr 
             := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 160 } ) 
         ; ScWCharVarArr := NIL 
+        ; StartIdent ( ) 
+        ; ContribToFsm ( GTopSsRef . SsCh ) 
         ; FM3Utils . ContribToHash 
             ( (*IN OUT*) ScHash 
             , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
@@ -927,6 +960,7 @@ MODULE FM3Scanner
       ; ScHash := FM3Utils . GroundHash ( ) 
       ; ScCharVarArr := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 160 } ) 
       ; ScWCharVarArr := NIL 
+      ; StartIdent ( ) 
       ; IdentSuffix ( )
 
       | '0' .. '9' 
@@ -934,7 +968,7 @@ MODULE FM3Scanner
 
       | '\'' (* CHAR literal. *)
       => CharLit ( Wide := FALSE )  
-      ; Attribute . SaTok := FM3Toks . TkCharLit  
+      ; Attribute . SaTok := FM3SrcToks . StkCharLit  
 
       | '"' (* TEXT literal. *)  
       => TextLit ( ) 
@@ -947,7 +981,7 @@ MODULE FM3Scanner
           NextChar ( ) 
         ; CommentSuffix ( ) 
         ELSE 
-          Attribute . SaTok := FM3Toks . TkOpenParen
+          Attribute . SaTok := FM3SrcToks . StkOpenParen
         END (* IF *) 
 
       | '<' 
@@ -956,17 +990,17 @@ MODULE FM3Scanner
       ; CASE GTopSsRef . SsCh 
         OF '=' 
         => NextChar ( ) 
-        ; Attribute . SaTok := FM3Toks . TkLessEqual  
+        ; Attribute . SaTok := FM3SrcToks . StkLessEqual  
         | ':' 
         => NextChar ( ) 
-        ; Attribute . SaTok := FM3Toks . TkSubtype  
+        ; Attribute . SaTok := FM3SrcToks . StkSubtype  
         | '*' 
         => (* Opening pragma delimiter. *)
           NextChar ( )
         ; GTopSsRef ^ . SsAtBegOfPragma := TRUE 
-        ; Attribute . SaTok := FM3Toks . TkOpenPragma 
+        ; Attribute . SaTok := FM3SrcToks . StkOpenPragma 
         ELSE 
-          Attribute . SaTok := FM3Toks . TkLess
+          Attribute . SaTok := FM3SrcToks . StkLess
         END (* CASE *) 
 
       | '*' 
@@ -975,8 +1009,8 @@ MODULE FM3Scanner
       ; IF GTopSsRef . SsCh = '>'
         THEN (* Closing pragma delimiter. *) 
           NextChar ( )
-        ; Attribute . SaTok := FM3Toks . TkClosePragma
-        ELSE Attribute . SaTok := FM3Toks . TkStar
+        ; Attribute . SaTok := FM3SrcToks . StkClosePragma
+        ELSE Attribute . SaTok := FM3SrcToks . StkStar
         END (*IF*) 
 
       | ':' 
@@ -985,8 +1019,8 @@ MODULE FM3Scanner
       ; IF GTopSsRef . SsCh = '=' 
         THEN
           NextChar ( )
-        ; Attribute . SaTok := FM3Toks . TkBecomes  
-        ELSE Attribute . SaTok := FM3Toks . TkColon  
+        ; Attribute . SaTok := FM3SrcToks . StkBecomes  
+        ELSE Attribute . SaTok := FM3SrcToks . StkColon  
         END (* IF *) 
 
       | '.' 
@@ -995,8 +1029,8 @@ MODULE FM3Scanner
       ; IF GTopSsRef . SsCh = '.' 
         THEN
           NextChar ( )
-        ; Attribute . SaTok := FM3Toks . TkEllipsis  
-        ELSE Attribute . SaTok := FM3Toks . TkDot 
+        ; Attribute . SaTok := FM3SrcToks . StkEllipsis  
+        ELSE Attribute . SaTok := FM3SrcToks . StkDot 
         END (* IF *) 
 
       | '=' 
@@ -1005,8 +1039,8 @@ MODULE FM3Scanner
       ; IF GTopSsRef . SsCh = '>' 
         THEN
           NextChar ( )
-        ; Attribute . SaTok := FM3Toks . TkArrow 
-        ELSE Attribute . SaTok := FM3Toks . TkEqual  
+        ; Attribute . SaTok := FM3SrcToks . StkArrow 
+        ELSE Attribute . SaTok := FM3SrcToks . StkEqual  
         END (* IF *) 
 
       | '>' 
@@ -1015,79 +1049,79 @@ MODULE FM3Scanner
       ; IF GTopSsRef . SsCh = '=' 
         THEN
           NextChar ( )
-        ; Attribute . SaTok := FM3Toks . TkGreaterEqual 
-        ELSE Attribute . SaTok := FM3Toks . TkGreater 
+        ; Attribute . SaTok := FM3SrcToks . StkGreaterEqual 
+        ELSE Attribute . SaTok := FM3SrcToks . StkGreater 
         END (* IF *) 
 
       | '+' 
       => BegOfPlainTok ( ) 
       ; NextChar ( )
-      ; Attribute . SaTok := FM3Toks . TkPlus  
+      ; Attribute . SaTok := FM3SrcToks . StkPlus  
 
       | '-' 
       => BegOfPlainTok ( ) 
       ; NextChar ( )
-      ; Attribute . SaTok := FM3Toks . TkMinus  
+      ; Attribute . SaTok := FM3SrcToks . StkMinus  
 
       | '^' 
       => BegOfPlainTok ( ) 
       ; NextChar ( )
-      ; Attribute . SaTok := FM3Toks . TkDeref  
+      ; Attribute . SaTok := FM3SrcToks . StkDeref  
 
       | '#' 
       => BegOfPlainTok ( ) 
       ; NextChar ( )
-      ; Attribute . SaTok := FM3Toks . TkUnequal  
+      ; Attribute . SaTok := FM3SrcToks . StkUnequal  
 
       | ';' 
       => BegOfPlainTok ( ) 
       ; NextChar ( )
-      ; Attribute . SaTok := FM3Toks . TkSemicolon  
+      ; Attribute . SaTok := FM3SrcToks . StkSemicolon  
 
       | '[' 
       => BegOfPlainTok ( ) 
       ; NextChar ( )
-      ; Attribute . SaTok := FM3Toks . TkOpenBracket  
+      ; Attribute . SaTok := FM3SrcToks . StkOpenBracket  
 
       | ']' 
       => BegOfPlainTok ( ) 
       ; NextChar ( )
-      ; Attribute . SaTok := FM3Toks . TkCloseBracket  
+      ; Attribute . SaTok := FM3SrcToks . StkCloseBracket  
 
       | '{' 
       => BegOfPlainTok ( ) 
       ; NextChar ( )
-      ; Attribute . SaTok := FM3Toks . TkOpenBrace  
+      ; Attribute . SaTok := FM3SrcToks . StkOpenBrace  
 
       | '}' 
       => BegOfPlainTok ( ) 
       ; NextChar ( )
-      ; Attribute . SaTok := FM3Toks . TkCloseBrace  
+      ; Attribute . SaTok := FM3SrcToks . StkCloseBrace  
 
       | ')' 
       => BegOfPlainTok ( ) 
       ; NextChar ( )
-      ; Attribute . SaTok := FM3Toks . TkCloseParen  
+      ; Attribute . SaTok := FM3SrcToks . StkCloseParen  
 
       | ',' 
       => BegOfPlainTok ( ) 
       ; NextChar ( )
-      ; Attribute . SaTok := FM3Toks . TkComma  
+      ; Attribute . SaTok := FM3SrcToks . StkComma  
 
       | '&' 
       => BegOfPlainTok ( ) 
       ; NextChar ( )
-      ; Attribute . SaTok := FM3Toks . TkAmpersand  
+      ; Attribute . SaTok := FM3SrcToks . StkAmpersand  
 
       | '|' 
       => BegOfPlainTok ( ) 
       ; NextChar ( )
-      ; Attribute . SaTok := FM3Toks . TkStroke  
+      ; Attribute . SaTok := FM3SrcToks . StkStroke  
 
       | '/' 
       => BegOfPlainTok ( ) 
       ; NextChar ( )
-      ; Attribute . SaTok := FM3Toks . TkSlash  
+      ; Attribute . SaTok := FM3SrcToks . StkSlash  
 
       ELSE (* Other values in CHAR *) 
         LexErrorChars ( ) 
@@ -1096,8 +1130,8 @@ MODULE FM3Scanner
     END GetToken
 
 ; PROCEDURE ErrorAttribute ( Token : CARDINAL ; VAR Attribute : tScanAttribute )
-  (* This is dependent only on the language, not code being compiled, so one
-     a single instance is OK. *) 
+  (* This is dependent only on the language, not code being compiled, so a 
+     single instance is OK. *) 
 
   = BEGIN
       Attribute := ScanAttributeDefault 
@@ -1152,9 +1186,32 @@ MODULE FM3Scanner
     ; GDigitCharMap [ 'F' ] := 15 
     END InitDigitCharMap
 
+; VAR GPgRwLexTable : FM3LexTable . T 
+; VAR GM3RwLexTable : FM3LexTable . T
+; VAR GCurRwLexTable : FM3LexTable . T
+; VAR GCurRwState : FM3LexTable . StateNoTyp
+; VAR GCurRwValue : FM3LexTable . ValueTyp 
+
+; PROCEDURE ReadFsm ( NamePrefix : TEXT ; Kind : FM3SharedUtils . FileKindTyp )
+  : FM3LexTable . T
+
+  = VAR LFileName : TEXT
+  ; VAR LRdT : Rd . T 
+  ; VAR LResult : FM3LexTable . T 
+
+  ; BEGIN
+      LFileName := NamePrefix & "SrcFsm.pkl"
+    ; LRdT := FM3SharedUtils . OpenResourceRd ( LFileName , Kind )
+    ; LResult := Pickle2 . Read ( LRdT ) 
+    ; RETURN LResult 
+    END ReadFsm 
+
 ; BEGIN (* FM3Scanner *) 
     InitEscapeCharMap ( ) 
   ; InitDigitCharMap ( ) 
+  ; FM3SharedUtils . ResourcePathName := FM3Globals . ResourcePathName 
+  ; GM3RwLexTable := ReadFsm ( "M3" , FM3SharedUtils . FM3FileKindM3RwPkl ) 
+  ; GPgRwLexTable := ReadFsm ( "Pg" , FM3SharedUtils . FM3FileKindPgRwPkl ) 
   END FM3Scanner 
 . 
 

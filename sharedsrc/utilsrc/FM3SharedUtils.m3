@@ -213,12 +213,12 @@ MODULE FM3SharedUtils
   ; VAR LIsOK : BOOLEAN 
   
   ; BEGIN
-      LRdT := OpenRd ( FileName , GResourcePathName )
+      LRdT := OpenRd ( FileName , ResourcePathName )
     ; ReadPrefix ( LRdT , (*OUT*) LFileKind , (*OUT*) LIsOK )  
     ; IF LFileKind # ExpectedFileKind
       THEN (* Wrong kind. *)
         (* Oh WTH, just do this twice: *) 
-        LFullFileName := Libm3Pathname . Join ( GResourcePathName , FileName ) 
+        LFullFileName := Libm3Pathname . Join ( ResourcePathName , FileName ) 
       ; RaiseFatal
           ( CatStrings 
               ( "Resource file " , LFullFileName 

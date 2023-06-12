@@ -8,15 +8,22 @@
 
 (* Input file FM3SrcTok.gentok, to metaprogram GenTok. *)
 
-(* SRC will start copying of comments to output. *)
-UNITNAME FM3SrcTok
+UNITNAME FM3SrcToks
 
-(* Source tokens for FM3 Modula-3 compiler. *)
+(* Source tokens for FM3 Modula-3 compiler. 
+   These are near the high end of 2^14-1.
+   They will not occur in intermediate streams.  
+*)
 
-ABS 16384 (* Just above 2-byte compressed values. *) 
+ABS 16384
+(* Just above 2-byte compressed values. *) 
 
 SRC 
 
+   StkUnknown .
+   StkEOF . 
+   
+   (* Modula-3 Reserved words: *) 
    StkRwAND            "AND" .   
    StkRwANY            "ANY" .   
    StkRwARRAY          "ARRAY" .   
@@ -77,7 +84,9 @@ SRC
    StkRwVALUE          "VALUE" .   
    StkRwVAR            "VAR" .   
    StkRwWHILE          "WHILE" .   
-   StkRwWITH           "WITH" .   
+   StkRwWITH           "WITH" .
+
+   (* Special character tokens: *) 
    StkSemicolon . 
    StkDot . 
    StkEqual . 
@@ -108,4 +117,19 @@ SRC
    StkOpenPragma . 
    StkClosePragma .
 
-(* Endll FM3SrcTok.gentok *) 
+   (* Variable tokens: *) 
+   StkIdent .
+   StkIntLit . 
+   StkLongIntLit . 
+   StkBasedLit .  
+   StkLongBasedLit . 
+   StkRealLit .
+   StkLongRealLit .
+   StkExtendedLit . 
+   StkTextLit . 
+   StkWideTextLit . 
+   StkCharLit . 
+   StkWideCharLit .
+   StkLexErrChars .
+
+(* End FM3SrcToks.gentok *) 
