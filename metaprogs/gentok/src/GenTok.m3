@@ -89,7 +89,7 @@ EXPORTS Main
 ; VAR GSrcFsmName : TEXT 
 
 ; VAR GToken : TEXT
-; VAR GCopyingConsts := FALSE 
+; VAR GCopyingComments := FALSE 
 
 ; CONST VersionString = "0.1"
 ; VAR GDoHelp : BOOLEAN := FALSE 
@@ -270,7 +270,10 @@ EXPORTS Main
         ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
         ELSIF GDoGenIntFsm 
         THEN
-          Wr . PutText ( Stdio . stderr , "-l is not yet implemented." ) 
+          Wr . PutText
+            ( Stdio . stderr
+            , "Command-line option \"-l\" is not yet implemented, ignored."
+            ) 
         ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
         END (*IF*)
       END (*BEGIN*)
@@ -434,12 +437,60 @@ EXPORTS Main
 ; CONST OpenCmnt = TwoCharTyp { '(' , '*' } 
 ; CONST CloseCmnt = TwoCharTyp { '*' , ')' } 
 
+
+; PROCEDURE SkipComments ( ) 
+
+  = BEGIN
+      WHILE <*NOWARN*> GToken # NIL AND GToken # EOFToken
+            AND Text . Length ( GToken ) >= 2
+            AND Text . Equal ( Text . Sub ( GToken , 0 , 2 ) , "(*")
+      DO GToken := GetTok ( ) 
+      END (*WHILE*)
+    END SkipComments
+
+; PROCEDURE CopyComments ( ) 
+
+  = BEGIN 
+      WHILE <*NOWARN*> GToken # NIL AND GToken # EOFToken
+            AND Text . Length ( GToken ) >= 2
+            AND Text . Equal ( Text . Sub ( GToken , 0 , 2 ) , "(*")
+      DO (* It's a comment, and so is this. *) 
+        Layout . PutText ( GOStream , GToken )
+      ; Layout . PutEol ( GOStream ) 
+      ; GToken := GetTok ( ) 
+      END (*WHILE*)
+    END CopyComments 
+
+; PROCEDURE GetSyntTok ( Required : BOOLEAN := TRUE ) : TEXT
+  (* Does not return a comment.  Either skips it or copies it,
+     but always consumes it.
+  *) 
+
+  = VAR LToken : TEXT
+
+  ; BEGIN
+      LToken := GetTok ( Required ) (* Consume the current token. *)
+    ; WHILE <*NOWARN*> LToken # NIL AND LToken # EOFToken
+            AND Text . Length ( LToken ) >= 2
+            AND Text . Equal ( Text . Sub ( LToken , 0 , 2 ) , "(*")
+      DO (* It's a comment, and so is this. *) 
+        IF GCopyingComments AND GOStream # NIL
+        THEN 
+          Layout . PutText ( GOStream , LToken )
+        ; Layout . PutEol ( GOStream )
+        END (**IF*) 
+      ; LToken := GetTok ( )
+      END (*WHILE*)
+    ; RETURN LToken 
+    END GetSyntTok 
+
 ; PROCEDURE GetTok ( Required : BOOLEAN := TRUE ) : TEXT 
   (* Here, "Tok" refers to a token of the input language to
      this metaprogram.  Such tokenization is very crude, 
      consisting of comments in Modula-3 syntax and contiguous
      sequences of non-whitespace characters. NIL result
-     means EOF. *)
+     means EOF.
+  *)
 
   = VAR LWrT : TextWr . T
   ; VAR LResult : TEXT 
@@ -507,15 +558,8 @@ EXPORTS Main
             ; ConsumeChar ( ) 
             END (*IF*) 
           END (*LOOP*)
-
         ; LResult := TextWr . ToText ( LWrT )
-        ; IF GCopyingConsts AND GOStream # NIL THEN
-            Layout . PutText ( GOStream , LResult )
-          ; Layout . PutEol ( GOStream ) 
-          END (*IF*) 
-(*
         ; RETURN LResult
-*)
         ELSE (* A token. *) 
           LOOP (* Thru' the token, i.e., while in TokChars. *) 
             Wr . PutChar ( LWrT , GNextInChar )
@@ -527,31 +571,6 @@ EXPORTS Main
         END (*IF*)
       END (*LOOP*)
     END GetTok
-
-; PROCEDURE SkipComments ( ) 
-
-  = BEGIN
-RETURN ; 
-      WHILE <*NOWARN*> GToken # EOFToken
-            AND Text . Length ( GToken ) >= 2
-            AND Text . Equal ( Text . Sub ( GToken , 0 , 2 ) , "(*")
-      DO GToken := GetTok ( ) 
-      END (*WHILE*)
-    END SkipComments 
-
-; PROCEDURE CopyComments ( ) 
-
-  = BEGIN 
-RETURN ; 
-      WHILE <*NOWARN*> GToken # EOFToken
-            AND Text . Length ( GToken ) >= 2
-            AND Text . Equal ( Text . Sub ( GToken , 0 , 2 ) , "(*")
-      DO (* It's a comment, and so is this. *) 
-        Layout . PutText ( GOStream , GToken )
-      ; Layout . PutEol ( GOStream ) 
-      ; GToken := GetTok ( ) 
-      END (*WHILE*)
-    END CopyComments 
 
 ; PROCEDURE GetTokArgCt ( Kind : TEXT ) : INTEGER
   (* -1 means none found.  Otherwise, 0, 1, 2, or 3.
@@ -565,7 +584,7 @@ RETURN ;
       THEN RETURN - 1
       ELSIF LValue IN SET OF [ 0 .. 7 ] { 0 , 1 , 2 , 3 }
       THEN
-        GToken := GetTok ( ) 
+        GToken := GetSyntTok ( ) (* Consume the number. *) 
       ; RETURN LValue
       ELSE
         IF Kind # NIL
@@ -574,7 +593,7 @@ RETURN ;
             ( "Bad " & Kind & " argument count: " & Fmt . Int ( LValue ) 
             & ", must be 0, 1, or 2.  Using 0. " 
             )
-        ; GToken := GetTok ( ) 
+        ; GToken := GetSyntTok ( ) (* Consume the invalid number. *)
         END (*IF*)
       ; RETURN 0 
       END (*IF*) 
@@ -778,6 +797,13 @@ RETURN ;
     ; RETURN LResult 
     END CompressedHex
 
+; PROCEDURE ArgCtPlus1 ( ArgCt : INTEGER ) : INTEGER
+
+  = BEGIN
+      (* ArgCt < 0 means it was not specified. *) 
+      RETURN MAX ( 0 , ArgCt ) + 1  
+    END ArgCtPlus1 
+
 ; PROCEDURE EmitTok ( Name : TEXT ; ArgCt : INTEGER ; String : TEXT := NIL )
   (* PRE: Are generating this token.
      No parsing or input consuming done.
@@ -835,7 +861,7 @@ RETURN ;
 
   ; BEGIN
       LRootName := GToken 
-    ; GToken := GetTok ( )
+    ; GToken := GetSyntTok ( ) (* Consume the root name. *) 
     ; LArgCtOfList := GetTokArgCt ( "list"  ) 
     ; LArgCtOfElem := GetTokArgCt ( "list element" ) 
     ; IF GDoGenIntToks
@@ -851,7 +877,7 @@ RETURN ;
       ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
       ; EmitTok ( LRootName & "LtTemp" , LArgCtOfList )  
       ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
-      ; EmitTok ( LRootName & "LtPatch" , LArgCtOfList + 1 )  
+      ; EmitTok ( LRootName & "LtPatch" , ArgCtPlus1 ( LArgCtOfList ) )  
       ; EmitTok ( LRootName & "Rt" , LArgCtOfList )
       ; Layout . PutEol ( GOStream )
 
@@ -859,13 +885,13 @@ RETURN ;
       ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
       ; EmitTok ( LRootName & "ElemLtTemp" , LArgCtOfElem )  
       ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
-      ; EmitTok ( LRootName & "ElemLtPatch" , LArgCtOfElem + 1 )  
+      ; EmitTok ( LRootName & "ElemLtPatch" , ArgCtPlus1 ( LArgCtOfElem ) )  
       ; EmitTok ( LRootName & "ElemRt" , LArgCtOfElem )  
       ; Layout . PutEol ( GOStream )
       ELSIF GDoCountIntToks
       THEN INC ( GNextTokNo , 8 ) 
       END (*IF*) 
-    ; IF Text . Equal ( GToken , "." ) THEN GToken := GetTok ( ) END (*IF*)
+    ; IF Text . Equal ( GToken , "." ) THEN GToken := GetSyntTok ( ) END (*IF*)
     END EmitListToks 
 
 ; PROCEDURE EmitFixedToks ( ) 
@@ -875,7 +901,7 @@ RETURN ;
 
   ; BEGIN
       LRootName := GToken 
-    ; GToken := GetTok ( )  
+    ; GToken := GetSyntTok ( ) (* Consume the root name. *)
     ; LArgCtFixed := GetTokArgCt ( "fixed" ) 
     ; IF GDoGenIntToks
       THEN 
@@ -890,7 +916,7 @@ RETURN ;
       ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
       ; EmitTok ( LRootName & "LtTemp" , LArgCtFixed )  
       ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
-      ; EmitTok ( LRootName & "LtPatch" , LArgCtFixed + 1 )
+      ; EmitTok ( LRootName & "LtPatch" , ArgCtPlus1 ( LArgCtFixed ) )
       ; EmitTok ( LRootName & "Rt" , LArgCtFixed )  
       ; Layout . PutEol ( GOStream )
       ELSIF GDoCountIntToks
@@ -899,7 +925,7 @@ RETURN ;
 
     ; WHILE IsIdent ( GToken ) 
       DO LSubName := GToken
-      ; GToken := GetTok ( )  
+      ; GToken := GetSyntTok ( ) (* Consume the token suffix. *) 
       ; LArgCtSub := GetTokArgCt ( "interior token" ) 
       ; IF GDoGenIntToks
         THEN 
@@ -907,13 +933,13 @@ RETURN ;
         ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
         ; EmitTok ( LRootName & LSubName & "Temp" , LArgCtSub )  
         ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
-        ; EmitTok ( LRootName & LSubName & "Patch" , LArgCtSub + 1 )
+        ; EmitTok ( LRootName & LSubName & "Patch" , ArgCtPlus1 ( LArgCtSub ) )
         ; Layout . PutEol ( GOStream )
         ELSIF GDoCountIntToks
         THEN INC ( GNextTokNo , 3 ) 
         END (*IF*) 
       END (*WHILE*)
-    ; IF Text . Equal ( GToken , "." ) THEN GToken := GetTok ( ) END (*IF*)
+    ; IF Text . Equal ( GToken , "." ) THEN GToken := GetSyntTok ( ) END (*IF*)
     END EmitFixedToks 
 
 ; PROCEDURE EmitSrcTok ( )
@@ -925,11 +951,11 @@ RETURN ;
 
   ; BEGIN
       LSrcName := GToken 
-    ; GToken := GetTok ( )
+    ; GToken := GetSyntTok ( ) (* Consume the source token name. *) 
     ; IF IsString ( GToken )
       THEN
         LString := GToken 
-      ; GToken := GetTok ( )
+      ; GToken := GetSyntTok ( ) (* Consume the string value. *)
       ; IF GDoGenSrcFsm
         THEN
           LStringLen := Text . Length ( LString ) 
@@ -951,7 +977,7 @@ RETURN ;
       ELSIF GDoCountSrcToks
       THEN INC ( GNextTokNo ) 
       END (*IF*) 
-    ; IF Text . Equal ( GToken , "." ) THEN GToken := GetTok ( ) END (*IF*)
+    ; IF Text . Equal ( GToken , "." ) THEN GToken := GetSyntTok ( ) END (*IF*)
     END EmitSrcTok
 
 ; PROCEDURE EmitCopyright ( )
@@ -1178,7 +1204,6 @@ RETURN ;
     ; Layout . PutEol ( GOStream )
     END EmitInterfaceEpilog 
 
-
 ; PROCEDURE GetNumber ( ) : INTEGER
   (* FIRST ( INTEGER ) => Caller should take no further action. *) 
 
@@ -1187,7 +1212,7 @@ RETURN ;
   
   ; BEGIN
       LLabel := GToken 
-    ; GToken := GetTok ( ) (* Consume "REL" or "ABS" *)  
+    ; GToken := GetSyntTok ( ) (* Consume "REL" or "ABS" *)  
     ; IF GToken = EOFToken
       THEN
         MessageLine
@@ -1200,20 +1225,15 @@ RETURN ;
           ( "Invalid number: " & GToken & " following " & LLabel & ", ignored.")
       ; RETURN FIRST ( INTEGER ) 
       ELSE (* LValue is set and valid. *)
-        GToken := GetTok ( ) (* Consume The number. *)
-      ; IF GDoCountIntToks AND GTokKind IN TokKindSetInt
-           OR GDoCountSrcToks AND GTokKind IN TokKindSetSrc
-        THEN (* We're counting. *)
-          Layout . PutText ( GOStream , "(* " ) 
-        ; Layout . PutText ( GOStream , LLabel ) 
-        ; Layout . PutText ( GOStream , " " ) 
-        ; Layout . PutText ( GOStream , Fmt . Int ( LValue ) ) 
-        ; Layout . PutText ( GOStream , ": *)" ) 
-        ; Layout . PutEol ( GOStream )
-        ; Layout . PutEol ( GOStream )
-        ; RETURN LValue 
-        ELSE RETURN FIRST ( INTEGER ) 
-        END (*IF*)
+        GToken := GetSyntTok ( ) (* Consume The number. *)
+      ; Layout . PutText ( GOStream , "(* " ) 
+      ; Layout . PutText ( GOStream , LLabel ) 
+      ; Layout . PutText ( GOStream , " " ) 
+      ; Layout . PutText ( GOStream , Fmt . Int ( LValue ) ) 
+      ; Layout . PutText ( GOStream , ": *)" ) 
+      ; Layout . PutEol ( GOStream )
+      ; Layout . PutEol ( GOStream )
+      ; RETURN LValue 
       END (*IF*) 
     END GetNumber 
 
@@ -1223,17 +1243,19 @@ RETURN ;
 
   ; BEGIN
       LOOP
-        IF GAtEof THEN EXIT END (*IF*) 
+        IF GAtEof THEN EXIT END (*IF*)
+(*
       ; CopyComments ( ) 
       ; IF GAtEof THEN EXIT END (*IF*) (* CopyComments could make this happen. *)
+*)
 
       (* Unit name, but it's too late now. *)
       ; IF TokEq ( GToken , "UNITNAME" )
         THEN
           MessageLine ( "Too late for a UNITNAME, ignored." )
-        ; GToken := GetTok ( )
+        ; GToken := GetSyntTok ( ) (* Consume UNITNAME. *)
         ; IF GToken = EOFToken THEN RAISE Terminate END (*IF*) 
-        ; IF IsIdent ( GToken ) THEN GToken := GetTok ( ) END (*IF*)
+        ; IF IsIdent ( GToken ) THEN GToken := GetSyntTok ( ) END (*IF*)
  
       (* Token Numbering commands. *)
         ELSIF TokEq ( GToken , "REL" )
@@ -1263,16 +1285,16 @@ RETURN ;
         ELSIF TokEq ( GToken , "LIST" )  
         THEN
           GTokKind := TokKindTyp . TkList 
-        ; GToken := GetTok ( ) 
+        ; GToken := GetSyntTok ( ) 
         ELSIF TokEq ( GToken , "FIXED" )  
         THEN 
           GTokKind := TokKindTyp . TkFixed  
-        ; GToken := GetTok ( ) 
+        ; GToken := GetSyntTok ( ) 
         ELSIF TokEq ( GToken , "SRC" )  
         THEN 
           GTokKind := TokKindTyp . TkSrc 
-        ; GToken := GetTok ( )
-        ELSIF  IsIdent ( GToken )
+        ; GToken := GetSyntTok ( )
+        ELSIF IsIdent ( GToken )
         THEN
           CASE GTokKind OF
           | TokKindTyp . TkNull
@@ -1290,12 +1312,10 @@ RETURN ;
           => EmitSrcTok ( ) 
           END (*CASE*)
           
-        ; IF TokEq ( GToken , "." ) 
-          THEN GToken := GetTok ( )
-          END (*IF*) 
+        ; IF TokEq ( GToken , "." ) THEN GToken := GetSyntTok ( ) END (*IF*) 
         ELSE
           MessageLine ( "Unrecognized token: " & GToken ) 
-        ; GToken := GetTok ( )  
+        ; GToken := GetSyntTok ( )  
         END (*IF*) 
       END (*LOOP*) 
     ; PutSimpleTokDecl ( "TkMaxTok" , GNextTokNo - 1 ) 
@@ -1315,11 +1335,10 @@ RETURN ;
     ; IF GDoGenIntFsm OR GDoGenSrcFsm
       THEN FM3BuildLexMachine . MakeEmpty ( )
       END (*IF*)
-    ; GToken := GetTok ( )
-    ; SkipComments ( ) 
+    ; GToken := GetSyntTok ( )
     ; IF TokEq ( GToken , "UNITNAME" )
       THEN 
-        GToken := GetTok ( )
+        GToken := GetSyntTok ( ) 
       ; IF GToken = EOFToken
         THEN
           MessageLine ( "Premature EOF looking for a unit name." )
@@ -1337,12 +1356,12 @@ RETURN ;
             GOutputFilePrefix := GToken 
           ; SetOutputFileNames ( )
           END (*IF*)
-        ; GToken := GetTok ( )
+        ; GToken := GetSyntTok ( ) (* Consume the name of the unit. *) 
         ELSE
           MessageLine
             ( "Invalid filename : \"" & GToken & ", using " & GInterfaceName )
         END (*IF*)
-      ; GCopyingConsts := TRUE 
+      ; GCopyingComments := TRUE 
       END (*IF*)
       
     ; IF GDoGenInterface
@@ -1352,7 +1371,7 @@ RETURN ;
       ; EmitInterfaceProlog ( ) 
       ; EmitInterfaceDecls ( )
       ; GenTokConsts ( )
-      ; GCopyingConsts := TRUE 
+      ; GCopyingComments := FALSE  
       
       ; EmitInterfaceEpilog ( ) 
       ; CloseLayout ( GOStream )
@@ -1585,7 +1604,7 @@ RETURN ;
     ; GTokSet3Args := IntSets . Empty ( )
     ; GSemiTab := 0
     ; GAtEof := FALSE
-    ; GCopyingConsts := FALSE 
+    ; GCopyingComments := FALSE 
     END Init 
 
 ; <* FATAL Thread . Alerted *>
