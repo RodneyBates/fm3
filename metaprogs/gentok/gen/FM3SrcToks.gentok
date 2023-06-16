@@ -15,14 +15,18 @@ UNITNAME FM3SrcToks
    They will not occur in intermediate streams.  
 *)
 
-ABS 16384
-(* Just above 2-byte compressed values. *) 
-
 SRC 
 
+ABS 1
+
+(* Not used in FM3Parser: *)
    StkUnknown .
+   StkBOF . 
    StkEOF . 
    
+ABS 2350
+(* Near the top of lalr's max range to 2500. *) 
+
    (* Modula-3 Reserved words: *) 
    StkRwAND            "AND" .   
    StkRwANY            "ANY" .   

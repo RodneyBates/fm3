@@ -1,0 +1,35 @@
+
+(* -----------------------------------------------------------------------1- *)
+(* This file is part of the FM3 Modula-3 compiler.                           *)
+(* Copyright 2023        Rodney M. Bates.                                    *)
+(* rodney.m.bates@acm.org                                                    *)
+(* Licensed under the MIT License.                                           *)
+(* -----------------------------------------------------------------------2- *)
+
+(* Input file FM3IntToks.gentok, to metaprogram GenTok. *)
+
+UNITNAME FM3IntToks
+
+(* Internal tokens for FM3 Modula-3 compiler, 
+   used in intermediate token streams.  
+*)
+
+ABS 1
+
+FIXED ItkNull .
+      ItkBOF .
+      ItkEOF .
+
+FIXED ItkModule 2 (*Name, UnitNo. *)
+        Begin
+. 
+
+LIST ItkExportsList
+       1 1 (* Element Count, Element No. *) 
+.
+
+FIXED ItkExport 2 (* Ident, Unit No. *) . 
+
+(* End of FM3IntToks. *) 
+
+
