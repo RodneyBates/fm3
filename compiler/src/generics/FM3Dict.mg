@@ -23,9 +23,6 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 ; IMPORT FM3Primes 
 ; IMPORT FM3Utils
 
-; CONST InstantiationBrand = "Fm3Dict0.1_" & KeyGenformal . Brand & "_"
-        & ValueGenformal . Brand 
-
 ; TYPE RowTyp
   = RECORD
       RowHash : FM3Base . HashTyp := FM3Utils.HashNull
@@ -37,7 +34,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 ; TYPE StateTyp = { DsHashed , DsUnsorted , DsSorted } 
 
 ; REVEAL Private 
-    = BRANDED InstantiationBrand & "_BaseTyp"
+    = BRANDED BaseTypBrand 
       OBJECT
         DbTableRef : REF ARRAY OF RowTyp := NIL 
       ; DbHashFunc : HashFuncTyp := NIL 
@@ -53,13 +50,13 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
    
 ; REVEAL GrowableTyp
     = DictBaseTyp
-      BRANDED InstantiationBrand & "_GrowableTyp"
+      BRANDED GrowableTypBrand
       OBJECT 
       END (*GrowableTyp*) 
 
 ; REVEAL FixedTyp 
     = DictBaseTyp 
-      BRANDED InstantiationBrand & "_FixedTyp"
+      BRANDED FixedTypBrand
       OBJECT 
       END (*FixedTyp*) 
 

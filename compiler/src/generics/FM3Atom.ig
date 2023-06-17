@@ -27,6 +27,8 @@ GENERIC INTERFACE FM3Atom ( DictGenformal )
 
 ; IMPORT FM3Base 
 
+; CONST Brand = "FM3Atom0.1_" & DictGenformal . Brand 
+
 ; TYPE T <: REFANY
 
 ; TYPE KeyTyp = DictGenformal . KeyTyp

@@ -21,8 +21,13 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
 
 ; IMPORT FM3Base 
 
-; CONST
-    Brand = "FM3Dict0.1_" & KeyGenformal . Brand & "_" & ValueGenformal . Brand 
+; CONST InstantiationBrand
+        = "Fm3Dict0.1_" & KeyGenformal . Brand & "_" & ValueGenformal . Brand
+; CONST BaseTypBrand = InstantiationBrand & "_BaseTyp"
+; CONST GrowableTypBrand = InstantiationBrand & "_GrowableTyp"
+; CONST FixedTypBrand = InstantiationBrand & "_FixedTyp"
+
+; CONST Brand = InstantiationBrand 
 
 ; EXCEPTION Error ( TEXT )
 

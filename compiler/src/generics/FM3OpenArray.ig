@@ -14,7 +14,7 @@ GENERIC INTERFACE FM3OpenArray ( Elem )
 
 ; TYPE T = REF ARRAY OF Elem . T 
 
-; CONST Brand = "FM3OpenArray0.1"
+; CONST Brand = "FM3OpenArray0.1" & Elem . Brand 
 
 ; PROCEDURE Compare ( READONLY Left , Right : T ) : FM3Base . CompareTyp 
 
