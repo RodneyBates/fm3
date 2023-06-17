@@ -21,8 +21,10 @@ GENERIC MODULE FM3Atom ( DictGenformal )
 
 ; IMPORT FM3Base 
 
+; CONST Brand = "FM3Atom_" & DictGenformal . Brand & "_0.1"
+
 ; REVEAL T =
-    BRANDED "FM3Atom_" & DictGenformal . Brand & "_0.1"
+    BRANDED Brand 
     REF RECORD
       AtGrowableDict : DictGenformal  . GrowableTyp 
     ; AtNextAtom : FM3Base . AtomTyp := 1 
