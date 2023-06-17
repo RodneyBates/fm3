@@ -24,7 +24,7 @@ ABS 1
    StkBOF . 
    StkEOF . 
    
-ABS 2350
+ABS 5
 (* Near the top of lalr's max range to 2500. *) 
 
    (* Modula-3 Reserved words: *) 

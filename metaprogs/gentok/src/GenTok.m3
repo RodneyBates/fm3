@@ -805,9 +805,9 @@ EXPORTS Main
     END ArgCtPlus1 
 
 ; PROCEDURE EmitTok ( Name : TEXT ; ArgCt : INTEGER ; String : TEXT := NIL )
-  (* PRE: Are generating this token.
-     No parsing or input consuming done.
-     ArgCt < 0 => not emitted.
+  (* PRE: Are generating this token. *) 
+  (* No parsing or input consuming done.
+     ArgCt < 0 => arg count not emitted.
   *) 
 
   = <* FATAL IntRefArray . AllocationFailure *>
@@ -940,12 +940,14 @@ EXPORTS Main
         END (*IF*) 
       END (*WHILE*)
     ; IF Text . Equal ( GToken , "." ) THEN GToken := GetSyntTok ( ) END (*IF*)
-    END EmitFixedToks 
+    END EmitFixedToks
+
+; VAR GDoEmitSrcComments := FALSE 
 
 ; PROCEDURE EmitSrcTok ( )
 
   = VAR LSrcName : TEXT
-  ; VAR LString : TEXT
+  ; VAR LString : TEXT 
   ; VAR LStringLen : INTEGER 
   ; VAR LNoQuoteString : TEXT 
 
@@ -956,24 +958,30 @@ EXPORTS Main
       THEN
         LString := GToken 
       ; GToken := GetSyntTok ( ) (* Consume the string value. *)
-      ; IF GDoGenSrcFsm
+      ; IF GDoGenSrcFsm  
         THEN
           LStringLen := Text . Length ( LString ) 
         ; LNoQuoteString := Text . Sub ( LString , 1 , LStringLen - 2 ) 
         ; FM3BuildLexMachine . AddPair
-            ( LNoQuoteString , GNextTokNo , ReverseMap := FALSE )  
-        END (*IF*) 
+            ( LNoQuoteString , GNextTokNo , ReverseMap := FALSE )
+        END (*IF*)
+      ; IF NOT GDoEmitSrcComments
+        THEN LString := NIL 
+        END (*IF*)
+      ELSE LString := NIL 
       END (*IF*)
     ; IF GDoGenSrcToks
       THEN 
-        MaybePutMinTokNo ( ) 
-      ; Layout . PadAbs ( GOStream , GSemiTab )
-      ; Layout . PutText ( GOStream , "(* SRC " )
-      ; Layout . PutText ( GOStream , LSrcName )
-      ; Layout . PutText ( GOStream , ": *)" )
-      ; Layout . PutEol ( GOStream )
+        MaybePutMinTokNo ( )
+      ; IF GDoEmitSrcComments
+        THEN 
+          Layout . PadAbs ( GOStream , GSemiTab )
+        ; Layout . PutText ( GOStream , "(* SRC " )
+        ; Layout . PutText ( GOStream , LSrcName )
+        ; Layout . PutText ( GOStream , ": *)" )
+        ; Layout . PutEol ( GOStream )
+        END (*IF*) 
       ; EmitTok ( LSrcName , - 1 , LString )  
-      ; Layout . PutEol ( GOStream )
       ELSIF GDoCountSrcToks
       THEN INC ( GNextTokNo ) 
       END (*IF*) 
