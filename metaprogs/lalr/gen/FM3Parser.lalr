@@ -14,15 +14,17 @@ PARSER FM3Parser
 
 /* Stuff to go into the parser interface. */ 
 EXPORT
-  { IMPORT FM3ParseSem;
+  { IMPORT FM3IntToks;
+    IMPORT FM3ParseSem; 
 
     TYPE tParsAttribute = FM3ParseSem . tParsAttribute; 
   }
 
 (* Stuff to go at front of the parser module, at global scope. *)
 GLOBAL
-  { FROM FM3ParseSem IMPORT PushTok , PushTokPatch;
-    IMPORT FM3SrcToks AS TD;
+
+  { IMPORT FM3IntToks AS Itk;
+    FROM FM3ParseSem IMPORT PushTok , PushTokPatch;
   }
 
 (* Local declarations of the Parse procedure. *) 
@@ -203,28 +205,28 @@ OptUnsafe : StkUNSAFE { $$ . PaBool := TRUE; } .
 OptUnsafe : { $$ . PaBool := FALSE; }.
 
 Exports : { } .
-Exports : StkRwEXPORTS IdentList { }.
+Exports : StkRwEXPORTS ExportsList { }.
 
-IdentList : .
-IdentList : IdentListSub 
+ExportsList : .
+ExportsList : ExportsListSub 
     { WITH i = $1 . PaLong
-      DO PushTok ( TD . StkIdentListRt , i+1L);
-        PushTokPatch ( TD . StkIdentListLtPatch , 0L , i+1L);
+      DO PushTok ( Itk . ItkExportsListRt , i+1L);
+        PushTokPatch ( Itk . ItkExportsListLtPatch , 0L , i+1L);
       END (*WITH*); 
     } .
 
-IdentListSub : { $$ . PaLong := 0L; } .
-IdentListSub : IdentListSub StkComma Ident
+ExportsListSub : { $$ . PaLong := 0L; } .
+ExportsListSub : ExportsListSub StkComma Ident
     { WITH i = $1 . PaLong
-      DO PushTok ( TD . StkIdentListRtElem , i );
-        PushTokPatch ( TD . StkIdentListLtElemPatch , 0L , i );
+      DO PushTok ( Itk . ItkExportsListElemRt , i );
+        PushTokPatch ( Itk . ItkExportsListElemLtPatch , 0L , i );
         $$ . PaLong := i+1L;
       END (*WITH*); 
     } .
 
-GenFormalsList : IdentList . 
+GenFormalsList : ExportsList . 
 
-GenActuals : IdentList .
+GenActuals : ExportsList .
 
 DeclList : . 
 
