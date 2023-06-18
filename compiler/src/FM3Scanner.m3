@@ -1201,17 +1201,32 @@ MODULE FM3Scanner
 
   ; BEGIN
       LFileName := NamePrefix & "SrcFsm.pkl"
-    ; LRdT := FM3SharedUtils . OpenResourceRd ( LFileName , Kind )
-    ; LResult := Pickle2 . Read ( LRdT ) 
+    ; TRY (*EXCEPT*)
+        LRdT := FM3SharedUtils . OpenResourceRd ( LFileName , Kind )
+      EXCEPT FM3SharedUtils . FatalError ( EMsg ) =>
+        FM3SharedUtils . StandaloneFatalError ( EMsg )
+      ; RAISE FM3SharedUtils . Terminate ( NIL )  
+      ; LResult := Pickle2 . Read ( LRdT ) 
+      ELSE 
+        FM3SharedUtils . StandaloneFatalError
+          ( "Unable to read resource file \"" & LFileName )
+      ; RAISE FM3SharedUtils . Terminate ( NIL )
+      END (*EXCEPT*) 
     ; RETURN LResult 
-    END ReadFsm 
+    END ReadFsm
 
-; BEGIN (* FM3Scanner *) 
-    InitEscapeCharMap ( ) 
-  ; InitDigitCharMap ( ) 
-  ; FM3SharedUtils . ResourcePathName := FM3Globals . ResourcePathName 
-  ; GM3RwLexTable := ReadFsm ( "M3" , FM3SharedUtils . FM3FileKindM3RwPkl ) 
-  ; GPgRwLexTable := ReadFsm ( "Pg" , FM3SharedUtils . FM3FileKindPgRwPkl ) 
+(* EXPORTED: *) 
+; PROCEDURE Init ( )
+
+  = BEGIN
+      InitEscapeCharMap ( ) 
+    ; InitDigitCharMap ( ) 
+    ; FM3SharedUtils . ResourcePathName := FM3Globals . ResourcePathName 
+    ; GM3RwLexTable := ReadFsm ( "M3" , FM3SharedUtils . FM3FileKindM3RwPkl ) 
+    ; GPgRwLexTable := ReadFsm ( "Pg" , FM3SharedUtils . FM3FileKindPgRwPkl ) 
+    END Init 
+
+; BEGIN (* FM3Scanner *)
   END FM3Scanner 
 . 
 

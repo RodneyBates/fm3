@@ -55,6 +55,8 @@ INTERFACE FM3Scanner
       ; SaWCh : WIDECHAR (* Value of [WIDE]CHAR literal. *)
       END (* tScanAttribute *)
 
+; PROCEDURE Init ( )
+
 ; PROCEDURE GetToken ( ) : INTEGER (*lalr*)
 
 ; PROCEDURE ErrorAttribute

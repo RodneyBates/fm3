@@ -13,9 +13,15 @@ INTERFACE FM3SharedUtils
 
 ; IMPORT FM3Base 
 
-; EXCEPTION FatalError ( TEXT ) 
+; <*IMPLICIT*>
+  EXCEPTION Terminate ( TEXT ) 
+
+; EXCEPTION FatalError ( TEXT )
 
 ; PROCEDURE StandaloneFatalError ( Msg : TEXT )
+  (* Convenience procedure for catchers of FatalError.
+     Just write to stderror.
+  *) 
 
 ; PROCEDURE AtomListToText ( List : AtomList . T ): TEXT
 
@@ -34,7 +40,9 @@ INTERFACE FM3SharedUtils
 ; PROCEDURE FilePrefix ( Kind : CHAR ) : TEXT
 
 ; PROCEDURE OpenRd
-    ( FileName , PathName , Note1 , Note2 : TEXT := "" ) : Rd . T
+    ( FileName , PathName , Note1 , Note2 : TEXT := "" )
+  : Rd . T
+  RAISES { FatalError } 
 
 ; PROCEDURE OpenResourceRd
     ( FileName : TEXT := "" ; ExpectedFileKind : FileKindTyp )

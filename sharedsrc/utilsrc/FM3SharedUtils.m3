@@ -44,6 +44,9 @@ MODULE FM3SharedUtils
 
 (*EXPORTED*) 
 ; PROCEDURE StandaloneFatalError ( Msg : TEXT )
+  (* Convenience procedure for catchers of FatalError.
+     Just write to stderror.
+  *) 
 
   = BEGIN 
       Wr . PutText ( Stdio . stderr , Msg )
@@ -180,7 +183,9 @@ MODULE FM3SharedUtils
 
 (*EXPORTED*) 
 ; PROCEDURE OpenRd
-    ( FileName , PathName , Note1 , Note2 : TEXT := "" ) : Rd . T
+    ( FileName , PathName , Note1 , Note2 : TEXT := "" )
+  : Rd . T
+  RAISES { FatalError } 
 
   = VAR LFullFileName : TEXT
   ; VAR LRdT : Rd . T
