@@ -1223,7 +1223,7 @@ MODULE FM3Scanner
     ; InitDigitCharMap ( ) 
     ; FM3SharedUtils . ResourcePathName := FM3Globals . ResourcePathName 
     ; GM3RwLexTable := ReadFsm ( "M3" , FM3SharedUtils . FM3FileKindM3RwPkl ) 
-    ; GPgRwLexTable := ReadFsm ( "Pg" , FM3SharedUtils . FM3FileKindPgRwPkl ) 
+(*  ; GPgRwLexTable := ReadFsm ( "Pg" , FM3SharedUtils . FM3FileKindPgRwPkl ) *)
     END Init 
 
 ; BEGIN (* FM3Scanner *)

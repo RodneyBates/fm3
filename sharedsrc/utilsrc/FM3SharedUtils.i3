@@ -51,7 +51,7 @@ INTERFACE FM3SharedUtils
 
 ; PROCEDURE IntHash ( Val : INTEGER ) : FM3Base . HashTyp
 
-; VAR ResourcePathName := "." 
+; VAR ResourcePathName := "../lib" 
   (* ^Since this is a shared compiler/metaprogs interface, clients
      need to set it as desired. *) 
 ; END FM3SharedUtils 

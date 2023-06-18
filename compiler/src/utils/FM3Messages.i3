@@ -9,16 +9,16 @@
 INTERFACE FM3Messages
 
 ; IMPORT AtomList 
-; IMPORT Thread 
+; IMPORT Thread
 
-; <*IMPLICIT*> EXCEPTION Terminate 
+; IMPORT FM3SharedUtils
 
   (* Fatal and Log go immediatly to stderr and optionally to a log file. *) 
 
 ; VAR LogFileName := "FM3Log"
 
 ; PROCEDURE Fatal ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL )
-  RAISES { Terminate }
+  RAISES { FM3SharedUtils . Terminate }
   (* Also terminates the program. *) 
 
 ; PROCEDURE Log

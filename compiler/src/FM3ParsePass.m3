@@ -88,7 +88,7 @@ MODULE FM3ParsePass
       LPathPrefix := Pathname . Prefix ( FileName )
     ; LUniRd
         := FM3Files . OpenUniRd
-             ( LPathPrefix , FileName , " source file " , NIL ) 
+             ( FileName , LPathPrefix , "source file " , NIL ) 
     ; LUnitRef := FM3Units . New ( )
     ; LUnitRef ^ . UntSrcFileName := FileName 
     ; LUnitRef ^ . UntSrcFilePrefix := LPathPrefix  
@@ -128,12 +128,14 @@ MODULE FM3ParsePass
       EXCEPT
       | OSError . E ( EMsg ) 
       => Fatal
-           ( "Unable to open " , LFullFileName , ": " , ALOSE ( EMsg) , "." ) 
+           ( "Unable to open source file \""
+           , LFullFileName , "\": " , ALOSE ( EMsg) , "."
+           ) 
       | RdBackFile . Preexists
       => Fatal
-           ( "Unable to open "
+           ( "Unable to open source file \""
            , LFullFileName
-           , ", already exists and is nonempty."
+           , "\", already exists and is nonempty."
            )
       END (*EXCEPT*)
  

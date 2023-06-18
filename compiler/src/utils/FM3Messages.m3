@@ -76,7 +76,6 @@ MODULE FM3Messages
 
 (*EXPORTED*)
 ; PROCEDURE Fatal ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL ) 
-  RAISES { Terminate }
   (* Also terminates the program. *)
 
   = VAR LMsg : TEXT 
@@ -84,13 +83,13 @@ MODULE FM3Messages
   ; BEGIN
       LMsg
         := FM3SharedUtils . CatStrings
-             ( "FM3 FATAL:"
+             ( "FM3 FATAL: "
              , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8
              )
     ; TRY (*EXCEPT*)
         PutStdErr ( LMsg ) 
       ; PutLog ( LMsg ) 
-      ; RAISE Terminate
+      ; RAISE FM3SharedUtils . Terminate ( LMsg ) 
       EXCEPT Thread . Alerted => END (*EXCEPT*) 
     END Fatal  
 

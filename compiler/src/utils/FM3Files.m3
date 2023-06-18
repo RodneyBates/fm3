@@ -24,6 +24,7 @@ MODULE FM3Files
 (*EXPORTED*) 
 ; PROCEDURE OpenUniRd
     ( FileName , PathName , Note1 , Note2 : TEXT := "" ) : UniRd . T
+  RAISES { } 
 
   = VAR LFullFileName : TEXT
   ; VAR LRdT : Rd . T
@@ -36,8 +37,8 @@ MODULE FM3Files
       EXCEPT
       | OSError . E ( EMsg ) 
       => FM3Messages . Fatal
-           ( "Unable to open " , Note1 , Note2 , LFullFileName
-           , ": OSError.E(" , FM3SharedUtils . AtomListToText ( EMsg ) , ")."
+           ( "Unable to open " , Note1 , Note2 , " \"" & LFullFileName
+           , "\": OSError.E(" , FM3SharedUtils . AtomListToText ( EMsg ) , ")."
            ) 
       END (*EXCEPT*)
 

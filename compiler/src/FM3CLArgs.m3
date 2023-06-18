@@ -13,6 +13,7 @@ MODULE FM3CLArgs
 ; IMPORT OSError 
 ; IMPORT Stdio
 
+; IMPORT FM3Globals 
 ; IMPORT FM3Messages 
 
 ; PROCEDURE SetDefaults ( )
@@ -27,16 +28,16 @@ MODULE FM3CLArgs
         (* Write compilation process messages to stderr. *)
 
     ; DoLog := TRUE
-        (* Write compilation process messages to cmpiler log file. *)
+        (* Write compilation process messages to compiler log file. *)
     ; LogFileName := "FM3Log"
-    ; LogFileWrT := FileWr . Open ( LogFileName )
-      (* ^DoLog => Non-NIL and open. *) 
 
     ; DoStdOut := TRUE
         (* Write compiled code messages to stdout. *)
 
     ; DoCompLog := TRUE
         (* Write compiled code messages to unit-specific log file. *)
+
+    ; FM3Globals . ResourcePathName := "../lib" 
 
     END SetDefaults
 
