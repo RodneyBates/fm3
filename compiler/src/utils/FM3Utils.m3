@@ -8,10 +8,14 @@
 
 MODULE FM3Utils
 
-; IMPORT AtomList 
+; IMPORT AtomList
+; IMPORT Fmt 
 ; IMPORT Long AS BitArith
 ; IMPORT Text
-; IMPORT Word 
+; IMPORT TextWr
+; IMPORT Thread 
+; IMPORT Word
+; IMPORT Wr 
 
 ; IMPORT IntRanges 
 ; IMPORT IntCharVarArray AS VarArr_Char 
@@ -140,32 +144,114 @@ MODULE FM3Utils
     ; RETURN LResult  
     END WCharVarArrayToOAWChar
 
-; PROCEDURE TextLiteral ( READONLY Chars : REF ARRAY OF CHAR ) : TEXT
+; PROCEDURE EscapeChar ( WrT : Wr . T ; WCh : WIDECHAR ) 
+
+  = VAR LChOrd : INTEGER
+  ; VAR LPadLen : INTEGER
+  ; LEscChar : CHAR 
+
+  ; <* FATAL Thread . Alerted *> 
+    <* FATAL Wr . Failure *> 
+    BEGIN (* EscapeChar *)
+      CASE  WCh 
+      OF '\"' , '\'' , '\\' 
+      => Wr . PutChar ( WrT , '\\' ) 
+      ; Wr . PutChar ( WrT ,  WCh ) 
+      | '\n' 
+      => Wr . PutChar ( WrT , '\\' ) 
+      ; Wr . PutChar ( WrT , 'n' ) 
+      | '\t' 
+      => Wr . PutChar ( WrT , '\\' ) 
+      ; Wr . PutChar ( WrT , 't' ) 
+      | '\r' 
+      => Wr . PutChar ( WrT , '\\' ) 
+      ; Wr . PutChar ( WrT , 'r' ) 
+      | '\f' 
+      => Wr . PutChar ( WrT , '\\' ) 
+      ; Wr . PutChar ( WrT , 'f' ) 
+      | ' ' .. '!' , '#' .. '&' , '(' .. '[' , ']' .. '~'
+      => Wr . PutChar ( WrT ,  WCh ) 
+      ELSE 
+        Wr . PutChar ( WrT , '\\' ) 
+      ; LChOrd := ORD ( WCh )
+      ; IF LChOrd > 16_FFFF
+        THEN LEscChar := 'U' ; LPadLen := 6 
+        ELSE LEscChar := 'X' ; LPadLen := 4
+        END (*IF*) 
+      ; Wr . PutChar ( WrT , LEscChar ) 
+      ; Wr . PutText 
+          ( WrT 
+          , Fmt . Pad 
+              ( Fmt . Int ( ORD ( WCh ) , base := 16 ) 
+              , length := LPadLen
+              , padChar := '0' 
+              , align := Fmt . Align . Right 
+              ) 
+          ) 
+      END (* CASE *) 
+    END EscapeChar  
+
+(*EXPORTED*) 
+; PROCEDURE TextLiteral ( READONLY CharsRef : REF ARRAY OF CHAR ) : TEXT
   (* Insert quotes and escapes. *) 
 
-  = BEGIN
-(* COMPLETEME *)
-      RETURN NIL 
+  = VAR LWrT : TextWr . T
+  ; VAR LResult : TEXT 
+
+  ; BEGIN
+      LWrT := TextWr . New ( )
+    ; Wr . PutChar ( LWrT , '\"' )
+    ; FOR RI := FIRST ( CharsRef ^ ) TO LAST ( CharsRef ^ )
+      DO EscapeChar ( LWrT , CharsRef ^ [ RI ] ) 
+      END (*FOR*) 
+    ; Wr . PutChar ( LWrT , '\"' )
+    ; LResult := TextWr . ToText ( LWrT ) 
+    ; RETURN LResult 
     END TextLiteral 
 
-(* From Schutz, Misc.m3: ---------------------------------------
+(*EXPORTED*) 
+; PROCEDURE WideTextLiteral ( READONLY CharsRef : REF ARRAY OF WIDECHAR ) : TEXT
+  (* Insert quotes and escapes. *) 
+
+  = VAR LWrT : TextWr . T
+  ; VAR LResult : TEXT 
+
+  ; BEGIN
+      LWrT := TextWr . New ( )
+    ; Wr . PutText ( LWrT , "W\"" )
+    ; FOR RI := FIRST ( CharsRef ^ ) TO LAST ( CharsRef ^ )
+      DO EscapeChar ( LWrT , CharsRef ^ [ RI ] ) 
+      END (*FOR*) 
+    ; Wr . PutChar ( LWrT , '\"' )
+    ; LResult := TextWr . ToText ( LWrT ) 
+    ; RETURN LResult 
+    END WideTextLiteral 
+
 (* EXPORTED: *) 
-; PROCEDURE EscapeText ( String : TEXT ) : TEXT 
-(* Add Modula-3 TEXT literal escapes. Do not add enclosing double quotes. *) 
+; PROCEDURE QuoteText ( String : TEXT ) : TEXT 
+  (* Add escape sequences and string quotes. *) 
+
+  = BEGIN 
+      RETURN "\"" (*& EscapeText ( String )*) & "\""  
+    END QuoteText 
+
+(* ------------------------------------------------------------- *) 
+(*
+; PROCEDURE WideTextLiteral ( READONLY WChars : REF ARRAY OF WIDECHAR ) : TEXT
+  (* Insert quotes and escapes. *) 
+  (* Add Modula-3 TEXT literal escapes. Do not add enclosing double quotes. *) 
 
   = <* FATAL Thread . Alerted *> 
     <* FATAL Wr . Failure *> 
-    <* FATAL Rd . Failure *> 
-    <* FATAL Rd . EndOfFile *> 
-    VAR C : CHAR 
+    VAR LWrT : Wr . T
+  ; VAR C : CHAR 
 
-  ; BEGIN (* EscapeText *)
-      IF String = NIL THEN RETURN "" END (* IF *) 
-    ; EVAL WrT . init ( ) 
-    ; EVAL RdT . init ( String ) 
-    ; WHILE NOT Rd . EOF ( RdT ) 
+  ; BEGIN (* WideTextLiteral *)
+      IF WChars = NIL THEN RETURN "" END (*IF*)
+    ; LWrT := TextWr . New ( ) 
+    ; FOR RI := 0 TO LAST ( WChars ^ ) 
       DO 
-        C := Rd . GetChar ( RdT ) 
+        C := WChars ^ [ RI ] 
       ; CASE C 
         OF '\"' , '\'' , '\\' 
         => Wr . PutChar ( WrT , '\\' ) 
@@ -183,45 +269,29 @@ MODULE FM3Utils
         => Wr . PutChar ( WrT , '\\' ) 
         ; Wr . PutChar ( WrT , 'f' ) 
         | ' ' .. '!' , '#' .. '&' , '(' .. '[' , ']' .. '~'
-        , LbeStd . LeftPlaceholderDelimChar   
-        , LbeStd . RightPlaceholderDelimChar   
-(* FIXME: Make this adapt to placeholder delimiter strings of length > 1. *) 
         => Wr . PutChar ( WrT , C ) 
-        ELSE 
+        ELSE
           Wr . PutChar ( WrT , '\\' ) 
-(* TODO: Use hex instead of octal here. *) 
+        ; LChVal := ORD ( C )
+        ; IF LChVal > 16_FFFF
+          THEN LEscChar := 'U' ; LPadLen := 6 
+          THEN LEscChar := 'X' ; LPadLen := 4
+          END (*IF*) 
+        ; Wr . PutChar ( WrT , LEscChar ) 
         ; Wr . PutText 
             ( WrT 
             , Fmt . Pad 
-                ( Fmt . Int ( ORD ( C ) , base := 8 ) 
-                , length := 3 
+                ( Fmt . Int ( ORD ( C ) , base := 16 ) 
+                , length := LPadLen 
                 , padChar := '0' 
                 , align := Fmt . Align . Right 
                 ) 
             ) 
-        END (* CASE *) 
-      END (* WHILE *) 
+        END (*CASE*) 
+      END (*FOR*) 
     ; RETURN TextWr . ToText ( WrT ) 
     END EscapeText 
-
-(* EXPORTED: *) 
-; PROCEDURE QuoteText ( String : TEXT ) : TEXT 
-  (* Add escape sequences and string quotes. *) 
-
-  = BEGIN 
-      RETURN "\"" & EscapeText ( String ) & "\""  
-    END QuoteText 
-
-   ------------------------------------------------------------- *) 
-
-; PROCEDURE WideTextLiteral ( READONLY WChars : REF ARRAY OF WIDECHAR ) : TEXT
-  (* Insert quotes and escapes. *) 
-
-  = BEGIN
-(* COMPLETEME *) 
-      RETURN NIL 
-    END WideTextLiteral 
-
+*)
 (* EXPORTED: *) 
 ; PROCEDURE TextToRefArrayChars ( TextVal : TEXT) : REF ARRAY OF CHAR
   (* WARNING: Don't try this unless you know there are no characters
