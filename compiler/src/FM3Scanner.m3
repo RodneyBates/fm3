@@ -140,9 +140,12 @@ MODULE FM3Scanner
 
     ; TRY 
         LSsRef ^ . SsWCh := UnsafeUniRd . FastGetWideChar( LSsRef ^ . SsUniRd ) 
-      ; IF GTopSsRef . SsWCh <= WLastOfChar 
-        THEN GTopSsRef . SsCh := GTopSsRef . SsWCh 
-        ELSE GTopSsRef . SsCh := NUL 
+      ; IF GTopSsRef # NIL 
+        THEN 
+          IF GTopSsRef . SsWCh <= WLastOfChar 
+          THEN GTopSsRef . SsCh := GTopSsRef . SsWCh 
+          ELSE GTopSsRef . SsCh := NUL 
+          END (*IF*) 
         END (*IF*) 
       EXCEPT 
       | Thread . Alerted => (* Ignore *)  

@@ -47,24 +47,30 @@ MODULE FM3Messages
       END (*IF*) 
     END PutStdOut 
 
-; PROCEDURE PutCompileLog ( Msg : TEXT ) RAISES { Thread . Alerted } 
+; PROCEDURE PutUnitLog ( Msg : TEXT ) RAISES { Thread . Alerted }
+  (* Or, resort to cokpiler log, if can't do that. *) 
 
   = BEGIN
       IF FM3CLArgs . DoCompLog
-         (* => FM3Globals . CurrentUnitRef . UntCompLogWrT # NIL and is open. *)
+         AND FM3Globals . CurrentUnitRef # NIL 
+         AND FM3Globals . CurrentUnitRef . UntLogWrT # NIL 
+         AND NOT Wr . Closed ( FM3Globals . CurrentUnitRef . UntLogWrT ) 
       THEN
-        TRY (*EXCEPT*) 
-          Wr . PutText ( FM3Globals . CurrentUnitRef . UntCompLogWrT , Msg )
-        ; Wr . PutText ( FM3Globals . CurrentUnitRef . UntCompLogWrT , Wr . EOL )
+        TRY (*EXCEPT*)
+          Wr . PutText ( FM3Globals . CurrentUnitRef . UntLogWrT , Msg )
+        ; Wr . PutText ( FM3Globals . CurrentUnitRef . UntLogWrT , Wr . EOL )
         EXCEPT Wr . Failure =>
         END (*EXCEPT*)
+      ELSE PutLog ( Msg ) 
       END (*IF*) 
-    END PutCompileLog
+    END PutUnitLog
 
 ; PROCEDURE PutLog ( Msg : TEXT ) RAISES { Thread . Alerted } 
 
   = BEGIN
-      IF FM3CLArgs . DoLog (* => FM3CLArgs . LogWrT # NIL and is open. *) 
+      IF FM3CLArgs . DoLog 
+         AND FM3CLArgs . LogFileWrT # NIL 
+         AND NOT Wr . Closed ( FM3CLArgs . LogFileWrT ) 
       THEN
         TRY (*EXCEPT*) 
           Wr . PutText ( FM3CLArgs . LogFileWrT , Msg )
@@ -83,9 +89,7 @@ MODULE FM3Messages
   ; BEGIN
       LMsg
         := FM3SharedUtils . CatStrings
-             ( "FM3 FATAL: "
-             , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8
-             )
+             ( "FM3 FATAL: " , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 )
     ; TRY (*EXCEPT*)
         PutStdErr ( LMsg ) 
       ; PutLog ( LMsg ) 
@@ -127,7 +131,7 @@ MODULE FM3Messages
              , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8
              ) 
     ; PutStdOut ( LMsg )
-    ; PutCompileLog ( LMsg ) 
+    ; PutUnitLog ( LMsg ) 
     END Info 
 
 (*EXPORTED*)
@@ -144,7 +148,7 @@ MODULE FM3Messages
              , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8
              ) 
     ; PutStdOut ( LMsg ) 
-    ; PutCompileLog ( LMsg ) 
+    ; PutUnitLog ( LMsg ) 
     END Warning
 
 (*EXPORTED*)
@@ -161,7 +165,7 @@ MODULE FM3Messages
              , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8
              ) 
     ; PutStdOut ( LMsg ) 
-    ; PutCompileLog ( LMsg ) 
+    ; PutUnitLog ( LMsg ) 
     END Error
 
 (*EXPORTED*)

@@ -26,8 +26,8 @@ INTERFACE FM3Units
       ; UntStackLink : UnitRefTyp := NIL 
       ; UntSrcFileName : TEXT := NIL 
       ; UntSrcFilePrefix : TEXT := NIL(* Without simple name. *)
-      ; UntCompLogName : TEXT := NIL 
-      ; UntCompLogWrT : Wr . T := NIL 
+      ; UntLogName : TEXT := NIL 
+      ; UntLogWrT : Wr . T := NIL 
       ; UntWorkFilePrefix : TEXT := NIL
       ; UntPatchStackName : TEXT := NIL
       ; UntPatchStackRdBack : RdBackFile . T := NIL

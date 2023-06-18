@@ -51,7 +51,6 @@ MODULE FM3Units
     ; RETURN LUnitRef 
     END New
     
-
 ; BEGIN
     NextUnitNo := 1
   ; UnitMap := VarArray_Int_Refany . New ( NIL )  

@@ -25,10 +25,13 @@ MODULE FM3ParsePass
       into the token stream.
 *)
 
+; IMPORT FileWr 
 ; IMPORT FS 
 ; IMPORT OSError
-; IMPORT Pathname 
-; IMPORT UniRd 
+; IMPORT Pathname
+; IMPORT Stdio 
+; IMPORT UniRd
+; IMPORT Wr 
 
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars
@@ -77,6 +80,8 @@ MODULE FM3ParsePass
     END FindFilePrefix
 *)
 
+; CONST UnitLogSuffix = ".log" 
+
 ; PROCEDURE OpenUnit ( FileName : TEXT ) : FM3Units . UnitRefTyp
 
   = VAR LFullFileName : TEXT 
@@ -91,7 +96,23 @@ MODULE FM3ParsePass
              ( FileName , LPathPrefix , "source file " , NIL ) 
     ; LUnitRef := FM3Units . New ( )
     ; LUnitRef ^ . UntSrcFileName := FileName 
-    ; LUnitRef ^ . UntSrcFilePrefix := LPathPrefix  
+    ; LUnitRef ^ . UntSrcFilePrefix := LPathPrefix
+    ; LUnitRef ^ . UntLogName := FileName & UnitLogSuffix
+    ; TRY LUnitRef ^ . UntLogWrT
+            := FileWr . Open ( LUnitRef ^ . UntLogName ) 
+      EXCEPT
+      | OSError . E ( EAtoms )
+      => Wr . PutText ( Stdio . stderr , "Unable to open unit log file " ) 
+      ; Wr . PutText ( Stdio . stderr , LUnitRef ^ . UntLogName ) 
+      ; Wr . PutText ( Stdio . stderr , ": " ) 
+      ; Wr . PutText
+          ( Stdio . stderr , FM3Messages . AtomListToOSError ( EAtoms ) ) 
+      ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
+      ; Wr . PutText ( Stdio . stderr , "Will proceed without it." ) 
+      ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
+      ; Wr . Flush ( Stdio . stderr )
+      ; LUnitRef ^ . UntLogWrT := NIL 
+      END (*EXCEPT*) 
     ; LUnitRef ^ . UntWorkFilePrefix := "." 
 (* TODO: Provide a path here. *) 
     ; LUnitRef ^ . UntPatchStackName
@@ -170,7 +191,8 @@ MODULE FM3ParsePass
     ; LUnitRef ^ . UntScopes := FM3Scopes . NewMap ( )  
     ; LUnitRef ^ . UntDecls := FM3Decls . NewMap ( ) 
 
-    ; FM3Scanner . PushState ( LUniRd , LUnitRef ) 
+    ; FM3Scanner . PushState ( LUniRd , LUnitRef )
+    ; RETURN LUnitRef 
     END OpenUnit 
 
 ; PROCEDURE DeleteFile ( PathPrefix , FileName : TEXT ) 
@@ -251,8 +273,8 @@ MODULE FM3ParsePass
   ; BEGIN
       LUnitRef := OpenUnit ( SrcFileName )
     ; LUnitRef . UntStackLink := FM3Globals . CurrentUnitRef
-    ; Info ( "Compiling " , SrcFileName , "..." ) 
     ; FM3Globals . CurrentUnitRef := LUnitRef 
+    ; Info ( "Compiling " , SrcFileName , "..." ) 
     ; LUnitRef ^ . UntParseResult := FM3Parser . FM3Parser ( )
 (* TODO:           ^Something with this? *) 
     ; FM3Parser . CloseFM3Parser  ( )
