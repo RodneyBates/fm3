@@ -226,19 +226,29 @@ MODULE FM3Scanner
 
 ; PROCEDURE AppendChar ( VarArr : VarArr_Char . T ; Ch : CHAR ) 
 
-  = VAR LSs : INTEGER 
+  = VAR LTouchedRange : IntRangeTyp 
+  ; VAR LSs : INTEGER 
 
   ; BEGIN 
-      LSs := VarArr_Char . TouchedRange ( VarArr ) . Hi + 1 
+      LTouchedRange := VarArr_Char . TouchedRange ( VarArr ) 
+    ; IF IntRanges . RangeIsEmpty ( LTouchedRange ) 
+      THEN LSs := 0 
+      ELSE LSs := LTouchedRange . Hi + 1 
+      END (*IF*) 
     ; VarArr_Char . Assign ( VarArr , LSs , Ch ) 
     END AppendChar 
 
 ; PROCEDURE AppendWChar ( VarArr : VarArr_WChar . T ; WCh : WIDECHAR ) 
 
-  = VAR LSs : INTEGER 
+  = VAR LTouchedRange : IntRangeTyp 
+  ; VAR LSs : INTEGER 
 
   ; BEGIN 
-      LSs := VarArr_WChar . TouchedRange ( VarArr ) . Hi + 1 
+      LTouchedRange := VarArr_WChar . TouchedRange ( VarArr ) 
+    ; IF IntRanges . RangeIsEmpty ( LTouchedRange ) 
+      THEN LSs := 0 
+      ELSE LSs := LTouchedRange . Hi + 1 
+      END (*IF*) 
     ; VarArr_WChar . Assign ( VarArr , LSs , WCh ) 
     END AppendWChar 
 
