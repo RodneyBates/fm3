@@ -247,9 +247,9 @@ MODULE FM3ParsePass
   = VAR LUnitRef : FM3Units . UnitRefTyp
 
   ; BEGIN
-      Info ( "Compiling " , SrcFileName , "..." ) 
-    ; LUnitRef := OpenUnit ( SrcFileName )
+      LUnitRef := OpenUnit ( SrcFileName )
     ; LUnitRef . UntStackLink := FM3Globals . CurrentUnitRef
+    ; Info ( "Compiling " , SrcFileName , "..." ) 
     ; FM3Globals . CurrentUnitRef := LUnitRef 
     ; LUnitRef ^ . UntParseResult := FM3Parser . FM3Parser ( )
 (* TODO:           ^Something with this? *) 
@@ -270,7 +270,6 @@ MODULE FM3ParsePass
     END Run 
 
 ; BEGIN
-    Run ( ) 
   END FM3ParsePass
 .
 
