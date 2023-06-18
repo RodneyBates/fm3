@@ -10,10 +10,14 @@ MODULE FM3Utils
 
 ; IMPORT AtomList 
 ; IMPORT Long AS BitArith
-; IMPORT Text 
+; IMPORT Text
+; IMPORT Word 
 
+; IMPORT IntRanges 
 ; IMPORT IntCharVarArray AS VarArr_Char 
 ; IMPORT IntWideCharVarArray AS VarArr_WChar
+
+; TYPE IntRangeTyp = IntRanges . RangeTyp
 
 ; VAR GroundHashVar := 17345L
 ; VAR ShiftFactor := 7 
@@ -100,18 +104,40 @@ MODULE FM3Utils
 ; PROCEDURE CharVarArrayToOAChar
     ( VarArr : VarArr_Char . T ) : REF ARRAY OF CHAR
 
-  = BEGIN
-(* COMPLETEME *) 
-      RETURN NIL 
+  = VAR LResult : REF ARRAY OF CHAR 
+  ; VAR LTouchedRange : IntRangeTyp 
+  ; VAR LNumber : Word . T  
+
+  ; BEGIN
+      LTouchedRange := VarArr_Char . TouchedRange ( VarArr ) 
+    ; IF IntRanges . RangeIsEmpty ( LTouchedRange ) 
+      THEN LResult := NEW ( REF ARRAY OF CHAR , 0 )  
+      ELSE
+        LNumber := IntRanges . NumberOfRange ( LTouchedRange ) 
+      ; LResult := NEW ( REF ARRAY OF CHAR , LNumber )
+      ; VarArr_Char . FetchSubarray ( VarArr , 0 , LResult ^ ) 
+      END (*IF*) 
+    ; RETURN LResult  
     END CharVarArrayToOAChar
 
 (*EXPORTED:*)
 ; PROCEDURE WCharVarArrayToOAWChar
     ( VarArr : VarArr_WChar . T ) : REF ARRAY OF WIDECHAR 
 
-  = BEGIN
-(* COMPLETEME *) 
-      RETURN NIL 
+  = VAR LResult : REF ARRAY OF WIDECHAR 
+  ; VAR LTouchedRange : IntRangeTyp 
+  ; VAR LNumber : Word . T  
+
+  ; BEGIN 
+      LTouchedRange := VarArr_WChar . TouchedRange ( VarArr ) 
+    ; IF IntRanges . RangeIsEmpty ( LTouchedRange ) 
+      THEN LResult := NEW ( REF ARRAY OF WIDECHAR , 0 )  
+      ELSE
+        LNumber := IntRanges . NumberOfRange ( LTouchedRange ) 
+      ; LResult := NEW ( REF ARRAY OF WIDECHAR , LNumber )
+      ; VarArr_WChar . FetchSubarray ( VarArr , 0 , LResult ^ ) 
+      END (*IF*) 
+    ; RETURN LResult  
     END WCharVarArrayToOAWChar
 
 ; PROCEDURE TextLiteral ( READONLY Chars : REF ARRAY OF CHAR ) : TEXT
