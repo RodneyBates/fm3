@@ -140,6 +140,11 @@ MODULE FM3Scanner
 
     ; TRY 
         LSsRef ^ . SsWCh := UnsafeUniRd . FastGetWideChar( LSsRef ^ . SsUniRd ) 
+      ; IF LSsRef ^ . SsWCh <= WLastOfChar 
+        THEN LSsRef ^ . SsCh := LSsRef ^ . SsWCh 
+        ELSE LSsRef ^ . SsCh := NUL 
+        END (*IF*) 
+(* What the? 
       ; IF GTopSsRef # NIL 
         THEN 
           IF GTopSsRef . SsWCh <= WLastOfChar 
@@ -147,6 +152,7 @@ MODULE FM3Scanner
           ELSE GTopSsRef . SsCh := NUL 
           END (*IF*) 
         END (*IF*) 
+*)
       EXCEPT 
       | Thread . Alerted => (* Ignore *)  
       | Rd . EndOfFile , Rd . Failure 
@@ -363,7 +369,6 @@ MODULE FM3Scanner
             & " illegal characters: " 
             & LBadCharText 
             ) 
-      ; Attribute . SaTok := FM3SrcToks . StkLexErrChars 
       END LexErrorChars 
 
   ; CONST IdentFollowChars 
@@ -911,7 +916,7 @@ MODULE FM3Scanner
       END CommentSuffix 
 
   ; BEGIN (* GetToken *) 
-      ScAtBegOfPragma := GTopSsRef ^ . SsAtBegOfPragma 
+      ScAtBegOfPragma := GTopSsRef ^ . SsAtBegOfPragma (* From prev. token. *)
     ; GTopSsRef ^ . SsAtBegOfPragma := FALSE 
     ; Attribute . SaWCh := WNUL  
     ; Attribute . SaAtom := FM3Base . AtomNull 
@@ -925,14 +930,14 @@ MODULE FM3Scanner
           IF GTopSsRef . SsWCh = WLS OR GTopSsRef . SsWCh = WPS 
              (* ^Unicode end-of-line code points, *)  
           THEN NextChar ( ) 
-          ELSE 
-            LexErrorChars ( ) 
-          ; EXIT 
+          ELSE LexErrorChars ( ) 
           END (*IF*) 
         ELSIF GTopSsRef . SsCh 
               IN SET OF CHAR { ' ' , CR , LF , FF , VT , TAB }  
         THEN NextChar ( ) 
-        ELSE EXIT  
+        ELSIF GTopSsRef . SsCh IN M3Chars  
+        THEN EXIT  
+        ELSE LexErrorChars ( ) 
         END (*IF*) 
       END (*LOOP*) 
 
@@ -1136,8 +1141,7 @@ MODULE FM3Scanner
       ; NextChar ( )
       ; Attribute . SaTok := FM3SrcToks . StkSlash  
 
-      ELSE (* Other values in CHAR *) 
-        LexErrorChars ( ) 
+   (* ELSE Can't happen.  (Other values ruled out earlier). *)  
       END (* CASE *)
     ; RETURN Attribute . SaTok 
     END GetToken
