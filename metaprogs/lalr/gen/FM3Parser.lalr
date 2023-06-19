@@ -190,7 +190,7 @@ GenModule :
     ImportList Block StkRwEND StkIdent StkDot . 
 
 InstModule :
-    OptUnsafeTkRwMODULE StkIdent Exports StkEqual
+    OptUnsafe TkRwMODULE StkIdent Exports StkEqual
     StkIdent GenActals StkRwEND StkIdent StkDot . 
 
 Interface :
@@ -223,6 +223,8 @@ ExportsListSub : ExportsListSub StkComma Ident
         $$ . PaLong := i+1L;
       END (*WITH*); 
     } .
+
+ImportList : ExportsList . 
 
 GenFormalsList : ExportsList . 
 
