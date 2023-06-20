@@ -23,7 +23,7 @@ MODULE FM3SharedUtils
 ; IMPORT FM3Base 
 
 ; CONST FM3FileTag = "FM3"
-; VAR TagLength := Text . Length ( FM3FileTag ) 
+; VAR TagLength := Text . Length ( FM3FileTag )  
 
 ; CONST FM3Magic
     = ARRAY [ 0 .. 3 ] OF CHAR 
@@ -170,7 +170,7 @@ MODULE FM3SharedUtils
         ; LChar := Rd . GetChar ( RdT )
         ; IF LChar # FM3Magic [ LCharPos ] THEN RETURN END (*IF*) 
         ; INC ( LCharPos ) 
-        ; IF LCharPos >= TagLength THEN EXIT END (*IF*)   
+        ; IF LCharPos >= NUMBER ( FM3Magic )  THEN EXIT END (*IF*)   
         END (*LOOP*)
 
       ; IsOK := TRUE 
