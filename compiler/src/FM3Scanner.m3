@@ -372,7 +372,7 @@ MODULE FM3Scanner
       END LexErrorChars 
 
   ; CONST IdentFollowChars 
-            = SET OF CHAR { 'A' .. 'F' , 'a' .. 'f' , '0' .. '9' , '_' }
+            = SET OF CHAR { 'A' .. 'Z' , 'a' .. 'z' , '0' .. '9' , '_' }
 
   ; PROCEDURE StartIdent ( ) 
 
@@ -412,18 +412,21 @@ MODULE FM3Scanner
            AND GCurRwValue # FM3LexTable . ValueNull 
         THEN Attribute . SaTok := GCurRwValue  
         ELSIF ScAtBegOfPragma 
-           AND FM3Dict_OAChars_Int . LookupGrowable 
-                 ( FM3Globals . PgRwDict 
-                 , Attribute . SaChars 
-                 , ScHash 
-                 , (*OUT*) LIntTok 
-                 ) 
+              AND FM3Globals . PgRwDict # NIL 
+              AND FM3Dict_OAChars_Int . LookupGrowable 
+                    ( FM3Globals . PgRwDict 
+                    , Attribute . SaChars 
+                    , ScHash 
+                    , (*OUT*) LIntTok 
+                    ) 
         THEN Attribute . SaTok := LIntTok 
-        ELSIF FM3Dict_OAChars_Int . LookupGrowable 
-                ( FM3Globals . M3RwDict 
-                , Attribute . SaChars 
-                , ScHash 
-                , (*OUT*) LIntTok ) 
+        ELSIF FM3Globals . PgRwDict # NIL 
+              AND FM3Dict_OAChars_Int . LookupGrowable 
+                    ( FM3Globals . M3RwDict 
+                    , Attribute . SaChars 
+                    , ScHash 
+                    , (*OUT*) LIntTok 
+                    ) 
         THEN Attribute . SaTok := LIntTok 
         ELSE 
           Attribute . SaAtom 
