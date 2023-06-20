@@ -379,7 +379,7 @@ MODULE FM3Scanner
     = BEGIN 
         IF ScAtBegOfPragma 
         THEN GCurRwLexTable := GPgRwLexTable 
-        ELSE GCurRwLexTable := GM3RwLexTable 
+        ELSE GCurRwLexTable := GM3RwLexTable
         END (*IF*) 
       ; GCurRwState := FM3LexTable . IncrInit ( GCurRwLexTable ) 
       ; GCurRwValue := FM3LexTable . ValueNull 
@@ -1220,14 +1220,15 @@ MODULE FM3Scanner
       LFileName := NamePrefix & "SrcFsm.pkl"
     ; TRY (*EXCEPT*)
         LRdT := FM3SharedUtils . OpenResourceRd ( LFileName , Kind )
+      ; LResult := Pickle2 . Read ( LRdT ) 
       EXCEPT FM3SharedUtils . FatalError ( EMsg ) =>
         FM3SharedUtils . StandaloneFatalError ( EMsg )
       ; RAISE FM3SharedUtils . Terminate ( NIL )  
-      ; LResult := Pickle2 . Read ( LRdT ) 
-      ELSE 
+(*      ELSE 
         FM3SharedUtils . StandaloneFatalError
           ( "Unable to read resource file \"" & LFileName )
       ; RAISE FM3SharedUtils . Terminate ( NIL )
+*)
       END (*EXCEPT*) 
     ; RETURN LResult 
     END ReadFsm
