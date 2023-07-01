@@ -174,13 +174,18 @@ MODULE FM3Scanner
       IF GTopSsRef = NIL THEN RETURN NIL END (* IF *) 
     ; LSsRef := GTopSsRef 
     ; GTopSsRef := LSsRef ^ . SsLink 
-    ; Attribute := GTopSsRef ^ . SsSavedAttribute
+    ; IF GTopSsRef # NIL 
+      THEN Attribute := GTopSsRef ^ . SsSavedAttribute 
+      END (*IF*) 
     ; TRY UniRd . Close ( LSsRef . SsUniRd ) 
       EXCEPT 
       | Thread . Alerted => (* Ignore *)  
       | Rd . Failure 
-      => GTopSsRef . SsWCh := WEOF 
-      ;  GTopSsRef . SsCh := NUL 
+      => IF GTopSsRef # NIL 
+         THEN 
+           GTopSsRef . SsWCh := WEOF 
+         ; GTopSsRef . SsCh := NUL 
+         END (*IF*) 
       END (*EXCEPT*) 
     ; DEC ( GScanStateDepth ) 
     ; RETURN LSsRef ^ . SsUniRd   
