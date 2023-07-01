@@ -17,9 +17,9 @@ MODULE FM3SrcToks
 
   = BEGIN 
       CASE TokNo OF 
+      | 0 => RETURN "StkEOF"
       | 1 => RETURN "StkUnknown"
       | 2 => RETURN "StkBOF"
-      | 3 => RETURN "StkEOF"
       | 5 => RETURN "StkRwAND"
       | 6 => RETURN "StkRwANY"
       | 7 => RETURN "StkRwARRAY"

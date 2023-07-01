@@ -16,15 +16,17 @@ INTERFACE FM3SrcToks
 
 ; PROCEDURE Image ( TokNo : TokTyp ) : TEXT 
 
-(* Not used in FM3Parser: *)
-(* ABS 1: *)
+(* ABS 0: *)
 
-; CONST TkMinTok                                     =     1
+; CONST TkMinTok                                     =     0
 
+; CONST StkEOF                                       =     0 (*16_00 *)
+(* From lalr, Gen.m3, FindFirstToken:
+               "EndOfToken wird immer mit 0 codiert"
+            *)
+(* Not used in FM3Scanner or FM3Parser: *)
 ; CONST StkUnknown                                   =     1 (*16_01 *)
 ; CONST StkBOF                                       =     2 (*16_02 *)
-; CONST StkEOF                                       =     3 (*16_03 *)
-(* Near the top of lalr's max range to 2500. *)
 (* Modula-3 Reserved words: *)
 (* ABS 5: *)
 

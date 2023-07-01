@@ -17,15 +17,17 @@ UNITNAME FM3SrcToks
 
 SRC 
 
-ABS 1
+ABS 0
 
-(* Not used in FM3Parser: *)
+   StkEOF . (* From lalr, Gen.m3, FindFirstToken:
+               "EndOfToken wird immer mit 0 codiert"
+            *)
+              
+(* Not used in FM3Scanner or FM3Parser: *)
    StkUnknown .
    StkBOF . 
-   StkEOF . 
    
 ABS 5
-(* Near the top of lalr's max range to 2500. *) 
 
    (* Modula-3 Reserved words: *) 
    StkRwAND            "AND" .   
