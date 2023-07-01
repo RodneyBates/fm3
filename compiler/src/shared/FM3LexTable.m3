@@ -114,7 +114,7 @@ MODULE FM3LexTable
   (* Supply one character to an incremental lookup.  State must be what was
      returned by the last IncrInit or IncrNext, and using the same Table.
      Supply NullChar as and only-as the last in the string. 
-     ValueNull means not enough information, commonly more charasters needed.
+     ValueNull means not enough information, commonly more characters needed.
      Caller must call with 
      ValueUnrecognized means, well, unrecognized? *)
      
