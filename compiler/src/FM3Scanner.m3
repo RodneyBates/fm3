@@ -405,9 +405,11 @@ MODULE FM3Scanner
       ; Attribute . SaHash := ScHash 
       ; Attribute . SaChars 
           := FM3Utils . CharVarArrayToOAChar ( ScCharVarArr ) 
+(*
       ; GCurRwValue 
           := FM3LexTable . IncrNext 
-               ( GCurRwLexTable , FM3LexTable . NullChar , GCurRwState )
+               ( GCurRwLexTable , FM3LexTable . NullChar , GCurRwState ) 
+*)
       ; IF GCurRwValue # FM3LexTable . ValueUnrecognized  
            AND GCurRwValue # FM3LexTable . ValueNull 
         THEN Attribute . SaTok := GCurRwValue  
