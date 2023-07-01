@@ -183,15 +183,15 @@ GenInterface :
 
 InstInterface :
     OptUnsafe StkRwINTERFACE StkIdent StkEqual
-    StkIdent GenActals StkRwEND StkIdent StkDot . 
+    StkIdent GenActuals StkRwEND StkIdent StkDot . 
 
 GenModule :
     StkRwGENERIC StkRwMODULE StkIdent GenFormalsList StkSemicolon
     ImportList Block StkRwEND StkIdent StkDot . 
 
 InstModule :
-    OptUnsafe TkRwMODULE StkIdent Exports StkEqual
-    StkIdent GenActals StkRwEND StkIdent StkDot . 
+    OptUnsafe StkRwMODULE StkIdent Exports StkEqual
+    StkIdent GenActuals StkRwEND StkIdent StkDot . 
 
 Interface :
     OptUnsafe StkRwINTERFACE StkIdent StkSemicolon
@@ -201,7 +201,7 @@ Module :
     OptUnsafe StkRwMODULE StkIdent Exports StkSemicolon
     ImportList Block StkRwEND StkIdent StkDot .
 
-OptUnsafe : StkUNSAFE { $$ . PaBool := TRUE; } .
+OptUnsafe : StkRwUNSAFE { $$ . PaBool := TRUE; } .
 OptUnsafe : { $$ . PaBool := FALSE; }.
 
 Exports : { } .
@@ -216,7 +216,7 @@ ExportsList : ExportsListSub
     } .
 
 ExportsListSub : { $$ . PaLong := 0L; } .
-ExportsListSub : ExportsListSub StkComma Ident
+ExportsListSub : ExportsListSub StkComma StkIdent
     { WITH i = $1 . PaLong
       DO PushTok ( Itk . ItkExportsListElemRt , i );
         PushTokPatch ( Itk . ItkExportsListElemLtPatch , 0L , i );
