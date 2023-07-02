@@ -25,7 +25,7 @@ INTERFACE FM3Scanner
         Line : M2SHORTCARD 
       ; Column : M2SHORTCARD
 (*FIXME: M2SHORTCARD is for compatibility with reusem3/Positions.tPosition.
-         These are probably adiquate, but maybe 32 bits would be better
+         These are probably adequate, but maybe 32 bits would be better
          here.  Exactly how to do this without undue
          dependency of cocktail m3 on FM3 is unclear.
 *) 

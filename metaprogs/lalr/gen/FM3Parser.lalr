@@ -31,7 +31,9 @@ GLOBAL
 LOCAL { }
 
 (* Parser module initialization. *) 
-BEGIN { }
+BEGIN
+  { FrontErrors . SetReportMode ( FrontErrors . tReportMode . eImmediate ); 
+  }
 
 (* Parser module final cleanup. *) 
 CLOSE { }

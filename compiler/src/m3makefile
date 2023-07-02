@@ -26,7 +26,7 @@ include_dir("../../sharedsrc/vararraysrc")
 
 import("m3core")
 import("libm3")
-import("reusem3")
+%import("reusem3") %Apparently nothing from here.
 import("frontm3")
 
 import("libunicode")
