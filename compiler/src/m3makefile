@@ -48,6 +48,7 @@ module("FM3TokSupport")
 module("FM3Units")
 module("FM3Decls")
 module("FM3Scopes")
+module("FM3Sets")
 
 implementation("FM3")
 
