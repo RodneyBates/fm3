@@ -173,27 +173,12 @@ RULE
 
 (* Compilation units: *) 
 
-Compilation : GenInterface . 
-Compilation : InstInterface . 
-Compilation : GenModule . 
-Compilation : InstModule .
 Compilation : Interface . 
 Compilation : Module .
-GenInterface :
-    StkRwGENERIC StkRwINTERFACE StkIdent GenFormalsList StkSemicolon
-    ImportList DeclList StkRwEND StkIdent StkDot . 
-
-InstInterface :
-    OptUnsafe StkRwINTERFACE StkIdent StkEqual
-    StkIdent GenActuals StkRwEND StkIdent StkDot . 
-
-GenModule :
-    StkRwGENERIC StkRwMODULE StkIdent GenFormalsList StkSemicolon
-    ImportList Block StkRwEND StkIdent StkDot . 
-
-InstModule :
-    OptUnsafe StkRwMODULE StkIdent Exports StkEqual
-    StkIdent GenActuals StkRwEND StkIdent StkDot . 
+Compilation : GenInterface . 
+Compilation : GenModule . 
+Compilation : InstInterface . 
+Compilation : InstModule .
 
 Interface :
     OptUnsafe StkRwINTERFACE StkIdent StkSemicolon
@@ -203,13 +188,35 @@ Module :
     OptUnsafe StkRwMODULE StkIdent Exports StkSemicolon
     ImportList Block StkRwEND StkIdent StkDot .
 
+GenInterface :
+    StkRwGENERIC StkRwINTERFACE StkIdent GenFormalsList StkSemicolon
+    ImportList DeclList StkRwEND StkIdent StkDot . 
+
+GenModule :
+    StkRwGENERIC StkRwMODULE StkIdent GenFormalsList StkSemicolon
+    ImportList Block StkRwEND StkIdent StkDot . 
+
+InstInterface :
+    OptUnsafe StkRwINTERFACE StkIdent StkEqual
+    StkIdent GenActuals StkRwEND StkIdent StkDot . 
+
+InstModule :
+    OptUnsafe StkRwMODULE StkIdent Exports StkEqual
+    StkIdent GenActuals StkRwEND StkIdent StkDot . 
+
 OptUnsafe : StkRwUNSAFE { $$ . PaBool := TRUE; } .
 OptUnsafe : { $$ . PaBool := FALSE; }.
 
 Exports : { } .
-Exports : StkRwEXPORTS ExportsList { }.
+Exports : StkRwEXPORTS IdList { }.
 
-ExportsList : .
+IdList : StkIdent IdListTail .
+
+IdListTail : . 
+IdListTail : StkComma StkIdent IdListTail .
+
+(*
+
 ExportsList : ExportsListSub 
     { WITH i = $1 . PaLong
       DO PushTok ( Itk . ItkExportsListRt , i+1L);
@@ -226,6 +233,8 @@ ExportsListSub : ExportsListSub StkComma StkIdent
       END (*WITH*); 
     } .
 
+*) 
+
 ImportList : ExportsList . 
 
 GenFormalsList : ExportsList . 
@@ -234,7 +243,11 @@ GenActuals : ExportsList .
 
 DeclList : . 
 
-Block : .
+Block : DeclList StkRwBEGIN StmtList StkRwEND .
+
+DeclList : .
+
+StmtList : . 
 
 (* END of FM3Parser.lalr. *)
 
