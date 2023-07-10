@@ -1,12 +1,5 @@
-(* Derived from: ** $Id: Parser.mi,v 2.8 1992/08/12 06:54:05 grosch rel $ *)
-(* Skeleton parser for Cocktail lalr. *)
-(* Modified Rodney M. Bates. Various times. rodney.m.bates@acm.org*)
-(* Beginning 3-2023: 
-    3-2023 Add generation of Module-3 code. 
-    Further changes in https://github.com/RodneyBates/cocktail
-*) 
 
-(* Parser.m3. *) 
+
 
   UNSAFE MODULE FM3Parser;
 (*^ BEWARE! lalr loses this character. *) 
@@ -580,8 +573,8 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
                         yyState := yyFinalToProd [yyState];
                      END (* IF *) ;
                      INC (yyStackPtr);
-                     yyAttributeStack^ [yyStackPtr].Scan := yyRepairAttribute;
                      yyStateStack^     [yyStackPtr] := yyState;
+                     yyAttributeStack^ [yyStackPtr].Scan := yyRepairAttribute;
                   END (* IF *) ;
                   IF yyState >= yyFirstFinalState 
                   THEN (* final state ? *)
@@ -605,6 +598,7 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
               yyAttributeStack^ [yyStackPtr].Scan := FM3Scanner.Attribute;
               yyTerminal := FM3Scanner.GetToken ();
                yyIsRepairing := FALSE;
+               yyStateStack^ [yyStackPtr] := yyState (*ParserDebug*);
             END (* IF *) ;
 
             LOOP (* Through successive reductions *)
@@ -710,14 +704,18 @@ END;
                yyState := yyNCombPtr^;
                INC (yyStackPtr);
                yyAttributeStack^ [yyStackPtr] := yySynAttribute;
+               yyAttributeStack^ [yyStackPtr].Scan.SaTok := yyNonterminal;
+            (* ^This requires that tScanAttribute have field 'SaTok'. *)
                IF yyState < yyFirstFinalState 
                THEN (* read nonterminal ? *)
                  EXIT 
                END (* IF *) ; 
+               yyStateStack^ [yyStackPtr] := yyState (*ParserDebug*);
             END (* LOOP *) ;
 
          ELSE (* read *)
             INC (yyStackPtr);
+            yyStateStack^ [yyStackPtr] := yyState (*ParserDebug*);
            yyAttributeStack^ [yyStackPtr].Scan := FM3Scanner.Attribute;
            yyTerminal := FM3Scanner.GetToken ();
             yyIsRepairing := FALSE;
@@ -760,7 +758,8 @@ PROCEDURE ErrorRecovery (
             END;
          END;
       END;
-      FrontErrors.ErrorMessageI (FrontErrors.ExpectedTokens, FrontErrors.Information,
+      FrontErrors.ErrorMessageI
+        (FrontErrors.ExpectedTokens, FrontErrors.Information,
        FM3Scanner.Attribute.Position, FrontErrors.eString, ADR (ContinueString));
       ContinueSet := NIL;
 
@@ -813,7 +812,7 @@ PROCEDURE IsContinuation (
       StackSize         : INTEGER       ;
       StackPtr          : yyStackPtrType): BOOLEAN =
    VAR
-      State             : yyStackPtrType;
+      State             : yyStateRange;
       Nonterminal       : yySymbolRange;
       Stack             : yyStackType;
    BEGIN
@@ -847,16 +846,19 @@ PROCEDURE IsContinuation (
             END;
 
             State := Next (Stack^ [StackPtr], Nonterminal);
+            (* Ensure Stack has room for at least 2 elements. *)
             IF StackPtr >= StackSize THEN
               ExpandStateStack
                 (Stack, MAX (NUMBER ( Stack ^ ) * 2 , StackPtr + 2 ) );
               StackSize := NUMBER (Stack^); 
             END;
+            Stack^ [StackPtr] := State (*ParserDebug*);
             INC (StackPtr);
             IF State < yyFirstFinalState
             THEN EXIT;
             END; (* read nonterminal ? *)
             State := yyFinalToProd [State]; (* read nonterminal reduce *)
+            Stack^ [StackPtr] := State (*ParserDebug*);
          END;
       END;
     END IsContinuation;
@@ -875,7 +877,7 @@ PROCEDURE ComputeRestartPoints (
       VAR RestartSet    : IntSets.T     ) =
    VAR
       Stack             : yyStackType;
-      State             : yyStackPtrType;
+      State             : yyStateRange;
       Nonterminal       : yySymbolRange;
       ContinueSet       : IntSets.T;
    BEGIN
@@ -889,6 +891,7 @@ PROCEDURE ComputeRestartPoints (
       State := Stack^ [StackPtr];
 
       LOOP
+         (* Ensure Stack has room for at least 2 elements. *)
          IF StackPtr >= StackSize THEN
             ExpandStateStack
               (Stack, MAX (NUMBER (Stack ^) * 2 , StackPtr + 2 ) );
@@ -903,6 +906,7 @@ PROCEDURE ComputeRestartPoints (
             IF State <= yyLastReadTermState THEN (* read terminal reduce ? *)
                INC (StackPtr);
                State := yyFinalToProd [State];
+               Stack^ [StackPtr] := State (*ParserDebug*);
             END;
 
             LOOP (* reduce *)
@@ -921,7 +925,7 @@ PROCEDURE ComputeRestartPoints (
                THEN EXIT;
                END; (* read nonterminal ? *)
                State := yyFinalToProd [State]; (* read nonterminal reduce *)
-            END;
+            END (*LOOP*);
          ELSE (* read *)
             INC (StackPtr);
          END;
