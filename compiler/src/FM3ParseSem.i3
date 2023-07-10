@@ -17,10 +17,10 @@ INTERFACE FM3ParseSem
 ; TYPE tParsAttribute (* Lalr expects this and field Scan to be so named. *) 
     = RECORD
         Scan : FM3Scanner . tScanAttribute
+      ; PaLong : LONGINT 
       ; PaConstructPtr : INTEGER
       ; PaListItemNo : INTEGER
       ; PaInt : INTEGER
-      ; PaLong : LONGINT 
       ; PaBool : BOOLEAN 
       END (* tParsAttribute *)
 
