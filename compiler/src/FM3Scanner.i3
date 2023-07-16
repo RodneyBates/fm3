@@ -43,8 +43,6 @@ INTERFACE FM3Scanner
         (* ^Of any TrTok with a meaningful TrWideChars or TrChars field. *) 
       ; SaAtom : FM3Base . AtomTyp
         (* ^Of any TrTok with a meaningful TrWideChars or TrChars field. *) 
-      ; SaLineNo : INTEGER := 0 
-      ; SaCharPos : INTEGER := 0 
       ; SaWideChars : FM3OpenArray_WideChar . T 
         (* ^Converted RT memory value of wide TEXT literal or lex error
             chars. *) 

@@ -54,6 +54,9 @@ MODULE FM3Scanner
 ; CONST WLF = W'\n' 
 ; CONST NUL = '\X00' 
 
+; CONST TopmostLineNo = 1 (* According to emacs. *)  
+; CONST LeftmostColumnNo = 0 (* According to emacs. *)  
+
 ; CONST WLastOfChar : WIDECHAR = LAST ( CHAR ) 
 
 ; CONST M3Chars 
@@ -96,12 +99,10 @@ MODULE FM3Scanner
          END (* ScanStateTyp *) 
 
 ; CONST ScanAttributeDefault = tScanAttribute 
-      { Position := tPosition { 0 , 0 } 
+      { Position := tPosition { TopmostLineNo , LeftmostColumnNo } 
       , SaArgValue := 0L 
       , SaHash := FM3Base . HashNull
       , SaAtom := FM3Base . AtomNull
-      , SaLineNo := 0 
-      , SaCharPos := 0 
       , SaWideChars := NIL 
       , SaChars := NIL 
       , SaTok := FM3Base . TokNull  
@@ -122,8 +123,8 @@ MODULE FM3Scanner
     ; Attribute := ScanAttributeDefault  
     ; LSsRef ^ . SsUnitRef := UnitRef
     ; LSsRef ^ . SsUniRd := NewUniRd 
-    ; LSsRef ^ . Position . Line := 0 
-    ; LSsRef ^ . Position . Column := 0   
+    ; LSsRef ^ . Position . Line := TopmostLineNo 
+    ; LSsRef ^ . Position . Column := LeftmostColumnNo 
     ; LSsRef ^ . SsAtBegOfPragma := FALSE 
     ; LSsRef ^ . SsUnitRef ^ . UntIdentAtomDict 
         := FM3Atom_OAChars . New 
@@ -205,7 +206,7 @@ MODULE FM3Scanner
   = BEGIN 
       FM3Errors . Err  
         ( GTopSsRef ^ . SsUnitRef ^ . UntSrcFileName 
-        , Attribute . SaLineNo 
+        , Attribute . Position . Line 
         , CharPos 
         , Msg 
         )
@@ -217,8 +218,8 @@ MODULE FM3Scanner
   = BEGIN 
       FM3Errors . Err 
         ( GTopSsRef ^ . SsUnitRef ^ . UntSrcFileName 
-        , Attribute . SaLineNo 
-        , Attribute . SaCharPos + Adjust  
+        , Attribute . Position . Line 
+        , Attribute . Position . Column + Adjust 
         , Msg 
         )
     END ErrorAtTok 
@@ -293,6 +294,10 @@ MODULE FM3Scanner
       END BegOfPlainTok 
 
   ; PROCEDURE NextChar ( ) 
+    (* Converts any newline char or sequence to LF/WLF. 
+       Leaves GTopSsRef.Position.Column denoting the
+       left char of the two-char newline sequence.
+    *)
 
     = VAR LWCh : WIDECHAR 
 
@@ -301,7 +306,8 @@ MODULE FM3Scanner
         THEN 
 (* TODO: Decide how to indicate new line to client. *) 
           INC ( GTopSsRef . Position . Line ) 
-        ; GTopSsRef . Position . Column := 0 
+        ; GTopSsRef . Position . Column := LeftmostColumnNo 
+        ELSE INC ( GTopSsRef . Position . Column )
         END (* IF *) 
       ; TRY GTopSsRef . SsWCh 
               := UnsafeUniRd . FastGetWideChar ( GTopSsRef ^ . SsUniRd ) 
@@ -316,7 +322,6 @@ MODULE FM3Scanner
         THEN GTopSsRef . SsCh := GTopSsRef . SsWCh 
         ELSE GTopSsRef . SsCh := NUL 
         END (*IF*) 
-      ; INC ( GTopSsRef . Position . Column )
       ; IF GTopSsRef . SsWCh = WCR 
         THEN 
           TRY LWCh := UnsafeUniRd . FastGetWideChar ( GTopSsRef ^ . SsUniRd ) 
@@ -329,8 +334,7 @@ MODULE FM3Scanner
           END (*EXCEPT*) 
         ; IF LWCh = WLF 
           THEN 
-            INC ( GTopSsRef . Position . Column )
-          ; GTopSsRef . SsWCh := WLF (* canonical new line. *)
+            GTopSsRef . SsWCh := WLF (* Canonical new line. *)
           ; GTopSsRef . SsCh := LF
           ELSE 
             <* ASSERT 
@@ -951,8 +955,7 @@ MODULE FM3Scanner
         END (*IF*) 
       END (*LOOP*) 
 
-    ; Attribute . SaLineNo := GTopSsRef ^ . Position . Line 
-    ; Attribute . SaCharPos := GTopSsRef ^ . Position . Column 
+    ; Attribute . Position := GTopSsRef ^ . Position 
 
     ; CASE GTopSsRef . SsCh 
       OF 'w' , 'W'
