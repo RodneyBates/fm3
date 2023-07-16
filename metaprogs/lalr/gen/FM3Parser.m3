@@ -25,18 +25,18 @@ CONST
    yyFirstTerminal          = 0;
    yyLastTerminal           = 107;
    yyFirstSymbol            = 0;
-   yyLastSymbol             = 126;
-   yyTableMax               = 121;
-   yyNTableMax              = 148;
+   yyLastSymbol             = 127;
+   yyTableMax               = 126;
+   yyNTableMax              = 155;
    yyFirstReadState         = 1;
-   yyLastReadState          = 52;
-   yyFirstReadTermState             = 53;
-   yyLastReadTermState              = 60;
-   yyLastReadNontermState           = 72;
-   yyFirstReduceState               = 73;
-   yyLastReduceState                = 99;
+   yyLastReadState          = 54;
+   yyFirstReadTermState             = 55;
+   yyLastReadTermState              = 63;
+   yyLastReadNontermState           = 75;
+   yyFirstReduceState               = 76;
+   yyLastReduceState                = 106;
    yyStartState             = 1;
-   yyStopState              = 73;
+   yyStopState              = 76;
 
 TYPE
    M2SHORTCARD = [ 0 .. 16_FFFF ];
@@ -67,6 +67,9 @@ CONST yyTableElmtBits = BITSIZE ( yyTableElmt );
    *)
 CONST
    yyFirstFinalState    = yyFirstReadTermState;
+   (* ^Any action that does a reduce, i.e., readTermReduce, readNTReduce,
+       or simple Reduce.  These are are actions, not true item-set states.
+   *) 
    yyLastState          = yyLastReduceState;
 
 TYPE
@@ -93,6 +96,10 @@ TYPE
 
 VAR
    yyTBasePtr
+     (* Subscripted by a state-number action, uses in combination
+        with a terminal to find the new action after shifting
+        the terminal in this state.
+     *) 
      := ARRAY [0 .. yyLastReadState] OF yyTCombTypePtr
          {
            (*   0*) ADR (yyTComb [   0]) , (*   1*) ADR (yyTComb [   0])
@@ -101,103 +108,109 @@ VAR
          , (*   6*) ADR (yyTComb [   0]) , (*   7*) ADR (yyTComb [   0])
          , (*   8*) ADR (yyTComb [   0]) , (*   9*) ADR (yyTComb [   1])
          , (*  10*) ADR (yyTComb [   0]) , (*  11*) ADR (yyTComb [   2])
-         , (*  12*) ADR (yyTComb [   0]) , (*  13*) ADR (yyTComb [   2])
-         , (*  14*) ADR (yyTComb [   0]) , (*  15*) ADR (yyTComb [   0])
-         , (*  16*) ADR (yyTComb [   0]) , (*  17*) ADR (yyTComb [   1])
-         , (*  18*) ADR (yyTComb [   2]) , (*  19*) ADR (yyTComb [   3])
-         , (*  20*) ADR (yyTComb [   3]) , (*  21*) ADR (yyTComb [   2])
-         , (*  22*) ADR (yyTComb [   0]) , (*  23*) ADR (yyTComb [   2])
-         , (*  24*) ADR (yyTComb [   4]) , (*  25*) ADR (yyTComb [   4])
-         , (*  26*) ADR (yyTComb [   0]) , (*  27*) ADR (yyTComb [   4])
-         , (*  28*) ADR (yyTComb [   5]) , (*  29*) ADR (yyTComb [   5])
-         , (*  30*) ADR (yyTComb [   4]) , (*  31*) ADR (yyTComb [   6])
-         , (*  32*) ADR (yyTComb [   0]) , (*  33*) ADR (yyTComb [   6])
-         , (*  34*) ADR (yyTComb [   7]) , (*  35*) ADR (yyTComb [   6])
-         , (*  36*) ADR (yyTComb [   8]) , (*  37*) ADR (yyTComb [  11])
-         , (*  38*) ADR (yyTComb [   9]) , (*  39*) ADR (yyTComb [   0])
-         , (*  40*) ADR (yyTComb [  10]) , (*  41*) ADR (yyTComb [  10])
-         , (*  42*) ADR (yyTComb [  14]) , (*  43*) ADR (yyTComb [   0])
-         , (*  44*) ADR (yyTComb [   1]) , (*  45*) ADR (yyTComb [   7])
-         , (*  46*) ADR (yyTComb [  11]) , (*  47*) ADR (yyTComb [   7])
-         , (*  48*) ADR (yyTComb [  12]) , (*  49*) ADR (yyTComb [   0])
-         , (*  50*) ADR (yyTComb [   8]) , (*  51*) ADR (yyTComb [  13])
-         , (*  52*) ADR (yyTComb [   8])
+         , (*  12*) ADR (yyTComb [   2]) , (*  13*) ADR (yyTComb [   3])
+         , (*  14*) ADR (yyTComb [   3]) , (*  15*) ADR (yyTComb [   4])
+         , (*  16*) ADR (yyTComb [   0]) , (*  17*) ADR (yyTComb [   0])
+         , (*  18*) ADR (yyTComb [   0]) , (*  19*) ADR (yyTComb [   1])
+         , (*  20*) ADR (yyTComb [   3]) , (*  21*) ADR (yyTComb [   4])
+         , (*  22*) ADR (yyTComb [   4]) , (*  23*) ADR (yyTComb [   4])
+         , (*  24*) ADR (yyTComb [   0]) , (*  25*) ADR (yyTComb [   2])
+         , (*  26*) ADR (yyTComb [   5]) , (*  27*) ADR (yyTComb [   9])
+         , (*  28*) ADR (yyTComb [   0]) , (*  29*) ADR (yyTComb [   5])
+         , (*  30*) ADR (yyTComb [   6]) , (*  31*) ADR (yyTComb [   6])
+         , (*  32*) ADR (yyTComb [   5]) , (*  33*) ADR (yyTComb [   7])
+         , (*  34*) ADR (yyTComb [   0]) , (*  35*) ADR (yyTComb [   7])
+         , (*  36*) ADR (yyTComb [   8]) , (*  37*) ADR (yyTComb [   9])
+         , (*  38*) ADR (yyTComb [   9]) , (*  39*) ADR (yyTComb [  12])
+         , (*  40*) ADR (yyTComb [  10]) , (*  41*) ADR (yyTComb [   0])
+         , (*  42*) ADR (yyTComb [  11]) , (*  43*) ADR (yyTComb [  13])
+         , (*  44*) ADR (yyTComb [  17]) , (*  45*) ADR (yyTComb [  18])
+         , (*  46*) ADR (yyTComb [   1]) , (*  47*) ADR (yyTComb [  10])
+         , (*  48*) ADR (yyTComb [  12]) , (*  49*) ADR (yyTComb [  15])
+         , (*  50*) ADR (yyTComb [  13]) , (*  51*) ADR (yyTComb [  16])
+         , (*  52*) ADR (yyTComb [  11]) , (*  53*) ADR (yyTComb [  14])
+         , (*  54*) ADR (yyTComb [  19])
          };
          
    yyNBasePtr
+     (* Subscripted by a state-number action, used in combination
+        with a nonterminal to find the new action after shifting
+        the nonterminal in this state.
+     *) 
      := ARRAY [0 .. yyLastReadState] OF yyNCombTypePtr
          {
            (*   0*) ADR (yyNComb [ 108]) , (*   1*) ADR (yyNComb [ 108])
          , (*   2*) ADR (yyNComb [ 108]) , (*   3*) ADR (yyNComb [ 108])
          , (*   4*) ADR (yyNComb [ 108]) , (*   5*) ADR (yyNComb [ 108])
-         , (*   6*) ADR (yyNComb [ 109]) , (*   7*) ADR (yyNComb [ 109])
+         , (*   6*) ADR (yyNComb [ 110]) , (*   7*) ADR (yyNComb [ 108])
          , (*   8*) ADR (yyNComb [ 108]) , (*   9*) ADR (yyNComb [ 108])
          , (*  10*) ADR (yyNComb [ 108]) , (*  11*) ADR (yyNComb [ 108])
-         , (*  12*) ADR (yyNComb [ 110]) , (*  13*) ADR (yyNComb [ 108])
-         , (*  14*) ADR (yyNComb [ 111]) , (*  15*) ADR (yyNComb [ 112])
-         , (*  16*) ADR (yyNComb [ 108]) , (*  17*) ADR (yyNComb [ 111])
-         , (*  18*) ADR (yyNComb [ 108]) , (*  19*) ADR (yyNComb [ 108])
+         , (*  12*) ADR (yyNComb [ 108]) , (*  13*) ADR (yyNComb [ 108])
+         , (*  14*) ADR (yyNComb [ 116]) , (*  15*) ADR (yyNComb [ 108])
+         , (*  16*) ADR (yyNComb [ 113]) , (*  17*) ADR (yyNComb [ 125])
+         , (*  18*) ADR (yyNComb [ 108]) , (*  19*) ADR (yyNComb [ 113])
          , (*  20*) ADR (yyNComb [ 108]) , (*  21*) ADR (yyNComb [ 108])
          , (*  22*) ADR (yyNComb [ 108]) , (*  23*) ADR (yyNComb [ 108])
          , (*  24*) ADR (yyNComb [ 108]) , (*  25*) ADR (yyNComb [ 108])
-         , (*  26*) ADR (yyNComb [ 121]) , (*  27*) ADR (yyNComb [ 121])
-         , (*  28*) ADR (yyNComb [ 108]) , (*  29*) ADR (yyNComb [ 108])
+         , (*  26*) ADR (yyNComb [ 108]) , (*  27*) ADR (yyNComb [ 108])
+         , (*  28*) ADR (yyNComb [ 127]) , (*  29*) ADR (yyNComb [ 110])
          , (*  30*) ADR (yyNComb [ 108]) , (*  31*) ADR (yyNComb [ 108])
-         , (*  32*) ADR (yyNComb [ 118]) , (*  33*) ADR (yyNComb [ 108])
-         , (*  34*) ADR (yyNComb [ 108]) , (*  35*) ADR (yyNComb [ 108])
-         , (*  36*) ADR (yyNComb [ 108]) , (*  37*) ADR (yyNComb [ 122])
-         , (*  38*) ADR (yyNComb [ 119]) , (*  39*) ADR (yyNComb [ 120])
-         , (*  40*) ADR (yyNComb [ 108]) , (*  41*) ADR (yyNComb [ 121])
-         , (*  42*) ADR (yyNComb [ 108]) , (*  43*) ADR (yyNComb [ 130])
-         , (*  44*) ADR (yyNComb [ 130]) , (*  45*) ADR (yyNComb [ 108])
-         , (*  46*) ADR (yyNComb [ 108]) , (*  47*) ADR (yyNComb [ 108])
-         , (*  48*) ADR (yyNComb [ 108]) , (*  49*) ADR (yyNComb [ 127])
-         , (*  50*) ADR (yyNComb [ 108]) , (*  51*) ADR (yyNComb [ 108])
-         , (*  52*) ADR (yyNComb [ 108])
+         , (*  32*) ADR (yyNComb [ 108]) , (*  33*) ADR (yyNComb [ 108])
+         , (*  34*) ADR (yyNComb [ 124]) , (*  35*) ADR (yyNComb [ 108])
+         , (*  36*) ADR (yyNComb [ 108]) , (*  37*) ADR (yyNComb [ 108])
+         , (*  38*) ADR (yyNComb [ 108]) , (*  39*) ADR (yyNComb [ 112])
+         , (*  40*) ADR (yyNComb [ 109]) , (*  41*) ADR (yyNComb [ 123])
+         , (*  42*) ADR (yyNComb [ 108]) , (*  43*) ADR (yyNComb [ 124])
+         , (*  44*) ADR (yyNComb [ 108]) , (*  45*) ADR (yyNComb [ 134])
+         , (*  46*) ADR (yyNComb [ 136]) , (*  47*) ADR (yyNComb [ 108])
+         , (*  48*) ADR (yyNComb [ 108]) , (*  49*) ADR (yyNComb [ 108])
+         , (*  50*) ADR (yyNComb [ 108]) , (*  51*) ADR (yyNComb [ 136])
+         , (*  52*) ADR (yyNComb [ 108]) , (*  53*) ADR (yyNComb [ 108])
+         , (*  54*) ADR (yyNComb [ 108])
          };
          
    yyDefault
      := ARRAY [0 .. yyLastReadState] OF [ 0 .. yyLastReadState ]
          {
            (*   0*)    0 , (*   1*)    0 , (*   2*)    0 , (*   3*)    0
-         , (*   4*)    0 , (*   5*)    0 , (*   6*)    0 , (*   7*)   27
+         , (*   4*)   14 , (*   5*)    0 , (*   6*)   51 , (*   7*)   29
          , (*   8*)    0 , (*   9*)    0 , (*  10*)    0 , (*  11*)    0
-         , (*  12*)    0 , (*  13*)    0 , (*  14*)    0 , (*  15*)   44
-         , (*  16*)    0 , (*  17*)    0 , (*  18*)    0 , (*  19*)    0
+         , (*  12*)    0 , (*  13*)    0 , (*  14*)    0 , (*  15*)    0
+         , (*  16*)   45 , (*  17*)   46 , (*  18*)    0 , (*  19*)    0
          , (*  20*)    0 , (*  21*)    0 , (*  22*)    0 , (*  23*)    0
          , (*  24*)    0 , (*  25*)    0 , (*  26*)    0 , (*  27*)    0
-         , (*  28*)    0 , (*  29*)    0 , (*  30*)    0 , (*  31*)    0
-         , (*  32*)    0 , (*  33*)    0 , (*  34*)    0 , (*  35*)    0
-         , (*  36*)    0 , (*  37*)    0 , (*  38*)    0 , (*  39*)   41
-         , (*  40*)    0 , (*  41*)    0 , (*  42*)    0 , (*  43*)    0
+         , (*  28*)   51 , (*  29*)    0 , (*  30*)    0 , (*  31*)    0
+         , (*  32*)    0 , (*  33*)    0 , (*  34*)   51 , (*  35*)    0
+         , (*  36*)    0 , (*  37*)    0 , (*  38*)    0 , (*  39*)    0
+         , (*  40*)    0 , (*  41*)   43 , (*  42*)    0 , (*  43*)    0
          , (*  44*)    0 , (*  45*)    0 , (*  46*)    0 , (*  47*)    0
          , (*  48*)    0 , (*  49*)    0 , (*  50*)    0 , (*  51*)    0
-         , (*  52*)    0
+         , (*  52*)    0 , (*  53*)    0 , (*  54*)    0
          };
          
    yyTComb
      := ARRAY yyTCombRangePacked OF yyTCombType
          {
-           (*   0*) yyTCombType {  22,   73} , (*   1*) yyTCombType {   0,    0}
+           (*   0*) yyTCombType {  24,   76} , (*   1*) yyTCombType {   0,    0}
          , (*   2*) yyTCombType {   0,    0} , (*   3*) yyTCombType {   0,    0}
          , (*   4*) yyTCombType {   0,    0} , (*   5*) yyTCombType {   0,    0}
          , (*   6*) yyTCombType {   0,    0} , (*   7*) yyTCombType {   0,    0}
-         , (*   8*) yyTCombType {   0,    0} , (*   9*) yyTCombType {  16,   17}
-         , (*  10*) yyTCombType {  44,   96} , (*  11*) yyTCombType {   0,    0}
+         , (*   8*) yyTCombType {   0,    0} , (*   9*) yyTCombType {  18,   19}
+         , (*  10*) yyTCombType {  46,  103} , (*  11*) yyTCombType {  11,   97}
          , (*  12*) yyTCombType {   0,    0} , (*  13*) yyTCombType {   0,    0}
          , (*  14*) yyTCombType {   0,    0} , (*  15*) yyTCombType {   0,    0}
          , (*  16*) yyTCombType {   0,    0} , (*  17*) yyTCombType {   0,    0}
          , (*  18*) yyTCombType {   0,    0} , (*  19*) yyTCombType {   8,    9}
-         , (*  20*) yyTCombType {  17,   99} , (*  21*) yyTCombType {  18,   54}
-         , (*  22*) yyTCombType {  19,   20} , (*  23*) yyTCombType {  27,   96}
-         , (*  24*) yyTCombType {  28,   29} , (*  25*) yyTCombType {  33,   34}
-         , (*  26*) yyTCombType {  45,   46} , (*  27*) yyTCombType {  50,   51}
-         , (*  28*) yyTCombType {   1,    2} , (*  29*) yyTCombType {   0,    0}
-         , (*  30*) yyTCombType {   0,    0} , (*  31*) yyTCombType {   0,    0}
-         , (*  32*) yyTCombType {   1,   87} , (*  33*) yyTCombType {   2,    3}
-         , (*  34*) yyTCombType {  23,   24} , (*  35*) yyTCombType {  37,   38}
-         , (*  36*) yyTCombType {   0,    0} , (*  37*) yyTCombType {   1,   87}
-         , (*  38*) yyTCombType {   2,   11} , (*  39*) yyTCombType {  23,   36}
+         , (*  20*) yyTCombType {  19,  106} , (*  21*) yyTCombType {  11,   97}
+         , (*  22*) yyTCombType {  20,   57} , (*  23*) yyTCombType {  21,   22}
+         , (*  24*) yyTCombType {  29,  103} , (*  25*) yyTCombType {  30,   31}
+         , (*  26*) yyTCombType {  35,   36} , (*  27*) yyTCombType {  45,   96}
+         , (*  28*) yyTCombType {   1,    2} , (*  29*) yyTCombType {  47,   48}
+         , (*  30*) yyTCombType {  52,   53} , (*  31*) yyTCombType {   0,    0}
+         , (*  32*) yyTCombType {   1,   90} , (*  33*) yyTCombType {   2,    3}
+         , (*  34*) yyTCombType {  25,   26} , (*  35*) yyTCombType {  51,   96}
+         , (*  36*) yyTCombType {  39,   40} , (*  37*) yyTCombType {   1,   90}
+         , (*  38*) yyTCombType {   2,   13} , (*  39*) yyTCombType {  25,   38}
          , (*  40*) yyTCombType {   0,    0} , (*  41*) yyTCombType {   0,    0}
          , (*  42*) yyTCombType {   0,    0} , (*  43*) yyTCombType {   0,    0}
          , (*  44*) yyTCombType {   0,    0} , (*  45*) yyTCombType {   0,    0}
@@ -207,123 +220,149 @@ VAR
          , (*  52*) yyTCombType {   0,    0} , (*  53*) yyTCombType {   0,    0}
          , (*  54*) yyTCombType {   0,    0} , (*  55*) yyTCombType {   0,    0}
          , (*  56*) yyTCombType {   0,    0} , (*  57*) yyTCombType {   0,    0}
-         , (*  58*) yyTCombType {   0,    0} , (*  59*) yyTCombType {   1,   56}
+         , (*  58*) yyTCombType {   0,    0} , (*  59*) yyTCombType {   1,   59}
          , (*  60*) yyTCombType {   0,    0} , (*  61*) yyTCombType {   0,    0}
          , (*  62*) yyTCombType {   0,    0} , (*  63*) yyTCombType {   0,    0}
          , (*  64*) yyTCombType {   0,    0} , (*  65*) yyTCombType {   0,    0}
-         , (*  66*) yyTCombType {   5,    6} , (*  67*) yyTCombType {  10,   53}
-         , (*  68*) yyTCombType {  13,   14} , (*  69*) yyTCombType {  21,   55}
-         , (*  70*) yyTCombType {  25,   26} , (*  71*) yyTCombType {  30,   57}
-         , (*  72*) yyTCombType {  25,   31} , (*  73*) yyTCombType {  35,   58}
-         , (*  74*) yyTCombType {  47,   59} , (*  75*) yyTCombType {  52,   60}
-         , (*  76*) yyTCombType {  41,   91} , (*  77*) yyTCombType {  37,   88}
-         , (*  78*) yyTCombType {  41,   91} , (*  79*) yyTCombType {  37,   88}
-         , (*  80*) yyTCombType {  42,   43} , (*  81*) yyTCombType {  41,   40}
-         , (*  82*) yyTCombType {  42,   48} , (*  83*) yyTCombType {   0,    0}
-         , (*  84*) yyTCombType {   0,    0} , (*  85*) yyTCombType {   0,    0}
-         , (*  86*) yyTCombType {   0,    0} , (*  87*) yyTCombType {   0,    0}
-         , (*  88*) yyTCombType {   0,    0} , (*  89*) yyTCombType {   0,    0}
+         , (*  66*) yyTCombType {   5,    6} , (*  67*) yyTCombType {  10,   55}
+         , (*  68*) yyTCombType {  11,   97} , (*  69*) yyTCombType {  14,   96}
+         , (*  70*) yyTCombType {  15,   16} , (*  71*) yyTCombType {  23,   58}
+         , (*  72*) yyTCombType {  32,   60} , (*  73*) yyTCombType {  11,   12}
+         , (*  74*) yyTCombType {  14,   98} , (*  75*) yyTCombType {  27,   28}
+         , (*  76*) yyTCombType {  37,   61} , (*  77*) yyTCombType {  27,   33}
+         , (*  78*) yyTCombType {  39,   91} , (*  79*) yyTCombType {  43,   94}
+         , (*  80*) yyTCombType {  39,   91} , (*  81*) yyTCombType {  43,   94}
+         , (*  82*) yyTCombType {  49,   62} , (*  83*) yyTCombType {  44,   45}
+         , (*  84*) yyTCombType {  43,   42} , (*  85*) yyTCombType {  44,   50}
+         , (*  86*) yyTCombType {  54,   63} , (*  87*) yyTCombType {  51,   98}
+         , (*  88*) yyTCombType {   0,    0} , (*  89*) yyTCombType {  45,   98}
          , (*  90*) yyTCombType {   0,    0} , (*  91*) yyTCombType {   0,    0}
          , (*  92*) yyTCombType {   0,    0} , (*  93*) yyTCombType {   0,    0}
          , (*  94*) yyTCombType {   0,    0} , (*  95*) yyTCombType {   3,    4}
-         , (*  96*) yyTCombType {   9,   10} , (*  97*) yyTCombType {  11,   12}
-         , (*  98*) yyTCombType {  20,   21} , (*  99*) yyTCombType {  24,   25}
-         , (* 100*) yyTCombType {  29,   30} , (* 101*) yyTCombType {  31,   32}
-         , (* 102*) yyTCombType {  34,   35} , (* 103*) yyTCombType {  36,   37}
+         , (*  96*) yyTCombType {   9,   10} , (*  97*) yyTCombType {  12,   56}
+         , (*  98*) yyTCombType {  13,   14} , (*  99*) yyTCombType {  22,   23}
+         , (* 100*) yyTCombType {  26,   27} , (* 101*) yyTCombType {  31,   32}
+         , (* 102*) yyTCombType {  33,   34} , (* 103*) yyTCombType {  36,   37}
          , (* 104*) yyTCombType {  38,   39} , (* 105*) yyTCombType {  40,   41}
-         , (* 106*) yyTCombType {  46,   47} , (* 107*) yyTCombType {  48,   49}
-         , (* 108*) yyTCombType {  51,   52} , (* 109*) yyTCombType {   0,    0}
+         , (* 106*) yyTCombType {  42,   43} , (* 107*) yyTCombType {  48,   49}
+         , (* 108*) yyTCombType {  50,   51} , (* 109*) yyTCombType {  53,   54}
          , (* 110*) yyTCombType {   0,    0} , (* 111*) yyTCombType {   0,    0}
          , (* 112*) yyTCombType {   0,    0} , (* 113*) yyTCombType {   0,    0}
          , (* 114*) yyTCombType {   0,    0} , (* 115*) yyTCombType {   0,    0}
          , (* 116*) yyTCombType {   0,    0} , (* 117*) yyTCombType {   0,    0}
          , (* 118*) yyTCombType {   0,    0} , (* 119*) yyTCombType {   0,    0}
          , (* 120*) yyTCombType {   0,    0} , (* 121*) yyTCombType {   0,    0}
+         , (* 122*) yyTCombType {   0,    0} , (* 123*) yyTCombType {   0,    0}
+         , (* 124*) yyTCombType {   0,    0} , (* 125*) yyTCombType {   0,    0}
+         , (* 126*) yyTCombType {   0,    0}
          };
          
    yyNComb 
+     (* This bounds range is arbitrary, unjustified, and confusing.
+        It has nothing to do with states, actions, symbols, or anything
+        else.  It is just a space for interspersed actions.  Moreover,
+        during use, its elements are accessed only by unsafe pointers to
+        to them, from elements of yyNBasePtr, not by subscripts, for a bit
+        of speed.  It would make the most sense to start it at zero, like
+        yyTComb.  But that would require care to make consistent changes.
+     *) 
      := ARRAY yyNCombRangePacked OF yyNCombType
          {
-           (*NT: 108*)   63 , (*NT: 109*)   22 , (*NT: 110*)   64
-         , (*NT: 111*)   65 , (*NT: 112*)   66 , (*NT: 113*)   67
-         , (*NT: 114*)   68 , (*NT: 115*)   23 , (*NT: 116*)    0
-         , (*NT: 117*)    7 , (*NT: 118*)    8 , (*NT: 119*)   15
-         , (*NT: 120*)    5 , (*NT: 121*)   16 , (*NT: 122*)   13
-         , (*NT: 123*)   19 , (*NT: 124*)   62 , (*NT: 125*)   61
-         , (*NT: 126*)   62 , (*NT: 127*)   61 , (*NT: 128*)   18
-         , (*NT: 129*)   27 , (*NT: 130*)   28 , (*NT: 131*)   33
-         , (*NT: 132*)   42 , (*NT: 133*)   72 , (*NT: 134*)   69
-         , (*NT: 135*)   71 , (*NT: 136*)   70 , (*NT: 137*)   61
-         , (*NT: 138*)   44 , (*NT: 139*)   16 , (*NT: 140*)   50
-         , (*NT: 141*)   45 , (*NT: 142*)    0 , (*NT: 143*)   69
-         , (*NT: 144*)    0 , (*NT: 145*)    0 , (*NT: 146*)   61
-         , (*NT: 147*)    0 , (*NT: 148*)    0
+           (* 108*)   66 , (* 109*)   24 , (* 110*)   67 , (* 111*)   68
+         , (* 112*)   69 , (* 113*)   70 , (* 114*)   71 , (* 115*)   25
+         , (* 116*)    0 , (* 117*)    8 , (* 118*)    7 , (* 119*)   30
+         , (* 120*)    5 , (* 121*)   17 , (* 122*)   44 , (* 123*)   75
+         , (* 124*)   65 , (* 125*)   11 , (* 126*)   64 , (* 127*)   11
+         , (* 128*)   15 , (* 129*)   64 , (* 130*)   11 , (* 131*)   20
+         , (* 132*)   65 , (* 133*)   11 , (* 134*)   18 , (* 135*)   29
+         , (* 136*)   21 , (* 137*)   35 , (* 138*)   74 , (* 139*)   73
+         , (* 140*)   72 , (* 141*)   11 , (* 142*)   46 , (* 143*)   64
+         , (* 144*)   11 , (* 145*)   18 , (* 146*)    0 , (* 147*)   47
+         , (* 148*)    0 , (* 149*)   52 , (* 150*)   64 , (* 151*)   11
+         , (* 152*)   72 , (* 153*)   11 , (* 154*)    0 , (* 155*)    0
          };
          
    yyLength
+     (* Subscripted by a reduce action, maps to LHS length of the
+        production to reduce by. A<a> is a reduce action number.
+        P<p> is the correponding production number.
+     *)
      := ARRAY yyReduceRangePacked OF yyTableElmt
          {
-           (*State:  73*)    2 , (*State:  74*)    1 , (*State:  75*)    1
-         , (*State:  76*)    1 , (*State:  77*)    1 , (*State:  78*)    1
-         , (*State:  79*)    1 , (*State:  80*)    9 , (*State:  81*)   10
-         , (*State:  82*)   10 , (*State:  83*)   10 , (*State:  84*)    9
-         , (*State:  85*)   10 , (*State:  86*)    1 , (*State:  87*)    0
-         , (*State:  88*)    0 , (*State:  89*)    2 , (*State:  90*)    2
-         , (*State:  91*)    0 , (*State:  92*)    3 , (*State:  93*)    1
-         , (*State:  94*)    1 , (*State:  95*)    1 , (*State:  96*)    0
-         , (*State:  97*)    4 , (*State:  98*)    0 , (*State:  99*)    0
+           (*A  76(P   1)*)    2 , (*A  77(P   2)*)    1 , (*A  78(P   3)*)    1
+         , (*A  79(P   4)*)    1 , (*A  80(P   5)*)    1 , (*A  81(P   6)*)    1
+         , (*A  82(P   7)*)    1 , (*A  83(P   8)*)    9 , (*A  84(P   9)*)   10
+         , (*A  85(P  10)*)   10 , (*A  86(P  11)*)   10 , (*A  87(P  12)*)    9
+         , (*A  88(P  13)*)   10 , (*A  89(P  14)*)    1 , (*A  90(P  15)*)    0
+         , (*A  91(P  16)*)    0 , (*A  92(P  17)*)    2 , (*A  93(P  18)*)    2
+         , (*A  94(P  19)*)    0 , (*A  95(P  20)*)    3 , (*A  96(P  21)*)    0
+         , (*A  97(P  22)*)    1 , (*A  98(P  23)*)    0 , (*A  99(P  24)*)    3
+         , (*A 100(P  25)*)    1 , (*A 101(P  26)*)    1 , (*A 102(P  27)*)    1
+         , (*A 103(P  28)*)    0 , (*A 104(P  29)*)    4 , (*A 105(P  30)*)    0
+         , (*A 106(P  31)*)    0
          };
          
    yyLeftHandSide
+     (* Subscripted by a reduce action, maps to LHS NT of the
+        of production to reduce by.  A<a> is a reduce action number.
+        P<p> is the correponding production number.
+     *)
      := ARRAY yyReduceRangePacked OF yySymbolRangePacked
          {
-           (*State:  73*)  126 , (*State:  74*)  109 , (*State:  75*)  109
-         , (*State:  76*)  109 , (*State:  77*)  109 , (*State:  78*)  109
-         , (*State:  79*)  109 , (*State:  80*)  108 , (*State:  81*)  110
-         , (*State:  82*)  111 , (*State:  83*)  112 , (*State:  84*)  113
-         , (*State:  85*)  114 , (*State:  86*)  115 , (*State:  87*)  115
-         , (*State:  88*)  118 , (*State:  89*)  118 , (*State:  90*)  122
-         , (*State:  91*)  123 , (*State:  92*)  123 , (*State:  93*)  116
-         , (*State:  94*)  120 , (*State:  95*)  121 , (*State:  96*)  117
-         , (*State:  97*)  119 , (*State:  98*)  117 , (*State:  99*)  125
+           (*A  76(P   1)*)  127 , (*A  77(P   2)*)  109 , (*A  78(P   3)*)  109
+         , (*A  79(P   4)*)  109 , (*A  80(P   5)*)  109 , (*A  81(P   6)*)  109
+         , (*A  82(P   7)*)  109 , (*A  83(P   8)*)  108 , (*A  84(P   9)*)  110
+         , (*A  85(P  10)*)  111 , (*A  86(P  11)*)  112 , (*A  87(P  12)*)  113
+         , (*A  88(P  13)*)  114 , (*A  89(P  14)*)  115 , (*A  90(P  15)*)  115
+         , (*A  91(P  16)*)  118 , (*A  92(P  17)*)  118 , (*A  93(P  18)*)  122
+         , (*A  94(P  19)*)  123 , (*A  95(P  20)*)  123 , (*A  96(P  21)*)  124
+         , (*A  97(P  22)*)  124 , (*A  98(P  23)*)  125 , (*A  99(P  24)*)  125
+         , (*A 100(P  25)*)  116 , (*A 101(P  26)*)  120 , (*A 102(P  27)*)  121
+         , (*A 103(P  28)*)  117 , (*A 104(P  29)*)  119 , (*A 105(P  30)*)  117
+         , (*A 106(P  31)*)  126
          };
          
    yyContinuation
      := ARRAY [0 .. yyLastReadState] OF yySymbolRangePacked
          {
-           (*State:   0*)    0 , (*State:   1*)   32 , (*State:   2*)   32
-         , (*State:   3*)   95 , (*State:   4*)   95 , (*State:   5*)   66
-         , (*State:   6*)   66 , (*State:   7*)   19 , (*State:   8*)   19
-         , (*State:   9*)   95 , (*State:  10*)   67 , (*State:  11*)   95
-         , (*State:  12*)   95 , (*State:  13*)   66 , (*State:  14*)   66
-         , (*State:  15*)    9 , (*State:  16*)    9 , (*State:  17*)   19
-         , (*State:  18*)   19 , (*State:  19*)   19 , (*State:  20*)   95
-         , (*State:  21*)   67 , (*State:  22*)    0 , (*State:  23*)   32
-         , (*State:  24*)   95 , (*State:  25*)   66 , (*State:  26*)   66
-         , (*State:  27*)   19 , (*State:  28*)   19 , (*State:  29*)   95
-         , (*State:  30*)   67 , (*State:  31*)   95 , (*State:  32*)   95
-         , (*State:  33*)   19 , (*State:  34*)   95 , (*State:  35*)   67
-         , (*State:  36*)   95 , (*State:  37*)   66 , (*State:  38*)   95
-         , (*State:  39*)   66 , (*State:  40*)   95 , (*State:  41*)   66
-         , (*State:  42*)   66 , (*State:  43*)   66 , (*State:  44*)    9
-         , (*State:  45*)   19 , (*State:  46*)   95 , (*State:  47*)   67
-         , (*State:  48*)   95 , (*State:  49*)   95 , (*State:  50*)   19
-         , (*State:  51*)   95 , (*State:  52*)   67
+           (*:   0*)    0 , (*:   1*)   32 , (*:   2*)   32
+         , (*:   3*)   95 , (*:   4*)   66 , (*:   5*)   66
+         , (*:   6*)   19 , (*:   7*)   19 , (*:   8*)   19
+         , (*:   9*)   95 , (*:  10*)   67 , (*:  11*)    9
+         , (*:  12*)   95 , (*:  13*)   95 , (*:  14*)   66
+         , (*:  15*)   66 , (*:  16*)    9 , (*:  17*)    9
+         , (*:  18*)    9 , (*:  19*)   19 , (*:  20*)   19
+         , (*:  21*)   19 , (*:  22*)   95 , (*:  23*)   67
+         , (*:  24*)    0 , (*:  25*)   32 , (*:  26*)   95
+         , (*:  27*)   66 , (*:  28*)   19 , (*:  29*)   19
+         , (*:  30*)   19 , (*:  31*)   95 , (*:  32*)   67
+         , (*:  33*)   95 , (*:  34*)   19 , (*:  35*)   19
+         , (*:  36*)   95 , (*:  37*)   67 , (*:  38*)   95
+         , (*:  39*)   66 , (*:  40*)   95 , (*:  41*)   66
+         , (*:  42*)   95 , (*:  43*)   66 , (*:  44*)   68
+         , (*:  45*)    9 , (*:  46*)    9 , (*:  47*)   19
+         , (*:  48*)   95 , (*:  49*)   67 , (*:  50*)   95
+         , (*:  51*)   19 , (*:  52*)   19 , (*:  53*)   95
+         , (*:  54*)   67
          };
          
    yyFinalToProd
+     (* Subscripted by a read-reduce action, maps to the reduce
+        action to take after the read.
+     *) 
      := ARRAY yyReadReduceRangePacked OF yyReduceRangePacked
          {
-           (*State:  53)*)   82 , (*State:  54)*)   97
-         , (*State:  55)*)   83 , (*State:  56)*)   86
-         , (*State:  57)*)   80 , (*State:  58)*)   84
-         , (*State:  59)*)   81 , (*State:  60)*)   85
-         , (*State:  61)*)   93 , (*State:  62)*)   94
-         , (*State:  63)*)   74 , (*State:  64)*)   75
-         , (*State:  65)*)   76 , (*State:  66)*)   77
-         , (*State:  67)*)   78 , (*State:  68)*)   79
-         , (*State:  69)*)   95 , (*State:  70)*)   92
-         , (*State:  71)*)   90 , (*State:  72)*)   89
+           (*RR:  55)*)   85 (*P9*) , (*RR:  56)*)   99 (*P23*)
+         , (*RR:  57)*)  104 (*P28*) , (*RR:  58)*)   86 (*P10*)
+         , (*RR:  59)*)   89 (*P13*) , (*RR:  60)*)   83 (*P7*)
+         , (*RR:  61)*)   87 (*P11*) , (*RR:  62)*)   84 (*P8*)
+         , (*RR:  63)*)   88 (*P12*) , (*RR:  64)*)  100 (*P24*)
+         , (*RR:  65)*)  101 (*P25*) , (*RR:  66)*)   77 (*P1*)
+         , (*RR:  67)*)   78 (*P2*) , (*RR:  68)*)   79 (*P3*)
+         , (*RR:  69)*)   80 (*P4*) , (*RR:  70)*)   81 (*P5*)
+         , (*RR:  71)*)   82 (*P6*) , (*RR:  72)*)  102 (*P26*)
+         , (*RR:  73)*)   95 (*P19*) , (*RR:  74)*)   93 (*P17*)
+         , (*RR:  75)*)   92 (*P16*)
          }; 
 
 VAR
@@ -523,7 +562,7 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
                     a sequence of reduces
               or b) One read
            *)  
-         (* Push state stack. *) 
+         (* Make room and push (true) state onto state stack. *) 
          IF yyStackPtr >= yyStackLAST 
          THEN
             yyStateStackSize
@@ -533,7 +572,7 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
             yyStackLAST
               := LAST ( yyStateStack ^ ) (* Of yyAttributeStack too. *);
          END (* IF *) ;
-         yyStateStack^ [yyStackPtr] := yyState;
+         yyStateStack^ [yyStackPtr] := (*State*)yyState;
 
          LOOP (* Through all continuation pushes, plus compute the state
                  after that. This loop also goes through the default state
@@ -541,24 +580,24 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
             (* SPEC State := Next (State, Terminal); terminal transition *)
             
             yyTCombPtr := LOOPHOLE 
-                            ( LOOPHOLE ( yyTBasePtr [yyState] ,INTEGER) 
+                            ( LOOPHOLE ( yyTBasePtr [(*State*)yyState] ,INTEGER) 
                               + yyTerminal * BYTESIZE (yyTCombType)
                             , yyTCombTypePtr
                             );
-            IF yyTCombPtr^.Check = yyState 
+            IF yyTCombPtr^.Check = (*State*)yyState 
             THEN
-               yyState := yyTCombPtr^.Next;
+               (*Either*)yyState := yyTCombPtr^.Next;
                EXIT;
             END (* IF *) ;
-            yyState := yyDefault [yyState];
+            (*State*)yyState := yyDefault [(*State*)yyState];
 
             IF yyState = yyNoState 
             THEN (* syntax error *)
-               yyState := yyStateStack^ [yyStackPtr];
+               (*State*)yyState := yyStateStack^ [yyStackPtr];
                IF yyIsRepairing 
                THEN (* repair *)
                   yyRepairToken := yyContinuation [yyState];
-                  yyState := Next (yyState, yyRepairToken);
+                  (*Either*)yyState := Next (yyState, yyRepairToken);
                   IF yyState <= yyLastReadTermState 
                   THEN (* read or read terminal reduce ? *)
                     FM3Scanner.ErrorAttribute 
@@ -570,7 +609,7 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
                        );
                      IF yyState >= yyFirstFinalState 
                      THEN (* avoid second push *)
-                        yyState := yyFinalToProd [yyState];
+                        (*Reduce*)yyState := yyFinalToProd [(*Action*)yyState];
                      END (* IF *) ;
                      INC (yyStackPtr);
                      yyStateStack^     [yyStackPtr] := yyState;
@@ -591,133 +630,166 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
          END (* LOOP *) ;
 
          IF yyState >= yyFirstFinalState 
-         THEN (* final state ? *)
-            IF yyState <= yyLastReadTermState 
-            THEN (* read terminal reduce ? *)
+         THEN (* Action *)
+            IF yyState <= yyLastReadTermState (* read terminal reduce ? *) 
+            THEN (* First do the read terminal. *)
                INC (yyStackPtr);
               yyAttributeStack^ [yyStackPtr].Scan := FM3Scanner.Attribute;
               yyTerminal := FM3Scanner.GetToken ();
                yyIsRepairing := FALSE;
-               yyStateStack^ [yyStackPtr] := yyState (*ParserDebug*);
+                yyStateStack^ [yyStackPtr] := (*Reduce*)yyState (*ParserDebug*);
             END (* IF *) ;
 
             LOOP (* Through successive reductions *)
-CASE yyState OF
-  | 73 =>  (* _0000_ : Compilation _EndOfFile .*)
-  yyStateStack := NIL;
-  yyAttributeStack := NIL;
-  RETURN yyErrorCount;
+              CASE yyState OF
+              | 76 => (* P1 _0000_ (127): Compilation _EndOfFile .*)
+                yyStateStack := NIL;
+                yyAttributeStack := NIL;
+                RETURN yyErrorCount;
 
-  | 74,63 =>  (* Compilation : Interface .*)
-  DEC (yyStackPtr, 1); yyNonterminal := 109;
+              | 77,66 => (* P2 Compilation (109): Interface .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 109;
 
-  | 75,64 =>  (* Compilation : Module .*)
-  DEC (yyStackPtr, 1); yyNonterminal := 109;
+              | 78,67 => (* P3 Compilation (109): Module .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 109;
 
-  | 76,65 =>  (* Compilation : GenInterface .*)
-  DEC (yyStackPtr, 1); yyNonterminal := 109;
+              | 79,68 => (* P4 Compilation (109): GenInterface .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 109;
 
-  | 77,66 =>  (* Compilation : GenModule .*)
-  DEC (yyStackPtr, 1); yyNonterminal := 109;
+              | 80,69 => (* P5 Compilation (109): GenModule .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 109;
 
-  | 78,67 =>  (* Compilation : InstInterface .*)
-  DEC (yyStackPtr, 1); yyNonterminal := 109;
+              | 81,70 => (* P6 Compilation (109): InstInterface .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 109;
 
-  | 79,68 =>  (* Compilation : InstModule .*)
-  DEC (yyStackPtr, 1); yyNonterminal := 109;
+              | 82,71 => (* P7 Compilation (109): InstModule .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 109;
 
-  | 80,57 =>  (* Interface : OptUnsafe StkRwINTERFACE StkIdent StkSemicolon ImportList DeclList StkRwEND StkIdent StkDot .*)
-  DEC (yyStackPtr, 9); yyNonterminal := 108;
+              | 83,60 => (* P8 Interface (108): OptUnsafe StkRwINTERFACE StkIdent StkSemicolon ImportList DeclList StkRwEND StkIdent StkDot .*)
+                DEC (yyStackPtr, 9); yyNonterminal := 108;
 
-  | 81,59 =>  (* Module : OptUnsafe StkRwMODULE StkIdent Exports StkSemicolon ImportList Block StkRwEND StkIdent StkDot .*)
-  DEC (yyStackPtr, 10); yyNonterminal := 110;
+              | 84,62 => (* P9 Module (110): OptUnsafe StkRwMODULE StkIdent Exports StkSemicolon ImportList Block StkRwEND StkIdent StkDot .*)
+                DEC (yyStackPtr, 10); yyNonterminal := 110;
 
-  | 82,53 =>  (* GenInterface : StkRwGENERIC StkRwINTERFACE StkIdent GenFormalsList StkSemicolon ImportList DeclList StkRwEND StkIdent StkDot .*)
-  DEC (yyStackPtr, 10); yyNonterminal := 111;
+              | 85,55 => (* P10 GenInterface (111): StkRwGENERIC StkRwINTERFACE StkIdent GenFormalsList StkSemicolon ImportList DeclList StkRwEND StkIdent StkDot .*)
+                DEC (yyStackPtr, 10); yyNonterminal := 111;
 
-  | 83,55 =>  (* GenModule : StkRwGENERIC StkRwMODULE StkIdent GenFormalsList StkSemicolon ImportList Block StkRwEND StkIdent StkDot .*)
-  DEC (yyStackPtr, 10); yyNonterminal := 112;
+              | 86,58 => (* P11 GenModule (112): StkRwGENERIC StkRwMODULE StkIdent GenFormalsList StkSemicolon ImportList Block StkRwEND StkIdent StkDot .*)
+                DEC (yyStackPtr, 10); yyNonterminal := 112;
 
-  | 84,58 =>  (* InstInterface : OptUnsafe StkRwINTERFACE StkIdent StkEqual StkIdent GenActuals StkRwEND StkIdent StkDot .*)
-  DEC (yyStackPtr, 9); yyNonterminal := 113;
+              | 87,61 => (* P12 InstInterface (113): OptUnsafe StkRwINTERFACE StkIdent StkEqual StkIdent GenActuals StkRwEND StkIdent StkDot .*)
+                DEC (yyStackPtr, 9); yyNonterminal := 113;
 
-  | 85,60 =>  (* InstModule : OptUnsafe StkRwMODULE StkIdent Exports StkEqual StkIdent GenActuals StkRwEND StkIdent StkDot .*)
-  DEC (yyStackPtr, 10); yyNonterminal := 114;
+              | 88,63 => (* P13 InstModule (114): OptUnsafe StkRwMODULE StkIdent Exports StkEqual StkIdent GenActuals StkRwEND StkIdent StkDot .*)
+                DEC (yyStackPtr, 10); yyNonterminal := 114;
 
-  | 86,56 =>  (* OptUnsafe : StkRwUNSAFE .*)
-  DEC (yyStackPtr, 1); yyNonterminal := 115;
-(* line 207 of "FM3Parser.lalr" *)
-   yySynAttribute . PaBool := TRUE; 
-  | 87 =>  (* OptUnsafe : .*)
-yyNonterminal := 115;
-(* line 208 of "FM3Parser.lalr" *)
-   yySynAttribute . PaBool := FALSE; 
-  | 88 =>  (* Exports : .*)
-yyNonterminal := 118;
-(* line 210 of "FM3Parser.lalr" *)
-   
-  | 89,72 =>  (* Exports : StkRwEXPORTS IdList .*)
-  DEC (yyStackPtr, 2); yyNonterminal := 118;
-(* line 211 of "FM3Parser.lalr" *)
-   
-  | 90,71 =>  (* IdList : StkIdent IdListTail .*)
-  DEC (yyStackPtr, 2); yyNonterminal := 122;
+              | 89,59 => (* P14 OptUnsafe (115): StkRwUNSAFE .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 115;
+                (* line 207 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaBool := TRUE; 
+              | 90 => (* P15 OptUnsafe (115): .*)
+                yyNonterminal := 115;
+                (* line 208 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaBool := FALSE; 
+              | 91 => (* P16 Exports (118): .*)
+                yyNonterminal := 118;
+                (* line 210 of "FM3Parser.lalr" *)
+                 
+              | 92,75 => (* P17 Exports (118): StkRwEXPORTS IdList .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 118;
+                (* line 211 of "FM3Parser.lalr" *)
+                 
+              | 93,74 => (* P18 IdList (122): StkIdent IdListTail .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 122;
 
-  | 91 =>  (* IdListTail : .*)
-yyNonterminal := 123;
+              | 94 => (* P19 IdListTail (123): .*)
+                yyNonterminal := 123;
 
-  | 92,70 =>  (* IdListTail : StkComma StkIdent IdListTail .*)
-  DEC (yyStackPtr, 3); yyNonterminal := 123;
+              | 95,73 => (* P20 IdListTail (123): StkComma StkIdent IdListTail .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 123;
 
-  | 93,61 =>  (* ImportList : ExportsList .*)
-  DEC (yyStackPtr, 1); yyNonterminal := 116;
+              | 96 => (* P21 ExportsList (124): .*)
+                yyNonterminal := 124;
 
-  | 94,62 =>  (* GenFormalsList : ExportsList .*)
-  DEC (yyStackPtr, 1); yyNonterminal := 120;
+              | 97 => (* P22 ExportsList (124): ExportsListSub .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 124;
+                (* line 224 of "FM3Parser.lalr" *)
+                 WITH i = yyAttributeStack^[yyStackPtr+1] . PaLong
+                      DO PushTok ( Itk . ItkExportsListRt , i+1L);
+                        PushTokPatch ( Itk . ItkExportsListLtPatch , 0L , i+1L);
+                      END (*WITH*); 
+                    
+              | 98 => (* P23 ExportsListSub (125): .*)
+                yyNonterminal := 125;
+                (* line 230 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaLong := 0L; 
+              | 99,56 => (* P24 ExportsListSub (125): ExportsListSub StkComma StkIdent .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 125;
+                (* line 232 of "FM3Parser.lalr" *)
+                 WITH i = yyAttributeStack^[yyStackPtr+1] . PaLong
+                      DO PushTok ( Itk . ItkExportsListElemRt , i );
+                        PushTokPatch ( Itk . ItkExportsListElemLtPatch , 0L , i );
+                        yySynAttribute . PaLong := i+1L;
+                      END (*WITH*); 
+                    
+              | 100,64 => (* P25 ImportList (116): ExportsList .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 116;
 
-  | 95,69 =>  (* GenActuals : ExportsList .*)
-  DEC (yyStackPtr, 1); yyNonterminal := 121;
+              | 101,65 => (* P26 GenFormalsList (120): ExportsList .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 120;
 
-  | 96 =>  (* DeclList : .*)
-yyNonterminal := 117;
+              | 102,72 => (* P27 GenActuals (121): ExportsList .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 121;
 
-  | 97,54 =>  (* Block : DeclList StkRwBEGIN StmtList StkRwEND .*)
-  DEC (yyStackPtr, 4); yyNonterminal := 119;
+              | 103 => (* P28 DeclList (117): .*)
+                yyNonterminal := 117;
 
-  | 98 =>  (* DeclList : .*)
-yyNonterminal := 117;
+              | 104,57 => (* P29 Block (119): DeclList StkRwBEGIN StmtList StkRwEND .*)
+                DEC (yyStackPtr, 4); yyNonterminal := 119;
 
-  | 99 =>  (* StmtList : .*)
-yyNonterminal := 125;
+              | 105 => (* P30 DeclList (117): .*)
+                yyNonterminal := 117;
 
-END;
-              (* SPEC State 
-                   := Next (Top (), Nonterminal); nonterminal transition *)
+              | 106 => (* P31 StmtList (126): .*)
+                yyNonterminal := 126;
+
+              END (*CASE*);
+
+               (* Here, a reduction has been done.  yyStackPtr has been
+                  decremented by the RHS length, yyNonterminal has been set to
+                  the LHS NT of the reduced-by production, and  Semantic
+                  actions have been performed.  Now do a nonterminal read
+                  transition on yyStateStack^ [yyStackPtr] (* A state*)
+                  and yyNonterminal.
+               *) 
+
+               (* SPEC yyState 
+                    := Next (Top (), yyNonterminal); nonterminal transition *)
                yyNCombPtr 
                  := LOOPHOLE 
-                      ( LOOPHOLE ( yyNBasePtr [yyStateStack^ [yyStackPtr]]
-                                 , INTEGER
-                                 )
-                        + yyNonterminal * BYTESIZE (yyNCombType)
+                      ( LOOPHOLE
+                          ( yyNBasePtr [yyStateStack^ [yyStackPtr]], INTEGER )
+                          + (yyNonterminal-(yyLastTerminal+1))
+                            * BYTESIZE (yyNCombType) 
                       , yyNCombTypePtr
                       );
-               yyState := yyNCombPtr^;
+               (*Either*)yyState := yyNCombPtr^;
                INC (yyStackPtr);
                yyAttributeStack^ [yyStackPtr] := yySynAttribute;
-               yyAttributeStack^ [yyStackPtr].Scan.SaTok := yyNonterminal;
-            (* ^This requires that tScanAttribute have field 'SaTok'. *)
-               IF yyState < yyFirstFinalState 
-               THEN (* read nonterminal ? *)
+                yyAttributeStack^ [yyStackPtr].Scan.SaTok := yyNonterminal;
+             (* ^This requires that tScanAttribute have field 'SaTok'. *)
+                yyStateStack^ [yyStackPtr] := (*Either*)yyState (*ParserDebug*);
+               IF yyState < yyFirstFinalState (* read nonterminal? *) 
+               THEN (* A state. *)
                  EXIT 
                END (* IF *) ; 
-               yyStateStack^ [yyStackPtr] := yyState (*ParserDebug*);
             END (* LOOP *) ;
 
-         ELSE (* read *)
+         ELSE (* Read NT. *)
             INC (yyStackPtr);
-            yyStateStack^ [yyStackPtr] := yyState (*ParserDebug*);
-           yyAttributeStack^ [yyStackPtr].Scan := FM3Scanner.Attribute;
-           yyTerminal := FM3Scanner.GetToken ();
+             yyStateStack^ [yyStackPtr] := (*State*)yyState (*ParserDebug*);
+            yyAttributeStack^ [yyStackPtr].Scan := FM3Scanner.Attribute;
+            yyTerminal := FM3Scanner.GetToken ();
             yyIsRepairing := FALSE;
          END (* IF *);
       END (* LOOP *) ;
@@ -852,13 +924,13 @@ PROCEDURE IsContinuation (
                 (Stack, MAX (NUMBER ( Stack ^ ) * 2 , StackPtr + 2 ) );
               StackSize := NUMBER (Stack^); 
             END;
-            Stack^ [StackPtr] := State (*ParserDebug*);
+             Stack^ [StackPtr] := State (*ParserDebug*);
             INC (StackPtr);
             IF State < yyFirstFinalState
             THEN EXIT;
             END; (* read nonterminal ? *)
             State := yyFinalToProd [State]; (* read nonterminal reduce *)
-            Stack^ [StackPtr] := State (*ParserDebug*);
+             Stack^ [StackPtr] := State (*ParserDebug*);
          END;
       END;
     END IsContinuation;
@@ -906,7 +978,7 @@ PROCEDURE ComputeRestartPoints (
             IF State <= yyLastReadTermState THEN (* read terminal reduce ? *)
                INC (StackPtr);
                State := yyFinalToProd [State];
-               Stack^ [StackPtr] := State (*ParserDebug*);
+                Stack^ [StackPtr] := State (*ParserDebug*);
             END;
 
             LOOP (* reduce *)
@@ -916,8 +988,7 @@ PROCEDURE ComputeRestartPoints (
                   RETURN;
                ELSE 
                   DEC (StackPtr, yyLength [State]);
-                  Nonterminal := yyLeftHandSide [State];
-               END;
+                  Nonterminal := yyLeftHandSide [State];               END;
 
                State := Next (Stack^ [StackPtr], Nonterminal);
                INC (StackPtr);
@@ -959,7 +1030,8 @@ PROCEDURE Next
         NCombPtr 
           := LOOPHOLE 
                ( LOOPHOLE (yyNBasePtr [State],INTEGER) 
-                 + Symbol * BYTESIZE (yyNCombType)
+                 + (Symbol-(yyLastTerminal+1))
+                   * BYTESIZE (yyNCombType)
                ,yyNCombTypePtr);
         RETURN NCombPtr^;
       END;
