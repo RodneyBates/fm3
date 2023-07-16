@@ -186,7 +186,7 @@ Interface :
 
 Module :
     OptUnsafe StkRwMODULE StkIdent Exports StkSemicolon
-    ImportList Block StkRwEND StkIdent StkDot .
+    ImportList Block StkIdent StkDot .
 
 GenInterface :
     StkRwGENERIC StkRwINTERFACE StkIdent GenFormalsList StkSemicolon
@@ -194,7 +194,7 @@ GenInterface :
 
 GenModule :
     StkRwGENERIC StkRwMODULE StkIdent GenFormalsList StkSemicolon
-    ImportList Block StkRwEND StkIdent StkDot . 
+    ImportList Block StkIdent StkDot . 
 
 InstInterface :
     OptUnsafe StkRwINTERFACE StkIdent StkEqual
