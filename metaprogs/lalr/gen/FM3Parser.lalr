@@ -215,7 +215,10 @@ IdList : StkIdent IdListTail .
 IdListTail : . 
 IdListTail : StkComma StkIdent IdListTail .
 
-(*
+
+ExportsList : . 
+
+
 
 ExportsList : ExportsListSub 
     { WITH i = $1 . PaLong
@@ -233,7 +236,7 @@ ExportsListSub : ExportsListSub StkComma StkIdent
       END (*WITH*); 
     } .
 
-*) 
+
 
 ImportList : ExportsList . 
 
@@ -245,7 +248,7 @@ DeclList : .
 
 Block : DeclList StkRwBEGIN StmtList StkRwEND .
 
-DeclList : .
+DeclList : . 
 
 StmtList : . 
 
