@@ -24,17 +24,17 @@ MODULE FM3CLArgs
     ; DoKeep := TRUE (* Temporary, during development *)
         (* Keep intermediate files. *)
 
-    ; DoStdErr := TRUE
+    ; FM3Messages . DoStdErr := TRUE
         (* Write compilation process messages to stderr. *)
 
-    ; DoLog := TRUE
+    ; FM3Messages . DoLog := TRUE
         (* Write compilation process messages to compiler log file. *)
-    ; LogFileName := "FM3Log"
+    ; FM3Messages . LogFileName := "FM3Log"
 
-    ; DoStdOut := TRUE
+    ; FM3Messages . DoStdOut := TRUE
         (* Write compiled code messages to stdout. *)
 
-    ; DoCompLog := TRUE
+    ; FM3Messages . DoCompLog := TRUE
         (* Write compiled code messages to unit-specific log file. *)
 
     ; FM3Globals . ResourcePathName := "../lib" 
@@ -44,18 +44,20 @@ MODULE FM3CLArgs
 ; PROCEDURE HandleOptions ( ) 
 
   = BEGIN
+(* COMPLETEME *)
     END HandleOptions 
 
 ; PROCEDURE ComputeDerivedInfo ( ) 
 
   = BEGIN
-      IF DoLog
+      IF FM3Messages . DoLog
       THEN 
-        TRY LogFileWrT := FileWr . Open ( LogFileName ) 
+        TRY FM3Messages . LogFileWrT
+              := FileWr . Open ( FM3Messages . LogFileName ) 
         EXCEPT
         | OSError . E ( EAtoms )
         => Wr . PutText ( Stdio . stderr , "Unable to open log file " ) 
-        ; Wr . PutText ( Stdio . stderr , LogFileName ) 
+        ; Wr . PutText ( Stdio . stderr , FM3Messages . LogFileName ) 
         ; Wr . PutText ( Stdio . stderr , ": " ) 
         ; Wr . PutText
             ( Stdio . stderr , FM3Messages . AtomListToOSError ( EAtoms ) ) 
@@ -63,7 +65,7 @@ MODULE FM3CLArgs
         ; Wr . PutText ( Stdio . stderr , "Will proceed without it." ) 
         ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
         ; Wr . Flush ( Stdio . stderr ) 
-        ; DoLog := FALSE  
+        ; FM3Messages . DoLog := FALSE  
         END (*EXCEPT*)
       END (*IF*) 
     END ComputeDerivedInfo
@@ -81,7 +83,7 @@ MODULE FM3CLArgs
 ; PROCEDURE Cleanup ( )
 
   = BEGIN
-      Wr . Close ( LogFileWrT ) 
+      Wr . Close ( FM3Messages . LogFileWrT ) 
     END Cleanup 
 
 ; BEGIN

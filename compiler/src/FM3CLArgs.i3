@@ -15,12 +15,13 @@ INTERFACE FM3CLArgs
 ; VAR DoKeep : BOOLEAN := FALSE
       (* Keep intermediate files. *)
 
+(*
 ; VAR DoStdErr : BOOLEAN := TRUE
       (* Write compilation process messages to stderr. *)
       
 ; VAR DoLog : BOOLEAN := TRUE
       (* Write compilation process messages to compiler log file. *)
-; VAR LogFileName := "FM3Log"
+
 ; VAR LogFileWrT : Wr . T (* DoLog => Non-NIL and open. *) 
 
 ; VAR DoStdOut : BOOLEAN := TRUE
@@ -28,6 +29,7 @@ INTERFACE FM3CLArgs
 
 ; VAR DoCompLog : BOOLEAN := TRUE
       (* Write compiled code messages to unit-specific log file. *)
+*)
 
 ; PROCEDURE Process ( )
 
