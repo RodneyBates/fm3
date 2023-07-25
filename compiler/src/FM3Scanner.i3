@@ -29,7 +29,9 @@ INTERFACE FM3Scanner
          here.  Exactly how to do this without undue
          dependency of cocktail m3 on FM3 is unclear.
 *) 
-      END (*tPosition*) 
+      END (*tPosition*)
+
+; CONST PositionNull = tPosition { Line := 0 , Column := 0 } 
 
 ; VAR Attribute : tScanAttribute (*lalr*)
 
@@ -52,6 +54,18 @@ INTERFACE FM3Scanner
       ; SaTok : FM3Base . TokTyp := FM3Base . TokNull  
       ; SaWCh : WIDECHAR (* Value of [WIDE]CHAR literal. *)
       END (* tScanAttribute *)
+
+; CONST ScanAttrNull
+    = tScanAttribute
+        { Position := PositionNull
+        , SaArgValue := 0L
+        , SaHash := FM3Base . HashNull
+        , SaAtom := FM3Base . AtomNull
+        , SaWideChars := NIL
+        , SaChars := NIL
+        , SaTok := FM3Base . TokNull  
+        , SaWCh := W'\x0000'
+        } 
 
 ; PROCEDURE Init ( )
 

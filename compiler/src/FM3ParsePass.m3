@@ -36,7 +36,8 @@ MODULE FM3ParsePass
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars
 ; IMPORT FM3Base 
-; IMPORT FM3CLArgs 
+; IMPORT FM3CLArgs
+; IMPORT FM3Compress
 ; IMPORT FM3Decls 
 ; IMPORT FM3Files
 ; IMPORT FM3Globals 
@@ -45,6 +46,7 @@ MODULE FM3ParsePass
 ; IMPORT FM3Parser
 ; IMPORT FM3Scanner
 ; IMPORT FM3Scopes
+; IMPORT FM3SrcToks
 ; IMPORT FM3Units 
 ; IMPORT FM3Utils 
 ; IMPORT RdBackFile
@@ -90,6 +92,7 @@ MODULE FM3ParsePass
   ; VAR LUnitRef : FM3Units . UnitRefTyp 
 
   ; BEGIN
+    (* Open source file. *) 
       LPathPrefix := Pathname . Prefix ( FileName )
     ; LUniRd
         := FM3Files . OpenUniRd
@@ -97,6 +100,8 @@ MODULE FM3ParsePass
     ; LUnitRef := FM3Units . New ( )
     ; LUnitRef ^ . UntSrcFileName := FileName 
     ; LUnitRef ^ . UntSrcFilePrefix := LPathPrefix
+    
+    (* Create the log output file. A pure text file. *) 
     ; LUnitRef ^ . UntLogName := FileName & UnitLogSuffix
     ; TRY LUnitRef ^ . UntLogWrT
             := FileWr . Open ( LUnitRef ^ . UntLogName ) 
@@ -112,7 +117,9 @@ MODULE FM3ParsePass
       ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
       ; Wr . Flush ( Stdio . stderr )
       ; LUnitRef ^ . UntLogWrT := NIL 
-      END (*EXCEPT*) 
+      END (*EXCEPT*)
+
+    (* Create the three readback files. *) 
     ; LUnitRef ^ . UntWorkFilePrefix := "." 
 (* TODO: Provide a path here. *) 
     ; LUnitRef ^ . UntPatchStackName
@@ -159,7 +166,15 @@ MODULE FM3ParsePass
            , "\", already exists and is nonempty."
            )
       END (*EXCEPT*)
- 
+
+    (* Write file tags to the readback files.*)
+(* COMPLETEME *)
+    ; LUnitRef ^ . UntPatchStackEmpty
+        := RdBackFile . LengthL ( LUnitRef ^ . UntPatchStackRdBack )
+    ; LUnitRef ^ . UntUnnestStackEmpty
+        := RdBackFile . LengthL ( LUnitRef ^ . UntUnnestStackRdBack )
+
+    (* Create unit data structures. *) 
     ; LUnitRef ^ . UntIdentAtomDict
         := FM3Atom_OAChars . New
              ( FM3Globals . IdentInitAtomSize
@@ -189,8 +204,9 @@ MODULE FM3ParsePass
              )
 
     ; LUnitRef ^ . UntScopes := FM3Scopes . NewMap ( )  
-    ; LUnitRef ^ . UntDecls := FM3Decls . NewMap ( ) 
+    ; LUnitRef ^ . UntDecls := FM3Decls . NewMap ( )
 
+      (* Initialize Scanner for unit. *)
     ; FM3Scanner . PushState ( LUniRd , LUnitRef )
     ; RETURN LUnitRef 
     END OpenUnit 
@@ -245,7 +261,7 @@ MODULE FM3ParsePass
         ; Log ( "Unnest stack " , UnitRef ^ . UntUnnestStackName
               , " final size = "
               , FM3Base . Int64Image
-                  ( RdBackFile . LengthL ( UnitRef ^ . UntUnnestStackRdBack ) ) 
+                  ( RdBackFile . LengthL ( UnitRef ^ . UntUnnestStackRdBack ) )
               ) 
         ; Fatal ( "Unnest stack is not empty." )
         END (*IF*)
@@ -264,7 +280,7 @@ MODULE FM3ParsePass
            ) 
     ; RdBackFile . Close (  UnitRef ^ . UntParsePassRdBack )
 (* TODO: code point counts. *)
-    END CloseUnit 
+    END CloseUnit
 
 ; PROCEDURE CompileUnit ( SrcFileName : TEXT )
 
@@ -292,6 +308,111 @@ MODULE FM3ParsePass
       LSrcFileName := FM3CLArgs . SrcFileName
     ; CompileUnit ( LSrcFileName ) 
     END Run 
+
+(*EXPORTED:*)
+; PROCEDURE UnnestStackLen ( ) : LONGINT
+  (* Of the current unit. *)
+  
+  = BEGIN
+      RETURN RdBackFile . LengthL
+               ( FM3Globals . CurrentUnitRef ^ . UntUnnestStackRdBack ) 
+    END UnnestStackLen 
+
+(*EXPORTED:*)
+; PROCEDURE PushUnnestStk ( Token : INTEGER )
+  (* Source token.  Some of these (in fact, probably the only ones that
+     will be passed in) have arguments.
+  *) 
+  
+  = BEGIN
+      WITH WRdBack = FM3Globals . CurrentUnitRef ^ . UntUnnestStackRdBack
+      DO 
+        FM3Compress . PutBwd ( WRdBack , VAL ( Token , LONGINT ) )
+      ; IF FM3SrcToks . StkIdent <= Token
+           AND Token <= FM3SrcToks . StkWideCharLit
+        THEN
+          FM3Compress . PutBwd
+            ( WRdBack
+            , VAL ( FM3Scanner . Attribute . Position . Column , LONGINT )
+            )
+        ; FM3Compress . PutBwd
+            ( WRdBack , VAL ( FM3Scanner . Attribute . SaAtom , LONGINT ) )
+        END (*IF*) 
+      ; CASE Token OF
+     (* | FM3SrcToks . StkIdent => *) 
+        | FM3SrcToks . StkIntLit 
+        , FM3SrcToks . StkLongIntLit 
+        , FM3SrcToks . StkBasedLit 
+        , FM3SrcToks . StkLongBasedLit
+        , FM3SrcToks . StkRealLit 
+        , FM3SrcToks . StkLongRealLit 
+        , FM3SrcToks . StkExtendedLit 
+          => PushOACharsBwd ( WRdBack , FM3Scanner . Attribute . SaChars )
+        | FM3SrcToks . StkTextLit 
+          => PushOACharsBwd
+               ( WRdBack , FM3Scanner . Attribute . SaChars )
+        | FM3SrcToks . StkWideTextLit 
+          => PushOAWideCharsBwd
+               ( WRdBack , FM3Scanner . Attribute . SaWideChars )
+        | FM3SrcToks . StkCharLit 
+        , FM3SrcToks . StkWideCharLit 
+          => FM3Compress . PutBwd
+               ( WRdBack
+               , VAL ( ORD ( FM3Scanner . Attribute . SaWCh ) , LONGINT ) 
+               )
+     (* | FM3SrcToks . StkLexErrChars => Throw these away, for now. *) 
+        ELSE
+        END (*CASE*) 
+      END (*WITH*)
+    END PushUnnestStk
+
+; PROCEDURE PushOACharsBwd
+    ( RdBack : RdBackFile . T ; Chars : REF ARRAY OF CHAR )
+
+  = VAR LNumber : INTEGER
+
+  ; BEGIN
+      LNumber := NUMBER ( Chars ^ ) 
+    ; FOR RI := LNumber - 1 TO 0 BY - 1 
+      DO FM3Compress . PutBwd
+           ( RdBack , VAL ( ORD ( Chars ^ [ RI ] ) , LONGINT ) )
+      END (*FOR*)
+    ; FM3Compress . PutBwd ( RdBack , VAL ( LNumber , LONGINT ) )
+    END PushOACharsBwd 
+    
+; PROCEDURE PushOAWideCharsBwd
+    ( RdBack : RdBackFile . T ; Chars : REF ARRAY OF WIDECHAR )
+
+  = VAR LNumber : INTEGER
+
+  ; BEGIN
+      LNumber := NUMBER ( Chars ^ ) 
+    ; FOR RI := LNumber - 1 TO 0 BY - 1 
+      DO FM3Compress . PutBwd
+           ( RdBack , VAL ( ORD ( Chars ^ [ RI ] ) , LONGINT ) ) 
+      END (*FOR*)
+    ; FM3Compress . PutBwd ( RdBack , VAL ( LNumber , LONGINT ) )
+    END PushOAWideCharsBwd 
+    
+(*EXPORTED:*)
+; PROCEDURE PushUnnestLong ( Value : LONGINT )
+  
+  = BEGIN
+      FM3Compress . PutBwd
+        ( FM3Globals . CurrentUnitRef ^ . UntUnnestStackRdBack
+        , Value
+        )
+    END PushUnnestLong
+
+(*EXPORTED:*)
+; PROCEDURE PushUnnest ( Value : INTEGER )
+
+  = BEGIN
+      FM3Compress . PutBwd
+        ( FM3Globals . CurrentUnitRef ^ . UntUnnestStackRdBack
+        , VAL ( Value , LONGINT ) 
+        )
+    END PushUnnest 
 
 ; BEGIN
   END FM3ParsePass

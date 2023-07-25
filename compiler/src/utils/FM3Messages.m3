@@ -13,8 +13,6 @@ MODULE FM3Messages
 ; IMPORT Thread 
 ; IMPORT Wr
 
-; IMPORT FM3CLArgs 
-; IMPORT FM3Globals 
 ; IMPORT FM3SharedUtils
 
   (* Fatal amd Log go immediatly to stderr and optionally to a log file. *)
@@ -22,7 +20,7 @@ MODULE FM3Messages
 ; PROCEDURE PutStdErr ( Msg : TEXT ) RAISES { Thread . Alerted } 
 
   = BEGIN
-      IF FM3CLArgs . DoStdErr
+      IF DoStdErr
       THEN
         TRY (*EXCEPT*) 
           Wr . PutText ( Stdio . stderr , Msg )
@@ -36,7 +34,7 @@ MODULE FM3Messages
 ; PROCEDURE PutStdOut ( Msg : TEXT ) RAISES { Thread . Alerted }
 
   = BEGIN
-      IF FM3CLArgs . DoStdOut
+      IF DoStdOut
       THEN
         TRY (*EXCEPT*) 
           Wr . PutText ( Stdio . stdout , Msg )
@@ -45,20 +43,21 @@ MODULE FM3Messages
         EXCEPT Wr . Failure =>
         END (*EXCEPT*)
       END (*IF*) 
-    END PutStdOut 
+    END PutStdOut
+
+; VAR GUnitLogWrT : Wr . T := NIL 
 
 ; PROCEDURE PutUnitLog ( Msg : TEXT ) RAISES { Thread . Alerted }
-  (* Or, resort to cokpiler log, if can't do that. *) 
+  (* Or, resort to compiler log, if can't do that. *)
 
   = BEGIN
-      IF FM3CLArgs . DoCompLog
-         AND FM3Globals . CurrentUnitRef # NIL 
-         AND FM3Globals . CurrentUnitRef . UntLogWrT # NIL 
-         AND NOT Wr . Closed ( FM3Globals . CurrentUnitRef . UntLogWrT ) 
+      IF DoCompLog
+         AND GUnitLogWrT # NIL 
+         AND NOT Wr . Closed ( GUnitLogWrT ) 
       THEN
         TRY (*EXCEPT*)
-          Wr . PutText ( FM3Globals . CurrentUnitRef . UntLogWrT , Msg )
-        ; Wr . PutText ( FM3Globals . CurrentUnitRef . UntLogWrT , Wr . EOL )
+          Wr . PutText ( GUnitLogWrT , Msg )
+        ; Wr . PutText ( GUnitLogWrT , Wr . EOL )
         EXCEPT Wr . Failure =>
         END (*EXCEPT*)
       ELSE PutLog ( Msg ) 
@@ -68,13 +67,13 @@ MODULE FM3Messages
 ; PROCEDURE PutLog ( Msg : TEXT ) RAISES { Thread . Alerted } 
 
   = BEGIN
-      IF FM3CLArgs . DoLog 
-         AND FM3CLArgs . LogFileWrT # NIL 
-         AND NOT Wr . Closed ( FM3CLArgs . LogFileWrT ) 
+      IF DoLog 
+         AND LogFileWrT # NIL 
+         AND NOT Wr . Closed ( LogFileWrT ) 
       THEN
         TRY (*EXCEPT*) 
-          Wr . PutText ( FM3CLArgs . LogFileWrT , Msg )
-        ; Wr . PutText ( FM3CLArgs . LogFileWrT , Wr . EOL )
+          Wr . PutText ( LogFileWrT , Msg )
+        ; Wr . PutText ( LogFileWrT , Wr . EOL )
         EXCEPT Wr . Failure =>
         END (*EXCEPT*)
       END (*IF*) 
@@ -169,12 +168,15 @@ MODULE FM3Messages
     END Error
 
 (*EXPORTED*)
-; PROCEDURE StartUnit ( UnitName : TEXT ) RAISES { Thread . Alerted } 
+; PROCEDURE StartUnit
+    ( UnitName : TEXT ; UnitLogWrT : Wr . T := NIL )
+  RAISES { Thread . Alerted } 
 
   = VAR LMsg : TEXT 
 
   ; BEGIN
-      LMsg := FM3SharedUtils . CatStrings ( "Start unit " , UnitName ) 
+      GUnitLogWrT := UnitLogWrT 
+    ; LMsg := FM3SharedUtils . CatStrings ( "Start unit " , UnitName ) 
     ; PutStdErr ( LMsg ) 
     ; PutLog ( LMsg ) 
     END StartUnit 
@@ -188,6 +190,7 @@ MODULE FM3Messages
       LMsg := FM3SharedUtils . CatStrings ( "End unit " , UnitName ) 
     ; PutStdErr ( LMsg ) 
     ; PutLog ( LMsg ) 
+    ; GUnitLogWrT := UnitLogWrT 
     END EndUnit 
 
 (*EXPORTED*)

@@ -473,7 +473,15 @@ MODULE FM3Scanner
         UNTIL NOT GTopSsRef . SsCh IN SET OF CHAR { '0' .. '9' } 
         
       ; CASE GTopSsRef . SsCh
-        OF '_' 
+        OF 'L' 
+        => LTok := FM3SrcToks . StkLongIntLit 
+        ; FM3Utils . ContribToHash 
+            ( (*IN OUT*) ScHash 
+            , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
+            )
+        ; AppendChar ( ScCharVarArr , GTopSsRef . SsCh ) 
+        ; NextChar ( ) 
+        | '_' 
         => LTok := FM3SrcToks . StkBasedLit 
         ; FM3Utils . ContribToHash 
             ( (*IN OUT*) ScHash 
@@ -491,6 +499,16 @@ MODULE FM3Scanner
             ; AppendChar ( ScCharVarArr , GTopSsRef . SsCh ) 
             ; NextChar ( )  
             UNTIL NOT GTopSsRef . SsCh IN DigitChars 
+          ; IF  GTopSsRef . SsCh = 'L' 
+            THEN 
+              LTok := FM3SrcToks . StkLongBasedLit 
+            ; FM3Utils . ContribToHash 
+                ( (*IN OUT*) ScHash 
+                , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
+                )
+            ; AppendChar ( ScCharVarArr , GTopSsRef . SsCh ) 
+            ; NextChar ( ) 
+            END (*IF*) 
           ELSE 
             ErrorAtSs ( "Based literal has no digit" ) 
           END (* IF *) 

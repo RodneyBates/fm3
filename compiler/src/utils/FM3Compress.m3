@@ -32,6 +32,7 @@ UNSAFE MODULE FM3Compress
 ; IMPORT RdBackFile 
 ; FROM RdBackFile IMPORT ByteTyp  
 ; IMPORT Long
+; IMPORT Wr
 
 ; CONST DivL = Long . Divide 
 ; CONST AndL = Long . And 

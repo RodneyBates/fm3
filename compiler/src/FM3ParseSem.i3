@@ -7,6 +7,7 @@
 (* -----------------------------------------------------------------------2- *)
 
 (* Things needed by the Cocktail-lalr-generated parser. *)
+(* MOVE these to FM3ParsePass. *) 
 
 INTERFACE FM3ParseSem
 
@@ -17,6 +18,7 @@ INTERFACE FM3ParseSem
 ; TYPE tParsAttribute (* Lalr expects this and field Scan to be so named. *) 
     = RECORD
         Scan : FM3Scanner . tScanAttribute
+      ; PaUnnestStackLen : LONGINT 
       ; PaLong : LONGINT 
       ; PaConstructPtr : INTEGER
       ; PaListItemNo : INTEGER

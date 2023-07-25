@@ -22,8 +22,7 @@ INTERFACE FM3Units
 ; TYPE UnitRefTyp = REF UnitTyp
 ; TYPE UnitTyp
     = RECORD
-        UntUnitNo : UnitNoTyp := UnitNoNull
-      ; UntStackLink : UnitRefTyp := NIL 
+        UntStackLink : UnitRefTyp := NIL 
       ; UntSrcFileName : TEXT := NIL 
       ; UntSrcFilePrefix : TEXT := NIL(* Without simple name. *)
       ; UntLogName : TEXT := NIL 
@@ -31,10 +30,12 @@ INTERFACE FM3Units
       ; UntWorkFilePrefix : TEXT := NIL
       ; UntPatchStackName : TEXT := NIL
       ; UntPatchStackRdBack : RdBackFile . T := NIL
-      ; UntMaxPatchStackDepth : LONGINT := 0L 
+      ; UntMaxPatchStackDepth : LONGINT := 0L
+      ; UntPatchStackEmpty : LONGINT := 0L
       ; UntUnnestStackName : TEXT := NIL
       ; UntUnnestStackRdBack : RdBackFile . T := NIL
       ; UntMaxUnnestStackDepth : LONGINT := 0L 
+      ; UntUnnestStackEmpty : LONGINT := 0L
       ; UntParsePassName : TEXT := NIL
       ; UntParsePassRdBack : RdBackFile . T := NIL
       ; UntIdentAtomDict : FM3Atom_OAChars . T := NIL (* Identifiers. *)   
@@ -44,6 +45,7 @@ INTERFACE FM3Units
           (* ^Wide TEXT literals. *)
       ; UntScopes : FM3Scopes . ScopeMapTyp := NIL 
       ; UntDecls : FM3Decls . DeclMapTyp := NIL
+      ; UntUnitNo : UnitNoTyp := UnitNoNull
       ; UntScanResult : INTEGER 
       ; UntParseResult : INTEGER 
       ; UntParsePassResult : INTEGER 

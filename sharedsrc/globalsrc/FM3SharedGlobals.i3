@@ -19,7 +19,7 @@ INTERFACE FM3SharedGlobals
       , VAL ( ORD ( 'M' ) , Byte )
       , VAL ( ORD ( '3' ) , Byte )
       }
-  (* For normal forward reading. *) 
+  (* ^For normal forward reading. *) 
 
 ; VAR FM3FileTagRtBwd
     := ARRAY [ 0 .. 2 ] OF Byte
@@ -29,8 +29,7 @@ INTERFACE FM3SharedGlobals
       }
   (* For backward reading. *)
 
-(* Specific Filekinds: These are all single ASCII chars,
-   so compression would be an identity. *) 
+(* Specific Filekinds: *) 
 
 ; VAR FM3FileTagRdBackLt := VAL ( ORD ( 'A' ) , Byte )
   (* Left end of FM3RdBackFile. *) 

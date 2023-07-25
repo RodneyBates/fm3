@@ -17,7 +17,19 @@
    It also can be closed and reopened later.  When closed, its contents
    are indistinguishable from and interchangable with a plain file, thus
    handled by FileRd or FileWr. 
-*) 
+*)
+
+(* TODO:
+
+   1) remove checks for an open file from several procs and must make
+      it a precondition.
+
+   2) Integrate the logging with FM3's system, while not pulling FM3
+      itself.
+
+   3) Figure out an EOF sentinal or something to avoid the whole copy
+      business during close, just to denote the end.
+*)
 
 MODULE RdBackFile
 
@@ -46,14 +58,12 @@ MODULE RdBackFile
 ; TYPE BlockTyp = ARRAY BlockSsTyp OF File . Byte 
 
 ; REVEAL T
-  = BRANDED "gRdBackFile.T" REF RECORD
+  = BRANDED "RdBackFile.T" REF RECORD
       RbLengthL : LONGCARD := 0L (* Byte count of current abstract contents. *) 
-    ; RbMaxLengthL : LONGCARD := 0L 
+    ; RbMaxLengthL : LONGCARD := 0L (* Max occurring during period of openness. *)
     ; RbDiskLengthL : LONGCARD := 0L (* Byte count of the disk file. *)   
     ; RbBlockNo : INTEGER := - 1 (* Current block number. *)
     ; RbBlockCt : INTEGER := 0 
-    ; RbRMBlockByteNo : INTEGER 
-    ; RbNextIn : INTEGER 
     ; RbBlockNextIn : INTEGER := 0
     ; RbFileName : TEXT := ""
     ; RbFileHandle : RegularFile . T 
@@ -65,13 +75,14 @@ MODULE RdBackFile
    an in-memory copy of block number RbBlockNo, which is not necessarily
    up-to-date on disk.  RbBlockNo is the rightmost that contains meaningful
    data, which occupy bytes [0..RbBlockNextIn-1] of RbBuffer.  RbBlockNextIn
-   is the subscript where the next byte should go into RbBuffer, but it can
-   be one beyond the end of RbBuffer, i.e. equal to BlockSize.  If a Put
-   occurs in this state, RbBuffer must first be moved to the block to the
-   right, flushing to disk.  RbBlockNextIn-1 is the subscript of the next
-   byte to be removed, but analogous to the above, it can be one below the
-   beginning of RbBuffer, i.e., -1, with an analogous requirement to move
-   to fetch the block to the left, should a GetBwd occur in this state.
+   is the subscript where the next byte would go into RbBuffer, but it can
+   be one beyond the end of RbBuffer, i.e. equal to BlockSize.  If a Put occurs
+   in this state, RbBuffer must first be changed to contain the block to the
+   right, flushing its old contents to disk.  RbBlockNextIn-1 is the subscript
+   of the next byte to be removed, but analogous to the above, it can be one
+   to the left of the beginning of RbBuffer, i.e., -1, with an analogous
+   requirement to flush and change the block to the left, should a GetBwd
+   occur in this state.
 *)
 
 ; VAR GDoStderr := TRUE 
@@ -151,7 +162,8 @@ MODULE RdBackFile
         OF NULL
         => Raise ( MsgLabel , ", FS.OpenFile failed for " , FileName , "." )
         | RegularFile . T ( TRegFile ) 
-        => LStatus := TRegFile . status ( ) 
+        => LResult . RbFileHandle := TRegFile
+         ; LStatus := TRegFile . status ( ) 
          ; IF MustBeEmpty AND LStatus . size > 0L
            THEN
              TRY LResult . RbFileHandle . close ( ) 
@@ -159,10 +171,9 @@ MODULE RdBackFile
              => Raise ( MsgLabel , ", file " , FileName , " is not empty." )
              END (*EXCEPT*)
            END (*IF*)
-         ; LResult . RbFileHandle := TRegFile
          ; LResult . RbDiskLengthL := LStatus . size 
          ; LResult . RbLengthL := LStatus . size
-         ; LResult . RbMaxLengthL := LStatus . size 
+         ; LResult . RbMaxLengthL := LStatus . size
         ELSE
           Raise ( MsgLabel , ", " , FileName , " is not a regular file." )
         END (*TYPECASE*)
@@ -190,7 +201,7 @@ MODULE RdBackFile
     ; LResult . RbLengthL := 0L 
     ; LResult . RbMaxLengthL := 0L
     ; LResult . RbDiskLengthL := 0L
-    ; LResult . RbNextIn := 0 
+    ; LResult . RbBlockNextIn := 0 
     ; RETURN LResult 
     END Create  
 
@@ -204,11 +215,12 @@ MODULE RdBackFile
         := InnerOpen 
              ( Filename , "Open" , Truncate := FALSE , MustBeEmpty := FALSE )
     ; LResult . RbBlockNo
-        := VAL ( LResult . RbLengthL DIV BlockSizeL , INTEGER ) 
-    ; LResult . RbNextIn
+        := VAL ( ( LResult . RbLengthL - 1L ) DIV BlockSizeL , INTEGER ) 
+    ; LResult . RbBlockNextIn
         := VAL ( LResult . RbLengthL MOD BlockSizeL , INTEGER )
     ; LResult . RbBlockCt
-        := LResult . RbBlockNo + ORD ( LResult . RbNextIn > 0 )  
+        := LResult . RbBlockNo + ORD ( LResult . RbBlockNextIn > 0 ) + 1
+    ; ReadBuffer ( LResult , LResult . RbBlockNextIn , "Open" ) 
     ; RETURN LResult 
     END Open  
 
@@ -251,7 +263,6 @@ MODULE RdBackFile
     ( RbFile : T ; SeekToL : LONGINT ; MsgTag : TEXT ) RAISES { OSError . E }
     
   = VAR LGotL : LONGINT
-  (* The following should be LONGINT, but seek has not been updated.*)
   ; VAR LGot : INTEGER 
   ; VAR LSeekTo : INTEGER
   (* ^These two should be LONGINT, but RegularFile.T.seek is behind the times.*)
@@ -275,10 +286,10 @@ MODULE RdBackFile
     END Seek 
 
 ; PROCEDURE ReadBuffer
-    ( RbFile : T ; Length : INTEGER ; MsgTag : TEXT ) RAISES { OSError . E } 
+    ( RbFile : T ; Length : INTEGER ; MsgTag : TEXT ) RAISES { OSError . E }
+  (* For block RdBlockNo. *) 
 
   = VAR LSeekToL : LONGINT
-  ; VAR LGotL : LONGINT
   ; VAR LGot : INTEGER
   (* ^This should be LONGINT, but RegularFile.T.read is behind the times.*)
 
@@ -291,8 +302,7 @@ MODULE RdBackFile
                ( (*OUT*) SUBARRAY ( RbFile . RbBuffer , 0 , Length )
                , mayBlock := TRUE 
                )
-      ; LGotL := VAL ( LGot , LONGINT ) 
-      ; IF LGotL # LSeekToL
+      ; IF LGot # Length
         THEN
           Raise
             ( MsgTag , ", wrong read length for " , RbFile . RbFileName , "." )
@@ -313,6 +323,7 @@ MODULE RdBackFile
     ; MsgTag : TEXT
     )
   RAISES { OSError . E }
+  (* For block RdBlockNo. *) 
 
   = VAR LSeekToL : LONGINT 
 
@@ -362,9 +373,10 @@ MODULE RdBackFile
   ; BEGIN
       IF RbFile = NIL THEN RETURN END (*IF*)
     ; IF NOT RbFile . RbIsOpen THEN RETURN  END (*IF*)
-    ; IF RbFile . RbNextIn > 0
+    ; IF RbFile . RbBlockNextIn > 0
       THEN
-        WriteBuffer ( RbFile , RbFile . RbBuffer , RbFile . RbNextIn , "Close" )
+        WriteBuffer
+          ( RbFile , RbFile . RbBuffer , RbFile . RbBlockNextIn , "Close" )
       END (*IF*) 
 
     ; IF FALSE (* Disable this for now, because: *) 
@@ -476,7 +488,7 @@ MODULE RdBackFile
 
     (* If necessary, read block RbBlockNo into RbBuffer. *) 
     ; IF RbFile . RbBlockNextIn = 0 (* Left of the block in RbBuffer. *)
-         AND RbFile . RbBlockNo >= 0 (* Block to left exists. *) 
+         (* Not empty => Block to left exists. *) 
       THEN
         DEC ( RbFile . RbBlockNo )
       ; ReadBuffer ( RbFile , BlockSize , "GetBwd" )

@@ -10,7 +10,7 @@ INTERFACE FM3Compress
 
 (* Reading and writing, to/from a RdBackFile.T,  a stream of 64-bit words,
    using a simple compression technique favoring values that, if viewed as
-   64-bit integers have smaller absolute values. *) 
+   64-bit integers, have smaller absolute values. *) 
 
 (* Compression scheme: 
    A variable length sequence of one to nine bytes, least significant to most
