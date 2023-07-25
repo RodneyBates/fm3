@@ -1,0 +1,29 @@
+
+%(* -----------------------------------------------------------------------1- *)
+%(* This file is part of the FM3 Modula-3 compiler.                           *)
+%(* Copyright 2023        Rodney M. Bates.                                    *)
+%(* rodney.m.bates@acm.org                                                    *)
+%(* Licensed under the MIT License.                                           *)
+%(* -----------------------------------------------------------------------2- *)
+
+% m3makefile for metaprogram Dump of Flint Hills Modula-3.
+
+import("libm3")
+
+%include_dir("../../../sharedsrc/rdbacksrcRdBackFile")
+%include_dir("../../../sharedsrc/utilsrc") %For FM3SharedUtils.[im]3
+%include_dir("../../../compiler/src/utils") %For FM3Compress.[im]3.
+%include_dir("../../../compiler/src/shared") %For FM3Base.[im]3.
+
+module("../../../sharedsrc/rdbacksrc/RdBackFile")
+module("../../../sharedsrc/utilsrc/FM3SharedUtils")
+module("../../../compiler/src/utils/FM3Compress")
+module("../../../compiler/src/utils/FM3Messages")
+module("../../../compiler/src/shared/FM3Base")
+%module("../../../compiler/src/FM3CLArgs")
+%module("../../../compiler/src/FM3Globals")
+
+module("DumpWork")
+implementation("Dump")
+
+Program("dump") 
