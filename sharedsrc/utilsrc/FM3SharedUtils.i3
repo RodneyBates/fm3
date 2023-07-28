@@ -16,7 +16,8 @@ INTERFACE FM3SharedUtils
 ; <*IMPLICIT*>
   EXCEPTION Terminate ( TEXT ) 
 
-; EXCEPTION FatalError ( TEXT )
+; <*IMPLICIT*>
+  EXCEPTION FatalError ( TEXT )
 
 ; PROCEDURE StandaloneFatalError ( Msg : TEXT )
   (* Convenience procedure for catchers of FatalError.

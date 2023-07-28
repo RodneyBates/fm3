@@ -552,9 +552,9 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
      yyTerminal        := FM3Scanner.GetToken ();
       yyStateStackSize  := yyInitStackSize;
       yyAttrStackSize   := yyInitStackSize;
-      yyStateStack := NEW ( yyStackType , yyStateStackSize );
-      yyAttributeStack := NEW ( yyAttributeStackType , yyStateStackSize ); 
-      yyStackLAST := LAST ( yyStateStack ^ ) (* Of yyAttributeStack too. *);
+      yyStateStack      := NEW ( yyStackType , yyStateStackSize );
+      yyAttributeStack  := NEW ( yyAttributeStackType , yyStateStackSize ); 
+      yyStackLAST       := LAST ( yyStateStack ^ ) (* Of yyAttributeStack too. *);
       yyStackPtr        := 0;
       yyErrorCount      := 0;
       yyIsRepairing     := FALSE;
@@ -932,11 +932,8 @@ PROCEDURE IsContinuation (
       Stack             : yyStackType;
    BEGIN
       Stack := NEW (yyStackType, StackSize);
-      FOR RStackPtr := 0 TO StackPtr DO
-         (* Making this assignment directly crashes CM3: *)
-         State := ParseStack^ [RStackPtr];
-         Stack^ [RStackPtr] := State
-      END;
+      SUBARRAY (Stack^, 0, StackPtr+1 )
+        := SUBARRAY (ParseStack^, 0, StackPtr+1 );
       State := Stack^ [StackPtr];
       LOOP
          Stack^ [StackPtr] := State;
@@ -997,11 +994,8 @@ PROCEDURE ComputeRestartPoints (
       ContinueSet       : IntSets.T;
    BEGIN
       Stack := NEW (yyStackType, StackSize);
-      FOR RStackPtr := 0 TO StackPtr DO
-         (* Making this assignment directly crashes CM3: *)
-         State:= ParseStack^ [RStackPtr];
-         Stack^ [RStackPtr] := State;
-      END;
+      SUBARRAY (Stack^, 0, StackPtr+1 )
+        := SUBARRAY (ParseStack^, 0, StackPtr+1 );
       ContinueSet := IntSets . Empty ( );
       State := Stack^ [StackPtr];
 

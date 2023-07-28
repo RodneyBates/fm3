@@ -339,6 +339,8 @@ MODULE FM3ParsePass
             ( WRdBack , VAL ( FM3Scanner . Attribute . SaAtom , LONGINT ) )
         END (*IF*) 
       ; CASE Token OF
+      
+(* Keep DumpWork.DumpNumericBwd consistent with this:*) 
      (* | FM3SrcToks . StkIdent => *) 
         | FM3SrcToks . StkIntLit 
         , FM3SrcToks . StkLongIntLit 

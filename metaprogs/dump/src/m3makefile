@@ -14,12 +14,15 @@ import("libm3")
 %include_dir("../../../sharedsrc/utilsrc") %For FM3SharedUtils.[im]3
 %include_dir("../../../compiler/src/utils") %For FM3Compress.[im]3.
 %include_dir("../../../compiler/src/shared") %For FM3Base.[im]3.
-
+include_dir("../../../sharedsrc/intsetssrc")
 module("../../../sharedsrc/rdbacksrc/RdBackFile")
 module("../../../sharedsrc/utilsrc/FM3SharedUtils")
 module("../../../compiler/src/utils/FM3Compress")
 module("../../../compiler/src/utils/FM3Messages")
 module("../../../compiler/src/shared/FM3Base")
+module("../../gentok/gen/FM3SrcToks")
+module("../../gentok/gen/FM3IntToks")
+
 %module("../../../compiler/src/FM3CLArgs")
 %module("../../../compiler/src/FM3Globals")
 

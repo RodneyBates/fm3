@@ -14,7 +14,7 @@ UNITNAME FM3IntToks
    used in intermediate token streams.  
 *)
 
-ABS 1
+ABS 125
 
 FIXED ItkNull .
       ItkBOF .

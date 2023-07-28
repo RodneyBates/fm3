@@ -31,9 +31,9 @@ INTERFACE FM3SharedGlobals
 
 (* Specific Filekinds: *) 
 
-; VAR FM3FileTagRdBackLt := VAL ( ORD ( 'A' ) , Byte )
+; VAR FM3FileTagRdBackLt := VAL ( ORD ( 'D' ) , Byte )
   (* Left end of FM3RdBackFile. *) 
-; VAR FM3FileTagRdBackRt := VAL ( ORD ( 'B' ) , Byte ) 
+; VAR FM3FileTagRdBackRt := VAL ( ORD ( 'E' ) , Byte ) 
   (* Right end of FM3RdBackFile. *) 
 
 ; END FM3SharedGlobals

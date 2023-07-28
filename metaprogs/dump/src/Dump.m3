@@ -20,7 +20,7 @@ MODULE Dump EXPORTS Main
 
 ; VAR GDoHelp := FALSE 
 ; VAR GDoToks := FALSE
-; VAR GInputFileName : TEXT 
+; VAR GInputFileName : TEXT := NIL 
 
 ; CONST VersionString = "0.1"
 
@@ -36,7 +36,7 @@ MODULE Dump EXPORTS Main
   = BEGIN
       GDoHelp := FALSE 
     ; GDoToks := FALSE
-    ; GInputFileName := "<FileNotFound>" 
+    ; GInputFileName := NIL 
     END SetArgDefaults 
 
 ; EXCEPTION HelpExc 
@@ -126,7 +126,8 @@ MODULE Dump EXPORTS Main
 ; PROCEDURE DeriveOptions ( )
 
   = BEGIN
-      IF GDoToks 
+      IF GInputFileName = NIL THEN RAISE HelpExc END (*IF*) 
+    ; IF GDoToks 
       THEN
         Wr . PutText
           ( Stdio . stderr
