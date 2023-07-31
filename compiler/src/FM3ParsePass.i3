@@ -30,7 +30,7 @@ INTERFACE FM3ParsePass
 ; PROCEDURE UnnestStackLen ( ) : LONGINT
   (* Of the current unit. *)
   
-; PROCEDURE PushUnnestStk ( Token : INTEGER )
+; PROCEDURE PushUnnestStk ( READONLY ParsAttr : tParsAttribute )
   (* Source token.  Some of these (in fact, probably the only ones that
      will be passed in) have arguments, depending on the value of Token.
      Used for source code variable terminals.

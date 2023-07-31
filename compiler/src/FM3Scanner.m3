@@ -1178,12 +1178,14 @@ MODULE FM3Scanner
     ; RETURN Attribute . SaTok 
     END GetToken
 
-; PROCEDURE ErrorAttribute ( Token : CARDINAL ; VAR Attribute : tScanAttribute )
+; PROCEDURE ErrorAttribute ( Token : CARDINAL ; VAR ResultAttribute : tScanAttribute )
   (* This is dependent only on the language, not code being compiled, so a 
      single instance is OK. *) 
 
   = BEGIN
-      Attribute := ScanAttributeDefault 
+      ResultAttribute := ScanAttributeDefault
+    ; ResultAttribute . Position := Attribute . Position 
+    ; ResultAttribute . SaTok := Token 
 (* COMPLETEME: *) 
     END ErrorAttribute
     

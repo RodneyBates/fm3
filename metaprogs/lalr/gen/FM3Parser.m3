@@ -581,7 +581,7 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
          yyStateStack^ [yyStackPtr] := (*State*)yyState;
 
          LOOP (* Through all continuation shifts, plus compute the state
-                 after that. This loop also goes through the default state
+                 after that.  This loop also goes through the default state
                  computations. *) 
             (* SPEC State := Next (State, Terminal); terminal transition *)
             
@@ -623,7 +623,7 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
                      DO 
                        WParsAttr.Scan := yyRepairAttribute;
                        WParsAttr.PaUnnestStackLen := UnnestStackLen ( );
-                       PushUnnestStk (WParsAttr.Scan.SaTok);
+                       PushUnnestStk (WParsAttr);
                      END (*WITH*)
                   END (* IF *) ;
                   IF yyState >= yyFirstFinalState 
@@ -641,13 +641,13 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
          END (* LOOP *) ;
 
          IF yyState >= yyFirstFinalState 
-         THEN (* Action *)
+         THEN (* Action, ending with a reduce. *)
             IF yyState <= yyLastReadTermState (* read terminal reduce ? *) 
             THEN (* First do the read terminal. *)
               INC (yyStackPtr);
               (* Is there such a thing as a read-reduce action where the
                  reduce is by an empty production?  And so are all the
-                 subsequent reduces? If so, it is important to store into
+                 subsequent reduces?  If so, it is important to store into
                  the two stacks, which will not be overlaid by reduces.
               *)
               yyStateStack^ [yyStackPtr]
@@ -660,7 +660,7 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
                 WParsAttr := ParsAttrNull; 
                 WParsAttr.Scan := FM3Scanner.Attribute;
                 WParsAttr.PaUnnestStackLen := UnnestStackLen ( );
-                PushUnnestStk (WParsAttr.Scan.SaTok);
+                PushUnnestStk (WParsAttr);
               END (*WITH*);
              yyTerminal := FM3Scanner.GetToken ();
                yyIsRepairing := FALSE;
@@ -833,7 +833,7 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
             DO
               WParsAttr.Scan := FM3Scanner.Attribute;
               WParsAttr.PaUnnestStackLen := UnnestStackLen ( );
-              PushUnnestStk (WParsAttr.Scan.SaTok);
+              PushUnnestStk (WParsAttr);
             END (*WITH*);
             yyTerminal := FM3Scanner.GetToken ();
             yyIsRepairing := FALSE;

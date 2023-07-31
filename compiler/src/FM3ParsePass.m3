@@ -319,7 +319,7 @@ MODULE FM3ParsePass
     END UnnestStackLen 
 
 (*EXPORTED:*)
-; PROCEDURE PushUnnestStk ( Token : INTEGER )
+; PROCEDURE PushUnnestStk ( READONLY ParsAttr : tParsAttribute )
   (* Source token.  Some of these (in fact, probably the only ones that
      will be passed in) have arguments.
   *) 
@@ -328,10 +328,10 @@ MODULE FM3ParsePass
       WITH WRdBack = FM3Globals . CurrentUnitRef ^ . UntUnnestStackRdBack
       DO
 (* Keep DumpWork.DumpNumericBwd consistent with this:*) 
-        CASE Token OF (* Optional varterm-specific value info: *) 
+        CASE ParsAttr . Scan . SaTok OF (* Optional varterm-specific value info: *) 
      (* | FM3SrcToks . StkIdent
           => Ident spelling? Probably not.
-             PushOACharsBwd ( WRdBack , FM3Scanner . Attribute . SaChars )
+             PushOACharsBwd ( WRdBack , ParsAttr . Scan . SaChars )
      *) 
         | FM3SrcToks . StkIntLit 
         , FM3SrcToks . StkLongIntLit 
@@ -341,30 +341,31 @@ MODULE FM3ParsePass
         , FM3SrcToks . StkLongRealLit 
         , FM3SrcToks . StkExtendedLit 
         , FM3SrcToks . StkTextLit 
-          => PushOACharsBwd ( WRdBack , FM3Scanner . Attribute . SaChars )
+          => PushOACharsBwd ( WRdBack , ParsAttr . Scan . SaChars )
         | FM3SrcToks . StkWideTextLit 
           => PushOAWideCharsBwd
-               ( WRdBack , FM3Scanner . Attribute . SaWideChars )
+               ( WRdBack , ParsAttr . Scan . SaWideChars )
         | FM3SrcToks . StkCharLit 
         , FM3SrcToks . StkWideCharLit 
           => FM3Compress . PutBwd
                ( WRdBack
-               , VAL ( ORD ( FM3Scanner . Attribute . SaWCh ) , LONGINT ) 
+               , VAL ( ORD ( ParsAttr . Scan . SaWCh ) , LONGINT ) 
                )
      (* | FM3SrcToks . StkLexErrChars => Throw these away, for now. *) 
         ELSE
         END (*CASE*) 
 
-      ; CASE Token OF (* All varterms. *)
+      ; CASE ParsAttr . Scan . SaTok OF (* All varterms. *)
         | FM3SrcToks . StkLexErrChars => (* Throw these away, for now. *) 
         | FM3SrcToks . StkIdent .. FM3SrcToks . StkWideCharLit
         => FM3Compress . PutBwd
-             ( WRdBack , VAL ( FM3Scanner . Attribute . SaAtom , LONGINT ) )
+             ( WRdBack , VAL ( ParsAttr . Scan . SaAtom , LONGINT ) )
          ; FM3Compress . PutBwd
              ( WRdBack
-             , VAL ( FM3Scanner . Attribute . Position . Column , LONGINT )
+             , VAL ( ParsAttr . Scan . Position . Column , LONGINT )
              )
-         ; FM3Compress . PutBwd ( WRdBack , VAL ( Token , LONGINT ) )
+         ; FM3Compress . PutBwd
+             ( WRdBack , VAL ( ParsAttr . Scan . SaTok , LONGINT ) )
          ELSE 
          END (*CASE*) 
       END (*WITH*)
