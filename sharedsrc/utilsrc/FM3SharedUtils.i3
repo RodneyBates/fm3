@@ -10,8 +10,12 @@ INTERFACE FM3SharedUtils
 
 ; IMPORT AtomList 
 ; IMPORT Rd
+; IMPORT Thread 
+
+; IMPORT IntSets 
 
 ; IMPORT FM3Base 
+; IMPORT FM3LexTable 
 
 ; <*IMPLICIT*>
   EXCEPTION Terminate ( TEXT ) 
@@ -37,6 +41,7 @@ INTERFACE FM3SharedUtils
 ; CONST FM3FileKindIntPkl = 'A'
 ; CONST FM3FileKindM3RwPkl = 'B'
 ; CONST FM3FileKindPgRwPkl = 'C'
+; CONST FM3FileKindTokSetsPkl = 'A'
 
 ; PROCEDURE FilePrefix ( Kind : CHAR ) : TEXT
 
@@ -48,7 +53,27 @@ INTERFACE FM3SharedUtils
 ; PROCEDURE OpenResourceRd
     ( FileName : TEXT := "" ; ExpectedFileKind : FileKindTyp )
   : Rd . T
-  RAISES { FatalError } 
+  RAISES { FatalError , Thread . Alerted } 
+
+; PROCEDURE ReadPickle
+    ( FileName : TEXT ; ExpectedKind : FileKindTyp )
+  : REFANY
+  RAISES { FatalError , Thread . Alerted } 
+
+; PROCEDURE ReadFsm ( FileName : TEXT ; Kind : FileKindTyp )
+  : FM3LexTable . T
+  RAISES { Thread . Alerted } 
+
+; PROCEDURE ReadSets
+    ( FileName : TEXT
+    ; Kind : FileKindTyp
+    ; VAR Temp : IntSets . T 
+    ; VAR Patch : IntSets . T 
+    ; VAR Arg1 : IntSets . T 
+    ; VAR Arg2 : IntSets . T 
+    ; VAR Arg3 : IntSets . T 
+    )
+  RAISES { FatalError , Thread . Alerted } 
 
 ; PROCEDURE IntHash ( Val : INTEGER ) : FM3Base . HashTyp
 

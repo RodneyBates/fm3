@@ -12,15 +12,19 @@ MODULE FM3SharedUtils
 ; IMPORT AtomList 
 ; IMPORT FileRd 
 ; IMPORT OSError 
-; IMPORT Pathname AS Libm3Pathname 
+; IMPORT Pathname AS Libm3Pathname
+; IMPORT Pickle2 
 ; IMPORT Rd
 ; IMPORT Stdio 
 ; IMPORT Text 
 ; IMPORT TextWr 
 ; IMPORT Thread  
-; IMPORT Wr  
+; IMPORT Wr
 
-; IMPORT FM3Base 
+; IMPORT IntSets 
+
+; IMPORT FM3Base
+; IMPORT FM3LexTable 
 
 ; CONST FM3FileTag = "FM3"
 ; VAR TagLength := Text . Length ( FM3FileTag )  
@@ -210,7 +214,7 @@ MODULE FM3SharedUtils
 ; PROCEDURE OpenResourceRd
     ( FileName : TEXT := "" ; ExpectedFileKind : FileKindTyp ) 
   : Rd . T
-  RAISES { FatalError } 
+  RAISES { FatalError , Thread . Alerted } 
 
   = VAR LFullFileName : TEXT
   ; VAR LRdT : Rd . T
@@ -234,6 +238,150 @@ MODULE FM3SharedUtils
       END (*IF*)
     ; RETURN LRdT 
     END OpenResourceRd
+
+(*EXPORTED*) 
+; PROCEDURE ReadPickle
+    ( FileName : TEXT ; ExpectedKind : FileKindTyp )
+  : REFANY
+  RAISES { FatalError , Thread . Alerted } 
+
+  = VAR LRdT : Rd . T 
+  ; VAR LResult : REFANY 
+
+  ; BEGIN
+      LRdT := OpenResourceRd ( FileName , ExpectedKind )
+    ; TRY (*EXCEPT*)
+        LResult := Pickle2 . Read ( LRdT ) 
+      EXCEPT
+      | Pickle2 . Error ( EMsg )
+      => RaiseFatal
+           ( CatStrings
+               ( "Unable to unpickle file \""
+               , FileName
+               , "\", Pickle2.Error ("
+               , EMsg
+               , ")"
+               )
+           )
+      | Rd . Failure ( EAtomList )
+      => RaiseFatal
+           ( CatStrings
+               ( "Unable to unpickle file \""
+               , FileName
+               , "\", Rd.Failure ("
+               , AtomListToText ( EAtomList ) 
+               , ")"
+               )
+           )
+      | Rd . EndOfFile 
+      => RaiseFatal
+           ( CatStrings
+               ( "Unable to unpickle file \""
+               , FileName
+               , "\", Rd.EndOfFile"
+               )
+           )
+      END (*EXCEPT*)
+    ; RETURN LResult 
+    END ReadPickle
+
+(*EXPORTED*) 
+; PROCEDURE ReadFsm ( FileName : TEXT ; Kind : FileKindTyp )
+  : FM3LexTable . T
+  RAISES { Thread . Alerted } 
+
+
+  = VAR LRef : REFANY 
+
+  ; BEGIN
+      LRef := ReadPickle ( FileName , Kind )
+    ; TYPECASE LRef OF
+      | NULL 
+        => RaiseFatal
+             ( CatStrings
+                 ( "In ReadFsm, NIL pickle file \"" , FileName , "\"" ) )
+      | FM3LexTable . T ( TLexTable ) => RETURN TLexTable 
+      ELSE
+        RaiseFatal
+          ( CatStrings
+              ( "In ReadFsm, not an FSM pickle file \"" , FileName , "\"" ) )
+      END (*TYPECASE*)
+    END ReadFsm
+
+(* This is not being pickled.  That would be redundant to procedure
+   Image, produced by gentok.  
+; PROCEDURE ReadIntTextArray ( RdT : Rd . T ) : IntTextArray . T
+
+  = BEGIN
+      LRef := Pickle2 . Read ( LRdT ) 
+    ; TYPECASE LRef OF
+      | NULL 
+        => RaiseFatal
+             ( CatStrings
+                 ( "In ReadIntTextArray, NIL pickle file \""
+                 , FileName
+                 , "\"" )
+                 )
+      | IntTextArray . T ( TResult ) => RETURN TResult  
+      ELSE
+        RaiseFatal
+          ( CatStrings
+              ( "In ReadIntTextArray, not a textArray pickle file \""
+              , FileName
+              , "\"" )
+              )
+      END (*TYPECASE*)
+    END ReadIntTextArray
+*) 
+
+(*EXPORTED*) 
+; PROCEDURE ReadSets
+    ( FileName : TEXT
+    ; Kind : FileKindTyp
+    ; VAR Temp : IntSets . T 
+    ; VAR Patch : IntSets . T 
+    ; VAR Arg1 : IntSets . T 
+    ; VAR Arg2 : IntSets . T 
+    ; VAR Arg3 : IntSets . T 
+    )
+  RAISES { FatalError , Thread . Alerted } 
+
+  = VAR LRdT : Rd . T
+
+  ; PROCEDURE RsReadIntSet ( RdT : Rd . T ) : IntSets . T
+    RAISES { FatalError } 
+
+    = VAR LRef : REFANY
+
+    ; BEGIN
+        LRef := Pickle2 . Read ( LRdT ) 
+      ; TYPECASE LRef OF
+        | NULL 
+          => RaiseFatal
+               ( CatStrings
+                   ( "In RsReadIntSet, NIL pickle file \""
+                   , FileName
+                   , "\"" )
+                   )
+        | IntSets . T ( TResult ) => RETURN TResult  
+        ELSE
+          RaiseFatal
+            ( CatStrings
+                ( "In RsReadIntSet, not a textArray pickle file \""
+                , FileName
+                , "\"" )
+                )
+        END (*TYPECASE*)
+      END RsReadIntSet 
+
+  ; BEGIN
+      LRdT :=  OpenResourceRd ( FileName , FM3FileKindTokSetsPkl )
+    ; Temp := RsReadIntSet ( LRdT ) 
+    ; Patch := RsReadIntSet ( LRdT ) 
+    ; Arg1 := RsReadIntSet ( LRdT ) 
+    ; Arg2 := RsReadIntSet ( LRdT ) 
+    ; Arg3 := RsReadIntSet ( LRdT ) 
+    END ReadSets 
 
 (*EXPORTED*) 
 ; PROCEDURE IntHash ( Val : INTEGER ) : FM3Base . HashTyp

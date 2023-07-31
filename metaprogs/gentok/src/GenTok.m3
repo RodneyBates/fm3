@@ -32,6 +32,7 @@ EXPORTS Main
 
 ; IMPORT FM3BuildLexMachine 
 ; IMPORT FM3LexTable
+; IMPORT FM3SharedUtils 
 ; IMPORT IntSets 
 ; IMPORT Layout
 ; IMPORT VarArray_Int_Refany AS IntRefArray 
@@ -1509,7 +1510,7 @@ EXPORTS Main
 
 (* TODO: Move These somewhere shared: (FM3Utils?) *)
 ; CONST FM3FileTag = "FM3" 
-; CONST FM3FileKindIntPkl = 'A'
+; CONST FM3FileKindIntPkl = FM3SharedUtils . FM3FileKindTokSetsPkl
 ; CONST FM3FileKindSrcPkl = 'B'
 
 ; CONST FM3Magic
@@ -1518,7 +1519,7 @@ EXPORTS Main
         , VAL ( 16_9F , CHAR ) , VAL ( 16_D9 , CHAR )
         }
 
-(* TODO: Move this somewere universal & fix it up, maybe date & time, e.g.? *)
+(* TODO: Move this somewhere universal & fix it up, maybe date & time, e.g.? *)
 ; PROCEDURE FM3FilePrefix ( Kind : CHAR ) : TEXT 
 
   = VAR LResult : TEXT
@@ -1538,9 +1539,10 @@ EXPORTS Main
     ; TRY (*FINALLY*) 
         TRY (*EXCEPT*)
           Wr . PutText
-            ( LWrT , (* FM3Utils . *) FM3FilePrefix ( FM3FileKindIntPkl ) )
-        ; Pickle . Write
-            ( LWrT , GTokNamesArrayRef , write16BitWidechar := FALSE ) 
+            ( LWrT , FM3FilePrefix ( FM3SharedUtils . FM3FileKindTokSetsPkl ) )
+     (* ; Pickle . Write
+            ( LWrT , GTokNamesArrayRef , write16BitWidechar := FALSE )
+     *) 
         ; Pickle . Write
             ( LWrT , GTokSetTemp , write16BitWidechar := FALSE ) 
         ; Pickle . Write

@@ -608,7 +608,7 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
                   THEN (* read or read terminal reduce ? *)
                     FM3Scanner.ErrorAttribute 
                        (yyRepairToken, (*OUT*)yyRepairAttribute);
-                     TokenName (yyRepairToken, yyText);
+                     TokenName (yyRepairToken, (*OUT*) yyText);
                      FrontErrors.ErrorMessageTraced
                        (FrontErrors.TokenInserted, FrontErrors.Repair,
                        FM3Scanner.Attribute.Position, FrontErrors.eText, yyText 
@@ -746,17 +746,21 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
                 (* line 230 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := 0 (* Largest element no. so far. *);
                     PushUnnest ( 0 (* Elem no. *));
-                    PushUnnestLong ( yyAttributeStack^[yyStackPtr+1] . PaUnnestStackLen );
+                    PushUnnest ( Itk . ItkIdPlusListElemRt );
+                    PushUnnest ( 0 (* Elem no. *));
+                    PushUnnestLong ( yyAttributeStack^[yyStackPtr+1] . PaUnnestStackLen )(*Patch*);
                     PushUnnest ( Itk . ItkIdPlusListElemLtPatch );
                   
               | 89,52 => (* P20 IdPlusListPrefix (123): IdPlusListPrefix StkComma StkIdent .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 123;
-                (* line 237 of "FM3Parser.lalr" *)
+                (* line 239 of "FM3Parser.lalr" *)
                  WITH WElemNo = yyAttributeStack^[yyStackPtr+1] . PaInt + 1 
                     DO
                       yySynAttribute . PaInt := WElemNo;
                       PushUnnest ( WElemNo );
-                      PushUnnestLong ( yyAttributeStack^[yyStackPtr+1] . PaUnnestStackLen );
+                      PushUnnest ( Itk . ItkIdPlusListElemRt );
+                      PushUnnest ( WElemNo );
+                      PushUnnestLong ( yyAttributeStack^[yyStackPtr+3] . PaUnnestStackLen ) (*Patch*);
                       PushUnnest ( Itk . ItkIdPlusListElemLtPatch );
                     END (*WITH*); 
                   
@@ -814,7 +818,6 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
                  WParsAttr.Scan.SaTok := yyNonterminal;
               (* ^This requires that tScanAttribute have field 'SaTok'. *)
                END (*WITH*);
-               PushUnnest (yyNonterminal);
                yyStateStack^ [yyStackPtr]
                  := yyState (* Not necessarily a state*) (*ParserDebug*);
                IF yyState < yyFirstFinalState (* read nonterminal? *) 
@@ -854,7 +857,7 @@ PROCEDURE ErrorRecovery (
       ContinueString    : Strings.tString;
    BEGIN
    (* 1. report the error *)
-         TokenName ( Terminal , TokenText );
+         TokenName ( Terminal , (*OUT*) TokenText );
          FrontErrors.ErrorMessageTraced
            (FrontErrors.SyntaxError, FrontErrors.Error, 
           FM3Scanner.Attribute.Position, FrontErrors.eText, TokenText);
@@ -865,7 +868,7 @@ PROCEDURE ErrorRecovery (
       Strings.AssignEmpty (ContinueString);
       FOR Token := IntSets.Minimum (ContinueSet) TO IntSets.Maximum (ContinueSet) DO
          IF IntSets.IsElement (Token, ContinueSet) THEN
-            TokenName (Token, TokenText);
+            TokenName (Token, (*OUT*) TokenText);
             Strings.TextToString (TokenText, TokenString);
             IF (Strings.Length (ContinueString) + Strings.Length (TokenString) + 1 <= Strings.cMaxStrLength) THEN
                Strings.Concatenate (ContinueString, TokenString);

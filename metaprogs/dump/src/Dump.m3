@@ -15,7 +15,8 @@ MODULE Dump EXPORTS Main
 ; IMPORT Text 
 ; IMPORT Wr 
 
-; IMPORT DumpWork 
+; IMPORT DumpWork
+; IMPORT FM3SharedUtils 
 ; IMPORT RdBackFile 
 
 ; VAR GDoHelp := FALSE 
@@ -123,10 +124,15 @@ MODULE Dump EXPORTS Main
       END (*BEGIN*)
     END ParseArgs
 
-; PROCEDURE DeriveOptions ( )
+; PROCEDURE DeriveOptions ( ) RAISES { HelpExc } 
 
   = BEGIN
-      IF GInputFileName = NIL THEN RAISE HelpExc END (*IF*) 
+      IF GInputFileName = NIL
+      THEN
+        DisplayVersion ( )
+      ; DisplayHelp ( ) 
+      ; RAISE Terminate 
+      END (*IF*) 
     ; IF GDoToks 
       THEN
         Wr . PutText
@@ -215,6 +221,10 @@ MODULE Dump EXPORTS Main
       Work ( )
      EXCEPT
      | Terminate =>
+     | FM3SharedUtils . FatalError ( EMsg )
+       => Wr . PutText ( Stdio . stderr , EMsg )
+       ; Wr . PutText ( Stdio . stderr , Wr . EOL )
+       ; Wr . Flush ( Stdio . stderr ) 
      END (*EXCEPT*) 
   END Dump
 .

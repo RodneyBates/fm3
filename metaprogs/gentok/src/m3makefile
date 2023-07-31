@@ -6,7 +6,7 @@ include_dir("../../../sharedsrc/intsetssrc")
 include_dir("../../../sharedsrc/layoutsrc") 
 include_dir("../../../sharedsrc/vararraysrc")
 include_dir("../../../sharedsrc/utilsrc")
-include_dir("../../../compiler/src/shared")
+%include_dir("../../../compiler/src/shared")
 
 module("../../fsm/src/FM3BuildLexMachine")
 %module("../../sharedsrc/miscsrc/FM3Base")

@@ -326,22 +326,13 @@ MODULE FM3ParsePass
   
   = BEGIN
       WITH WRdBack = FM3Globals . CurrentUnitRef ^ . UntUnnestStackRdBack
-      DO 
-        FM3Compress . PutBwd ( WRdBack , VAL ( Token , LONGINT ) )
-      ; IF FM3SrcToks . StkIdent <= Token
-           AND Token <= FM3SrcToks . StkWideCharLit
-        THEN
-          FM3Compress . PutBwd
-            ( WRdBack
-            , VAL ( FM3Scanner . Attribute . Position . Column , LONGINT )
-            )
-        ; FM3Compress . PutBwd
-            ( WRdBack , VAL ( FM3Scanner . Attribute . SaAtom , LONGINT ) )
-        END (*IF*) 
-      ; CASE Token OF
-      
+      DO
 (* Keep DumpWork.DumpNumericBwd consistent with this:*) 
-     (* | FM3SrcToks . StkIdent => *) 
+        CASE Token OF (* Optional varterm-specific value info: *) 
+     (* | FM3SrcToks . StkIdent
+          => Ident spelling? Probably not.
+             PushOACharsBwd ( WRdBack , FM3Scanner . Attribute . SaChars )
+     *) 
         | FM3SrcToks . StkIntLit 
         , FM3SrcToks . StkLongIntLit 
         , FM3SrcToks . StkBasedLit 
@@ -349,10 +340,8 @@ MODULE FM3ParsePass
         , FM3SrcToks . StkRealLit 
         , FM3SrcToks . StkLongRealLit 
         , FM3SrcToks . StkExtendedLit 
+        , FM3SrcToks . StkTextLit 
           => PushOACharsBwd ( WRdBack , FM3Scanner . Attribute . SaChars )
-        | FM3SrcToks . StkTextLit 
-          => PushOACharsBwd
-               ( WRdBack , FM3Scanner . Attribute . SaChars )
         | FM3SrcToks . StkWideTextLit 
           => PushOAWideCharsBwd
                ( WRdBack , FM3Scanner . Attribute . SaWideChars )
@@ -365,6 +354,19 @@ MODULE FM3ParsePass
      (* | FM3SrcToks . StkLexErrChars => Throw these away, for now. *) 
         ELSE
         END (*CASE*) 
+
+      ; CASE Token OF (* All varterms. *)
+        | FM3SrcToks . StkLexErrChars => (* Throw these away, for now. *) 
+        | FM3SrcToks . StkIdent .. FM3SrcToks . StkWideCharLit
+        => FM3Compress . PutBwd
+             ( WRdBack , VAL ( FM3Scanner . Attribute . SaAtom , LONGINT ) )
+         ; FM3Compress . PutBwd
+             ( WRdBack
+             , VAL ( FM3Scanner . Attribute . Position . Column , LONGINT )
+             )
+         ; FM3Compress . PutBwd ( WRdBack , VAL ( Token , LONGINT ) )
+         ELSE 
+         END (*CASE*) 
       END (*WITH*)
     END PushUnnestStk
 

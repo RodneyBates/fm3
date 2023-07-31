@@ -1,3 +1,4 @@
+
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3sfm3dict Modula-3 compiler.                   *)
 (* Copyright 2023        Rodney M. Bates.                                    *)
@@ -1242,25 +1243,15 @@ MODULE FM3Scanner
 
 ; PROCEDURE ReadFsm ( NamePrefix : TEXT ; Kind : FM3SharedUtils . FileKindTyp )
   : FM3LexTable . T
+  RAISES { Thread . Alerted } 
+
 
   = VAR LFileName : TEXT
-  ; VAR LRdT : Rd . T 
-  ; VAR LResult : FM3LexTable . T 
+  ; VAR LResult : FM3LexTable . T
 
   ; BEGIN
       LFileName := NamePrefix & "SrcFsm.pkl"
-    ; TRY (*EXCEPT*)
-        LRdT := FM3SharedUtils . OpenResourceRd ( LFileName , Kind )
-      ; LResult := Pickle2 . Read ( LRdT ) 
-      EXCEPT FM3SharedUtils . FatalError ( EMsg ) =>
-        FM3SharedUtils . StandaloneFatalError ( EMsg )
-      ; RAISE FM3SharedUtils . Terminate ( NIL )  
-(*      ELSE 
-        FM3SharedUtils . StandaloneFatalError
-          ( "Unable to read resource file \"" & LFileName )
-      ; RAISE FM3SharedUtils . Terminate ( NIL )
-*)
-      END (*EXCEPT*) 
+    ; LResult := FM3SharedUtils . ReadFsm ( LFileName , Kind )
     ; RETURN LResult 
     END ReadFsm
 

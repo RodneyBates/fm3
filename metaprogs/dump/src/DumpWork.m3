@@ -9,13 +9,30 @@
 MODULE DumpWork
 
 ; IMPORT Fmt
-; IMPORT Long 
+; IMPORT Long
+; IMPORT Pathname
 ; IMPORT Wr 
+
+; IMPORT IntSets 
+
+; IMPORT FM3SharedUtils 
 
 ; IMPORT FM3Compress
 ; IMPORT FM3SrcToks 
 ; IMPORT FM3IntToks 
 ; IMPORT RdBackFile
+
+; VAR GResourceDirName : TEXT 
+; VAR GIntFilePrefix : TEXT 
+; VAR GSetsName : TEXT
+; VAR GSetsFullName : TEXT
+
+; VAR GTokSetTemp : IntSets . T 
+; VAR GTokSetPatch : IntSets . T 
+; VAR GTokSet1Arg : IntSets . T 
+; VAR GTokSet2Args : IntSets . T 
+; VAR GTokSet3Args : IntSets . T 
+; VAR GResourcesLoaded := FALSE  
 
 ; PROCEDURE DumpPrefix
     ( RBT : RdBackFile . T ; WrT : Wr . T )
@@ -38,16 +55,36 @@ MODULE DumpWork
     ; RETURN LValueL 
     END DumpPrefix
 
-; CONST OpndIndent = "   " 
-
 (*EXPORTED:*) 
 ; PROCEDURE DumpNumericBwd ( RBT : RdBackFile . T ; WrT : Wr . T )
 
-  = VAR LTokenL , LOpndL : LONGINT
+  = BEGIN
+(* COMPLETEME: *) 
+    END DumpNumericBwd 
+
+; CONST OpndIndent = "   "
+
+(*EXPORTED:*) 
+; PROCEDURE DumpInterpretBwd ( RBT : RdBackFile . T ; WrT : Wr . T )
+
+  = VAR LTokenL : LONGINT
   ; VAR LToken : INTEGER 
 
+  ; PROCEDURE DibPutOpnd ( Label : TEXT ) RAISES { RdBackFile . BOF } 
+
+    = VAR LOpndL : LONGINT
+    
+    ; BEGIN
+        LOpndL := DumpPrefix ( RBT , WrT )
+      ; Wr . PutText ( WrT , OpndIndent ) 
+      ; Wr . PutText ( WrT , Label ) 
+      ; Wr . PutText ( WrT , Fmt . LongInt ( LOpndL ) )
+      ; Wr . PutText ( WrT , Wr . EOL )
+      END DibPutOpnd  
+
   ; BEGIN
-      TRY 
+      LoadResources ( ) 
+    ; TRY 
         LOOP
           LTokenL := DumpPrefix ( RBT , WrT )
         ; IF Long . LE ( LTokenL , VAL ( LAST ( INTEGER ) , LONGINT ) )
@@ -61,16 +98,8 @@ MODULE DumpWork
             ; Wr . PutText ( WrT , FM3SrcToks . Image ( LToken ) )
             ; Wr . PutText ( WrT , Wr . EOL )
 
-            ; LOpndL := DumpPrefix ( RBT , WrT )
-            ; Wr . PutText ( WrT , OpndIndent ) 
-            ; Wr . PutText ( WrT , "Col: " ) 
-            ; Wr . PutText ( WrT , Fmt . LongInt ( LOpndL ) )
-            ; Wr . PutText ( WrT , Wr . EOL )
-
-            ; LOpndL :=  DumpPrefix ( RBT , WrT )
-            ; Wr . PutText ( WrT , OpndIndent ) 
-            ; Wr . PutText ( WrT , "Atom: " ) 
-            ; Wr . PutText ( WrT , Fmt . LongInt ( LOpndL ) )
+            ; DibPutOpnd ( "Col: " )  
+            ; DibPutOpnd ( "Atom: " )  
 (*
             ; CASE Token OF
      (* Keep these consistent with Fm3ParsePsss.UnnestStk: *) 
@@ -110,13 +139,29 @@ MODULE DumpWork
 
             ELSIF FM3IntToks . TkMinTok <= LToken  
                   AND LToken <= FM3IntToks . TkMaxTok 
-            THEN (* Internal token. *) 
+            THEN (* Internal token. *)
               Wr . PutText ( WrT , " " ) 
             ; Wr . PutText ( WrT , FM3IntToks . Image ( LToken ) ) 
             ; Wr . PutText ( WrT , Wr . EOL )
+            ; IF IntSets . IsElement ( LToken , GTokSet1Arg )
+              THEN
+                IF IntSets . IsElement ( LToken , GTokSetPatch )
+                THEN DibPutOpnd ( "Patch: " )
+                ELSE DibPutOpnd ( "Opnd 0: " ) 
+                END (*IF*) 
+              END (*IF*) 
+            ; IF IntSets . IsElement ( LToken , GTokSet2Args )
+              THEN DibPutOpnd ( "Opnd 1: " ) 
+              END (*IF*) 
+            ; IF IntSets . IsElement ( LToken , GTokSet3Args )
+              THEN DibPutOpnd ( "Opnd 2: " ) 
+              END (*IF*) 
+            ; Wr . PutText ( WrT , Wr . EOL )
+            
             ELSE (* Don't know what this is. *) 
               Wr . PutText ( WrT , Wr . EOL )
             END (*IF*)
+
           ELSE (* out of nonneg INTEGER range *) 
             Wr . PutText ( WrT , Wr . EOL )
           END (*IF*)
@@ -126,16 +171,33 @@ MODULE DumpWork
       => Wr . PutText ( WrT , Fmt . Pad ( Fmt . LongInt ( 0L) , 6 ) )
       ; Wr . PutText ( WrT , Wr . EOL ) 
       END (*EXCEPT*)
-    END DumpNumericBwd 
+    END DumpInterpretBwd
 
-(*EXPORTED:*) 
-; PROCEDURE DumpInterpretBwd ( RBT : RdBackFile . T ; WrT : Wr . T )
+; PROCEDURE LoadResources ( )
 
   = BEGIN
-(* COMPLETEME: *) 
-    END DumpInterpretBwd 
+      IF NOT GResourcesLoaded
+      THEN
+        GResourceDirName := "." 
+      ; GIntFilePrefix := "FM3IntToks"
+      ; GSetsName := GIntFilePrefix & "Sets"
+      ; GSetsFullName
+          := Pathname . Join ( GResourceDirName , GSetsName , "pkl" )
+      ; FM3SharedUtils . ReadSets
+          ( GSetsFullName
+          , FM3SharedUtils . FM3FileKindTokSetsPkl
+          , GTokSetTemp
+          , GTokSetPatch
+          , GTokSet1Arg
+          , GTokSet2Args
+          , GTokSet3Args
+          ) 
+      ; GResourcesLoaded := TRUE 
+      END (*IF*) 
+    END LoadResources   
 
 ; BEGIN
+    GResourcesLoaded := FALSE  
   END DumpWork
 .
 
