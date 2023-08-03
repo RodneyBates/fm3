@@ -10,5 +10,7 @@
 
 include_dir("../lexsrc")
 
+include_dir("../globalsrc") 
+
 module("FM3Base")
 module("FM3SharedUtils")

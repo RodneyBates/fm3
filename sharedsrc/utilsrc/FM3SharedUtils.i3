@@ -38,11 +38,6 @@ INTERFACE FM3SharedUtils
 
 ; PROCEDURE FileKindImage ( Kind : FileKindTyp ) : TEXT
 
-; CONST FM3FileKindIntPkl = 'A'
-; CONST FM3FileKindM3RwPkl = 'B'
-; CONST FM3FileKindPgRwPkl = 'C'
-; CONST FM3FileKindTokSetsPkl = 'A'
-
 ; PROCEDURE FilePrefix ( Kind : CHAR ) : TEXT
 
 ; PROCEDURE OpenRd
@@ -61,8 +56,8 @@ INTERFACE FM3SharedUtils
   RAISES { FatalError , Thread . Alerted } 
 
 ; PROCEDURE ReadFsm ( FileName : TEXT ; Kind : FileKindTyp )
-  : FM3LexTable . T
-  RAISES { Thread . Alerted } 
+    : FM3LexTable . T
+    RAISES { Thread . Alerted } 
 
 ; PROCEDURE ReadSets
     ( FileName : TEXT
@@ -73,6 +68,9 @@ INTERFACE FM3SharedUtils
     ; VAR Arg2 : IntSets . T 
     ; VAR Arg3 : IntSets . T 
     )
+    RAISES { FatalError , Thread . Alerted } 
+
+; PROCEDURE LoadSets ( )
   RAISES { FatalError , Thread . Alerted } 
 
 ; PROCEDURE IntHash ( Val : INTEGER ) : FM3Base . HashTyp

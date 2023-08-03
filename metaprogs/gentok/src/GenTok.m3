@@ -32,7 +32,7 @@ EXPORTS Main
 
 ; IMPORT FM3BuildLexMachine 
 ; IMPORT FM3LexTable
-; IMPORT FM3SharedUtils 
+; IMPORT FM3SharedGlobals 
 ; IMPORT IntSets 
 ; IMPORT Layout
 ; IMPORT VarArray_Int_Refany AS IntRefArray 
@@ -878,7 +878,7 @@ EXPORTS Main
       ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
       ; EmitTok ( LRootName & "LtTemp" , LArgCtOfList )  
       ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
-      ; EmitTok ( LRootName & "LtPatch" , ArgCtPlus1 ( LArgCtOfList ) )  
+      ; EmitTok ( LRootName & "LtPatch" , LArgCtOfList )  
       ; EmitTok ( LRootName & "Rt" , LArgCtOfList )
       ; Layout . PutEol ( GOStream )
 
@@ -886,7 +886,7 @@ EXPORTS Main
       ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
       ; EmitTok ( LRootName & "ElemLtTemp" , LArgCtOfElem )  
       ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
-      ; EmitTok ( LRootName & "ElemLtPatch" , ArgCtPlus1 ( LArgCtOfElem ) )  
+      ; EmitTok ( LRootName & "ElemLtPatch" , LArgCtOfElem )  
       ; EmitTok ( LRootName & "ElemRt" , LArgCtOfElem )  
       ; Layout . PutEol ( GOStream )
       ELSIF GDoCountIntToks
@@ -917,7 +917,7 @@ EXPORTS Main
       ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
       ; EmitTok ( LRootName & "LtTemp" , LArgCtFixed )  
       ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
-      ; EmitTok ( LRootName & "LtPatch" , ArgCtPlus1 ( LArgCtFixed ) )
+      ; EmitTok ( LRootName & "LtPatch" , LArgCtFixed )
       ; EmitTok ( LRootName & "Rt" , LArgCtFixed )  
       ; Layout . PutEol ( GOStream )
       ELSIF GDoCountIntToks
@@ -934,7 +934,7 @@ EXPORTS Main
         ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
         ; EmitTok ( LRootName & LSubName & "Temp" , LArgCtSub )  
         ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
-        ; EmitTok ( LRootName & LSubName & "Patch" , ArgCtPlus1 ( LArgCtSub ) )
+        ; EmitTok ( LRootName & LSubName & "Patch" , LArgCtSub )
         ; Layout . PutEol ( GOStream )
         ELSIF GDoCountIntToks
         THEN INC ( GNextTokNo , 3 ) 
@@ -1056,9 +1056,9 @@ EXPORTS Main
     ; Layout . PutEol ( GOStream )
     ; Layout . PutText ( GOStream , "   from input file \"" ) 
     ; Layout . PutText ( GOStream , GInputFileName ) 
-    ; Layout . PutText ( GOStream , "\", with command line \"" ) 
+    ; Layout . PutText ( GOStream , "\", with command line " ) 
     ; Layout . PutEol ( GOStream )
-    ; Layout . PutText ( GOStream , "    " ) 
+    ; Layout . PutText ( GOStream , "    \"" ) 
     ; Layout . PutText ( GOStream , ArgListAsText ( ) ) 
     ; Layout . PutText ( GOStream , "\". *)" ) 
     ; Layout . PutEol ( GOStream )
@@ -1510,7 +1510,7 @@ EXPORTS Main
 
 (* TODO: Move These somewhere shared: (FM3Utils?) *)
 ; CONST FM3FileTag = "FM3" 
-; CONST FM3FileKindIntPkl = FM3SharedUtils . FM3FileKindTokSetsPkl
+; VAR FM3FileKindIntPkl := FM3SharedGlobals . FM3FileKindTokSetsPkl
 ; CONST FM3FileKindSrcPkl = 'B'
 
 ; CONST FM3Magic
@@ -1539,7 +1539,7 @@ EXPORTS Main
     ; TRY (*FINALLY*) 
         TRY (*EXCEPT*)
           Wr . PutText
-            ( LWrT , FM3FilePrefix ( FM3SharedUtils . FM3FileKindTokSetsPkl ) )
+            ( LWrT , FM3FilePrefix ( FM3SharedGlobals . FM3FileKindTokSetsPkl ) )
      (* ; Pickle . Write
             ( LWrT , GTokNamesArrayRef , write16BitWidechar := FALSE )
      *) 

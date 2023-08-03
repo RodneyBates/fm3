@@ -18,8 +18,15 @@ MODULE FM3Utils
 ; IMPORT Wr 
 
 ; IMPORT IntRanges 
+; IMPORT IntSets 
 ; IMPORT IntCharVarArray AS VarArr_Char 
 ; IMPORT IntWideCharVarArray AS VarArr_WChar
+
+; IMPORT FM3SharedGlobals 
+; IMPORT FM3SrcToks 
+; IMPORT FM3IntToks 
+
+; IMPORT FM3Base 
 
 ; TYPE IntRangeTyp = IntRanges . RangeTyp
 
@@ -308,6 +315,29 @@ MODULE FM3Utils
     ; LRef ^ [ LLength ] := '\000'
     ; RETURN LRef 
     END TextToRefArrayChars 
+
+(* EXPORTED: *) 
+; PROCEDURE TokenOpndCt ( Token : FM3Base . TokTyp ) : INTEGER 
+
+  = BEGIN (*SrcTokOpndCt*)
+      CASE Token OF
+      | FM3SrcToks . TkMinTok .. FM3SrcToks . StkClosePragma
+      => RETURN 0 
+      | FM3SrcToks . StkIdent .. FM3SrcToks . StkWideCharLit
+      => RETURN 2 (* Column, Atom. *) 
+(* NOTE: May need to adjust this if literals have additional operands. *) 
+      | FM3IntToks . TkMinTok .. FM3IntToks . TkMaxTok
+      => IF IntSets . IsElement ( Token , FM3SharedGlobals . GTokSet3Args )
+         THEN RETURN 3 
+         ELSIF IntSets . IsElement ( Token , FM3SharedGlobals . GTokSet2Args )
+         THEN RETURN 2
+         ELSIF IntSets . IsElement ( Token , FM3SharedGlobals . GTokSet1Arg )
+         THEN RETURN 1
+         ELSE RETURN 0
+         END (*IF*) 
+      ELSE RETURN -1 (* Not a source token. *) 
+      END (*CASE*)
+    END TokenOpndCt
 
 ; BEGIN
   END FM3Utils 

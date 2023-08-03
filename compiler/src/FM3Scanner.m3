@@ -24,6 +24,7 @@ MODULE FM3Scanner
 ; IMPORT FM3Errors 
 ; IMPORT FM3Globals
 ; IMPORT FM3LexTable
+; IMPORT FM3SharedGlobals 
 ; IMPORT FM3SharedUtils 
 ; IMPORT FM3SrcToks 
 ; IMPORT FM3Units
@@ -1263,9 +1264,8 @@ MODULE FM3Scanner
   = BEGIN
       InitEscapeCharMap ( ) 
     ; InitDigitCharMap ( ) 
-    ; FM3SharedUtils . ResourcePathName := FM3Globals . ResourcePathName 
-    ; GM3RwLexTable := ReadFsm ( "M3" , FM3SharedUtils . FM3FileKindM3RwPkl ) 
-(*  ; GPgRwLexTable := ReadFsm ( "Pg" , FM3SharedUtils . FM3FileKindPgRwPkl ) *)
+    ; GM3RwLexTable := ReadFsm ( "M3" , FM3SharedGlobals . FM3FileKindM3RwPkl ) 
+(*  ; GPgRwLexTable := ReadFsm ( "Pg" , FM3SharedGlobals . FM3FileKindPgRwPkl ) *)
     END Init 
 
 ; BEGIN (* FM3Scanner *)

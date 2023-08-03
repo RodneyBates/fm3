@@ -23,6 +23,7 @@ GLOBAL
 
   { IMPORT FM3IntToks AS Itk;
     FROM FM3ParseSem IMPORT PushTok , PushTokPatch;
+    FROM FM3ParsePass IMPORT PlusListSem;
     FROM FM3ParsePass IMPORT PushUnnestStk , PushUnnest, PushUnnestLong;
     FROM FM3ParsePass IMPORT UnnestStackLen;
     FROM FM3ParsePass IMPORT tParsAttribute;
@@ -191,20 +192,22 @@ Module :
     ImportList Block StkIdent StkDot .
 
 GenInterface :
-    StkRwGENERIC StkRwINTERFACE StkIdent GenFormalsList StkSemicolon
+    StkRwGENERIC StkRwINTERFACE StkIdent OptGenFormals StkSemicolon
     ImportList DeclList StkRwEND StkIdent StkDot . 
 
 GenModule :
-    StkRwGENERIC StkRwMODULE StkIdent GenFormalsList StkSemicolon
+    StkRwGENERIC StkRwMODULE StkIdent OptGenFormals StkSemicolon
     ImportList Block StkIdent StkDot . 
 
 InstInterface :
     OptUnsafe StkRwINTERFACE StkIdent StkEqual
-    StkIdent GenActuals StkRwEND StkIdent StkDot . 
+    StkIdent OptGenActuals
+ StkRwEND StkIdent StkDot . 
 
 InstModule :
     OptUnsafe StkRwMODULE StkIdent Exports StkEqual
-    StkIdent GenActuals StkRwEND StkIdent StkDot . 
+    StkIdent OptGenActuals
+ StkRwEND StkIdent StkDot . 
 
 OptUnsafe : StkRwUNSAFE { $$ . PaBool := TRUE; } .
 OptUnsafe : { $$ . PaBool := FALSE; }.
@@ -215,37 +218,19 @@ Exports : StkRwEXPORTS IdPlusList { }.
 (* M3: IdList. *)
 
 IdPlusList : IdPlusListPrefix 
-  { WITH WElemCt = $1 . PaInt + 1 
-    DO
-      $$ . PaInt := WElemCt (* Needed? *);
-      PushUnnest ( WElemCt );
-      PushUnnest ( Itk . ItkIdPlusListRt);
-      PushUnnest ( WElemCt );
-      PushUnnestLong ( $1 . PaUnnestStackLen );
-      PushUnnest ( Itk . ItkIdPlusListLtPatch );
-    END (*WITH*); 
+  { PlusListSem
+      ( $$ , $1 . PaInt + 1 , $1 . PaUnnestStackLen , Itk . ItkIdPlusListLt );
   } .
 
 IdPlusListPrefix : StkIdent /* The rightmost element. */ 
-  { $$ . PaInt := 0 (* Largest element no. so far. *);
-    PushUnnest ( 0 (* Elem no. *));
-    PushUnnest ( Itk . ItkIdPlusListElemRt );
-    PushUnnest ( 0 (* Elem no. *));
-    PushUnnestLong ( $1 . PaUnnestStackLen )(*Patch*);
-    PushUnnest ( Itk . ItkIdPlusListElemLtPatch );
+  { PlusListSem
+      ( $$ , 0 , $1 . PaUnnestStackLen , Itk . ItkIdPlusListElemLt );
   } .
 
 IdPlusListPrefix : IdPlusListPrefix StkComma StkIdent
-  { WITH WElemNo = $1 . PaInt + 1 
-    DO
-      $$ . PaInt := WElemNo;
-      PushUnnest ( WElemNo );
-      PushUnnest ( Itk . ItkIdPlusListElemRt );
-      PushUnnest ( WElemNo );
-      PushUnnestLong ( $3 . PaUnnestStackLen ) (*Patch*);
-      PushUnnest ( Itk . ItkIdPlusListElemLtPatch );
-    END (*WITH*); 
-  } .
+  { PlusListSem
+      ( $$ , $1 . PaInt + 1 , $3 . PaUnnestStackLen , Itk . ItkIdPlusListElemLt );
+  } . 
 
 (*
 ExportsList : . 
@@ -268,11 +253,15 @@ ExportsListSub : ExportsListSub StkComma StkIdent
 *)
 
 
-ImportList : IdPlusList . 
+ImportList : . 
+ImportList : StkRwIMPORT IdPlusList .
+(* ^Too restrictive. *) 
 
-GenFormalsList : IdPlusList . 
+OptGenFormals : . 
+OptGenFormals : StkOpenParen IdPlusList StkCloseParen . 
 
-GenActuals : IdPlusList .
+OptGenActuals : .
+OptGenActuals : StkOpenParen IdPlusList StkCloseParen .
 
 DeclList : . 
 

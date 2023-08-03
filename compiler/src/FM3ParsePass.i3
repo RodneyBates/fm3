@@ -57,6 +57,13 @@ INTERFACE FM3ParsePass
 
 *)
 
+; PROCEDURE PlusListSem
+    ( VAR LHSAttr : tParsAttribute
+    ; ElemNo : INTEGER 
+    ; PatchCoord : LONGINT
+    ; TokLt : FM3IntToks . TokTyp
+    )
+
 ; PROCEDURE Run ( ) 
 
 ; END FM3ParsePass

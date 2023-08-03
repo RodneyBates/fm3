@@ -8,7 +8,21 @@
 
 INTERFACE FM3SharedGlobals
 
-; FROM File IMPORT Byte  
+; FROM File IMPORT Byte
+
+; IMPORT IntSets
+
+; VAR GResourceDirName := "../lib"
+(* FIXME: ^Make this a command line option, and maybe a better default. *)
+
+; VAR GIntFilePrefix := "FM3IntToks"
+
+; VAR GSetsLoaded := FALSE
+; VAR GTokSetTemp : IntSets . T 
+; VAR GTokSetPatch : IntSets . T 
+; VAR GTokSet1Arg : IntSets . T 
+; VAR GTokSet2Args : IntSets . T 
+; VAR GTokSet3Args : IntSets . T 
 
 (* FileTag characters for files: *)
 
@@ -29,11 +43,16 @@ INTERFACE FM3SharedGlobals
       }
   (* For backward reading. *)
 
-(* Specific Filekinds: *) 
+(* Specific Filekinds: *)
 
-; VAR FM3FileTagRdBackLt := VAL ( ORD ( 'D' ) , Byte )
+(* These ought to be CONST, but that would preclude applying BYTESIZE. *)
+(* ; VAR FM3FileKindIntPkl := 'A' *) 
+; VAR FM3FileKindM3RwPkl := 'B'
+; VAR FM3FileKindPgRwPkl := 'C'
+; VAR FM3FileKindTokSetsPkl := 'A'
+; VAR FM3FileKindRdBackLt := 'D' 
   (* Left end of FM3RdBackFile. *) 
-; VAR FM3FileTagRdBackRt := VAL ( ORD ( 'E' ) , Byte ) 
+; VAR FM3FileKindRdBackRt  := 'E' 
   (* Right end of FM3RdBackFile. *) 
 
 ; END FM3SharedGlobals

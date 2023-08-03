@@ -15,6 +15,7 @@ MODULE DumpWork
 
 ; IMPORT IntSets 
 
+; IMPORT FM3SharedGlobals 
 ; IMPORT FM3SharedUtils 
 
 ; IMPORT FM3Compress
@@ -185,7 +186,7 @@ MODULE DumpWork
           := Pathname . Join ( GResourceDirName , GSetsName , "pkl" )
       ; FM3SharedUtils . ReadSets
           ( GSetsFullName
-          , FM3SharedUtils . FM3FileKindTokSetsPkl
+          , FM3SharedGlobals . FM3FileKindTokSetsPkl
           , GTokSetTemp
           , GTokSetPatch
           , GTokSet1Arg

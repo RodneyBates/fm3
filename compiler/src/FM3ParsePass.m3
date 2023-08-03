@@ -31,7 +31,9 @@ MODULE FM3ParsePass
 ; IMPORT Pathname
 ; IMPORT Stdio 
 ; IMPORT UniRd
-; IMPORT Wr 
+; IMPORT Wr
+
+; IMPORT IntSets 
 
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars
@@ -40,7 +42,8 @@ MODULE FM3ParsePass
 ; IMPORT FM3Compress
 ; IMPORT FM3Decls 
 ; IMPORT FM3Files
-; IMPORT FM3Globals 
+; IMPORT FM3Globals
+; IMPORT FM3IntToks AS Itk 
 ; IMPORT FM3Messages 
 ; FROM FM3Messages IMPORT Info , Fatal , Log
 ; IMPORT FM3Parser
@@ -51,16 +54,15 @@ MODULE FM3ParsePass
 ; IMPORT FM3Utils 
 ; IMPORT RdBackFile
 
-; FROM FM3SharedGlobals IMPORT
-    FM3FileTagLt , FM3FileTagRtBwd , FM3FileTagRdBackLt , FM3FileTagRdBackRt
+; IMPORT FM3SharedGlobals 
 
 ; FROM File IMPORT Byte  
 
 ; VAR FileTagVersion := VAL ( ORD ( '1' ) , Byte )  
 
 ; CONST LeftFileTagLen
-    = BYTESIZE ( FM3FileTagLt )
-    + BYTESIZE ( FM3FileTagRdBackLt )
+    = BYTESIZE ( FM3SharedGlobals . FM3FileTagLt )
+    + BYTESIZE ( FM3SharedGlobals . FM3FileKindRdBackLt )
     + BYTESIZE ( FileTagVersion )
 
 ; CONST ALOSE = FM3Messages . AtomListToOSError 
@@ -132,19 +134,22 @@ MODULE FM3ParsePass
         LFullFileName
           := Pathname . Join
                ( LUnitRef ^ . UntWorkFilePrefix 
-               , LUnitRef ^ . UntPatchStackName
-               , NIL
-               ) 
-      ; LUnitRef ^ . UntPatchStackRdBack
-          := RdBackFile . Create ( LFullFileName , Truncate := TRUE )
-      ; LFullFileName
-          := Pathname . Join
-               ( LUnitRef ^ . UntWorkFilePrefix 
                , LUnitRef ^ . UntUnnestStackName
                , NIL
                )
       ; LUnitRef ^ . UntUnnestStackRdBack
           := RdBackFile . Create ( LFullFileName , Truncate := TRUE )
+          
+      ; LFullFileName
+          := Pathname . Join
+               ( LUnitRef ^ . UntWorkFilePrefix 
+               , LUnitRef ^ . UntPatchStackName
+               , NIL
+               ) 
+      ; LUnitRef ^ . UntPatchStackRdBack
+          := RdBackFile . Create ( LFullFileName , Truncate := TRUE )
+      ; LUnitRef . UntPatchStackTopCoord := LUnitRef . UntUnnestStackEmpty
+      
       ; LFullFileName
           := Pathname . Join
                ( LUnitRef ^ . UntWorkFilePrefix 
@@ -173,6 +178,8 @@ MODULE FM3ParsePass
         := RdBackFile . LengthL ( LUnitRef ^ . UntPatchStackRdBack )
     ; LUnitRef ^ . UntUnnestStackEmpty
         := RdBackFile . LengthL ( LUnitRef ^ . UntUnnestStackRdBack )
+    ; LUnitRef ^ . UntUnnestStackEmpty
+        := RdBackFile . LengthL ( LUnitRef ^ . UntParsePassRdBack )
 
     (* Create unit data structures. *) 
     ; LUnitRef ^ . UntIdentAtomDict
@@ -294,6 +301,9 @@ MODULE FM3ParsePass
     ; LUnitRef ^ . UntParseResult := FM3Parser . FM3Parser ( )
 (* TODO:           ^Something with this? *) 
     ; FM3Parser . CloseFM3Parser  ( )
+
+; Unnest ( LUnitRef ^ . UntUnnestStackEmpty ) 
+
     ; CloseUnit ( LUnitRef ) 
     ; Info ( "Finished compiling " , SrcFileName , "." )
     ; FM3Globals . CurrentUnitRef := LUnitRef . UntStackLink 
@@ -419,7 +429,150 @@ MODULE FM3ParsePass
         )
     END PushUnnest 
 
-; BEGIN
+(*EXPORTED:*)
+; PROCEDURE PlusListSem
+    ( VAR LHSAttr : tParsAttribute
+    ; ElemNo : INTEGER 
+    ; PatchCoord : LONGINT
+    ; TokLt : Itk . TokTyp
+    )
+
+  = BEGIN
+      LHSAttr . PaInt := ElemNo ;
+      PushUnnest ( ElemNo );
+      PushUnnest ( TokLt + Itk . LtToRt );
+      PushUnnest ( ElemNo );
+      PushUnnestLong ( PatchCoord ) (*Patch*);
+      PushUnnest ( TokLt + Itk . LtToPatch );
+    END PlusListSem
+
+; PROCEDURE RereverseOpnds
+    ( Token : Itk . TokTyp ; FromRdBack , ToRdBack : RdBackFile . T )
+  (* Copy up to 3 operands, without final reversing.  Pop/8ush reverses
+     them, but this procedure does its own reversal, resulting in
+     net same order.
+  *)
+ 
+  = VAR LOpnd1 , LOpnd2 , LOpnd3 : LONGINT
+  ; VAR LOpndCt : INTEGER 
+  
+  ; BEGIN (*RereverseOpnds*)
+      LOpndCt := FM3Utils . TokenOpndCt ( Token )
+    ; IF LOpndCt >= 1 
+      THEN
+        LOpnd1 := FM3Compress . GetBwd ( FromRdBack )
+      ; IF LOpndCt >= 2
+        THEN
+          LOpnd2 := FM3Compress . GetBwd ( FromRdBack )
+        ; IF LOpndCt >= 3
+          THEN
+            LOpnd3 := FM3Compress . GetBwd ( FromRdBack )
+          ; FM3Compress . PutBwd ( ToRdBack , LOpnd3 ) 
+          END (*IF*) 
+        ; FM3Compress . PutBwd ( ToRdBack , LOpnd2 ) 
+        END (*IF*)
+(* EXPANDME: For now, treat LOpndCt < 0 as zero. *) 
+      ; FM3Compress . PutBwd ( ToRdBack , LOpnd1 ) 
+      END (*IF*)
+
+    END RereverseOpnds
+  
+; PROCEDURE Unnest ( LMUnnestDepth : LONGINT )
+
+  = VAR LUnitRef : FM3Units . UnitRefTyp
+  ; VAR LUnnestRdBack : RdBackFile . T 
+  ; VAR LPatchRdBack : RdBackFile . T 
+  ; VAR LParsePassRdBack : RdBackFile . T 
+  ; VAR LUnnestCoord : LONGINT
+  ; VAR LPatchTokenL , LNoPatchTokenL , LTokenL : LONGINT 
+  ; VAR LPatchToken , LNoPatchToken , LToken : Itk . TokTyp 
+
+  ; BEGIN
+      LUnitRef := FM3Globals . CurrentUnitRef
+    ; LUnnestRdBack := LUnitRef . UntUnnestStackRdBack 
+    ; LPatchRdBack := LUnitRef . UntPatchStackRdBack 
+    ; LParsePassRdBack := LUnitRef . UntParsePassRdBack
+    ; LMUnnestDepth := MAX ( LMUnnestDepth , LUnitRef . UntUnnestStackEmpty )
+    ; LOOP
+        LUnnestCoord := RdBackFile . LengthL ( LUnnestRdBack )
+      ; IF LUnnestCoord <= LMUnnestDepth
+           AND RdBackFile . LengthL ( LPatchRdBack ) <= 0L 
+        THEN EXIT
+        END (*IF*)
+      ; IF LUnnestCoord <= LUnitRef . UntPatchStackTopCoord
+        THEN
+
+        (* Move a modified token from the patch stack to the output. *) 
+          <*ASSERT LUnnestCoord = LUnitRef . UntPatchStackTopCoord *>
+          LPatchTokenL := FM3Compress . GetBwd ( LUnitRef . UntPatchStackRdBack )
+        ; LPatchToken := VAL ( LPatchTokenL , Itk . TokTyp ) 
+        ; <*ASSERT
+              IntSets . IsElement
+                ( LPatchToken , FM3SharedGlobals . GTokSetPatch )
+          *>
+          LNoPatchToken := LPatchToken - Itk . LtToPatch
+(* FIXME: The patch operation can apply to any non-Rt token.  I think
+          the necessary bias is always the same as LtToPatch, but check
+          this and then use a better name for it.
+*) 
+          
+         (* Copy up to 3 operands, without reversing by stack operations. *)
+        ; RereverseOpnds
+            ( LNoPatchToken
+            , LUnitRef . UntPatchStackRdBack
+            , LUnitRef . UntParsePassRdBack
+            ) 
+
+          (* Put the unpatched token. *)
+        ; LNoPatchTokenL := VAL ( LNoPatchToken , LONGINT ) 
+        ; FM3Compress . PutBwd ( LUnitRef . UntParsePassRdBack , LNoPatchTokenL )
+
+        (* Conceptually finish popping the Patch stack by caching the
+           next patch coordinate.
+        *)
+        ; LUnitRef . UntPatchStackTopCoord
+            := FM3Compress . GetBwd ( LUnitRef . UntPatchStackRdBack )
+          
+        (* Now loop, possibly for more patches. *)
+        ELSE (* Look at the top token on the Unnest stack. *) 
+          LTokenL := FM3Compress . GetBwd ( LUnitRef . UntUnnestStackRdBack )
+        ; LToken := VAL ( LTokenL , Itk . TokTyp ) 
+        ; IF IntSets . IsElement ( LToken , FM3SharedGlobals . GTokSetPatch )
+          THEN 
+
+          (* Move this token to the patch stack. *)
+            FM3Compress . PutBwd
+              ( LUnitRef . UntPatchStackRdBack
+              , LUnitRef . UntPatchStackTopCoord
+              ) (* Uncache the existing coordinate by pushing. *) 
+
+          ; LUnitRef . UntPatchStackTopCoord
+              := FM3Compress . GetBwd ( LUnitRef . UntUnnestStackRdBack )
+                 (* New cached top coordinate. *) 
+          ; RereverseOpnds
+              ( LToken
+              , LUnitRef . UntUnnestStackRdBack
+              , LUnitRef . UntPatchStackRdBack
+              ) 
+          ; FM3Compress . PutBwd ( LUnitRef . UntPatchStackRdBack , LTokenL )
+            (* ^Push the token code deeper than its patch coordinate. *)
+          ELSE
+
+          (* Move directly, unnest to the output. Tere is no patch coordinate. *)
+            RereverseOpnds
+              ( LToken
+              , LUnitRef . UntUnnestStackRdBack
+              , LUnitRef . UntParsePassRdBack
+              ) 
+          ; FM3Compress . PutBwd ( LUnitRef . UntParsePassRdBack , LTokenL )
+          END (*IF*) 
+        (* And loop *)           
+        END (*IF*)
+
+      END (*LOOP*)
+    END Unnest
+
+; BEGIN (*FM3ParsePass*)
   END FM3ParsePass
 .
 

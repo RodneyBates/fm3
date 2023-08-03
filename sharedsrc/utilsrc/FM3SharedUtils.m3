@@ -25,6 +25,7 @@ MODULE FM3SharedUtils
 
 ; IMPORT FM3Base
 ; IMPORT FM3LexTable 
+; IMPORT FM3SharedGlobals 
 
 ; CONST FM3FileTag = "FM3"
 ; VAR TagLength := Text . Length ( FM3FileTag )  
@@ -356,18 +357,12 @@ MODULE FM3SharedUtils
     ; BEGIN
         LRef := Pickle2 . Read ( LRdT ) 
       ; TYPECASE LRef OF
-        | NULL 
-          => RaiseFatal
-               ( CatStrings
-                   ( "In RsReadIntSet, NIL pickle file \""
-                   , FileName
-                   , "\"" )
-                   )
-        | IntSets . T ( TResult ) => RETURN TResult  
+        | IntSets . T ( TResult ) (* NIL is vaid here. *) 
+        => RETURN TResult  
         ELSE
           RaiseFatal
             ( CatStrings
-                ( "In RsReadIntSet, not a textArray pickle file \""
+                ( "In RsReadIntSet, not an IntSets pickle file \""
                 , FileName
                 , "\"" )
                 )
@@ -375,13 +370,43 @@ MODULE FM3SharedUtils
       END RsReadIntSet 
 
   ; BEGIN
-      LRdT :=  OpenResourceRd ( FileName , FM3FileKindTokSetsPkl )
+      LRdT :=  OpenResourceRd
+        ( FileName , FM3SharedGlobals . FM3FileKindTokSetsPkl )
     ; Temp := RsReadIntSet ( LRdT ) 
     ; Patch := RsReadIntSet ( LRdT ) 
     ; Arg1 := RsReadIntSet ( LRdT ) 
     ; Arg2 := RsReadIntSet ( LRdT ) 
     ; Arg3 := RsReadIntSet ( LRdT ) 
     END ReadSets 
+
+(*EXPORTED*) 
+; PROCEDURE LoadSets ( )
+  RAISES { FatalError , Thread . Alerted } 
+
+  = VAR LIntFilePrefix : TEXT 
+  ; VAR LSetsName : TEXT 
+  ; VAR LSetsFullName : TEXT
+
+  ; BEGIN
+      IF NOT FM3SharedGlobals . GSetsLoaded
+      THEN
+        LIntFilePrefix := "FM3IntToks"
+      ; LSetsName := FM3SharedGlobals . GIntFilePrefix & "Sets"
+      ; LSetsFullName
+          := Libm3Pathname . Join
+               ( FM3SharedGlobals . GResourceDirName , LSetsName , "pkl" )
+      ; ReadSets
+          ( LSetsFullName
+          , FM3SharedGlobals . FM3FileKindTokSetsPkl
+          , FM3SharedGlobals . GTokSetTemp
+          , FM3SharedGlobals . GTokSetPatch
+          , FM3SharedGlobals . GTokSet1Arg
+          , FM3SharedGlobals . GTokSet2Args
+          , FM3SharedGlobals . GTokSet3Args
+          ) 
+      ; FM3SharedGlobals . GSetsLoaded := TRUE 
+      END (*IF*) 
+    END LoadSets   
 
 (*EXPORTED*) 
 ; PROCEDURE IntHash ( Val : INTEGER ) : FM3Base . HashTyp
