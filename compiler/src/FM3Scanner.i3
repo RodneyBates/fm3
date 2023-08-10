@@ -20,7 +20,7 @@ INTERFACE FM3Scanner
 
 ; TYPE M2SHORTCARD = [ 0 .. 16_FFFF ]
 
-; TYPE tPosition (*lalr*)
+; TYPE tPosition (*Mandated by lalr.*)
     = RECORD
         Line : M2SHORTCARD 
       ; Column : M2SHORTCARD
@@ -35,9 +35,13 @@ INTERFACE FM3Scanner
 
 ; VAR Attribute : tScanAttribute (*lalr*)
 
-; TYPE tScanAttribute (*lalr*)
+(* Lalr mandates the existence (but not the name, I don't think,) of
+   record type tScanAttribute, its Position field, by name, and
+   Position's fields, by name. *) 
+; TYPE tScanAttribute
     = RECORD
         Position : tPosition (* Lalr-generated code stores into this. *)
+        
       (* Fields beyond here are not accessed by Lalr-generated parser code. *) 
       ; SaArgValue : LONGINT
         (* ORD (either TrAtom or TrWCh). *) 

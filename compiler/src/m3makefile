@@ -33,6 +33,7 @@ import("frontm3")
 import("libunicode")
 import("libvararray")
 
+interface("FM3Predefined")
 module("FM3CLArgs")
 module("FM3Scanner")
 %module("FM3Chars")

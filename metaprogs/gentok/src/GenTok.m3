@@ -1058,7 +1058,7 @@ EXPORTS Main
     ; Layout . PutText ( GOStream , GInputFileName ) 
     ; Layout . PutText ( GOStream , "\", with command line " ) 
     ; Layout . PutEol ( GOStream )
-    ; Layout . PutText ( GOStream , "    \"" ) 
+    ; Layout . PutText ( GOStream , "     " ) 
     ; Layout . PutText ( GOStream , ArgListAsText ( ) ) 
     ; Layout . PutText ( GOStream , "\". *)" ) 
     ; Layout . PutEol ( GOStream )

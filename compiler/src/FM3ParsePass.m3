@@ -44,9 +44,11 @@ MODULE FM3ParsePass
 ; IMPORT FM3Files
 ; IMPORT FM3Globals
 ; IMPORT FM3IntToks AS Itk 
+; IMPORT FM3SrcToks AS Stk 
 ; IMPORT FM3Messages 
 ; FROM FM3Messages IMPORT Info , Fatal , Log
 ; IMPORT FM3Parser
+; IMPORT FM3Predefined
 ; IMPORT FM3Scanner
 ; IMPORT FM3Scopes
 ; IMPORT FM3SrcToks
@@ -320,13 +322,13 @@ MODULE FM3ParsePass
     END Run 
 
 (*EXPORTED:*)
-; PROCEDURE UnnestStackLen ( ) : LONGINT
+; PROCEDURE UnnestCoord ( ) : LONGINT
   (* Of the current unit. *)
   
   = BEGIN
       RETURN RdBackFile . LengthL
                ( FM3Globals . CurrentUnitRef ^ . UntUnnestStackRdBack ) 
-    END UnnestStackLen 
+    END UnnestCoord 
 
 (*EXPORTED:*)
 ; PROCEDURE PushUnnestStk ( READONLY ParsAttr : tParsAttribute )
@@ -427,24 +429,93 @@ MODULE FM3ParsePass
         ( FM3Globals . CurrentUnitRef ^ . UntUnnestStackRdBack
         , VAL ( Value , LONGINT ) 
         )
-    END PushUnnest 
+    END PushUnnest
 
 (*EXPORTED:*)
-; PROCEDURE PlusListSem
+; PROCEDURE PushEXPORTSMain  ( Column : INTEGER )
+
+  = BEGIN (*PushEXPORTSMain *)
+      PushUnnest ( 1 (* ElemCt *) ) 
+    ; PushUnnest ( Itk . ItkExportListLt ) 
+    ; PushUnnest ( 0 (* ElemNo *) )  
+    ; PushUnnest ( Itk . ItkExportListElemLt ) 
+    ; PushUnnest ( FM3Predefined . AtomMAIN ) 
+    ; PushUnnest ( Column ) 
+    ; PushUnnest ( Stk . StkIdent ) 
+    ; PushUnnest ( 0 (* ElemNo *) )  
+    ; PushUnnest ( Itk . ItkExportListElemRt ) 
+    ; PushUnnest ( 1 (* ElemCt *) )  
+    ; PushUnnest ( Itk . ItkExportListRt ) 
+    END PushEXPORTSMain
+
+(*EXPORTED:*)
+; PROCEDURE MakeConstruct
+    ( PatchCoord : LONGINT ; TokLt : Itk . TokTyp )
+  (* Fixed shape construct, with left and right tokens only. *) 
+
+  = BEGIN
+    (* Right token: *) 
+      PushUnnest ( TokLt + Itk . LtToRt );
+    (* Left token, to bemoved leftward: *) 
+    ; PushUnnestLong ( PatchCoord ) (*Patch*);
+    ; PushUnnest ( TokLt + Itk . LtToPatch );
+    END MakeConstruct
+
+(*EXPORTED:*)
+; PROCEDURE MakeElem
     ( VAR LHSAttr : tParsAttribute
-    ; ElemNo : INTEGER 
     ; PatchCoord : LONGINT
+    ; TokLt : Itk . TokTyp
+    ; ElemNo : INTEGER 
+    )
+(* Rework or eliminate: *) 
+  (* Left and right tokens surrounding a numbered element of a list. *) 
+(* Rework or eliminate: *) 
+  = BEGIN
+      LHSAttr . PaInt := ElemNo ;
+    (* Right token: *) 
+    ; PushUnnest ( ElemNo );
+    ; PushUnnest ( TokLt + Itk . LtToRt );
+    (* Left token, to bemoved leftward: *) 
+    ; PushUnnest ( ElemNo );
+    ; PushUnnestLong ( PatchCoord ) (*Patch*);
+    ; PushUnnest ( TokLt + Itk . LtToPatch );
+    END MakeElem
+
+(*EXPORTED:*)
+; PROCEDURE MakeList
+    ( VAR LHSAttr : tParsAttribute
+    ; READONLY ElemsAttr : tParsAttribute 
     ; TokLt : Itk . TokTyp
     )
 
   = BEGIN
-      LHSAttr . PaInt := ElemNo ;
-      PushUnnest ( ElemNo );
-      PushUnnest ( TokLt + Itk . LtToRt );
-      PushUnnest ( ElemNo );
-      PushUnnestLong ( PatchCoord ) (*Patch*);
-      PushUnnest ( TokLt + Itk . LtToPatch );
-    END PlusListSem
+      LHSAttr . PaInt := ElemsAttr . PaInt
+    ; LHSAttr . PaUnnestCoord := ElemsAttr . PaUnnestCoord (* Ever used? *) 
+    ; PushUnnest ( ElemsAttr . PaInt );
+    ; PushUnnest ( TokLt + Itk . LtToRt );
+    ; PushUnnest ( ElemsAttr . PaInt );
+    ; PushUnnestLong ( ElemsAttr . PaUnnextCoord ) 
+    ; PushUnnest ( TokLt );
+    END MakeList
+
+(*EXPORTED:*)
+; PROCEDURE MakeList2
+    ( VAR LHSAttr : tParsAttribute
+    ; PatchCoord : LONGINT
+    ; TokLt : Itk . TokTyp
+    ; ElemCt : INTEGER 
+    )
+
+  = BEGIN
+      LHSAttr . PaInt := ElemCt ;
+    ; LHSAttr . PaUnnestCoord := PatchCoord (* Ever used? *) 
+    ; PushUnnest ( ElemCt );
+    ; PushUnnest ( TokLt + Itk . LtToRt );
+    ; PushUnnest ( ElemCt );
+    ; PushUnnestLong ( PatchCoord ) (*Patch*);
+    ; PushUnnest ( TokLt );
+    END MakeList2
 
 ; PROCEDURE RereverseOpnds
     ( Token : Itk . TokTyp ; FromRdBack , ToRdBack : RdBackFile . T )

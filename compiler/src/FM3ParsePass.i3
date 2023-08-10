@@ -1,3 +1,11 @@
+
+(* -----------------------------------------------------------------------1- *)
+(* This file is part of the FM3 Modula-3 compiler.                           *)
+(* Copyright 2023        Rodney M. Bates.                                    *)
+(* rodney.m.bates@acm.org                                                    *)
+(* Licensed under the MIT License.                                           *)
+(* -----------------------------------------------------------------------2- *) 
+
 INTERFACE FM3ParsePass
 
 ; IMPORT FM3Units 
@@ -5,12 +13,12 @@ INTERFACE FM3ParsePass
 ; IMPORT FM3IntToks 
 ; FROM FM3IntToks IMPORT TokTyp  
 
-; TYPE tParsAttribute (* Lalr expects this and field Scan to be so named. *) 
+  (* Lalr mandates this type, by name, and its Scan field, Q.V. *) 
+; TYPE tParsAttribute
     = RECORD
         Scan : FM3Scanner . tScanAttribute
-      ; PaUnnestStackLen : LONGINT 
       ; PaLong : LONGINT 
-      ; PaConstructPtr : INTEGER
+      ; PaConstructNo : INTEGER
       ; PaListItemNo : INTEGER
       ; PaInt : INTEGER
       ; PaBool : BOOLEAN 
@@ -19,15 +27,17 @@ INTERFACE FM3ParsePass
 ; CONST ParsAttrNull
     = tParsAttribute
         { Scan := FM3Scanner . ScanAttrNull
-        , PaUnnestStackLen := 0L 
-        , PaLong := 0L 
-        , PaConstructPtr := 0
-        , PaListItemNo := 0
-        , PaInt := 0
+        , PaUnnestCoord := FIRST ( LONGINT ) 
+        , PaLong := := FIRST ( LONGINT )
+        , PaConstructNo := FIRST ( INTEGER ) 
+        , PaListItemNo := := FIRST ( INTEGER )
+        , PaInt := := FIRST ( INTEGER )
         , PaBool := FALSE
         }
 
-; PROCEDURE UnnestStackLen ( ) : LONGINT
+; TYPE FormalMode = { FmVAL , FmVAR , FmREADONLY } 
+
+; PROCEDURE UnnestCoord ( ) : LONGINT
   (* Of the current unit. *)
   
 ; PROCEDURE PushUnnestStk ( READONLY ParsAttr : tParsAttribute )
@@ -40,6 +50,11 @@ INTERFACE FM3ParsePass
 ; PROCEDURE PushUnnestLong ( Value : LONGINT )
   (* Zero args. *) 
 
+; PROCEDURE MakeList
+    ( VAR LHSAttr : tParsAttribute
+    ; READONLY ElemsAttr : tParsAttribute 
+    ; TokLt : Itk . TokTyp
+    )
 
 (*
 ; PROCEDURE PushUnnestTokPatch0 ( Token : LONGINT )
@@ -57,11 +72,11 @@ INTERFACE FM3ParsePass
 
 *)
 
-; PROCEDURE PlusListSem
+; PROCEDURE MakeBracket
     ( VAR LHSAttr : tParsAttribute
-    ; ElemNo : INTEGER 
     ; PatchCoord : LONGINT
     ; TokLt : FM3IntToks . TokTyp
+    ; ElemNo : INTEGER 
     )
 
 ; PROCEDURE Run ( ) 
