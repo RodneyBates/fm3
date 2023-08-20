@@ -106,7 +106,7 @@ EXPORTS Main
 ; VAR GDoGenSrcFsm : BOOLEAN := FALSE
 ; VAR GDoOverrideUNITNAME : BOOLEAN := FALSE
 
-; TYPE TokKindTyp = { TkNull , TkList , TkFixed , TkSrc }
+; TYPE TokKindTyp = { TkNull , TkLone , TkList , TkFixed , TkSrc }
 ; VAR GTokKind := TokKindTyp . TkNull  
 ; CONST TokKindSetInt
     = SET OF TokKindTyp { TokKindTyp . TkList , TokKindTyp . TkFixed } 
@@ -855,6 +855,30 @@ EXPORTS Main
     ; INC ( GNextTokNo ) 
     END EmitTok
 
+; PROCEDURE EmitLoneTok ( ) 
+
+  = VAR LArgCt : [ - 1 .. 7 ] 
+  ; VAR LTokName : TEXT 
+
+  ; BEGIN
+      LTokName := GToken 
+    ; GToken := GetSyntTok ( ) (* Consume the root name. *) 
+    ; LArgCt := GetTokArgCt ( "lone"  ) 
+    ; IF GDoGenIntToks
+      THEN 
+        MaybePutMinTokNo ( ) 
+      ; Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText ( GOStream , "(* LONE " )
+      ; Layout . PutText ( GOStream , LTokName )
+      ; Layout . PutText ( GOStream , ": *)" )
+      ; Layout . PutEol ( GOStream )
+      ; EmitTok ( LTokName  , LArgCt )  
+      ELSIF GDoCountIntToks
+      THEN INC ( GNextTokNo ) 
+      END (*IF*) 
+    ; IF Text . Equal ( GToken , "." ) THEN GToken := GetSyntTok ( ) END (*IF*)
+    END EmitLoneTok 
+
 ; PROCEDURE EmitListToks ( ) 
 
   = VAR LArgCtOfList , LArgCtOfElem : [ - 1 .. 7 ] 
@@ -863,8 +887,8 @@ EXPORTS Main
   ; BEGIN
       LRootName := GToken 
     ; GToken := GetSyntTok ( ) (* Consume the root name. *) 
-    ; LArgCtOfList := GetTokArgCt ( "list"  ) 
-    ; LArgCtOfElem := GetTokArgCt ( "list element" ) 
+    ; LArgCtOfList := GetTokArgCt ( "list"  ) + 1 (* Implicit element count argument. *)
+ (* ; LArgCtOfElem := GetTokArgCt ( "list element" ) + 1 (* Implicit element count argument. *)*) 
     ; IF GDoGenIntToks
       THEN 
         MaybePutMinTokNo ( ) 
@@ -882,6 +906,8 @@ EXPORTS Main
       ; EmitTok ( LRootName & "Rt" , LArgCtOfList )
       ; Layout . PutEol ( GOStream )
 
+(* Separate bracketing of each list element is removed, in favor of
+   the specific tokens around the specific list element. **
       ; EmitTok ( LRootName & "ElemLt" , LArgCtOfElem )  
       ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
       ; EmitTok ( LRootName & "ElemLtTemp" , LArgCtOfElem )  
@@ -889,6 +915,7 @@ EXPORTS Main
       ; EmitTok ( LRootName & "ElemLtPatch" , LArgCtOfElem )  
       ; EmitTok ( LRootName & "ElemRt" , LArgCtOfElem )  
       ; Layout . PutEol ( GOStream )
+*) 
       ELSIF GDoCountIntToks
       THEN INC ( GNextTokNo , 8 ) 
       END (*IF*) 
@@ -1164,6 +1191,28 @@ EXPORTS Main
       ; Layout . PutEol ( GOStream )
 
       ; Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText ( GOStream , "; CONST LtToOne = 4    " )  
+      ; Layout . PutEol ( GOStream )
+
+      ; Layout . PadAbs ( GOStream , 8 )
+      ; Layout . PutText
+          ( GOStream
+          , "(* ^Add this to Lt tokcode to get LM Infix tokcode. *)"
+          )
+      ; Layout . PutEol ( GOStream )
+
+      ; Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText ( GOStream , "; CONST LtToOnePatch = 5    " )  
+      ; Layout . PutEol ( GOStream )
+
+      ; Layout . PadAbs ( GOStream , 8 )
+      ; Layout . PutText
+          ( GOStream
+          , "(* ^Add this to Lt tokcode to get LM Infix patch tokcode. *)"
+          )
+      ; Layout . PutEol ( GOStream )
+
+      ; Layout . PadAbs ( GOStream , GSemiTab )
       ; Layout . PutText ( GOStream , "; CONST RtToLt = - 3    " )  
       ; Layout . PutEol ( GOStream )
 
@@ -1290,7 +1339,11 @@ EXPORTS Main
             END (*IF*) 
           END (*IF*)  
 
-        (* Token kind commands. *) 
+        (* Token kind commands. *)
+        ELSIF TokEq ( GToken , "LONE" )
+        THEN 
+          GTokKind := TokKindTyp . TkLone 
+        ; GToken := GetSyntTok ( ) 
         ELSIF TokEq ( GToken , "LIST" )  
         THEN
           GTokKind := TokKindTyp . TkList 
@@ -1311,6 +1364,9 @@ EXPORTS Main
           ; GTokKind := TokKindTyp . TkSrc 
           ; EmitSrcTok ( ) 
           
+          | TokKindTyp . TkLone (* Standalone internal token. *)
+          => EmitLoneTok ( ) 
+            
           | TokKindTyp . TkList (* List construct tokens. *)
           => EmitListToks ( ) 
             
