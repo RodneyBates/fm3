@@ -48,7 +48,9 @@ INTERFACE FM3Utils
   (* WARNING: Don't try this unless you know there are no characters
               outside the range of CHAR in TextVal. *)
               
-; PROCEDURE TokenOpndCt ( Token : FM3Base . TokTyp ) : INTEGER 
+; PROCEDURE TokenOpndCt ( Token : FM3Base . TokTyp ) : INTEGER
+
+; PROCEDURE PositionImage ( Pos : FM3Base . tPosition ) : TEXT 
 
 ; END FM3Utils
 .

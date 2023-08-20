@@ -21,7 +21,7 @@ MODULE FM3Scanner
 ; IMPORT FM3Atom_OAWideChars 
 ; IMPORT FM3Base
 ; IMPORT FM3Dict_OAChars_Int
-; IMPORT FM3Errors 
+; IMPORT FM3Messages 
 ; IMPORT FM3Globals
 ; IMPORT FM3LexTable
 ; IMPORT FM3SharedGlobals 
@@ -206,34 +206,39 @@ MODULE FM3Scanner
   (* Report at CharPos of the current line. *) 
  
   = BEGIN 
-      FM3Errors . Err  
-        ( GTopSsRef ^ . SsUnitRef ^ . UntSrcFileName 
-        , Attribute . Position . Line 
-        , CharPos 
+      FM3Messages . Error 
+        ( FM3Utils . PositionImage 
+            ( FM3Base . tPosition { Attribute . Position . Line , CharPos } )
         , Msg 
-        )
+        ) 
     END ErrorAtPos 
 
 ; PROCEDURE ErrorAtTok ( Msg : TEXT ; Adjust := 0 )
   (* Report relative to the beginning of the current token. *) 
  
   = BEGIN 
-      FM3Errors . Err 
-        ( GTopSsRef ^ . SsUnitRef ^ . UntSrcFileName 
-        , Attribute . Position . Line 
-        , Attribute . Position . Column + Adjust 
+      FM3Messages . Error 
+        ( FM3Utils . PositionImage 
+            ( FM3Base . tPosition 
+                { Attribute . Position . Line  
+                , Attribute . Position . Column + Adjust  
+                }
+            ) 
         , Msg 
-        )
+        ) 
     END ErrorAtTok 
 
 ; PROCEDURE ErrorAtSs ( Msg : TEXT ; Adjust := 0 ) 
   (* Report relative to the current spot in the input *) 
 
   = BEGIN 
-      FM3Errors . Err 
-        ( GTopSsRef ^ . SsUnitRef ^ . UntSrcFileName 
-        , GTopSsRef ^ . Position . Line  
-        , GTopSsRef ^ . Position . Column + Adjust 
+      FM3Messages . Error 
+        ( FM3Utils . PositionImage 
+            ( FM3Base . tPosition 
+                { GTopSsRef ^ . Position . Line  
+                , GTopSsRef ^ . Position . Column + Adjust  
+                }
+            ) 
         , Msg 
         ) 
     END ErrorAtSs 

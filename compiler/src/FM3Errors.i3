@@ -8,8 +8,12 @@
 
 INTERFACE FM3Errors
 
+; IMPORT FM3Base
+
 ; PROCEDURE Err
-    ( FileName : TEXT ; LineNo : INTEGER ; CharPos : INTEGER ; Msg : TEXT ) 
+    ( FileName : TEXT ; LineNo : INTEGER ; CharPos : INTEGER ; Msg : TEXT )
+
+; PROCEDURE Error ( Position : FM3Base . tPosition ; Msg : TEXT )
 
 ; END FM3Errors 
 .

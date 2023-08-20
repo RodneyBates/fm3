@@ -77,5 +77,20 @@ INTERFACE FM3Base
 ; TYPE HashTyp = LONGINT
 ; CONST HashNull = 0L 
 
+(*FIXME: M2SHORTCARD is for compatibility with reusem3/Positions.tPosition.
+         These are probably adequate, but maybe 32 bits would be better
+         here.  Exactly how to do this without undue
+         dependency of cocktail m3 on FM3 is unclear.
+*) 
+; TYPE M2SHORTCARD = [ 0 .. 16_FFFF ]
+
+; TYPE tPosition (*Mandated by lalr.*)
+    = RECORD
+        Line : M2SHORTCARD 
+      ; Column : M2SHORTCARD
+      END (*tPosition*)
+
+; CONST PositionNull = tPosition { Line := 0 , Column := 0 } 
+
 ; END FM3Base
 .

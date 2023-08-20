@@ -15,7 +15,12 @@ INTERFACE FM3Units
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars
 ; IMPORT FM3Scopes
-; IMPORT RdBackFile 
+; IMPORT RdBackFile
+
+; TYPE UnitKindTyp
+         = { UkInterface , UkGenInterface , UkInstInterface
+           , UkModule , UkGenModule , UkInstModule
+           } 
 
 ; TYPE UnitNoTyp = INTEGER
 ; CONST UnitNoNull = - 1 
@@ -57,7 +62,8 @@ INTERFACE FM3Units
       ; UntUnitNo : UnitNoTyp := UnitNoNull
       ; UntScanResult : INTEGER 
       ; UntParseResult : INTEGER 
-      ; UntParsePassResult : INTEGER 
+      ; UntParsePassResult : INTEGER
+      ; UntKind : UnitKindTyp 
         
       END (*UnitTyp*)
 

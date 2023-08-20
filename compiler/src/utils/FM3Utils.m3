@@ -22,11 +22,10 @@ MODULE FM3Utils
 ; IMPORT IntCharVarArray AS VarArr_Char 
 ; IMPORT IntWideCharVarArray AS VarArr_WChar
 
+; IMPORT FM3Base 
 ; IMPORT FM3SharedGlobals 
 ; IMPORT FM3SrcToks 
 ; IMPORT FM3IntToks 
-
-; IMPORT FM3Base 
 
 ; TYPE IntRangeTyp = IntRanges . RangeTyp
 
@@ -338,6 +337,23 @@ MODULE FM3Utils
       ELSE RETURN -1 (* Not a source token. *) 
       END (*CASE*)
     END TokenOpndCt
+
+(* EXPORTED: *) 
+; PROCEDURE PositionImage ( Pos : FM3Base . tPosition ) : TEXT 
+
+  = VAR LWrT : Wr . T
+  ; VAR LResult : TEXT 
+
+  ; BEGIN (*PositionImage*)
+      LWrT := TextWr . New ( )
+    ; Wr . PutChar ( LWrT , '(') 
+    ; Wr . PutText ( LWrT , Fmt . Int ( Pos . Line ) ) 
+    ; Wr . PutChar ( LWrT , ',' ) 
+    ; Wr . PutText ( LWrT , Fmt . Int ( Pos . Column ) ) 
+    ; Wr . PutChar ( LWrT , ')' ) 
+    ; LResult := TextWr . ToText ( LWrT ) 
+    ; RETURN LResult 
+    END PositionImage
 
 ; BEGIN
   END FM3Utils 

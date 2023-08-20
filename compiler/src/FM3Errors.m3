@@ -8,12 +8,19 @@
 
 MODULE FM3Errors
 
+; IMPORT FM3Base
+
 (*EXPORTED:*)
 ; PROCEDURE Err
     ( FileName : TEXT ; LineNo : INTEGER ; CharPos : INTEGER ; Msg : TEXT )
 
   = BEGIN
     END Err 
+
+; PROCEDURE Error ( Position : FM3Base . tPosition ; Msg : TEXT )
+
+  = BEGIN
+    END Error 
 
 ; BEGIN
   END FM3Errors 

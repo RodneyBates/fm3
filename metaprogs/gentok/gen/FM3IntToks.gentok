@@ -14,11 +14,57 @@ UNITNAME FM3IntToks
    used in intermediate token streams.  
 *)
 
-ABS 125
+ABS 128
 
 FIXED ItkNull .
       ItkBOF .
       ItkEOF .
+
+LONE
+ItkFormalsListEmpty . 
+ItkFormalTypeAbsent .
+ItkFormalExprAbsent .
+ItkRaisesSetAbsent .
+ItkRaisesANY 2 (* Position. *) .
+ItkProcBodyAbsent .
+ItkResultTypeAbsent . 
+
+
+
+ 
+FIXED
+ItkQualId .
+ItkImport 1 (* Interface Ident count. *) .
+ItkImportAs ItkImportAsAS 1 (* Decl Ident count. *) .
+ItkFuncSignature 2 (* Position. *) .
+ItkProcSignature 2 (* Position. *).
+ItkFormalType . 
+ItkFormalExpr .
+ItkResultType .
+ItkRaisesSet 2 (* Position. *). 
+ItkProcNoBody 1 (* Atom of signature. *) .
+ItkProcWBody 1 (* Atom of signature. *) .
+ItkProcBody .
+
+
+
+LIST
+
+(* GenTok implicitly gives list tokens one operand for element count,
+   plus any count given explicitly here.
+*) 
+
+ItkExportIdList . 
+ItkGenFormalIdList .
+ItkGenActualIdList . 
+ItkFormalsList .
+ItkFormalVALUEIdList . 
+ItkFormalVARIdList . 
+ItkFormalREADONLYIdList . 
+ItkDeclList . 
+
+
+(*
 
 FIXED ItkModule 2 (*Name, UnitNo. *)
         Begin
@@ -33,7 +79,7 @@ LIST ItkIdPlusList
 .
 
 FIXED ItkExport 2 (* Ident, Unit No. *) . 
-
+*)
 (* End of FM3IntToks. *) 
 
 

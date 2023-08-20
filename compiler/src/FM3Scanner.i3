@@ -18,20 +18,7 @@ INTERFACE FM3Scanner
 (* Things expected from a scanner by an lalr-generated parser: *)
 (* Accomodate lalr-generated parser's spellings. *)
 
-; TYPE M2SHORTCARD = [ 0 .. 16_FFFF ]
-
-; TYPE tPosition (*Mandated by lalr.*)
-    = RECORD
-        Line : M2SHORTCARD 
-      ; Column : M2SHORTCARD
-(*FIXME: M2SHORTCARD is for compatibility with reusem3/Positions.tPosition.
-         These are probably adequate, but maybe 32 bits would be better
-         here.  Exactly how to do this without undue
-         dependency of cocktail m3 on FM3 is unclear.
-*) 
-      END (*tPosition*)
-
-; CONST PositionNull = tPosition { Line := 0 , Column := 0 } 
+; TYPE tPosition = FM3Base . tPosition 
 
 ; VAR Attribute : tScanAttribute (*lalr*)
 
@@ -61,7 +48,7 @@ INTERFACE FM3Scanner
 
 ; CONST ScanAttrNull
     = tScanAttribute
-        { Position := PositionNull
+        { Position := FM3Base . PositionNull
         , SaArgValue := 0L
         , SaHash := FM3Base . HashNull
         , SaAtom := FM3Base . AtomNull

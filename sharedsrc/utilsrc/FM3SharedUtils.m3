@@ -413,8 +413,8 @@ MODULE FM3SharedUtils
 
   = BEGIN
       RETURN VAL ( Val , FM3Base . HashTyp ) 
-    END IntHash 
-
+    END IntHash
+    
 ; BEGIN
   END FM3SharedUtils 
 .

@@ -29,7 +29,8 @@ MODULE FM3ParsePass
 ; IMPORT FS 
 ; IMPORT OSError
 ; IMPORT Pathname
-; IMPORT Stdio 
+; IMPORT Stdio
+; IMPORT Thread 
 ; IMPORT UniRd
 ; IMPORT Wr
 
@@ -40,10 +41,12 @@ MODULE FM3ParsePass
 ; IMPORT FM3Base 
 ; IMPORT FM3CLArgs
 ; IMPORT FM3Compress
+; FROM FM3Compress IMPORT PutBwd
 ; IMPORT FM3Decls 
 ; IMPORT FM3Files
 ; IMPORT FM3Globals
-; IMPORT FM3IntToks AS Itk 
+; IMPORT FM3IntToks AS Itk
+; FROM FM3IntToks IMPORT LtToRt , LtToPatch , LtToOnePatch 
 ; IMPORT FM3SrcToks AS Stk 
 ; IMPORT FM3Messages 
 ; FROM FM3Messages IMPORT Info , Fatal , Log
@@ -111,15 +114,18 @@ MODULE FM3ParsePass
             := FileWr . Open ( LUnitRef ^ . UntLogName ) 
       EXCEPT
       | OSError . E ( EAtoms )
-      => Wr . PutText ( Stdio . stderr , "Unable to open unit log file " ) 
-      ; Wr . PutText ( Stdio . stderr , LUnitRef ^ . UntLogName ) 
-      ; Wr . PutText ( Stdio . stderr , ": " ) 
-      ; Wr . PutText
-          ( Stdio . stderr , FM3Messages . AtomListToOSError ( EAtoms ) ) 
-      ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
-      ; Wr . PutText ( Stdio . stderr , "Will proceed without it." ) 
-      ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
-      ; Wr . Flush ( Stdio . stderr )
+      => <*FATAL Thread . Alerted , Wr . Failure *>
+         BEGIN
+           Wr . PutText ( Stdio . stderr , "Unable to open unit log file " ) 
+         ; Wr . PutText ( Stdio . stderr , LUnitRef ^ . UntLogName ) 
+         ; Wr . PutText ( Stdio . stderr , ": " ) 
+         ; Wr . PutText
+             ( Stdio . stderr , FM3Messages . AtomListToOSError ( EAtoms ) ) 
+         ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
+         ; Wr . PutText ( Stdio . stderr , "Will proceed without it." ) 
+         ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
+         ; Wr . Flush ( Stdio . stderr )
+         END (*Block.*) 
       ; LUnitRef ^ . UntLogWrT := NIL 
       END (*EXCEPT*)
 
@@ -374,6 +380,10 @@ MODULE FM3ParsePass
              ( WRdBack , VAL ( ParsAttr . Scan . SaAtom , LONGINT ) )
          ; FM3Compress . PutBwd
              ( WRdBack
+             , VAL ( ParsAttr . Scan . Position . Line , LONGINT )
+             )
+         ; FM3Compress . PutBwd
+             ( WRdBack
              , VAL ( ParsAttr . Scan . Position . Column , LONGINT )
              )
          ; FM3Compress . PutBwd
@@ -410,7 +420,9 @@ MODULE FM3ParsePass
       END (*FOR*)
     ; FM3Compress . PutBwd ( RdBack , VAL ( LNumber , LONGINT ) )
     END PushOAWideCharsBwd 
-    
+
+
+
 (*EXPORTED:*)
 ; PROCEDURE PushUnnestLong ( Value : LONGINT )
   
@@ -432,20 +444,128 @@ MODULE FM3ParsePass
     END PushUnnest
 
 (*EXPORTED:*)
-; PROCEDURE PushEXPORTSMain  ( Column : INTEGER )
+; PROCEDURE Push_T ( T : Itk . TokTyp )
+
+  = BEGIN
+      PutBwd
+        ( FM3Globals . CurrentUnitRef ^ . UntUnnestStackRdBack
+        , VAL ( T , LONGINT ) 
+        )
+    END Push_T
+
+(*EXPORTED:*)
+; PROCEDURE Push_TP ( T : Itk . TokTyp ; Position : FM3Scanner . tPosition )
+
+  = BEGIN
+      WITH WRdBack = FM3Globals . CurrentUnitRef ^ . UntUnnestStackRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END Push_TP
+
+(*EXPORTED:*)
+; PROCEDURE Push_TCr ( T : Itk . TokTyp ; C : LONGINT )
+
+  = BEGIN
+      WITH WRdBack = FM3Globals . CurrentUnitRef ^ . UntUnnestStackRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) ) 
+      ; PutBwd ( WRdBack , C ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END Push_TCr
+
+(*EXPORTED:*)
+; PROCEDURE Push_TCPrp
+   ( T : Itk . TokTyp ; C : LONGINT ; Position : FM3Scanner . tPosition )
+
+  = BEGIN
+      WITH WRdBack = FM3Globals . CurrentUnitRef ^ . UntUnnestStackRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , C ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END Push_TCPrp
+
+(*EXPORTED:*)
+; PROCEDURE Push_TCBr ( T : Itk . TokTyp ; C : LONGINT ; B : BOOLEAN )
+
+  = BEGIN
+      WITH WRdBack = FM3Globals . CurrentUnitRef ^ . UntUnnestStackRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( ORD ( B ) , LONGINT ) ) 
+      ; PutBwd ( WRdBack , C ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END Push_TCBr
+
+(*EXPORTED:*)
+; PROCEDURE Push_TCIri ( T : Itk . TokTyp ; C : LONGINT ; I : INTEGER )
+
+  = BEGIN
+      WITH WRdBack = FM3Globals . CurrentUnitRef ^ . UntUnnestStackRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , C ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END Push_TCIri
+
+(*EXPORTED:*)
+; PROCEDURE Push_TCoCr ( T : Itk . TokTyp ; Ct , Co : LONGINT )
+
+  = BEGIN
+      WITH WRdBack = FM3Globals . CurrentUnitRef ^ . UntUnnestStackRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) ) 
+      ; PutBwd ( WRdBack , Co ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToOnePatch , LONGINT ) ) 
+      ; PutBwd ( WRdBack , Ct ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) )
+      END (*WITH*) 
+    END Push_TCoCr
+
+(*EXPORTED:*)
+; PROCEDURE Push_TCIoCri
+    ( T : Itk . TokTyp ; Ct : LONGINT ; I : INTEGER ; Co : LONGINT )
+
+  = BEGIN
+      WITH WRdBack = FM3Globals . CurrentUnitRef ^ . UntUnnestStackRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) ) 
+      ; PutBwd ( WRdBack , Co ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToOnePatch , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , Ct ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END Push_TCIoCri
+
+(*EXPORTED:*)
+; PROCEDURE PushEXPORTSMain  ( READONLY Position : FM3Scanner . tPosition )
 
   = BEGIN (*PushEXPORTSMain *)
       PushUnnest ( 1 (* ElemCt *) ) 
-    ; PushUnnest ( Itk . ItkExportListLt ) 
-    ; PushUnnest ( 0 (* ElemNo *) )  
-    ; PushUnnest ( Itk . ItkExportListElemLt ) 
-    ; PushUnnest ( FM3Predefined . AtomMAIN ) 
-    ; PushUnnest ( Column ) 
-    ; PushUnnest ( Stk . StkIdent ) 
-    ; PushUnnest ( 0 (* ElemNo *) )  
-    ; PushUnnest ( Itk . ItkExportListElemRt ) 
+    ; PushUnnest ( Itk . ItkExportIdListLt )
+    
+    ; PushUnnest ( Position . Column ) 
+    ; PushUnnest ( Position . Line ) 
+    ; PushUnnest ( FM3Predefined . AtomMain ) 
+    ; PushUnnest ( Stk . StkIdent )
+    
     ; PushUnnest ( 1 (* ElemCt *) )  
-    ; PushUnnest ( Itk . ItkExportListRt ) 
+    ; PushUnnest ( Itk . ItkExportIdListRt )
     END PushEXPORTSMain
 
 (*EXPORTED:*)
@@ -455,10 +575,10 @@ MODULE FM3ParsePass
 
   = BEGIN
     (* Right token: *) 
-      PushUnnest ( TokLt + Itk . LtToRt );
+      PushUnnest ( TokLt + Itk . LtToRt )
     (* Left token, to bemoved leftward: *) 
-    ; PushUnnestLong ( PatchCoord ) (*Patch*);
-    ; PushUnnest ( TokLt + Itk . LtToPatch );
+    ; PushUnnestLong ( PatchCoord ) (*Patch*)
+    ; PushUnnest ( TokLt + Itk . LtToPatch )
     END MakeConstruct
 
 (*EXPORTED:*)
@@ -472,50 +592,57 @@ MODULE FM3ParsePass
   (* Left and right tokens surrounding a numbered element of a list. *) 
 (* Rework or eliminate: *) 
   = BEGIN
-      LHSAttr . PaInt := ElemNo ;
+      LHSAttr . PaInt := ElemNo 
     (* Right token: *) 
-    ; PushUnnest ( ElemNo );
-    ; PushUnnest ( TokLt + Itk . LtToRt );
+    ; PushUnnest ( ElemNo )
+    ; PushUnnest ( TokLt + Itk . LtToRt )
     (* Left token, to bemoved leftward: *) 
-    ; PushUnnest ( ElemNo );
-    ; PushUnnestLong ( PatchCoord ) (*Patch*);
-    ; PushUnnest ( TokLt + Itk . LtToPatch );
+    ; PushUnnest ( ElemNo )
+    ; PushUnnestLong ( PatchCoord ) (*Patch*)
+    ; PushUnnest ( TokLt + Itk . LtToPatch )
     END MakeElem
 
 (*EXPORTED:*)
 ; PROCEDURE MakeList
     ( VAR LHSAttr : tParsAttribute
-    ; READONLY ElemsAttr : tParsAttribute 
     ; TokLt : Itk . TokTyp
+    ; READONLY ElemsAttr : tParsAttribute 
     )
 
   = BEGIN
       LHSAttr . PaInt := ElemsAttr . PaInt
     ; LHSAttr . PaUnnestCoord := ElemsAttr . PaUnnestCoord (* Ever used? *) 
-    ; PushUnnest ( ElemsAttr . PaInt );
-    ; PushUnnest ( TokLt + Itk . LtToRt );
-    ; PushUnnest ( ElemsAttr . PaInt );
-    ; PushUnnestLong ( ElemsAttr . PaUnnextCoord ) 
-    ; PushUnnest ( TokLt );
+    ; PushUnnest ( ElemsAttr . PaInt )
+    ; PushUnnest ( TokLt + Itk . LtToRt )
+    ; PushUnnest ( ElemsAttr . PaInt )
+    ; PushUnnestLong ( ElemsAttr . PaUnnestCoord ) 
+    ; PushUnnest ( TokLt )
     END MakeList
 
 (*EXPORTED:*)
 ; PROCEDURE MakeList2
     ( VAR LHSAttr : tParsAttribute
-    ; PatchCoord : LONGINT
     ; TokLt : Itk . TokTyp
+    ; PatchCoord : LONGINT
     ; ElemCt : INTEGER 
     )
 
   = BEGIN
-      LHSAttr . PaInt := ElemCt ;
-    ; LHSAttr . PaUnnestCoord := PatchCoord (* Ever used? *) 
-    ; PushUnnest ( ElemCt );
-    ; PushUnnest ( TokLt + Itk . LtToRt );
-    ; PushUnnest ( ElemCt );
-    ; PushUnnestLong ( PatchCoord ) (*Patch*);
-    ; PushUnnest ( TokLt );
+      LHSAttr . PaInt := ElemCt 
+    ; LHSAttr . PaUnnestCoord := PatchCoord (* Ever used? *)
+    ; PushUnnest ( ElemCt )
+    ; PushUnnest ( TokLt + Itk . LtToRt )
+    ; PushUnnest ( ElemCt )
+    ; PushUnnestLong ( PatchCoord ) (*Patch*)
+    ; PushUnnest ( TokLt )
     END MakeList2
+
+(*EXPORTED:*)
+; PROCEDURE BeginBlock ( )
+
+  = BEGIN (*BeginBlock*)
+    END BeginBlock
+  
 
 ; PROCEDURE RereverseOpnds
     ( Token : Itk . TokTyp ; FromRdBack , ToRdBack : RdBackFile . T )
