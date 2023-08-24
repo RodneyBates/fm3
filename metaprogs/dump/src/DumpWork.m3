@@ -161,11 +161,13 @@ MODULE DumpWork
             ; Wr . PutText ( WrT , Wr . EOL )
             
             ELSE (* Don't know what this is. *) 
-              Wr . PutText ( WrT , Wr . EOL )
+              Wr . PutText ( WrT , " unknown>" ) 
+            ; Wr . PutText ( WrT , Wr . EOL )
             END (*IF*)
 
           ELSE (* out of nonneg INTEGER range *) 
-            Wr . PutText ( WrT , Wr . EOL )
+            Wr . PutText ( WrT , " unknown, negative>" ) 
+          ; Wr . PutText ( WrT , Wr . EOL )
           END (*IF*)
         END (*LOOP*)
       EXCEPT

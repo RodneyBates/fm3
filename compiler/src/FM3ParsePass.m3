@@ -616,7 +616,7 @@ MODULE FM3ParsePass
     ; PushUnnest ( TokLt + Itk . LtToRt )
     ; PushUnnest ( ElemsAttr . PaInt )
     ; PushUnnestLong ( ElemsAttr . PaUnnestCoord ) 
-    ; PushUnnest ( TokLt )
+    ; PushUnnest ( TokLt + Itk . LtToPatch )
     END MakeList
 
 (*EXPORTED:*)
@@ -675,7 +675,8 @@ MODULE FM3ParsePass
 
     END RereverseOpnds
 
-; VAR GDoCopy := FALSE 
+; VAR GDoCopy := TRUE
+(* TODO: ^Make this a command line option. *)
   
 ; PROCEDURE Unnest ( LMUnnestDepth : LONGINT )
 
@@ -694,9 +695,9 @@ MODULE FM3ParsePass
     ; LParsePassRdBack := LUnitRef . UntParsePassRdBack
     ; LMUnnestDepth := MAX ( LMUnnestDepth , LUnitRef . UntUnnestStackEmpty )
 
-; IF GDoCopy THEN
-    RdBackFile . Copy ( LUnnestRdBack , "UnnestCopy" )
-  END (*IF*)
+    ; IF GDoCopy THEN
+        RdBackFile . Copy ( LUnnestRdBack , "UnnestCopy" )
+      END (*IF*)
 
     ; LOOP
         LUnnestCoord := RdBackFile . LengthL ( LUnnestRdBack )

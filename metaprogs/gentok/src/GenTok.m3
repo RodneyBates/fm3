@@ -750,12 +750,16 @@ EXPORTS Main
       END (*IF*)
     END MaybePutMinTokNo
 
-; CONST TwoTo6thL = Long . Shift ( 1L , 6 ) 
+; CONST TwoTo6thL = Long . Shift ( 1L , 6 )
+
+(* TODO: Move this to FM3Compress.
+         Then use it various places, e.g. dump.
+         Also make a LSB-on-right version. *) 
 
 ; PROCEDURE CompressedHex ( IntL : LONGINT ) : TEXT
   (* Only the hex digits themselves.  Display them LSB on left. *) 
 
-  = VAR LResidue : LONGINT 
+  = VAR LResidueL : LONGINT 
   ; VAR LBitsL : LONGINT 
   ; VAR LBits : INTEGER
   ; VAR LBytesDoneCt : INTEGER
@@ -763,29 +767,29 @@ EXPORTS Main
   ; VAR LWrT : TextWr . T 
 
   ; BEGIN
-      LResidue := IntL
+      LResidueL := IntL
     ; LBytesDoneCt := 0
     ; LWrT := TextWr . New ( ) 
     ; LOOP
-        IF LBytesDoneCt >= 8 (* 9th byte now. *)
+        IF LBytesDoneCt >= 8 (* Now do 9th byte. *)
         THEN
-          LBitsL := Long . And ( LResidue , 16_FFL )
+          LBitsL := Long . And ( LResidueL , 16_FFL )
         ; LBits := VAL ( LBitsL , INTEGER )  
         ; Wr . PutText
             ( LWrT , Fmt . Pad ( Fmt . Unsigned ( LBits ) , 2 , '0' ) )
         ; Wr . PutChar ( LWrT , ' ' ) 
         ; EXIT
         END (*IF*) 
-      ; LBitsL := Long . And ( LResidue , 16_7FL )
+      ; LBitsL := Long . And ( LResidueL , 16_7FL )
       ; LBits := VAL ( LBitsL , INTEGER )  
-      ; LResidue := LResidue DIV TwoTo6thL 
-      ; IF LResidue # 0L AND LResidue # 16_FFFFFFFFFFFFFFFFL  
+      ; LResidueL := LResidueL DIV TwoTo6thL 
+      ; IF LResidueL # 0L AND LResidueL # 16_FFFFFFFFFFFFFFFFL  
         THEN (* More bytes will follow. *) 
           LBits := Word . Or ( LBits , 16_80 )
         ; Wr . PutText
             ( LWrT , Fmt . Pad ( Fmt . Unsigned ( LBits ) , 2 , '0' ) )
         ; Wr . PutChar ( LWrT , ' ' ) 
-        ; LResidue := LResidue DIV 2L 
+        ; LResidueL := LResidueL DIV 2L 
         ; INC ( LBytesDoneCt ) 
         ELSE (* Finishing with < 9 bytes. *) 
           Wr . PutText
@@ -821,9 +825,9 @@ EXPORTS Main
     ; Layout . PutText ( GOStream , Name )
     ; IF String # NIL
       THEN
-        Layout . PutText ( GOStream , " (*"  )
-      ; Layout . PutText ( GOStream , String  )
-      ; Layout . PutText ( GOStream , "*)"  )
+        Layout . PutText ( GOStream , " (*" )
+      ; Layout . PutText ( GOStream , String )
+      ; Layout . PutText ( GOStream , "*)" )
       END (*IF*) 
     ; IF ArgCt >= 0
       THEN
@@ -887,8 +891,10 @@ EXPORTS Main
   ; BEGIN
       LRootName := GToken 
     ; GToken := GetSyntTok ( ) (* Consume the root name. *) 
-    ; LArgCtOfList := GetTokArgCt ( "list"  ) + 1 (* Implicit element count argument. *)
- (* ; LArgCtOfElem := GetTokArgCt ( "list element" ) + 1 (* Implicit element count argument. *)*) 
+    ; LArgCtOfList
+        := MAX ( 0 , GetTokArgCt ( "list" ) )
+           + 1 (* Implicit element count argument. *)
+ (* ; LArgCtOfElem := GetTokArgCt ( "list element" ) + 1 (* Implicit element count argument. *) *)
     ; IF GDoGenIntToks
       THEN 
         MaybePutMinTokNo ( ) 
@@ -1085,7 +1091,7 @@ EXPORTS Main
     ; Layout . PutText ( GOStream , GInputFileName ) 
     ; Layout . PutText ( GOStream , "\", with command line " ) 
     ; Layout . PutEol ( GOStream )
-    ; Layout . PutText ( GOStream , "     " ) 
+    ; Layout . PutText ( GOStream , "     \"" ) 
     ; Layout . PutText ( GOStream , ArgListAsText ( ) ) 
     ; Layout . PutText ( GOStream , "\". *)" ) 
     ; Layout . PutEol ( GOStream )
