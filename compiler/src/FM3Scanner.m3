@@ -1035,7 +1035,9 @@ MODULE FM3Scanner
       ; IF GTopSsRef . SsCh = '*' (* Opening comment delimiter. *)  
         THEN 
           NextChar ( ) 
-        ; CommentSuffix ( ) 
+        ; CommentSuffix ( )
+        ; RETURN GetToken ( )
+(* TOTO: ^Skip comments interatively instead of recursively. *) 
         ELSE 
           Attribute . SaTok := FM3SrcToks . StkOpenParen
         END (* IF *) 
