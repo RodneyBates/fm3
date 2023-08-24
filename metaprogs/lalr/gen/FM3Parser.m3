@@ -1124,15 +1124,15 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
               | 220 => (* P33 Exports (118): StkRwEXPORTS IdPlusList .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 118;
                 (* line 321 of "FM3Parser.lalr" *)
-                 MakeList ( yySynAttribute , Itk . ItkExportIdListLt , yyAttributeStack^[yyStackPtr+1] ) ; 
+                 MakeList ( yySynAttribute , Itk . ItkExportIdListLt , yyAttributeStack^[yyStackPtr+2] ) ; 
               | 221,112 => (* P34 GenFormalList (120): StkOpenParen IdStarList StkCloseParen .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 120;
                 (* line 326 of "FM3Parser.lalr" *)
-                 MakeList ( yySynAttribute , Itk. ItkGenFormalIdListLt , yyAttributeStack^[yyStackPtr+1] ) ; 
+                 MakeList ( yySynAttribute , Itk. ItkGenFormalIdListLt , yyAttributeStack^[yyStackPtr+2] ) ; 
               | 222,136 => (* P35 GenActualList (121): StkOpenParen IdStarList StkCloseParen .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 121;
                 (* line 330 of "FM3Parser.lalr" *)
-                 MakeList ( yySynAttribute , Itk. ItkGenActualIdListLt , yyAttributeStack^[yyStackPtr+1] ) ; 
+                 MakeList ( yySynAttribute , Itk. ItkGenActualIdListLt , yyAttributeStack^[yyStackPtr+2] ) ; 
               | 223 => (* P36 TypeDeclGroup (131): StkRwTYPE TypeDecls .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 131;
 
@@ -1369,7 +1369,7 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
               | 270,125 => (* P83 RaisesSetPresent (162): StkRwRAISES StkOpenBrace QualIdStarList StkCloseBrace .*)
                 DEC (yyStackPtr, 4); yyNonterminal := 162;
                 (* line 497 of "FM3Parser.lalr" *)
-                 MakeList ( yySynAttribute , Itk . ItkRaisesSetLt , yyAttributeStack^[yyStackPtr+2] ) ; 
+                 MakeList ( yySynAttribute , Itk . ItkRaisesSetLt , yyAttributeStack^[yyStackPtr+3] ) ; 
               | 271,170 => (* P84 ProcDecl (164): StkRwPROCEDURE StkIdent Signature OptBody .*)
                 DEC (yyStackPtr, 4); yyNonterminal := 164;
                 (* line 502 of "FM3Parser.lalr" *)

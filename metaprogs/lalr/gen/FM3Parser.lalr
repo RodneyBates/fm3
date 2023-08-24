@@ -318,16 +318,16 @@ RULE
    Exports : /*Empty*/
      { FM3ParsePass . PushEXPORTSMain ( $0 . Scan . Position ) } .
    Exports : StkRwEXPORTS IdPlusList 
-     { MakeList ( $$ , Itk . ItkExportIdListLt , $1 ) ; } .
+     { MakeList ( $$ , Itk . ItkExportIdListLt , $2 ) ; } .
 
 (* ------------------------ Generic parameters ---------------------- . *)
 (* GenFormalList.  Zero or more idents. Bracket list with ItkGenFormalList*. *) 
    GenFormalList : StkOpenParen IdStarList StkCloseParen 
-     { MakeList ( $$ , Itk. ItkGenFormalIdListLt , $1 ) ; } .
+     { MakeList ( $$ , Itk. ItkGenFormalIdListLt , $2 ) ; } .
 
 (* GenActualList.  Zero or more idents. Bracket list with ItkGenActualList*. *) 
    GenActualList : StkOpenParen IdStarList StkCloseParen 
-     { MakeList ( $$ , Itk. ItkGenActualIdListLt , $1 ) ; } .
+     { MakeList ( $$ , Itk. ItkGenActualIdListLt , $2 ) ; } .
 
 (* -------------------------- Type Declarations. --------------------- . *)
 
@@ -494,7 +494,7 @@ RULE
      { Push_TP ( Itk . ItkRaisesANY , $1 . Scan . Position ) ; } . 
    RaisesSetPresent
      : StkRwRAISES StkOpenBrace QualIdStarList StkCloseBrace 
-     { MakeList ( $$ , Itk . ItkRaisesSetLt , $2 ) ; } . 
+     { MakeList ( $$ , Itk . ItkRaisesSetLt , $3 ) ; } . 
 
 (* ------------------------------ Procedures ------------------------------ *)
 
