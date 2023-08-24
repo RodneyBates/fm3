@@ -323,7 +323,7 @@ MODULE FM3Utils
       | FM3SrcToks . TkMinTok .. FM3SrcToks . StkClosePragma
       => RETURN 0 
       | FM3SrcToks . StkIdent .. FM3SrcToks . StkWideCharLit
-      => RETURN 2 (* Column, Atom. *) 
+      => RETURN 3 (* Atom, Line, Column. *) 
 (* NOTE: May need to adjust this if literals have additional operands. *) 
       | FM3IntToks . TkMinTok .. FM3IntToks . TkMaxTok
       => IF IntSets . IsElement ( Token , FM3SharedGlobals . GTokSet3Args )

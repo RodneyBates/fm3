@@ -365,7 +365,7 @@ MODULE FM3ParsePass
                ( WRdBack , ParsAttr . Scan . SaWideChars )
         | FM3SrcToks . StkCharLit 
         , FM3SrcToks . StkWideCharLit 
-          => FM3Compress . PutBwd
+          => PutBwd
                ( WRdBack
                , VAL ( ORD ( ParsAttr . Scan . SaWCh ) , LONGINT ) 
                )
@@ -376,17 +376,17 @@ MODULE FM3ParsePass
       ; CASE ParsAttr . Scan . SaTok OF (* All varterms. *)
         | FM3SrcToks . StkLexErrChars => (* Throw these away, for now. *) 
         | FM3SrcToks . StkIdent .. FM3SrcToks . StkWideCharLit
-        => FM3Compress . PutBwd
-             ( WRdBack , VAL ( ParsAttr . Scan . SaAtom , LONGINT ) )
-         ; FM3Compress . PutBwd
-             ( WRdBack
-             , VAL ( ParsAttr . Scan . Position . Line , LONGINT )
-             )
-         ; FM3Compress . PutBwd
+        => PutBwd
              ( WRdBack
              , VAL ( ParsAttr . Scan . Position . Column , LONGINT )
              )
-         ; FM3Compress . PutBwd
+         ; PutBwd
+             ( WRdBack
+             , VAL ( ParsAttr . Scan . Position . Line , LONGINT )
+             )
+         ; PutBwd
+             ( WRdBack , VAL ( ParsAttr . Scan . SaAtom , LONGINT ) )
+         ; PutBwd
              ( WRdBack , VAL ( ParsAttr . Scan . SaTok , LONGINT ) )
          ELSE 
          END (*CASE*) 
@@ -401,10 +401,10 @@ MODULE FM3ParsePass
   ; BEGIN
       LNumber := NUMBER ( Chars ^ ) 
     ; FOR RI := LNumber - 1 TO 0 BY - 1 
-      DO FM3Compress . PutBwd
+      DO PutBwd
            ( RdBack , VAL ( ORD ( Chars ^ [ RI ] ) , LONGINT ) )
       END (*FOR*)
-    ; FM3Compress . PutBwd ( RdBack , VAL ( LNumber , LONGINT ) )
+    ; PutBwd ( RdBack , VAL ( LNumber , LONGINT ) )
     END PushOACharsBwd 
     
 ; PROCEDURE PushOAWideCharsBwd
@@ -415,10 +415,10 @@ MODULE FM3ParsePass
   ; BEGIN
       LNumber := NUMBER ( Chars ^ ) 
     ; FOR RI := LNumber - 1 TO 0 BY - 1 
-      DO FM3Compress . PutBwd
+      DO PutBwd
            ( RdBack , VAL ( ORD ( Chars ^ [ RI ] ) , LONGINT ) ) 
       END (*FOR*)
-    ; FM3Compress . PutBwd ( RdBack , VAL ( LNumber , LONGINT ) )
+    ; PutBwd ( RdBack , VAL ( LNumber , LONGINT ) )
     END PushOAWideCharsBwd 
 
 
@@ -427,7 +427,7 @@ MODULE FM3ParsePass
 ; PROCEDURE PushUnnestLong ( Value : LONGINT )
   
   = BEGIN
-      FM3Compress . PutBwd
+      PutBwd
         ( FM3Globals . CurrentUnitRef ^ . UntUnnestStackRdBack
         , Value
         )
@@ -437,7 +437,7 @@ MODULE FM3ParsePass
 ; PROCEDURE PushUnnest ( Value : INTEGER )
 
   = BEGIN
-      FM3Compress . PutBwd
+      PutBwd
         ( FM3Globals . CurrentUnitRef ^ . UntUnnestStackRdBack
         , VAL ( Value , LONGINT ) 
         )
@@ -665,15 +665,17 @@ MODULE FM3ParsePass
         ; IF LOpndCt >= 3
           THEN
             LOpnd3 := FM3Compress . GetBwd ( FromRdBack )
-          ; FM3Compress . PutBwd ( ToRdBack , LOpnd3 ) 
+          ; PutBwd ( ToRdBack , LOpnd3 ) 
           END (*IF*) 
-        ; FM3Compress . PutBwd ( ToRdBack , LOpnd2 ) 
+        ; PutBwd ( ToRdBack , LOpnd2 ) 
         END (*IF*)
 (* EXPANDME: For now, treat LOpndCt < 0 as zero. *) 
-      ; FM3Compress . PutBwd ( ToRdBack , LOpnd1 ) 
+      ; PutBwd ( ToRdBack , LOpnd1 ) 
       END (*IF*)
 
     END RereverseOpnds
+
+; VAR GDoCopy := FALSE 
   
 ; PROCEDURE Unnest ( LMUnnestDepth : LONGINT )
 
@@ -691,6 +693,11 @@ MODULE FM3ParsePass
     ; LPatchRdBack := LUnitRef . UntPatchStackRdBack 
     ; LParsePassRdBack := LUnitRef . UntParsePassRdBack
     ; LMUnnestDepth := MAX ( LMUnnestDepth , LUnitRef . UntUnnestStackEmpty )
+
+; IF GDoCopy THEN
+    RdBackFile . Copy ( LUnnestRdBack , "UnnestCopy" )
+  END (*IF*)
+
     ; LOOP
         LUnnestCoord := RdBackFile . LengthL ( LUnnestRdBack )
       ; IF LUnnestCoord <= LMUnnestDepth
@@ -723,7 +730,7 @@ MODULE FM3ParsePass
 
           (* Put the unpatched token. *)
         ; LNoPatchTokenL := VAL ( LNoPatchToken , LONGINT ) 
-        ; FM3Compress . PutBwd ( LUnitRef . UntParsePassRdBack , LNoPatchTokenL )
+        ; PutBwd ( LUnitRef . UntParsePassRdBack , LNoPatchTokenL )
 
         (* Conceptually finish popping the Patch stack by caching the
            next patch coordinate.
@@ -739,7 +746,7 @@ MODULE FM3ParsePass
           THEN 
 
           (* Move this token to the patch stack. *)
-            FM3Compress . PutBwd
+            PutBwd
               ( LUnitRef . UntPatchStackRdBack
               , LUnitRef . UntPatchStackTopCoord
               ) (* Uncache the existing coordinate by pushing. *) 
@@ -752,17 +759,17 @@ MODULE FM3ParsePass
               , LUnitRef . UntUnnestStackRdBack
               , LUnitRef . UntPatchStackRdBack
               ) 
-          ; FM3Compress . PutBwd ( LUnitRef . UntPatchStackRdBack , LTokenL )
+          ; PutBwd ( LUnitRef . UntPatchStackRdBack , LTokenL )
             (* ^Push the token code deeper than its patch coordinate. *)
           ELSE
 
-          (* Move directly, unnest to the output. Tere is no patch coordinate. *)
+          (* Move directly, unnest to the output. There is no patch coordinate. *)
             RereverseOpnds
               ( LToken
               , LUnitRef . UntUnnestStackRdBack
               , LUnitRef . UntParsePassRdBack
               ) 
-          ; FM3Compress . PutBwd ( LUnitRef . UntParsePassRdBack , LTokenL )
+          ; PutBwd ( LUnitRef . UntParsePassRdBack , LTokenL )
           END (*IF*) 
         (* And loop *)           
         END (*IF*)

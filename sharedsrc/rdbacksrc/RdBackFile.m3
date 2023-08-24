@@ -50,6 +50,7 @@ MODULE RdBackFile
 ; IMPORT FM3SharedUtils
 
 ; CONST Beginning = RegularFile . Origin . Beginning
+; CONST Current = RegularFile . Origin . Current 
 
 ; CONST BlockSize = 16_400 
 ; CONST BlockSizeL = VAL ( BlockSize , LONGINT ) 
@@ -189,6 +190,9 @@ MODULE RdBackFile
 (*EXPORTED*)
 ; PROCEDURE Create
     ( Filename : TEXT ; Truncate (* To empty. *) := FALSE ) : T
+(*TODO: Eliminate Truncate and treat as always TRUE.  Creating without
+         truncating makes no sense.
+*)
   RAISES { OSError . E }   
 
   = VAR LResult : T
@@ -214,13 +218,26 @@ MODULE RdBackFile
       LResult 
         := InnerOpen 
              ( Filename , "Open" , Truncate := FALSE , MustBeEmpty := FALSE )
-    ; LResult . RbBlockNo
-        := VAL ( ( LResult . RbLengthL - 1L ) DIV BlockSizeL , INTEGER ) 
-    ; LResult . RbBlockNextIn
-        := VAL ( LResult . RbLengthL MOD BlockSizeL , INTEGER )
-    ; LResult . RbBlockCt
-        := LResult . RbBlockNo + ORD ( LResult . RbBlockNextIn > 0 ) + 1
-    ; ReadBuffer ( LResult , LResult . RbBlockNextIn , "Open" ) 
+    ; IF LResult . RbLengthL <= 0L
+      THEN 
+        LResult . RbBlockNo := 0 
+      ; LResult . RbBlockCt := 0 
+      ; LResult . RbBlockNextIn := 0
+      (* And RbBuffer is garbage. *)
+      ELSE 
+        LResult . RbBlockNo
+          := VAL ( ( LResult . RbLengthL - 1L ) DIV BlockSizeL , INTEGER ) 
+      ; LResult . RbBlockNextIn
+          := VAL ( ( ( LResult . RbLengthL -1L ) MOD BlockSizeL ) + 1L , INTEGER )
+      ; LResult . RbBlockCt := LResult . RbBlockNo + 1
+      ; ReadBuffer
+          ( LResult
+          , LResult . RbBlockNo
+          , LResult . RbBlockNextIn
+          , LResult . RbBuffer
+          , "Open"
+          )
+      END (*IF*) 
     ; RETURN LResult 
     END Open  
 
@@ -264,18 +281,23 @@ MODULE RdBackFile
     
   = VAR LGotL : LONGINT
   ; VAR LGot : INTEGER 
+  ; VAR LCurrent : INTEGER 
   ; VAR LSeekTo : INTEGER
   (* ^These two should be LONGINT, but RegularFile.T.seek is behind the times.*)
   
   ; BEGIN
-      TRY
-        LSeekTo := VAL ( SeekToL , INTEGER ) 
-      ; LGot := RbFile . RbFileHandle . seek ( Beginning , LSeekTo )
-      ; LGotL := VAL ( LGot , LONGINT ) 
-      ; IF LGotL # SeekToL
-        THEN
-          Raise
-            ( MsgTag , ", wrong seek length for " , RbFile . RbFileName , "." )
+      LSeekTo := VAL ( SeekToL , INTEGER )
+    ; TRY
+        LCurrent := RbFile . RbFileHandle . seek ( Current , 0 )
+      ; IF LCurrent # LSeekTo
+        THEN 
+          LGot := RbFile . RbFileHandle . seek ( Beginning , LSeekTo )
+        ; LGotL := VAL ( LGot , LONGINT ) 
+        ; IF LGotL # SeekToL
+          THEN
+            Raise
+              ( MsgTag , ", wrong seek length for " , RbFile . RbFileName , "." )
+          END (*IF*) 
         END (*IF*) 
       EXCEPT OSError . E ( Code ) 
       => Raise
@@ -286,20 +308,25 @@ MODULE RdBackFile
     END Seek 
 
 ; PROCEDURE ReadBuffer
-    ( RbFile : T ; Length : INTEGER ; MsgTag : TEXT ) RAISES { OSError . E }
-  (* For block RdBlockNo. *) 
+    ( RbFile : T
+    ; BlockNo : INTEGER 
+    ; Length : INTEGER
+    ; VAR Buffer : BlockTyp
+    ; MsgTag : TEXT
+    )
+  RAISES { OSError . E }
 
   = VAR LSeekToL : LONGINT
   ; VAR LGot : INTEGER
   (* ^This should be LONGINT, but RegularFile.T.read is behind the times.*)
 
   ; BEGIN 
-      LSeekToL := VAL ( RbFile . RbBlockNo , LONGINT ) * BlockSizeL
+      LSeekToL := VAL ( BlockNo , LONGINT ) * BlockSizeL
     ; Seek ( RbFile , LSeekToL , MsgTag )
     ; TRY
         LGot
           := RbFile . RbFileHandle . read 
-               ( (*OUT*) SUBARRAY ( RbFile . RbBuffer , 0 , Length )
+               ( (*OUT*) SUBARRAY ( Buffer , 0 , Length )
                , mayBlock := TRUE 
                )
       ; IF LGot # Length
@@ -317,22 +344,20 @@ MODULE RdBackFile
 
 ; PROCEDURE WriteBuffer
     ( RbFile : T 
-    ; READONLY Buffer : BlockTyp
-      (* ^So this can be used for file copy without extra buffer copy. *) 
+    ; BlockNo : INTEGER 
     ; Length : INTEGER
+    ; READONLY Buffer : BlockTyp
     ; MsgTag : TEXT
     )
   RAISES { OSError . E }
-  (* For block RdBlockNo. *) 
 
   = VAR LSeekToL : LONGINT 
 
   ; BEGIN
       IF Length <= 0 THEN RETURN END (*IF*) 
-    ; LSeekToL := VAL ( RbFile . RbBlockNo , LONGINT ) * BlockSizeL 
+    ; LSeekToL := VAL ( BlockNo , LONGINT ) * BlockSizeL 
     ; Seek ( RbFile , LSeekToL , MsgTag )
-    ; TRY RbFile . RbFileHandle . write 
-            ( SUBARRAY ( Buffer , 0 , Length ) ) 
+    ; TRY RbFile . RbFileHandle . write ( SUBARRAY ( Buffer , 0 , Length ) ) 
       EXCEPT OSError . E ( Code ) 
       => Raise
            ( MsgTag , ", failure writing " , RbFile . RbFileName , "."
@@ -360,15 +385,78 @@ MODULE RdBackFile
       RETURN OrigFileName & "tempA3v6JT9" 
     END TempFileName 
 
+; PROCEDURE InnerCopy ( RbFile : T ; CopyFile : T )
+
+  = VAR LFullBlockCt : INTEGER (*I.e., count of full blocks. *)
+  ; VAR LTotalBlockCt : INTEGER
+  ; VAR LPartialBlockSize : INTEGER
+  ; VAR LBuffer : BlockTyp  
+
+  ; BEGIN (*InnerCopy*)
+      LFullBlockCt
+        := VAL ( RbFile . RbLengthL DIV BlockSizeL , INTEGER ) 
+    ; LPartialBlockSize 
+        := VAL ( RbFile . RbLengthL MOD BlockSizeL , INTEGER )
+    ; LTotalBlockCt
+        := LFullBlockCt + ORD ( LPartialBlockSize > 0 )  
+    ; FOR RBlockNo := 0 TO LFullBlockCt - 1
+      DO
+        IF RbFile . RbBlockNo = RBlockNo
+        THEN
+          WriteBuffer
+            ( CopyFile , RBlockNo , BlockSize , RbFile . RbBuffer , "CopyMem" )
+        ELSE 
+          ReadBuffer ( RbFile , RBlockNo , BlockSize , LBuffer , "Copy" )
+        ; WriteBuffer ( CopyFile , RBlockNo , BlockSize , LBuffer , "CopyFile" )
+        END (*IF*) 
+      END (*FOR*)
+    ; IF LPartialBlockSize > 0
+      THEN (* Copy partial block. *)
+        IF RbFile . RbBlockNo = LFullBlockCt
+        THEN
+          WriteBuffer
+            ( CopyFile
+            , LFullBlockCt
+            , LPartialBlockSize
+            , RbFile . RbBuffer
+            , "CopyMemPartial"
+            )
+        ELSE 
+          ReadBuffer
+            ( RbFile
+            , LFullBlockCt
+            , LPartialBlockSize
+            , LBuffer
+            , "CopyPartial"
+            )
+        ; WriteBuffer
+            ( CopyFile
+            , LFullBlockCt
+            , LPartialBlockSize
+            , LBuffer
+            , "CopyFilePartial"
+            )
+        END (*IF*) 
+      END (*IF*)
+    END InnerCopy
+      
+(*EXPORTED*)
+; PROCEDURE Copy ( RbFile : T ; CopyFileName : TEXT )
+
+  = VAR LCopyFile : T 
+
+  ; BEGIN (*Copy*)
+      LCopyFile := Create ( CopyFileName , Truncate := TRUE )
+    ; InnerCopy ( RbFile , LCopyFile ) 
+    ; SimpleClose ( LCopyFile ) 
+    END Copy
+
 (*EXPORTED*)
 ; PROCEDURE Close ( RbFile : T ) 
 
   = VAR LTempFile : T
   ; VAR LFileName : TEXT
   ; VAR LTempFileName : TEXT
-  ; VAR LFullBlockCt : INTEGER
-  ; VAR LTotalBlockCt : INTEGER
-  ; VAR LPartialBlockSize : INTEGER
 
   ; BEGIN
       IF RbFile = NIL THEN RETURN END (*IF*)
@@ -376,7 +464,12 @@ MODULE RdBackFile
     ; IF RbFile . RbBlockNextIn > 0
       THEN
         WriteBuffer
-          ( RbFile , RbFile . RbBuffer , RbFile . RbBlockNextIn , "Close" )
+          ( RbFile
+          , RbFile . RbBlockNo
+          , RbFile . RbBlockNextIn
+          , RbFile . RbBuffer
+          , "Close"
+          )
       END (*IF*) 
 
     ; IF FALSE (* Disable this for now, because: *) 
@@ -402,27 +495,7 @@ MODULE RdBackFile
       
         LTempFileName := TempFileName ( RbFile . RbFileName ) 
       ; LTempFile := Create ( LTempFileName , Truncate := FALSE )
-      ; LTempFile . RbBlockNo := 0 
-      ; RbFile . RbBlockNo := 0 
-      ; LFullBlockCt
-          := VAL ( RbFile . RbLengthL DIV BlockSizeL , INTEGER ) 
-      ; LPartialBlockSize 
-          := VAL ( RbFile . RbLengthL MOD BlockSizeL , INTEGER )
-      ; LTotalBlockCt
-          := RbFile . RbBlockNo + ORD ( LPartialBlockSize > 0 )  
-      ; FOR RBlockNo := 0 TO LFullBlockCt - 1
-        DO
-          ReadBuffer ( RbFile , BlockSize , "Close" )
-        ; WriteBuffer ( LTempFile , RbFile . RbBuffer , BlockSize , "Close" )
-        ; INC ( RbFile . RbBlockNo ) 
-        ; INC ( LTempFile . RbBlockNo ) 
-        END (*FOR*)
-      ; IF LPartialBlockSize > 0
-        THEN (* Copy partial block. *) 
-          ReadBuffer ( RbFile , LPartialBlockSize , "Close" )
-        ; WriteBuffer
-            ( LTempFile , RbFile . RbBuffer , LPartialBlockSize , "Close" ) 
-        END (*IF*)
+      ; InnerCopy ( RbFile , LTempFile ) 
       ; LFileName := RbFile . RbFileName (* Just paranoia. *) 
       ; SimpleClose ( RbFile ) 
       ; TRY FS . DeleteFile ( LFileName )
@@ -457,9 +530,15 @@ MODULE RdBackFile
       THEN (* RbBlockNextIn is right of the block in RbBuffer, if any. *)
         IF RbFile . RbBlockNo >= 0 (* Block RbBlockNo exists. *) 
         THEN (* Write to disk. *)
-          WriteBuffer ( RbFile , RbFile . RbBuffer , BlockSize , "Put" ) 
+          WriteBuffer
+             ( RbFile
+             , RbFile . RbBlockNo
+             , BlockSize
+             , RbFile . RbBuffer
+             , "Put"
+             ) 
         END (*IF*)
-      (* Moving rightward to a new block number. It will, extremely soon,
+      (* Moving rightward to a new block number.  It will, extremely soon,
          contain an unstored byte. *)
       ; INC ( RbFile . RbBlockNo ) 
       ; RbFile . RbBlockNextIn := 0 
@@ -491,7 +570,13 @@ MODULE RdBackFile
          (* Not empty => Block to left exists. *) 
       THEN
         DEC ( RbFile . RbBlockNo )
-      ; ReadBuffer ( RbFile , BlockSize , "GetBwd" )
+      ; ReadBuffer
+          ( RbFile
+          , RbFile . RbBlockNo
+          , BlockSize
+          , RbFile . RbBuffer
+          , "GetBwd"
+          )
       ; RbFile . RbBlockNextIn := BlockSize 
       END (*IF*)
       

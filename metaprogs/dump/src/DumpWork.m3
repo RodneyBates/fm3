@@ -99,11 +99,12 @@ MODULE DumpWork
             ; Wr . PutText ( WrT , FM3SrcToks . Image ( LToken ) )
             ; Wr . PutText ( WrT , Wr . EOL )
 
-            ; DibPutOpnd ( "Col: " )  
             ; DibPutOpnd ( "Atom: " )  
+            ; DibPutOpnd ( "Line: " )  
+            ; DibPutOpnd ( "Column: " )  
 (*
             ; CASE Token OF
-     (* Keep these consistent with Fm3ParsePsss.UnnestStk: *) 
+     (* Keep these consistent with Fm3ParsePass.UnnestStk: *) 
            (* | FM3SrcToks . StkIdent => *) 
               | FM3SrcToks . StkIntLit 
               , FM3SrcToks . StkLongIntLit 
@@ -144,12 +145,12 @@ MODULE DumpWork
               Wr . PutText ( WrT , " " ) 
             ; Wr . PutText ( WrT , FM3IntToks . Image ( LToken ) ) 
             ; Wr . PutText ( WrT , Wr . EOL )
+            ; IF IntSets . IsElement ( LToken , GTokSetPatch )
+              THEN DibPutOpnd ( "Patch coord: " )
+              END (*IF*) 
             ; IF IntSets . IsElement ( LToken , GTokSet1Arg )
               THEN
-                IF IntSets . IsElement ( LToken , GTokSetPatch )
-                THEN DibPutOpnd ( "Patch: " )
-                ELSE DibPutOpnd ( "Opnd 0: " ) 
-                END (*IF*) 
+                DibPutOpnd ( "Opnd 0: " ) 
               END (*IF*) 
             ; IF IntSets . IsElement ( LToken , GTokSet2Args )
               THEN DibPutOpnd ( "Opnd 1: " ) 

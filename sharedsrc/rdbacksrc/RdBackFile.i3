@@ -51,6 +51,8 @@ INTERFACE RdBackFile
 
 ; PROCEDURE GetBwd ( RbFile : T ) : ByteTyp RAISES { OSError . E , BOF }  
 
+; PROCEDURE Copy ( RbFile : T ; CopyFileName : TEXT )
+
 ; END RdBackFile
 .
 
