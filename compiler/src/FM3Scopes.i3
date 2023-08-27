@@ -15,7 +15,22 @@ INTERFACE FM3Scopes
 ; IMPORT FM3Dict_Int_Int
 
 ; CONST ScopeNoNull = FM3Base . AtomNull 
-; TYPE ScopeNoTyp = FM3Base . AtomTyp 
+; TYPE ScopeNoTyp = FM3Base . AtomTyp
+
+; TYPE ScopeKindTyp
+    = { SkNull
+      , SkUniverse
+      , SkUnit 
+      , SkEnum
+      , SkRec
+      , SkObj
+      , SkFormals
+      , SkBlock
+      , SkWith
+      , SkTypecase
+      , SkExcept 
+      } 
+
 ; TYPE ScopeRefTyp = REF ScopeTyp
 ; TYPE ScopeTyp
     = RECORD
@@ -24,6 +39,7 @@ INTERFACE FM3Scopes
       ; ScpDeclDict : FM3Dict_Int_Int . GrowableTyp (* IdentNo to Decl no. *)
       ; ScpDeclCt : FM3Base . AtomTyp := 0
       ; ScpOwningDeclNo : FM3Base . AtomTyp := FM3Base . AtomNull
+      ; ScpKind : ScopeKindTyp 
       END (*ScopeTyp*)
       
 ; CONST InitScopeCt = 10 
@@ -37,6 +53,15 @@ INTERFACE FM3Scopes
 ; PROCEDURE NewScope
     ( Map : ScopeMapTyp ; InitDictCt := DefaultInitDictCt ) : ScopeNoTyp
   (* Allocate and connect a ScopeNo and scopeRef. *)
+
+; PROCEDURE ScopeEmpty ( ScopeKind : ScopeKindTyp )
+
+; PROCEDURE ScopeLt ( ScopeKind : ScopeKindTyp )
+
+; PROCEDURE ScopeRt ( ScopeKind : ScopeKindTyp )
+
+; PROCEDURE DeclId
+    ( Atom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
 
 ; END FM3Scopes
 .

@@ -21,6 +21,9 @@ FIXED ItkNull .
       ItkEOF .
 
 LONE
+ItkImport 3 (* Atom, Line, Column. *) .
+ItkFromImport 6 (* (Atom, Line, Column) for interface, decl. *) .
+ItkImportAs 6 (* (Atom, Line, Column) for interface, as. *) .
 ItkFormalsListEmpty . 
 ItkFormalTypeAbsent .
 ItkFormalExprAbsent .
@@ -34,8 +37,7 @@ ItkResultTypeAbsent .
  
 FIXED
 ItkQualId .
-ItkImport 1 (* Interface Ident count. *) .
-ItkImportAs ItkImportAsAS 1 (* Decl Ident count. *) .
+
 ItkFuncSignature 2 (* Position. *) .
 ItkProcSignature 2 (* Position. *).
 ItkFormalType . 
@@ -56,7 +58,7 @@ LIST
 
 ItkExportIdList . 
 ItkGenFormalIdList .
-ItkGenActualIdList . 
+ItkGenActualIdList .
 ItkFormalsList .
 ItkFormalVALUEIdList . 
 ItkFormalVARIdList . 

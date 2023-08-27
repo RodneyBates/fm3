@@ -344,6 +344,9 @@ MODULE FM3SharedUtils
     ; VAR Arg1 : IntSets . T 
     ; VAR Arg2 : IntSets . T 
     ; VAR Arg3 : IntSets . T 
+    ; VAR Arg4 : IntSets . T 
+    ; VAR Arg5 : IntSets . T 
+    ; VAR Arg6 : IntSets . T 
     )
   RAISES { FatalError , Thread . Alerted } 
 
@@ -377,6 +380,9 @@ MODULE FM3SharedUtils
     ; Arg1 := RsReadIntSet ( LRdT ) 
     ; Arg2 := RsReadIntSet ( LRdT ) 
     ; Arg3 := RsReadIntSet ( LRdT ) 
+    ; Arg4 := RsReadIntSet ( LRdT ) 
+    ; Arg5 := RsReadIntSet ( LRdT ) 
+    ; Arg6 := RsReadIntSet ( LRdT ) 
     END ReadSets 
 
 (*EXPORTED*) 
@@ -400,9 +406,12 @@ MODULE FM3SharedUtils
           , FM3SharedGlobals . FM3FileKindTokSetsPkl
           , FM3SharedGlobals . GTokSetTemp
           , FM3SharedGlobals . GTokSetPatch
-          , FM3SharedGlobals . GTokSet1Arg
-          , FM3SharedGlobals . GTokSet2Args
-          , FM3SharedGlobals . GTokSet3Args
+          , FM3SharedGlobals . GTokSetGE1Arg
+          , FM3SharedGlobals . GTokSetGE2Args
+          , FM3SharedGlobals . GTokSetGE3Args
+          , FM3SharedGlobals . GTokSetGE4Args
+          , FM3SharedGlobals . GTokSetGE5Args
+          , FM3SharedGlobals . GTokSetGE6Args
           ) 
       ; FM3SharedGlobals . GSetsLoaded := TRUE 
       END (*IF*) 

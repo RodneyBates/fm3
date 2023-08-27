@@ -75,9 +75,12 @@ EXPORTS Main
 ; VAR GTokNamesArrayRef : IntRefArray . T 
 ; VAR GTokSetTemp : IntSets . T 
 ; VAR GTokSetPatch : IntSets . T 
-; VAR GTokSet1Arg : IntSets . T 
-; VAR GTokSet2Args : IntSets . T 
-; VAR GTokSet3Args : IntSets . T 
+; VAR GTokSetGE1Arg : IntSets . T 
+; VAR GTokSetGE2Args : IntSets . T 
+; VAR GTokSetGE3Args : IntSets . T 
+; VAR GTokSetGE4Args : IntSets . T 
+; VAR GTokSetGE5Args : IntSets . T 
+; VAR GTokSetGE6Args : IntSets . T 
 ; VAR GMinTokDone := FALSE 
 
 ; VAR GNextTokNo : INTEGER
@@ -583,7 +586,7 @@ EXPORTS Main
   ; BEGIN
       IF NOT IsNum ( GToken , ((*VAR*) LValue ) ) 
       THEN RETURN - 1
-      ELSIF LValue IN SET OF [ 0 .. 7 ] { 0 , 1 , 2 , 3 }
+      ELSIF LValue IN SET OF [ 0 .. 31 ] { 0 .. 6 }
       THEN
         GToken := GetSyntTok ( ) (* Consume the number. *) 
       ; RETURN LValue
@@ -836,13 +839,22 @@ EXPORTS Main
       ; Layout . PutText ( GOStream , Fmt . Int ( ArgCt) )
       ; Layout . PutText ( GOStream , "*)" )
       ; IF ArgCt >= 1
-        THEN GTokSet1Arg := IntSets . Include ( GTokSet1Arg , GNextTokNo )
+        THEN GTokSetGE1Arg := IntSets . Include ( GTokSetGE1Arg , GNextTokNo )
         END (*IF*) 
       ; IF ArgCt >= 2
-        THEN GTokSet2Args := IntSets . Include ( GTokSet2Args , GNextTokNo )
+        THEN GTokSetGE2Args := IntSets . Include ( GTokSetGE2Args , GNextTokNo )
         END (*IF*) 
       ; IF ArgCt >= 3
-        THEN GTokSet3Args := IntSets . Include ( GTokSet3Args , GNextTokNo )
+        THEN GTokSetGE3Args := IntSets . Include ( GTokSetGE3Args , GNextTokNo )
+        END (*IF*) 
+      ; IF ArgCt >= 4
+        THEN GTokSetGE4Args := IntSets . Include ( GTokSetGE4Args , GNextTokNo )
+        END (*IF*) 
+      ; IF ArgCt >= 5
+        THEN GTokSetGE5Args := IntSets . Include ( GTokSetGE5Args , GNextTokNo )
+        END (*IF*) 
+      ; IF ArgCt >= 6
+        THEN GTokSetGE6Args := IntSets . Include ( GTokSetGE6Args , GNextTokNo )
         END (*IF*) 
       END (*IF*)
     ; Layout . PadAbs ( GOStream , GEqualSignTab )
@@ -1610,11 +1622,17 @@ EXPORTS Main
         ; Pickle . Write
             ( LWrT , GTokSetPatch , write16BitWidechar := FALSE )
         ; Pickle . Write
-            ( LWrT , GTokSet1Arg , write16BitWidechar := FALSE ) 
+            ( LWrT , GTokSetGE1Arg , write16BitWidechar := FALSE ) 
         ; Pickle . Write
-            ( LWrT , GTokSet2Args , write16BitWidechar := FALSE )
+            ( LWrT , GTokSetGE2Args , write16BitWidechar := FALSE )
         ; Pickle . Write
-            ( LWrT , GTokSet3Args , write16BitWidechar := FALSE )
+            ( LWrT , GTokSetGE3Args , write16BitWidechar := FALSE )
+        ; Pickle . Write
+            ( LWrT , GTokSetGE4Args , write16BitWidechar := FALSE )
+        ; Pickle . Write
+            ( LWrT , GTokSetGE5Args , write16BitWidechar := FALSE )
+        ; Pickle . Write
+            ( LWrT , GTokSetGE6Args , write16BitWidechar := FALSE )
         EXCEPT ELSE
           MessageLine ( "Unable to write pickle file" & GSetsFullName ) 
         END (*EXCEPT*)
@@ -1671,9 +1689,12 @@ EXPORTS Main
     ; GTokNamesArrayRef := IntRefArray . New ( NIL ) 
     ; GTokSetTemp := IntSets . Empty ( )  
     ; GTokSetPatch := IntSets . Empty ( )  
-    ; GTokSet1Arg := IntSets . Empty ( )  
-    ; GTokSet2Args := IntSets . Empty ( )
-    ; GTokSet3Args := IntSets . Empty ( )
+    ; GTokSetGE1Arg := IntSets . Empty ( )  
+    ; GTokSetGE2Args := IntSets . Empty ( )
+    ; GTokSetGE3Args := IntSets . Empty ( )
+    ; GTokSetGE4Args := IntSets . Empty ( )
+    ; GTokSetGE5Args := IntSets . Empty ( )
+    ; GTokSetGE6Args := IntSets . Empty ( )
     ; GSemiTab := 0
     ; GAtEof := FALSE
     ; GCopyingComments := FALSE 

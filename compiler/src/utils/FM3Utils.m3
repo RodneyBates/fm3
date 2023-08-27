@@ -326,11 +326,17 @@ MODULE FM3Utils
       => RETURN 3 (* Atom, Line, Column. *) 
 (* NOTE: May need to adjust this if literals have additional operands. *) 
       | FM3IntToks . TkMinTok .. FM3IntToks . TkMaxTok
-      => IF IntSets . IsElement ( Token , FM3SharedGlobals . GTokSet3Args )
-         THEN RETURN 3 
-         ELSIF IntSets . IsElement ( Token , FM3SharedGlobals . GTokSet2Args )
+      => IF IntSets . IsElement ( Token , FM3SharedGlobals . GTokSetGE6Args )
+         THEN RETURN 6
+         ELSIF IntSets . IsElement ( Token , FM3SharedGlobals . GTokSetGE5Args )
+         THEN RETURN 5
+         ELSIF IntSets . IsElement ( Token , FM3SharedGlobals . GTokSetGE4Args )
+         THEN RETURN 4
+         ELSIF IntSets . IsElement ( Token , FM3SharedGlobals . GTokSetGE3Args )
+         THEN RETURN 3
+         ELSIF IntSets . IsElement ( Token , FM3SharedGlobals . GTokSetGE2Args )
          THEN RETURN 2
-         ELSIF IntSets . IsElement ( Token , FM3SharedGlobals . GTokSet1Arg )
+         ELSIF IntSets . IsElement ( Token , FM3SharedGlobals . GTokSetGE1Arg )
          THEN RETURN 1
          ELSE RETURN 0
          END (*IF*) 

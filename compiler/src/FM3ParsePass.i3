@@ -8,8 +8,10 @@
 
 INTERFACE FM3ParsePass
 
+; IMPORT FM3Base  
 ; IMPORT FM3Units 
 ; IMPORT FM3Scanner
+; IMPORT FM3Scopes 
 ; IMPORT FM3IntToks AS Itk  
 
   (* Lalr mandates this type, by name, and its Scan field, Q.V. *) 
@@ -21,6 +23,7 @@ INTERFACE FM3ParsePass
       ; PaConstructNo : INTEGER
       ; PaListItemNo : INTEGER
       ; PaInt : INTEGER
+      ; PaByte : [ 0 .. 16_FF ] 
       ; PaBool : BOOLEAN 
       END (* tParsAttribute *)
 
@@ -32,10 +35,13 @@ INTERFACE FM3ParsePass
         , PaConstructNo := FIRST ( INTEGER ) 
         , PaListItemNo := FIRST ( INTEGER )
         , PaInt := FIRST ( INTEGER )
+        , PaByte := 16_FF 
         , PaBool := FALSE
         }
 
 ; TYPE FormalModeTyp = { FmVALUE , FmVAR , FmREADONLY } 
+
+(* ---------------------------- Unnest stack ------------------------ *)
 
 ; PROCEDURE UnnestCoord ( ) : LONGINT
   (* Of the current unit. *)
@@ -63,12 +69,21 @@ INTERFACE FM3ParsePass
 
 ; PROCEDURE Push_TCIri ( T : Itk . TokTyp ; C : LONGINT ; I : INTEGER )
 
+; PROCEDURE Push_TI3 ( T : Itk . TokTyp ; I0 , I1 , I2 : INTEGER )
+
+; PROCEDURE Push_TI6
+    ( T : Itk . TokTyp ; I0 , I1 , I2 , I3 , I4 , I5 : INTEGER )
+
 ; PROCEDURE Push_TCoCr ( T : Itk . TokTyp ; Ct , Co : LONGINT )
 
 ; PROCEDURE Push_TCIoCri
     ( T : Itk . TokTyp ; Ct : LONGINT ; I : INTEGER ; Co : LONGINT )
 
 ; PROCEDURE PushEXPORTSMain  ( READONLY Position : FM3Scanner . tPosition )
+
+; PROCEDURE Pop4 ( )
+
+; PROCEDURE Pop8 ( )
 
 ; PROCEDURE MakeList
     ( VAR LHSAttr : tParsAttribute
@@ -81,6 +96,22 @@ INTERFACE FM3ParsePass
     ; TokLt : Itk . TokTyp
     ; PatchCoord : LONGINT
     ; ElemCt : INTEGER 
+    )
+
+(* ----------------------------- Parsing actions -------------------------- *)
+
+; PROCEDURE ImportsLt (  )
+
+; PROCEDURE ImportsRt (  )
+
+; PROCEDURE Import
+    ( Atom : FM3Base . AtomTyp ; Pos : FM3Base . tPosition ) 
+
+; PROCEDURE FromImport
+    ( IntfAtom : FM3Base . AtomTyp
+    ; InftPos : FM3Base . tPosition
+    ; DeclAtom : FM3Base . AtomTyp
+    ; DeclPos : FM3Base . tPosition
     )
 
 ; PROCEDURE BeginBlock ( )

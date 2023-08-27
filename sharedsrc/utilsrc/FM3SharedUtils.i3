@@ -67,8 +67,11 @@ INTERFACE FM3SharedUtils
     ; VAR Arg1 : IntSets . T 
     ; VAR Arg2 : IntSets . T 
     ; VAR Arg3 : IntSets . T 
+    ; VAR Arg4 : IntSets . T 
+    ; VAR Arg5 : IntSets . T 
+    ; VAR Arg6 : IntSets . T 
     )
-    RAISES { FatalError , Thread . Alerted } 
+  RAISES { FatalError , Thread . Alerted } 
 
 ; PROCEDURE LoadSets ( )
   RAISES { FatalError , Thread . Alerted } 

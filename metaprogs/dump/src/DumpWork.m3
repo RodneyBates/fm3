@@ -30,9 +30,12 @@ MODULE DumpWork
 
 ; VAR GTokSetTemp : IntSets . T 
 ; VAR GTokSetPatch : IntSets . T 
-; VAR GTokSet1Arg : IntSets . T 
-; VAR GTokSet2Args : IntSets . T 
-; VAR GTokSet3Args : IntSets . T 
+; VAR GTokSetGE1Arg : IntSets . T 
+; VAR GTokSetGE2Args : IntSets . T 
+; VAR GTokSetGE3Args : IntSets . T 
+; VAR GTokSetGE4Args : IntSets . T 
+; VAR GTokSetGE5Args : IntSets . T 
+; VAR GTokSetGE6Args : IntSets . T 
 ; VAR GResourcesLoaded := FALSE  
 
 ; PROCEDURE DumpPrefix
@@ -148,15 +151,24 @@ MODULE DumpWork
             ; IF IntSets . IsElement ( LToken , GTokSetPatch )
               THEN DibPutOpnd ( "Patch coord: " )
               END (*IF*) 
-            ; IF IntSets . IsElement ( LToken , GTokSet1Arg )
+            ; IF IntSets . IsElement ( LToken , GTokSetGE1Arg )
               THEN
                 DibPutOpnd ( "Opnd 0: " ) 
               END (*IF*) 
-            ; IF IntSets . IsElement ( LToken , GTokSet2Args )
+            ; IF IntSets . IsElement ( LToken , GTokSetGE2Args )
               THEN DibPutOpnd ( "Opnd 1: " ) 
               END (*IF*) 
-            ; IF IntSets . IsElement ( LToken , GTokSet3Args )
+            ; IF IntSets . IsElement ( LToken , GTokSetGE3Args )
               THEN DibPutOpnd ( "Opnd 2: " ) 
+              END (*IF*) 
+            ; IF IntSets . IsElement ( LToken , GTokSetGE4Args )
+              THEN DibPutOpnd ( "Opnd 3: " ) 
+              END (*IF*) 
+            ; IF IntSets . IsElement ( LToken , GTokSetGE5Args )
+              THEN DibPutOpnd ( "Opnd 4: " ) 
+              END (*IF*) 
+            ; IF IntSets . IsElement ( LToken , GTokSetGE6Args )
+              THEN DibPutOpnd ( "Opnd 5: " ) 
               END (*IF*) 
             ; Wr . PutText ( WrT , Wr . EOL )
             
@@ -192,9 +204,12 @@ MODULE DumpWork
           , FM3SharedGlobals . FM3FileKindTokSetsPkl
           , GTokSetTemp
           , GTokSetPatch
-          , GTokSet1Arg
-          , GTokSet2Args
-          , GTokSet3Args
+          , GTokSetGE1Arg
+          , GTokSetGE2Args
+          , GTokSetGE3Args
+          , GTokSetGE4Args
+          , GTokSetGE5Args
+          , GTokSetGE6Args
           ) 
       ; GResourcesLoaded := TRUE 
       END (*IF*) 

@@ -41,7 +41,7 @@ MODULE FM3ParsePass
 ; IMPORT FM3Base 
 ; IMPORT FM3CLArgs
 ; IMPORT FM3Compress
-; FROM FM3Compress IMPORT PutBwd
+; FROM FM3Compress IMPORT PutBwd , GetBwd 
 ; IMPORT FM3Decls 
 ; IMPORT FM3Files
 ; IMPORT FM3Globals
@@ -327,6 +327,8 @@ MODULE FM3ParsePass
     ; CompileUnit ( LSrcFileName ) 
     END Run 
 
+(* ---------------------------- Unnest stack ------------------------ *)
+
 (*EXPORTED:*)
 ; PROCEDURE UnnestCoord ( ) : LONGINT
   (* Of the current unit. *)
@@ -420,8 +422,6 @@ MODULE FM3ParsePass
       END (*FOR*)
     ; PutBwd ( RdBack , VAL ( LNumber , LONGINT ) )
     END PushOAWideCharsBwd 
-
-
 
 (*EXPORTED:*)
 ; PROCEDURE PushUnnestLong ( Value : LONGINT )
@@ -522,6 +522,36 @@ MODULE FM3ParsePass
     END Push_TCIri
 
 (*EXPORTED:*)
+; PROCEDURE Push_TI3 ( T : Itk . TokTyp ; I0 , I1 , I2 : INTEGER )
+
+  = BEGIN
+      WITH WRdBack = FM3Globals . CurrentUnitRef ^ . UntUnnestStackRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( I2 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I1 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I0 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T , LONGINT ) ) 
+      END (*WITH*) 
+    END Push_TI3
+
+(*EXPORTED:*)
+; PROCEDURE Push_TI6
+    ( T : Itk . TokTyp ; I0 , I1 , I2 , I3 , I4 , I5 : INTEGER )
+
+  = BEGIN
+      WITH WRdBack = FM3Globals . CurrentUnitRef ^ . UntUnnestStackRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( I5 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I4 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I3 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I2 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I1 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I0 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T , LONGINT ) ) 
+      END (*WITH*) 
+    END Push_TI6
+
+(*EXPORTED:*)
 ; PROCEDURE Push_TCoCr ( T : Itk . TokTyp ; Ct , Co : LONGINT )
 
   = BEGIN
@@ -551,6 +581,36 @@ MODULE FM3ParsePass
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
       END (*WITH*) 
     END Push_TCIoCri
+
+(*EXPORTED:*)
+; PROCEDURE Pop4 ( )
+
+  = BEGIN (*Pop4*)
+      WITH WRdBack = FM3Globals . CurrentUnitRef ^ . UntUnnestStackRdBack
+      DO 
+        EVAL GetBwd ( WRdBack ) 
+      ; EVAL GetBwd ( WRdBack ) 
+      ; EVAL GetBwd ( WRdBack )
+      ; EVAL GetBwd ( WRdBack ) 
+      END (*WITH*) 
+    END Pop4
+      
+(*EXPORTED:*)
+; PROCEDURE Pop8 ( )
+
+  = BEGIN (*Pop4*)
+      WITH WRdBack = FM3Globals . CurrentUnitRef ^ . UntUnnestStackRdBack
+      DO 
+        EVAL GetBwd ( WRdBack ) 
+      ; EVAL GetBwd ( WRdBack ) 
+      ; EVAL GetBwd ( WRdBack )
+      ; EVAL GetBwd ( WRdBack ) 
+      ; EVAL GetBwd ( WRdBack )
+      ; EVAL GetBwd ( WRdBack ) 
+      ; EVAL GetBwd ( WRdBack )
+      ; EVAL GetBwd ( WRdBack ) 
+      END (*WITH*) 
+    END Pop8
 
 (*EXPORTED:*)
 ; PROCEDURE PushEXPORTSMain  ( READONLY Position : FM3Scanner . tPosition )
@@ -638,20 +698,49 @@ MODULE FM3ParsePass
     END MakeList2
 
 (*EXPORTED:*)
+; PROCEDURE ImportsLt (  )
+
+  = BEGIN (*ImportsLt*)
+    END ImportsLt
+      
+(*EXPORTED:*)
+; PROCEDURE ImportsRt (  )
+
+  = BEGIN (*ImportsRt*)
+    END ImportsRt
+      
+(*EXPORTED:*)
+; PROCEDURE Import
+    ( Atom : FM3Base . AtomTyp ; Pos : FM3Base . tPosition ) 
+
+  = BEGIN (*Import*)
+    END Import
+      
+(*EXPORTED:*)
+; PROCEDURE FromImport
+    ( IntfAtom : FM3Base . AtomTyp
+    ; InftPos : FM3Base . tPosition
+    ; DeclAtom : FM3Base . AtomTyp
+    ; DeclPos : FM3Base . tPosition
+    )
+
+  = BEGIN (*FromImport*)
+    END FromImport
+
+(*EXPORTED:*)
 ; PROCEDURE BeginBlock ( )
 
   = BEGIN (*BeginBlock*)
     END BeginBlock
-  
 
 ; PROCEDURE RereverseOpnds
     ( Token : Itk . TokTyp ; FromRdBack , ToRdBack : RdBackFile . T )
-  (* Copy up to 3 operands, without final reversing.  Pop/8ush reverses
+  (* Copy up to 6 operands, without final reversing.  Pop/8ush reverses
      them, but this procedure does its own reversal, resulting in
      net same order.
   *)
  
-  = VAR LOpnd1 , LOpnd2 , LOpnd3 : LONGINT
+  = VAR LOpnd1 , LOpnd2 , LOpnd3 , LOpnd4 , LOpnd5 , LOpnd6 : LONGINT
   ; VAR LOpndCt : INTEGER 
   
   ; BEGIN (*RereverseOpnds*)
@@ -665,6 +754,21 @@ MODULE FM3ParsePass
         ; IF LOpndCt >= 3
           THEN
             LOpnd3 := FM3Compress . GetBwd ( FromRdBack )
+          ; IF LOpndCt >= 4
+            THEN
+              LOpnd4 := FM3Compress . GetBwd ( FromRdBack )
+            ; IF LOpndCt >= 5
+              THEN
+                LOpnd5 := FM3Compress . GetBwd ( FromRdBack )
+              ; IF LOpndCt >= 6
+                THEN
+                  LOpnd6 := FM3Compress . GetBwd ( FromRdBack )
+                ; PutBwd ( ToRdBack , LOpnd6 ) 
+                END (*IF*) 
+              ; PutBwd ( ToRdBack , LOpnd5 ) 
+              END (*IF*) 
+            ; PutBwd ( ToRdBack , LOpnd4 ) 
+            END (*IF*) 
           ; PutBwd ( ToRdBack , LOpnd3 ) 
           END (*IF*) 
         ; PutBwd ( ToRdBack , LOpnd2 ) 
@@ -722,7 +826,7 @@ MODULE FM3ParsePass
           this and then use a better name for it.
 *) 
           
-         (* Copy up to 3 operands, without reversing by stack operations. *)
+         (* Copy up to 6 operands, without reversing by stack operations. *)
         ; RereverseOpnds
             ( LNoPatchToken
             , LUnitRef . UntPatchStackRdBack
@@ -777,6 +881,9 @@ MODULE FM3ParsePass
 
       END (*LOOP*)
     END Unnest
+
+(* ----------------------- Procedure signatures --------------------- *)
+
 
 ; BEGIN (*FM3ParsePass*)
   END FM3ParsePass

@@ -72,6 +72,12 @@ UNSAFE MODULE FM3Compress
   = VAR LSignBitsL : LONGINT
 
   ; BEGIN
+
+
+IF ValueL = 159L THEN
+  LSignBitsL := 7L
+END
+;
       LSignBitsL := DivL ( ValueL , TwoTo6thL )
              (* ^Shift right 6 bits, with sign extension. *) 
     ; IF LSignBitsL # 16_FFFFFFFFFFFFFFFFL AND LSignBitsL # 0L

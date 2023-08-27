@@ -56,6 +56,31 @@ MODULE FM3Scopes
     ; VarArray_Int_Refany . Assign ( Map , LScopeNo , LScopeRef ) 
     END NewScope 
 
+(*EXPORTED.*)
+; PROCEDURE ScopeEmpty ( ScopeKind : ScopeKindTyp )
+
+  = BEGIN (*ScopeEmpty*)
+    END ScopeEmpty
+
+(*EXPORTED.*)
+; PROCEDURE ScopeLt ( ScopeKind : ScopeKindTyp )
+
+  = BEGIN (*ScopeLt*)
+    END ScopeLt
+
+(*EXPORTED.*)
+; PROCEDURE ScopeRt ( ScopeKind : ScopeKindTyp )
+
+  = BEGIN (*ScopeRt*)
+    END ScopeRt
+
+(*EXPORTED.*)
+; PROCEDURE DeclId
+    ( Atom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
+
+  = BEGIN (*DeclId*)
+    END DeclId
+
 ; BEGIN
   END FM3Scopes
 .

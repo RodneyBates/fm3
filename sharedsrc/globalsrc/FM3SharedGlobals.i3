@@ -20,9 +20,12 @@ INTERFACE FM3SharedGlobals
 ; VAR GSetsLoaded := FALSE
 ; VAR GTokSetTemp : IntSets . T 
 ; VAR GTokSetPatch : IntSets . T 
-; VAR GTokSet1Arg : IntSets . T 
-; VAR GTokSet2Args : IntSets . T 
-; VAR GTokSet3Args : IntSets . T 
+; VAR GTokSetGE1Arg : IntSets . T 
+; VAR GTokSetGE2Args : IntSets . T 
+; VAR GTokSetGE3Args : IntSets . T 
+; VAR GTokSetGE4Args : IntSets . T 
+; VAR GTokSetGE5Args : IntSets . T 
+; VAR GTokSetGE6Args : IntSets . T 
 
 (* FileTag characters for files: *)
 

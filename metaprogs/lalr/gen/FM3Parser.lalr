@@ -18,7 +18,7 @@ EXPORT
     IMPORT FM3ParsePass;
   }
 
-(* Stuff to go at front of the parser module, at global scope. *)
+/* Stuff to go at front of the parser module, at global scope. */
 GLOBAL
 
   { IMPORT FM3Base;
@@ -26,35 +26,39 @@ GLOBAL
     IMPORT FM3Globals;
     IMPORT FM3IntToks AS Itk;
     IMPORT FM3ParsePass;
-    FROM FM3ParsePass IMPORT PushUnnestStk , PushUnnest, PushUnnestLong;
     FROM FM3ParsePass IMPORT UnnestCoord;
     FROM FM3ParsePass IMPORT tParsAttribute;
     FROM FM3ParsePass IMPORT ParsAttrNull;
     FROM FM3ParsePass IMPORT FormalModeTyp;
+(*TODO: ^Where does this belong? *) 
+    FROM FM3ParsePass IMPORT PushUnnestStk , PushUnnest, PushUnnestLong;
     FROM FM3ParsePass IMPORT
       Push_T , Push_TP , Push_TCr , Push_TCPrp , Push_TCBr , Push_TCIri , 
-      Push_TCoCr , Push_TCIoCri;
+      Push_TI3 , Push_TI6 , Push_TCoCr , Push_TCIoCri , Pop4 , Pop8 ;
     FROM FM3ParsePass IMPORT MakeList , MakeList2;
+    IMPORT FM3Scopes;
     IMPORT FM3Units;
     FROM FM3Utils IMPORT PositionImage;
   }
 
-(* Local declarations of the Parse procedure. *) 
-LOCAL { }
+/* Global declarations of the Parser procedure. */ 
+LOCAL
+  { TYPE Sk = FM3Scopes . ScopeKindTyp ; 
+  }
 
-(* Parser module initialization. *) 
+/* Parser module initialization. */ 
 BEGIN
   { FrontErrors . SetReportMode ( FrontErrors . tReportMode . eImmediate ); 
   }
 
-(* Parser module final cleanup. *) 
+/* Parser module final cleanup. */ 
 CLOSE { }
 
 (* Source code terminal tokens. *)
 (* Copied in from GenTok output and edited. *) 
 TOKEN
 
-(* ----------------------- Source code tokens: --------------------------- *) 
+/* ----------------------- Source code tokens: --------------------------- */ 
 
 (* I tried hard to get this token naming & numbering in just
    one place, but it is just too much tangential work for the
@@ -203,7 +207,6 @@ TOKEN
 RULE
 
 (* Compilation units: *) 
-
    Compilation : Interface . 
    Compilation : Module .
    Compilation : GenInterface . 
@@ -264,6 +267,18 @@ RULE
        $$ . PaInt := $1 . PaInt + 1 ;
      } . 
 
+(* List of one or more comma-separated declaring occurrences of Idents.*)
+   DeclIdPlusList : StkIdent 
+     { (* PaUnnestCoord copied from $1. *) 
+       $$ . PaInt := 1 ;
+       FM3Scopes . DeclId ( $1 . Scan . SaAtom , $1 . Scan . Position ) ; 
+     } . 
+   DeclIdPlusList : DeclIdPlusList StkComma StkIdent
+     { (* PaUnnestCoord copied from $1. *) 
+       $$ . PaInt := $1 . PaInt + 1 ;
+       FM3Scopes . DeclId ( $3 . Scan . SaAtom , $3 . Scan . Position ) ; 
+     } . 
+
 (* List of zero or more comma-separated Idents. *)
    IdStarList : /*Empty*/
      { $$ . PaInt := 0 ; } . 
@@ -285,10 +300,12 @@ RULE
 
 (*  ----------------------------- Imports -----------------------. *) 
 
-   Imports : ImportsRecurse
-     { $$ . PaInt := $1 . PaInt (* Imported interface Ct. *) ;
-       $$ . PaLong := $1 . PaLong (* Imported unqualified Ident Ct. *) ;
-     } . 
+   Imports : ImportsLt ImportsRecurse ImportsRt 
+     { $$ . PaInt := $2 . PaInt (* Imported interface Count. *) ;
+       $$ . PaLong := $2 . PaLong (* Imported unqualified Ident Count. *) ;
+     } .
+   ImportsLt : /*Empty*/ { FM3ParsePass . ImportsLt ( ) ; } . 
+   ImportsRt : /*Empty*/ { FM3ParsePass . ImportsRt ( ) ; } . 
    ImportsRecurse : /*Empty*/
      { $$ . PaInt := 0; 
        $$ . PaLong := 0L; 
@@ -297,26 +314,105 @@ RULE
      { $$ . PaInt := $1 . PaInt + $2 . PaInt ;
        $$ . PaLong := $1 . PaLong + $2 . PaLong ;
      } .
-   ImportItem : StkRwIMPORT IdPlusList StkSemicolon  
+
+   (* IMPORT .. *) 
+   ImportItem : StkRwIMPORT ImportIntfPlusList StkSemicolon  
      { $$ . PaInt := $2 . PaInt ;
-       $$ . PaLong := 0L;
-       Push_TCIri
-         ( Itk . ItkImportLt, $1 . PaUnnestCoord, $2 . PaInt ); 
-     } .  
+       $$ . PaLong := 0L ; 
+     } .
+   ImportIntfPlusList : StkIdent 
+     { $$ . PaInt := 1 ;
+       FM3ParsePass . Import
+         ( $1 . Scan . SaAtom , $1 . Scan . Position ) ; 
+       Pop4 ( ) (* Replace the Ident with an ItkImport. *) ; 
+       Push_TI3
+         ( Itk . ItkImport
+         , $1 . Scan . SaAtom
+         , $1 . Scan . Position . Line
+         , $1 . Scan . Position . Column
+         ) ;
+     } . 
+   ImportIntfPlusList : ImportIntfPlusList StkComma StkIdent
+     { $$ . PaInt := $1 . PaInt + 1 ;
+       Pop4 ( ) (* Replace the Ident with an ItkImport. *) ; 
+       FM3ParsePass . Import
+         ( $3 . Scan . SaAtom , $3 . Scan . Position ) ; 
+       Push_TI3
+         ( Itk . ItkImport
+         , $3 . Scan . SaAtom
+         , $3 . Scan . Position . Line
+         , $3 . Scan . Position . Column
+         ) ;
+     } . 
+
+   (* FROM Id IMPORT ... *) 
+   ImportItem : FromImportPlusList StkSemicolon 
+     { $$ . PaInt := $1 . PaInt ;
+       $$ . PaLong := $1 . PaLong ; 
+     } .
+   FromImportPlusList : StkRwFROM StkIdent StkRwIMPORT StkIdent
+     { $$ . PaInt := 1 (* InterfaceCt. *) ;
+       $$ . PaLong := 1L ;
+       $$ . Scan . SaAtom := $2 . Scan . SaAtom ; 
+       $$ . Scan . Position := $2 . Scan . Position ; 
+       FM3ParsePass . FromImport
+         ( $2 . Scan . SaAtom
+         , $2 . Scan . Position 
+         , $4 . Scan . SaAtom
+         , $4 . Scan . Position 
+         ) ; 
+       Pop8 ( ) (* Replace the 2 Idents with an ItkFromImport. *) ; 
+       Push_TI6
+         ( Itk . ItkFromImport
+           (* Interface operands on left, then Decl ID items on Right. *) 
+         , $2 . Scan . SaAtom
+         , $2 . Scan . Position . Line
+         , $2 . Scan . Position . Column
+         , $4 . Scan . SaAtom
+         , $4 . Scan . Position . Line
+         , $4 . Scan . Position . Column
+         ) ;
+     } . 
+   FromImportPlusList : FromImportPlusList StkComma StkIdent
+     { $$ . PaInt := 1 ;
+       $$ . PaLong := $1 . PaLong + 1L ;
+       $$ . Scan . SaAtom := $1 . Scan . SaAtom ; 
+       $$ . Scan . Position := $1 . Scan . Position ; 
+       FM3ParsePass . FromImport
+         ( $1 . Scan . SaAtom
+         , $1 . Scan . Position 
+         , $3 . Scan . SaAtom
+         , $3 . Scan . Position 
+         ) ; 
+       Pop4 ( ) (* Replace the Ident with an ItkFromImport. *) ;
+       Push_TI6
+         ( Itk . ItkFromImport
+           (* Interface operands on left, then Decl ID items on Right. *) 
+         , $1 . Scan . SaAtom
+         , $1 . Scan . Position . Line
+         , $1 . Scan . Position . Column
+         , $3 . Scan . SaAtom
+         , $3 . Scan . Position . Line
+         , $3 . Scan . Position . Column
+         ) ;
+     } . 
+
+(* IMPORT Id AS Id; *)
+(*
    ImportItem : StkRwFROM StkIdent StkRwIMPORT IdPlusList StkSemicolon 
      { $$ . PaInt := 1 ;
        $$ . PaLong := VAL ( $4 . PaInt (* IdPlusList Ct. *) , LONGINT ) ;
        Push_TCIoCri
          ( Itk . ItkImportAsLt, $1 . PaUnnestCoord, $4 . PaInt , $3 . PaUnnestCoord );
      } .
-
+*)
 (* ------------------------------- Exports ------------------------- . *)
 (* Exports.  Possibly absent, in which case construct "EXPORTS Main".
    Otherwise contains at least one ident. Bracket with ItkExportList*.
 *) 
 
    Exports : /*Empty*/
-     { FM3ParsePass . PushEXPORTSMain ( $0 . Scan . Position ) } .
+     { FM3ParsePass . PushEXPORTSMain ( $0 . Scan . Position ) ; } .
    Exports : StkRwEXPORTS IdPlusList 
      { MakeList ( $$ , Itk . ItkExportIdListLt , $2 ) ; } .
 
@@ -396,21 +492,29 @@ RULE
          END (*IF*);
          Push_TCPrp ( LTok,  $1 . PaUnnestCoord , $1 . Scan . Position );
        END (*Block*) 
-     }. 
+     }.
 
 (* List of formal decls. *) 
-   Formals : StkOpenParen StkCloseParen
-     { PushUnnest ( Itk . ItkFormalsListEmpty ) } .
-   Formals : StkOpenParen FormalsPlusList OptSemicolon StkCloseParen
-     { MakeList ( $$ , Itk . ItkFormalsListLt , $2 ) ; } .
+   Formals : StkOpenParen StkCloseParen /* Empty formals list. */
+     { $$ . Scan . Position := $1 . Scan . Position ;
+       FM3Scopes . ScopeEmpty ( Sk . SkFormals ) ; 
+       PushUnnest ( Itk . ItkFormalsListEmpty )
+     } .
+   Formals : StkOpenParen FormalsLt FormalsPlusList OptSemicolon StkCloseParen
+     { $$ . Scan . Position := $1 . Scan . Position ;
+       FM3Scopes . ScopeRt ( Sk . SkFormals ) ;
+       MakeList ( $$ , Itk . ItkFormalsListLt , $3 ) ;
+     } .
+   FormalsLt : /*Empty*/
+     { FM3Scopes . ScopeLt ( Sk . SkFormals ) ; } . 
    FormalsPlusList : Formal 
      { $$ . PaInt := 1 (* Formal count. *) ; } .
    FormalsPlusList : FormalsPlusList StkSemicolon Formal 
      { $$ . PaInt := $1 . PaInt + 1 (* Formal count. *); } .  
 
-(* Single formal decl (but possibly multiple idents). *) 
-   Formal : FormalMode IdPlusList FormalType FormalExpr
-     { IF $1 . PaInt = ORD ( FormalModeTyp . FmVAR )  
+(* Single formal decl (with possibly multiple idents). *) 
+   Formal : FormalMode DeclIdPlusList FormalType FormalExpr
+     { IF $1 . PaByte = ORD ( FormalModeTyp . FmVAR )  
        THEN
          IF NOT $3 . PaBool
          THEN
@@ -423,7 +527,7 @@ RULE
          THEN
            FM3Messages . Error
              ( PositionImage ( $2 . Scan . Position )
-             , " VAR formal cannot have a type (2.2.8)."
+             , " VAR formal cannot have a default expression  (2.2.8)."
              );
          END (*IF*) ; 
        ELSIF NOT $3 . PaBool AND NOT $4 . PaBool
@@ -432,24 +536,25 @@ RULE
            ( PositionImage ( $2 . Scan . Position )
            , " Formal must have a type and/or default expression (2.2.8)." );
        END (*IF*);
-       MakeList ( $$ , $1 . Scan . SaTok , $2 ); 
+       MakeList ( $$ , $1 . PaInt , $2 ); 
      } .
 
+(* Formal parameter modes. *) 
    FormalMode : /*Empty*/
-     { $$ . PaInt := ORD ( FormalModeTyp . FmVALUE );
-       $$ . Scan . SaTok := Itk . ItkFormalVALUEIdListLt; 
+     { $$ . PaByte := ORD ( FormalModeTyp . FmVALUE );
+       $$ . PaInt := Itk . ItkFormalVALUEIdListLt; 
      } .
    FormalMode : StkRwVALUE 
-     { $$ . PaInt := ORD ( FormalModeTyp . FmVALUE );
-       $$ . Scan . SaTok := Itk . ItkFormalVALUEIdListLt; 
+     { $$ . PaByte := ORD ( FormalModeTyp . FmVALUE );
+       $$ . PaInt := Itk . ItkFormalVALUEIdListLt; 
      } .
    FormalMode : StkRwVAR 
-     { $$ . PaInt := ORD ( FormalModeTyp . FmVAR );
-       $$ . Scan . SaTok := Itk . ItkFormalVARIdListLt; 
+     { $$ . PaByte := ORD ( FormalModeTyp . FmVAR );
+       $$ . PaInt := Itk . ItkFormalVARIdListLt; 
      } .
    FormalMode : StkRwREADONLY
-     { $$ . PaInt := ORD ( FormalModeTyp . FmREADONLY );
-       $$ . Scan . SaTok := Itk . ItkFormalREADONLYIdListLt; 
+     { $$ . PaByte := ORD ( FormalModeTyp . FmREADONLY );
+       $$ . PaInt := Itk . ItkFormalREADONLYIdListLt; 
      } .
 
    FormalType : FormalTypeAbsent .
