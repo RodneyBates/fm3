@@ -35,7 +35,7 @@ GLOBAL
     FROM FM3ParsePass IMPORT
       Push_T , Push_TP , Push_TCr , Push_TCPrp , Push_TCBr , Push_TCIri , 
       Push_TI3 , Push_TI6 , Push_TCoCr , Push_TCIoCri , Pop4 , Pop8 ;
-    FROM FM3ParsePass IMPORT MakeList , MakeList2;
+    FROM FM3ParsePass IMPORT MakeList , MakeListPos;
     IMPORT FM3Scopes;
     IMPORT FM3Units;
     FROM FM3Utils IMPORT PositionImage;
@@ -251,45 +251,45 @@ RULE
    CaptureCoord : /*Empty*/
      { $$ . PaUnnestCoord := UnnestCoord ( ) ; } .
      
-   OptSemicolon : /*Empty*/ . 
    OptSemicolon : StkSemicolon .
+   OptSemicolon : /*Empty*/ . 
 
  
 (* ----------------------------- Identifier lists ---------------------- *)
 
 (* List of one or more comma-separated Idents.*)
    IdPlusList : StkIdent 
-     { (* PaUnnestCoord copied from $1. *) 
+     { (* PaUnnestCoord copied from $1 by parser. *) 
        $$ . PaInt := 1 ;
      } . 
    IdPlusList : IdPlusList StkComma StkIdent
-     { (* PaUnnestCoord copied from $1. *) 
+     { (* PaUnnestCoord copied from $1 by parser. *) 
        $$ . PaInt := $1 . PaInt + 1 ;
      } . 
 
 (* List of one or more comma-separated declaring occurrences of Idents.*)
    DeclIdPlusList : StkIdent 
-     { (* PaUnnestCoord copied from $1. *) 
+     { (* PaUnnestCoord copied from $1 by parser. *) 
        $$ . PaInt := 1 ;
        FM3Scopes . DeclId ( $1 . Scan . SaAtom , $1 . Scan . Position ) ; 
      } . 
    DeclIdPlusList : DeclIdPlusList StkComma StkIdent
-     { (* PaUnnestCoord copied from $1. *) 
+     { (* PaUnnestCoord copied from $1 by parser . *) 
        $$ . PaInt := $1 . PaInt + 1 ;
        FM3Scopes . DeclId ( $3 . Scan . SaAtom , $3 . Scan . Position ) ; 
      } . 
 
 (* List of zero or more comma-separated Idents. *)
-   IdStarList : /*Empty*/
-     { $$ . PaInt := 0 ; } . 
    IdStarList : IdStarList StkComma StkIdent
      { $$ . PaInt := $1 . PaInt + 1 ; } . 
+   IdStarList : /*Empty*/
+     { $$ . PaInt := 0 ; } . 
 
 (* List of zero or more comma-separated qualified Idents. *)
-   QualIdStarList : /*Empty*/
-     { $$ . PaInt := 0 ; } . 
    QualIdStarList : QualIdStarList StkComma QualId
      { $$ . PaInt := $1 . PaInt + 1 ; } .
+   QualIdStarList : /*Empty*/
+     { $$ . PaInt := 0 ; } . 
      
 (* Qualified ident. *)   
    QualId : StkIdent .
@@ -306,14 +306,14 @@ RULE
      } .
    ImportsLt : /*Empty*/ { FM3ParsePass . ImportsLt ( ) ; } . 
    ImportsRt : /*Empty*/ { FM3ParsePass . ImportsRt ( ) ; } . 
-   ImportsRecurse : /*Empty*/
-     { $$ . PaInt := 0; 
-       $$ . PaLong := 0L; 
-     } . 
    ImportsRecurse : ImportsRecurse ImportItem  
      { $$ . PaInt := $1 . PaInt + $2 . PaInt ;
        $$ . PaLong := $1 . PaLong + $2 . PaLong ;
      } .
+   ImportsRecurse : /*Empty*/
+     { $$ . PaInt := 0; 
+       $$ . PaLong := 0L; 
+     } . 
 
    (* IMPORT .. *) 
    ImportItem : StkRwIMPORT ImportIntfPlusList StkSemicolon  
@@ -411,19 +411,25 @@ RULE
    Otherwise contains at least one ident. Bracket with ItkExportList*.
 *) 
 
+   Exports : StkRwEXPORTS IdPlusList 
+     { MakeListPos
+         ( $$ , Itk . ItkExportIdListLt , $1 . Scan . Position , $2 ) ;
+     } .
    Exports : /*Empty*/
      { FM3ParsePass . PushEXPORTSMain ( $0 . Scan . Position ) ; } .
-   Exports : StkRwEXPORTS IdPlusList 
-     { MakeList ( $$ , Itk . ItkExportIdListLt , $2 ) ; } .
 
 (* ------------------------ Generic parameters ---------------------- . *)
 (* GenFormalList.  Zero or more idents. Bracket list with ItkGenFormalList*. *) 
    GenFormalList : StkOpenParen IdStarList StkCloseParen 
-     { MakeList ( $$ , Itk. ItkGenFormalIdListLt , $2 ) ; } .
+     { MakeListPos 
+         ( $$ , Itk. ItkGenFormalIdListLt , $1 . Scan . Position , $2 ) ;
+     } .
 
 (* GenActualList.  Zero or more idents. Bracket list with ItkGenActualList*. *) 
    GenActualList : StkOpenParen IdStarList StkCloseParen 
-     { MakeList ( $$ , Itk. ItkGenActualIdListLt , $2 ) ; } .
+     { MakeListPos
+         ( $$ , Itk. ItkGenActualIdListLt , $1 . Scan . Position , $2 ) ;
+     } .
 
 (* -------------------------- Type Declarations. --------------------- . *)
 
@@ -438,13 +444,13 @@ RULE
    ConstDecls : ConstDecl . 
    ConstDecls : ConstDecls ConstDecl . 
    ConstDecl : StkIdent OptConstType StkEqual Expr .
+   OptConstType : StkColon Type
+     { $$ . PaUnnestCoord := $1 . PaUnnestCoord ;
+       $$ . PaBool (* Present. *) := TRUE ; } . 
    OptConstType : /*Empty*/
      { $$ . PaUnnestCoord := UnnestCoord ( ) ;
        $$ . PaBool (* Present. *) := FALSE (* Absent. *) ;
      } . 
-   OptConstType : StkColon Type
-     { $$ . PaUnnestCoord := $1 . PaUnnestCoord ;
-       $$ . PaBool (* Present. *) := TRUE ; } . 
 
 (* ------------------------- Variable Declarations -------------------- . *) 
 
@@ -460,20 +466,20 @@ RULE
            );
        END (*IF*) 
      } .
-   OptVarType : /*Empty*/
-     { $$ . PaUnnestCoord := UnnestCoord ( ); 
-       $$ . PaBool (* Present. *) := FALSE (* Absent. *) ;
-     } . 
    OptVarType : StkColon Type 
      { $$ . PaUnnestCoord := $1 . PaUnnestCoord ;
        $$ . PaBool (* Present. *) := TRUE ; } . 
-   OptVarValue : /*Empty*/
+   OptVarType : /*Empty*/
      { $$ . PaUnnestCoord := UnnestCoord ( ); 
        $$ . PaBool (* Present. *) := FALSE (* Absent. *) ;
      } . 
    OptVarValue : StkBecomes Expr 
      { $$ . PaUnnestCoord := $1 . PaUnnestCoord ;
        $$ . PaBool (* Present. *) := TRUE ; } . 
+   OptVarValue : /*Empty*/
+     { $$ . PaUnnestCoord := UnnestCoord ( ); 
+       $$ . PaBool (* Present. *) := FALSE (* Absent. *) ;
+     } . 
 
 (* --------------------------------- Types ----------------------------- *)
 
@@ -503,103 +509,138 @@ RULE
    Formals : StkOpenParen FormalsLt FormalsPlusList OptSemicolon StkCloseParen
      { $$ . Scan . Position := $1 . Scan . Position ;
        FM3Scopes . ScopeRt ( Sk . SkFormals ) ;
-       MakeList ( $$ , Itk . ItkFormalsListLt , $3 ) ;
+       MakeListPos
+         ( $$ , Itk . ItkFormalsListLt , $1 . Scan . Position , $3 ) ;
      } .
    FormalsLt : /*Empty*/
      { FM3Scopes . ScopeLt ( Sk . SkFormals ) ; } . 
-   FormalsPlusList : Formal 
-     { $$ . PaInt := 1 (* Formal count. *) ; } .
    FormalsPlusList : FormalsPlusList StkSemicolon Formal 
      { $$ . PaInt := $1 . PaInt + 1 (* Formal count. *); } .  
+   FormalsPlusList : Formal 
+     { $$ . PaInt := 1 (* Formal count. *) ; } .
 
 (* Single formal decl (with possibly multiple idents). *) 
    Formal : FormalMode DeclIdPlusList FormalType FormalExpr
      { IF $1 . PaByte = ORD ( FormalModeTyp . FmVAR )  
        THEN
-         IF NOT $3 . PaBool
+         IF NOT $3 . PaBool (* Formal type is present. *)
          THEN
            FM3Messages . Error
-             ( PositionImage ( $2 . Scan . Position )
+             ( PositionImage ( $3 . Scan . Position )
              , " VAR formal must have a type (2.2.8)."
              );
          END (*IF*) ; 
-         IF $4 . PaBool
+         IF $4 . PaBool (* Formal expression is present. *) 
          THEN
            FM3Messages . Error
-             ( PositionImage ( $2 . Scan . Position )
+             ( PositionImage ( $4 . Scan . Position )
              , " VAR formal cannot have a default expression  (2.2.8)."
              );
          END (*IF*) ; 
-       ELSIF NOT $3 . PaBool AND NOT $4 . PaBool
-       THEN
+       ELSIF NOT ( $3 . PaBool (* Type is present. *) )
+             AND NOT ( $4 . PaBool (* Default expression is present. *) ) 
+       THEN 
          FM3Messages . Error
-           ( PositionImage ( $2 . Scan . Position )
+           ( PositionImage ( $1 . Scan . Position )
            , " Formal must have a type and/or default expression (2.2.8)." );
        END (*IF*);
-       MakeList ( $$ , $1 . PaInt , $2 ); 
+       MakeListPos ( $$ , $1 . PaInt , $1 . Scan . Position , $2 ); 
      } .
 
 (* Formal parameter modes. *) 
-   FormalMode : /*Empty*/
-     { $$ . PaByte := ORD ( FormalModeTyp . FmVALUE );
-       $$ . PaInt := Itk . ItkFormalVALUEIdListLt; 
-     } .
    FormalMode : StkRwVALUE 
      { $$ . PaByte := ORD ( FormalModeTyp . FmVALUE );
-       $$ . PaInt := Itk . ItkFormalVALUEIdListLt; 
+       $$ . PaInt := Itk . ItkFormalVALUEIdListLt;
+       $$ . Scan . Position := $1 . Scan . Position; 
      } .
    FormalMode : StkRwVAR 
      { $$ . PaByte := ORD ( FormalModeTyp . FmVAR );
        $$ . PaInt := Itk . ItkFormalVARIdListLt; 
+       $$ . Scan . Position := $1 . Scan . Position; 
      } .
    FormalMode : StkRwREADONLY
      { $$ . PaByte := ORD ( FormalModeTyp . FmREADONLY );
        $$ . PaInt := Itk . ItkFormalREADONLYIdListLt; 
+       $$ . Scan . Position := $1 . Scan . Position; 
+     } .
+   FormalMode : /*Empty*/
+     { $$ . PaByte := ORD ( FormalModeTyp . FmVALUE );
+       $$ . PaInt := Itk . ItkFormalVALUEIdListLt; 
+       $$ . Scan . Position := FM3Scanner . Attribute . Position; 
      } .
 
+(*
    FormalType : FormalTypeAbsent .
-   FormalType : FormalTypePresent . 
-   FormalTypeAbsent  : /*Empty*/
-     { $$ . PaBool (* Type is present. *) := FALSE (* Absent. *) ;
-       Push_T ( Itk . ItkFormalTypeAbsent ) ;
-     } .
-   FormalTypePresent : StkColon Type
+   FormalType : FormalTypePresent .
+*) 
+   FormalType : StkColon Type
      { $$ . PaBool (* Type is present. *) := TRUE;
-       Push_TCr ( Itk . ItkFormalTypeLt,  $1 . PaUnnestCoord ); 
+       $$ . Scan . Position := $1 . Scan . Position; 
+       Push_TCPrp
+         ( Itk . ItkFormalTypeLt,  $1 . PaUnnestCoord , $1 . Scan . Position ); 
+     } .
+   FormalType : /*Empty*/
+     { $$ . PaBool (* Type is present. *) := FALSE (* Absent. *) ;
+       $$ . Scan . Position := FM3Scanner . Attribute . Position; 
+       Push_TP
+         ( Itk . ItkFormalTypeAbsent , FM3Scanner . Attribute . Position ) ;
      } .
 
+(*
    FormalExpr : FormalExprAbsent .
-   FormalExpr : FormalExprPresent . 
-   FormalExprAbsent  : /*Empty*/
-     { $$ . PaBool (* Expr is present. *) := FALSE (* Absent. *) ;
-       Push_T ( Itk . ItkFormalExprAbsent ) ;
-     } .
-   FormalExprPresent : StkBecomes Expr 
+   FormalExpr : FormalExprPresent .
+*)
+   FormalExpr : StkBecomes Expr 
      { $$ . PaBool (* Expr is present. *) := TRUE;
-       Push_TCr (  Itk . ItkFormalExprLt, $1 . PaUnnestCoord ); 
+       $$ . Scan . Position := $1 . Scan . Position; 
+       Push_TCPrp
+         (  Itk . ItkFormalExprLt, $1 . PaUnnestCoord , $1 . Scan . Position ); 
      } .
-
+   FormalExpr : /*Empty*/
+     { $$ . PaBool (* Expr is present. *) := FALSE (* Absent. *) ;
+       $$ . Scan . Position := FM3Scanner . Attribute . Position; 
+       Push_TP
+         ( Itk . ItkFormalExprAbsent , FM3Scanner . Attribute . Position ) ;
+     } .
+(*
    ResultType : ResultTypeAbsent .
-   ResultType : ResultTypePresent . 
-   ResultTypeAbsent : /*Empty*/
-     { $$ . PaBool (* Result type is present. *) := FALSE (* Absent. *) ;
-       Push_T ( Itk . ItkResultTypeAbsent ) ;
-     } .
-   ResultTypePresent : StkColon Type 
+   ResultType : ResultTypePresent .
+*)
+   ResultType : StkColon Type 
      { $$ . PaBool (* Result type is present. *) := TRUE;
-       Push_TCr (Itk . ItkResultTypeLt,  $1 . PaUnnestCoord ); 
+       $$ . Scan . Position := $1 . Scan . Position; 
+       Push_TCPrp
+         (Itk . ItkResultTypeLt,  $1 . PaUnnestCoord , $1 . Scan . Position); 
      } .
-
+   ResultType : /*Empty*/
+     { $$ . PaBool (* Result type is present. *) := FALSE (* Absent. *) ;
+       $$ . Scan . Position := FM3Scanner . Attribute . Position; 
+       Push_TP
+         ( Itk . ItkResultTypeAbsent , FM3Scanner . Attribute . Position ) ;
+     } .
+(*
    RaisesSet : RaisesSetAbsent .
-   RaisesSet : RaisesSetANY .
-   RaisesSet : RaisesSetPresent . 
-   RaisesSetAbsent  : /*Empty*/
-     { Push_T ( Itk . ItkRaisesSetAbsent ) ; } .
-   RaisesSetANY : StkRwANY
-     { Push_TP ( Itk . ItkRaisesANY , $1 . Scan . Position ) ; } . 
-   RaisesSetPresent
+   RaisesSet : RaisesANY .
+   RaisesSet : RaisesSetPresent .
+*)
+   RaisesSet : StkRwANY
+     { $$ . PaBool (* Raises set is present. *) := TRUE;
+       $$ . Scan . Position := $1 . Scan . Position; 
+       Push_TCPrp
+         ( Itk . ItkRaisesANY ,  $1 . PaUnnestCoord , $1 . Scan . Position); 
+     } . 
+   RaisesSet
      : StkRwRAISES StkOpenBrace QualIdStarList StkCloseBrace 
-     { MakeList ( $$ , Itk . ItkRaisesSetLt , $3 ) ; } . 
+     { $$ . PaBool (* Raises set is present. *) := TRUE;
+       $$ . Scan . Position := $1 . Scan . Position; 
+       MakeListPos ( $$ , Itk . ItkRaisesSetLt , $1 . Scan . Position, $3 ) ;
+     } . 
+   RaisesSet : /*Empty*/
+     { $$ . PaBool (* Raises set is present. *) := FALSE (* Absent. *);
+       $$ . Scan . Position := FM3Scanner . Attribute . Position; 
+       Push_TP
+         ( Itk . ItkRaisesSetAbsent , FM3Scanner . Attribute . Position ); 
+     } .
 
 (* ------------------------------ Procedures ------------------------------ *)
 
@@ -635,17 +676,22 @@ RULE
        END (*Block*) 
      } . 
 
+(*
    OptBody : OptBodyAbsent .  
-   OptBody : OptBodyPresent .  
-   OptBodyAbsent : StkSemicolon 
+   OptBody : OptBodyPresent .
+*)
+   OptBody : StkSemicolon 
      { $$ . PaBool (* Procedure has a body. *) := FALSE (* Absent. *) ; 
        $$ . PaConstructNo := FM3Base . AtomNull ; 
-       Push_T ( Itk . ItkProcBodyAbsent ); 
+       $$ . Scan . Position := $1 . Scan . Position; 
+       Push_TP ( Itk . ItkProcBodyAbsent , $1 . Scan . Position ); 
      } . 
-   OptBodyPresent : StkEqual Block StkIdent StkSemicolon 
+   OptBody : StkEqual Block StkIdent StkSemicolon 
      { $$ . PaBool (* Procedure has a body. *) := TRUE ; 
        $$ . PaConstructNo := $3 . Scan . SaAtom ;
-       Push_TCr ( Itk . ItkProcBodyLt,  $1 . PaUnnestCoord );
+       $$ . Scan . Position := $1 . Scan . Position; 
+       Push_TCPrp
+         ( Itk . ItkProcBodyLt,  $1 . PaUnnestCoord , $1 . Scan . Position );
      } . 
 
 
@@ -662,10 +708,10 @@ Expr: .
 
    DeclList : DeclListRecurse
      { MakeList ( $$ , Itk . ItkDeclListLt , $1 ) ; } .  
+   DeclListRecurse : DeclListRecurse Decl  
+     { $$ . PaInt := $1 . PaInt + 1 ; } .
    DeclListRecurse : /*Empty*/
      { $$ . PaInt := 0 ; } .
-   DeclListRecurse : DeclListRecurse Decl StkSemicolon 
-     { $$ . PaInt := $1 . PaInt + 1 ; } .
 
    Decl : ConstDeclGroup .
    Decl : VarDeclGroup .
@@ -674,11 +720,11 @@ Expr: .
  
 (* ---------------------------- Statements ----------------------------- *)
 
-   Stmts : /*Empty*/
-     { $$ . PaUnnestCoord := UnnestCoord ( ) ; } .
    Stmts : StmtPlusList OptSemicolon .
    StmtPlusList : Stmt . 
    StmtPlusList : StmtPlusList StkSemicolon Stmt . 
+   Stmts : /*Empty*/
+     { $$ . PaUnnestCoord := UnnestCoord ( ) ; } .
    
 (* ---------------------------- Assignment statements ------------------ *)
 

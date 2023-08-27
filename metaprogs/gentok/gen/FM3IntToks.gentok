@@ -14,23 +14,31 @@ UNITNAME FM3IntToks
    used in intermediate token streams.  
 *)
 
+(* WARNING: Do not use single quotes inside a comment. *) 
+
 ABS 128
 
-FIXED ItkNull .
-      ItkBOF .
-      ItkEOF .
+(* Being low-numbred, these will read and write either forward
+   or backward, without value change.
+*) 
+LONE
+     ItkNull .
+     ItkBOF .
+     ItkEOF .
+     ItkLeftEnd .
+     ItkRightEnd . 
 
 LONE
 ItkImport 3 (* Atom, Line, Column. *) .
 ItkFromImport 6 (* (Atom, Line, Column) for interface, decl. *) .
 ItkImportAs 6 (* (Atom, Line, Column) for interface, as. *) .
 ItkFormalsListEmpty . 
-ItkFormalTypeAbsent .
-ItkFormalExprAbsent .
-ItkRaisesSetAbsent .
+ItkFormalTypeAbsent 2 (* Position. *).
+ItkFormalExprAbsent 2 (* Position. *).
+ItkRaisesSetAbsent 2 (* Position. *).
 ItkRaisesANY 2 (* Position. *) .
-ItkProcBodyAbsent .
-ItkResultTypeAbsent . 
+ItkResultTypeAbsent 2 (* Position. *). 
+ItkProcBodyAbsent 2 (* Position. *).
 
 
 
@@ -40,13 +48,13 @@ ItkQualId .
 
 ItkFuncSignature 2 (* Position. *) .
 ItkProcSignature 2 (* Position. *).
-ItkFormalType . 
-ItkFormalExpr .
-ItkResultType .
-ItkRaisesSet 2 (* Position. *). 
+ItkFormalType 2 (* Position of colon. *) . 
+ItkFormalExpr 2 (* Position of ":=" *).
+ItkResultType 2 (* Position of colon. *).
+ItkRaisesSet 2 (* Position of RAISES. *). 
 ItkProcNoBody 1 (* Atom of signature. *) .
 ItkProcWBody 1 (* Atom of signature. *) .
-ItkProcBody .
+ItkProcBody 2 (* Position of equal sign. *) .
 
 
 
@@ -56,13 +64,13 @@ LIST
    plus any count given explicitly here.
 *) 
 
-ItkExportIdList . 
-ItkGenFormalIdList .
-ItkGenActualIdList .
-ItkFormalsList .
-ItkFormalVALUEIdList . 
-ItkFormalVARIdList . 
-ItkFormalREADONLYIdList . 
+ItkExportIdList 2 (* Position of EXPORTS. *) . 
+ItkGenFormalIdList 2 (* Position of "(" *) .
+ItkGenActualIdList 2 (* Position of "(" *) .
+ItkFormalsList 2 (* Position of "(" *) .
+ItkFormalVALUEIdList 2 (* Position of VALUE or 1st ident, if no mode. *). 
+ItkFormalVARIdList 2 (* Position of VAR. *) . 
+ItkFormalREADONLYIdList 2 (* Position of VAR. *). 
 ItkDeclList . 
 
 

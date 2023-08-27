@@ -88,10 +88,18 @@ INTERFACE FM3ParsePass
 ; PROCEDURE MakeList
     ( VAR LHSAttr : tParsAttribute
     ; TokLt : Itk . TokTyp
+    ; READONLY ElemsAttr : tParsAttribute
+      (* ^For unnest coordinate and elem count. *) 
+    )
+
+; PROCEDURE MakeListPos
+    ( VAR LHSAttr : tParsAttribute
+    ; TokLt : Itk . TokTyp
+    ; Position : FM3Scanner . tPosition 
     ; READONLY ElemsAttr : tParsAttribute 
     )
 
-; PROCEDURE MakeList2
+; PROCEDURE MakeListPatch
     ( VAR LHSAttr : tParsAttribute
     ; TokLt : Itk . TokTyp
     ; PatchCoord : LONGINT

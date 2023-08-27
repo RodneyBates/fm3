@@ -41,7 +41,7 @@ MODULE FM3ParsePass
 ; IMPORT FM3Base 
 ; IMPORT FM3CLArgs
 ; IMPORT FM3Compress
-; FROM FM3Compress IMPORT PutBwd , GetBwd 
+; FROM FM3Compress IMPORT PutBwd , GetBwd
 ; IMPORT FM3Decls 
 ; IMPORT FM3Files
 ; IMPORT FM3Globals
@@ -138,7 +138,8 @@ MODULE FM3ParsePass
         := FileName & FM3Globals. UnnestStackSuffix   
     ; LUnitRef ^ . UntParsePassName
         := FileName & FM3Globals. ParsePassSuffix   
-    ; TRY
+    ; TRY (*EXCEPT*)
+        (* Heh, heh.  Only code the exception handler once for all 3 files. *) 
         LFullFileName
           := Pathname . Join
                ( LUnitRef ^ . UntWorkFilePrefix 
@@ -156,7 +157,6 @@ MODULE FM3ParsePass
                ) 
       ; LUnitRef ^ . UntPatchStackRdBack
           := RdBackFile . Create ( LFullFileName , Truncate := TRUE )
-      ; LUnitRef . UntPatchStackTopCoord := LUnitRef . UntUnnestStackEmpty
       
       ; LFullFileName
           := Pathname . Join
@@ -180,14 +180,34 @@ MODULE FM3ParsePass
            )
       END (*EXCEPT*)
 
-    (* Write file tags to the readback files.*)
-(* COMPLETEME *)
-    ; LUnitRef ^ . UntPatchStackEmpty
-        := RdBackFile . LengthL ( LUnitRef ^ . UntPatchStackRdBack )
+    (* Initialize the readback files. *)
+(* COMPLETEME: See that RdBack Create adds FM3 file tags and lengths. *)
+    ; PutBwd
+        ( LUnitRef ^ . UntUnnestStackRdBack , VAL ( Itk . ItkBOF , LONGINT ) ) 
+    ; PutBwd
+        ( LUnitRef ^ . UntUnnestStackRdBack , VAL ( Itk . ItkLeftEnd , LONGINT ) )
     ; LUnitRef ^ . UntUnnestStackEmpty
         := RdBackFile . LengthL ( LUnitRef ^ . UntUnnestStackRdBack )
-    ; LUnitRef ^ . UntUnnestStackEmpty
-        := RdBackFile . LengthL ( LUnitRef ^ . UntParsePassRdBack )
+    ; LUnitRef ^ . UntMaxUnnestStackDepth
+        := LUnitRef ^ . UntUnnestStackEmpty
+
+    ; PutBwd
+        ( LUnitRef ^ . UntPatchStackRdBack , VAL ( Itk . ItkBOF , LONGINT ) )
+    ; PutBwd
+        ( LUnitRef ^ . UntPatchStackRdBack , VAL ( Itk . ItkLeftEnd , LONGINT ) )
+    ; LUnitRef ^ . UntPatchStackEmpty
+        := RdBackFile . LengthL ( LUnitRef ^ . UntPatchStackRdBack )
+    ; LUnitRef ^ . UntMaxPatchStackDepth
+        := LUnitRef ^ . UntPatchStackEmpty
+    ; LUnitRef . UntPatchStackTopCoord := LUnitRef . UntUnnestStackEmpty
+    ; LUnitRef . UntPatchStackTopToken := VAL ( Itk . ItkNull , LONGINT )  
+
+    ; PutBwd
+        ( LUnitRef ^ . UntParsePassRdBack , VAL ( Itk . ItkBOF , LONGINT ) ) 
+    ; PutBwd
+        ( LUnitRef ^ . UntParsePassRdBack , VAL ( Itk . ItkRightEnd , LONGINT ) )
+    ; LUnitRef ^ . UntParsePassEmpty
+        := RdBackFile . LengthL ( LUnitRef ^ . UntParsePassRdBack )  
 
     (* Create unit data structures. *) 
     ; LUnitRef ^ . UntIdentAtomDict
@@ -247,7 +267,8 @@ MODULE FM3ParsePass
           , FM3Base . Int64Image  ( UnitRef ^ . UntMaxPatchStackDepth ) , "."  
           ) 
     ; TRY
-        IF NOT RdBackFile . IsEmpty ( UnitRef ^ . UntPatchStackRdBack )
+        IF NOT RdBackFile . LengthL ( UnitRef ^ . UntPatchStackRdBack )
+               <= UnitRef ^ . UntPatchStackEmpty 
         THEN
           UnitRef . UntParsePassResult := 1 
         ; Log ( "Patch stack " , UnitRef ^ . UntPatchStackName
@@ -255,7 +276,9 @@ MODULE FM3ParsePass
               , FM3Base . Int64Image
                   ( RdBackFile . LengthL ( UnitRef ^ . UntPatchStackRdBack ) )
               ) 
-        ; Fatal ( "Patch stack is not empty." ) 
+        ; Fatal ( "Patch stack is not empty enough, should be "  
+                , FM3Base . Int64Image ( UnitRef ^ . UntPatchStackEmpty ) 
+                )
         END (*IF*)
       FINALLY 
         RdBackFile . Close (  UnitRef ^ . UntPatchStackRdBack )
@@ -270,7 +293,8 @@ MODULE FM3ParsePass
           , FM3Base . Int64Image  ( UnitRef ^ . UntMaxUnnestStackDepth ) , "." 
           ) 
     ; TRY 
-        IF NOT RdBackFile . IsEmpty ( UnitRef ^ . UntUnnestStackRdBack )
+        IF NOT RdBackFile . LengthL ( UnitRef ^ . UntUnnestStackRdBack )
+               <= UnitRef ^ . UntUnnestStackEmpty 
         THEN
           UnitRef . UntParsePassResult := 2 
         ; Log ( "Unnest stack " , UnitRef ^ . UntUnnestStackName
@@ -278,7 +302,9 @@ MODULE FM3ParsePass
               , FM3Base . Int64Image
                   ( RdBackFile . LengthL ( UnitRef ^ . UntUnnestStackRdBack ) )
               ) 
-        ; Fatal ( "Unnest stack is not empty." )
+        ; Fatal ( "Unnest stack is not empty enough, should be "
+                , FM3Base . Int64Image ( UnitRef ^ . UntUnnestStackEmpty ) 
+                )
         END (*IF*)
       FINALLY 
         RdBackFile . Close (  UnitRef ^ . UntUnnestStackRdBack )
@@ -461,7 +487,7 @@ MODULE FM3ParsePass
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
-      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T , LONGINT ) ) 
       END (*WITH*) 
     END Push_TP
 
@@ -680,7 +706,29 @@ MODULE FM3ParsePass
     END MakeList
 
 (*EXPORTED:*)
-; PROCEDURE MakeList2
+; PROCEDURE MakeListPos
+    ( VAR LHSAttr : tParsAttribute
+    ; TokLt : Itk . TokTyp
+    ; Position : FM3Scanner . tPosition 
+    ; READONLY ElemsAttr : tParsAttribute 
+    )
+
+  = BEGIN
+      LHSAttr . PaInt := ElemsAttr . PaInt
+    ; LHSAttr . PaUnnestCoord := ElemsAttr . PaUnnestCoord (* Ever used? *) 
+    ; PushUnnest ( Position . Column ) 
+    ; PushUnnest ( Position . Line ) 
+    ; PushUnnest ( ElemsAttr . PaInt )
+    ; PushUnnest ( TokLt + Itk . LtToRt )
+    ; PushUnnest ( Position . Column ) 
+    ; PushUnnest ( Position . Line ) 
+    ; PushUnnest ( ElemsAttr . PaInt )
+    ; PushUnnestLong ( ElemsAttr . PaUnnestCoord ) 
+    ; PushUnnest ( TokLt + Itk . LtToPatch )
+    END MakeListPos 
+
+(*EXPORTED:*)
+; PROCEDURE MakeListPatch
     ( VAR LHSAttr : tParsAttribute
     ; TokLt : Itk . TokTyp
     ; PatchCoord : LONGINT
@@ -695,7 +743,7 @@ MODULE FM3ParsePass
     ; PushUnnest ( ElemCt )
     ; PushUnnestLong ( PatchCoord ) (*Patch*)
     ; PushUnnest ( TokLt )
-    END MakeList2
+    END MakeListPatch
 
 (*EXPORTED:*)
 ; PROCEDURE ImportsLt (  )
@@ -800,13 +848,22 @@ MODULE FM3ParsePass
     ; LMUnnestDepth := MAX ( LMUnnestDepth , LUnitRef . UntUnnestStackEmpty )
 
     ; IF GDoCopy THEN
-        RdBackFile . Copy ( LUnnestRdBack , "UnnestCopy" )
+        (* Temporarily make it look like the unnest stack is ended. *) 
+        PutBwd
+          ( LUnitRef ^ . UntUnnestStackRdBack , VAL ( Itk . ItkRightEnd , LONGINT ) )
+      ; PutBwd
+          ( LUnitRef ^ . UntUnnestStackRdBack , VAL ( Itk . ItkEOF , LONGINT ) )
+(* FIXME: But the copied portion will not have BOF and LeftEnd tokens. *) 
+      ; RdBackFile . Copy ( LUnnestRdBack , "UnnestCopy" )
+      ; EVAL GetBwd ( LUnitRef ^ . UntUnnestStackRdBack ) 
+      ; EVAL GetBwd ( LUnitRef ^ . UntUnnestStackRdBack ) 
       END (*IF*)
 
     ; LOOP
         LUnnestCoord := RdBackFile . LengthL ( LUnnestRdBack )
       ; IF LUnnestCoord <= LMUnnestDepth
-           AND RdBackFile . LengthL ( LPatchRdBack ) <= 0L 
+           AND RdBackFile . LengthL ( LPatchRdBack )
+               <= LUnitRef . UntPatchStackTopCoord 
         THEN EXIT
         END (*IF*)
       ; IF LUnnestCoord <= LUnitRef . UntPatchStackTopCoord
@@ -814,7 +871,8 @@ MODULE FM3ParsePass
 
         (* Move a modified token from the patch stack to the output. *) 
           <*ASSERT LUnnestCoord = LUnitRef . UntPatchStackTopCoord *>
-          LPatchTokenL := FM3Compress . GetBwd ( LUnitRef . UntPatchStackRdBack )
+          LPatchTokenL
+            := FM3Compress . GetBwd ( LUnitRef . UntPatchStackRdBack )
         ; LPatchToken := VAL ( LPatchTokenL , Itk . TokTyp ) 
         ; <*ASSERT
               IntSets . IsElement
@@ -850,7 +908,7 @@ MODULE FM3ParsePass
         ; IF IntSets . IsElement ( LToken , FM3SharedGlobals . GTokSetPatch )
           THEN 
 
-          (* Move this token to the patch stack. *)
+          (* Move this token from the unnest stack to the patch stack. *)
             PutBwd
               ( LUnitRef . UntPatchStackRdBack
               , LUnitRef . UntPatchStackTopCoord
