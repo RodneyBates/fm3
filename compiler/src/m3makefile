@@ -34,6 +34,8 @@ import("libunicode")
 import("libvararray")
 
 interface("FM3Predefined")
+interface("../derived/FM3Version")
+implementation("FM3Version")
 module("FM3CLArgs")
 module("FM3Scanner")
 %module("FM3Chars")

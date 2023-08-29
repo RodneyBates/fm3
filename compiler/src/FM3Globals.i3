@@ -14,7 +14,7 @@ INTERFACE FM3Globals
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars
 ; IMPORT FM3Dict_OAChars_Int
-; IMPORT FM3Units 
+; IMPORT FM3Units
 
 (* File names of internal and generated  files: *) 
 ; VAR PatchStackSuffix := ".Patch" (* The patch stack, during parse pass. *) 

@@ -1,4 +1,4 @@
-
+ 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2023,       Rodney M. Bates.                                    *)
@@ -483,13 +483,15 @@ RULE
 
 (* --------------------------------- Types ----------------------------- *)
 
+   Type : StkIdent . 
    Type : RecordType .
 
    RecordType : StkRwRECORD VarDecl StkRwEND . 
 
 (* -------------------------------- Procedures ------------------------- *)
 
-   Signature : Formals ResultType RaisesSet
+(* Procedure signature (without PROCEDURE or Ident). *) 
+   Signature : Formals ResultType Raises
      { VAR LTok : Itk . TokTyp;
        BEGIN
          IF $2 . PaBool
@@ -519,33 +521,40 @@ RULE
    FormalsPlusList : Formal 
      { $$ . PaInt := 1 (* Formal count. *) ; } .
 
-(* Single formal decl (with possibly multiple idents). *) 
-   Formal : FormalMode DeclIdPlusList FormalType FormalExpr
+(* Formal decl (with possibly multiple idents). *)
+   Formal : FormalModeAndIds FormalType FormalExpr
      { IF $1 . PaByte = ORD ( FormalModeTyp . FmVAR )  
        THEN
-         IF NOT $3 . PaBool (* Formal type is present. *)
+         IF NOT $2 . PaBool (* Formal type is present (absent). *)
          THEN
            FM3Messages . Error
-             ( PositionImage ( $3 . Scan . Position )
+             ( PositionImage ( $2 . Scan . Position )
              , " VAR formal must have a type (2.2.8)."
              );
          END (*IF*) ; 
-         IF $4 . PaBool (* Formal expression is present. *) 
+         IF $3 . PaBool (* Formal expression is present. *) 
          THEN
            FM3Messages . Error
-             ( PositionImage ( $4 . Scan . Position )
+             ( PositionImage ( $3 . Scan . Position )
              , " VAR formal cannot have a default expression  (2.2.8)."
              );
          END (*IF*) ; 
-       ELSIF NOT ( $3 . PaBool (* Type is present. *) )
-             AND NOT ( $4 . PaBool (* Default expression is present. *) ) 
+       ELSIF NOT ( $2 . PaBool (* Type is present (absent). *) )
+             AND NOT ( $3 . PaBool
+                       (* Default expression is present (absent). *) ) 
        THEN 
          FM3Messages . Error
            ( PositionImage ( $1 . Scan . Position )
            , " Formal must have a type and/or default expression (2.2.8)." );
        END (*IF*);
-       MakeListPos ( $$ , $1 . PaInt , $1 . Scan . Position , $2 ); 
      } .
+
+   FormalModeAndIds : FormalMode DeclIdPlusList
+     { $$ . PaByte := $1 . PaByte (* Transmission mode. *) ;
+       $$ . Scan . Position := $1 . Scan . Position ;   
+       MakeListPos
+         ( $$ , $1 . PaInt (* List Itk *) , $1 . Scan . Position , $2 ); 
+     } . 
 
 (* Formal parameter modes. *) 
    FormalMode : StkRwVALUE 
@@ -569,10 +578,7 @@ RULE
        $$ . Scan . Position := FM3Scanner . Attribute . Position; 
      } .
 
-(*
-   FormalType : FormalTypeAbsent .
-   FormalType : FormalTypePresent .
-*) 
+(* Formal parameter type. *) 
    FormalType : StkColon Type
      { $$ . PaBool (* Type is present. *) := TRUE;
        $$ . Scan . Position := $1 . Scan . Position; 
@@ -586,10 +592,7 @@ RULE
          ( Itk . ItkFormalTypeAbsent , FM3Scanner . Attribute . Position ) ;
      } .
 
-(*
-   FormalExpr : FormalExprAbsent .
-   FormalExpr : FormalExprPresent .
-*)
+(* Formal parameter default value. *) 
    FormalExpr : StkBecomes Expr 
      { $$ . PaBool (* Expr is present. *) := TRUE;
        $$ . Scan . Position := $1 . Scan . Position; 
@@ -602,10 +605,8 @@ RULE
        Push_TP
          ( Itk . ItkFormalExprAbsent , FM3Scanner . Attribute . Position ) ;
      } .
-(*
-   ResultType : ResultTypeAbsent .
-   ResultType : ResultTypePresent .
-*)
+
+(* Signature result type. *) 
    ResultType : StkColon Type 
      { $$ . PaBool (* Result type is present. *) := TRUE;
        $$ . Scan . Position := $1 . Scan . Position; 
@@ -618,24 +619,21 @@ RULE
        Push_TP
          ( Itk . ItkResultTypeAbsent , FM3Scanner . Attribute . Position ) ;
      } .
-(*
-   RaisesSet : RaisesSetAbsent .
-   RaisesSet : RaisesANY .
-   RaisesSet : RaisesSetPresent .
-*)
-   RaisesSet : StkRwANY
+
+(* Signature RAISES. *) 
+   Raises : StkRwANY
      { $$ . PaBool (* Raises set is present. *) := TRUE;
        $$ . Scan . Position := $1 . Scan . Position; 
        Push_TCPrp
          ( Itk . ItkRaisesANY ,  $1 . PaUnnestCoord , $1 . Scan . Position); 
      } . 
-   RaisesSet
+   Raises
      : StkRwRAISES StkOpenBrace QualIdStarList StkCloseBrace 
      { $$ . PaBool (* Raises set is present. *) := TRUE;
        $$ . Scan . Position := $1 . Scan . Position; 
        MakeListPos ( $$ , Itk . ItkRaisesSetLt , $1 . Scan . Position, $3 ) ;
      } . 
-   RaisesSet : /*Empty*/
+   Raises : /*Empty*/
      { $$ . PaBool (* Raises set is present. *) := FALSE (* Absent. *);
        $$ . Scan . Position := FM3Scanner . Attribute . Position; 
        Push_TP
@@ -672,7 +670,7 @@ RULE
          ELSE (* Can't happen. *) 
          END (*CASE*);
          Push_TCIri
-           ( LTokLt,  $1 . PaUnnestCoord,  $2 . Scan . SaAtom ) ; 
+           ( LTokLt,  $1 . PaUnnestCoord, $2 . Scan . SaAtom ); 
        END (*Block*) 
      } . 
 
@@ -697,7 +695,7 @@ RULE
 
 (* ---------------------------- Expressions ---------------------------- *)
 
-Expr: .
+Expr: StkIdent .
 
 
 (* ------------------------------ Blocks ------------------------------- *)

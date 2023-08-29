@@ -1,4 +1,4 @@
-        
+       
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2023        Rodney M. Bates.                                    *)
@@ -135,9 +135,9 @@ MODULE FM3ParsePass
     ; LUnitRef ^ . UntPatchStackName
         := FileName & FM3Globals . PatchStackSuffix   
     ; LUnitRef ^ . UntUnnestStackName
-        := FileName & FM3Globals. UnnestStackSuffix   
+        := FileName & FM3Globals . UnnestStackSuffix   
     ; LUnitRef ^ . UntParsePassName
-        := FileName & FM3Globals. ParsePassSuffix   
+        := FileName & FM3Globals . ParsePassSuffix   
     ; TRY (*EXCEPT*)
         (* Heh, heh.  Only code the exception handler once for all 3 files. *) 
         LFullFileName
@@ -276,7 +276,7 @@ MODULE FM3ParsePass
               , FM3Base . Int64Image
                   ( RdBackFile . LengthL ( UnitRef ^ . UntPatchStackRdBack ) )
               ) 
-        ; Fatal ( "Patch stack is not empty enough, should be "  
+        ; Fatal ( "Patch stack is not sufficiently empty, should be "  
                 , FM3Base . Int64Image ( UnitRef ^ . UntPatchStackEmpty ) 
                 )
         END (*IF*)
@@ -302,7 +302,7 @@ MODULE FM3ParsePass
               , FM3Base . Int64Image
                   ( RdBackFile . LengthL ( UnitRef ^ . UntUnnestStackRdBack ) )
               ) 
-        ; Fatal ( "Unnest stack is not empty enough, should be "
+        ; Fatal ( "Unnest stack is not sufficiently empty, should be "
                 , FM3Base . Int64Image ( UnitRef ^ . UntUnnestStackEmpty ) 
                 )
         END (*IF*)
@@ -313,12 +313,12 @@ MODULE FM3ParsePass
         END (*IF*)
       END (*FINALLY*)
 
-    ; Info ( "Parse pass output file "
-           , UnitRef ^ . UntParsePassName , " has " 
-           , FM3Base . Int64Image 
-               ( RdBackFile . LengthL ( UnitRef ^ . UntParsePassRdBack) ) 
-           , " bytes."
-           ) 
+    ; Log ( "Parse pass output file "
+          , UnitRef ^ . UntParsePassName , " has " 
+          , FM3Base . Int64Image 
+              ( RdBackFile . LengthL ( UnitRef ^ . UntParsePassRdBack) ) 
+          , " bytes."
+          ) 
     ; RdBackFile . Close (  UnitRef ^ . UntParsePassRdBack )
 (* TODO: code point counts. *)
     END CloseUnit
@@ -331,15 +331,24 @@ MODULE FM3ParsePass
       LUnitRef := OpenUnit ( SrcFileName )
     ; LUnitRef . UntStackLink := FM3Globals . CurrentUnitRef
     ; FM3Globals . CurrentUnitRef := LUnitRef 
-    ; Info ( "Compiling " , SrcFileName , "..." ) 
+    ; Log ( "Compiling " , SrcFileName , "..." ) 
     ; LUnitRef ^ . UntParseResult := FM3Parser . FM3Parser ( )
 (* TODO:           ^Something with this? *) 
     ; FM3Parser . CloseFM3Parser  ( )
 
 ; Unnest ( LUnitRef ^ . UntUnnestStackEmpty ) 
 
+    ; PutBwd
+        ( FM3Globals . CurrentUnitRef ^ . UntParsePassRdBack
+        , VAL ( Itk . ItkLeftEnd , LONGINT ) 
+        )
+    ; PutBwd
+        ( FM3Globals . CurrentUnitRef ^ . UntParsePassRdBack
+        , VAL ( Itk . ItkEOF , LONGINT ) 
+        )
+
     ; CloseUnit ( LUnitRef ) 
-    ; Info ( "Finished compiling " , SrcFileName , "." )
+    ; Log ( "Finished compiling " , SrcFileName , "." )
     ; FM3Globals . CurrentUnitRef := LUnitRef . UntStackLink 
     END CompileUnit
     
@@ -642,7 +651,9 @@ MODULE FM3ParsePass
 ; PROCEDURE PushEXPORTSMain  ( READONLY Position : FM3Scanner . tPosition )
 
   = BEGIN (*PushEXPORTSMain *)
-      PushUnnest ( 1 (* ElemCt *) ) 
+      PushUnnest ( Position . Column ) 
+    ; PushUnnest ( Position . Line ) 
+    ; PushUnnest ( 1 (* ElemCt *) ) 
     ; PushUnnest ( Itk . ItkExportIdListLt )
     
     ; PushUnnest ( Position . Column ) 
@@ -650,6 +661,8 @@ MODULE FM3ParsePass
     ; PushUnnest ( FM3Predefined . AtomMain ) 
     ; PushUnnest ( Stk . StkIdent )
     
+    ; PushUnnest ( Position . Column ) 
+    ; PushUnnest ( Position . Line ) 
     ; PushUnnest ( 1 (* ElemCt *) )  
     ; PushUnnest ( Itk . ItkExportIdListRt )
     END PushEXPORTSMain
@@ -718,7 +731,7 @@ MODULE FM3ParsePass
     ; LHSAttr . PaUnnestCoord := ElemsAttr . PaUnnestCoord (* Ever used? *) 
     ; PushUnnest ( Position . Column ) 
     ; PushUnnest ( Position . Line ) 
-    ; PushUnnest ( ElemsAttr . PaInt )
+    ; PushUnnest ( ElemsAttr . PaInt ) (* Elem Ct. *)
     ; PushUnnest ( TokLt + Itk . LtToRt )
     ; PushUnnest ( Position . Column ) 
     ; PushUnnest ( Position . Line ) 
@@ -854,7 +867,7 @@ MODULE FM3ParsePass
       ; PutBwd
           ( LUnitRef ^ . UntUnnestStackRdBack , VAL ( Itk . ItkEOF , LONGINT ) )
 (* FIXME: But the copied portion will not have BOF and LeftEnd tokens. *) 
-      ; RdBackFile . Copy ( LUnnestRdBack , "UnnestCopy" )
+      ; RdBackFile . Copy ( LUnnestRdBack , "UnnestCopy" , LMUnnestDepth )
       ; EVAL GetBwd ( LUnitRef ^ . UntUnnestStackRdBack ) 
       ; EVAL GetBwd ( LUnitRef ^ . UntUnnestStackRdBack ) 
       END (*IF*)
@@ -939,6 +952,13 @@ MODULE FM3ParsePass
 
       END (*LOOP*)
     END Unnest
+
+(*EXPORTED.*)
+; PROCEDURE SnapshotUnnestStack (  )
+
+  = BEGIN (*SnapshotUnnestStack*)
+    END SnapshotUnnestStack
+
 
 (* ----------------------- Procedure signatures --------------------- *)
 

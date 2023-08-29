@@ -1,0 +1,46 @@
+
+(* -----------------------------------------------------------------------1- *)
+(* This file is part of the FM3 Modula-3 compiler.                           *)
+(* Copyright 2023        Rodney M. Bates.                                    *)
+(* rodney.m.bates@acm.org                                                    *)
+(* Licensed under the MIT License.                                           *)
+(* -----------------------------------------------------------------------2- *)
+
+(* INTERFACE Version.  
+
+   This starts out in file FM3Version.i30, which is hand written.
+   Makefiles/scripts patch it to give file FM3Version.i3, which 
+   is Modula-3 code.
+
+   Be sure to edit FM3Version.i30, not FM3Version.i3 
+*) 
+
+INTERFACE FM3Version 
+
+; CONST VersionString = "V0.1"
+
+; TYPE VersionComponentTyp = [ 0 .. 255 ] 
+; TYPE VersionComponentPackedTyp = BITS 8 FOR VersionComponentTyp
+
+; TYPE VersionTyp 
+    = RECORD 
+        Incompatible : VersionComponentTyp 
+      ; UpwardCompatible : VersionComponentTyp 
+      ; Compatible : VersionComponentTyp 
+      ; Minor : VersionComponentTyp 
+      END (* RECORD *) 
+
+; CONST DataStructureVersion 
+    = VersionTyp 
+        { Incompatible := 0 
+        , UpwardCompatible := 0 
+        , Compatible := 0 
+        , Minor := 0 
+        } 
+
+; PROCEDURE VersionImage ( Version : VersionTyp ) : TEXT 
+
+; CONST DateString = "%DATESTRING%"
+
+; END FM3Version 
+. 

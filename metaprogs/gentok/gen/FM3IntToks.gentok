@@ -71,7 +71,7 @@ ItkFormalsList 2 (* Position of "(" *) .
 ItkFormalVALUEIdList 2 (* Position of VALUE or 1st ident, if no mode. *). 
 ItkFormalVARIdList 2 (* Position of VAR. *) . 
 ItkFormalREADONLYIdList 2 (* Position of VAR. *). 
-ItkDeclList . 
+ItkDeclList  . 
 
 
 (*
