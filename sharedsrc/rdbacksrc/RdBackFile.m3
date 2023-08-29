@@ -16,12 +16,14 @@
    
    It also can be closed and reopened later.  When closed, its contents
    are indistinguishable from and interchangable with a plain file, thus
-   handled by FileRd or FileWr. 
+   handled by FileRd or FileWr.
+(* Is this really true? *) 
+
 *)
 
 (* TODO:
 
-   1) remove checks for an open file from several procs and must make
+   1) remove checks for an open file from several procs and just make
       it a precondition.
 
    2) Integrate the logging with FM3's system, while not pulling FM3
@@ -29,6 +31,8 @@
 
    3) Figure out an EOF sentinal or something to avoid the whole copy
       business during close, just to denote the end.
+
+   4) Add a Flush.
 *)
 
 MODULE RdBackFile
@@ -242,7 +246,8 @@ MODULE RdBackFile
     END Open  
 
 (*EXPORTED*)
-; PROCEDURE LengthL ( RbFile : T ) : LONGCARD RAISES { OSError . E }
+; PROCEDURE LengthL ( RbFile : T ) : LONGCARD
+  RAISES { Thread . Alerted , OSError . E }
 
   = BEGIN
       IF RbFile = NIL THEN Raise ( "LengthL, NIL file." ) END (*IF*) 
@@ -441,7 +446,7 @@ MODULE RdBackFile
     END InnerCopy
       
 (*EXPORTED*)
-; PROCEDURE Copy ( RbFile : T ; CopyFileName : TEXT )
+; PROCEDURE Copy ( RbFile : T ; CopyFileName : TEXT ; LMUnnestDepth : LONGINT )
 
   = VAR LCopyFile : T 
 
@@ -518,7 +523,8 @@ MODULE RdBackFile
     END Close 
 
 (*EXPORTED*)
-; PROCEDURE Put ( RbFile : T ; Value : ByteTyp )  RAISES { OSError . E }  
+; PROCEDURE Put ( RbFile : T ; Value : ByteTyp )
+  RAISES { Thread . Alerted , OSError . E }  
 
   = BEGIN
       IF RbFile = NIL THEN Raise ( "Put" , ", NIL file." ) END (*IF*) 

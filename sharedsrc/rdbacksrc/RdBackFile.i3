@@ -21,7 +21,8 @@
 
 INTERFACE RdBackFile
 
-; IMPORT OSError 
+; IMPORT OSError
+; IMPORT Thread 
 
 ; EXCEPTION Preexists
 ; EXCEPTION BOF 
@@ -36,7 +37,8 @@ INTERFACE RdBackFile
 
 ; PROCEDURE Open ( Filename : TEXT ) : T RAISES { OSError . E }   
 
-; PROCEDURE LengthL ( RbFile : T ) : LONGCARD RAISES { OSError . E }
+; PROCEDURE LengthL ( RbFile : T ) : LONGCARD
+  RAISES { Thread . Alerted , OSError . E }
   (* Number of bytes in the file. *) 
 
 ; PROCEDURE MaxLengthL ( RbFile : T ) : LONGCARD RAISES { OSError . E }
@@ -47,11 +49,12 @@ INTERFACE RdBackFile
 
 ; PROCEDURE Close ( RbFile : T ) 
 
-; PROCEDURE Put ( RbFile : T ; Value : ByteTyp ) RAISES { OSError . E }  
+; PROCEDURE Put ( RbFile : T ; Value : ByteTyp )
+  RAISES { Thread . Alerted , OSError . E }  
 
 ; PROCEDURE GetBwd ( RbFile : T ) : ByteTyp RAISES { OSError . E , BOF }  
 
-; PROCEDURE Copy ( RbFile : T ; CopyFileName : TEXT )
+; PROCEDURE Copy ( RbFile : T ; CopyFileName : TEXT ; LMUnnestDepth : LONGINT )
 
 ; END RdBackFile
 .
