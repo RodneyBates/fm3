@@ -130,7 +130,7 @@ MODULE FM3ParsePass
       END (*EXCEPT*)
 
     (* Create the three readback files. *) 
-    ; LUnitRef ^ . UntWorkFilePrefix := "." 
+    ; LUnitRef ^ . UntWorkFilePrefix := FM3Globals . BuildDirName  
 (* TODO: Provide a path here. *) 
     ; LUnitRef ^ . UntPatchStackName
         := FileName & FM3Globals . PatchStackSuffix   

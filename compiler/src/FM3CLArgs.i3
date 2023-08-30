@@ -8,7 +8,9 @@
 
 INTERFACE FM3CLArgs
 
-; IMPORT Wr 
+; IMPORT Wr
+
+; IMPORT FM3SharedUtils 
 
 ; VAR SrcFileName : TEXT := NIL 
 
@@ -32,6 +34,7 @@ INTERFACE FM3CLArgs
 *)
 
 ; PROCEDURE Process ( )
+  RAISES { FM3SharedUtils . Terminate } 
 
 ; PROCEDURE Cleanup ( )
 

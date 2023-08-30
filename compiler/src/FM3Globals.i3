@@ -19,7 +19,8 @@ INTERFACE FM3Globals
 (* File names of internal and generated  files: *) 
 ; VAR PatchStackSuffix := ".Patch" (* The patch stack, during parse pass. *) 
 ; VAR UnnestStackSuffix := ".Unnest" (* The Unnest stack, during parse pass. *) 
-; VAR ParsePassSuffix := ".ParsePass" (* Output of the parse pass. *) 
+; VAR ParsePassSuffix := ".ParsePass" (* Output of the parse pass. *)
+; VAR BuildDirName := "../testbuild" 
 
 ; VAR M3RwDict : FM3Dict_OAChars_Int . GrowableTyp  
 ; VAR PgRwDict : FM3Dict_OAChars_Int . GrowableTyp 

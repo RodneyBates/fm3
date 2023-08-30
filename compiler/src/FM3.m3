@@ -7,7 +7,8 @@ MODULE FM3 EXPORTS Main
 ; IMPORT FM3Scanner
 ; IMPORT FM3SharedUtils 
 
-; PROCEDURE Work ( ) RAISES { FM3SharedUtils . FatalError } 
+; PROCEDURE Work ( )
+  RAISES { FM3SharedUtils . FatalError , FM3SharedUtils . Terminate } 
 
   = BEGIN
       FM3CLArgs . Process ( )
