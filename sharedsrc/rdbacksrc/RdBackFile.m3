@@ -121,7 +121,7 @@ MODULE RdBackFile
 
   ; <*FATAL Thread . Alerted , Wr . Failure *>
     BEGIN
-      LWrT := NEW ( TextWr . T )
+      LWrT := TextWr . New ( ) 
     ; Wr . PutText ( LWrT , "RdBackFile." ) 
     ; IF T1 # NIL THEN Wr . PutText ( LWrT , T1) END (*IF*)
     ; IF T2 # NIL THEN Wr . PutText ( LWrT , T2) END (*IF*)
