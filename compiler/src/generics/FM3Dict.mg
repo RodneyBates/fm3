@@ -9,13 +9,18 @@
 GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 
 (* KeyGenformal declares:
-     T: A type.
-     Compare: a compare procedure on T. 
-     Brand 
+     Compare: a compare procedure on T, of type FM3Base . CompareTyp. 
 
-   ValueGenformal declares:
-     T: A type 
-     Brand 
+   ValueGenformal declares nothing.
+
+   The other things needed from the generic formals are renamed in
+   exported interface FM3Dict.i3, and used here buy those names.
+   This could be done with Compare too, even thoough it is unused in
+   the interface.
+   
+   But the generic formals are needed just to give an instatiation
+   a unique module name. 
+
 *) 
 
 ; IMPORT FM3Base
@@ -28,7 +33,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
       RowHash : FM3Base . HashTyp := FM3Utils.HashNull
       (* Which means this row is empty. *)  
     ; RowKey : KeyTyp
-    ; RowValue : ValueGenformal . T 
+    ; RowValue : ValueTyp 
     END (*RECORD*)
     
 ; TYPE StateTyp = { DsHashed , DsUnsorted , DsSorted } 
@@ -104,8 +109,8 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
     ( DictHash : GrowableTyp  
     ; Key : KeyTyp  
     ; Hash : FM3Base . HashTyp
-    ; Value : ValueGenformal . T
-    ; VAR (*OUT*) OldValue : ValueGenformal . T
+    ; Value : ValueTyp
+    ; VAR (*OUT*) OldValue : ValueTyp
       (* ^Meaningful IFF InsertGrowable returns TRUE. *) 
     ; DoUpdate : BOOLEAN := FALSE
       (* ^If Key is already present, update its Value.
@@ -134,8 +139,8 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
     ( DictBase : DictBaseTyp  
     ; Key : KeyTyp  
     ; Hash : FM3Base . HashTyp
-    ; Value : ValueGenformal . T
-    ; VAR (*OUT*) OldValue : ValueGenformal . T
+    ; Value : ValueTyp
+    ; VAR (*OUT*) OldValue : ValueTyp
       (* ^Meaningful IFF InsertGrowable returns TRUE. *) 
     ; DoUpdate : BOOLEAN := FALSE
       (* ^If Key is already present, update its Value.
@@ -198,7 +203,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
     )
   RAISES { Error } 
 
-  = VAR LJunkValue : ValueGenformal . T
+  = VAR LJunkValue : ValueTyp
   ; VAR LDuplicate : BOOLEAN
   ; VAR LDuplicatesAreOK : BOOLEAN 
 
@@ -251,7 +256,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
     ( DictHash : GrowableTyp
     ; Key : KeyTyp 
     ; Hash : FM3Base . HashTyp
-    ; VAR (*OUT*) Value : ValueGenformal . T 
+    ; VAR (*OUT*) Value : ValueTyp 
     )
   : BOOLEAN (* Was found. *)
   RAISES { Error } 
@@ -274,7 +279,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
     ( DictBase : DictBaseTyp 
     ; Key : KeyTyp 
     ; Hash : FM3Base . HashTyp
-    ; VAR (*OUT*) Val : ValueGenformal . T 
+    ; VAR (*OUT*) Val : ValueTyp 
     )
   : BOOLEAN (* Was found. *)
   RAISES { Error } 
@@ -357,12 +362,12 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
     ( DictFixed : FixedTyp  
     ; Key : KeyTyp  
     ; Hash : FM3Base . HashTyp
-    ; Value : ValueGenformal . T
+    ; Value : ValueTyp
     )
   RAISES { Error } 
   (* PRE: Hash # FM3Utils.HashNull. *) 
 
-  = VAR LOldValue : ValueGenformal . T
+  = VAR LOldValue : ValueTyp
   ; VAR LFound : BOOLEAN
 
   ; BEGIN
@@ -394,7 +399,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
     ( DictFixed : FixedTyp 
     ; Key : KeyTyp  
     ; Hash : FM3Base . HashTyp
-    ; Value : ValueGenformal . T
+    ; Value : ValueTyp
     )
   RAISES { Error }
   (* Does only phase 1 of heapsort. *) 
@@ -532,7 +537,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
     ( DictFixed : FixedTyp
     ; Key : KeyTyp 
     ; Hash : FM3Base . HashTyp
-    ; VAR (*OUT*) Val : ValueGenformal . T 
+    ; VAR (*OUT*) Val : ValueTyp 
     )
   : BOOLEAN (* Was found. *)
   RAISES { Error } 

@@ -19,26 +19,39 @@ INTERFACE FM3Scopes
 
 ; TYPE ScopeKindTyp
     = { SkNull
-      , SkUniverse
+      , SkUniverse (* {Predefined, interfaces? *) 
       , SkUnit 
       , SkEnum
       , SkRec
       , SkObj
       , SkFormals
+      , SkGenFormals
       , SkBlock
       , SkWith
       , SkTypecase
       , SkExcept 
       } 
 
+
+
+
+
+
 ; TYPE ScopeRefTyp = REF ScopeTyp
 ; TYPE ScopeTyp
     = RECORD
-        ScpNumber : ScopeNoTyp (* A self-reference. *) 
-      ; ScpDecldIdSet : IntSets . T (* IdentNos declared. *) 
-      ; ScpDeclDict : FM3Dict_Int_Int . GrowableTyp (* IdentNo to Decl no. *)
+        ScpStackLink : ScopeRefTyp
+      ; ScpDeclIdSet : IntSets . T (* IdentAtoms declared within. *) 
+      ; ScpDuplIdSet : IntSets . T (* IdentAtoms with multiple declarations. *) 
+      ; ScpRefIdSet : IntSets . T (* IdentAtoms with multiple declarations. *) 
+      ; ScpDeclMap : REF ARRAY OF REFANY (* FM3Decls . DeclRefTyp ) 
+      ; ScpDeclDict : FM3Dict_Int_Int . FixedTyp (* IdentNo to Decl no. *)
       ; ScpDeclCt : FM3Base . AtomTyp := 0
+      ; ScpNumber : ScopeNoTyp (* A self-reference. *)
+      ; ScpOwningUnitNo : INTEGER
+        (* Should be Unit . UnitNoTyp, but that would be cyclic imports. *) 
       ; ScpOwningDeclNo : FM3Base . AtomTyp := FM3Base . AtomNull
+      ; ScpPosition : FM3Base . tPosition 
       ; ScpKind : ScopeKindTyp 
       END (*ScopeTyp*)
       
@@ -46,22 +59,19 @@ INTERFACE FM3Scopes
 ; TYPE ScopeMapTyp
     = VarArray_Int_Refany . T (* Map ScopeNoTyp to ScopeRefTyp. *)
 
+; VAR ScopeStackTop : ScopeRefTyp := NIL
+      (* A global linked stack with scopes from multiple units. *) 
+      
 ; PROCEDURE NewMap ( ScopeCt := InitScopeCt ) : ScopeMapTyp
 
-; CONST DefaultInitDictCt = 10 
-
 ; PROCEDURE NewScope
-    ( Map : ScopeMapTyp ; InitDictCt := DefaultInitDictCt ) : ScopeNoTyp
-  (* Allocate and connect a ScopeNo and scopeRef. *)
+    ( OwningUnitRef : FM3Units . UnitRefTyp ; InitDictCt := DefaultInitDictCt )
+  : ScopeRefTyp
+  (* Allocate and connect a ScopeNo and ScopeRef Owned by OwningUnitRef. *) 
 
-; PROCEDURE ScopeEmpty ( ScopeKind : ScopeKindTyp )
+; CONST DefaultInitDictCt = 10
 
-; PROCEDURE ScopeLt ( ScopeKind : ScopeKindTyp )
-
-; PROCEDURE ScopeRt ( ScopeKind : ScopeKindTyp )
-
-; PROCEDURE DeclId
-    ( Atom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
+; PROCEDURE Push ( ScopeRef : ScopeRefTyp ) 
 
 ; END FM3Scopes
 .

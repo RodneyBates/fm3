@@ -46,6 +46,10 @@ ItkProcBodyAbsent 2 (* Position. *).
 FIXED
 ItkQualId .
 
+ItkDeclId 3 (* Atom, position *) . 
+ItkDuplDeclId 3 (* Atom, position *) . 
+
+
 ItkFuncSignature 2 (* Position. *) .
 ItkProcSignature 2 (* Position. *).
 ItkFormalType 2 (* Position of colon. *) . 

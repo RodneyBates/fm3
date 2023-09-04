@@ -13,30 +13,56 @@ INTERFACE FM3Decls
 ; IMPORT VarArray_Int_Refany
 
 ; CONST DeclNoNull = FM3Base . AtomNull 
-; TYPE DeclNoTyp = FM3Base . AtomTyp 
-; TYPE DeclRefTyp = REF DeclTyp
+; TYPE DeclNoTyp = INTEGER
+; CONST DeclNoNull = LASE ( INTEGER ) 
+
+; TYPE DeclKindTyp
+    = { DkNull
+      , DkDuplDecl
+      , DkMod 
+      , DkIntf 
+      , DkGenMod
+      , DkGenIntf
+      , DkExcp
+      , DkType
+      , DkConst
+      , DkVar
+      , DkValueFormal
+      , DkVarFormal
+      , DkROFormal
+      , DkField
+      , DkMethod
+      , DkProc
+      , DkWith
+      , DkFor
+      , DkExcAprg
+      } 
+
+; TYPE DeclRefTyp = REF DeclTyp 
 ; TYPE DeclTyp
-    = RECORD
-        DclNumber : DeclNoTyp (* A self-reference. *) 
+    = RECORD 
+        DclLink : DeclObjBastTyp
+        (* For a linked list of nodes for the real decl and any 
+           in its scope that duplicate the decl name .
+        *) 
       ; DclParentScopeRef : FM3Scopes . ScopeRefTyp (* Containing scope *) 
-      ; DclSelfScopeRef : FM3Scopes . ScopeRefTyp (* If this declares a scope *) 
-      END (*DeclTyp*)
+      ; DclSelfScopeRef : FM3Scopes . ScopeRefTyp (* If this declares a scope *)
+      ; DclIdAtom : FM3Base . AtomTyp
+      ; DclNumber : DeclNoTyp (* A self-reference. *)
+      ; DclPos : FM3Base . tPosition 
+      ; DclKind : DclKindTyp 
+      END (*DeclObjBaseTyp*)
 
 ; CONST DefaultInitDeclCt = 100
 
-; TYPE DeclMapTyp
-    = VarArray_Int_Refany . T (* Map  DeclNoTyp to DeclRefTyp. *)
+; TYPE DeclMapTyp = Vararray_Int_Refany (* Map DeclNoTyp to DeclRefTyp. *)
 
-; PROCEDURE NewMap ( InitDeclCt := DefaultInitDeclCt ) : DeclMapTyp
+; PROCEDURE NewMap ( InitDeclCt := DefaultInitDeclCt ) : DeclMapTyp 
 
-; PROCEDURE NewDecl
-    ( Map : DeclMapTyp
-    ; ExpectedNo : DeclNoTyp 
-    ; ParentScopeRef : FM3Scopes . ScopeRefTyp 
-    )
-  : DeclNoTyp
-  (* Allocate and connect a DeclNo and DeclRef. *)
-  (* IF ExpectedNo >= 0, result must match. *)  
+; PROCEDURE NewDeclRef
+    ( ParentScopeRef : FM3Scopes . ScopeRefTyp ; DeclNo : DeclNoTyp )
+  : DeclRefTyp
+  (* Allocate a DeclRef and connect in into ParentScopeRef ^. *)
 
 ; END FM3Decls
 .

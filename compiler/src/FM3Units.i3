@@ -11,14 +11,16 @@ INTERFACE FM3Units
 ; IMPORT VarArray_Int_Refany
 ; IMPORT Wr 
 
-; IMPORT FM3Decls 
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars
+; IMPORT FM3Base 
+; IMPORT FM3Decls 
 ; IMPORT FM3Scopes
 ; IMPORT RdBackFile
 
 ; TYPE UnitKindTyp
-         = { UkInterface , UkGenInterface , UkInstInterface
+         = { UkNull
+           , UkInterface , UkGenInterface , UkInstInterface
            , UkModule , UkGenModule , UkInstModule
            } 
 
@@ -58,12 +60,16 @@ INTERFACE FM3Units
       ; UntCharsAtomDict : FM3Atom_OAChars . T := NIL(* TEXT literals. *) 
       ; UntWCharsAtomDict : FM3Atom_OAWideChars . T := NIL
           (* ^Wide TEXT literals. *)
-      ; UntScopes : FM3Scopes . ScopeMapTyp := NIL 
-      ; UntDecls : FM3Decls . DeclMapTyp := NIL
+      ; UntScopesMap : FM3Scopes . ScopeMapTyp := NIL k
+      ; UntDeclsMap : FM3Decls . DeclMapTyp := NIL
+      ; UntScopesMap : FM3Scopes . ScopeMapTyp := NIL k
+      ; UntScopeStackTop : UnitRefTyp := NIL 
+      ; UntScopeStackDepth : INTEGER := 0 
       ; UntUnitNo : UnitNoTyp := UnitNoNull
       ; UntScanResult : INTEGER 
       ; UntParseResult : INTEGER 
       ; UntParsePassResult : INTEGER
+      ; UntNextDeclNo : INTEGER 
       ; UntKind : UnitKindTyp 
         
       END (*UnitTyp*)
@@ -75,6 +81,18 @@ INTERFACE FM3Units
 ; PROCEDURE New ( ) : UnitRefTyp
   (* Allocate, low-level initialize, give it a UnitNo, and put into UnitMap. *)
 
+; PROCEDURE AllocateDeclNos ( Ct : INTEGER ) : INTEGER 
+  (* Allocate a contiguous range of Ct Decl numbers, unique
+     within the current scope, and return the lowest number.
+  *) 
+
+; PROCEDURE TextOfIdAtom ( IdAtom : FM3Base . AtomTyp ) : TEXT
+  (* In the current unit. *) 
+
+; VAR UnitStackTop : UnitRefTyp := NIL 
+
 ; END FM3Units
+
+
 .
 

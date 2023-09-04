@@ -13,42 +13,31 @@ MODULE FM3Decls
 ; IMPORT FM3Scopes
 ; IMPORT VarArray_Int_Refany
 
-; VAR NextDeclNo : DeclNoTyp := 0 
-
 (*EXPORTED*) 
 ; PROCEDURE NewMap ( InitDeclCt := DefaultInitDeclCt ) : DeclMapTyp
 
   = BEGIN
-      NextDeclNo := 0 
-    ; RETURN
+      RETURN
         VarArray_Int_Refany . New
           ( NIL , IntRanges . RangeTyp {  0 , InitDeclCt - 1 } ) 
     END NewMap
 
 (*EXPORTED*) 
-; PROCEDURE NewDecl
-    ( Map : DeclMapTyp
-    ; ExpectedNo : DeclNoTyp 
-    ; ParentScopeRef : FM3Scopes . ScopeRefTyp 
-    )
-  : DeclNoTyp
-  (* Allocate and connect a DeclNo and DeclRef. *)
-  (* IF ExpectedNo >= 0, result must match. *)  
+; PROCEDURE NewDeclRef
+    ( ParentScopeRef : FM3Scopes . ScopeRefTyp ; DeclNo : DeclNoTyp )
+  : DeclRefTyp
+  (* Allocate a DeclRef and connect it into ParentScopeRef ^. *)
 
-  = VAR LDeclNo : DeclNoTyp  
-  ; VAR LDeclRef : DeclRefTyp
+  = VAR LDeclRef : DeclRefTyp
 
   ; BEGIN
-      LDeclNo := NextDeclNo
-    ; <* ASSERT LDeclNo = ExpectedNo *>
-      INC ( NextDeclNo )
-    ; LDeclRef := NEW ( DeclRefTyp )
-    ; LDeclRef . DclNumber := LDeclNo  
+      LDeclRef := NEW ( DeclRefTyp )
+    ; LDeclRef . DclNumber := DeclNo  
     ; LDeclRef . DclParentScopeRef := ParentScopeRef  
-    ; LDeclRef . DclSelfScopeRef := NIL 
-    ; VarArray_Int_Refany . Assign ( Map , LDeclNo , LDeclRef )
-    ; RETURN LDeclNo 
-    END NewDecl 
+    ; VarArray_Int_Refany . Assign
+        ( ParentScopeRef ^ . ScpDeclMap , DeclNo , LDeclRef )
+    ; RETURN LDeclRef 
+    END NewDeclRef 
 
 ; BEGIN
   END FM3Decls

@@ -90,7 +90,5 @@ INTERFACE FM3Base
       ; Column : M2SHORTCARD
       END (*tPosition*)
 
-; CONST PositionNull = tPosition { Line := 0 , Column := 0 } 
-
 ; END FM3Base
 .

@@ -124,6 +124,22 @@ INTERFACE FM3ParsePass
 
 ; PROCEDURE BeginBlock ( )
 
+; PROCEDURE ScopeEmpty ( ScopeKind : ScopeKindTyp )
+
+; PROCEDURE ParseScopeLt
+    ( ScopeKind : ScopeKindTyp ; Position : FM3Base . tPosition )
+
+; PROCEDURE ParseScopeRt ( ScopeKind : ScopeKindTyp )
+
+; PROCEDURE ParseDeclIdL2R
+    ( Atom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
+
+; PROCEDURE ParseDeclIdR2L
+    ( Atom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
+
+; PROCEDURE ParseRefIdL2R
+    ( Atom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
+
 (*
 ; PROCEDURE PushUnnestTokPatch0 ( Token : LONGINT )
   (* To be patched.  No additional args. *) 

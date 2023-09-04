@@ -361,6 +361,17 @@ MODULE FM3Utils
     ; RETURN LResult 
     END PositionImage
 
+(*EXPORTED.*)
+; PROCEDURE CharsOfAtom
+    ( AtomMap : FM3Atom_OAChars ; Atom : FM3Base . AtomTyp ) :  
+
+  = VAR LChars : FM3OpenArray_Char . T
+
+  ; BEGIN (*CharsOfAtom*)
+      FM3Atom_OAChars . Value ( AtomMap ( Atom ) 
+    END CharsOfAtom
+      
+
 ; BEGIN
   END FM3Utils 
 .

@@ -30,6 +30,7 @@ MODULE FM3ParsePass
 ; IMPORT OSError
 ; IMPORT Pathname
 ; IMPORT Stdio
+; IMPORT Text 
 ; IMPORT Thread 
 ; IMPORT UniRd
 ; IMPORT Wr
@@ -55,6 +56,7 @@ MODULE FM3ParsePass
 ; IMPORT FM3Scanner
 ; IMPORT FM3Scopes
 ; IMPORT FM3SrcToks
+; IMPORT FM3IntToks AS Itk 
 ; IMPORT FM3Units 
 ; IMPORT FM3Utils 
 ; IMPORT RdBackFile
@@ -62,6 +64,10 @@ MODULE FM3ParsePass
 ; IMPORT FM3SharedGlobals 
 
 ; FROM File IMPORT Byte  
+
+; TYPE Dkt = FM3Decls . DeclKindTyp
+
+; CONST PosImage = FM3Utils . PositionImage
 
 ; VAR FileTagVersion := VAL ( ORD ( '1' ) , Byte )  
 
@@ -81,9 +87,12 @@ MODULE FM3ParsePass
       TRY
         LResult := Pathname . Prefix  ( FileName )
       EXCEPT OSError . E ( EMsg )
-      => Fatal ( "Unable to get absolute path for "
+      => Fatal
+           ( ARRAY OF TEXT
+               { "Unable to get absolute path for "
                , FileName , ", " , Why , ": " , ALOSE ( EMsg ) , "."  
-               ) 
+               }
+           ) 
       END (*EXCEPT*) 
     ; RETURN LResult 
     END FindFilePrefix
@@ -169,14 +178,21 @@ MODULE FM3ParsePass
       EXCEPT
       | OSError . E ( EMsg ) 
       => Fatal
-           ( "Unable to open source file \""
-           , LFullFileName , "\": " , ALOSE ( EMsg) , "."
+           ( ARRAY OF TEXT
+               { "Unable to open source file \""
+               , LFullFileName
+               , "\": "
+               , ALOSE ( EMsg)
+               , "."
+               } 
            ) 
       | RdBackFile . Preexists
       => Fatal
-           ( "Unable to open source file \""
-           , LFullFileName
-           , "\", already exists and is nonempty."
+           ( ARRAY OF TEXT
+               { "Unable to open source file \""
+               , LFullFileName
+               , "\", already exists and is nonempty."
+               } 
            )
       END (*EXCEPT*)
 
@@ -276,9 +292,13 @@ MODULE FM3ParsePass
               , FM3Base . Int64Image
                   ( RdBackFile . LengthL ( UnitRef ^ . UntPatchStackRdBack ) )
               ) 
-        ; Fatal ( "Patch stack is not sufficiently empty, should be "  
-                , FM3Base . Int64Image ( UnitRef ^ . UntPatchStackEmpty ) 
-                )
+        ; Fatal
+            ( ARRAY OF TEXT
+                { "Patch stack is not sufficiently empty, should be "  
+                , FM3Base . Int64Image ( UnitRef ^ . UntPatchStackEmpty )
+                , "." 
+                } 
+            )
         END (*IF*)
       FINALLY 
         RdBackFile . Close (  UnitRef ^ . UntPatchStackRdBack )
@@ -302,9 +322,13 @@ MODULE FM3ParsePass
               , FM3Base . Int64Image
                   ( RdBackFile . LengthL ( UnitRef ^ . UntUnnestStackRdBack ) )
               ) 
-        ; Fatal ( "Unnest stack is not sufficiently empty, should be "
-                , FM3Base . Int64Image ( UnitRef ^ . UntUnnestStackEmpty ) 
-                )
+        ; Fatal
+            ( ARRAY OF TEXT
+                { "Unnest stack is not sufficiently empty, should be "
+                , FM3Base . Int64Image ( UnitRef ^ . UntUnnestStackEmpty )
+                , "."
+                }
+            )
         END (*IF*)
       FINALLY 
         RdBackFile . Close (  UnitRef ^ . UntUnnestStackRdBack )
@@ -959,6 +983,256 @@ MODULE FM3ParsePass
   = BEGIN (*SnapshotUnnestStack*)
     END SnapshotUnnestStack
 
+; PROCEDURE LookupKnownId
+    ( Scope : FM3Scopes . ScopeRefTyp
+    ; DeclIdAtom : FM3Base . AtomTyp
+    ; VAR DeclNo : FM3Decls . DeclNoTyp 
+    )
+  (* PREL DeclIdAtom in in Scope's dictionary. *) 
+
+  = VAR LMsg : TEXT
+  ; VAR LFound : BOOLEAN 
+
+  ; BEGIN (*LookupInownId*)
+      TRY
+        LFound 
+          := FM3Dict_Int_Int . LookupFixed
+               ( Scope . ScpDeclDict , DeclIdAtom , (*OUT*) DeclNo )
+      ; IF LFound
+        THEN RETURN
+        ELSE LMsg := ", not found."
+        END (*IF*) 
+      EXCEPT FM3Dict_Int_Int . Error ( EMsg )
+        => LFound := FALSE
+        ; LMsg := EMsg 
+      END (*EXCEPT*)
+    ; IF NOT LFound
+      THEN 
+        Fatal
+          ( ARRAY OF TEXT
+              { "Looking up decl of \""
+              , FM3Units . TextOfIdAtom ( DeclIdAtom ) 
+              , "\" in scope at "
+              , PosImage ( Scope . ScpPosition ) )
+              , Msg
+              , "." 
+              }
+             ) 
+      END (*IF*) 
+    END LookupKnownId
+
+(*EXPORTED.*)
+; PROCEDURE ScopeEmpty ( ScopeKind : ScopeKindTyp )
+
+  = BEGIN (*ScopeEmpty*)
+    END ScopeEmpty
+
+(*EXPORTED.*)
+; PROCEDURE ScopeLtL2R
+    ( ScopeKind : ScopeKindTyp
+    ; Position : FM3Base . tPosition
+    ; InitSize : INTEGER 
+    )
+
+  = VAR LUnitRef : FM3Units . UnitRefTyp
+  ; VAR LNewScopeRef : FM3Scopes . ScopeRefTyp
+  ; VAR LDepth : INTEGER 
+
+  ; BEGIN 
+      LUnitRef := FM3Units . UnitsStackTop 
+    ; LNewScopeRef := FM3Scopes . NewScopeRef ( LUnitRef , InitSize ) 
+    ; LNewScopeRef ^ . OwningUnitRef := LUnitRef 
+    ; LNewScopeRef ^ . ScpKind := ScopeKind
+    ; LNewScopeRef ^ . ScpPosition := Position 
+    END ScopeLtL2R
+
+(*EXPORTED.*)
+; PROCEDURE DeclIdL2R
+    ( DeclIdAtom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
+
+  = BEGIN (*DeclIdL2R*)
+      WITH WScope = FM3Scopes . ScopeStackTop ^
+           , WRdBack = FM3Globals . CurrentUnitRef ^ . UntUnnestStackRdBack 
+      DO
+        PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , DeclIdAtom ) 
+      ; IF IntSets . IsElement ( DeclIdAtom , WScope . ScpDeclIdSet )
+        THEN (* A duplicate declaration of DeclIdAtom. *) 
+          WScope . ScpDuplIdSet
+            := IntSets . Include ( WScope . ScpDuplIdSet , DeclIdAtom )
+(* CHECK ^ Is this needed? *) 
+        ; PutBwd ( Itk . ItkDuplDeclLt )  
+        ELSE 
+          WScope . ScpDeclIdSet
+            := IntSets . Include ( WScope . ScpDeclIdSet , DeclIdAtom )
+        ; PutBwd ( Itk . ItkDeclLt )  
+        END (*IF*)
+      END (*WITH*) 
+    END DeclIdL2R
+
+(*EXPORTED.*)
+; PROCEDURE DuplDeclIdR2L
+    ( DeclIdAtom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
+
+  = VAR DdidDeclNo : FM3Decls . DeclNoTyp
+
+  ; PROCEDURE DdidVisit
+      ( VAR DeclRef : FM3Decls . DeclRefTyp )
+    = VAR LDeclRef : FM3Decls . DeclRefTyp 
+    ; BEGIN
+        LDeclRef
+          := FM3Decls . NewDeclRef ( FM3Scopes . ScopeStackTop , DdidDeclNo )
+      ; LDeclRef . Link := DeclRef
+      ; LDeclRef . SelfScopeRef := NIL 
+      ; LDeclRef . IdAtom := DeclIdAtom 
+      ; LDeclRef . DeclNo := DdidDeclNo 
+      ; LDeclRef . DeclPos := Position 
+      ; LDeclRef . DclKind := Dk . DkDuplDecl
+      ; DeclRef := LDeclRef 
+      END DdidVisit
+
+    BEGIN (* DuplDeclIdR2L *) 
+      WITH WScope = FM3Scopes . ScopeStackTop ^ 
+      DO
+        LookupKnownId ( WScope , DeclIdAtom , (*OUT*) DdidDeclNo ) ) 
+      ; VarArray . CallbackWithElem
+          ( WScope . ScpDeclMap , DdidDeclNo , DdidVisit )
+      ; RETURN DidDeclNo 
+      END (*WITH*) 
+    END DuplDeclIdR2L 
+
+(*EXPORTED.*)
+; PROCEDURE RefIdL2R
+    ( RefIdAtom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
+
+  = BEGIN (*RefIdL2R*)
+      WITH WRefIdSet = FM3Scopes . ScopeStackTop ^ . ScpRefIdSet
+      DO WRefIdSet := IntSets . Include ( WRefIdSet , RefIdAtom )
+      END (*WITH*) 
+    END RefIdL2R
+
+(*EXPORTED.*)
+; PROCEDURE ScopeRtL2R ( ScopeKind : ScopeKindTyp )
+  (* Create an identifier-to-declNo dictionary for the scope, of
+     exactly the needed size, and load it up with DeclIdAtom to
+     DeclNo mappings, using the idents declared in the scope and
+     a contiguously-numbered range of DeclNos.
+  *) 
+
+  = VAR LDeclCt : INTEGER
+  ; VAR LDeclNo : INTEGER 
+  ; VAR LExpectedToDeclNo : INTEGER 
+
+  ; BEGIN (*ScopeRtL2R*)
+      WITH WScope = FM3Scopes . ScopeStackTop ^
+      DO (* Start Block*) 
+      
+        PROCEDURE SrVisit ( DeclIdAtom : FM3Base . AtomTyp )
+        = BEGIN
+            FM3Dict_Int_Int . InsertFixed
+              ( WScope . ScpDeclDict , DeclIdAtom , LDeclNo )
+          ; INC ( LDeclNo ) 
+          END SrVisit
+          
+      ; BEGIN (* Block statements. *)
+          LDeclCt := IntSets . Card ( WScope . ScpDeclIdSet )
+        (* LDeclCt is exactly the needed dictionary size. *)
+        ; WScope . ScpDeclDict 
+            := FM3Dict_Int_Int . NewFixed 
+                 ( LDeclCt , FM3SharedUtils . IntHash )
+        ; LDeclNo := FM3Units . AllocateDeclNos ( LDeclCt )
+        ; LExpectedToDeclNo := LDeclNo + LDeclCt 
+        ; IntSets . ForAllDo ( WScope . ScpDeclIdSet , SrVisit )
+          <*ASSERT LDeclNo = LExpectedToDeclNo *> 
+        ; TRY FM3Dict_Int_Int . FinalizeFixed ( WScope . ScpDeclDict )
+          EXCEPT FM3Dict_Int_Int . Error ( EMsg )
+          => Fatal
+               ( ARRAY OF TEXT
+                 { "Finalizing Scope at "
+                 , PosImage ( WScope . ScpPosition )
+                 , EMsg
+                 , "'" 
+                 }
+               ) 
+          END (*EXCEPT*) 
+        END (*Block*)
+      END (*WITH*) 
+    END ScopeRtL2R
+
+(*EXPORTED.*)
+; PROCEDURE DeclIdR2L
+    ( DeclIdAtom : FM3Base . AtomTyp
+    ; Position : FM3Base . tPosition
+    ; DeclKind : Dkt
+    )
+  : FM3Decls . DeclNoTyp 
+
+  = VAR DidDeclNo : FM3Decls . DeclNoTyp
+
+  ; PROCEDURE DidVisit
+      ( VAR DeclRef : FM3Decls . DeclRefTyp )
+    = VAR LCharsRef : FM3Atom_OAChars . KeyTyp
+    ; VAR LIdentText : TEXT
+
+    ; BEGIN (* DidVisit *) 
+        IF DeclRef # NIL
+        THEN  (* Some duplicate decls exist. *)
+          LIdentText := FM3Units . TextOfIdAtom ( DeclIdAtom ) 
+        ; WHILE DeclRef # NIL
+          DO
+            ErrorArr
+              ( ARRAY OF TEXT
+                  { PosImage ( DeclRef . DclPosition )
+                  , "Duplicate declaration of \""
+                  , LIdentText
+                  , "\", ignored, original at "
+                  , PosImage ( Position )
+                  , " ( )." 
+                  } 
+              )
+            ; DeclRef := DeclRef ^ . DclLink
+          END (*WHILE*) 
+        END (*IF*)
+        
+      ; DeclRef
+          := FM3Decls . NewDeclRef ( FM3Scopes . ScopeStackTop , DidDeclNo )
+      ; DeclRef . Link := NIL 
+      ; DeclRef . SelfScopeRef := NIL 
+      ; DeclRef . IdAtom := DeclIdAtom 
+      ; DeclRef . DeclNo := DidDeclNo 
+      ; DeclRef . DeclPos := Position 
+      ; DeclRef . DclKind := DeclKind  
+      END DidVisit
+
+  ; BEGIN (*DeclIdR2R*)
+      WITH WScope = FM3Scopes . ScopeStackTop ^ 
+      DO 
+        LookupKnownId ( WScope , DeclIdAtom , (*OUT*) DidDeclNo ) ) 
+      ; LDeclRef := FM3Decls . New ( WScope , DidDeclNo )
+      ; VarArray . CallbackWithElem
+          ( WScope . ScpDeclMap , DidDeclNo , DidVisit )
+      ; RETURN DidDeclNo 
+      END (*WITH*) 
+    END DeclIdR2L
+
+(*EXPORTED.*)
+; PROCEDURE RefIdR2L
+    ( RefIdAtom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
+  : FM3Decls . DeclNoTyp 
+
+  = VAR LDeclNo : FM3Decls . DeclNoTyp
+  ; VAR LFound : BOOLEAN
+  
+  ; BEGIN (*RefIdR2L*)
+      WITH WScope = FM3Scopes . ScopeStackTop ^ 
+      DO IF NOT IntSets . IsElement ( WScope . ScpRefIdSet , RefIdAtom )
+        THEN RETURN FM3Decls . DeclNoNull 
+        ELSE LookupKnownId ( WScope , DeclIdAtom , (*OUT*) LDeclNo )
+        ; RETURN LDeclNo 
+        END (*IF*)
+      END (*WITH*) 
+    END RefIdR2L
 
 (* ----------------------- Procedure signatures --------------------- *)
 

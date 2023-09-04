@@ -271,12 +271,12 @@ RULE
    DeclIdPlusList : StkIdent 
      { (* PaUnnestCoord copied from $1 by parser. *) 
        $$ . PaInt := 1 ;
-       FM3Scopes . DeclId ( $1 . Scan . SaAtom , $1 . Scan . Position ) ; 
+       FM3ParsePass . ParseDeclIdL2R ( $1 . Scan . SaAtom , $1 . Scan . Position ) ; 
      } . 
    DeclIdPlusList : DeclIdPlusList StkComma StkIdent
      { (* PaUnnestCoord copied from $1 by parser . *) 
        $$ . PaInt := $1 . PaInt + 1 ;
-       FM3Scopes . DeclId ( $3 . Scan . SaAtom , $3 . Scan . Position ) ; 
+       FM3ParsePass . ParseDeclIdL2R ( $3 . Scan . SaAtom , $3 . Scan . Position ) ; 
      } . 
 
 (* List of zero or more comma-separated Idents. *)
@@ -488,7 +488,7 @@ RULE
 
    RecordType : StkRwRECORD VarDecl StkRwEND . 
 
-(* -------------------------------- Procedures ------------------------- *)
+(* ------------------------ Procedure Signatures ----------------------- *)
 
 (* Procedure signature (without PROCEDURE or Ident). *) 
    Signature : Formals ResultType Raises
@@ -508,14 +508,17 @@ RULE
        FM3Scopes . ScopeEmpty ( Sk . SkFormals ) ; 
        PushUnnest ( Itk . ItkFormalsListEmpty )
      } .
-   Formals : StkOpenParen FormalsLt FormalsPlusList OptSemicolon StkCloseParen
+   Formals : FormalsLt FormalsPlusList OptSemicolon StkCloseParen
      { $$ . Scan . Position := $1 . Scan . Position ;
-       FM3Scopes . ScopeRt ( Sk . SkFormals ) ;
+       FM3ParsePass . ParseScopeRt ( ) ;
        MakeListPos
-         ( $$ , Itk . ItkFormalsListLt , $1 . Scan . Position , $3 ) ;
+         ( $$ , Itk . ItkFormalsListLt , $1 . Scan . Position , $2 ) ;
      } .
-   FormalsLt : /*Empty*/
-     { FM3Scopes . ScopeLt ( Sk . SkFormals ) ; } . 
+   FormalsLt : StkOpenParen 
+     { $$ . Scan . Position := $1 . Scan . Position ;
+       FM3ParsePass . ParseScopeLt
+         ( Sk . SkFormals , $1 . Scan . Position ) ;
+     } . 
    FormalsPlusList : FormalsPlusList StkSemicolon Formal 
      { $$ . PaInt := $1 . PaInt + 1 (* Formal count. *); } .  
    FormalsPlusList : Formal 

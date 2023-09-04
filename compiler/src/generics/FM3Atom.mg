@@ -6,17 +6,16 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-(* Map keys of an type to compactly-numbered, internally-generated
-   integer values called "atom".  Repeated adding of the same keyu
-   valud, as decided by function "Equal" will get the same atom value.
+(* Map keys of a type to compactly-numbered, internally-generated
+   integer values called "atoms".  Repeated adding of the same key
+   value, as decided by function "Equal" will get the same atom value.
 *) 
 
 GENERIC MODULE FM3Atom ( DictGenformal )
 
-(* KeyTyp declares:
-     TYPE T Type of Keys
-     VAR Compare : CompareProcTyp 
-     CONST Brand = whatever you like.
+(* DictGenFormal must provide declarations for these things that
+     an instantiation of FM3Dict will provide: 
+     GrowableTyp , NewGrowable, InsetGrowable, LookupGrowable, Brand
 *) 
 
 ; IMPORT FM3Base 
@@ -25,22 +24,32 @@ GENERIC MODULE FM3Atom ( DictGenformal )
     BRANDED Brand 
     REF RECORD
       AtGrowableDict : DictGenformal  . GrowableTyp 
-    ; AtNextAtom : FM3Base . AtomTyp := 1 
+    ; AtNextAtom : FM3Base . AtomTyp := 1
+    ; AtReverseMap : REF ARRAY OF KeyTyp 
     END (*RECORD*)
 
 (*EXPORTED:*)
 ; PROCEDURE New
-    ( InitSize : CARDINAL ; StartAtom : INTEGER ; HashFunc : HashFuncTyp ) : T 
+    ( InitSize : CARDINAL
+    ; StartAtom : INTEGER
+    ; HashFunc : HashFuncTyp
+    ; InitReverseSize : INTEGER
+      (* < 0 implies do not keep a reverse map. *) 
+    )
+  : T 
   (* A new, empty table of Key-value/atom pairs. *) 
 
   = VAR LResult : T
 
   ; BEGIN
-      LResult
-        := NEW ( T ) 
+      LResult := NEW ( T ) 
     ; LResult . AtGrowableDict
         := DictGenformal . NewGrowable ( InitSize , HashFunc )
-    ; LResult . AtNextAtom := StartAtom 
+    ; LResult . AtNextAtom := StartAtom
+    ; IF InitReverseSize < 0
+      THEN LResult . AtReverseMap := NIL
+      ELSE 
+        LResult . AtReverseMap := NEW ( REF ARRAY OF KeyTyp , InitReverseSize ) 
     ; RETURN LResult 
     END New 
   
@@ -63,6 +72,8 @@ GENERIC MODULE FM3Atom ( DictGenformal )
      consistently from the adjacent Key value by the same function. *) 
 
   = VAR LNewValue , LOldValue: INTEGER
+    VAR LNumber , LNewSize: INTEGER
+  ; VAR LNewMapRef : REF ARRAY OF KeyTyp 
   ; VAR LFound : BOOLEAN 
 
   ; BEGIN
@@ -75,12 +86,39 @@ GENERIC MODULE FM3Atom ( DictGenformal )
              )
     ; IF LFound
       THEN RETURN LOldValue
-      ELSE
+      ELSE (* Create a new atom. *) 
         INC ( AtomDict . AtNextAtom )
+      ; IF AtomDict  . AtReverseMap # NIL
+        THEN
+          LNumber := NUMBER ( AtomDict . AtReverseMap ^ )
+        ; IF LNewValue >= LNumber
+          THEN
+            LNewSize := MIN ( LNumber * 2 , LNewValue + 10 
+          ; LNewMapRef := NEW ( REF ARRAY OF KeyTyp , LNewSize )
+          ; SUBARRAY ( LNewMapRef ^ , 0 , LLength
+              := SUBARRAY ( AtomDict . AtReverseMap ^ , 0 , LLength
+          ; AtomDict . AtReverseMap := LNewMapRef 
+          END (*IF*) 
+        ; AtomDict . AtReverseMap ^ [ LNewValue ] := Key 
+        END (*IF*) 
       ; RETURN LNewValue 
       END (*IF*) 
     END MakeAtom 
 
+(*EXPORTED.*)
+; PROCEDURE Key
+    ( AtomDict : T ; Atom : FM3Base . AtomTyp ; VAR Value : KeyTyp )
+    : BOOLEAN (*Found*)
+
+  = VAR LFound : BOOLEAN
+
+  ; BEGIN (*Key*)
+      IF AtomDict . AtReverseMap = NIL THEN RETURN FALSE END (*IF*) 
+    ; IF Atom >= AtomDict . AtNextAtom THEN RETURN FALSE END (*IF*)
+    ; Value := AtomDict . AtReverseMap ^ [ Atom ] 
+    ; RETURN TRUE 
+    END Key
+      
 ; BEGIN
   END FM3Atom 
 .

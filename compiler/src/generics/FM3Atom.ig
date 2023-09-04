@@ -14,15 +14,11 @@
 GENERIC INTERFACE FM3Atom ( DictGenformal )
 
 (* DictGenFormal must provide declarations for:
-     TYPE KeyTyp:  Type of Keys.  Not an open array type.
+     TYPE KeyTyp:  Type of Keys.  Not an open array type
+                   (But could be REF thereto) .
      TYPE HashFuncTyp: PROCEDURE (Key : KeyTyp) : FM3Base.HashTyp
      CONST Brand = whatever you like.
-*) 
-
-(*  declares:
-     TYPE T Type of Keys
-     VAR Compare : CompareProcTyp 
-     CONST Brand = whatever you like.
+   These can be provided by an instantiation of FM3Dict. 
 *) 
 
 ; IMPORT FM3Base 
@@ -39,7 +35,12 @@ GENERIC INTERFACE FM3Atom ( DictGenformal )
     = PROCEDURE ( Left , Right : KeyTyp ) : FM3Base . CompareTyp 
 
 ; PROCEDURE New
-    ( InitSize : CARDINAL ; StartAtom : INTEGER ; HashFunc : HashFuncTyp ) : T 
+    ( InitSize : CARDINAL
+    ; StartAtom : INTEGER
+    ; HashFunc : HashFuncTyp
+    ; DoReverseMap : BOOLEAN 
+    )
+  : T 
   (* A new, empty table of Key-value/atom pairs. *) 
   
 ; PROCEDURE MakeAtom
@@ -52,10 +53,15 @@ GENERIC INTERFACE FM3Atom ( DictGenformal )
      add a Key-to-atom entry to Dict.  Either way, return the 
      atom now associated with Key. *)
 
-  (* Size is an initial estimate of the eventual number of Keys. 
+; PROCEDURE Key
+    ( AtomDict : T ; Atom : FM3Base . AtomTyp ; VAR Value : KeyTyp )
+  : BOOLEAN (*Found*)
+
+(* Size is an initial estimate of the eventual number of Keys. 
      Internal allocations will be expanded if and when needed.  *)
 
-  (* FM3Base . AtomNull will not be assigned by MakeAtom. *) 
+  (* FM3Base . AtomNull will not be assigned by MakeAtom. *)
+
 
   (* You can use a hash function of your choice, but all Hash values 
      passed to MakeAtom for a given table T must be computed 
