@@ -240,7 +240,7 @@ MODULE FM3CLArgs
         (* Write compiled code messages to unit-specific log file. *)
 
     ; FM3Globals . ResourcePathName := "../lib" 
-    ; FM3Globals . BuildDirName := "../testbuild"
+    ; FM3Globals . BuildDirName := "../build"
     END SetDefaults
 
 ; PROCEDURE HandleOptions ( ) 
