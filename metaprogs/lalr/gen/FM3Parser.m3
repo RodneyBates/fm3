@@ -1554,7 +1554,7 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
                 (* line 672 of "FM3Parser.lalr" *)
                  VAR LTokLt : Itk . TokTyp; 
                        BEGIN 
-                         CASE FM3Globals . CurrentUnitRef ^ . UntKind OF 
+                         CASE FM3Units . UnitStackTopRef ^ . UntKind OF 
                          | FM3Units . UnitKindTyp . UkInterface  
                          , FM3Units . UnitKindTyp . UkGenInterface  
                          => IF yyAttributeStack^[yyStackPtr+4] . PaBool 
