@@ -13,6 +13,7 @@ INTERFACE FM3Scopes
 
 ; IMPORT FM3Base
 ; IMPORT FM3Dict_Int_Int
+; IMPORT FM3Units 
 
 ; CONST ScopeNoNull = FM3Base . AtomNull 
 ; TYPE ScopeNoTyp = FM3Base . AtomTyp
@@ -32,46 +33,39 @@ INTERFACE FM3Scopes
       , SkExcept 
       } 
 
-
-
-
-
-
 ; TYPE ScopeRefTyp = REF ScopeTyp
 ; TYPE ScopeTyp
     = RECORD
         ScpStackLink : ScopeRefTyp
       ; ScpDeclIdSet : IntSets . T (* IdentAtoms declared within. *) 
-      ; ScpDuplIdSet : IntSets . T (* IdentAtoms with multiple declarations. *) 
-      ; ScpRefIdSet : IntSets . T (* IdentAtoms with multiple declarations. *) 
-      ; ScpDeclMap : REF ARRAY OF REFANY (* FM3Decls . DeclRefTyp ) 
+      ; ScpDuplDeclIdSet : IntSets . T (* IdentAtoms with > 1 declaration. *) 
+(* CHECK ^ Is there any need for this? *) 
+      ; ScpRefIdSet : IntSets . T (* IdentAtoms referenced within. *) 
       ; ScpDeclDict : FM3Dict_Int_Int . FixedTyp (* IdentNo to Decl no. *)
-      ; ScpDeclCt : FM3Base . AtomTyp := 0
-      ; ScpNumber : ScopeNoTyp (* A self-reference. *)
-      ; ScpOwningUnitNo : INTEGER
-        (* Should be Unit . UnitNoTyp, but that would be cyclic imports. *) 
-      ; ScpOwningDeclNo : FM3Base . AtomTyp := FM3Base . AtomNull
+      ; ScpDeclCt : FM3Base . DeclNoTyp := 0
+      ; ScpMinDeclNo := FM3Base . DeclNoNull
+      ; ScpScopeNo : FM3Base . ScopeNoTyp (* A self-reference. *)
+      ; ScpOwningUnitNo : FM3Base . UnitNoTyp 
+      ; ScpOwningDeclNo : FM3Base . DeclNoTyp
+      ; ScpStackDepth : INTEGER 
       ; ScpPosition : FM3Base . tPosition 
       ; ScpKind : ScopeKindTyp 
       END (*ScopeTyp*)
       
-; CONST InitScopeCt = 10 
-; TYPE ScopeMapTyp
-    = VarArray_Int_Refany . T (* Map ScopeNoTyp to ScopeRefTyp. *)
+; TYPE ScopeMapTyp = FM3Base . MapTyp
+  (* Map ScopeNoTyp to ScopeRefTyp. One of these per unit. *) 
 
-; VAR ScopeStackTop : ScopeRefTyp := NIL
-      (* A global linked stack with scopes from multiple units. *) 
+; VAR ScopeStackTopRef : ScopeRefTyp := NIL
+      (* A single, global, linked stack with scopes from multiple units. *) 
       
-; PROCEDURE NewMap ( ScopeCt := InitScopeCt ) : ScopeMapTyp
+; PROCEDURE NewScopeMap ( ScopeCt : FM3Base . ScopeNoTyp ) : ScopeMapTyp
 
-; PROCEDURE NewScope
-    ( OwningUnitRef : FM3Units . UnitRefTyp ; InitDictCt := DefaultInitDictCt )
-  : ScopeRefTyp
+; PROCEDURE NewScopeRef ( OwningUnitRef : FM3Units . UnitRefTyp ) : ScopeRefTyp
   (* Allocate and connect a ScopeNo and ScopeRef Owned by OwningUnitRef. *) 
 
-; CONST DefaultInitDictCt = 10
+; PROCEDURE PushScope ( ScopeRef : ScopeRefTyp )  
 
-; PROCEDURE Push ( ScopeRef : ScopeRefTyp ) 
+; PROCEDURE PopScope ( ) : ScopeRefTyp  
 
 ; END FM3Scopes
 .

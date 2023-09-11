@@ -8,7 +8,8 @@
 
 INTERFACE FM3ParsePass
 
-; IMPORT FM3Base  
+; IMPORT FM3Base
+; IMPORT FM3Decls 
 ; IMPORT FM3Units 
 ; IMPORT FM3Scanner
 ; IMPORT FM3Scopes 
@@ -42,6 +43,10 @@ INTERFACE FM3ParsePass
 ; TYPE FormalModeTyp = { FmVALUE , FmVAR , FmREADONLY } 
 
 (* ---------------------------- Unnest stack ------------------------ *)
+
+; PROCEDURE StartSkipping ( ) : CARDINAL (* depth after. *)
+
+; PROCEDURE StopSkipping ( ) : CARDINAL (* depth before. *)
 
 ; PROCEDURE UnnestCoord ( ) : LONGINT
   (* Of the current unit. *)
@@ -124,23 +129,62 @@ INTERFACE FM3ParsePass
 
 ; PROCEDURE BeginBlock ( )
 
-; PROCEDURE ScopeEmpty ( ScopeKind : ScopeKindTyp )
+; PROCEDURE ScopeEmpty ( ScopeKind : FM3Scopes . ScopeKindTyp )
 
-; PROCEDURE ParseScopeLt
-    ( ScopeKind : ScopeKindTyp ; Position : FM3Base . tPosition )
+; PROCEDURE ScopeLtL2R
+    ( ScopeKind : FM3Scopes . ScopeKindTyp ; Position : FM3Base . tPosition )
+  : FM3Base . ScopeNoTyp (* Scope no. that was created. *) 
 
-; PROCEDURE ParseScopeRt ( ScopeKind : ScopeKindTyp )
+; PROCEDURE DeclIdL2R
+    ( DeclKind : FM3Decls . DeclKindTyp
+    ; DeclIdAtom : FM3Base . AtomTyp
+    ; Position : FM3Base . tPosition
+    )
+  : BOOLEAN (* Use this Id, it's not a duplicate declaration. *) 
 
-; PROCEDURE ParseDeclIdL2R
-    ( Atom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
+(* Needed?
+; PROCEDURE RefIdL2R
+    ( RefIdAtom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
+*)
 
-; PROCEDURE ParseDeclIdR2L
-    ( Atom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
+; PROCEDURE ScopeRtL2R ( )
+  (* Create an identifier-to-declNo dictionary for the scope, of
+     exactly the needed size, and load it up with DeclIdAtom to
+     DeclNo mappings, using the idents declared in the scope and
+     a contiguously-numbered range of DeclNos.
+  *) 
 
-; PROCEDURE ParseRefIdL2R
-    ( Atom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
+(* Not exported: 
+; PROCEDURE ScopeRtR2L ( ScopeNo : FM3Base . ScopeNoTyp )
 
-(*
+; PROCEDURE DuplDeclR2L
+    ( DeclIdAtom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
+  : FM3Base . DeclNoTyp 
+
+; PROCEDURE DeclRtR2L
+    ( DeclIdAtom : FM3Base . AtomTyp
+    ; Position : FM3Base . tPosition
+    ; DeclKind : FM3Decls . DeclKindTyp 
+    )
+  : FM3Base . DeclNoTyp
+
+; PROCEDURE DeclLtR2L
+    ( DeclIdAtom : FM3Base . AtomTyp
+    ; Position : FM3Base . tPosition
+    ; DeclKind : FM3Decls . DeclKindTyp 
+    )
+  : FM3Base . DeclNoTyp
+  (* May be 1st or a later duplicate decl of DeclIdAtom *)
+
+; PROCEDURE RefIdR2L
+    ( RefIdAtom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
+  : FM3Base . DeclNoTyp 
+
+; PROCEDURE ScopeLtR2L ( ScopeNo : FM3Base . ScopeNoTyp )
+
+*) 
+
+(* These are not called. 
 ; PROCEDURE PushUnnestTokPatch0 ( Token : LONGINT )
   (* To be patched.  No additional args. *) 
 
@@ -150,11 +194,10 @@ INTERFACE FM3ParsePass
 ; PROCEDURE PushUnnestTokPatch1 ( Token : LONGINT )
   (* To be patched.  One additional arg. *) 
 
-; PROCEDURE PushTok ( Tok : TokTyp ; Arg0 : LONGINT )
+; PROCEDURE PushTok ( Tok : Itk . TokTyp ; Arg0 : LONGINT )
 
-; PROCEDURE PushTokPatch ( Tok : TokTyp ; Arg0 , Arg1 : LONGINT )
-
-*)
+; PROCEDURE PushTokPatch ( Tok : Itk . TokTyp ; Arg0 , Arg1 : LONGINT )
+*) 
 
 ; PROCEDURE Run ( ) 
 

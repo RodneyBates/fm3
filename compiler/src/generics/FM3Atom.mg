@@ -33,8 +33,7 @@ GENERIC MODULE FM3Atom ( DictGenformal )
     ( InitSize : CARDINAL
     ; StartAtom : INTEGER
     ; HashFunc : HashFuncTyp
-    ; InitReverseSize : INTEGER
-      (* < 0 implies do not keep a reverse map. *) 
+    ; DoReverseMap : BOOLEAN 
     )
   : T 
   (* A new, empty table of Key-value/atom pairs. *) 
@@ -46,10 +45,11 @@ GENERIC MODULE FM3Atom ( DictGenformal )
     ; LResult . AtGrowableDict
         := DictGenformal . NewGrowable ( InitSize , HashFunc )
     ; LResult . AtNextAtom := StartAtom
-    ; IF InitReverseSize < 0
-      THEN LResult . AtReverseMap := NIL
-      ELSE 
-        LResult . AtReverseMap := NEW ( REF ARRAY OF KeyTyp , InitReverseSize ) 
+    ; IF DoReverseMap 
+      THEN  
+        LResult . AtReverseMap := NEW ( REF ARRAY OF KeyTyp , InitSize ) 
+      ELSE LResult . AtReverseMap := NIL
+      END (*IF*) 
     ; RETURN LResult 
     END New 
   
@@ -72,7 +72,7 @@ GENERIC MODULE FM3Atom ( DictGenformal )
      consistently from the adjacent Key value by the same function. *) 
 
   = VAR LNewValue , LOldValue: INTEGER
-    VAR LNumber , LNewSize: INTEGER
+  ; VAR LNumber , LNewSize: INTEGER
   ; VAR LNewMapRef : REF ARRAY OF KeyTyp 
   ; VAR LFound : BOOLEAN 
 
@@ -93,10 +93,10 @@ GENERIC MODULE FM3Atom ( DictGenformal )
           LNumber := NUMBER ( AtomDict . AtReverseMap ^ )
         ; IF LNewValue >= LNumber
           THEN
-            LNewSize := MIN ( LNumber * 2 , LNewValue + 10 
+            LNewSize := MIN ( LNumber * 2 , LNewValue + 10 ) 
           ; LNewMapRef := NEW ( REF ARRAY OF KeyTyp , LNewSize )
-          ; SUBARRAY ( LNewMapRef ^ , 0 , LLength
-              := SUBARRAY ( AtomDict . AtReverseMap ^ , 0 , LLength
+          ; SUBARRAY ( LNewMapRef ^ , 0 , LNumber ) 
+              := SUBARRAY ( AtomDict . AtReverseMap ^ , 0 , LNumber ) 
           ; AtomDict . AtReverseMap := LNewMapRef 
           END (*IF*) 
         ; AtomDict . AtReverseMap ^ [ LNewValue ] := Key 
@@ -110,9 +110,7 @@ GENERIC MODULE FM3Atom ( DictGenformal )
     ( AtomDict : T ; Atom : FM3Base . AtomTyp ; VAR Value : KeyTyp )
     : BOOLEAN (*Found*)
 
-  = VAR LFound : BOOLEAN
-
-  ; BEGIN (*Key*)
+  = BEGIN (*Key*)
       IF AtomDict . AtReverseMap = NIL THEN RETURN FALSE END (*IF*) 
     ; IF Atom >= AtomDict . AtNextAtom THEN RETURN FALSE END (*IF*)
     ; Value := AtomDict . AtReverseMap ^ [ Atom ] 

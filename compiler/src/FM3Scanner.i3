@@ -73,7 +73,7 @@ INTERFACE FM3Scanner
 
 ; PROCEDURE PopState ( ) : UniRd . T (* Previous reader. *)  
 
-; PROCEDURE CurrentUnitNo ( ) : FM3Units . UnitNoTyp 
+; PROCEDURE CurrentUnitNo ( ) : FM3Base . UnitNoTyp 
 
 ; END FM3Scanner 
 . 

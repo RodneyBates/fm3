@@ -9,12 +9,8 @@
 INTERFACE FM3Decls
 
 ; IMPORT FM3Base
+; IMPORT FM3Globals 
 ; IMPORT FM3Scopes
-; IMPORT VarArray_Int_Refany
-
-; CONST DeclNoNull = FM3Base . AtomNull 
-; TYPE DeclNoTyp = INTEGER
-; CONST DeclNoNull = LASE ( INTEGER ) 
 
 ; TYPE DeclKindTyp
     = { DkNull
@@ -35,32 +31,33 @@ INTERFACE FM3Decls
       , DkProc
       , DkWith
       , DkFor
-      , DkExcAprg
+      , DkExcArg
       } 
 
 ; TYPE DeclRefTyp = REF DeclTyp 
 ; TYPE DeclTyp
     = RECORD 
-        DclLink : DeclObjBastTyp
-        (* For a linked list of nodes for the real decl and any 
-           in its scope that duplicate the decl name .
+        DclLink : DeclRefTyp
+        (* For a linked list of nodes giving the positions of any decls, to
+           the right of the leftmost, in the same scope, with the same Ident.
+           These will have DeclKind DkDuplDecl.  Such a list is mutually
+           exclusive of a single node of some other DeclKind. 
         *) 
       ; DclParentScopeRef : FM3Scopes . ScopeRefTyp (* Containing scope *) 
       ; DclSelfScopeRef : FM3Scopes . ScopeRefTyp (* If this declares a scope *)
       ; DclIdAtom : FM3Base . AtomTyp
-      ; DclNumber : DeclNoTyp (* A self-reference. *)
+      ; DclDeclNo : FM3Base . DeclNoTyp (* A self-reference. *)
       ; DclPos : FM3Base . tPosition 
-      ; DclKind : DclKindTyp 
+      ; DclKind : DeclKindTyp 
       END (*DeclObjBaseTyp*)
 
-; CONST DefaultInitDeclCt = 100
+; TYPE DeclMapTyp = FM3Base . MapTyp
+    (* Map DeclNoTyp to DeclRefTyp. One of these per Unit. *)
 
-; TYPE DeclMapTyp = Vararray_Int_Refany (* Map DeclNoTyp to DeclRefTyp. *)
-
-; PROCEDURE NewMap ( InitDeclCt := DefaultInitDeclCt ) : DeclMapTyp 
+; PROCEDURE NewDeclMap ( InitDeclCt : FM3Base . DeclNoTyp ) : DeclMapTyp 
 
 ; PROCEDURE NewDeclRef
-    ( ParentScopeRef : FM3Scopes . ScopeRefTyp ; DeclNo : DeclNoTyp )
+    ( ParentScopeRef : FM3Scopes . ScopeRefTyp ; DeclNo : FM3Base . DeclNoTyp )
   : DeclRefTyp
   (* Allocate a DeclRef and connect in into ParentScopeRef ^. *)
 

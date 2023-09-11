@@ -41,7 +41,10 @@ GENERIC INTERFACE FM3Atom ( DictGenformal )
     ; DoReverseMap : BOOLEAN 
     )
   : T 
-  (* A new, empty table of Key-value/atom pairs. *) 
+  (* A new, empty table of Key-value/atom pairs. 
+     InitSize is an initial estimate of the eventual number of Keys. 
+     New will expand Internal allocations asneeded.
+  *)
   
 ; PROCEDURE MakeAtom
     ( Dict : T
@@ -51,16 +54,17 @@ GENERIC INTERFACE FM3Atom ( DictGenformal )
   : FM3Base . AtomTyp 
   (* If Key is absent from Dict, assign a new atom value and 
      add a Key-to-atom entry to Dict.  Either way, return the 
-     atom now associated with Key. *)
+     atom now associated with Key.  MakeAtom  will not return FM3Base.
+   *)
+
 
 ; PROCEDURE Key
     ( AtomDict : T ; Atom : FM3Base . AtomTyp ; VAR Value : KeyTyp )
   : BOOLEAN (*Found*)
 
 (* Size is an initial estimate of the eventual number of Keys. 
-     Internal allocations will be expanded if and when needed.  *)
-
-  (* FM3Base . AtomNull will not be assigned by MakeAtom. *)
+   Internal allocations will be expanded if and when needed.
+*)
 
 
   (* You can use a hash function of your choice, but all Hash values 

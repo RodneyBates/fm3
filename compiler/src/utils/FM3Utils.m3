@@ -22,7 +22,9 @@ MODULE FM3Utils
 ; IMPORT IntCharVarArray AS VarArr_Char 
 ; IMPORT IntWideCharVarArray AS VarArr_WChar
 
-; IMPORT FM3Base 
+; IMPORT FM3Atom_OAChars 
+; IMPORT FM3Base
+; IMPORT FM3OpenArray_Char 
 ; IMPORT FM3SharedGlobals 
 ; IMPORT FM3SrcToks 
 ; IMPORT FM3IntToks 
@@ -363,12 +365,20 @@ MODULE FM3Utils
 
 (*EXPORTED.*)
 ; PROCEDURE CharsOfAtom
-    ( AtomMap : FM3Atom_OAChars ; Atom : FM3Base . AtomTyp ) :  
+    ( AtomMap : FM3Atom_OAChars . T ; Atom : FM3Base . AtomTyp )
+  : FM3OpenArray_Char . T
 
-  = VAR LChars : FM3OpenArray_Char . T
+(*TODO: Surely this could be inlined. *) 
+
+  = VAR LCharsRef : FM3OpenArray_Char . T
+  ; VAR LFound : BOOLEAN 
 
   ; BEGIN (*CharsOfAtom*)
-      FM3Atom_OAChars . Value ( AtomMap ( Atom ) 
+      LFound := FM3Atom_OAChars . Key ( AtomMap , Atom , (*OUT*) LCharsRef ) 
+    ; IF LFound
+      THEN RETURN LCharsRef 
+      ELSE RETURN NIL 
+      END (*IF*) 
     END CharsOfAtom
       
 

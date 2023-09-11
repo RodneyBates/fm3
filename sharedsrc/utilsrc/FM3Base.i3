@@ -7,13 +7,32 @@
 (* -----------------------------------------------------------------------2- *)
 
 INTERFACE FM3Base 
-(* Widely used stuff for FM3. *) 
+(* Widely used stuff for FM3. *)
 
-; TYPE TokTyp = INTEGER
-; CONST TokNull = FIRST ( INTEGER )
+; IMPORT VarArray_Int_Refany 
 
-; TYPE AtomTyp = INTEGER
-; CONST AtomNull = 0 
+; TYPE TokTyp = CARDINAL
+; CONST TokNull = FIRST ( CARDINAL )
+; CONST TokFirstReal = TokNull + 1 
+
+; TYPE AtomTyp = CARDINAL 
+; CONST AtomNull = FIRST ( CARDINAL )
+; CONST AtomFirstReal = AtomNull + 1 
+
+; TYPE UnitNoTyp = CARDINAL
+; CONST UnitNoNull = FIRST ( CARDINAL )
+; CONST UnitNoFirstReal = UnitNoNull + 1 
+
+; TYPE ScopeNoTyp = CARDINAL
+; CONST ScopeNoNull = FIRST ( CARDINAL )
+; CONST ScopeNoFirstReal = ScopeNoNull + 1 
+
+; TYPE DeclNoTyp = CARDINAL
+; CONST DeclNoNull = FIRST ( CARDINAL )
+; CONST DeclNoFirstReal = DeclNoNull + 1
+
+; TYPE MapTyp = VarArray_Int_Refany . T 
+
 
 (* Type declarations that are 
    intended to be the same size regardless of a 
@@ -89,6 +108,8 @@ INTERFACE FM3Base
         Line : M2SHORTCARD 
       ; Column : M2SHORTCARD
       END (*tPosition*)
+
+; CONST PositionNull = tPosition { 0 , 0 } 
 
 ; END FM3Base
 .

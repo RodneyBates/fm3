@@ -20,15 +20,19 @@ INTERFACE FM3Globals
 ; VAR PatchStackSuffix := ".Patch" (* The patch stack, during parse pass. *) 
 ; VAR UnnestStackSuffix := ".Unnest" (* The Unnest stack, during parse pass. *) 
 ; VAR ParsePassSuffix := ".ParsePass" (* Output of the parse pass. *)
-; VAR BuildDirName := "../testbuild" 
+; VAR BuildDirName := "../build" 
 
 ; VAR M3RwDict : FM3Dict_OAChars_Int . GrowableTyp  
 ; VAR PgRwDict : FM3Dict_OAChars_Int . GrowableTyp 
 
-; VAR IdentInitAtomSize := 1500
-; VAR NumberInitAtomSize := 600
-; VAR CharsInitAtomSize := 600
-; VAR WideCharsInitAtomSize := 600
+; VAR IdentAtomInitSize := 1500
+; VAR NumberAtomInitSize := 600
+; VAR CharsAtomInitSize := 600
+; VAR WideCharsAtomInitSize := 600
+
+; VAR InitUnitCt := 30
+; VAR InitScopeCtPerUnit := 60 
+; VAR InitDeclCtPerUnit := 300 
 
 ; VAR FirstRealAtom := 1
 

@@ -39,6 +39,10 @@ INTERFACE FM3Messages
   RAISES { FM3SharedUtils . Terminate }
   (* Also terminates the program. *) 
 
+; PROCEDURE FatalArr ( READONLY Frags : ARRAY OF REFANY )
+  RAISES { FM3SharedUtils . Terminate }
+  (* Also terminates the program. *) 
+
 ; PROCEDURE Log
     ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL ) 
   RAISES { Thread . Alerted }
@@ -65,6 +69,9 @@ INTERFACE FM3Messages
 
 ; PROCEDURE Error
     ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL ) 
+  RAISES { Thread . Alerted } 
+
+; PROCEDURE ErrorArr ( READONLY Frags : ARRAY OF REFANY ) 
   RAISES { Thread . Alerted } 
 
 ; VAR UnitLogWrT : Wr . T := NIL 

@@ -130,16 +130,16 @@ MODULE FM3Scanner
     ; LSsRef ^ . SsAtBegOfPragma := FALSE 
     ; LSsRef ^ . SsUnitRef ^ . UntIdentAtomDict 
         := FM3Atom_OAChars . New 
-             ( FM3Globals . IdentInitAtomSize , 1 , NIL ) 
+             ( FM3Globals . IdentAtomInitSize , 1 , NIL , DoReverseMap := TRUE ) 
     ; LSsRef ^ . SsUnitRef ^ . UntNumberAtomDict 
         := FM3Atom_OAChars . New 
-             ( FM3Globals . NumberInitAtomSize , 1 , NIL ) 
+             ( FM3Globals . NumberAtomInitSize , 1 , NIL , DoReverseMap := TRUE ) 
     ; LSsRef ^ . SsUnitRef ^ . UntCharsAtomDict 
         := FM3Atom_OAChars . New 
-             ( FM3Globals . CharsInitAtomSize , 1 , NIL ) 
+             ( FM3Globals . CharsAtomInitSize , 1 , NIL , DoReverseMap := TRUE ) 
     ; LSsRef ^ . SsUnitRef ^ . UntWCharsAtomDict 
         := FM3Atom_OAWideChars . New 
-             ( FM3Globals . WideCharsInitAtomSize , 1 , NIL ) 
+             ( FM3Globals . WideCharsAtomInitSize , 1 , NIL , DoReverseMap := TRUE ) 
 
     ; TRY 
         LSsRef ^ . SsWCh := UnsafeUniRd . FastGetWideChar( LSsRef ^ . SsUniRd ) 
@@ -195,10 +195,10 @@ MODULE FM3Scanner
     END PopState 
 
 (* EXPORTED: *) 
-; PROCEDURE CurrentUnitNo ( ) : FM3Units . UnitNoTyp  
+; PROCEDURE CurrentUnitNo ( ) : FM3Base . UnitNoTyp  
 
   = BEGIN 
-      IF GTopSsRef = NIL THEN RETURN FM3Units . UnitNoNull END (*IF*) 
+      IF GTopSsRef = NIL THEN RETURN FM3Base . UnitNoNull END (*IF*) 
     ; RETURN GTopSsRef . SsUnitRef ^ . UntUnitNo  
     END CurrentUnitNo 
 

@@ -13,90 +13,91 @@ MODULE FM3Scopes
 ; IMPORT VarArray_Int_Refany 
 
 ; IMPORT FM3Base
+; IMPORT FM3Decls 
 ; IMPORT FM3Dict_Int_Int
-; IMPORT FM3SharedUtils 
+; IMPORT FM3Globals 
+; IMPORT FM3SharedUtils
+; IMPORT FM3Units
+; IMPORT Ranges_Int
 
 (*EXPORTED*) 
-; PROCEDURE NewMap ( ScopeCt := InitScopeCt ) : ScopeMapTyp
-  (* A single global map of scopes. *) 
+; PROCEDURE NewScopeMap ( ScopeCt : FM3Base . ScopeNoTyp ) : ScopeMapTyp
+  (* One of these per unit. *) 
 
   = BEGIN
       RETURN
         VarArray_Int_Refany . New
           ( NIL , IntRanges . RangeTyp {  0 , ScopeCt - 1 } ) 
-    END NewMap
+    END NewScopeMap
 
 (*EXPORTED*) 
-; PROCEDURE NewScope
-    ( OwningUnitRef : FM3Units . UnitRefTyp ; InitDictCt := DefaultInitDictCt )
-  : ScopeRefTyp
+; PROCEDURE NewScopeRef ( OwningUnitRef : FM3Units . UnitRefTyp ) : ScopeRefTyp
   (* Allocate and connect a ScopeNo and ScopeRef Owned by OwningUnitRef. *) 
 
-  = VAR LScopeMap : FM3Scopes . ScopeMapTyp
+  = VAR LUnitScopeMap : FM3Base . MapTyp
   ; VAR LScopeRef : ScopeRefTyp
-  ; VAR LScopeNo : ScopeNoTyp
-  ; VAR LRange : Rages_Int . T 
+  ; VAR LScopeNo : FM3Base . ScopeNoTyp
+  ; VAR LRange : Ranges_Int . RangeTyp  
 
   ; BEGIN
-      LScopesMap := OwningUnitRef ^ . UntScopesMap 
-    ; LRange := VarArray_Int_Refany . TouchedRange ( LScopesMap )
+      LUnitScopeMap := OwningUnitRef ^ . UntScopeMap 
+    ; LRange := VarArray_Int_Refany . TouchedRange ( LUnitScopeMap )
     ; IF Ranges_Int . RangeIsEmpty ( LRange ) 
-      THEN LScopeNo := 0
+      THEN LScopeNo := FM3Base . ScopeNoFirstReal 
       ELSE LScopeNo := LRange . Hi + 1
       END (* IF *) 
     ; LScopeRef := NEW ( ScopeRefTyp )
-    ; LScopeRef . ScpNumber := LScopeNo  
+    ; LScopeRef . ScpScopeNo := LScopeNo  
     ; LScopeRef . ScpRefIdSet := IntSets . Empty ( )  
-    ; LScopeRef . ScpDuplIdSet := IntSets . Empty ( )  
-    ; LScopeRef . ScpDuplIdSet := IntSets . Empty ( )  
+    ; LScopeRef . ScpDuplDeclIdSet := IntSets . Empty ( )  
     ; LScopeRef . ScpDeclCt := 0
-    ; LScopeRef . OwningDeclNo := FM3Base . MapNoNull
-    ; LScopeRef . ScpDeclMap := FMeDecls . NewMap ( InitDictCt ) 
-    ; VarArray_Int_Refany . Assign ( LScopesMap , LScopeNo , LScopeRef )
+    ; LScopeRef . ScpOwningUnitNo := FM3Base . UnitNoNull
+    ; LScopeRef . ScpOwningDeclNo := FM3Base . DeclNoNull
+    ; LScopeRef . ScpStackDepth := 0
+    ; VarArray_Int_Refany . Assign ( LUnitScopeMap , LScopeNo , LScopeRef )
     ; RETURN LScopeRef 
-    END NewScope 
+    END NewScopeRef 
 
 (*EXPORTED.*)
-; PROCEDURE Push ( ScopeRef : ScopeRefTyp  ) : INTEGER (* Depth after push. *) 
+; PROCEDURE PushScope ( ScopeRef : ScopeRefTyp ) 
 
-  = BEGIN (*Push*)
-      IF ScopeRef = NIL THEN RETURN END (*IF*)
-    ; WITH WUnit = FM3Globals . CurrentUnitRef
-      DO 
-        ScopeRef ^ . ScpStackLink := WUnit . UntScopeStackTop 
-      ; WUnit . UntScopeStackTop := ScopeRef
-      ; INC ( WUnit . UntStackDepth ) (* Overflow? *)  
-      ; RETURN WUnit . UntStackDepth
-      END (*WITH*) 
-    END Push
-(* TODO: Put scope depth into the scope object (and probably not
-        in the Unit object.
-*)
+  = VAR LBeneathScopeRef : ScopeRefTyp
 
-
-
+  ; BEGIN (*Push*)
+      IF ScopeRef = NIL THEN RETURN END (*IF*) 
+    ; <* ASSERT ScopeRef . ScpStackDepth = 0 *> (* Not already on stack. *)
+      LBeneathScopeRef := ScopeStackTopRef  
+    ; IF LBeneathScopeRef = NIL
+      THEN ScopeRef . ScpStackDepth := 1
+      ELSE ScopeRef . ScpStackDepth := LBeneathScopeRef . ScpStackDepth + 1
+      END (*IF*) 
+    ; ScopeRef ^ . ScpStackLink := LBeneathScopeRef  
+    ; ScopeStackTopRef := ScopeRef
+    END PushScope
 
 (*EXPORTED.*)
-; PROCEDURE Pop ( ) : INTEGER (* Depth before pop. *) 
+; PROCEDURE PopScope ( ) : ScopeRefTyp  
 
-  = VAR LPoppedScopeRef : FM3Scopes . ScopeRefTyp
-  ; VAR LDepthBefore : INTEGER
+  = VAR LPoppedScopeRef : ScopeRefTyp
 
   ; BEGIN (*Pop*)
-      WITH WUnit = FM3Globals . CurrentUnitRef
-      DO 
-        LDepthBefore := WUnit . UntScopeStackDepth
-      ; <* ASSERT LDepthBefore > 0 *>
-        DEC ( WUnit . UntScopeStackDepth )
-      ; LPoppedScope := WUnit . UntScopeStackTop 
-      ; <* ASSERT LPoppedScope # NIL *>
-        WUnit . UntScopeStackTop := LPoppedScope . ScpStackLink 
-      ; RETURN LDepthBefore  
-      END (*WITH*) 
-    END Pop
+      LPoppedScopeRef := ScopeStackTopRef 
+    ; <* ASSERT LPoppedScopeRef # NIL *>
+      ScopeStackTopRef := LPoppedScopeRef . ScpStackLink
+    ; IF ScopeStackTopRef = NIL
+      THEN <* ASSERT LPoppedScopeRef . ScpStackDepth = 1 *>
+      ELSE
+        <* ASSERT
+             ScopeStackTopRef . ScpStackDepth
+             = LPoppedScopeRef . ScpStackDepth - 1
+        *>
+      END (*IF*)
+    ; LPoppedScopeRef . ScpStackDepth := 0  (* Note not on stack. *)
+    ; RETURN LPoppedScopeRef
+    END PopScope 
 
 ; BEGIN
-    ScopeStackTop := NIL 
+    ScopeStackTopRef := NIL 
   END FM3Scopes
 .
 

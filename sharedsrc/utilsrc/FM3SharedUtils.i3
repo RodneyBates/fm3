@@ -34,6 +34,15 @@ INTERFACE FM3SharedUtils
     ( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : REFANY := NIL ) : TEXT
   (* Each Tn can be TEXT, Atom.T, or AtomList.T. *) 
     
+; PROCEDURE CatArrT
+    ( READONLY Arr : ARRAY OF REFANY ; T0 : TEXT := NIL ) : TEXT
+  (* T0 and each Arr [ I ] can be TEXT, Atom.T, or AtomList.T. *)
+  (* T0 will appear *left* of elements of Arr.  
+     Although this signature order seems very peculiar, it allows message
+     procedures to prepend a tag such as "error", in color, while
+     allowing the rest to be passed multiple levels as one parameter.
+  *) 
+    
 ; TYPE FileKindTyp = CHAR
 
 ; PROCEDURE FileKindImage ( Kind : FileKindTyp ) : TEXT

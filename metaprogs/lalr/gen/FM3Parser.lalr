@@ -1,4 +1,4 @@
- 
+
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2023,       Rodney M. Bates.                                    *)
@@ -22,6 +22,7 @@ EXPORT
 GLOBAL
 
   { IMPORT FM3Base;
+    IMPORT FM3Decls;
     IMPORT FM3Messages;
     IMPORT FM3Globals;
     IMPORT FM3IntToks AS Itk;
@@ -43,7 +44,8 @@ GLOBAL
 
 /* Global declarations of the Parser procedure. */ 
 LOCAL
-  { TYPE Sk = FM3Scopes . ScopeKindTyp ; 
+  { TYPE Sk = FM3Scopes . ScopeKindTyp ;
+    TYPE Dk = FM3Decls . DeclKindTyp ; 
   }
 
 /* Parser module initialization. */ 
@@ -268,15 +270,30 @@ RULE
      } . 
 
 (* List of one or more comma-separated declaring occurrences of Idents.*)
+   (* Make sure DeclIdPlusList is always immedately preceeded by something
+      with a DeclKind in PaByte. *) 
    DeclIdPlusList : StkIdent 
-     { (* PaUnnestCoord copied from $1 by parser. *) 
-       $$ . PaInt := 1 ;
-       FM3ParsePass . ParseDeclIdL2R ( $1 . Scan . SaAtom , $1 . Scan . Position ) ; 
+     { (* PaUnnestCoord is copied from $1 to $$ by parser. *) 
+       $$ . PaInt (* Non-duplicate Id count. *) 
+         := ORD 
+              ( FM3ParsePass . DeclIdL2R
+                  ( VAL ( $0 . PaByte , Dk )
+                  , $1 . Scan . SaAtom
+                  , $1 . Scan . Position
+                  )
+              ) ; 
      } . 
    DeclIdPlusList : DeclIdPlusList StkComma StkIdent
-     { (* PaUnnestCoord copied from $1 by parser . *) 
-       $$ . PaInt := $1 . PaInt + 1 ;
-       FM3ParsePass . ParseDeclIdL2R ( $3 . Scan . SaAtom , $3 . Scan . Position ) ; 
+     { (* PaUnnestCoord is copied from $1 to $$ by parser . *)
+       $$ . PaInt (* Non-duplicate Id count. *)
+         := $1 . PaInt
+            + ORD
+                ( FM3ParsePass . DeclIdL2R
+                    ( VAL ( $0 . PaByte , Dk )
+                    , $3 . Scan . SaAtom
+                    , $3 . Scan . Position
+                    )
+                ) ; 
      } . 
 
 (* List of zero or more comma-separated Idents. *)
@@ -505,19 +522,20 @@ RULE
 (* List of formal decls. *) 
    Formals : StkOpenParen StkCloseParen /* Empty formals list. */
      { $$ . Scan . Position := $1 . Scan . Position ;
-       FM3Scopes . ScopeEmpty ( Sk . SkFormals ) ; 
+       FM3ParsePass . ScopeEmpty ( Sk . SkFormals ) ; 
        PushUnnest ( Itk . ItkFormalsListEmpty )
      } .
    Formals : FormalsLt FormalsPlusList OptSemicolon StkCloseParen
      { $$ . Scan . Position := $1 . Scan . Position ;
-       FM3ParsePass . ParseScopeRt ( ) ;
+       FM3ParsePass . ScopeRtL2R ( ) ;
        MakeListPos
          ( $$ , Itk . ItkFormalsListLt , $1 . Scan . Position , $2 ) ;
      } .
    FormalsLt : StkOpenParen 
      { $$ . Scan . Position := $1 . Scan . Position ;
-       FM3ParsePass . ParseScopeLt
-         ( Sk . SkFormals , $1 . Scan . Position ) ;
+       $$ . PaInt (* ScopeNo. *) 
+         := FM3ParsePass . ScopeLtL2R
+              ( Sk . SkFormals , $1 . Scan . Position ) ;
      } . 
    FormalsPlusList : FormalsPlusList StkSemicolon Formal 
      { $$ . PaInt := $1 . PaInt + 1 (* Formal count. *); } .  
@@ -526,7 +544,11 @@ RULE
 
 (* Formal decl (with possibly multiple idents). *)
    Formal : FormalModeAndIds FormalType FormalExpr
-     { IF $1 . PaByte = ORD ( FormalModeTyp . FmVAR )  
+     { IF $1 . PaInt (* Id count. *) = 0
+       THEN
+(* TODO: Skip entire rest of formal. *)
+       END ;
+       IF $1 . PaByte = ORD ( Dk . DkVarFormal )  
        THEN
          IF NOT $2 . PaBool (* Formal type is present (absent). *)
          THEN
@@ -553,7 +575,8 @@ RULE
      } .
 
    FormalModeAndIds : FormalMode DeclIdPlusList
-     { $$ . PaByte := $1 . PaByte (* Transmission mode. *) ;
+     { $$ . PaByte := $1 . PaByte (* DeclKind, implies Transmission mode. *) ;
+       $$ . PaInt := $2 . PaInt (* Id count. *) ; 
        $$ . Scan . Position := $1 . Scan . Position ;   
        MakeListPos
          ( $$ , $1 . PaInt (* List Itk *) , $1 . Scan . Position , $2 ); 
@@ -561,22 +584,22 @@ RULE
 
 (* Formal parameter modes. *) 
    FormalMode : StkRwVALUE 
-     { $$ . PaByte := ORD ( FormalModeTyp . FmVALUE );
-       $$ . PaInt := Itk . ItkFormalVALUEIdListLt;
+     { $$ . PaByte := ORD ( Dk . DkValueFormal ) (* Conveys mode. *) ;
+       $$ . PaInt := Itk . ItkFormalVALUEIdListLt (* Token for list. *) ;
        $$ . Scan . Position := $1 . Scan . Position; 
      } .
    FormalMode : StkRwVAR 
-     { $$ . PaByte := ORD ( FormalModeTyp . FmVAR );
+     { $$ . PaByte := ORD ( Dk . DkVarFormal );
        $$ . PaInt := Itk . ItkFormalVARIdListLt; 
        $$ . Scan . Position := $1 . Scan . Position; 
      } .
    FormalMode : StkRwREADONLY
-     { $$ . PaByte := ORD ( FormalModeTyp . FmREADONLY );
+     { $$ . PaByte := ORD ( Dk . DkROFormal );
        $$ . PaInt := Itk . ItkFormalREADONLYIdListLt; 
        $$ . Scan . Position := $1 . Scan . Position; 
      } .
    FormalMode : /*Empty*/
-     { $$ . PaByte := ORD ( FormalModeTyp . FmVALUE );
+     { $$ . PaByte := ORD ( Dk . DkValueFormal );
        $$ . PaInt := Itk . ItkFormalVALUEIdListLt; 
        $$ . Scan . Position := FM3Scanner . Attribute . Position; 
      } .

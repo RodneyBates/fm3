@@ -97,6 +97,22 @@ MODULE FM3Messages
     END Fatal  
 
 (*EXPORTED*)
+; PROCEDURE FatalArr ( READONLY Frags : ARRAY OF REFANY )
+  RAISES { FM3SharedUtils . Terminate }
+  (* Also terminates the program. *) 
+
+  = VAR LMsg : TEXT 
+
+  ; BEGIN
+      LMsg := FM3SharedUtils . CatArrT ( Frags , "FM3 FATAL: " ) 
+    ; TRY (*EXCEPT*)
+        PutStdErr ( LMsg ) 
+      ; PutLog ( LMsg ) 
+      ; RAISE FM3SharedUtils . Terminate ( LMsg ) 
+      EXCEPT Thread . Alerted => END (*EXCEPT*) 
+    END FatalArr  
+
+(*EXPORTED*)
 ; PROCEDURE Log
     ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL )
   RAISES { Thread . Alerted }
@@ -166,6 +182,18 @@ MODULE FM3Messages
     ; PutStdOut ( LMsg ) 
     ; PutUnitLog ( LMsg ) 
     END Error
+
+(*EXPORTED*)
+; PROCEDURE ErrorArr ( READONLY Frags : ARRAY OF REFANY ) 
+  RAISES { Thread . Alerted } 
+
+  = VAR LMsg : TEXT 
+
+  ; BEGIN
+      LMsg := FM3SharedUtils . CatArrT ( Frags , "Error " ) 
+    ; PutStdOut ( LMsg ) 
+    ; PutUnitLog ( LMsg ) 
+    END ErrorArr
 
 (*EXPORTED*)
 ; PROCEDURE StartUnit

@@ -40,16 +40,20 @@ ItkRaisesANY 2 (* Position. *) .
 ItkResultTypeAbsent 2 (* Position. *). 
 ItkProcBodyAbsent 2 (* Position. *).
 
-
-
+(* Scopes and declarations within. *) 
+LONE
+ItkScopeLt 1 (* ScopeNo. *) (* ItkScopePatch not used. *) .
+ItkScopeRt 1 (* ScopeNo. *) . 
+ItkRefId 3 (* IdAtom, position. Occurs before unnest. *). 
+ItkRefNo 3 (* DeclNo, position. Occurs after unnest. *) . 
+ItkDuplDeclId 3 (* IdAtom, position *) . 
+ItkDeclId 4 (* DeclKind, IdAtom, position *)
+ItkDeclNo 3 (* DeclNo, position *)
  
 FIXED
 ItkQualId .
 
-ItkDeclId 3 (* Atom, position *) . 
-ItkDuplDeclId 3 (* Atom, position *) . 
-
-
+FIXED   
 ItkFuncSignature 2 (* Position. *) .
 ItkProcSignature 2 (* Position. *).
 ItkFormalType 2 (* Position of colon. *) . 

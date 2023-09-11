@@ -106,6 +106,30 @@ MODULE FM3SharedUtils
     END CatStrings  
 
 (*EXPORTED*) 
+; PROCEDURE CatArrT
+    ( READONLY Arr : ARRAY OF REFANY ; T0 : TEXT := NIL ) : TEXT
+  (* T0 and each Arr [ I ] can be TEXT, Atom.T, or AtomList.T. *)
+  (* T0 will appear *left* of elements of Arr.  
+     Although this signature order seems very peculiar, it allows message
+     procedures to prepend a tag such as "error", in color, while
+     allowing the rest to be passed multiple levels as one parameter.
+  *) 
+    
+  = VAR LWrT : TextWr . T
+  ; VAR LMsg : TEXT 
+
+  ; BEGIN
+      LWrT := TextWr . New ( )
+    ; CatOneString ( LWrT , T0 ) 
+    ; FOR RI := 0 TO LAST ( Arr )
+      DO CatOneString ( LWrT , Arr [ RI ]  )
+      END (*FOR*) 
+    ; LMsg := TextWr . ToText ( LWrT )
+    ; IF LMsg = NIL THEN LMsg := "" END (*IF*) (* Can this happen? *) 
+    ; RETURN LMsg 
+    END CatArrT  
+
+(*EXPORTED*) 
 ; PROCEDURE FileKindImage ( Kind : FileKindTyp ) : TEXT
 
   = BEGIN

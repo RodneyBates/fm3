@@ -8,24 +8,24 @@
 
 INTERFACE FM3Units
 
-; IMPORT VarArray_Int_Refany
 ; IMPORT Wr 
 
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars
 ; IMPORT FM3Base 
-; IMPORT FM3Decls 
-; IMPORT FM3Scopes
 ; IMPORT RdBackFile
+; IMPORT VarArray_Int_Refany
 
 ; TYPE UnitKindTyp
          = { UkNull
-           , UkInterface , UkGenInterface , UkInstInterface
-           , UkModule , UkGenModule , UkInstModule
+           , UkInterface
+           , UkGenInterface
+           , UkInstInterface
+           , UkModule
+           , UkGenModule
+           , UkInstModule
            } 
 
-; TYPE UnitNoTyp = INTEGER
-; CONST UnitNoNull = - 1 
 ; TYPE UnitRefTyp = REF UnitTyp
 ; TYPE UnitTyp
     = RECORD
@@ -52,20 +52,18 @@ INTERFACE FM3Units
       ; UntUnnestStackRdBack : RdBackFile . T := NIL
       ; UntMaxUnnestStackDepth : LONGINT := 0L 
       ; UntUnnestStackEmpty : LONGINT := 0L
-      ; UntParsePassName : TEXT := NIL (* Pass output file. *) 
+      ; UntParsePassName : TEXT := NIL (* Parse pass output file. *) 
       ; UntParsePassRdBack : RdBackFile . T := NIL
       ; UntParsePassEmpty : LONGINT := 0L
       ; UntIdentAtomDict : FM3Atom_OAChars . T := NIL (* Identifiers. *)   
       ; UntNumberAtomDict : FM3Atom_OAChars . T := NIL (* Numeric literals. *)  
-      ; UntCharsAtomDict : FM3Atom_OAChars . T := NIL(* TEXT literals. *) 
+      ; UntCharsAtomDict : FM3Atom_OAChars . T := NIL (* TEXT literals. *) 
       ; UntWCharsAtomDict : FM3Atom_OAWideChars . T := NIL
           (* ^Wide TEXT literals. *)
-      ; UntScopesMap : FM3Scopes . ScopeMapTyp := NIL k
-      ; UntDeclsMap : FM3Decls . DeclMapTyp := NIL
-      ; UntScopesMap : FM3Scopes . ScopeMapTyp := NIL k
-      ; UntScopeStackTop : UnitRefTyp := NIL 
-      ; UntScopeStackDepth : INTEGER := 0 
-      ; UntUnitNo : UnitNoTyp := UnitNoNull
+      ; UntDeclMap : FM3Base . MapTyp := NIL
+      ; UntScopeMap : FM3Base . MapTyp := NIL 
+      ; UntUnitNo : FM3Base . UnitNoTyp := FM3Base . UnitNoNull
+      ; UntStackDepth : INTEGER 
       ; UntScanResult : INTEGER 
       ; UntParseResult : INTEGER 
       ; UntParsePassResult : INTEGER
@@ -74,22 +72,30 @@ INTERFACE FM3Units
         
       END (*UnitTyp*)
 
-; TYPE UnitMapTyp = VarArray_Int_Refany . T (* Map UnitNoTyp to UnitRefTyp. *)
+; TYPE UnitMapTyp = FM3Base . MapTyp
+    (* Map UnitNoTyp to UnitRefTyp.  Only one UnitMap in a compile. *) 
 ; VAR UnitMap : UnitMapTyp
-  (* ^Only one of these. *) 
 
-; PROCEDURE New ( ) : UnitRefTyp
+; PROCEDURE NewUnitMap ( InitUnitCt : FM3Base . UnitNoTyp ) : UnitMapTyp
+  (* One UnnitMap in a compile. *) 
+
+; VAR UnitStackTopRef : UnitRefTyp := NIL 
+    (* One UnitStack in a compile *)
+    
+; PROCEDURE NewUnitRef ( ) : UnitRefTyp
   (* Allocate, low-level initialize, give it a UnitNo, and put into UnitMap. *)
 
 ; PROCEDURE AllocateDeclNos ( Ct : INTEGER ) : INTEGER 
   (* Allocate a contiguous range of Ct Decl numbers, unique
-     within the current scope, and return the lowest number.
+     within the current unit, and return the lowest number.
   *) 
 
 ; PROCEDURE TextOfIdAtom ( IdAtom : FM3Base . AtomTyp ) : TEXT
   (* In the current unit. *) 
 
-; VAR UnitStackTop : UnitRefTyp := NIL 
+; PROCEDURE PushUnit ( UnitRef : UnitRefTyp ) 
+
+; PROCEDURE PopUnit ( ) : UnitRefTyp  
 
 ; END FM3Units
 
