@@ -52,7 +52,8 @@ INTERFACE RdBackFile
 ; PROCEDURE Put ( RbFile : T ; Value : ByteTyp )
   RAISES { Thread . Alerted , OSError . E }  
 
-; PROCEDURE GetBwd ( RbFile : T ) : ByteTyp RAISES { OSError . E , BOF }  
+; PROCEDURE GetBwd
+    ( RbFile : T ; Consume := TRUE ) : ByteTyp RAISES { OSError . E , BOF }
 
 ; PROCEDURE Copy ( RbFile : T ; CopyFileName : TEXT ; LMUnnestDepth : LONGINT )
 

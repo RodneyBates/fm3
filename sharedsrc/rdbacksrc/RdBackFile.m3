@@ -559,7 +559,8 @@ MODULE RdBackFile
     END Put 
 
 (*EXPORTED*)
-; PROCEDURE GetBwd ( RbFile : T ) : ByteTyp RAISES { OSError . E , BOF }  
+; PROCEDURE GetBwd
+    ( RbFile : T ; Consume := TRUE ) : ByteTyp RAISES { OSError . E , BOF }
 
   = VAR LResult : ByteTyp
 
@@ -588,8 +589,11 @@ MODULE RdBackFile
       
     (* Fetch the desired byte. *) 
     ; DEC ( RbFile . RbBlockNextIn )
-    ; LResult := RbFile . RbBuffer [ RbFile . RbBlockNextIn ]  
-    ; DEC ( RbFile . RbLengthL )
+    ; LResult := RbFile . RbBuffer [ RbFile . RbBlockNextIn ]
+    ; IF Consume
+      THEN DEC ( RbFile . RbLengthL )
+      ELSE INC ( RbFile . RbBlockNextIn )
+      END (*IF*) 
     ; RETURN LResult 
     END GetBwd 
 
