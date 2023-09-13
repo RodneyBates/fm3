@@ -49,7 +49,8 @@ MODULE FM3Scopes
     ; LScopeRef := NEW ( ScopeRefTyp )
     ; LScopeRef . ScpScopeNo := LScopeNo  
     ; LScopeRef . ScpRefIdSet := IntSets . Empty ( )  
-    ; LScopeRef . ScpDuplDeclIdSet := IntSets . Empty ( )  
+    ; LScopeRef . ScpDuplDeclIdSet := IntSets . Empty ( )
+    ; LScopeRef . ScpMinDeclNo := FM3Base . DeclNoMax 
     ; LScopeRef . ScpDeclCt := 0
     ; LScopeRef . ScpOwningUnitNo := FM3Base . UnitNoNull
     ; LScopeRef . ScpOwningDeclNo := FM3Base . DeclNoNull

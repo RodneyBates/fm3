@@ -12,5 +12,7 @@ include_dir("../lexsrc")
 
 include_dir("../globalsrc") 
 
+include_dir("../vararraysrc") 
+
 module("FM3Base")
 module("FM3SharedUtils")

@@ -40,8 +40,6 @@ INTERFACE FM3ParsePass
         , PaBool := FALSE
         }
 
-; TYPE FormalModeTyp = { FmVALUE , FmVAR , FmREADONLY } 
-
 (* ---------------------------- Unnest stack ------------------------ *)
 
 ; PROCEDURE StartSkipping ( ) : CARDINAL (* depth after. *)
@@ -135,11 +133,7 @@ INTERFACE FM3ParsePass
     ( ScopeKind : FM3Scopes . ScopeKindTyp ; Position : FM3Base . tPosition )
   : FM3Base . ScopeNoTyp (* Scope no. that was created. *) 
 
-; PROCEDURE DeclIdL2R
-    ( DeclKind : FM3Decls . DeclKindTyp
-    ; DeclIdAtom : FM3Base . AtomTyp
-    ; Position : FM3Base . tPosition
-    )
+; PROCEDURE DeclIdL2R ( DeclKind : FM3Decls . DeclKindTyp )
   : BOOLEAN (* Use this Id, it's not a duplicate declaration. *) 
 
 (* Needed?

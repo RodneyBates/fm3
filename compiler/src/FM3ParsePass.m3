@@ -1160,30 +1160,38 @@ MODULE FM3ParsePass
     END ScopeLtL2R
 
 (*EXPORTED.*)
-; PROCEDURE DeclIdL2R
-    ( DeclKind : FM3Decls . DeclKindTyp
-    ; DeclIdAtom : FM3Base . AtomTyp
-    ; Position : FM3Base . tPosition
-    )
-  : BOOLEAN (* Use this Id, it's not a duplicate declaration. *) 
+; PROCEDURE DeclIdL2R ( DeclKind : FM3Decls . DeclKindTyp )
+  : BOOLEAN (* Use this declared id.  It's not a duplicate. *) 
 
-  = BEGIN (*DeclIdL2R*)
+  = VAR LTokenL : LONGINT
+  ; VAR LIdAtomL : LONGINT 
+  ; VAR LIdAtom : FM3Base . AtomTyp
+
+  ; BEGIN (*DeclIdL2R*)
       WITH WScope = FM3Scopes . ScopeStackTopRef ^
            , WunRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack 
       DO
-        PutBwd ( WunRdBack , VAL ( Position . Column , LONGINT ) ) 
-      ; PutBwd ( WunRdBack , VAL ( Position . Line , LONGINT ) ) 
-      ; PutBwd ( WunRdBack , VAL ( DeclIdAtom , LONGINT ) ) 
-      ; IF IntSets . IsElement ( DeclIdAtom , WScope . ScpDeclIdSet )
-        THEN (* A duplicate declaration of DeclIdAtom. *)
+        (* An StkIdent, /w args, was pushed by parser shift, as it does for
+           all variable terminals.  Convert it to ItkDeclId or ItkDuplDeclId.
+        *) 
+        LTokenL := GetBwd ( WunRdBack )
+      ; <*ASSERT LTokenL = VAL ( FM3SrcToks . StkIdent , LONGINT ) *>
+        LIdAtomL := GetBwd ( WunRdBack )
+      ; LIdAtom := VAL ( LIdAtomL , FM3Base . AtomTyp ) 
+      ; PutBwd ( WunRdBack , LIdAtomL )
+      (* Each of the 3 tokens involved here has a Position argument,
+         but no need to pop and repush it.
+      *) 
+      ; IF IntSets . IsElement ( LIdAtom , WScope . ScpDeclIdSet )
+        THEN (* A duplicate declaration of LIdAtom. *)
              (* Except for this inserted Itk, skip the decl. *) 
           WScope . ScpDuplDeclIdSet
-            := IntSets . Include ( WScope . ScpDuplDeclIdSet , DeclIdAtom )
+            := IntSets . Include ( WScope . ScpDuplDeclIdSet , LIdAtom )
         ; PutBwd ( WunRdBack , VAL ( Itk . ItkDuplDeclId , LONGINT ) )
         ; RETURN FALSE 
         ELSE 
           WScope . ScpDeclIdSet
-            := IntSets . Include ( WScope . ScpDeclIdSet , DeclIdAtom )
+            := IntSets . Include ( WScope . ScpDeclIdSet , LIdAtom )
         ; PutBwd ( WunRdBack , VAL ( ORD ( DeclKind ) , LONGINT ) )  
         ; PutBwd ( WunRdBack , VAL ( Itk . ItkDeclId , LONGINT ) )  
         ; RETURN TRUE  
@@ -1327,11 +1335,13 @@ MODULE FM3ParsePass
   = PROCEDURE VisitDecl ( DeclNoI : INTEGER ; VAR DeclRefany : REFANY )
     (* PRE: DeclNoI IN FM3Base . DeclNoTyp *) 
     (* PRE: DeclRefany <: FM3Decls . DeclRefTyp. *) 
-    = VAR LDeclRef : FM3Decls . DeclRefTyp  
+    = VAR LDeclRef : FM3Decls . DeclRefTyp
+    ; VAR LParentScopeRef : FM3Scopes . ScopeRefTyp 
     ; VAR LIdentText : TEXT
 
     ; BEGIN (* VisitDecl *)
-        LDeclRef := DeclRefany (* Implied NARROW. *) 
+        LDeclRef := DeclRefany (* Implied NARROW. *)
+      ; LParentScopeRef := FM3Scopes . ScopeStackTopRef 
       ; IF LDeclRef # NIL
         THEN  (* Some duplicate decls of DeclNoI exist. *)
           LIdentText := FM3Units . TextOfIdAtom ( DeclIdAtom ) 
@@ -1354,11 +1364,12 @@ MODULE FM3ParsePass
       ; LDeclRef
           := FM3Decls . NewDeclRef ( FM3Scopes . ScopeStackTopRef , DeclNoI )
       ; LDeclRef . DclLink := NIL 
-      ; LDeclRef . DclSelfScopeRef := FM3Scopes . ScopeStackTopRef 
+      ; LDeclRef . DclSelfScopeRef := NIL
+(* TODO: ^ Get this from parser.  Also set the reverse link ScpOwningDeclNo. *) 
       ; LDeclRef . DclIdAtom := DeclIdAtom 
       ; LDeclRef . DclDeclNo := DeclNoI
       ; LDeclRef . DclPos := Position 
-      ; LDeclRef . DclKind := DeclKind
+      ; LDeclRef . DclKind := DeclKind 
       ; DeclRefany := LDeclRef 
       END VisitDecl
 
@@ -1370,7 +1381,7 @@ MODULE FM3ParsePass
           LookupId
             ( FM3Scopes . ScopeStackTopRef ^ , DeclIdAtom , (*OUT*) LDeclNo ) 
         ; <*ASSERT LDeclNo # FM3Base . DeclNoNull *>
-          VarArray_Int_Refany . CallbackWithElem
+          VarArray_Int_Refany . CallbackWithElem 
             ( FM3Units . UnitStackTopRef ^ . UntDeclMap , LDeclNo , VisitDecl )
         ; PutBwd ( WppRdBack , VAL ( Position . Column , LONGINT ) ) 
         ; PutBwd ( WppRdBack , VAL ( Position . Line , LONGINT ) ) 

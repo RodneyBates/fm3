@@ -322,12 +322,14 @@ MODULE FM3Utils
 
   = BEGIN (*SrcTokOpndCt*)
       CASE Token OF
-      | FM3SrcToks . TkMinTok .. FM3SrcToks . StkClosePragma
+      | FM3SrcToks . StkEOF .. FM3SrcToks . StkBOF 
+      , FM3SrcToks . StkRwAND .. FM3SrcToks . StkClosePragma
       => RETURN 0 
       | FM3SrcToks . StkIdent .. FM3SrcToks . StkWideCharLit
       => RETURN 3 (* Atom, Line, Column. *) 
 (* NOTE: May need to adjust this if literals have additional operands. *) 
-      | FM3IntToks . TkMinTok .. FM3IntToks . TkMaxTok
+      | FM3IntToks . ItkNull .. FM3IntToks . ItkRightEnd
+      , FM3IntToks . ItkImport .. FM3IntToks . TkMaxTok
       => IF IntSets . IsElement ( Token , FM3SharedGlobals . GTokSetGE6Args )
          THEN RETURN 6
          ELSIF IntSets . IsElement ( Token , FM3SharedGlobals . GTokSetGE5Args )

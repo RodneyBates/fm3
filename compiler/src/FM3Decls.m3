@@ -13,6 +13,7 @@ MODULE FM3Decls
 ; IMPORT FM3Base
 ; IMPORT FM3Globals 
 ; IMPORT FM3Scopes
+; IMPORT FM3Units 
 ; IMPORT VarArray_Int_Refany
 
 (*EXPORTED*) 
@@ -35,10 +36,13 @@ MODULE FM3Decls
 
   ; BEGIN
       LDeclRef := NEW ( DeclRefTyp )
-    ; LDeclRef . DclDeclNo := DeclNo  
+    ; LDeclRef . DclDeclNo := DeclNo
+    ; INC ( ParentScopeRef ^ . ScpDeclCt )
+    ; ParentScopeRef ^ . ScpMinDeclNo
+        := MIN ( ParentScopeRef ^ . ScpMinDeclNo , DeclNo ) 
     ; LDeclRef . DclParentScopeRef := ParentScopeRef  
     ; VarArray_Int_Refany . Assign
-        ( FM3Globals . CurrentUnitRef ^ . UntDeclMap , DeclNo , LDeclRef )
+        ( FM3Units . UnitStackTopRef ^ . UntDeclMap , DeclNo , LDeclRef )
     ; RETURN LDeclRef 
     END NewDeclRef 
 

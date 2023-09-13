@@ -123,7 +123,7 @@ MODULE FM3Units
 
   ; BEGIN (*TextOfIdAtom*)
       IF NOT FM3Atom_OAChars . Key 
-               ( FM3Globals . CurrentUnitRef ^ . UntIdentAtomDict
+               ( UnitStackTopRef ^ . UntIdentAtomDict
                , IdAtom
                , (*OUT*) LCharsRef
                )

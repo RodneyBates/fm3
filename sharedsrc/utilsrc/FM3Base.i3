@@ -21,14 +21,17 @@ INTERFACE FM3Base
 
 ; TYPE UnitNoTyp = CARDINAL
 ; CONST UnitNoNull = FIRST ( CARDINAL )
+; CONST UnitNoMax = LAST ( CARDINAL ) 
 ; CONST UnitNoFirstReal = UnitNoNull + 1 
 
 ; TYPE ScopeNoTyp = CARDINAL
 ; CONST ScopeNoNull = FIRST ( CARDINAL )
+; CONST ScopeNoMax = LAST ( CARDINAL ) 
 ; CONST ScopeNoFirstReal = ScopeNoNull + 1 
 
 ; TYPE DeclNoTyp = CARDINAL
 ; CONST DeclNoNull = FIRST ( CARDINAL )
+; CONST DeclNoMax = LAST ( CARDINAL ) 
 ; CONST DeclNoFirstReal = DeclNoNull + 1
 
 ; TYPE MapTyp = VarArray_Int_Refany . T 

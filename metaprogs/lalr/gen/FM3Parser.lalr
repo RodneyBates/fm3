@@ -8,6 +8,11 @@
 
 (* File FM3Parser.lalr.  lalr specification for FM3Parser. *)
 
+(* WARNING: Do not put a lone single quote in a semantic action, e.g.:
+            (* Don't do this. *).  Probably applies to double quote too.
+            lalr will run to the end of its internal buffer looking
+            for its mate and give an unclosed string error. *)
+            
 SCANNER FM3Scanner
 
 PARSER FM3Parser
@@ -30,8 +35,6 @@ GLOBAL
     FROM FM3ParsePass IMPORT UnnestCoord;
     FROM FM3ParsePass IMPORT tParsAttribute;
     FROM FM3ParsePass IMPORT ParsAttrNull;
-    FROM FM3ParsePass IMPORT FormalModeTyp;
-(*TODO: ^Where does this belong? *) 
     FROM FM3ParsePass IMPORT PushUnnestStk , PushUnnest, PushUnnestLong;
     FROM FM3ParsePass IMPORT
       Push_T , Push_TP , Push_TCr , Push_TCPrp , Push_TCBr , Push_TCIri , 
@@ -46,6 +49,7 @@ GLOBAL
 LOCAL
   { TYPE Sk = FM3Scopes . ScopeKindTyp ;
     TYPE Dk = FM3Decls . DeclKindTyp ; 
+    TYPE Uk = FM3Units . UnitKindTyp ; 
   }
 
 /* Parser module initialization. */ 
@@ -208,7 +212,8 @@ TOKEN
 
 RULE
 
-(* Compilation units: *) 
+(* ------------------------- Compilation units ---------------------- *)
+
    Compilation : Interface . 
    Compilation : Module .
    Compilation : GenInterface . 
@@ -216,37 +221,48 @@ RULE
    Compilation : InstInterface . 
    Compilation : InstModule .
 
-   Interface :
-       OptUnsafe StkRwINTERFACE StkIdent StkSemicolon
+   InterfaceKind : /*Empty*/ 
+       { FM3Units . UnitStackTopRef ^ . UntKind := Uk . UkInterface ; } .
+
+   ModuleKind : /*Empty*/ 
+       { FM3Units . UnitStackTopRef ^ . UntKind := Uk . UkModule ; } .
+
+   GenInterfaceKind : /*Empty*/ 
+       { FM3Units . UnitStackTopRef ^ . UntKind := Uk . UkGenInterface ; } . 
+
+   GenModuleKind : /*Empty*/ 
+       { FM3Units . UnitStackTopRef ^ . UntKind := Uk . UkGenModule ; } . 
+
+   InstInterfaceKind : /*Empty*/ 
+       { FM3Units . UnitStackTopRef ^ . UntKind := Uk . UkInstInterface ; } . 
+
+   InstModuleKind : /*Empty*/ 
+       { FM3Units . UnitStackTopRef ^ . UntKind := Uk . UkInstModule ; } . 
+
+   Interface : 
+       OptUnsafe StkRwINTERFACE StkIdent InterfaceKind StkSemicolon
        Imports DeclList StkRwEND StkIdent StkDot .
 
    Module :
-       OptUnsafe StkRwMODULE StkIdent Exports StkSemicolon
+       OptUnsafe StkRwMODULE StkIdent Exports ModuleKind StkSemicolon
        Imports Block StkIdent StkDot .
 
    GenInterface :
-       StkRwGENERIC StkRwINTERFACE StkIdent GenFormalList StkSemicolon
-       Imports DeclList StkRwEND StkIdent StkDot . 
+       StkRwGENERIC StkRwINTERFACE StkIdent GenInterfaceKind GenFormalList
+       StkSemicolon Imports DeclList StkRwEND StkIdent StkDot . 
 
    GenModule :
-       StkRwGENERIC StkRwMODULE StkIdent GenFormalList StkSemicolon
-       Imports Block StkIdent StkDot . 
+       StkRwGENERIC StkRwMODULE StkIdent GenModuleKind GenFormalList
+       StkSemicolon Imports Block StkIdent StkDot . 
 
    InstInterface :
-       OptUnsafe StkRwINTERFACE StkIdent StkEqual
-       StkIdent GenActualList
-       StkRwEND StkIdent StkDot . 
+       OptUnsafe StkRwINTERFACE StkIdent InstInterfaceKind StkEqual
+       StkIdent GenActualList StkRwEND StkIdent StkDot . 
 
    InstModule :
-       OptUnsafe StkRwMODULE StkIdent Exports StkEqual
-       StkIdent GenActualList
-       StkRwEND StkIdent StkDot . 
+       OptUnsafe StkRwMODULE StkIdent Exports InstModuleKind StkEqual
+       StkIdent GenActualList StkRwEND StkIdent StkDot . 
 
-(* WARNING: Do not put a lone single quote in a semantic action, e.g.:
-            (* Don't do this. *).  Probably applies to double quote too.
-            lalr will run to the end of its internal buffer looking
-            for its mate and give an unclosed string error. *)
-            
    OptUnsafe : StkRwUNSAFE { $$ . PaBool (* Unsafe.*) := TRUE ; } .
    OptUnsafe : { $$ . PaBool (* Unsafe.*) := FALSE (* Safe. *) ; }.
 
@@ -275,25 +291,13 @@ RULE
    DeclIdPlusList : StkIdent 
      { (* PaUnnestCoord is copied from $1 to $$ by parser. *) 
        $$ . PaInt (* Non-duplicate Id count. *) 
-         := ORD 
-              ( FM3ParsePass . DeclIdL2R
-                  ( VAL ( $0 . PaByte , Dk )
-                  , $1 . Scan . SaAtom
-                  , $1 . Scan . Position
-                  )
-              ) ; 
+         := ORD ( FM3ParsePass . DeclIdL2R ( VAL ( $0 . PaByte , Dk ) ) ) ; 
      } . 
    DeclIdPlusList : DeclIdPlusList StkComma StkIdent
      { (* PaUnnestCoord is copied from $1 to $$ by parser . *)
        $$ . PaInt (* Non-duplicate Id count. *)
          := $1 . PaInt
-            + ORD
-                ( FM3ParsePass . DeclIdL2R
-                    ( VAL ( $0 . PaByte , Dk )
-                    , $3 . Scan . SaAtom
-                    , $3 . Scan . Position
-                    )
-                ) ; 
+            + ORD ( FM3ParsePass . DeclIdL2R ( VAL ( $0 . PaByte , Dk ) ) ) ; 
      } . 
 
 (* List of zero or more comma-separated Idents. *)
@@ -672,8 +676,9 @@ RULE
      { VAR LTokLt : Itk . TokTyp; 
        BEGIN 
          CASE FM3Units . UnitStackTopRef ^ . UntKind OF 
-         | FM3Units . UnitKindTyp . UkInterface  
-         , FM3Units . UnitKindTyp . UkGenInterface  
+         | Uk . UkInterface 
+         , Uk . UkGenInterface  
+         , Uk . UkInstInterface  
          => IF $4 . PaBool 
             THEN
               FM3Messages . Error
@@ -682,8 +687,9 @@ RULE
                 ); 
             END (*IF*); 
             LTokLt := Itk . ItkProcNoBodyLt ; 
-         | FM3Units . UnitKindTyp . UkModule  
-         , FM3Units . UnitKindTyp . UkGenModule  
+         | Uk . UkModule  
+         , Uk . UkGenModule  
+         , Uk . UkInstModule  
          => IF NOT $4 . PaBool 
             THEN 
               FM3Messages . Error
@@ -693,7 +699,6 @@ RULE
             END (*IF*); 
             LTokLt := Itk . ItkProcWBodyLt ; 
 (* TODO: Error recovery.  Insert or remove body. *) 
-         ELSE (* Can't happen. *) 
          END (*CASE*);
          Push_TCIri
            ( LTokLt,  $1 . PaUnnestCoord, $2 . Scan . SaAtom ); 

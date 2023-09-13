@@ -14,7 +14,6 @@ INTERFACE FM3Units
 ; IMPORT FM3Atom_OAWideChars
 ; IMPORT FM3Base 
 ; IMPORT RdBackFile
-; IMPORT VarArray_Int_Refany
 
 ; TYPE UnitKindTyp
          = { UkNull
