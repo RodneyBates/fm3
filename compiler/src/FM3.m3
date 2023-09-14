@@ -20,7 +20,6 @@ MODULE FM3 EXPORTS Main
       TRY (*EXCEPT*)
         TRY (*FIMALLY*)
           FM3CLArgs . Process ( )
-        ; FM3SharedUtils . ResourcePathName := FM3Globals . ResourcePathName
         ; FM3SharedUtils . LoadSets ( ) 
         ; FM3Scanner . Init ( ) 
         ; FM3ParsePass . Run ( )

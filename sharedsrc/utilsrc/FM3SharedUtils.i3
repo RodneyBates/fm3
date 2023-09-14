@@ -28,6 +28,9 @@ INTERFACE FM3SharedUtils
      Just write to stderror.
   *) 
 
+; PROCEDURE ExeLibAbsDirName ( ) : TEXT
+(* Absolute path name of "lib" directory beside command line executable. *) 
+
 ; PROCEDURE AtomListToText ( List : AtomList . T ): TEXT
 
 ; PROCEDURE CatStrings

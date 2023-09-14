@@ -214,11 +214,11 @@ MODULE FM3CLArgs
         ( Stdio . stderr , " (default: \".\".)" ) 
     ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
 
-    END DisplayHelp 
+    END DisplayHelp
 
 ; PROCEDURE SetDefaults ( )
 
-  = BEGIN
+    = BEGIN
       GSourceDirNames := NIL 
     ; GFileNames := NIL 
     ; SrcFileName := "test1.m3" (* Temporary, during development *)
@@ -239,7 +239,8 @@ MODULE FM3CLArgs
     ; FM3Messages . DoCompLog := TRUE
         (* Write compiled code messages to unit-specific log file. *)
 
-    ; FM3Globals . ResourcePathName := "../lib" 
+    ; FM3Globals . ResourcePathName := FM3SharedUtils . ExeLibAbsDirName ( ) 
+    
     ; FM3Globals . BuildDirName := "../build"
     END SetDefaults
 
@@ -269,7 +270,8 @@ MODULE FM3CLArgs
         ; Wr . Flush ( Stdio . stderr ) 
         ; FM3Messages . DoLog := FALSE  
         END (*EXCEPT*)
-      END (*IF*) 
+      END (*IF*)
+    ; FM3SharedUtils . ResourcePathName := FM3Globals . ResourcePathName
     END ComputeDerivedInfo
 
 (*EXPORTED*)

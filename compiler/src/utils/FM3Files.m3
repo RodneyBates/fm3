@@ -42,7 +42,7 @@ MODULE FM3Files
            ) 
       END (*EXCEPT*)
 
-(*TODO: Use FM3ShharedUtils.OpenRd for all above. *)
+(*TODO: Use FM3SharedUtils.OpenRd for all above. *)
     ; LResult := UniRd . New ( LRdT , SrcEnc )
     ; RETURN LResult 
     END OpenUniRd

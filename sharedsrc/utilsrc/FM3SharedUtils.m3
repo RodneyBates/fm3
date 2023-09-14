@@ -10,8 +10,10 @@ MODULE FM3SharedUtils
 
 ; IMPORT Atom 
 ; IMPORT AtomList 
-; IMPORT FileRd 
-; IMPORT OSError 
+; IMPORT FileRd
+; IMPORT FS 
+; IMPORT OSError
+; IMPORT Params 
 ; IMPORT Pathname AS Libm3Pathname
 ; IMPORT Pickle2 
 ; IMPORT Rd
@@ -59,7 +61,44 @@ MODULE FM3SharedUtils
     ; Wr . Flush ( Stdio . stderr )
     END StandaloneFatalError 
 
+
 (*EXPORTED*) 
+; PROCEDURE ExeLibAbsDirName ( ) : TEXT
+(* Absolute path name of "lib" directory beside command line executable. *) 
+
+  = VAR LExeT : TEXT
+  ; VAR LExeAbsT : TEXT
+  ; VAR LExeDirAbsT : TEXT 
+  ; VAR LResult : TEXT 
+
+  ; BEGIN 
+      LExeT := Params . Get ( 0 )
+    ; IF LExeT = NIL THEN LExeT := "" END (*IF*) 
+    ; TRY LExeAbsT := FS . GetAbsolutePathname ( LExeT ) 
+      EXCEPT OSError . E ( EMsg )
+      =>
+(*
+
+(* FIXME: Use the multi-executable message system. *) 
+         FM3Messages . FatalArr  
+           ( ARRAY OF REFANY
+               { " Unable to get absolute path of executable at: \""
+               , LExeText
+               , "\""
+               , Wr . EOL
+               , "    OSError.E("
+               , EMsg
+               , ")."
+               }
+           )
+*) 
+      END (*EXCEPT*)
+    ; LExeDirAbsT := Libm3Pathname . Prefix ( LExeAbsT )
+    ; LResult := LExeDirAbsT & "/../lib" 
+    ; RETURN LResult 
+    END ExeLibAbsDirName 
+
+(*EXPORTED*)
 ; PROCEDURE AtomListToText ( List : AtomList . T ): TEXT
 
   = VAR LWrT : Wr . T
@@ -384,7 +423,7 @@ MODULE FM3SharedUtils
     ; BEGIN
         LRef := Pickle2 . Read ( LRdT ) 
       ; TYPECASE LRef OF
-        | IntSets . T ( TResult ) (* NIL is vaid here. *) 
+        | IntSets . T ( TResult ) (* NIL is valid here. *) 
         => RETURN TResult  
         ELSE
           RaiseFatal
@@ -421,12 +460,12 @@ MODULE FM3SharedUtils
       IF NOT FM3SharedGlobals . GSetsLoaded
       THEN
         LIntFilePrefix := "FM3IntToks"
-      ; LSetsName := FM3SharedGlobals . GIntFilePrefix & "Sets"
+      ; LSetsName := FM3SharedGlobals . GIntFilePrefix & "Sets.pkl"
       ; LSetsFullName
           := Libm3Pathname . Join
                ( FM3SharedGlobals . GResourceDirName , LSetsName , "pkl" )
       ; ReadSets
-          ( LSetsFullName
+          ( LSetsName (* NOT LSetsFullName *) 
           , FM3SharedGlobals . FM3FileKindTokSetsPkl
           , FM3SharedGlobals . GTokSetTemp
           , FM3SharedGlobals . GTokSetPatch
@@ -445,7 +484,7 @@ MODULE FM3SharedUtils
 ; PROCEDURE IntHash ( Val : INTEGER ) : FM3Base . HashTyp
 
   = BEGIN
-      RETURN VAL ( Val , FM3Base . HashTyp ) 
+      RETURN VAL ( Val * 13 , FM3Base . HashTyp ) 
     END IntHash
     
 ; BEGIN
