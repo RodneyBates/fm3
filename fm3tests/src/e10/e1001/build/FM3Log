@@ -1,0 +1,15 @@
+FM3: Compiling test1.m3...
+Error (20,23) VAR formal must have a type (2.2.8).
+Error (20,23) VAR formal cannot have a default expression  (2.2.8).
+Error (21,0) A procedure in a module must have a body (2.5).
+Error (23,0) A procedure in a module must have a body (2.5).
+Error (23,16) Formal must have a type and/or default expression (2.2.8).
+Error (25,0) A procedure in a module must have a body (2.5).
+Error (25,16) Formal must have a type and/or default expression (2.2.8).
+Error (26,0) A procedure in a module must have a body (2.5).
+Error (27,0) A procedure in a module must have a body (2.5).
+Error (29,0) A procedure in a module must have a body (2.5).
+FM3: Patch stack test1.m3.Patch peak size = 32.
+FM3: Unnest stack test1.m3.Unnest peak size = 589.
+FM3: Parse pass output file test1.m3.ParsePass has 526 bytes.
+FM3: Finished compiling test1.m3.

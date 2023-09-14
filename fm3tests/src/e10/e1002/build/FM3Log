@@ -1,0 +1,12 @@
+FM3: Compiling test2.m3...
+Error (19,0) A procedure in a module must have a body (2.5).
+Error (19,16) Formal must have a type and/or default expression (2.2.8).
+Error (21,0) A procedure in a module must have a body (2.5).
+Error (21,16) Formal must have a type and/or default expression (2.2.8).
+Error (22,0) A procedure in a module must have a body (2.5).
+Error (23,0) A procedure in a module must have a body (2.5).
+Error (25,0) A procedure in a module must have a body (2.5).
+FM3: Patch stack test2.m3.Patch peak size = 32.
+FM3: Unnest stack test2.m3.Unnest peak size = 499.
+FM3: Parse pass output file test2.m3.ParsePass has 447 bytes.
+FM3: Finished compiling test2.m3.
