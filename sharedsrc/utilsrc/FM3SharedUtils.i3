@@ -28,8 +28,10 @@ INTERFACE FM3SharedUtils
      Just write to stderror.
   *) 
 
-; PROCEDURE ExeLibAbsDirName ( ) : TEXT
-(* Absolute path name of "lib" directory beside command line executable. *) 
+; PROCEDURE SibDirectoryPath ( FileName : TEXT ; SibDirName : TEXT ) : TEXT
+(* Absolute path name of "SibDir" directory beside parent directory of
+   FileName.
+*) 
 
 ; PROCEDURE AtomListToText ( List : AtomList . T ): TEXT
 

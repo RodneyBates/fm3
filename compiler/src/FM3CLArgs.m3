@@ -218,7 +218,9 @@ MODULE FM3CLArgs
 
 ; PROCEDURE SetDefaults ( )
 
-    = BEGIN
+    = VAR LExeName : TEXT
+    
+    ; BEGIN
       GSourceDirNames := NIL 
     ; GFileNames := NIL 
     ; SrcFileName := "test1.m3" (* Temporary, during development *)
@@ -239,7 +241,9 @@ MODULE FM3CLArgs
     ; FM3Messages . DoCompLog := TRUE
         (* Write compiled code messages to unit-specific log file. *)
 
-    ; FM3Globals . ResourcePathName := FM3SharedUtils . ExeLibAbsDirName ( ) 
+    ; LExeName := Params . Get ( 0 )
+    ; FM3Globals . ResourcePathName
+        := FM3SharedUtils . SibDirectoryPath ( LExeName , "lib" ) 
     
     ; FM3Globals . BuildDirName := "../build"
     END SetDefaults

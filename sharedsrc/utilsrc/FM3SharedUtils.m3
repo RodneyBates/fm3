@@ -63,18 +63,18 @@ MODULE FM3SharedUtils
 
 
 (*EXPORTED*) 
-; PROCEDURE ExeLibAbsDirName ( ) : TEXT
-(* Absolute path name of "lib" directory beside command line executable. *) 
+; PROCEDURE SibDirectoryPath ( FileName : TEXT ; SibDirName : TEXT ) : TEXT
+(* Absolute path name of "SibDir" directory beside parent directory of
+   FileName.
+*) 
 
-  = VAR LExeT : TEXT
-  ; VAR LExeAbsT : TEXT
-  ; VAR LExeDirAbsT : TEXT 
+  = VAR LFileAbs : TEXT
+  ; VAR LDirAbs : TEXT 
   ; VAR LResult : TEXT 
 
   ; BEGIN 
-      LExeT := Params . Get ( 0 )
-    ; IF LExeT = NIL THEN LExeT := "" END (*IF*) 
-    ; TRY LExeAbsT := FS . GetAbsolutePathname ( LExeT ) 
+      IF FileName = NIL THEN FileName := "" END (*IF*) 
+    ; TRY LFileAbs := FS . GetAbsolutePathname ( FileName ) 
       EXCEPT OSError . E ( EMsg )
       =>
 (*
@@ -83,7 +83,7 @@ MODULE FM3SharedUtils
          FM3Messages . FatalArr  
            ( ARRAY OF REFANY
                { " Unable to get absolute path of executable at: \""
-               , LExeText
+               , PathName 
                , "\""
                , Wr . EOL
                , "    OSError.E("
@@ -93,10 +93,10 @@ MODULE FM3SharedUtils
            )
 *) 
       END (*EXCEPT*)
-    ; LExeDirAbsT := Libm3Pathname . Prefix ( LExeAbsT )
-    ; LResult := LExeDirAbsT & "/../lib" 
+    ; LDirAbs := Libm3Pathname . Prefix ( LFileAbs )
+    ; LResult := LDirAbs & "/../" & SibDirName  
     ; RETURN LResult 
-    END ExeLibAbsDirName 
+    END SibDirectoryPath 
 
 (*EXPORTED*)
 ; PROCEDURE AtomListToText ( List : AtomList . T ): TEXT
