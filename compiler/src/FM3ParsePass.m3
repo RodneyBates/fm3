@@ -169,6 +169,8 @@ MODULE FM3ParsePass
     
     (* Create the log output file. A pure text file. *) 
     ; LUnitRef ^ . UntLogName := FileName & UnitLogSuffix
+    ; LUnitRef ^ . UntWorkFilePrefix := FM3Globals . BuildDirName  
+
     ; TRY LUnitRef ^ . UntLogWrT
             := FileWr . Open ( LUnitRef ^ . UntLogName ) 
       EXCEPT
@@ -959,7 +961,11 @@ MODULE FM3ParsePass
       ; PutBwd
           ( LUnitRef ^ . UntUnnestStackRdBack , VAL ( Itk . ItkEOF , LONGINT ) )
 (* FIXME: But the copied portion will not have BOF and LeftEnd tokens. *) 
-      ; RdBackFile . Copy ( LUnnestRdBack , "UnnestCopy" , LMUnnestDepth )
+      ; RdBackFile . Copy
+          ( LUnnestRdBack
+          , FM3Globals . BuildDirName & "UnnestCopy"
+          , LMUnnestDepth
+          )
       ; EVAL GetBwd ( LUnitRef ^ . UntUnnestStackRdBack ) 
       ; EVAL GetBwd ( LUnitRef ^ . UntUnnestStackRdBack ) 
       END (*IF*)

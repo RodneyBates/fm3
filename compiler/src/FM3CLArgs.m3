@@ -223,6 +223,7 @@ MODULE FM3CLArgs
     ; BEGIN
       GSourceDirNames := NIL 
     ; GFileNames := NIL 
+    ; FM3Globals . BuildDirName := "../build"
     ; SrcFileName := "test1.m3" (* Temporary, during development *)
 
     ; DoKeep := TRUE (* Temporary, during development *)
@@ -233,7 +234,7 @@ MODULE FM3CLArgs
 
     ; FM3Messages . DoLog := TRUE
         (* Write compilation process messages to compiler log file. *)
-    ; FM3Messages . LogFileName := "FM3Log"
+    ; FM3Messages . LogFileName := FM3Globals . BuildDirName & "/FM3Log"
 
     ; FM3Messages . DoStdOut := TRUE
         (* Write compiled code messages to stdout. *)
@@ -245,7 +246,8 @@ MODULE FM3CLArgs
     ; FM3Globals . ResourcePathName
         := FM3SharedUtils . SibDirectoryPath ( LExeName , "lib" ) 
     
-    ; FM3Globals . BuildDirName := "../build"
+
+
     END SetDefaults
 
 ; PROCEDURE HandleOptions ( ) 

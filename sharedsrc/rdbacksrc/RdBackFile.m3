@@ -598,6 +598,11 @@ MODULE RdBackFile
     END GetBwd 
 
 ; BEGIN
+
+    GLogWrT := NIL
+  ; GDoStderr := TRUE 
+  ; GDoLog := FALSE  
+(* 
     TRY 
       GLogWrT := FileWr . Open ( "FM3Log")
     EXCEPT OSError . E ( EMsg )
@@ -606,6 +611,7 @@ MODULE RdBackFile
          , ", OSError.E(" , FM3SharedUtils . AtomListToText ( EMsg ) , ")."
          )
     END (*EXCEPT*)
+*) 
   END RdBackFile
 .
 
