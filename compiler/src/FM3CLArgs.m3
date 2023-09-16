@@ -245,8 +245,6 @@ MODULE FM3CLArgs
     ; LExeName := Params . Get ( 0 )
     ; FM3Globals . ResourcePathName
         := FM3SharedUtils . SibDirectoryPath ( LExeName , "lib" ) 
-    
-
 
     END SetDefaults
 

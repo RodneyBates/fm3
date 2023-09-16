@@ -16,7 +16,7 @@ INTERFACE FM3Messages
 
 (* The Do* options and LogFileWrT can be set by client code.  This
    allows FM3Messages to be shared among >1 main program, without
-   dragging in the whole main program.
+   dragging in the entire compiler.
 *)
 
 (* The following is for messages about how the compilation or other process
@@ -49,8 +49,9 @@ INTERFACE FM3Messages
 
 (* The following is for messages about code being compiled or other
    input being processed.  They go immediately to stdout, if DoStdOut. 
-   Between StartUnit and EndUnit calls, messages are collected, sorted by
-   line/column, and written to stdout at the end by EndUnit.
+   If DoCompLog, then between StartUnit and EndUnit calls, messages
+   are collected, sorted by line/column, and written to UnmitLogWrT
+   at the end by EndUnit.
 *)
 
 ; VAR DoStdOut : BOOLEAN := TRUE

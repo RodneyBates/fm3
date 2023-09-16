@@ -1232,7 +1232,7 @@ MODULE FM3ParsePass
 
   ; BEGIN (*ScopeRtL2R*)
       WITH WScope = FM3Scopes . ScopeStackTopRef ^
-      DO (* Start Block*) 
+      DO (* Block*) 
         VAR LDeclCt : INTEGER
       ; VAR LExpectedToDeclNo : INTEGER 
     
@@ -1336,7 +1336,7 @@ MODULE FM3ParsePass
     ; Position : FM3Base . tPosition
     )
   : FM3Base . DeclNoTyp
-  (* Will be the only decl of DeclIdAtom in current scope. *) 
+  (* Tjhis will be the only decl of DeclIdAtom in the current scope. *) 
 
   = PROCEDURE VisitDecl ( DeclNoI : INTEGER ; VAR DeclRefany : REFANY )
     (* PRE: DeclNoI IN FM3Base . DeclNoTyp *) 
@@ -1349,7 +1349,7 @@ MODULE FM3ParsePass
         LDeclRef := DeclRefany (* Implied NARROW. *)
       ; LParentScopeRef := FM3Scopes . ScopeStackTopRef 
       ; IF LDeclRef # NIL
-        THEN  (* Some duplicate decls of DeclNoI exist. *)
+        THEN  (* Some duplicate decls of DeclNoI were found. *)
           LIdentText := FM3Units . TextOfIdAtom ( DeclIdAtom ) 
         ; WHILE LDeclRef # NIL
           DO
@@ -1363,7 +1363,7 @@ MODULE FM3ParsePass
                   , "." 
                   } 
               )
-            ; LDeclRef := LDeclRef ^ . DclLink
+          ; LDeclRef := LDeclRef ^ . DclLink
           END (*WHILE*) 
         END (*IF*)
 
