@@ -48,6 +48,11 @@ INTERFACE FM3SharedUtils
      allowing the rest to be passed multiple levels as one parameter.
   *) 
     
+; PROCEDURE PutTextish ( WrT : Wr . T ; Textish : REFANY )
+  (* Textish can be TEXT, Atom.T, or AtomList.T. *) 
+
+; PROCEDURE PutTextishArr ( WrT : Wr . T ; Arr : ARRAY OF REFANY )
+
 ; TYPE FileKindTyp = CHAR
 
 ; PROCEDURE FileKindImage ( Kind : FileKindTyp ) : TEXT

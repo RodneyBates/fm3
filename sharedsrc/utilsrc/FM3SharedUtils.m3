@@ -130,15 +130,15 @@ MODULE FM3SharedUtils
 
   ; BEGIN
       LWrT := TextWr . New ( ) 
-    ; CatOneString ( LWrT , T0 ) 
-    ; CatOneString ( LWrT , T1 ) 
-    ; CatOneString ( LWrT , T2 ) 
-    ; CatOneString ( LWrT , T3 ) 
-    ; CatOneString ( LWrT , T4 ) 
-    ; CatOneString ( LWrT , T5 ) 
-    ; CatOneString ( LWrT , T6 ) 
-    ; CatOneString ( LWrT , T7 ) 
-    ; CatOneString ( LWrT , T8 )
+    ; AppendToWrT ( LWrT , T0 ) 
+    ; AppendToWrT ( LWrT , T1 ) 
+    ; AppendToWrT ( LWrT , T2 ) 
+    ; AppendToWrT ( LWrT , T3 ) 
+    ; AppendToWrT ( LWrT , T4 ) 
+    ; AppendToWrT ( LWrT , T5 ) 
+    ; AppendToWrT ( LWrT , T6 ) 
+    ; AppendToWrT ( LWrT , T7 ) 
+    ; AppendToWrT ( LWrT , T8 )
     ; LMsg := TextWr . ToText ( LWrT )
     ; IF LMsg = NIL THEN LMsg := "" END (*IF*) (* Can this happen? *) 
     ; RETURN LMsg 
@@ -159,9 +159,9 @@ MODULE FM3SharedUtils
 
   ; BEGIN
       LWrT := TextWr . New ( )
-    ; CatOneString ( LWrT , T0 ) 
+    ; AppendToWrT ( LWrT , T0 ) 
     ; FOR RI := 0 TO LAST ( Arr )
-      DO CatOneString ( LWrT , Arr [ RI ]  )
+      DO AppendToWrT ( LWrT , Arr [ RI ]  )
       END (*FOR*) 
     ; LMsg := TextWr . ToText ( LWrT )
     ; IF LMsg = NIL THEN LMsg := "" END (*IF*) (* Can this happen? *) 
@@ -175,11 +175,12 @@ MODULE FM3SharedUtils
       RETURN "\'" & Text . FromChar ( Kind ) & "\'" 
     END FileKindImage
 
-; PROCEDURE CatOneString ( WrT : Wr . T ; Txt : REFANY )
-  (* Txt can be TEXT, Atom.T, or AtomList.T. *) 
+(*EXPORTED*) 
+; PROCEDURE PutTextish ( WrT : Wr . T ; Txtish : REFANY )
+  (* Textish be TEXT, Atom.T, or AtomList.T. *) 
 
   = BEGIN
-      TYPECASE Txt OF
+      TYPECASE Textish OF
       | NULL =>
       | TEXT ( TTxt )
         => Wr . PutText ( WrT , TTxt )
@@ -189,7 +190,21 @@ MODULE FM3SharedUtils
         => Wr . PutText ( WrT , AtomListToText ( TAtom ) )
       ELSE
       END (*TYPECASE*)
-    END CatOneString
+    END PutTextish
+
+(*EXPORTED*) 
+; PROCEDURE PutTextishArr ( WrT : Wr . T ; Arr : ARRAY OF REFANY )
+
+  = VAR LNumber : INTEGER
+
+  ; BEGIN 
+      LNumber := NUMBER ( Arr )
+    ; IF LNumber <= 0 THEN RETURN END (*IF*)
+    ; FOR RI := 0 TO Last ( Arr )
+      DO    
+        PutTextish ( WrT , Arr [ RI ] ) 
+      END (*FOR*)
+    END PutTextishArr 
 
 (*EXPORTED*) 
 ; PROCEDURE FilePrefix ( Kind : FileKindTyp ) : TEXT 

@@ -263,15 +263,17 @@ MODULE FM3CLArgs
               := FileWr . Open ( FM3Messages . LogFileName ) 
         EXCEPT
         | OSError . E ( EAtoms )
-        => Wr . PutText ( Stdio . stderr , "Unable to open log file " ) 
-        ; Wr . PutText ( Stdio . stderr , FM3Messages . LogFileName ) 
-        ; Wr . PutText ( Stdio . stderr , ": " ) 
-        ; Wr . PutText
-            ( Stdio . stderr , FM3Messages . AtomListToOSError ( EAtoms ) ) 
-        ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
-        ; Wr . PutText ( Stdio . stderr , "Will proceed without it." ) 
-        ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
-        ; Wr . Flush ( Stdio . stderr ) 
+        => FM3Messages . LogArr
+             ( ARRAY OF REFANY
+               { "Unable to open log file "
+               , FM3Messages . LogFileName 
+               , ": OSError.E(" 
+               , EAtoms
+               , ")"
+               , FM3Messages .  IndentLine 
+               , "Will proceed without it." 
+               }
+             ) 
         ; FM3Messages . DoLog := FALSE  
         END (*EXCEPT*)
       END (*IF*)

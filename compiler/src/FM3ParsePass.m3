@@ -54,7 +54,7 @@ MODULE FM3ParsePass
 ; FROM FM3StreamUtils
     IMPORT GetBwdAtom , GetBwdDeclKind , GetBwdPos , GetBwdScopeNo 
 ; IMPORT FM3Messages 
-; FROM FM3Messages IMPORT Info , Fatal , FatalArr , ErrorArr , Log
+; FROM FM3Messages IMPORT FatalArr , ErrorArr , Log
 ; IMPORT FM3Parser
 ; IMPORT FM3Predefined
 ; IMPORT FM3Scanner
@@ -137,7 +137,7 @@ MODULE FM3ParsePass
       TRY
         LResult := Pathname . Prefix  ( FileName )
       EXCEPT OSError . E ( EMsg )
-      => Fatal
+      => FatalArr
            ( ARRAY OF REFANY
                { "Unable to get absolute path for "
                , FileName , ", " , Why , ": " , ALOSE ( EMsg ) , "."  

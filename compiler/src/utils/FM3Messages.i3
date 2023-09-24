@@ -14,6 +14,8 @@ INTERFACE FM3Messages
 
 ; IMPORT FM3SharedUtils
 
+; CONST IndentLine = Wr . EOL & "    " 
+
 (* The Do* options and LogFileWrT can be set by client code.  This
    allows FM3Messages to be shared among >1 main program, without
    dragging in the entire compiler.
@@ -39,7 +41,8 @@ INTERFACE FM3Messages
   RAISES { FM3SharedUtils . Terminate }
   (* Also terminates the program. *) 
 
-; PROCEDURE FatalArr ( READONLY Frags : ARRAY OF REFANY )
+; PROCEDURE FatalArr
+    ( READONLY Frags : ARRAY OF REFANY ; Pos := FM3Base . PositionNull )
   RAISES { FM3SharedUtils . Terminate }
   (* Also terminates the program. *) 
 
@@ -47,10 +50,14 @@ INTERFACE FM3Messages
     ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL ) 
   RAISES { Thread . Alerted }
 
+; PROCEDURE LogArr
+    ( READONLY Frags : ARRAY OF REFANY ; Pos := FM3Base . PositionNull )
+  RAISES { FM3SharedUtils . Terminate }
+
 (* The following is for messages about code being compiled or other
    input being processed.  They go immediately to stdout, if DoStdOut. 
    If DoCompLog, then between StartUnit and EndUnit calls, messages
-   are collected, sorted by line/column, and written to UnmitLogWrT
+   are collected, sorted by line/column, and written to UnitLogWrT
    at the end by EndUnit.
 *)
 
@@ -64,15 +71,33 @@ INTERFACE FM3Messages
     ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL ) 
   RAISES { Thread . Alerted } 
 
+; PROCEDURE InfoArr
+    ( READONLY Frags : ARRAY OF REFANY ; Pos := FM3Base . PositionNull )
+  RAISES { Thread . Alerted } 
+
 ; PROCEDURE
     Warning ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL ) 
   RAISES { Thread . Alerted } 
+
+(*EXPORTED*)
+; PROCEDURE WarningArr
+    ( READONLY Frags : ARRAY OF REFANY ; Pos := FM3Base . PositionNull )
+  RAISES { Thread . Alerted }
 
 ; PROCEDURE Error
     ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL ) 
   RAISES { Thread . Alerted } 
 
-; PROCEDURE ErrorArr ( READONLY Frags : ARRAY OF REFANY ) 
+; PROCEDURE ErrorArr
+    ( READONLY Frags : ARRAY OF REFANY ; Pos := FM3Base . PositionNull ) 
+  RAISES { Thread . Alerted } 
+
+; PROCEDURE Indent
+    ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL )
+  RAISES { Thread . Alerted }
+
+; PROCEDURE IndentArr
+    ( READONLY Frags : ARRAY OF REFANY ; Pos := FM3Base . PositionNull ) 
   RAISES { Thread . Alerted } 
 
 ; VAR UnitLogWrT : Wr . T := NIL 

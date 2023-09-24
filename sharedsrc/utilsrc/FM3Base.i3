@@ -106,13 +106,15 @@ INTERFACE FM3Base
 *) 
 ; TYPE M2SHORTCARD = [ 0 .. 16_FFFF ]
 
+; TYPE PosIntTyp = M2SHORTCARD  
+
 ; TYPE tPosition (*Mandated by lalr.*)
     = RECORD
-        Line : M2SHORTCARD 
-      ; Column : M2SHORTCARD
+        Line : PosIntTyp 
+      ; Column : PosIntTyp 
       END (*tPosition*)
 
-; CONST PositionNull = tPosition { 0 , 0 } 
+; CONST PositionNull = tPosition { LAST ( PosIntTyp ) , LAST ( PosIntTyp ) } 
 
 ; END FM3Base
 .

@@ -6,6 +6,8 @@
 %(* Licensed under the MIT License.                                           *)
 %(* -----------------------------------------------------------------------2- *)
 
+interface("FM3TextColors")
+
 module("FM3Compress")
 module("FM3Files")
 module("FM3Messages")

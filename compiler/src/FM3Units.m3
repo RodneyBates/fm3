@@ -15,7 +15,7 @@ MODULE FM3Units
 ; IMPORT FM3Base 
 ; IMPORT FM3Decls
 ; IMPORT FM3Globals 
-; FROM FM3Messages IMPORT Fatal
+; IMPORT FM3Messages 
 ; IMPORT FM3Scopes
 ; IMPORT Ranges_Int
 ; IMPORT VarArray_Int_Refany 
@@ -42,7 +42,9 @@ MODULE FM3Units
   ; BEGIN
       LUnitRef := NEW ( UnitRefTyp )
     ; IF LUnitRef = NIL
-      THEN Fatal ( "Allocation of a FM3Units.UnitRefTyp failed." )
+      THEN
+        FM3Messages  . FatalArr
+          ( ARRAT OF REFANY { "Allocation of a FM3Units.UnitRefTyp failed." } )
       END 
 
     ; LUnitNo := NextUnitNo

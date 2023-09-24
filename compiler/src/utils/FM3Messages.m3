@@ -15,7 +15,7 @@ MODULE FM3Messages
 
 ; IMPORT FM3SharedUtils
 
-  (* Fatal amd Log go immediatly to stderr and optionally to a log file. *)
+  (* Fatal and Log go immediatly to stderr and optionally to a log file. *)
 
 ; PROCEDURE PutStdErr ( Msg : TEXT ) RAISES { Thread . Alerted } 
 
@@ -97,7 +97,8 @@ MODULE FM3Messages
     END Fatal  
 
 (*EXPORTED*)
-; PROCEDURE FatalArr ( READONLY Frags : ARRAY OF REFANY )
+; PROCEDURE FatalArr
+    ( READONLY Frags : ARRAY OF REFANY ; Pos := FM3Base . PositionNull )
   RAISES { FM3SharedUtils . Terminate }
   (* Also terminates the program. *) 
 
@@ -129,6 +130,58 @@ MODULE FM3Messages
     ; PutLog ( LMsg ) 
     END Log
 
+(*EXPORTED*)
+; PROCEDURE LogArr
+    ( READONLY Frags : ARRAY OF REFANY ; Pos := FM3Base . PositionNull )
+  RAISES { FM3SharedUtils . Terminate }
+
+  = VAR LMsg : TEXT 
+
+  ; BEGIN
+      LMsg := FM3SharedUtils . CatArrT ( Frags , "FM3: " ) 
+    ; TRY (*EXCEPT*)
+        PutStdErr ( LMsg ) 
+      ; PutLog ( LMsg ) 
+      EXCEPT Thread . Alerted => END (*EXCEPT*) 
+    END LogArr
+    
+(* -------------- Messages about code being compiled. --------------- *)
+
+; PROCEDURE CodeMsgText
+    ( READONLY Pos : tPosition ; Label , Body: ARRAY OF REFANY ) TEXT
+  (* Will look funny if either Label or Body displays as empty. *) 
+
+  = VAR LWrT : Wr . T
+  ; VAR LUnitRef : FM3Units . UnitRefTyp
+  ; VAR LBlankNeeded := FALSE 
+
+  ; BEGIN
+      LWrT := TextWr . New ( )
+    ; LUnitRef := FM3Units . UnitStackTopRef 
+    ; IF LUnitRef # NIL
+      THEN
+        Wr . PutText ( LWrT , LUnitRef . UntSrcFiuleName )
+      ; LBlankNeeded := TRUE 
+      END (*IF*)
+
+    ; IF Pos # FM3Base . PositionNull
+      THEN
+        Wr . PutChar ( LWrT , '[' )
+      ; Wr . PutText ( LWrT , Fmt . Int ( Pos . Line ) ) 
+      ; Wr . PutChar ( LWrT , ',' ) 
+      ; Wr . PutText ( LWrT , Fmt . Int ( Pos . Column ) ) 
+      ; Wr . PutChar ( LWrT , ']' ) 
+      ; LBlankNeeded := TRUE 
+      END (*IF*)
+      
+    ; IF LBlankNeeded THEN Wr . PutChar ( LWrT , ' ' ) END (*IF*)
+    ; FM3SharedUtils . PutTextishArr ( LWrT , Label ) 
+    ; Wr . PutText ( LWrT , ": ") 
+    ; FM3SharedUtils . PutTextishArr ( LWrT , Body ) 
+
+    ; RETURN TextWr . ToText ( LWrT )G
+    END CodeMsgText
+
 (* Within a unit, Info, Warning, and Error are collected, sorted by
    line/column, and written to stdout at the end of the unit. *)
 
@@ -149,6 +202,25 @@ MODULE FM3Messages
     ; PutUnitLog ( LMsg ) 
     END Info 
 
+; VAR GInfoLabel := ARRAY [ 0 .. 2 ] OF TEXT
+        { FM3TextColors . FGDkGreen 
+        ' "INFO: "
+        ' FM3TextColors . Reset 
+        }
+
+(*EXPORTED*)
+; PROCEDURE InfoArr
+    ( READONLY Frags : ARRAY OF REFANY ; Pos := FM3Base . PositionNull )
+  RAISES { Thread . Alerted } 
+
+  = VAR LMsg : TEXT 
+
+  ; BEGIN
+      LMsg := CodeMsgText ( Pos , GInfoLabel , Frags ) 
+    ; PutStdOut ( LMsg )
+    ; PutUnitLog ( LMsg ) 
+    END InfoArr 
+
 (*EXPORTED*)
 ; PROCEDURE Warning
     ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL )
@@ -166,6 +238,25 @@ MODULE FM3Messages
     ; PutUnitLog ( LMsg ) 
     END Warning
 
+; VAR GWarningLabel := ARRAY [ 0 .. 2 ] OF TEXT
+        { FM3TextColors . FGDkOrange 
+        ' "WARNING: "
+        ' FM3TextColors . Reset 
+        }
+
+(*EXPORTED*)
+; PROCEDURE WarningArr
+    ( READONLY Frags : ARRAY OF REFANY ; Pos := FM3Base . PositionNull )
+  RAISES { Thread . Alerted }
+
+  = VAR LMsg : TEXT 
+
+  ; BEGIN
+      LMsg := CodeMsgText ( Pos , GErrorLabel , Frags ) 
+    ; PutStdOut ( LMsg ) 
+    ; PutUnitLog ( LMsg ) 
+    END WarningArr
+
 (*EXPORTED*)
 ; PROCEDURE Error
     ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL )
@@ -176,24 +267,61 @@ MODULE FM3Messages
   ; BEGIN
       LMsg
         := FM3SharedUtils . CatStrings
-             ( "Error " 
+             ( "Error: " 
              , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8
              ) 
     ; PutStdOut ( LMsg ) 
     ; PutUnitLog ( LMsg ) 
     END Error
 
+; VAR GErrorLabel := ARRAY [ 0 .. 2 ] OF TEXT
+        { FM3TextColors . FGDkRed 
+        ' "ERROR: "
+        ' FM3TextColors . Reset 
+        }
+
 (*EXPORTED*)
-; PROCEDURE ErrorArr ( READONLY Frags : ARRAY OF REFANY ) 
+; PROCEDURE ErrorArr
+    ( READONLY Frags : ARRAY OF REFANY ; Pos := FM3Base . PositionNull ) 
   RAISES { Thread . Alerted } 
 
   = VAR LMsg : TEXT 
 
   ; BEGIN
-      LMsg := FM3SharedUtils . CatArrT ( Frags , "Error " ) 
+      LMsg := CodeMsgText ( Pos , GErrorLabel , Frags ) 
     ; PutStdOut ( LMsg ) 
     ; PutUnitLog ( LMsg ) 
     END ErrorArr
+
+(*EXPORTED*)
+; PROCEDURE Indent
+    ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL )
+  RAISES { Thread . Alerted }
+
+  = VAR LMsg : TEXT 
+
+  ; BEGIN
+      LMsg
+        := FM3SharedUtils . CatStrings
+             ( "    " 
+             , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8
+             ) 
+    ; PutStdOut ( LMsg ) 
+    ; PutUnitLog ( LMsg ) 
+    END Indent
+
+(*EXPORTED*)
+; PROCEDURE IndentArr
+    ( READONLY Frags : ARRAY OF REFANY ; Pos := FM3Base . PositionNull ) 
+  RAISES { Thread . Alerted } 
+
+  = VAR LMsg : TEXT 
+
+  ; BEGIN
+      LMsg := FM3SharedUtils . CatArrT ( Frags , "    " ) 
+    ; PutStdOut ( LMsg ) 
+    ; PutUnitLog ( LMsg ) 
+    END IndentArr
 
 (*EXPORTED*)
 ; PROCEDURE StartUnit

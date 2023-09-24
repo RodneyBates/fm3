@@ -36,9 +36,17 @@ MODULE FM3Files
        LRdT := FileRd . Open ( LFullFileName ) 
       EXCEPT
       | OSError . E ( EMsg ) 
-      => FM3Messages . Fatal
-           ( "Unable to open " , Note1 , Note2 , " \"" & LFullFileName
-           , "\": OSError.E(" , FM3SharedUtils . AtomListToText ( EMsg ) , ")."
+      => FM3Messages . FatalArr
+           ( ARRAY OF REFANY
+               { "Unable to open "
+               , Note1
+               , Note2
+               , " \""
+               , LFullFileName
+               , "\": OSError.E("
+               , EMsg 
+               , ")."
+               } 
            ) 
       END (*EXCEPT*)
 
