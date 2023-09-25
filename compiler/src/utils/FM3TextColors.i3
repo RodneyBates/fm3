@@ -1,4 +1,4 @@
-INTERFACE TextColors
+INTERFACE FM3TextColors
 
 ; CONST FGRed = "\033[91m"
 ; CONST FGOrange = "\033[93m"
@@ -10,5 +10,5 @@ INTERFACE TextColors
 
 ; CONST Reset= "\033[0m"
 
-; END TextColors
+; END FM3TextColors
 .

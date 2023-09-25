@@ -44,7 +44,7 @@ MODULE FM3Units
     ; IF LUnitRef = NIL
       THEN
         FM3Messages  . FatalArr
-          ( ARRAT OF REFANY { "Allocation of a FM3Units.UnitRefTyp failed." } )
+          ( ARRAY OF REFANY { "Allocation of a FM3Units.UnitRefTyp failed." } )
       END 
 
     ; LUnitNo := NextUnitNo

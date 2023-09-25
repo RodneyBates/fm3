@@ -9,11 +9,16 @@
 MODULE FM3Messages
 
 ; IMPORT AtomList
+; IMPORT Fmt 
 ; IMPORT Stdio
+; IMPORT TextWr 
 ; IMPORT Thread 
 ; IMPORT Wr
 
+; IMPORT FM3Base 
 ; IMPORT FM3SharedUtils
+; IMPORT FM3TextColors
+; IMPORT FM3Units
 
   (* Fatal and Log go immediatly to stderr and optionally to a log file. *)
 
@@ -148,7 +153,10 @@ MODULE FM3Messages
 (* -------------- Messages about code being compiled. --------------- *)
 
 ; PROCEDURE CodeMsgText
-    ( READONLY Pos : tPosition ; Label , Body: ARRAY OF REFANY ) TEXT
+    ( READONLY Pos : FM3Base . tPosition
+    ; READONLY Label , Body: ARRAY OF REFANY
+    )
+  : TEXT
   (* Will look funny if either Label or Body displays as empty. *) 
 
   = VAR LWrT : Wr . T
@@ -160,7 +168,7 @@ MODULE FM3Messages
     ; LUnitRef := FM3Units . UnitStackTopRef 
     ; IF LUnitRef # NIL
       THEN
-        Wr . PutText ( LWrT , LUnitRef . UntSrcFiuleName )
+        Wr . PutText ( LWrT , LUnitRef . UntSrcFileName )
       ; LBlankNeeded := TRUE 
       END (*IF*)
 
@@ -176,10 +184,10 @@ MODULE FM3Messages
       
     ; IF LBlankNeeded THEN Wr . PutChar ( LWrT , ' ' ) END (*IF*)
     ; FM3SharedUtils . PutTextishArr ( LWrT , Label ) 
-    ; Wr . PutText ( LWrT , ": ") 
+    ; Wr . PutText ( LWrT , ": " ) 
     ; FM3SharedUtils . PutTextishArr ( LWrT , Body ) 
 
-    ; RETURN TextWr . ToText ( LWrT )G
+    ; RETURN TextWr . ToText ( LWrT ) 
     END CodeMsgText
 
 (* Within a unit, Info, Warning, and Error are collected, sorted by
@@ -202,10 +210,10 @@ MODULE FM3Messages
     ; PutUnitLog ( LMsg ) 
     END Info 
 
-; VAR GInfoLabel := ARRAY [ 0 .. 2 ] OF TEXT
+; VAR GInfoLabel := ARRAY [ 0 .. 2 ] OF REFANY 
         { FM3TextColors . FGDkGreen 
-        ' "INFO: "
-        ' FM3TextColors . Reset 
+        , "INFO: "
+        , FM3TextColors . Reset 
         }
 
 (*EXPORTED*)
@@ -238,10 +246,10 @@ MODULE FM3Messages
     ; PutUnitLog ( LMsg ) 
     END Warning
 
-; VAR GWarningLabel := ARRAY [ 0 .. 2 ] OF TEXT
+; VAR GWarningLabel := ARRAY [ 0 .. 2 ] OF REFANY
         { FM3TextColors . FGDkOrange 
-        ' "WARNING: "
-        ' FM3TextColors . Reset 
+        , "WARNING: "
+        , FM3TextColors . Reset 
         }
 
 (*EXPORTED*)
@@ -274,10 +282,10 @@ MODULE FM3Messages
     ; PutUnitLog ( LMsg ) 
     END Error
 
-; VAR GErrorLabel := ARRAY [ 0 .. 2 ] OF TEXT
+; VAR GErrorLabel := ARRAY [ 0 .. 2 ] OF REFANY
         { FM3TextColors . FGDkRed 
-        ' "ERROR: "
-        ' FM3TextColors . Reset 
+        , "ERROR: "
+        , FM3TextColors . Reset 
         }
 
 (*EXPORTED*)

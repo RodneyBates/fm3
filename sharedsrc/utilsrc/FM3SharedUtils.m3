@@ -130,15 +130,15 @@ MODULE FM3SharedUtils
 
   ; BEGIN
       LWrT := TextWr . New ( ) 
-    ; AppendToWrT ( LWrT , T0 ) 
-    ; AppendToWrT ( LWrT , T1 ) 
-    ; AppendToWrT ( LWrT , T2 ) 
-    ; AppendToWrT ( LWrT , T3 ) 
-    ; AppendToWrT ( LWrT , T4 ) 
-    ; AppendToWrT ( LWrT , T5 ) 
-    ; AppendToWrT ( LWrT , T6 ) 
-    ; AppendToWrT ( LWrT , T7 ) 
-    ; AppendToWrT ( LWrT , T8 )
+    ; PutTextish ( LWrT , T0 ) 
+    ; PutTextish ( LWrT , T1 ) 
+    ; PutTextish ( LWrT , T2 ) 
+    ; PutTextish ( LWrT , T3 ) 
+    ; PutTextish ( LWrT , T4 ) 
+    ; PutTextish ( LWrT , T5 ) 
+    ; PutTextish ( LWrT , T6 ) 
+    ; PutTextish ( LWrT , T7 ) 
+    ; PutTextish ( LWrT , T8 )
     ; LMsg := TextWr . ToText ( LWrT )
     ; IF LMsg = NIL THEN LMsg := "" END (*IF*) (* Can this happen? *) 
     ; RETURN LMsg 
@@ -159,9 +159,9 @@ MODULE FM3SharedUtils
 
   ; BEGIN
       LWrT := TextWr . New ( )
-    ; AppendToWrT ( LWrT , T0 ) 
+    ; PutTextish ( LWrT , T0 ) 
     ; FOR RI := 0 TO LAST ( Arr )
-      DO AppendToWrT ( LWrT , Arr [ RI ]  )
+      DO PutTextish ( LWrT , Arr [ RI ] )
       END (*FOR*) 
     ; LMsg := TextWr . ToText ( LWrT )
     ; IF LMsg = NIL THEN LMsg := "" END (*IF*) (* Can this happen? *) 
@@ -176,7 +176,7 @@ MODULE FM3SharedUtils
     END FileKindImage
 
 (*EXPORTED*) 
-; PROCEDURE PutTextish ( WrT : Wr . T ; Txtish : REFANY )
+; PROCEDURE PutTextish ( WrT : Wr . T ; Textish : REFANY )
   (* Textish be TEXT, Atom.T, or AtomList.T. *) 
 
   = BEGIN
@@ -193,14 +193,14 @@ MODULE FM3SharedUtils
     END PutTextish
 
 (*EXPORTED*) 
-; PROCEDURE PutTextishArr ( WrT : Wr . T ; Arr : ARRAY OF REFANY )
+; PROCEDURE PutTextishArr ( WrT : Wr . T ; READONLY Arr : ARRAY OF REFANY )
 
   = VAR LNumber : INTEGER
 
   ; BEGIN 
       LNumber := NUMBER ( Arr )
     ; IF LNumber <= 0 THEN RETURN END (*IF*)
-    ; FOR RI := 0 TO Last ( Arr )
+    ; FOR RI := 0 TO LAST ( Arr )
       DO    
         PutTextish ( WrT , Arr [ RI ] ) 
       END (*FOR*)
@@ -436,7 +436,7 @@ MODULE FM3SharedUtils
     = VAR LRef : REFANY
 
     ; BEGIN
-        LRef := Pickle2 . Read ( LRdT ) 
+        LRef := Pickle2 . Read ( RdT ) 
       ; TYPECASE LRef OF
         | IntSets . T ( TResult ) (* NIL is valid here. *) 
         => RETURN TResult  

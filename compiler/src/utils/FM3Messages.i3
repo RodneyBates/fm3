@@ -12,6 +12,7 @@ INTERFACE FM3Messages
 ; IMPORT Thread
 ; IMPORT Wr
 
+; IMPORT FM3Base 
 ; IMPORT FM3SharedUtils
 
 ; CONST IndentLine = Wr . EOL & "    " 

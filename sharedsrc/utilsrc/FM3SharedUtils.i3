@@ -10,7 +10,8 @@ INTERFACE FM3SharedUtils
 
 ; IMPORT AtomList 
 ; IMPORT Rd
-; IMPORT Thread 
+; IMPORT Thread
+; IMPORT Wr
 
 ; IMPORT IntSets 
 
@@ -51,7 +52,7 @@ INTERFACE FM3SharedUtils
 ; PROCEDURE PutTextish ( WrT : Wr . T ; Textish : REFANY )
   (* Textish can be TEXT, Atom.T, or AtomList.T. *) 
 
-; PROCEDURE PutTextishArr ( WrT : Wr . T ; Arr : ARRAY OF REFANY )
+; PROCEDURE PutTextishArr ( WrT : Wr . T ; READONLY Arr : ARRAY OF REFANY )
 
 ; TYPE FileKindTyp = CHAR
 
