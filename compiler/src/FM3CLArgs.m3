@@ -270,7 +270,7 @@ MODULE FM3CLArgs
                , ": OSError.E(" 
                , EAtoms
                , ")"
-               , FM3Messages .  IndentLine 
+               , FM3Messages . IndentLine 
                , "Will proceed without it." 
                }
              ) 

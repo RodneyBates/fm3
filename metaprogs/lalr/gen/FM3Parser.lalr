@@ -481,9 +481,10 @@ RULE
    VarDecl : StkIdent OptVarType OptVarValue
      { IF NOT $2 . PaBool AND NOT $3 . PaBool
        THEN
-         FM3Messages . Error
-           ( PositionImage ( $1 . Scan . Position )
-           , " VAR decl must have a type and/or an initial value. (2.4.3)."
+         FM3Messages . ErrorArr
+           ( ARRAY OF REFANY 
+               { " VAR decl must have a type and/or an initial value. (2.4.3)." } 
+           , $1 . Scan . Position
            );
        END (*IF*) 
      } .
@@ -556,25 +557,29 @@ RULE
        THEN
          IF NOT $2 . PaBool (* Formal type is present (absent). *)
          THEN
-           FM3Messages . Error
-             ( PositionImage ( $2 . Scan . Position )
-             , " VAR formal must have a type (2.2.8)."
+           FM3Messages . ErrorArr
+             ( ARRAY OF REFANY 
+                 { " VAR formal must have a type (2.2.8)." } 
+             , $2 . Scan . Position
              );
          END (*IF*) ; 
          IF $3 . PaBool (* Formal expression is present. *) 
          THEN
-           FM3Messages . Error
-             ( PositionImage ( $3 . Scan . Position )
-             , " VAR formal cannot have a default expression  (2.2.8)."
+           FM3Messages . ErrorArr
+             ( ARRAY OF REFANY 
+                 { " VAR formal cannot have a default expression  (2.2.8)." }
+             , $3 . Scan . Position
              );
          END (*IF*) ; 
        ELSIF NOT ( $2 . PaBool (* Type is present (absent). *) )
              AND NOT ( $3 . PaBool
                        (* Default expression is present (absent). *) ) 
        THEN 
-         FM3Messages . Error
-           ( PositionImage ( $1 . Scan . Position )
-           , " Formal must have a type and/or default expression (2.2.8)." );
+         FM3Messages . ErrorArr
+           ( ARRAY OF REFANY
+               { " Formal must have a type and/or default expression (2.2.8)." }
+           , $1 . Scan . Position
+           ); 
        END (*IF*);
      } .
 
@@ -681,10 +686,12 @@ RULE
          , Uk . UkInstInterface  
          => IF $4 . PaBool 
             THEN
-              FM3Messages . Error
-                ( PositionImage ( $4 . Scan . Position )
-                , " A procedure in an interface must not have a body (2.5.2)."
-                ); 
+              FM3Messages . ErrorArr
+                ( ARRAY OF REFANY 
+                  { " A procedure in an interface must not have a body (2.5.2)." }
+                , $4 . Scan . Position
+                );  
+
             END (*IF*); 
             LTokLt := Itk . ItkProcNoBodyLt ; 
          | Uk . UkModule  
@@ -692,9 +699,10 @@ RULE
          , Uk . UkInstModule  
          => IF NOT $4 . PaBool 
             THEN 
-              FM3Messages . Error
-                ( PositionImage ( $4 . Scan . Position )
-                , " A procedure in a module must have a body (2.5)."
+              FM3Messages . ErrorArr
+                ( ARRAY OF REFANY
+                    { " A procedure in a module must have a body (2.5)." } 
+                , $4 . Scan . Position
                 ); 
             END (*IF*); 
             LTokLt := Itk . ItkProcWBodyLt ; 
