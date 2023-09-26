@@ -202,45 +202,36 @@ MODULE FM3Scanner
     ; RETURN GTopSsRef . SsUnitRef ^ . UntUnitNo  
     END CurrentUnitNo 
 
-; PROCEDURE ErrorAtPos ( CharPos : INTEGER ; Msg : TEXT )
+; PROCEDURE ErrorAtPos ( READONLY Frags : ARRAY OF REFANY ; CharPos : INTEGER )
   (* Report at CharPos of the current line. *) 
  
-  = BEGIN 
-      FM3Messages . Error 
-        ( FM3Utils . PositionImage 
-            ( FM3Base . tPosition { Attribute . Position . Line , CharPos } )
-        , Msg 
-        ) 
+  = VAR LPos := FM3Base . tPosition { Attribute . Position . Line , CharPos }
+
+  ; BEGIN 
+      FM3Messages . ErrorArr ( Frags , LPos )  
     END ErrorAtPos 
 
-; PROCEDURE ErrorAtTok ( Msg : TEXT ; Adjust := 0 )
+; PROCEDURE ErrorAtTok ( READONLY Frags : ARRAY OF REFANY ; Adjust := 0 )
   (* Report relative to the beginning of the current token. *) 
  
-  = BEGIN 
-      FM3Messages . Error 
-        ( FM3Utils . PositionImage 
-            ( FM3Base . tPosition 
-                { Attribute . Position . Line  
-                , Attribute . Position . Column + Adjust  
-                }
-            ) 
-        , Msg 
-        ) 
+  = VAR LPos := FM3Base . tPosition            
+                  { Attribute . Position . Line 
+                  , Attribute . Position . Column + Adjust  
+                  }
+  ; BEGIN 
+      FM3Messages . ErrorArr ( Frags , LPos )  
     END ErrorAtTok 
 
-; PROCEDURE ErrorAtSs ( Msg : TEXT ; Adjust := 0 ) 
+; PROCEDURE ErrorAtSs ( READONLY Frags : ARRAY OF REFANY ; Adjust := 0 ) 
   (* Report relative to the current spot in the input *) 
 
-  = BEGIN 
-      FM3Messages . Error 
-        ( FM3Utils . PositionImage 
-            ( FM3Base . tPosition 
-                { GTopSsRef ^ . Position . Line  
-                , GTopSsRef ^ . Position . Column + Adjust  
-                }
-            ) 
-        , Msg 
-        ) 
+  = VAR LPos := FM3Base . tPosition 
+                  { GTopSsRef ^ . Position . Line  
+                  , GTopSsRef ^ . Position . Column + Adjust  
+                  }
+
+  ; BEGIN 
+      FM3Messages . ErrorArr ( Frags , LPos )  
     END ErrorAtSs 
 
 ; PROCEDURE AppendChar ( VarArr : VarArr_Char . T ; Ch : CHAR ) 
@@ -381,10 +372,9 @@ MODULE FM3Scanner
       ; LBadCharText 
           := FM3Utils . WideTextLiteral ( Attribute . SaWideChars ) 
       ; ErrorAtTok 
-          ( Fmt . Int ( LCharCt ) 
-            & " illegal characters: " 
-            & LBadCharText 
-            ) 
+          ( ARRAY OF REFANY 
+              { Fmt . Int ( LCharCt ) , " illegal characters: " , LBadCharText }
+          ) 
       END LexErrorChars 
 
   ; CONST IdentFollowChars 
@@ -517,7 +507,7 @@ MODULE FM3Scanner
             ; NextChar ( ) 
             END (*IF*) 
           ELSE 
-            ErrorAtSs ( "Based literal has no digit" ) 
+            ErrorAtSs ( ARRAY OF REFANY { "Based literal has no digit" } ) 
           END (* IF *) 
 
         | '.' 
@@ -540,7 +530,10 @@ MODULE FM3Scanner
               ; NextChar ( ) 
               UNTIL NOT GTopSsRef . SsCh IN SET OF CHAR { '0' .. '9' } 
             ELSE 
-              ErrorAtSs ( "Floating point literal has no fractional digit" ) 
+              ErrorAtSs 
+                ( ARRAY OF REFANY 
+                    {" Floating point literal has no fractional digit" } 
+                ) 
             END (* IF *) 
           END (* IF *) 
         ; IF GTopSsRef . SsCh
@@ -577,7 +570,10 @@ MODULE FM3Scanner
               ; NextChar ( ) 
               UNTIL NOT GTopSsRef . SsCh IN SET OF CHAR { '0' .. '9' } 
             ELSE 
-              ErrorAtSs ( "Floating point literal has no exponent digit." ) 
+              ErrorAtSs 
+                ( ARRAY OF REFANY 
+                    { "Floating point literal has no exponent digit." } 
+                ) 
             END (* IF *) 
           ELSE 
           END (*IF*)  
@@ -608,20 +604,31 @@ MODULE FM3Scanner
     : BOOLEAN (* Neither at end-of-file nor end-of-line. *)
     (* PRE: Msg1 # NIL *)
 
-    = VAR LMsg : TEXT 
-    ; VAR LLoc : TEXT 
+    = VAR LLoc : TEXT 
 
     ; BEGIN
         IF GTopSsRef . SsWCh # WEOF 
         THEN 
           IF GTopSsRef . SsCh # LF 
           THEN RETURN TRUE 
-          ELSE LLoc := " at end of line." 
+          ELSE LLoc := " at end of line," 
           END (*IF*)  
-        ELSE LLoc := " at end of file."
+        ELSE LLoc := " at end of file,"
         END (*IF*)  
-      ; LMsg := Msg1 & LitTypeName [ Wide , Text ] & Msg2 & LLoc 
-      ; ErrorAtSs ( LMsg )  
+      ; ErrorAtSs 
+           ( ARRAY OF REFANY 
+              { Msg1 
+              , LitTypeName [ Wide , Text ] 
+              , Msg2 
+              , LLoc 
+              , FM3Messages . IndentLine
+              , "begins at ("
+              , Fmt . Int ( Attribute . Position . Line )
+              , ","
+              , Fmt . Int ( Attribute . Position . Column )
+              , ")"
+              } 
+           )  
       ; RETURN FALSE 
       END LineCharExists 
 
@@ -691,9 +698,11 @@ MODULE FM3Scanner
           IF NOT Wide 
           THEN  
             ErrorAtSs
-              ( "Unicode escape in non-wide "
-                & LitTypeName [ Wide , (*Text:=*) FALSE ]
-                & " literal."
+              ( ARRAY OF REFANY 
+                  { "Unicode escape in non-wide "
+                  , LitTypeName [ Wide , (*Text:=*) FALSE ]
+                  , " literal." 
+                  } 
               )
           END (*IF*) 
         ; NextChar ( ) (* The Unicode escape tag 'u' or 'U'. *) 
@@ -715,9 +724,11 @@ MODULE FM3Scanner
           IF NOT GTopSsRef . SsCh IN LDigitChars
           THEN 
             ErrorAtSs
-              ( "Short escape sequence in "
-                & LitTypeName [ Wide , (*Text:=*) FALSE ]
-                & " literal."
+              ( ARRAY OF REFANY 
+                  { "Short escape sequence in "
+                  , LitTypeName [ Wide , (*Text:=*) FALSE ]
+                  , " literal." 
+                  } 
               )
           ; RETURN WNUL  
           ELSE 
@@ -728,7 +739,7 @@ MODULE FM3Scanner
           ; DEC ( LDigitCount )
           ; IF LDigitCount = 0 THEN EXIT END (*IF*) 
           ; IF NOT LineCharExists 
-                     ( "Short escape sequence" , Wide , Text 
+                     ( "Short escape sequence in " , Wide , Text 
                      , Msg2 := " literal"
                      )
             THEN RETURN WNUL  
@@ -739,15 +750,22 @@ MODULE FM3Scanner
         THEN 
           IF Wide THEN LPadDigitCt := 6 ELSE LPadDigitCt := 2 END (*IF*)
         ; ErrorAtPos 
-            ( LCharPos 
-            , "Out-of-range escape value in "
-              & LitTypeName [ Wide , (*Text:=*) FALSE ]
-              & " literal: " & LBaseText 
-              & Fmt . Pad 
+            ( ARRAY OF REFANY 
+              { "Out-of-range escape value in "
+              , LitTypeName [ Wide , (*Text:=*) FALSE ]
+              , " literal: " 
+              , LBaseText 
+              , Fmt . Pad 
                   ( Fmt . Int ( LIntVal , base := LBase ) , LPadDigitCt , '0' )
-              & ", max value is " & LBaseText 
-              & Fmt . Pad 
-                  ( Fmt . Int ( LMaxIntVal , base := LBase ) , LPadDigitCt , '0' )
+              , ", max value is " 
+              , LBaseText 
+              , Fmt . Pad 
+                  ( Fmt . Int ( LMaxIntVal , base := LBase ) 
+                  , LPadDigitCt 
+                  , '0' 
+                  ) 
+              } 
+            , LCharPos 
             ) 
         ; LIntVal := 0 
         END (*IF*) 
@@ -777,10 +795,15 @@ MODULE FM3Scanner
 (* TODO: put this check inside EscapeSeq, and display the value
          in octal, if it was so specified. *) 
           ErrorAtSs 
-            ( "Character literal value 16_" 
-              & Fmt . Pad 
-                  ( Fmt . Int ( ORD ( GTopSsRef . SsWCh ) , base := 16 ) , 6 , '0' ) 
-              & " is beyond the range of CHAR."
+            ( ARRAY OF REFANY 
+                { "Character literal value 16_" 
+                , Fmt . Pad 
+                    ( Fmt . Int ( ORD ( GTopSsRef . SsWCh ) , base := 16 ) 
+                    , 6 
+                    , '0' 
+                    ) 
+                , " is beyond the range of CHAR." 
+                } 
             )
         ; LWCh := WNUL 
         ELSE
@@ -799,9 +822,11 @@ MODULE FM3Scanner
         THEN NextChar ( ) 
         ELSE 
           ErrorAtSs
-            ( "No closing quote on "
-              & LitTypeName [ Wide , (*Text:=*) FALSE ]
-              & " Literal."
+            ( ARRAY OF REFANY 
+                { "No closing quote on "
+                , LitTypeName [ Wide , (*Text:=*) FALSE ]
+                , " Literal." 
+                } 
             )
         END (* IF *) 
       END CharLit 
@@ -841,9 +866,11 @@ MODULE FM3Scanner
             UNTIL GTopSsRef . SsWCh = WEOF 
                   OR GTopSsRef . SsWCh <= WLastOfChar 
           ; ErrorAtSs 
-              ( "Text literal has " 
-                & Fmt . Int ( LBadCharCt ) 
-                & " characters beyond the range of CHAR."
+              ( ARRAY OF REFANY 
+                  { "Text literal has " 
+                  , Fmt . Int ( LBadCharCt ) 
+                  ,  " characters beyond the range of CHAR." 
+                  } 
               , - LBadCharCt
               ) 
           ; LCharVal := NUL (* One NUL for a whole list of bad chars. *) 
@@ -931,7 +958,17 @@ MODULE FM3Scanner
       ; LOOP (* Thru chars in comment *) 
           IF GTopSsRef . SsWCh = WEOF  
           THEN 
-            ErrorAtTok ( "Comment unclosed at end-of-file" )  
+            ErrorAtTok 
+              ( ARRAY OF REFANY 
+                  { "Unclosed comment at end-of-file," 
+                  , FM3Messages . IndentLine
+                  , "begins at ("
+                  , Fmt . Int ( Attribute . Position . Line )
+                  , ","
+                  , Fmt . Int ( Attribute . Position . Column )
+                  , ")"
+                  } 
+              )  
           ELSIF GTopSsRef . SsWCh = W'(' 
           THEN 
             NextChar ( ) 
