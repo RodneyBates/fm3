@@ -15,7 +15,10 @@ INTERFACE FM3Messages
 ; IMPORT FM3Base 
 ; IMPORT FM3SharedUtils
 
-; CONST IndentLine = Wr . EOL & "    " 
+; CONST IndentPrefix = "    "
+; CONST IndentLen = 4 (*Text.Length(IndentPrefix)*)
+; CONST NLIndent = Wr . EOL & IndentPrefix
+; CONST MsgLineLen = 80
 
 (* The Do* options and LogFileWrT can be set by client code.  This
    allows FM3Messages to be shared among >1 main program, without

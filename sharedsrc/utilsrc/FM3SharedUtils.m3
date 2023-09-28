@@ -11,6 +11,7 @@ MODULE FM3SharedUtils
 ; IMPORT Atom 
 ; IMPORT AtomList 
 ; IMPORT FileRd
+; IMPORT Fmt 
 ; IMPORT FS 
 ; IMPORT OSError
 ; IMPORT Params 
@@ -174,6 +175,17 @@ MODULE FM3SharedUtils
   = BEGIN
       RETURN "\'" & Text . FromChar ( Kind ) & "\'" 
     END FileKindImage
+
+(*EXPORTED*)
+; PROCEDURE PutPosImage ( WrT : Wr . T ; Position : FM3Base . tPosition )
+
+  = BEGIN
+      Wr.PutChar ( WrT , '(' )
+    ; Wr.PutText ( WrT , Fmt . Int ( Position.Line ) )
+    ; Wr.PutChar ( WrT , ',' )
+    ; Wr.PutText ( WrT , Fmt . Int ( Position.Column ) )
+    ; Wr.PutChar ( WrT , ')' )
+    END PutPosImage
 
 (*EXPORTED*) 
 ; PROCEDURE PutTextish ( WrT : Wr . T ; Textish : REFANY )

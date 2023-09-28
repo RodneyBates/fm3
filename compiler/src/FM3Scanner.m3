@@ -621,7 +621,7 @@ MODULE FM3Scanner
               , LitTypeName [ Wide , Text ] 
               , Msg2 
               , LLoc 
-              , FM3Messages . IndentLine
+              , FM3Messages . NLIndent
               , "begins at ("
               , Fmt . Int ( Attribute . Position . Line )
               , ","
@@ -961,7 +961,7 @@ MODULE FM3Scanner
             ErrorAtTok 
               ( ARRAY OF REFANY 
                   { "Unclosed comment at end-of-file," 
-                  , FM3Messages . IndentLine
+                  , FM3Messages . NLIndent 
                   , "begins at ("
                   , Fmt . Int ( Attribute . Position . Line )
                   , ","

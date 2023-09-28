@@ -49,6 +49,8 @@ INTERFACE FM3SharedUtils
      allowing the rest to be passed multiple levels as one parameter.
   *) 
     
+; PROCEDURE PutPosImage ( WrT : Wr . T ; Position : FM3Base . tPosition )
+
 ; PROCEDURE PutTextish ( WrT : Wr . T ; Textish : REFANY )
   (* Textish can be TEXT, Atom.T, or AtomList.T. *) 
 

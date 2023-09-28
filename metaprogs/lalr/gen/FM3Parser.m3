@@ -11,11 +11,11 @@
 
   IMPORT FM3Scanner;
 
-IMPORT Fmt, OSError, Rd, Thread, Text, Word, Wr;
+IMPORT Fmt, OSError, Rd, Thread, Text, TextWr, Word, Wr;
 
 IMPORT Positions, FrontErrors, Strings, IntSets, System;
 
-IMPORT Errors (* From Reusem3. *);
+IMPORT FM3SharedUtils;
 
 
 (* Global insertions from the .lalr file: *)
@@ -878,7 +878,7 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
                they are, in general, parsing *actions*, only the low range
                up to yyLastReadState (a constant inserted by the generator)
                being truly states.  These correspond to item sets, and as
-               actions, meaning read (it will be a terminal) and enter
+               actions, they mean read (it will be a terminal) and enter
                new state yyState.  Higher ranges are read-terminal-reduce,
                read-nonterminal-reduce, and just reduce actions.
                Deconfusing this terminology would require extensive and
@@ -904,7 +904,7 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
       yyIsRepairing     : BOOLEAN;
       yyErrorCount      : CARDINAL;
       yyText            : TEXT; 
-      yyTokenStringxxx     : TEXT (*ARRAY [0..127] OF CHAR*);
+      yyTokenStringxxx  : TEXT (*ARRAY [0..127] OF CHAR*);
       (* ^For use in a debugger. *) 
 
    BEGIN (* FM3Parser *) 
@@ -1756,56 +1756,94 @@ PROCEDURE ErrorRecovery (
           StackSize     : INTEGER       ;
           StackPtr      : yyStackPtrType) =
    VAR
-      TokensSkipped     : BOOLEAN;
       ContinueSet       : IntSets . T;
       RestartSet        : IntSets . T;
       Token             : yySymbolRange;
-      TokenArray        : ARRAY [0..127] OF CHAR;
       TokenText         : TEXT;
-      TokenString       : Strings.tString;
-      ContinueString    : Strings.tString;
+      TokenArray        : ARRAY [0..127] OF CHAR;
+     ErrorPos          : FM3Scanner.tPosition;
+      BadTokenText      : TEXT;
+      InfoText          : TEXT;
+      InfoWrT           : TextWr . T;
+      InfoLineLen       : INTEGER; 
+      TokensSkipped     : BOOLEAN;
+
+      PROCEDURE VisitTok (Elem: IntSets.ElemT) = 
+
+      VAR TokenText : TEXT;
+      VAR TokenLen : INTEGER; 
+
+      BEGIN (*VisitTok*)
+        IF IntSets.IsElement (Elem, ContinueSet) THEN
+           TokenName (Elem, (*OUT*) TokenText);
+           TokenLen := Text.Length (TokenText);
+           IF InfoLineLen > FM3Messages.IndentLen
+              (* Tere's already one token on this line. *) 
+              AND InfoLineLen + TokenLen + 2 (*For quotes.*)
+                  > FM3Messages.MsgLineLen (* This one won't fit. *) 
+           THEN
+             Wr . PutText ( InfoWrT, FM3Messages.NLIndent);
+             InfoLineLen := FM3Messages.IndentLen;
+           END (*IF*);
+           Wr.PutChar (InfoWrT , '\"');
+           Wr.PutText (InfoWrT , TokenText);
+           Wr.PutText (InfoWrT , "\" ");
+           INC ( InfoLineLen, TokenLen + 3 (* Two quotes & a blank. *) ); 
+        END (*IF*);
+      END VisitTok;
+
    BEGIN
-   (* 1. report the error *)
-         TokenName ( Terminal , (*OUT*) TokenText );
-         FrontErrors.ErrorMessageTraced
-           (FrontErrors.SyntaxError, FrontErrors.Error, 
-          FM3Scanner.Attribute.Position, FrontErrors.eText, TokenText);
+      TokenName ( Terminal , (*OUT*) BadTokenText );
+     ErrorPos := FM3Scanner.Attribute.Position;
 
-   (* 2. report the set of expected terminal symbols *)
-      ContinueSet:= IntSets . Empty ( ); 
-      ComputeContinuation (StateStack, StackSize, StackPtr, ContinueSet);
-      Strings.AssignEmpty (ContinueString);
-      FOR Token := IntSets.Minimum (ContinueSet) TO IntSets.Maximum (ContinueSet) DO
-         IF IntSets.IsElement (Token, ContinueSet) THEN
-            TokenName (Token, (*OUT*) TokenText);
-            Strings.TextToString (TokenText, TokenString);
-            IF (Strings.Length (ContinueString) + Strings.Length (TokenString) + 1 <= Strings.cMaxStrLength) THEN
-               Strings.Concatenate (ContinueString, TokenString);
-               Strings.Append (ContinueString, ' ');
-            END;
-         END;
-      END;
-      FrontErrors.ErrorMessageI
-        (FrontErrors.ExpectedTokens, FrontErrors.Information,
-       FM3Scanner.Attribute.Position, FrontErrors.eString, ADR (ContinueString));
-      ContinueSet := NIL;
+   (* Generate image of the set of expected terminal symbols. *)
+      ComputeContinuation
+        (StateStack, StackSize, StackPtr, (*OUT*) ContinueSet);
+      InfoWrT := TextWr . New ( );
+      IF IntSets.Card(ContinueSet) = 0
+      THEN (* Shouldn't happen. *) 
+      ELSIF IntSets.Card(ContinueSet) = 1
+      THEN
+         Wr . PutText ( InfoWrT, ", expecting \"");
+         Token := IntSets . ArbitraryMember (ContinueSet);
+         TokenName (Token, (*OUT*) TokenText);
+         Wr . PutText ( InfoWrT, TokenText);  
+         Wr . PutText ( InfoWrT, "\"");  
+      ELSE (* Expected set is plural. *)   
+         Wr . PutText ( InfoWrT, ", expecting one of:");
+         InfoLineLen := FM3Messages.IndentLen;
+         IntSets . ForAllDo (ContinueSet, VisitTok);
+      END (*IF*);
 
-   (* 3. compute the set of terminal symbols for restart of the parse *)
-      RestartSet := IntSets . Empty ( );
-      ComputeRestartPoints (StateStack, StackSize, StackPtr, RestartSet);
+      ComputeRestartPoints
+        (StateStack, StackSize, StackPtr, (*OUT*) RestartSet);
 
-   (* 4. skip terminal symbols until a restart point is reached *)
+      (* Skip terminal symbols until a restart point is reached *)
       TokensSkipped := FALSE;
       WHILE NOT IntSets.IsElement (Terminal, RestartSet) DO
        Terminal := FM3Scanner.GetToken ();
         TokensSkipped := TRUE;
-      END;
-      RestartSet := NIL;
+      END (*WHILE*);
+      IF TokensSkipped
+      THEN
+         Wr.PutText (InfoWrT, FM3Messages.NLIndent);
+         Wr.PutText (InfoWrT , "Restarting parse at ");
+        FM3SharedUtils . PutPosImage ( InfoWrT , FM3Scanner.Attribute.Position );
+      END (*IF*);
 
-   (* 5. report the restart point *)
-      IF TokensSkipped THEN
-       FrontErrors.ErrorMessage (FrontErrors.RestartPoint, FrontErrors.Information, FM3Scanner.Attribute.Position);
-      END;
+      InfoText := TextWr . ToText (InfoWrT);
+
+      FM3Messages.ErrorArr
+         ( ARRAY OF REFANY
+             { "Illegal token: \""
+             , BadTokenText
+             , "\""
+             , InfoText 
+             } 
+         , ErrorPos
+         );
+      ContinueSet := NIL;
+      RestartSet := NIL;
    END ErrorRecovery;
 
 (*
@@ -1905,6 +1943,7 @@ PROCEDURE ComputeRestartPoints (
       Nonterminal       : yySymbolRange;
       ContinueSet       : IntSets.T;
    BEGIN
+      RestartSet := IntSets . Empty ( );
       Stack := NEW (yyStackType, StackSize);
       SUBARRAY (Stack^, 0, StackPtr+1 )
         := SUBARRAY (ParseStack^, 0, StackPtr+1 );
@@ -1919,7 +1958,7 @@ PROCEDURE ComputeRestartPoints (
             StackSize := NUMBER (Stack^); 
          END;
          Stack^ [StackPtr] := State;
-         ComputeContinuation (Stack, StackSize, StackPtr, ContinueSet);
+         ComputeContinuation (Stack, StackSize, StackPtr, (*OUT*) ContinueSet);
          RestartSet := IntSets.Union (RestartSet, ContinueSet);
          State := Next (State, yyContinuation [State]);
 
