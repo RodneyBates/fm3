@@ -54,8 +54,7 @@ LOCAL
 
 /* Parser module initialization. */ 
 BEGIN
-  { FrontErrors . SetReportMode ( FrontErrors . tReportMode . eImmediate ); 
-  }
+  { }
 
 /* Parser module final cleanup. */ 
 CLOSE { }
