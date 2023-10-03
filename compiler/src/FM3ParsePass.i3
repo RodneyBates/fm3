@@ -68,6 +68,21 @@ INTERFACE FM3ParsePass
 ; PROCEDURE Push_TCPrp
    ( T : Itk . TokTyp ; C : LONGINT ; Position : FM3Scanner . tPosition )
 
+; PROCEDURE Push_TCPoCrP
+   ( T : Itk . TokTyp
+   ; CLt : LONGINT
+   ; PositionLt : FM3Scanner . tPosition
+   ; COne : LONGINT
+   ; PositionRt : FM3Scanner . tPosition
+   )
+
+; PROCEDURE Push_OCPrP
+   ( T : Itk . TokTyp
+   ; CLt : LONGINT
+   ; PositionOne : FM3Scanner . tPosition
+   ; PositionRt : FM3Scanner . tPosition
+   )
+
 ; PROCEDURE Push_TCBr ( T : Itk . TokTyp ; C : LONGINT ; B : BOOLEAN )
 
 ; PROCEDURE Push_TCIri ( T : Itk . TokTyp ; C : LONGINT ; I : INTEGER )

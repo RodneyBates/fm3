@@ -63,8 +63,15 @@ ItkRaisesSet 2 (* Position of RAISES. *).
 ItkProcNoBody 1 (* Atom of signature. *) .
 ItkProcWBody 1 (* Atom of signature. *) .
 ItkProcBody 2 (* Position of equal sign. *) .
+ItkProcType 2 (* Position of "(". *) .
+ItkBlock 2 (* Position of LM declaration. *)
+  Beg 2 (* Position of BEGIN. *) . 
 
+(* Type decls. *)
 
+FIXED
+ItkTypeDecl 2 (* Position of ident (Lt) ir position of semicolon (Rt). *)
+  Eq (* I don't think we need a position for this. *) . 
 
 LIST
 
@@ -84,7 +91,7 @@ ItkDeclList  .
 
 (*
 
-FIXED ItkModule 2 (*Name, UnitNo. *)
+FIXED ItkModule 2 (* Name, UnitNo. *)
         Begin
 . 
 

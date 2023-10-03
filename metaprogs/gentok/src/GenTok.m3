@@ -441,7 +441,6 @@ EXPORTS Main
 ; CONST OpenCmnt = TwoCharTyp { '(' , '*' } 
 ; CONST CloseCmnt = TwoCharTyp { '*' , ')' } 
 
-
 ; PROCEDURE SkipComments ( ) 
 
   = BEGIN

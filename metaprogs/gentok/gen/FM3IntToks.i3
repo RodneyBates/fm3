@@ -183,67 +183,99 @@ INTERFACE FM3IntToks
 ; CONST ItkProcBodyLtPatch              (*ArgCt: 2*) =   188 (*16_bc 01 *)
 ; CONST ItkProcBodyRt                   (*ArgCt: 2*) =   189 (*16_bd 01 *)
 
+(* Position of "(". *)
+(* FIXED ItkProcType: *)
+; CONST ItkProcTypeLt                   (*ArgCt: 2*) =   190 (*16_be 01 *)
+; CONST ItkProcTypeLtTemp               (*ArgCt: 2*) =   191 (*16_bf 01 *)
+; CONST ItkProcTypeLtPatch              (*ArgCt: 2*) =   192 (*16_c0 01 *)
+; CONST ItkProcTypeRt                   (*ArgCt: 2*) =   193 (*16_c1 01 *)
+
+(* Position of LM declaration. *)
+(* FIXED ItkBlock: *)
+; CONST ItkBlockLt                      (*ArgCt: 2*) =   194 (*16_c2 01 *)
+; CONST ItkBlockLtTemp                  (*ArgCt: 2*) =   195 (*16_c3 01 *)
+; CONST ItkBlockLtPatch                 (*ArgCt: 2*) =   196 (*16_c4 01 *)
+; CONST ItkBlockRt                      (*ArgCt: 2*) =   197 (*16_c5 01 *)
+
+(* Position of BEGIN. *)
+; CONST ItkBlockBeg                     (*ArgCt: 2*) =   198 (*16_c6 01 *)
+; CONST ItkBlockBegTemp                 (*ArgCt: 2*) =   199 (*16_c7 01 *)
+; CONST ItkBlockBegPatch                (*ArgCt: 2*) =   200 (*16_c8 01 *)
+
+(* Type decls. *)
+(* Position of ident (Lt) ir position of semicolon (Rt). *)
+(* FIXED ItkTypeDecl: *)
+; CONST ItkTypeDeclLt                   (*ArgCt: 2*) =   201 (*16_c9 01 *)
+; CONST ItkTypeDeclLtTemp               (*ArgCt: 2*) =   202 (*16_ca 01 *)
+; CONST ItkTypeDeclLtPatch              (*ArgCt: 2*) =   203 (*16_cb 01 *)
+; CONST ItkTypeDeclRt                   (*ArgCt: 2*) =   204 (*16_cc 01 *)
+
+(* I don't think we need a position for this. *)
+; CONST ItkTypeDeclEq                                =   205 (*16_cd 01 *)
+; CONST ItkTypeDeclEqTemp                            =   206 (*16_ce 01 *)
+; CONST ItkTypeDeclEqPatch                           =   207 (*16_cf 01 *)
+
 (* GenTok implicitly gives list tokens one operand for element count,
    plus any count given explicitly here.
 *)
 (* Position of EXPORTS. *)
 (* LIST ItkExportIdList: *)
-; CONST ItkExportIdListLt               (*ArgCt: 3*) =   190 (*16_be 01 *)
-; CONST ItkExportIdListLtTemp           (*ArgCt: 3*) =   191 (*16_bf 01 *)
-; CONST ItkExportIdListLtPatch          (*ArgCt: 3*) =   192 (*16_c0 01 *)
-; CONST ItkExportIdListRt               (*ArgCt: 3*) =   193 (*16_c1 01 *)
+; CONST ItkExportIdListLt               (*ArgCt: 3*) =   208 (*16_d0 01 *)
+; CONST ItkExportIdListLtTemp           (*ArgCt: 3*) =   209 (*16_d1 01 *)
+; CONST ItkExportIdListLtPatch          (*ArgCt: 3*) =   210 (*16_d2 01 *)
+; CONST ItkExportIdListRt               (*ArgCt: 3*) =   211 (*16_d3 01 *)
 
 (* Position of "(" *)
 (* LIST ItkGenFormalIdList: *)
-; CONST ItkGenFormalIdListLt            (*ArgCt: 3*) =   194 (*16_c2 01 *)
-; CONST ItkGenFormalIdListLtTemp        (*ArgCt: 3*) =   195 (*16_c3 01 *)
-; CONST ItkGenFormalIdListLtPatch       (*ArgCt: 3*) =   196 (*16_c4 01 *)
-; CONST ItkGenFormalIdListRt            (*ArgCt: 3*) =   197 (*16_c5 01 *)
+; CONST ItkGenFormalIdListLt            (*ArgCt: 3*) =   212 (*16_d4 01 *)
+; CONST ItkGenFormalIdListLtTemp        (*ArgCt: 3*) =   213 (*16_d5 01 *)
+; CONST ItkGenFormalIdListLtPatch       (*ArgCt: 3*) =   214 (*16_d6 01 *)
+; CONST ItkGenFormalIdListRt            (*ArgCt: 3*) =   215 (*16_d7 01 *)
 
 (* Position of "(" *)
 (* LIST ItkGenActualIdList: *)
-; CONST ItkGenActualIdListLt            (*ArgCt: 3*) =   198 (*16_c6 01 *)
-; CONST ItkGenActualIdListLtTemp        (*ArgCt: 3*) =   199 (*16_c7 01 *)
-; CONST ItkGenActualIdListLtPatch       (*ArgCt: 3*) =   200 (*16_c8 01 *)
-; CONST ItkGenActualIdListRt            (*ArgCt: 3*) =   201 (*16_c9 01 *)
+; CONST ItkGenActualIdListLt            (*ArgCt: 3*) =   216 (*16_d8 01 *)
+; CONST ItkGenActualIdListLtTemp        (*ArgCt: 3*) =   217 (*16_d9 01 *)
+; CONST ItkGenActualIdListLtPatch       (*ArgCt: 3*) =   218 (*16_da 01 *)
+; CONST ItkGenActualIdListRt            (*ArgCt: 3*) =   219 (*16_db 01 *)
 
 (* Position of "(" *)
 (* LIST ItkFormalsList: *)
-; CONST ItkFormalsListLt                (*ArgCt: 3*) =   202 (*16_ca 01 *)
-; CONST ItkFormalsListLtTemp            (*ArgCt: 3*) =   203 (*16_cb 01 *)
-; CONST ItkFormalsListLtPatch           (*ArgCt: 3*) =   204 (*16_cc 01 *)
-; CONST ItkFormalsListRt                (*ArgCt: 3*) =   205 (*16_cd 01 *)
+; CONST ItkFormalsListLt                (*ArgCt: 3*) =   220 (*16_dc 01 *)
+; CONST ItkFormalsListLtTemp            (*ArgCt: 3*) =   221 (*16_dd 01 *)
+; CONST ItkFormalsListLtPatch           (*ArgCt: 3*) =   222 (*16_de 01 *)
+; CONST ItkFormalsListRt                (*ArgCt: 3*) =   223 (*16_df 01 *)
 
 (* Position of VALUE or 1st ident, if no mode. *)
 (* LIST ItkFormalVALUEIdList: *)
-; CONST ItkFormalVALUEIdListLt          (*ArgCt: 3*) =   206 (*16_ce 01 *)
-; CONST ItkFormalVALUEIdListLtTemp      (*ArgCt: 3*) =   207 (*16_cf 01 *)
-; CONST ItkFormalVALUEIdListLtPatch     (*ArgCt: 3*) =   208 (*16_d0 01 *)
-; CONST ItkFormalVALUEIdListRt          (*ArgCt: 3*) =   209 (*16_d1 01 *)
+; CONST ItkFormalVALUEIdListLt          (*ArgCt: 3*) =   224 (*16_e0 01 *)
+; CONST ItkFormalVALUEIdListLtTemp      (*ArgCt: 3*) =   225 (*16_e1 01 *)
+; CONST ItkFormalVALUEIdListLtPatch     (*ArgCt: 3*) =   226 (*16_e2 01 *)
+; CONST ItkFormalVALUEIdListRt          (*ArgCt: 3*) =   227 (*16_e3 01 *)
 
 (* Position of VAR. *)
 (* LIST ItkFormalVARIdList: *)
-; CONST ItkFormalVARIdListLt            (*ArgCt: 3*) =   210 (*16_d2 01 *)
-; CONST ItkFormalVARIdListLtTemp        (*ArgCt: 3*) =   211 (*16_d3 01 *)
-; CONST ItkFormalVARIdListLtPatch       (*ArgCt: 3*) =   212 (*16_d4 01 *)
-; CONST ItkFormalVARIdListRt            (*ArgCt: 3*) =   213 (*16_d5 01 *)
+; CONST ItkFormalVARIdListLt            (*ArgCt: 3*) =   228 (*16_e4 01 *)
+; CONST ItkFormalVARIdListLtTemp        (*ArgCt: 3*) =   229 (*16_e5 01 *)
+; CONST ItkFormalVARIdListLtPatch       (*ArgCt: 3*) =   230 (*16_e6 01 *)
+; CONST ItkFormalVARIdListRt            (*ArgCt: 3*) =   231 (*16_e7 01 *)
 
 (* Position of VAR. *)
 (* LIST ItkFormalREADONLYIdList: *)
-; CONST ItkFormalREADONLYIdListLt       (*ArgCt: 3*) =   214 (*16_d6 01 *)
-; CONST ItkFormalREADONLYIdListLtTemp   (*ArgCt: 3*) =   215 (*16_d7 01 *)
-; CONST ItkFormalREADONLYIdListLtPatch  (*ArgCt: 3*) =   216 (*16_d8 01 *)
-; CONST ItkFormalREADONLYIdListRt       (*ArgCt: 3*) =   217 (*16_d9 01 *)
+; CONST ItkFormalREADONLYIdListLt       (*ArgCt: 3*) =   232 (*16_e8 01 *)
+; CONST ItkFormalREADONLYIdListLtTemp   (*ArgCt: 3*) =   233 (*16_e9 01 *)
+; CONST ItkFormalREADONLYIdListLtPatch  (*ArgCt: 3*) =   234 (*16_ea 01 *)
+; CONST ItkFormalREADONLYIdListRt       (*ArgCt: 3*) =   235 (*16_eb 01 *)
 
 (* LIST ItkDeclList: *)
-; CONST ItkDeclListLt                   (*ArgCt: 1*) =   218 (*16_da 01 *)
-; CONST ItkDeclListLtTemp               (*ArgCt: 1*) =   219 (*16_db 01 *)
-; CONST ItkDeclListLtPatch              (*ArgCt: 1*) =   220 (*16_dc 01 *)
-; CONST ItkDeclListRt                   (*ArgCt: 1*) =   221 (*16_dd 01 *)
+; CONST ItkDeclListLt                   (*ArgCt: 1*) =   236 (*16_ec 01 *)
+; CONST ItkDeclListLtTemp               (*ArgCt: 1*) =   237 (*16_ed 01 *)
+; CONST ItkDeclListLtPatch              (*ArgCt: 1*) =   238 (*16_ee 01 *)
+; CONST ItkDeclListRt                   (*ArgCt: 1*) =   239 (*16_ef 01 *)
 
 (*
 
-FIXED ItkModule 2 (*Name, UnitNo. *)
+FIXED ItkModule 2 (* Name, UnitNo. *)
         Begin
 . 
 
@@ -258,7 +290,7 @@ LIST ItkIdPlusList
 FIXED ItkExport 2 (* Ident, Unit No. *) . 
 *)
 (* End of FM3IntToks. *)
-; CONST TkMaxTok                                     =   221
+; CONST TkMaxTok                                     =   239
 
 ; END FM3IntToks
 .

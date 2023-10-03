@@ -37,8 +37,9 @@ GLOBAL
     FROM FM3ParsePass IMPORT ParsAttrNull;
     FROM FM3ParsePass IMPORT PushUnnestStk , PushUnnest, PushUnnestLong;
     FROM FM3ParsePass IMPORT
-      Push_T , Push_TP , Push_TCr , Push_TCPrp , Push_TCBr , Push_TCIri , 
-      Push_TI3 , Push_TI6 , Push_TCoCr , Push_TCIoCri , Pop4 , Pop8 ;
+      Push_T , Push_TP , Push_TCr , Push_TCPrp , Push_TCPoCrP , Push_OCPrP , 
+      Push_TCBr , Push_TCIri , Push_TI3 , Push_TI6 , Push_TCoCr ,
+      Push_TCIoCri , Pop4 , Pop8 ;
     FROM FM3ParsePass IMPORT MakeList , MakeListPos;
     IMPORT FM3Scopes;
     IMPORT FM3Units;
@@ -193,11 +194,6 @@ TOKEN
 
 (* END of copied-in token decls from FM3SrcToks.i3. *) 
 
-
-
-
-
- 
 (* ------------------------------- Productions. ---------------------------- *)
 
 (* NOTE regarding the parser's default setting of the PaUnnestCoord field:
@@ -427,6 +423,7 @@ RULE
      } .
 *)
 (* ------------------------------- Exports ------------------------- . *)
+
 (* Exports.  Possibly absent, in which case construct "EXPORTS Main".
    Otherwise contains at least one ident. Bracket with ItkExportList*.
 *) 
@@ -456,7 +453,15 @@ RULE
    TypeDeclGroup : StkRwTYPE TypeDecls .
    TypeDecls : TypeDecl . 
    TypeDecls : TypeDecls TypeDecl . 
-   TypeDecl : StkIdent StkEqual Type StkSemicolon .
+   TypeDecl : StkIdent StkEqual Type StkSemicolon
+     { Push_TCPoCrP
+         ( Itk . ItkTypeDeclLt
+         , $0 . PaUnnestCoord
+         , $1 . Scan . Position
+         , $2 . PaUnnestCoord
+         , $4 . Scan . Position
+         ) ; 
+     } .
 
 (* ------------------------- Constant Declarations -------------------- . *) 
 
@@ -507,7 +512,12 @@ RULE
    Type : StkIdent . 
    Type : RecordType .
 
-   RecordType : StkRwRECORD VarDecl StkRwEND . 
+   RecordType : StkRwRECORD VarDecl StkRwEND .
+
+   ProcedureType : StkRwPROCEDURE Signature
+     { Push_TCPrp
+         ( Itk . ItkProcTypeLt , $2 . PaUnnestCoord , $1 . Scan . Position ) ;
+     } . 
 
 (* ------------------------ Procedure Signatures ----------------------- *)
 
@@ -738,9 +748,19 @@ Expr: StkIdent .
 
 (* ------------------------------ Blocks ------------------------------- *)
 
-   Block : BlockLt DeclList StkRwBEGIN Stmts StkRwEND .
+   Block : BlockLt DeclList StkRwBEGIN Stmts StkRwEND
+     { Push_OCPrP
+         ( Itk . ItkBlockLt , $3 . PaUnnestCoord
+         , $3 . Scan . Position
+         , $5 . Scan . Position
+         ) ;
+     } .
    BlockLt : /*EMPTY*/
-     { FM3ParsePass . BeginBlock ( ) (* Pushes nothing. *) ; } .
+     { FM3ParsePass . BeginBlock ( ) ;
+       Push_TP ( Itk . ItkBlockLt , FM3Scanner . Attribute . Position ); 
+     } .
+
+(* ------------------------ Declaration lists -------------------------- *)
 
    DeclList : DeclListRecurse
      { MakeList ( $$ , Itk . ItkDeclListLt , $1 ) ; } .  
