@@ -468,7 +468,7 @@ RULE
    ConstDeclGroup : StkRwCONST ConstDecls .
    ConstDecls : ConstDecl . 
    ConstDecls : ConstDecls ConstDecl . 
-   ConstDecl : StkIdent OptConstType StkEqual Expr .
+   ConstDecl : StkIdent OptConstType StkEqual Expr StkSemicolon .
    OptConstType : StkColon Type
      { $$ . PaUnnestCoord := $1 . PaUnnestCoord ;
        $$ . PaBool (* Present. *) := TRUE ; } . 
@@ -482,7 +482,7 @@ RULE
    VarDeclGroup : StkRwVAR VarDecls .
    VarDecls : VarDecl . 
    VarDecls : VarDecls VarDecl . 
-   VarDecl : StkIdent OptVarType OptVarValue
+   VarDecl : StkIdent OptVarType OptVarValue StkSemicolon 
      { IF NOT $2 . PaBool AND NOT $3 . PaBool
        THEN
          FM3Messages . ErrorArr
@@ -744,6 +744,7 @@ RULE
 (* ---------------------------- Expressions ---------------------------- *)
 
 Expr: StkIdent .
+Expr: StkIntLit . 
 
 
 (* ------------------------------ Blocks ------------------------------- *)
