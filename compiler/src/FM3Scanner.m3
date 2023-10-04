@@ -267,9 +267,12 @@ MODULE FM3Scanner
   = BEGIN 
       IF GCurRwValue = FM3LexTable . ValueUnrecognized 
       THEN (* Keep it that way. *) 
-      ELSE (* Need more chars. *) 
+      ELSIF GCurRwValue = FM3LexTable . ValueNull 
+      THEN (* Need more chars. *) 
         GCurRwValue 
-          := FM3LexTable . IncrNext ( GCurRwLexTable , Char , GCurRwState )
+          := FM3LexTable . IncrNext 
+               ( GCurRwLexTable , Char , (*IN OUT*) GCurRwState )
+      ELSE (* Keep it that way. *) 
       END (*IF*) 
     END ContribToFsm 
 
@@ -411,11 +414,19 @@ MODULE FM3Scanner
       ; Attribute . SaHash := ScHash 
       ; Attribute . SaChars 
           := FM3Utils . CharVarArrayToOAChar ( ScCharVarArr ) 
-(*
-      ; GCurRwValue 
-          := FM3LexTable . IncrNext 
-               ( GCurRwLexTable , FM3LexTable . NullChar , GCurRwState ) 
-*)
+      ; IF GCurRwValue = FM3LexTable . ValueNull 
+        THEN (* Not recognized, but could be a prefix of longer RW. *) 
+(* NOTE: ^This is a workaround for FM3BuildLexMachine's inconsistent habit
+          of having a transition on NullChar for the end of a string, IFF
+          it is a prefix of a longer string. 
+*) 
+(* TODO: Regularize FM3BuildLesMachine and FM3LexTable so this distinction
+         need not be accomodated by client code. 
+*)   
+          GCurRwValue (* Done with string. *) 
+            := FM3LexTable . IncrNext 
+                 ( GCurRwLexTable , FM3LexTable . NullChar , GCurRwState ) 
+        END (*IF*) 
       ; IF GCurRwValue # FM3LexTable . ValueUnrecognized  
            AND GCurRwValue # FM3LexTable . ValueNull 
         THEN Attribute . SaTok := GCurRwValue  
@@ -428,7 +439,7 @@ MODULE FM3Scanner
                     , (*OUT*) LIntTok 
                     ) 
         THEN Attribute . SaTok := LIntTok 
-        ELSIF FM3Globals . PgRwDict # NIL 
+        ELSIF FM3Globals . M3RwDict # NIL 
               AND FM3Dict_OAChars_Int . LookupGrowable 
                     ( FM3Globals . M3RwDict 
                     , Attribute . SaChars 
