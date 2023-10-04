@@ -15,8 +15,8 @@ INTERFACE FM3Messages
 ; IMPORT FM3Base 
 ; IMPORT FM3SharedUtils
 
-; CONST IndentPrefix = "    "
-; CONST IndentLen = 4 (*Text.Length(IndentPrefix)*)
+; CONST IndentPrefix = "       "
+; CONST IndentLen = 7 (*Text.Length(IndentPrefix)*)
 ; CONST NLIndent = Wr . EOL & IndentPrefix
 ; CONST MsgLineLen = 80
 

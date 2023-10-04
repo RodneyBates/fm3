@@ -84,6 +84,12 @@ MODULE FM3Messages
       END (*IF*) 
     END PutLog 
 
+; VAR GFM3LabelT := 
+        FM3TextColors . FGDkGreen & "FM3: " & FM3TextColors . Reset 
+
+; VAR GFM3FatalLabelT
+        := FM3TextColors . FGRed & "FM3 FATAL: " & FM3TextColors . Reset 
+
 (*EXPORTED*)
 ; PROCEDURE Fatal ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL ) 
   (* Also terminates the program. *)
@@ -93,7 +99,7 @@ MODULE FM3Messages
   ; BEGIN
       LMsg
         := FM3SharedUtils . CatStrings
-             ( "FM3 FATAL: " , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 )
+             ( GFM3FatalLabelT , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 )
     ; TRY (*EXCEPT*)
         PutStdErr ( LMsg ) 
       ; PutLog ( LMsg ) 
@@ -110,7 +116,7 @@ MODULE FM3Messages
   = VAR LMsg : TEXT 
 
   ; BEGIN
-      LMsg := FM3SharedUtils . CatArrT ( Frags , "FM3 FATAL: " ) 
+      LMsg := FM3SharedUtils . CatArrT ( Frags , GFM3FatalLabelT ) 
     ; TRY (*EXCEPT*)
         PutStdErr ( LMsg ) 
       ; PutLog ( LMsg ) 
@@ -128,7 +134,7 @@ MODULE FM3Messages
   ; BEGIN
       LMsg
         := FM3SharedUtils . CatStrings
-             ( "FM3: "
+             ( GFM3LabelT
              , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8
              ) 
     ; PutStdErr ( LMsg ) 
@@ -143,7 +149,7 @@ MODULE FM3Messages
   = VAR LMsg : TEXT 
 
   ; BEGIN
-      LMsg := FM3SharedUtils . CatArrT ( Frags , "FM3: " ) 
+      LMsg := FM3SharedUtils . CatArrT ( Frags , GFM3LabelT ) 
     ; TRY (*EXCEPT*)
         PutStdErr ( LMsg ) 
       ; PutLog ( LMsg ) 
@@ -165,6 +171,7 @@ MODULE FM3Messages
 
   ; BEGIN
       LWrT := TextWr . New ( )
+    ; FM3SharedUtils . PutTextishArr ( LWrT , Label ) 
     ; LUnitRef := FM3Units . UnitStackTopRef 
     ; IF LUnitRef # NIL
       THEN
@@ -183,8 +190,6 @@ MODULE FM3Messages
       END (*IF*)
       
     ; IF LBlankNeeded THEN Wr . PutChar ( LWrT , ' ' ) END (*IF*)
-    ; FM3SharedUtils . PutTextishArr ( LWrT , Label ) 
-    ; Wr . PutText ( LWrT , ": " ) 
     ; FM3SharedUtils . PutTextishArr ( LWrT , Body ) 
 
     ; RETURN TextWr . ToText ( LWrT ) 
