@@ -567,17 +567,17 @@ MODULE FM3ParsePass
     END PushUnnest
 
 (*EXPORTED:*)
-; PROCEDURE Push_T ( T : Itk . TokTyp )
+; PROCEDURE Push_L ( T : Itk . TokTyp )
 
   = BEGIN
       PutBwd
         ( FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
         , VAL ( T , LONGINT ) 
         )
-    END Push_T
+    END Push_L
 
 (*EXPORTED:*)
-; PROCEDURE Push_TP ( T : Itk . TokTyp ; Position : FM3Scanner . tPosition )
+; PROCEDURE Push_LP ( T : Itk . TokTyp ; Position : FM3Scanner . tPosition )
 
   = BEGIN
       WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
@@ -586,10 +586,10 @@ MODULE FM3ParsePass
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( T , LONGINT ) ) 
       END (*WITH*) 
-    END Push_TP
+    END Push_LP
 
 (*EXPORTED:*)
-; PROCEDURE Push_TCr ( T : Itk . TokTyp ; C : LONGINT )
+; PROCEDURE Push_LCr ( T : Itk . TokTyp ; C : LONGINT )
 
   = BEGIN
       WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
@@ -598,10 +598,10 @@ MODULE FM3ParsePass
       ; PutBwd ( WRdBack , C ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
       END (*WITH*) 
-    END Push_TCr
+    END Push_LCr
 
 (*EXPORTED:*)
-; PROCEDURE Push_TCPrp
+; PROCEDURE Push_LCPrp
    ( T : Itk . TokTyp ; C : LONGINT ; Position : FM3Scanner . tPosition )
 
   = BEGIN
@@ -615,10 +615,10 @@ MODULE FM3ParsePass
       ; PutBwd ( WRdBack , C ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
       END (*WITH*) 
-    END Push_TCPrp
+    END Push_LCPrp
 
 (*EXPORTED:*)
-; PROCEDURE Push_TCPoCrP
+; PROCEDURE Push_LCPeCrP
    ( T : Itk . TokTyp
    ; CLt : LONGINT
    ; PositionLt : FM3Scanner . tPosition
@@ -639,10 +639,10 @@ MODULE FM3ParsePass
       ; PutBwd ( WRdBack , CLt ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
       END (*WITH*) 
-    END Push_TCPoCrP
+    END Push_LCPeCrP
 
 (*EXPORTED:*)
-; PROCEDURE Push_OCPrP
+; PROCEDURE Push_ECPrP
    ( T : Itk . TokTyp
    ; CLt : LONGINT
    ; PositionOne : FM3Scanner . tPosition
@@ -660,10 +660,10 @@ MODULE FM3ParsePass
       ; PutBwd ( WRdBack , CLt ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToOnePatch , LONGINT ) ) 
       END (*WITH*) 
-    END Push_OCPrP
+    END Push_ECPrP
 
 (*EXPORTED:*)
-; PROCEDURE Push_TCBr ( T : Itk . TokTyp ; C : LONGINT ; B : BOOLEAN )
+; PROCEDURE Push_LCBr ( T : Itk . TokTyp ; C : LONGINT ; B : BOOLEAN )
 
   = BEGIN
       WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
@@ -673,10 +673,10 @@ MODULE FM3ParsePass
       ; PutBwd ( WRdBack , C ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
       END (*WITH*) 
-    END Push_TCBr
+    END Push_LCBr
 
 (*EXPORTED:*)
-; PROCEDURE Push_TCIri ( T : Itk . TokTyp ; C : LONGINT ; I : INTEGER )
+; PROCEDURE Push_LCIri ( T : Itk . TokTyp ; C : LONGINT ; I : INTEGER )
 
   = BEGIN
       WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
@@ -687,10 +687,10 @@ MODULE FM3ParsePass
       ; PutBwd ( WRdBack , C ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
       END (*WITH*) 
-    END Push_TCIri
+    END Push_LCIri
 
 (*EXPORTED:*)
-; PROCEDURE Push_TI3 ( T : Itk . TokTyp ; I0 , I1 , I2 : INTEGER )
+; PROCEDURE Push_LI3 ( T : Itk . TokTyp ; I0 , I1 , I2 : INTEGER )
 
   = BEGIN
       WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
@@ -700,10 +700,10 @@ MODULE FM3ParsePass
       ; PutBwd ( WRdBack , VAL ( I0 , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( T , LONGINT ) ) 
       END (*WITH*) 
-    END Push_TI3
+    END Push_LI3
 
 (*EXPORTED:*)
-; PROCEDURE Push_TI6
+; PROCEDURE Push_LI6
     ( T : Itk . TokTyp ; I0 , I1 , I2 , I3 , I4 , I5 : INTEGER )
 
   = BEGIN
@@ -717,10 +717,10 @@ MODULE FM3ParsePass
       ; PutBwd ( WRdBack , VAL ( I0 , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( T , LONGINT ) ) 
       END (*WITH*) 
-    END Push_TI6
+    END Push_LI6
 
 (*EXPORTED:*)
-; PROCEDURE Push_TCoCr ( T : Itk . TokTyp ; Ct , Co : LONGINT )
+; PROCEDURE Push_LCeCr ( T : Itk . TokTyp ; Ct , Co : LONGINT )
 
   = BEGIN
       WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
@@ -731,10 +731,10 @@ MODULE FM3ParsePass
       ; PutBwd ( WRdBack , Ct ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) )
       END (*WITH*) 
-    END Push_TCoCr
+    END Push_LCeCr
 
 (*EXPORTED:*)
-; PROCEDURE Push_TCIoCri
+; PROCEDURE Push_LCIeCri
     ( T : Itk . TokTyp ; Ct : LONGINT ; I : INTEGER ; Co : LONGINT )
 
   = BEGIN
@@ -748,7 +748,7 @@ MODULE FM3ParsePass
       ; PutBwd ( WRdBack , Ct ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
       END (*WITH*) 
-    END Push_TCIoCri
+    END Push_LCIeCri
 
 (*EXPORTED:*)
 ; PROCEDURE Pop4 ( )

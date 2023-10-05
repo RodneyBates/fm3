@@ -42,6 +42,46 @@ INTERFACE FM3ParsePass
 
 (* ---------------------------- Unnest stack ------------------------ *)
 
+(* Here is the naming "Code", of namings of these Push_<x> procedures:
+
+   Each of the Push_<x> procedures pushes a list of things onto the unnest stack.
+   The letters after the "_" encode what that is.  The letters in the code and
+   the parameters are in left-to-right order, for ease of thought but the actual
+   pushing is in the reverse order, because this stuff needs to be popped
+   backwards.
+
+   A capital letter denotes a value that is passed to the Push_ procedure as
+   a parameter.  The parameters are in the same order as the capital letters.
+   A lower case letter denotes a value derived from the previous case-
+   independent occurrence of itself.
+
+   For a capital-letter token, the token parameter is always the left token
+   of a group of related tokens.  For a lower-case-letter token, the procedure
+   uses the previously passed in token as a base, converting as for a capital.
+
+   The specific letter denotes which member of the token group, as follows: 
+
+     L,l  Left token
+     R,r  Right token
+     E,e  1st infix token
+     Z,z  2nd infix token
+     D,d  3rd infix token
+     V,v  4th infix token
+     F,f  5th infix token
+
+   A 'C' or 'c' denotes a patch coordinate, passed in ('C'), or copied from
+   from the previous coordinate ('c').  If present, it must immediately follow
+   a token, and it causes the push procedure to convert the relevant left
+   token to its patch counterpart.
+
+   A 'P' or 'p' denotes a position in the source code.  When passed in, it
+   is a single parameter, of type tPosition, a two-field record of line number
+   and column number.  The procedure pushes it as two separate numbers on the
+   unnest stack.
+
+   A "I' or 'i' is an integer value. A 'B' or 'b' is a boolean value.
+*) 
+
 ; PROCEDURE StartSkipping ( ) : CARDINAL (* depth after. *)
 
 ; PROCEDURE StopSkipping ( ) : CARDINAL (* depth before. *)
@@ -59,16 +99,16 @@ INTERFACE FM3ParsePass
 ; PROCEDURE PushUnnestLong ( Value : LONGINT )
   (* Zero args. *) 
 
-; PROCEDURE Push_T ( T : Itk . TokTyp )
+; PROCEDURE Push_L ( T : Itk . TokTyp )
 
-; PROCEDURE Push_TP ( T : Itk . TokTyp ; Position : FM3Scanner . tPosition )
+; PROCEDURE Push_LP ( T : Itk . TokTyp ; Position : FM3Scanner . tPosition )
 
-; PROCEDURE Push_TCr ( T : Itk . TokTyp ; C : LONGINT )
+; PROCEDURE Push_LCr ( T : Itk . TokTyp ; C : LONGINT )
 
-; PROCEDURE Push_TCPrp
+; PROCEDURE Push_LCPrp
    ( T : Itk . TokTyp ; C : LONGINT ; Position : FM3Scanner . tPosition )
 
-; PROCEDURE Push_TCPoCrP
+; PROCEDURE Push_LCPeCrP
    ( T : Itk . TokTyp
    ; CLt : LONGINT
    ; PositionLt : FM3Scanner . tPosition
@@ -76,25 +116,25 @@ INTERFACE FM3ParsePass
    ; PositionRt : FM3Scanner . tPosition
    )
 
-; PROCEDURE Push_OCPrP
+; PROCEDURE Push_ECPrP
    ( T : Itk . TokTyp
    ; CLt : LONGINT
    ; PositionOne : FM3Scanner . tPosition
    ; PositionRt : FM3Scanner . tPosition
    )
 
-; PROCEDURE Push_TCBr ( T : Itk . TokTyp ; C : LONGINT ; B : BOOLEAN )
+; PROCEDURE Push_LCBr ( T : Itk . TokTyp ; C : LONGINT ; B : BOOLEAN )
 
-; PROCEDURE Push_TCIri ( T : Itk . TokTyp ; C : LONGINT ; I : INTEGER )
+; PROCEDURE Push_LCIri ( T : Itk . TokTyp ; C : LONGINT ; I : INTEGER )
 
-; PROCEDURE Push_TI3 ( T : Itk . TokTyp ; I0 , I1 , I2 : INTEGER )
+; PROCEDURE Push_LI3 ( T : Itk . TokTyp ; I0 , I1 , I2 : INTEGER )
 
-; PROCEDURE Push_TI6
+; PROCEDURE Push_LI6
     ( T : Itk . TokTyp ; I0 , I1 , I2 , I3 , I4 , I5 : INTEGER )
 
-; PROCEDURE Push_TCoCr ( T : Itk . TokTyp ; Ct , Co : LONGINT )
+; PROCEDURE Push_LCeCr ( T : Itk . TokTyp ; Ct , Co : LONGINT )
 
-; PROCEDURE Push_TCIoCri
+; PROCEDURE Push_LCIeCri
     ( T : Itk . TokTyp ; Ct : LONGINT ; I : INTEGER ; Co : LONGINT )
 
 ; PROCEDURE PushEXPORTSMain  ( READONLY Position : FM3Scanner . tPosition )

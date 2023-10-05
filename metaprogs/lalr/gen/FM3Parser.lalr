@@ -37,9 +37,9 @@ GLOBAL
     FROM FM3ParsePass IMPORT ParsAttrNull;
     FROM FM3ParsePass IMPORT PushUnnestStk , PushUnnest, PushUnnestLong;
     FROM FM3ParsePass IMPORT
-      Push_T , Push_TP , Push_TCr , Push_TCPrp , Push_TCPoCrP , Push_OCPrP , 
-      Push_TCBr , Push_TCIri , Push_TI3 , Push_TI6 , Push_TCoCr ,
-      Push_TCIoCri , Pop4 , Pop8 ;
+      Push_L , Push_LP , Push_LCr , Push_LCPrp , Push_LCPeCrP , Push_ECPrP , 
+      Push_LCBr , Push_LCIri , Push_LI3 , Push_LI6 , Push_LCeCr ,
+      Push_LCIeCri , Pop4 , Pop8 ;
     FROM FM3ParsePass IMPORT MakeList , MakeListPos;
     IMPORT FM3Scopes;
     IMPORT FM3Units;
@@ -310,7 +310,7 @@ RULE
 (* Qualified ident. *)   
    QualId : StkIdent .
    QualId : StkIdent StkDot StkIdent
-     { Push_TCoCr
+     { Push_LCeCr
          ( Itk . ItkQualIdLt ,  $1 . PaUnnestCoord , $3 . PaUnnestCoord );
      } .
 
@@ -341,7 +341,7 @@ RULE
        FM3ParsePass . Import
          ( $1 . Scan . SaAtom , $1 . Scan . Position ) ; 
        Pop4 ( ) (* Replace the Ident with an ItkImport. *) ; 
-       Push_TI3
+       Push_LI3
          ( Itk . ItkImport
          , $1 . Scan . SaAtom
          , $1 . Scan . Position . Line
@@ -353,7 +353,7 @@ RULE
        Pop4 ( ) (* Replace the Ident with an ItkImport. *) ; 
        FM3ParsePass . Import
          ( $3 . Scan . SaAtom , $3 . Scan . Position ) ; 
-       Push_TI3
+       Push_LI3
          ( Itk . ItkImport
          , $3 . Scan . SaAtom
          , $3 . Scan . Position . Line
@@ -378,7 +378,7 @@ RULE
          , $4 . Scan . Position 
          ) ; 
        Pop8 ( ) (* Replace the 2 Idents with an ItkFromImport. *) ; 
-       Push_TI6
+       Push_LI6
          ( Itk . ItkFromImport
            (* Interface operands on left, then Decl ID items on Right. *) 
          , $2 . Scan . SaAtom
@@ -401,7 +401,7 @@ RULE
          , $3 . Scan . Position 
          ) ; 
        Pop4 ( ) (* Replace the Ident with an ItkFromImport. *) ;
-       Push_TI6
+       Push_LI6
          ( Itk . ItkFromImport
            (* Interface operands on left, then Decl ID items on Right. *) 
          , $1 . Scan . SaAtom
@@ -418,7 +418,7 @@ RULE
    ImportItem : StkRwFROM StkIdent StkRwIMPORT IdPlusList StkSemicolon 
      { $$ . PaInt := 1 ;
        $$ . PaLong := VAL ( $4 . PaInt (* IdPlusList Ct. *) , LONGINT ) ;
-       Push_TCIoCri
+       Push_LCIeCri
          ( Itk . ItkImportAsLt, $1 . PaUnnestCoord, $4 . PaInt , $3 . PaUnnestCoord );
      } .
 *)
@@ -454,7 +454,7 @@ RULE
    TypeDecls : TypeDecl . 
    TypeDecls : TypeDecls TypeDecl . 
    TypeDecl : StkIdent StkEqual Type StkSemicolon
-     { Push_TCPoCrP
+     { Push_LCPeCrP
          ( Itk . ItkTypeDeclLt
          , $0 . PaUnnestCoord
          , $1 . Scan . Position
@@ -515,7 +515,7 @@ RULE
    RecordType : StkRwRECORD VarDecl StkRwEND .
 
    ProcedureType : StkRwPROCEDURE Signature
-     { Push_TCPrp
+     { Push_LCPrp
          ( Itk . ItkProcTypeLt , $2 . PaUnnestCoord , $1 . Scan . Position ) ;
      } . 
 
@@ -529,7 +529,7 @@ RULE
          THEN LTok := Itk . ItkFuncSignatureLt ;
          ELSE LTok := Itk . ItkProcSignatureLt ;
          END (*IF*);
-         Push_TCPrp ( LTok,  $1 . PaUnnestCoord , $1 . Scan . Position );
+         Push_LCPrp ( LTok,  $1 . PaUnnestCoord , $1 . Scan . Position );
        END (*Block*) 
      }.
 
@@ -626,13 +626,13 @@ RULE
    FormalType : StkColon Type
      { $$ . PaBool (* Type is present. *) := TRUE;
        $$ . Scan . Position := $1 . Scan . Position; 
-       Push_TCPrp
+       Push_LCPrp
          ( Itk . ItkFormalTypeLt,  $1 . PaUnnestCoord , $1 . Scan . Position ); 
      } .
    FormalType : /*Empty*/
      { $$ . PaBool (* Type is present. *) := FALSE (* Absent. *) ;
        $$ . Scan . Position := FM3Scanner . Attribute . Position; 
-       Push_TP
+       Push_LP
          ( Itk . ItkFormalTypeAbsent , FM3Scanner . Attribute . Position ) ;
      } .
 
@@ -640,13 +640,13 @@ RULE
    FormalExpr : StkBecomes Expr 
      { $$ . PaBool (* Expr is present. *) := TRUE;
        $$ . Scan . Position := $1 . Scan . Position; 
-       Push_TCPrp
+       Push_LCPrp
          (  Itk . ItkFormalExprLt, $1 . PaUnnestCoord , $1 . Scan . Position ); 
      } .
    FormalExpr : /*Empty*/
      { $$ . PaBool (* Expr is present. *) := FALSE (* Absent. *) ;
        $$ . Scan . Position := FM3Scanner . Attribute . Position; 
-       Push_TP
+       Push_LP
          ( Itk . ItkFormalExprAbsent , FM3Scanner . Attribute . Position ) ;
      } .
 
@@ -654,13 +654,13 @@ RULE
    ResultType : StkColon Type 
      { $$ . PaBool (* Result type is present. *) := TRUE;
        $$ . Scan . Position := $1 . Scan . Position; 
-       Push_TCPrp
+       Push_LCPrp
          (Itk . ItkResultTypeLt,  $1 . PaUnnestCoord , $1 . Scan . Position); 
      } .
    ResultType : /*Empty*/
      { $$ . PaBool (* Result type is present. *) := FALSE (* Absent. *) ;
        $$ . Scan . Position := FM3Scanner . Attribute . Position; 
-       Push_TP
+       Push_LP
          ( Itk . ItkResultTypeAbsent , FM3Scanner . Attribute . Position ) ;
      } .
 
@@ -668,7 +668,7 @@ RULE
    Raises : StkRwANY
      { $$ . PaBool (* Raises set is present. *) := TRUE;
        $$ . Scan . Position := $1 . Scan . Position; 
-       Push_TCPrp
+       Push_LCPrp
          ( Itk . ItkRaisesANY ,  $1 . PaUnnestCoord , $1 . Scan . Position); 
      } . 
    Raises
@@ -680,7 +680,7 @@ RULE
    Raises : /*Empty*/
      { $$ . PaBool (* Raises set is present. *) := FALSE (* Absent. *);
        $$ . Scan . Position := FM3Scanner . Attribute . Position; 
-       Push_TP
+       Push_LP
          ( Itk . ItkRaisesSetAbsent , FM3Scanner . Attribute . Position ); 
      } .
 
@@ -717,7 +717,7 @@ RULE
             LTokLt := Itk . ItkProcWBodyLt ; 
 (* TODO: Error recovery.  Insert or remove body. *) 
          END (*CASE*);
-         Push_TCIri
+         Push_LCIri
            ( LTokLt,  $1 . PaUnnestCoord, $2 . Scan . SaAtom ); 
        END (*Block*) 
      } . 
@@ -730,13 +730,13 @@ RULE
      { $$ . PaBool (* Procedure has a body. *) := FALSE (* Absent. *) ; 
        $$ . PaConstructNo := FM3Base . AtomNull ; 
        $$ . Scan . Position := $1 . Scan . Position; 
-       Push_TP ( Itk . ItkProcBodyAbsent , $1 . Scan . Position ); 
+       Push_LP ( Itk . ItkProcBodyAbsent , $1 . Scan . Position ); 
      } . 
    OptBody : StkEqual Block StkIdent StkSemicolon 
      { $$ . PaBool (* Procedure has a body. *) := TRUE ; 
        $$ . PaConstructNo := $3 . Scan . SaAtom ;
        $$ . Scan . Position := $1 . Scan . Position; 
-       Push_TCPrp
+       Push_LCPrp
          ( Itk . ItkProcBodyLt,  $1 . PaUnnestCoord , $1 . Scan . Position );
      } . 
 
@@ -750,7 +750,7 @@ Expr: StkIntLit .
 (* ------------------------------ Blocks ------------------------------- *)
 
    Block : BlockLt DeclList StkRwBEGIN Stmts StkRwEND
-     { Push_OCPrP
+     { Push_ECPrP
          ( Itk . ItkBlockLt , $3 . PaUnnestCoord
          , $3 . Scan . Position
          , $5 . Scan . Position
@@ -758,7 +758,7 @@ Expr: StkIntLit .
      } .
    BlockLt : /*EMPTY*/
      { FM3ParsePass . BeginBlock ( ) ;
-       Push_TP ( Itk . ItkBlockLt , FM3Scanner . Attribute . Position ); 
+       Push_LP ( Itk . ItkBlockLt , FM3Scanner . Attribute . Position ); 
      } .
 
 (* ------------------------ Declaration lists -------------------------- *)
