@@ -1219,13 +1219,35 @@ EXPORTS Main
       ; Layout . PutEol ( GOStream )
 
       ; Layout . PadAbs ( GOStream , GSemiTab )
-      ; Layout . PutText ( GOStream , "; CONST LtToOnePatch = 5    " )  
+      ; Layout . PutText ( GOStream , "; CONST LtToOnePatch = 6    " )  
       ; Layout . PutEol ( GOStream )
 
       ; Layout . PadAbs ( GOStream , 8 )
       ; Layout . PutText
           ( GOStream
           , "(* ^Add this to Lt tokcode to get LM Infix patch tokcode. *)"
+          )
+      ; Layout . PutEol ( GOStream )
+
+      ; Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText ( GOStream , "; CONST LtToTwo = 7    " )  
+      ; Layout . PutEol ( GOStream )
+
+      ; Layout . PadAbs ( GOStream , 8 )
+      ; Layout . PutText
+          ( GOStream
+          , "(* ^Add this to Lt tokcode to get 2nd Infix tokcode. *)"
+          )
+      ; Layout . PutEol ( GOStream )
+
+      ; Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText ( GOStream , "; CONST LtToTwoPatch = 9    " )  
+      ; Layout . PutEol ( GOStream )
+
+      ; Layout . PadAbs ( GOStream , 8 )
+      ; Layout . PutText
+          ( GOStream
+          , "(* ^Add this to Lt tokcode to get 2nd Infix patch tokcode. *)"
           )
       ; Layout . PutEol ( GOStream )
 

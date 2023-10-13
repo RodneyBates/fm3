@@ -70,8 +70,17 @@ ItkBlock 2 (* Position of LM declaration. *)
 (* Type decls. *)
 
 FIXED
-ItkTypeDecl 2 (* Position of ident (Lt) ir position of semicolon (Rt). *)
+ItkTypeDecl 2 (* Position of ident (Lt) or position of semicolon (Rt). *)
   Eq (* I don't think we need a position for this. *) . 
+
+(* Variable decls. *)
+
+FIXED
+(* One decl, with possibly multiple idents. *) 
+ItkVarDecl 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
+  Type 2     (* Position of colon. *) 
+  Val 2      (* Position of becomes/ *) 
+.
 
 LIST
 
@@ -88,6 +97,9 @@ ItkFormalVARIdList 2 (* Position of VAR. *) .
 ItkFormalREADONLYIdList 2 (* Position of VAR. *). 
 ItkDeclList  . 
 
+(* Statements *)
+
+FIXED ItkBecomes 2 Infix 2 (* Position of infix token, x3. *) .  
 
 (*
 
@@ -105,6 +117,9 @@ LIST ItkIdPlusList
 
 FIXED ItkExport 2 (* Ident, Unit No. *) . 
 *)
+
+
+
 (* End of FM3IntToks. *) 
 
 

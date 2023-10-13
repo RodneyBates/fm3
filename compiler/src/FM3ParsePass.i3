@@ -42,46 +42,6 @@ INTERFACE FM3ParsePass
 
 (* ---------------------------- Unnest stack ------------------------ *)
 
-(* Here is the naming "Code", of namings of these Push_<x> procedures:
-
-   Each of the Push_<x> procedures pushes a list of things onto the unnest stack.
-   The letters after the "_" encode what that is.  The letters in the code and
-   the parameters are in left-to-right order, for ease of thought but the actual
-   pushing is in the reverse order, because this stuff needs to be popped
-   backwards.
-
-   A capital letter denotes a value that is passed to the Push_ procedure as
-   a parameter.  The parameters are in the same order as the capital letters.
-   A lower case letter denotes a value derived from the previous case-
-   independent occurrence of itself.
-
-   For a capital-letter token, the token parameter is always the left token
-   of a group of related tokens.  For a lower-case-letter token, the procedure
-   uses the previously passed in token as a base, converting as for a capital.
-
-   The specific letter denotes which member of the token group, as follows: 
-
-     L,l  Left token
-     R,r  Right token
-     E,e  1st infix token
-     Z,z  2nd infix token
-     D,d  3rd infix token
-     V,v  4th infix token
-     F,f  5th infix token
-
-   A 'C' or 'c' denotes a patch coordinate, passed in ('C'), or copied from
-   from the previous coordinate ('c').  If present, it must immediately follow
-   a token, and it causes the push procedure to convert the relevant left
-   token to its patch counterpart.
-
-   A 'P' or 'p' denotes a position in the source code.  When passed in, it
-   is a single parameter, of type tPosition, a two-field record of line number
-   and column number.  The procedure pushes it as two separate numbers on the
-   unnest stack.
-
-   A "I' or 'i' is an integer value. A 'B' or 'b' is a boolean value.
-*) 
-
 ; PROCEDURE StartSkipping ( ) : CARDINAL (* depth after. *)
 
 ; PROCEDURE StopSkipping ( ) : CARDINAL (* depth before. *)
@@ -99,6 +59,46 @@ INTERFACE FM3ParsePass
 ; PROCEDURE PushUnnestLong ( Value : LONGINT )
   (* Zero args. *) 
 
+(* Here is the naming code, of namings of these Push_<x> procedures:
+
+   Each of the Push_<x> procedures pushes a list of things onto the unnest stack.
+   The letters after the "_" encode what that is.  The letters in the code and
+   the parameters are in left-to-right order, for ease of thought but the actual
+   pushing is in the reverse order, because this stuff needs to be popped
+   backwards.
+
+   A capital letter denotes a value that is passed to the Push_ procedure as
+   a parameter.  The parameters are in the same order as the capital letters.
+   A lower case letter denotes a value derived from the previous case-
+   homonym of itself.
+
+   For a capital-letter token, the token parameter is always the left token
+   of a group of related tokens.  For a lower-case-letter token, the procedure
+   uses the previously passed in token as a base, converting as for a capital.
+
+   The specific letter denotes which member of the token group, as follows: 
+
+     L,l  Left token
+     R,r  Right token
+     E,e  1st infix token
+     Z,z  2nd infix token
+     D,d  3rd infix token
+     V,v  4th infix token
+     F,f  5th infix token
+
+   A 'C' or 'c' denotes a patch coordinate, passed in ('C'), or copied from
+   from the previous coordinate ('c').  If present, it must immediately follow
+   a token, and it causes the push procedure to convert the preceding token
+   to its patch counterpart.
+
+   A 'P' or 'p' denotes a position in the source code.  When passed in, it
+   is a single parameter, of type tPosition, a two-field record of line-number
+   and column=number.  The procedure pushes it as two separate numbers on the
+   unnest stack, column number deeper.
+
+   A "I' or 'i' is an integer value. A 'B' or 'b' is a boolean value.
+*) 
+
 ; PROCEDURE Push_L ( T : Itk . TokTyp )
 
 ; PROCEDURE Push_LP ( T : Itk . TokTyp ; Position : FM3Scanner . tPosition )
@@ -114,6 +114,24 @@ INTERFACE FM3ParsePass
    ; PositionLt : FM3Scanner . tPosition
    ; COne : LONGINT
    ; PositionRt : FM3Scanner . tPosition
+   )
+
+; PROCEDURE Push_LCP_eCP_zCP_rP
+   ( L : Itk . TokTyp
+   ; CL : LONGINT
+   ; PL : FM3Scanner . tPosition
+   ; Ce : LONGINT
+   ; Pe : FM3Scanner . tPosition
+   ; Cz : LONGINT
+   ; Pz : FM3Scanner . tPosition
+   ; Pr : FM3Scanner . tPosition
+   )
+
+; PROCEDURE Push_LCPeCprp
+   ( T : Itk . TokTyp
+   ; CLt : LONGINT
+   ; CInfix : LONGINT 
+   ; PositionInfix : FM3Scanner . tPosition
    )
 
 ; PROCEDURE Push_ECPrP
@@ -142,6 +160,15 @@ INTERFACE FM3ParsePass
 ; PROCEDURE Pop4 ( )
 
 ; PROCEDURE Pop8 ( )
+
+; PROCEDURE CheckTypeValue 
+    ( DeclKnd : FM3Decls . DeclKindTyp 
+    ; Position : FM3Scanner . tPosition
+    ; HasType : BOOLEAN 
+    ; HasValue : BOOLEAN
+    ) 
+  (* Anything that requires a type and/or value: 
+     variable , formal, field. *) 
 
 ; PROCEDURE MakeList
     ( VAR LHSAttr : tParsAttribute

@@ -20,13 +20,16 @@ INTERFACE FM3Scopes
 
 ; TYPE ScopeKindTyp
     = { SkNull
-      , SkUniverse (* {Predefined, interfaces? *) 
-      , SkUnit 
+      , SkUniverse (* {Predefined, interfaces? *)
+      , SkCompEnv (* Compiled, IMPORTed, EXPORTed. *) 
+      , SkInterface
+      , SkModule
+      , SkFormals
+      , SkProcBody 
+      , SkBlock
       , SkEnum
       , SkRec
       , SkObj
-      , SkFormals
-      , SkGenFormals
       , SkBlock
       , SkWith
       , SkTypecase
@@ -52,17 +55,17 @@ INTERFACE FM3Scopes
       ; ScpKind : ScopeKindTyp 
       END (*ScopeTyp*)
       
+; PROCEDURE NewScopeRef ( OwningUnitRef : FM3Units . UnitRefTyp ) : ScopeRefTyp
+  (* Allocate and connect a ScopeNo and ScopeRef, owned by OwningUnitRef. *) 
+
 ; TYPE ScopeMapTyp = FM3Base . MapTyp
   (* Map ScopeNoTyp to ScopeRefTyp. One of these per unit. *) 
+
+; PROCEDURE NewScopeMap ( ScopeCt : FM3Base . ScopeNoTyp ) : ScopeMapTyp
 
 ; VAR ScopeStackTopRef : ScopeRefTyp := NIL
       (* A single, global, linked stack with scopes from multiple units. *) 
       
-; PROCEDURE NewScopeMap ( ScopeCt : FM3Base . ScopeNoTyp ) : ScopeMapTyp
-
-; PROCEDURE NewScopeRef ( OwningUnitRef : FM3Units . UnitRefTyp ) : ScopeRefTyp
-  (* Allocate and connect a ScopeNo and ScopeRef Owned by OwningUnitRef. *) 
-
 ; PROCEDURE PushScope ( ScopeRef : ScopeRefTyp )  
 
 ; PROCEDURE PopScope ( ) : ScopeRefTyp  
