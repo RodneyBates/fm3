@@ -9,7 +9,6 @@
 INTERFACE FM3Decls
 
 ; IMPORT FM3Base
-; IMPORT FM3Globals 
 ; IMPORT FM3Scopes
 
 ; TYPE DeclKindTyp
@@ -61,6 +60,21 @@ INTERFACE FM3Decls
     ( ParentScopeRef : FM3Scopes . ScopeRefTyp ; DeclNo : FM3Base . DeclNoTyp )
   : DeclRefTyp
   (* Allocate a DeclRef and connect in into ParentScopeRef ^. *)
+
+(* A stack of pairs of a declaration kind and an Id-declaring token.
+   A single stack element can occur in one place but apply to multiple
+   declarations, e.g. VAR ...  Trying to propagate this info in parser
+   semantic attributes Was turning out to be insanely delecate and
+   complicated.
+*)  
+
+; PROCEDURE PushDeclInfo
+    ( DeclKind : DeclKindTyp ; DeclIdTok : FM3Base . TokTyp ) 
+
+; PROCEDURE PopDeclInfo ( ) 
+
+; PROCEDURE TopDeclInfo
+    ( VAR DeclKind : DeclKindTyp ; VAR DeclIdTok : FM3Base . TokTyp ) 
 
 ; END FM3Decls
 .

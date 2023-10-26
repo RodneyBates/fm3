@@ -11,7 +11,6 @@ MODULE FM3Decls
 ; IMPORT IntRanges 
 
 ; IMPORT FM3Base
-; IMPORT FM3Globals 
 ; IMPORT FM3Scopes
 ; IMPORT FM3Units 
 ; IMPORT VarArray_Int_Refany
@@ -46,7 +45,60 @@ MODULE FM3Decls
     ; RETURN LDeclRef 
     END NewDeclRef 
 
+(* A stack of pairs of a declaration kind and an Id-declaring token. *)
+(* Let's make it a linked stack.  Simpler to implement, and will never
+   be very deep.
+*) 
+
+; TYPE DeclInfoTyp
+    = RECORD
+        DiLink : DeclInfoRefTyp
+      ; DiKind : DeclKindTyp 
+      ; DiTok : FM3Base . TokTyp
+      END
+; TYPE DeclInfoRefTyp = REF DeclInfoTyp
+
+; VAR DeclInfoStack : DeclInfoRefTyp 
+
+(*EXPORTED*) 
+; PROCEDURE PushDeclInfo
+    ( DeclKind : DeclKindTyp ; DeclIdTok : FM3Base . TokTyp ) 
+
+  = BEGIN
+      DeclInfoStack
+        := NEW ( DeclInfoRefTyp
+               , DiLink := DeclInfoStack
+               , DiKind := DeclKind
+               , DiTok := DeclIdTok
+               )  
+    END PushDeclInfo
+    
+(*EXPORTED*) 
+; PROCEDURE PopDeclInfo ( ) 
+
+  = BEGIN
+      IF DeclInfoStack # NIL
+      THEN DeclInfoStack := DeclInfoStack . DiLink
+      END (*IF*)  
+    END PopDeclInfo 
+
+(*EXPORTED*) 
+; PROCEDURE TopDeclInfo
+    ( VAR DeclKind : DeclKindTyp ; VAR DeclIdTok : FM3Base . TokTyp )
+
+  = BEGIN
+      IF DeclInfoStack = NIL
+      THEN 
+        DeclKind := DeclKindTyp . DkNull 
+      ; DeclIdTok := FM3Base . TokNull 
+      ELSE 
+        DeclKind := DeclInfoStack . DiKind 
+      ; DeclIdTok := DeclInfoStack . DiTok
+      END (*IF*) 
+   END TopDeclInfo 
+
 ; BEGIN
+    DeclInfoStack := NIL 
   END FM3Decls
 .
 
