@@ -15,7 +15,7 @@ INTERFACE FM3ParsePass
 ; IMPORT FM3Scopes 
 ; IMPORT FM3IntToks AS Itk  
 
-  (* Lalr mandates this type, by name, and its Scan field, Q.V. *) 
+  (* Lalr mandates this type, by name, and its 'Scan' field, Q.V. *) 
 ; TYPE tParsAttribute
     = RECORD
         Scan : FM3Scanner . tScanAttribute
@@ -24,6 +24,7 @@ INTERFACE FM3ParsePass
       ; PaConstructNo : INTEGER
       ; PaListItemNo : INTEGER
       ; PaInt : INTEGER
+      ; PaTok : FM3Base . TokTyp 
       ; PaByte : [ 0 .. 16_FF ] 
       ; PaBool : BOOLEAN 
       END (* tParsAttribute *)
@@ -36,6 +37,7 @@ INTERFACE FM3ParsePass
         , PaConstructNo := FIRST ( INTEGER ) 
         , PaListItemNo := FIRST ( INTEGER )
         , PaInt := FIRST ( INTEGER )
+        , PaTok := FM3Base . TokNull
         , PaByte := 16_FF 
         , PaBool := FALSE
         }
@@ -105,8 +107,15 @@ INTERFACE FM3ParsePass
 
 ; PROCEDURE Push_LCr ( T : Itk . TokTyp ; C : LONGINT )
 
-; PROCEDURE Push_LCPrp
+; PROCEDURE Push_LCP_rp
    ( T : Itk . TokTyp ; C : LONGINT ; Position : FM3Scanner . tPosition )
+
+; PROCEDURE Push_LCPI_rpi
+    ( T : Itk . TokTyp 
+    ; C : LONGINT 
+    ; Position : FM3Scanner . tPosition 
+    ; I : INTEGER 
+    )
 
 ; PROCEDURE Push_LCPeCrP
    ( T : Itk . TokTyp
@@ -161,14 +170,13 @@ INTERFACE FM3ParsePass
 
 ; PROCEDURE Pop8 ( )
 
-; PROCEDURE CheckTypeValue 
-    ( DeclKnd : FM3Decls . DeclKindTyp 
-    ; Position : FM3Scanner . tPosition
+; PROCEDURE CheckTypeAndOrValue 
+    ( Position : FM3Scanner . tPosition
     ; HasType : BOOLEAN 
     ; HasValue : BOOLEAN
     ) 
   (* Anything that requires a type and/or value: 
-     variable , formal, field. *) 
+     variable , formal, field.  Gets DeclKnd from FM3Decls.TopDeclInfo. *) 
 
 ; PROCEDURE MakeList
     ( VAR LHSAttr : tParsAttribute
@@ -215,8 +223,8 @@ INTERFACE FM3ParsePass
     ( ScopeKind : FM3Scopes . ScopeKindTyp ; Position : FM3Base . tPosition )
   : FM3Base . ScopeNoTyp (* Scope no. that was created. *) 
 
-; PROCEDURE DeclIdL2R ( DeclKind : FM3Decls . DeclKindTyp )
-  : BOOLEAN (* Use this Id, it's not a duplicate declaration. *) 
+; PROCEDURE DeclIdL2R ( )
+  : BOOLEAN (* Use this declared id.  It's not a duplicate in current scope. *) 
 
 (* Needed?
 ; PROCEDURE RefIdL2R

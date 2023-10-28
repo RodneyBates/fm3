@@ -30,7 +30,6 @@ INTERFACE FM3Scopes
       , SkEnum
       , SkRec
       , SkObj
-      , SkBlock
       , SkWith
       , SkTypecase
       , SkExcept 

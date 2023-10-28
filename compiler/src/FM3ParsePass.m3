@@ -107,8 +107,8 @@ MODULE FM3ParsePass
 
 ; PROCEDURE PutBwd ( File : RdBackFile . T ; ValueL : LONGINT )
   (* Wrap FM3Compress . PutBwd
-     1. catch OSError.E.
-     2. conditionally do nothing when skipping. 
+     1. Catch OSError.E.
+     2. Conditionally do nothing when skipping. 
   *)
 
   = BEGIN
@@ -601,7 +601,7 @@ MODULE FM3ParsePass
     END Push_LCr
 
 (*EXPORTED:*)
-; PROCEDURE Push_LCPrp
+; PROCEDURE Push_LCP_rp
    ( T : Itk . TokTyp ; C : LONGINT ; Position : FM3Scanner . tPosition )
 
   = BEGIN
@@ -615,7 +615,31 @@ MODULE FM3ParsePass
       ; PutBwd ( WRdBack , C ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
       END (*WITH*) 
-    END Push_LCPrp
+    END Push_LCP_rp
+
+(*EXPORTED:*)
+; PROCEDURE Push_LCPI_rpi
+    ( T : Itk . TokTyp 
+    ; C : LONGINT 
+    ; Position : FM3Scanner . tPosition 
+    ; I : INTEGER 
+    )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) )
+      
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , C ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END Push_LCPI_rpi
 
 (*EXPORTED:*)
 ; PROCEDURE Push_LCPeCrP
@@ -875,50 +899,54 @@ MODULE FM3ParsePass
     END MakeConstruct
 
 ; TYPE Dkt = FM3Decls . DeclKindTyp
-; VAR VarLabel := ARRAY Dkt OF TEXT { NIL .. )  
-; VAR VarSection := ARRAY Dkt OF TEXT { NIL .. )
+; VAR VarLabel := ARRAY Dkt OF TEXT { NIL , .. }  
+; VAR VarSection := ARRAY Dkt OF TEXT { NIL , .. }
 
 ; PROCEDURE InitVarInfo ( )
 
   = BEGIN
-      VarLabel [ Dkt . DkVar := "Variable"
-    ; VarLabel [ Dkt . DkValueFormal := "VALUE formal"
-    ; VarLabel [ Dkt . DkVarFormal := "VAR formal"
-    ; VarLabel [ Dkt . DkROFormal := "READONLY formal"
-    ; VarLabel [ Dkt . DkRecField := "Record field"
-    ; VarLabel [ Dkt . DkObjField := "Object field"
+      VarLabel [ Dkt . DkVar ] := "Variable"
+    ; VarLabel [ Dkt . DkValueFormal ] := "VALUE formal"
+    ; VarLabel [ Dkt . DkVarFormal ] := "VAR formal"
+    ; VarLabel [ Dkt . DkROFormal ] := "READONLY formal"
+    ; VarLabel [ Dkt . DkRecField ] := "Record field"
+    ; VarLabel [ Dkt . DkObjField ] := "Object field"
 
-    ; VarSection [ Dkt . DkVar := "(2.4.3)"
-    ; VarSection [ Dkt . DkValueFormal := "(2.2.8)"
-    ; VarSection [ Dkt . DkVarFormal := "(2.2.8)"
-    ; VarSection [ Dkt . DkROFormal := "(2.2.8)"
-    ; VarSection [ Dkt . DkRecField := "(2.2.4)"
-    ; VarSection [ Dkt . DkObjField := "(2.2.9)"
-    END 
+    ; VarSection [ Dkt . DkVar ] := "(2.4.3)"
+    ; VarSection [ Dkt . DkValueFormal ] := "(2.2.8)"
+    ; VarSection [ Dkt . DkVarFormal ] := "(2.2.8)"
+    ; VarSection [ Dkt . DkROFormal ] := "(2.2.8)"
+    ; VarSection [ Dkt . DkRecField ] := "(2.2.4)"
+    ; VarSection [ Dkt . DkObjField ] := "(2.2.9)"
+    END InitVarInfo 
 
 (*EXPORTED.*)
-; PROCEDURE CheckTypeValue 
-    ( DeclKnd : FM3Decls . DeclKindTyp 
-    ; Position : FM3Scanner . tPosition
+; PROCEDURE CheckTypeAndOrValue 
+    ( Position : FM3Scanner . tPosition
     ; HasType : BOOLEAN 
     ; HasValue : BOOLEAN
     )
-  (* Anything that requires a type and/or value: 
-     variable , formal, field. *) 
 
-  = BEGIN (*VarOrFieldDecl*)
+  (* Anything that requires a type and/or value: 
+     variable , formal, field.  Gets DeclKnd from FM3Decls.TopDeclInfo. *) 
+
+  = VAR LDeclKind : FM3Decls . DeclKindTyp
+  ; VAR LDeclIdTok : FM3Base . TokTyp
+  
+  ; BEGIN (*VarOrFieldDecl*)
      IF NOT  HasType AND NOT HasValue 
      THEN
-       FM3Messages . ErrorArr
+       FM3Decls . TopDeclInfo ( (*OUT*) LDeclKind , (*OUT*) LDeclIdTok ) 
+     ; FM3Messages . ErrorArr
          ( ARRAY OF REFANY 
-             { VarLabel [ DeclKind ] 
+             { VarLabel [ LDeclKind ] 
              , " must have a type and/or an initial value. "
-             , VarSection [ DeclKind ]
+             , VarSection [ LDeclKind ]
              } 
          , Position
          );
      END (*IF*) 
-    END CheckTypeValue 
+    END CheckTypeAndOrValue 
 
 (*EXPORTED:*)
 ; PROCEDURE MakeElem
@@ -1318,12 +1346,15 @@ MODULE FM3ParsePass
     END ScopeLtL2R
 
 (*EXPORTED.*)
-; PROCEDURE DeclIdL2R ( DeclKind : FM3Decls . DeclKindTyp )
-  : BOOLEAN (* Use this declared id.  It's not a duplicate. *) 
+; PROCEDURE DeclIdL2R ( )
+  : BOOLEAN (* Use this declared id.  It's not a duplicate in current scope. *) 
 
-  = VAR LTokenL : LONGINT
+  = VAR LTokenL : LONGINT 
   ; VAR LIdAtomL : LONGINT 
+  ; VAR LToken : FM3Base . TokTyp
   ; VAR LIdAtom : FM3Base . AtomTyp
+  ; VAR LDeclKind : FM3Decls . DeclKindTyp
+  ; VAR LDeclIdTok : FM3Base . TokTyp  
 
   ; BEGIN (*DeclIdL2R*)
       WITH WScope = FM3Scopes . ScopeStackTopRef ^
@@ -1332,9 +1363,9 @@ MODULE FM3ParsePass
         (* An StkIdent, /w args, was pushed by parser shift, as it does for
            all variable terminals.  Convert it to ItkDeclId or ItkDuplDeclId.
         *) 
-        LTokenL := GetBwd ( WunRdBack )
-      ; <*ASSERT LTokenL = VAL ( FM3SrcToks . StkIdent , LONGINT ) *>
-        LIdAtomL := GetBwd ( WunRdBack )
+        LTokenL := GetBwd ( WunRdBack ) 
+      ; LToken := VAL ( LTokenL , FM3Base . TokTyp ) 
+      ; LIdAtomL := GetBwd ( WunRdBack )
       ; LIdAtom := VAL ( LIdAtomL , FM3Base . AtomTyp ) 
       ; PutBwd ( WunRdBack , LIdAtomL )
       (* Each of the 3 tokens involved here has a Position argument,
@@ -1350,8 +1381,9 @@ MODULE FM3ParsePass
         ELSE 
           WScope . ScpDeclIdSet
             := IntSets . Include ( WScope . ScpDeclIdSet , LIdAtom )
-        ; PutBwd ( WunRdBack , VAL ( ORD ( DeclKind ) , LONGINT ) )  
-        ; PutBwd ( WunRdBack , VAL ( Itk . ItkDeclId , LONGINT ) )  
+        ; FM3Decls . TopDeclInfo ( (*OUT*) LDeclKind , (*OUT*) LDeclIdTok ) 
+        ; PutBwd ( WunRdBack , VAL ( ORD ( LDeclKind ) , LONGINT ) )  
+        ; PutBwd ( WunRdBack , VAL ( ORD ( LDeclIdTok ) , LONGINT ) )  
         ; RETURN TRUE  
         END (*IF*)
       END (*WITH*) 
@@ -1480,8 +1512,8 @@ MODULE FM3ParsePass
           ( FM3Units . UnitStackTopRef ^ . UntDeclMap , LDeclNo , Visit )
       ; RETURN LDeclNo
       END (* Block. *) 
-    END DuplDeclIdR2L 
-
+    END DuplDeclIdR2L
+    
 ; PROCEDURE DeclIdR2L
     ( DeclKind : FM3Decls . DeclKindTyp
     ; DeclIdAtom : FM3Base . AtomTyp

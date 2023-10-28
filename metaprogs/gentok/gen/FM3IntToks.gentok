@@ -18,7 +18,7 @@ UNITNAME FM3IntToks
 
 ABS 128
 
-(* Being low-numbred, these will read and write either forward
+(* Being low-numbered, these will read and write either forward
    or backward, without value change.
 *) 
 LONE
@@ -70,6 +70,13 @@ ItkBlock 2 (* Position of LM declaration. *)
 (* Type decls. *)
 
 FIXED
+ItkRecDef 3 (* Position of RECORD, field count. *) . 
+ItkRecField 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
+  Type 2     (* Position of colon. *) 
+  Val 2      (* Position of becomes/ *) 
+.
+
+FIXED
 ItkTypeDecl 2 (* Position of ident (Lt) or position of semicolon (Rt). *)
   Eq (* I don't think we need a position for this. *) . 
 
@@ -88,7 +95,7 @@ LIST
    plus any count given explicitly here.
 *) 
 
-ItkExportIdList 2 (* Position of EXPORTS. *) . 
+ItkExportIdList 2 (* Position of EXPORTSStkRwRECORD. *) . 
 ItkGenFormalIdList 2 (* Position of "(" *) .
 ItkGenActualIdList 2 (* Position of "(" *) .
 ItkFormalsList 2 (* Position of "(" *) .

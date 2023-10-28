@@ -24,8 +24,8 @@ UNSAFE MODULE FM3Compress
    For many values in the Unicode code point range of 0..16_10FFFF, this scheme
    is more compact than UTF-8, but is not self-synchronizing.
 
-   Read procedures herein tolerate unnecessary bytes containing extra more 
-   significant sign bits, but Write procedures do not produce these. 
+   Read procedures herein tolerate unnecessary bytes containing redundant,
+   more-significant, sign bits, but Write procedures do not produce these. 
 *)   
 
 ; IMPORT OSError 
@@ -73,7 +73,7 @@ UNSAFE MODULE FM3Compress
 
   ; BEGIN
       LSignBitsL := DivL ( ValueL , TwoTo6thL )
-             (* ^Shift right 6 bits, with sign extension. *) 
+                 (* ^Shift right 6 bits, with sign extension. *) 
     ; IF LSignBitsL # 16_FFFFFFFFFFFFFFFFL AND LSignBitsL # 0L
       THEN (* One byte is not enough. *)
       
