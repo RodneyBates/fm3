@@ -64,7 +64,7 @@ INTERFACE FM3Decls
 (* A stack of pairs of a declaration kind and an Id-declaring token.
    A single stack element can occur in one place but apply to multiple
    declarations, e.g. VAR ...  Trying to propagate this info in parser
-   semantic attributes Was turning out to be insanely delecate and
+   semantic attributes Was turning out to be insanely delicate and
    complicated.
 *)  
 

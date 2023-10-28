@@ -291,9 +291,7 @@ RULE
          := ORD ( FM3ParsePass . DeclIdL2R ( ) ) ; 
      } . 
    DeclIdPlusList : DeclIdPlusList StkComma DeclIdent
-     /* PRE: $0 . PaByte is DeclKindTyp. */ 
      { (* PaUnnestCoord is copied from $1 to $$ by parser . *)
-       $$ . PaByte := $0 . PaByte ;
        $$ . PaInt (* Non-duplicate Id count. *)
          := $1 . PaInt + ORD ( FM3ParsePass . DeclIdL2R ( ) ) ; 
      } . 
@@ -490,10 +488,7 @@ RULE
    VarDeclsVAR : StkRwVAR
    /* On attribute stack, left of each of multiple variable declarations
       that follow a single "VAR". */
-   /* POST: $$.PaByte & $$.PaTok set. */   
-     { $$ . PaByte := ORD ( Dk . DkVar );
-       $$ . PaTok := Itk . ItkVarDeclLt;
-       FM3Decls . PushDeclInfo ( Dk . DkVar , Itk . ItkVarDeclLt ) ;
+     { FM3Decls . PushDeclInfo ( Dk . DkVar , Itk . ItkVarDeclLt ) ;
        $$ . Scan . Position := $1 . Scan . Position;
      } .
 
@@ -502,44 +497,33 @@ RULE
    (* VarDecls is also used for record and object fields. *)
    (* Also see DeclIdPlusList. *)
    VarDecls : Dummy VarDecl
-     /* Dummy makes VarDecl's -1 be VarDecls. */ 
-     /* PRE: $0 . PaByte is decl kind. */ 
-     /* PRE: $0 . PaTok is decl token. */ 
-     /* POST: $$.PaByte & $$.PaTok set. */   
-     { $$ . PaByte := $1 . PaByte (* Decl kind. *) ;
-       $$ . PaTok := $1 . PaTok (* Decl token. *) ;
-       $$ . PaInt := 1 ; (* Decl count. *)
-     } . 
+     { $$ . PaInt := 1 ; (* Decl count. *) } . 
    VarDecls : VarDecls StkSemicolon VarDecl
-     /* PRE: $0 . PaByte is decl kind. */ 
-     /* PRE: $0 . PaTok is decl token. */ 
-     { $$ . PaByte := $0 . PaByte ;
-       $$ . PaTok := $0 .PaTok ;
-       $$ . PaInt := 1 + $1 . PaInt ;
-     } . 
+     { $$ . PaInt := 1 + $1 . PaInt ; } . 
 
    VarDecl : DeclIdPlusList OptVarType OptVarValue 
-     /* PRE: $-2 . PaByte is decl kind. */ 
-     /* PRE: $-2 . PaTok is decl token. */ 
-     /* POST: $$.PaByte set to decl kind. */
-     { $$ . PaByte := $-2 . PaByte (* Decl kind. *) ;
-       $$ . PaTok := $-2 . PaTok (* Decl token. *) ;
-       $$ . PaInt := $1 . PaInt (* Decl count. *) ;
+     { $$ . PaInt := $1 . PaInt (* Decl count. *) ;
        FM3ParsePass . CheckTypeAndOrValue 
          ( $1 . Scan . Position  
          , $2 . PaBool
          , $3 . PaBool
          ) ;
-       Push_LCP_eCP_zCP_rP
-         ( $0 . PaTok (* Lt token for decl/field/formal. *)
-         , $1 . PaUnnestCoord
-         , $1 . Scan . Position
-         , $2 . PaUnnestCoord
-         , $2 . Scan . Position
-         , $3 . PaUnnestCoord
-         , $3 . Scan . Position 
-         , $1 . Scan . Position 
-        ) ; 
+       VAR LDeclKind : FM3Decls . DeclKindTyp ;
+       VAR LDeclIdTok : FM3Base . TokTyp ; 
+
+       BEGIN 
+         FM3Decls . TopDeclInfo ( (*OUT*) LDeclKind , (*OUT*) LDeclIdTok ) ;  
+         Push_LCP_eCP_zCP_rP
+           ( LDeclIdTok 
+           , $1 . PaUnnestCoord
+           , $1 . Scan . Position
+           , $2 . PaUnnestCoord
+           , $2 . Scan . Position
+           , $3 . PaUnnestCoord
+           , $3 . Scan . Position 
+           , $1 . Scan . Position 
+          ) ;
+       END (*Block*)
      } .
 
    OptVarType : StkColon Type 
@@ -566,13 +550,11 @@ RULE
 (* --------------------------------- Types ----------------------------- *)
 
    Type : StkIdent .
-   
+
 (* ----------------------------- Record Types -------------------------- *)
 
    Type : RecTypeRECORD VarDecls OptSemicolon StkRwEND
-     /* POST: $$.PaByte set to declKind. */ 
-     { $$ . PaByte := ORD ( Dk . DkRecField ) ;
-       FM3ParsePass . Push_LCPI_rpi
+     { FM3ParsePass . Push_LCPI_rpi
          ( Itk . ItkRecDefLt
          , $1 . PaUnnestCoord
          , $1 . Scan . Position
@@ -590,12 +572,12 @@ RULE
        FM3Decls . PushDeclInfo ( Dk . DkRecField , Itk . ItkRecFieldLt ) ;
      } . 
 
-   ProcedureType : StkRwPROCEDURE Signature
+(* ------------------ Procedure Types and Signatures ------------------- *)
+
+   Type : StkRwPROCEDURE Signature
      { Push_LCP_rp
          ( Itk . ItkProcTypeLt , $2 . PaUnnestCoord , $1 . Scan . Position ) ;
      } . 
-
-(* ------------------------ Procedure Signatures ----------------------- *)
 
 (* Procedure signature (without PROCEDURE or Ident). *) 
    Signature : Formals ResultType Raises
@@ -634,82 +616,81 @@ RULE
 
 (* Formal decl (with possibly multiple idents). *)
    Formal : FormalModeAndIds FormalType FormalExpr
-     { IF $1 . PaInt (* Id count. *) = 0
+     { VAR LDeclKind : FM3Decls . DeclKindTyp ; 
+       VAR LDeclIdTok : FM3Base . TokTyp ; 
+       BEGIN (*Block*)  
+         FM3Decls . TopDeclInfo ( (*OUT*) LDeclKind , (*OUT*) LDeclIdTok ) ; 
+         IF LDeclKind = Dk . DkVarFormal   
+         THEN
+           IF NOT $2 . PaBool (* Formal type is present (absent). *)
+           THEN
+             FM3Messages . ErrorArr
+               ( ARRAY OF REFANY 
+                   { " VAR formal must have a type (2.2.8)." } 
+               , $2 . Scan . Position
+               );
+           END (*IF*) ; 
+           IF $3 . PaBool (* Formal expression is present. *) 
+           THEN
+             FM3Messages . ErrorArr
+               ( ARRAY OF REFANY 
+                   { " VAR formal cannot have a default expression  (2.2.8)." }
+               , $3 . Scan . Position
+               );
+           END (*IF*) ;
+         ELSE 
+           FM3ParsePass . CheckTypeAndOrValue
+             ( $1 . Scan . Position 
+             , $2 . PaBool
+             , $3 . PaBool
+             )
+         END (*IF*) ;
+       END (*Block*) ; 
+       IF $1 . PaInt (* Id count. *) = 0
        THEN
 (* TODO: Skip entire rest of formal. *)
        END ;
-       IF $1 . PaByte = ORD ( Dk . DkVarFormal )  
-       THEN
-         IF NOT $2 . PaBool (* Formal type is present (absent). *)
-         THEN
-           FM3Messages . ErrorArr
-             ( ARRAY OF REFANY 
-                 { " VAR formal must have a type (2.2.8)." } 
-             , $2 . Scan . Position
-             );
-         END (*IF*) ; 
-         IF $3 . PaBool (* Formal expression is present. *) 
-         THEN
-           FM3Messages . ErrorArr
-             ( ARRAY OF REFANY 
-                 { " VAR formal cannot have a default expression  (2.2.8)." }
-             , $3 . Scan . Position
-             );
-         END (*IF*) ;
-       ELSE 
-         FM3ParsePass . CheckTypeAndOrValue
-           ( $1 . Scan . Position 
-           , $2 . PaBool
-           , $3 . PaBool
-           )
-       END (*IF*);
+       FM3Decls . PopDeclInfo ( ) ; 
      } .
 
    FormalModeAndIds : FormalMode DeclIdPlusList
-     { $$ . PaByte := $1 . PaByte (* DeclKind, implies Transmission mode. *) ;
-       $$ . PaInt := $2 . PaInt (* Id count. *) ; 
+     { $$ . PaInt := $2 . PaInt (* Id count. *) ; 
        $$ . Scan . Position := $1 . Scan . Position ;   
-       MakeListPos
-         ( $$ , $1 . PaTok (* List Itk *) , $1 . Scan . Position , $2 ) ;
-       FM3Decls . PopDeclInfo ( ) ; 
+       VAR LDeclKind : FM3Decls . DeclKindTyp ;
+       VAR LDeclIdTok : FM3Base . TokTyp ;
+       BEGIN (*Block*)  
+         FM3Decls . TopDeclInfo ( (*OUT*) LDeclKind , (*OUT*) LDeclIdTok ) ;  
+         MakeListPos ( $$ , LDeclIdTok, $1 . Scan . Position , $2 ) ;
+       END (*Block*); 
      } . 
 
 (* Formal parameter modes. *) 
    FormalMode : StkRwVALUE 
-     { $$ . PaByte := ORD ( Dk . DkValueFormal ) (* Conveys mode. *) ;
-       $$ . PaTok := Itk . ItkFormalVALUEIdListLt (* Token for list. *) ;
-       $$ . Scan . Position := $1 . Scan . Position;
+     { $$ . Scan . Position := $1 . Scan . Position;
        FM3Decls . PushDeclInfo
          ( Dk . DkValueFormal , Itk . ItkFormalVALUEIdListLt ) ;
        FM3ParsePass . ScopeRtL2R ( ) ; 
      } .
 
    FormalMode : StkRwVAR 
-     { $$ . PaByte := ORD ( Dk . DkVarFormal );
-       $$ . PaTok := Itk . ItkFormalVARIdListLt; 
-       $$ . Scan . Position := $1 . Scan . Position; 
+     { $$ . Scan . Position := $1 . Scan . Position; 
        FM3Decls . PushDeclInfo
          ( Dk . DkVarFormal , Itk . ItkFormalVARIdListLt ) ;
      } .
    FormalMode : StkRwREADONLY
-     { $$ . PaByte := ORD ( Dk . DkROFormal );
-       $$ . PaTok := Itk . ItkFormalREADONLYIdListLt; 
-       $$ . Scan . Position := $1 . Scan . Position; 
+     { $$ . Scan . Position := $1 . Scan . Position; 
        FM3Decls . PushDeclInfo
          ( Dk . DkROFormal , Itk . ItkFormalREADONLYIdListLt ) ;
      } .
    FormalMode : /*Empty*/
-     { $$ . PaByte := ORD ( Dk . DkValueFormal );
-       $$ . PaTok := Itk . ItkFormalVALUEIdListLt; 
-       $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
+     { $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
        FM3Decls . PushDeclInfo
          ( Dk . DkValueFormal , Itk . ItkFormalVALUEIdListLt ) ;
      } .
 
 (* Formal parameter type. *) 
    FormalType : StkColon Type
-     { $$ . PaBool (* Type is present. *) := TRUE;
-       $$ . Scan . Position := $1 . Scan . Position; 
+     { $$ . Scan . Position := $1 . Scan . Position; 
        Push_LCP_rp
          ( Itk . ItkFormalTypeLt,  $1 . PaUnnestCoord , $1 . Scan . Position ); 
      } .
@@ -749,7 +730,7 @@ RULE
      } .
 
 (* Signature RAISES. *) 
-   Raises : StkRwANY
+   Raises : StkRwRAISES StkRwANY
      { $$ . PaBool (* Raises set is present. *) := TRUE;
        $$ . Scan . Position := $1 . Scan . Position; 
        Push_LCP_rp
@@ -829,12 +810,10 @@ RULE
          ( Sk . SkProcBody , $0 . Scan . Position ) ;
      } .
 
-
 (* ---------------------------- Expressions ---------------------------- *)
 
 Expr: StkIdent .
 Expr: StkIntLit . 
-
 
 (* ------------------------------ Blocks ------------------------------- *)
 
