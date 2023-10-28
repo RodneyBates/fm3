@@ -484,7 +484,6 @@ RULE
    VarDeclGroup : VarDeclsVAR VarDecls StkSemicolon 
       { FM3Decls . PopDeclInfo ( ) ; } . 
 
-
    VarDeclsVAR : StkRwVAR
    /* On attribute stack, left of each of multiple variable declarations
       that follow a single "VAR". */
@@ -492,11 +491,9 @@ RULE
        $$ . Scan . Position := $1 . Scan . Position;
      } .
 
-   Dummy : /* empty */ . 
-
    (* VarDecls is also used for record and object fields. *)
    (* Also see DeclIdPlusList. *)
-   VarDecls : Dummy VarDecl
+   VarDecls : VarDecl
      { $$ . PaInt := 1 ; (* Decl count. *) } . 
    VarDecls : VarDecls StkSemicolon VarDecl
      { $$ . PaInt := 1 + $1 . PaInt ; } . 
