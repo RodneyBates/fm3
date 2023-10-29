@@ -137,5 +137,6 @@ ABS 5
    StkCharLit . 
    StkWideCharLit .
    StkLexErrChars .
+   StkReservedId . 
 
 (* End FM3SrcToks.gentok *) 

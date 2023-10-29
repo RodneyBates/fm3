@@ -123,6 +123,7 @@ MODULE FM3SrcToks
       | 105 => RETURN "StkCharLit"
       | 106 => RETURN "StkWideCharLit"
       | 107 => RETURN "StkLexErrChars"
+      | 108 => RETURN "StkReservedId"
       ELSE RETURN "<TokUndef>"
       END (*CASE*) 
     END Image 

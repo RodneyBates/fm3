@@ -191,6 +191,7 @@ TOKEN
     StkCharLit                                   =   105 (*16_e9 00 *)
     StkWideCharLit                               =   106 (*16_ea 00 *)
     StkLexErrChars                               =   107 (*16_eb 00 *)
+    StkReservedId                                =   108 (*16_ec 00 *)
 
 (* END of copied-in token decls from FM3SrcToks.i3. *) 
 

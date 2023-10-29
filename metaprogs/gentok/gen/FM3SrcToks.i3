@@ -135,8 +135,9 @@ INTERFACE FM3SrcToks
 ; CONST StkCharLit                                   =   105 (*16_e9 00 *)
 ; CONST StkWideCharLit                               =   106 (*16_ea 00 *)
 ; CONST StkLexErrChars                               =   107 (*16_eb 00 *)
+; CONST StkReservedId                                =   108 (*16_ec 00 *)
 (* End FM3SrcToks.gentok *)
-; CONST TkMaxTok                                     =   107
+; CONST TkMaxTok                                     =   108
 
 ; END FM3SrcToks
 .
