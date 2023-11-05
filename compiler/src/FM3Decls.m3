@@ -11,6 +11,7 @@ MODULE FM3Decls
 ; IMPORT IntRanges 
 
 ; IMPORT FM3Base
+; IMPORT FM3IntToks
 ; IMPORT FM3Scopes
 ; IMPORT FM3Units 
 ; IMPORT VarArray_Int_Refany
@@ -50,55 +51,67 @@ MODULE FM3Decls
    be very deep.
 *) 
 
-; TYPE DeclInfoTyp
+; TYPE DeclInfoNodeTyp
     = RECORD
-        DiLink : DeclInfoRefTyp
-      ; DiKind : DeclKindTyp 
-      ; DiTok : FM3Base . TokTyp
+        DinLink : DeclInfoRefTyp
+      ; DinInfo : DeclInfoTyp 
       END
-; TYPE DeclInfoRefTyp = REF DeclInfoTyp
+; TYPE DeclInfoRefTyp = REF DeclInfoNodeTyp
 
 ; VAR DeclInfoStack : DeclInfoRefTyp 
+; VAR DeclInfoStackDepth : INTEGER 
 
-(*EXPORTED*) 
-; PROCEDURE PushDeclInfo
-    ( DeclKind : DeclKindTyp ; DeclIdTok : FM3Base . TokTyp ) 
+(*EXPORTED*)
+; PROCEDURE PushDeclInfo ( READONLY Info : DeclInfoTyp )
+  : INTEGER (* Depth after push. *)  
 
   = BEGIN
       DeclInfoStack
         := NEW ( DeclInfoRefTyp
-               , DiLink := DeclInfoStack
-               , DiKind := DeclKind
-               , DiTok := DeclIdTok
-               )  
+               , DinLink := DeclInfoStack
+               , DinInfo := Info 
+               )
+    ; INC ( DeclInfoStackDepth )
+    ; RETURN DeclInfoStackDepth 
     END PushDeclInfo
     
 (*EXPORTED*) 
-; PROCEDURE PopDeclInfo ( ) 
+; PROCEDURE PopDeclInfo ( ) : INTEGER (* Depth before pop. *) 
 
-  = BEGIN
-      IF DeclInfoStack # NIL
-      THEN DeclInfoStack := DeclInfoStack . DiLink
+  = VAR LResult : INTEGER
+  ; BEGIN
+      IF DeclInfoStack = NIL
+      THEN
+        <* ASSERT DeclInfoStackDepth = 0 *>
+        RETURN 0 
+      ELSE
+        LResult := DeclInfoStackDepth
+      ; <* ASSERT LResult > 0 *>
+        DeclInfoStack := DeclInfoStack . DinLink
+      ; RETURN LResult
       END (*IF*)  
     END PopDeclInfo 
 
 (*EXPORTED*) 
-; PROCEDURE TopDeclInfo
-    ( VAR DeclKind : DeclKindTyp ; VAR DeclIdTok : FM3Base . TokTyp )
+; PROCEDURE TopDeclInfo ( ) : DeclInfoTyp
+  (* Result.DiKind = DeclKindTyp.DkNull, if stack is empty. *) 
 
   = BEGIN
       IF DeclInfoStack = NIL
-      THEN 
-        DeclKind := DeclKindTyp . DkNull 
-      ; DeclIdTok := FM3Base . TokNull 
-      ELSE 
-        DeclKind := DeclInfoStack . DiKind 
-      ; DeclIdTok := DeclInfoStack . DiTok
+      THEN RETURN
+        DeclInfoTyp
+          { DiIdTok := FM3IntToks . ItkNull
+          , DiDeclTok := FM3IntToks . ItkNull
+          , DiKind := DeclKindTyp.DkNull
+          } 
+      ELSE RETURN DeclInfoStack . DinInfo 
       END (*IF*) 
    END TopDeclInfo 
 
 ; BEGIN
-    DeclInfoStack := NIL 
+    DeclInfoStack := NIL
+  ; DeclInfoStackDepth := 0
+(* CHECK: Could there ever be a need to reinitialize this" *) 
   END FM3Decls
 .
 
