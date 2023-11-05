@@ -61,20 +61,27 @@ INTERFACE FM3Decls
   : DeclRefTyp
   (* Allocate a DeclRef and connect in into ParentScopeRef ^. *)
 
-(* A stack of pairs of a declaration kind and an Id-declaring token.
-   A single stack element can occur in one place but apply to multiple
-   declarations, e.g. VAR ...  Trying to propagate this info in parser
-   semantic attributes Was turning out to be insanely delicate and
-   complicated.
-*)  
+(* A stack of info about different kinds of declarations and their sometimes
+   multiple identifiers, allowing for sharing among them of parser productions
+   and actions.  Trying to propagate this info in parser semantic attributes
+   was turning out to be insanely fragile and complicated.
+*)
 
-; PROCEDURE PushDeclInfo
-    ( DeclKind : DeclKindTyp ; DeclIdTok : FM3Base . TokTyp ) 
+; TYPE DeclInfoTyp
+    = RECORD
+        DiIdTok : FM3Base . TokTyp
+      ; DiDeclTok : FM3Base . TokTyp 
+      ; DiKind : DeclKindTyp 
+      END 
+ 
+; PROCEDURE PushDeclInfo ( READONLY Info : DeclInfoTyp )
+  : INTEGER (* Depth after push. *)  
 
-; PROCEDURE PopDeclInfo ( ) 
+; PROCEDURE PopDeclInfo ( )
+  : INTEGER (* Depth before pop. *) 
 
-; PROCEDURE TopDeclInfo
-    ( VAR DeclKind : DeclKindTyp ; VAR DeclIdTok : FM3Base . TokTyp ) 
+; PROCEDURE TopDeclInfo ( ) : DeclInfoTyp
+  (* Result.DiKind = DeclKindTyp.DkNull, if stack is empty. *) 
 
 ; END FM3Decls
 .
