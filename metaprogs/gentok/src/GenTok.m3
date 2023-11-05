@@ -896,16 +896,14 @@ EXPORTS Main
 
 ; PROCEDURE EmitListToks ( ) 
 
-  = VAR LArgCtOfList , LArgCtOfElem : [ - 1 .. 7 ] 
+  = VAR LArgCtOfList , LArgCtOfSep : [ - 1 .. 7 ] 
   ; VAR LRootName : TEXT 
 
   ; BEGIN
       LRootName := GToken 
     ; GToken := GetSyntTok ( ) (* Consume the root name. *) 
-    ; LArgCtOfList
-        := MAX ( 0 , GetTokArgCt ( "list" ) )
-           + 1 (* Implicit element count argument. *)
- (* ; LArgCtOfElem := GetTokArgCt ( "list element" ) + 1 (* Implicit element count argument. *) *)
+    ; LArgCtOfList := 3 (* Count, position. *) 
+    ; LArgCtOfSep := 3 (* ElemNo, position. *) 
     ; IF GDoGenIntToks
       THEN 
         MaybePutMinTokNo ( ) 
@@ -923,16 +921,13 @@ EXPORTS Main
       ; EmitTok ( LRootName & "Rt" , LArgCtOfList )
       ; Layout . PutEol ( GOStream )
 
-(* Separate bracketing of each list element is removed, in favor of
-   the specific tokens around the specific list element. **
-      ; EmitTok ( LRootName & "ElemLt" , LArgCtOfElem )  
+      ; EmitTok ( LRootName & "Sep" , LArgCtOfSep )  
       ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
-      ; EmitTok ( LRootName & "ElemLtTemp" , LArgCtOfElem )  
+      ; EmitTok ( LRootName & "SepTemp" , LArgCtOfSep )  
       ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
-      ; EmitTok ( LRootName & "ElemLtPatch" , LArgCtOfElem )  
-      ; EmitTok ( LRootName & "ElemRt" , LArgCtOfElem )  
+      ; EmitTok ( LRootName & "SepPatch" , LArgCtOfSep )  
       ; Layout . PutEol ( GOStream )
-*) 
+
       ELSIF GDoCountIntToks
       THEN INC ( GNextTokNo , 8 ) 
       END (*IF*) 
@@ -1248,6 +1243,28 @@ EXPORTS Main
       ; Layout . PutText
           ( GOStream
           , "(* ^Add this to Lt tokcode to get 2nd Infix patch tokcode. *)"
+          )
+      ; Layout . PutEol ( GOStream )
+
+      ; Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText ( GOStream , "; CONST LtToListSep = 4    " )  
+      ; Layout . PutEol ( GOStream )
+
+      ; Layout . PadAbs ( GOStream , 8 )
+      ; Layout . PutText
+          ( GOStream
+          , "(* ^Add this to list Lt tokcode to get Sep tokcode. *)"
+          )
+      ; Layout . PutEol ( GOStream )
+
+      ; Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText ( GOStream , "; CONST LtToListSepPatch = 6    " )  
+      ; Layout . PutEol ( GOStream )
+
+      ; Layout . PadAbs ( GOStream , 8 )
+      ; Layout . PutText
+          ( GOStream
+          , "(* ^Add this to list Lt tokcode to get SepPatch tokcode. *)"
           )
       ; Layout . PutEol ( GOStream )
 

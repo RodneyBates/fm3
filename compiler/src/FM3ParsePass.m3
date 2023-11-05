@@ -459,15 +459,13 @@ MODULE FM3ParsePass
   = BEGIN
       RETURN RdBackFile . LengthL
                ( FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack ) 
-    END UnnestCoord 
+    END UnnestCoord
 
 (*EXPORTED:*)
 ; PROCEDURE PushUnnestStk ( READONLY ParsAttr : tParsAttribute )
-  (* Source token.  Some of these (in fact, probably the only ones that
-     will be passed in) have arguments.
-  *) 
-  
+   
   = BEGIN
+(*FIXME: Don't push unnest if skipping.. *) 
       WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
       DO
 (* Keep DumpWork.DumpNumericBwd consistent with this:*) 
@@ -547,6 +545,16 @@ MODULE FM3ParsePass
     END PushOAWideCharsBwd 
 
 (*EXPORTED:*)
+; PROCEDURE PushUnnest ( Value : INTEGER )
+
+  = BEGIN
+      PutBwd
+        ( FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
+        , VAL ( Value , LONGINT ) 
+        )
+    END PushUnnest
+
+(*EXPORTED:*)
 ; PROCEDURE PushUnnestLong ( Value : LONGINT )
   
   = BEGIN
@@ -557,14 +565,19 @@ MODULE FM3ParsePass
     END PushUnnestLong
 
 (*EXPORTED:*)
-; PROCEDURE PushUnnest ( Value : INTEGER )
+; PROCEDURE Push_ListSepPatchPos
+    ( ListT : Itk . TokTyp ; C : LONGINT ; Position : FM3Scanner . tPosition )
 
   = BEGIN
-      PutBwd
-        ( FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
-        , VAL ( Value , LONGINT ) 
-        )
-    END PushUnnest
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
+      DO
+        PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , C ) 
+      ; PutBwd
+          ( WRdBack , VAL ( ListT + Itk . LtToListSepPatch , LONGINT ) )
+      END (*WITH*) 
+    END Push_ListSepPatchPos 
 
 (*EXPORTED:*)
 ; PROCEDURE Push_L ( T : Itk . TokTyp )
@@ -921,32 +934,31 @@ MODULE FM3ParsePass
     END InitVarInfo 
 
 (*EXPORTED.*)
-; PROCEDURE CheckTypeAndOrValue 
+; PROCEDURE RequireTypeAndOrValue 
     ( Position : FM3Scanner . tPosition
     ; HasType : BOOLEAN 
     ; HasValue : BOOLEAN
     )
 
   (* Anything that requires a type and/or value: 
-     variable , formal, field.  Gets DeclKnd from FM3Decls.TopDeclInfo. *) 
+     variable , formal, field.  Gets DeclKind from FM3Decls.TopDeclInfo. *) 
 
-  = VAR LDeclKind : FM3Decls . DeclKindTyp
-  ; VAR LDeclIdTok : FM3Base . TokTyp
-  
-  ; BEGIN (*VarOrFieldDecl*)
+  = BEGIN 
      IF NOT  HasType AND NOT HasValue 
      THEN
-       FM3Decls . TopDeclInfo ( (*OUT*) LDeclKind , (*OUT*) LDeclIdTok ) 
-     ; FM3Messages . ErrorArr
-         ( ARRAY OF REFANY 
-             { VarLabel [ LDeclKind ] 
-             , " must have a type and/or an initial value. "
-             , VarSection [ LDeclKind ]
-             } 
-         , Position
-         );
+       WITH WDeclInfo = FM3Decls . TopDeclInfo ( )
+       DO 
+         FM3Messages . ErrorArr
+           ( ARRAY OF REFANY 
+               { VarLabel [ WDeclInfo . DiKind ] 
+               , " must have a type and/or an initial value. "
+               , VarSection [ WDeclInfo . DiKind  ]
+               } 
+           , Position
+           );
+       END (*WITH*) 
      END (*IF*) 
-    END CheckTypeAndOrValue 
+    END RequireTypeAndOrValue 
 
 (*EXPORTED:*)
 ; PROCEDURE MakeElem
@@ -996,16 +1008,19 @@ MODULE FM3ParsePass
 
   = BEGIN
       LHSAttr . PaInt := ElemsAttr . PaInt
-    ; LHSAttr . PaUnnestCoord := ElemsAttr . PaUnnestCoord (* Ever used? *) 
-    ; PushUnnest ( Position . Column ) 
-    ; PushUnnest ( Position . Line ) 
-    ; PushUnnest ( ElemsAttr . PaInt ) (* Elem Ct. *)
-    ; PushUnnest ( TokLt + Itk . LtToRt )
-    ; PushUnnest ( Position . Column ) 
-    ; PushUnnest ( Position . Line ) 
-    ; PushUnnest ( ElemsAttr . PaInt )
-    ; PushUnnestLong ( ElemsAttr . PaUnnestCoord ) 
-    ; PushUnnest ( TokLt + Itk . LtToPatch )
+    ; LHSAttr . PaUnnestCoord := ElemsAttr . PaUnnestCoord (* Ever used? *)
+    ; IF ElemsAttr . PaInt > 0
+      THEN 
+        PushUnnest ( Position . Column ) 
+      ; PushUnnest ( Position . Line ) 
+      ; PushUnnest ( ElemsAttr . PaInt ) (* Elem Ct. *)
+      ; PushUnnest ( TokLt + Itk . LtToRt )
+      ; PushUnnest ( Position . Column ) 
+      ; PushUnnest ( Position . Line ) 
+      ; PushUnnest ( ElemsAttr . PaInt )
+      ; PushUnnestLong ( ElemsAttr . PaUnnestCoord ) 
+      ; PushUnnest ( TokLt + Itk . LtToPatch )
+      END (*IF*)
     END MakeListPos 
 
 (*EXPORTED:*)
@@ -1346,7 +1361,75 @@ MODULE FM3ParsePass
     END ScopeLtL2R
 
 (*EXPORTED.*)
-; PROCEDURE DeclIdL2R ( )
+; PROCEDURE DeclIdL2R ( READONLY Attribute : tParsAttribute )
+  : BOOLEAN (* Use this declared id.  It's not a duplicate in current scope. *)
+  (* PRE: Attribute is for an identifier in a declaration context. *) 
+
+  = BEGIN (*DeclIdL2R*)
+      WITH WScope = FM3Scopes . ScopeStackTopRef ^
+           , WunRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack 
+      DO
+
+(* FIXME: Don't do the following: *) 
+        (* An StkIdent, /w args, was pushed by parser shift, as it does for
+           all variable terminals.  Convert it to ItkDeclId or ItkDuplDeclId.
+           Done by PushUnnestStk. 
+        *) 
+
+        IF Attribute . Scan . SaIsReservedId 
+        THEN
+          ErrorArr
+            ( ARRAY OF REFANY
+                { PosImage ( Attribute . Scan . Position )
+                , " Identifier \""
+                , FM3SrcToks . Image ( Attribute . Scan . SaAtom )
+                , "\" is predefined and cannot be redeclared (2.8.2)."
+                } 
+            )
+          (* No output. *) 
+        ; RETURN FALSE (* Caller, Don't use this Id. *) 
+        ELSIF IntSets . IsElement
+                ( Attribute . Scan . SaAtom , WScope . ScpDeclIdSet )
+        THEN (* A Duplicate declaration of SaAtom in current scope. *)
+          WScope . ScpDuplDeclIdSet
+            := IntSets . Include
+                 ( WScope . ScpDuplDeclIdSet , Attribute . Scan . SaAtom )
+        ; PutBwd
+            ( WunRdBack
+            , VAL ( Attribute . Scan . Position . Column , LONGINT )
+            ) 
+        ; PutBwd
+            ( WunRdBack
+            , VAL ( Attribute . Scan . Position . Line , LONGINT )
+            )
+        ; PutBwd ( WunRdBack , VAL ( Attribute . Scan . SaAtom , LONGINT ) ) 
+        ; PutBwd ( WunRdBack , VAL ( Itk . ItkDuplDeclId , LONGINT ) )
+        ; RETURN FALSE (* Caller, Don't use this Id. *) 
+        ELSE (* Valid declaration Ident. *) 
+          WScope . ScpDeclIdSet
+            := IntSets . Include
+                 ( WScope . ScpDeclIdSet , Attribute . Scan . SaAtom )
+        ; WITH WDeclInfo = FM3Decls . TopDeclInfo ( )
+          DO 
+            PutBwd
+              ( WunRdBack
+              , VAL ( Attribute . Scan . Position . Column , LONGINT )
+              ) 
+          ; PutBwd
+              ( WunRdBack
+              , VAL ( Attribute . Scan . Position . Line , LONGINT )
+              )
+          ; PutBwd ( WunRdBack , VAL ( Attribute . Scan . SaAtom , LONGINT ) )  
+          ; PutBwd ( WunRdBack , VAL ( ORD ( WDeclInfo . DiKind ) , LONGINT ) )  
+          ; PutBwd ( WunRdBack , VAL ( WDeclInfo . DiIdTok , LONGINT ) )
+          END (*WITH*) 
+        ; RETURN TRUE (* Caller, Use this decl id. *) 
+        END (*IF*)
+      END (*WITH*) 
+    END DeclIdL2R
+
+(* Old version: ************
+; PROCEDURE DeclIdL2R ( Attribute : tParsAttribute )
   : BOOLEAN (* Use this declared id.  It's not a duplicate in current scope. *) 
 
   = VAR LTokenL : LONGINT 
@@ -1381,13 +1464,14 @@ MODULE FM3ParsePass
         ELSE 
           WScope . ScpDeclIdSet
             := IntSets . Include ( WScope . ScpDeclIdSet , LIdAtom )
-        ; FM3Decls . TopDeclInfo ( (*OUT*) LDeclKind , (*OUT*) LDeclIdTok ) 
+        ; FM3Decls . GetTopDeclInfo ( (*OUT*) LDeclKind , (*OUT*) LDeclIdTok ) 
         ; PutBwd ( WunRdBack , VAL ( ORD ( LDeclKind ) , LONGINT ) )  
         ; PutBwd ( WunRdBack , VAL ( ORD ( LDeclIdTok ) , LONGINT ) )  
         ; RETURN TRUE  
         END (*IF*)
       END (*WITH*) 
     END DeclIdL2R
+**************** old version *) 
 
 (*EXPORTED.*)
 ; PROCEDURE RefIdL2R

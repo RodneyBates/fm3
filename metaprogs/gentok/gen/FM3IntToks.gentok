@@ -14,7 +14,7 @@ UNITNAME FM3IntToks
    used in intermediate token streams.  
 *)
 
-(* WARNING: Do not use single quotes inside a comment. *) 
+(* WARNING: Do not use single quotes inside a comment in this file. *) 
 
 ABS 128
 
@@ -69,8 +69,15 @@ ItkBlock 2 (* Position of LM declaration. *)
 
 (* Type decls. *)
 
+LONE
+ItkVarDeclId . 
+ItkRecFieldId . 
+ItkVALUEFormalId . 
+ItkVARFormalId . 
+ItkROFormalId . 
+
 FIXED
-ItkRecDef 3 (* Position of RECORD, field count. *) . 
+ItkRecDef 3 (* Position of RECORD, field count. *) .
 ItkRecField 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
   Type 2     (* Position of colon. *) 
   Val 2      (* Position of becomes/ *) 
@@ -91,17 +98,24 @@ ItkVarDecl 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
 
 LIST
 
-(* GenTok implicitly gives list tokens one operand for element count,
-   plus any count given explicitly here.
+(* GenTok implicitly gives list tokens:
+     The usual patch coordinate, if it's a patch token.
+     One integer operand for element count (Lt & Rt tokens)
+       or, for separator tokens, number of elements to left.  
+     Position.  For Lt & Rt, of what source token  depends on the list.
+       For separators, of the source separator, or if none, beginning
+       of element to right.
 *) 
 
-ItkExportIdList 2 (* Position of EXPORTSStkRwRECORD. *) . 
-ItkGenFormalIdList 2 (* Position of "(" *) .
-ItkGenActualIdList 2 (* Position of "(" *) .
-ItkFormalsList 2 (* Position of "(" *) .
-ItkFormalVALUEIdList 2 (* Position of VALUE or 1st ident, if no mode. *). 
-ItkFormalVARIdList 2 (* Position of VAR. *) . 
-ItkFormalREADONLYIdList 2 (* Position of VAR. *). 
+ItkExportIdList (* Position of EXPORTS. *) . 
+ItkGenFormalIdList (* Position of "(" *) .
+ItkGenActualIdList (* Position of "(" *) .
+ItkVarDeclIdList (* Position of "(" *) .
+ItkRecFieldIdList (* Position of "RECORD" *) .
+ItkFormalsList (* Position of "(" *) .
+ItkVALUEFormalIdList (* Position of VALUE or 1st ident, if no mode. *). 
+ItkVARFormalIdList (* Position of VAR. *) . 
+ItkROFormalIdList (* Position of READONLY. *). 
 ItkDeclList  . 
 
 (* Statements *)
@@ -115,14 +129,14 @@ FIXED ItkModule 2 (* Name, UnitNo. *)
 . 
 
 LIST ItkExportsList
-       1 1 (* Element Count, Element No. *) 
+       (* Element Count, Element No. *) 
 .
 
 LIST ItkIdPlusList
-       1 1 (* Element Count, Element No. *) 
+       (* Element Count, Element No. *) 
 .
 
-FIXED ItkExport 2 (* Ident, Unit No. *) . 
+FIXED ItkExport (* Ident, Unit No. *) . 
 *)
 
 

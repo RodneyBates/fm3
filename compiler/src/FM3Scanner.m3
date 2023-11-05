@@ -109,6 +109,7 @@ MODULE FM3Scanner
       , SaChars := NIL 
       , SaTok := FM3Base . TokNull  
       , SaWCh := W'\X0000'
+      , SaIsReservedId := FALSE 
       } 
 
 (* EXPORTED: *) 
@@ -420,42 +421,56 @@ MODULE FM3Scanner
           of having a transition on NullChar for the end of a string, IFF
           it is a prefix of a longer string. 
 *) 
-(* TODO: Regularize FM3BuildLesMachine and FM3LexTable so this distinction
+(* TODO: Regularize FM3BuildLexMachine and FM3LexTable so this distinction
          need not be accomodated by client code. 
 *)   
           GCurRwValue (* Done with string. *) 
             := FM3LexTable . IncrNext 
                  ( GCurRwLexTable , FM3LexTable . NullChar , GCurRwState ) 
+        END (*IF*)
+
+      ; IF ScAtBegOfPragma
+        THEN (* Looking for a pragma id. *) 
+          CASE GCurRwValue 
+          OF FM3LexTable . ValueUnrecognized , FM3LexTable . ValueNull 
+          => Attribute . SaAtom 
+              := FM3Atom_OAChars . MakeAtom 
+                   ( GTopSsRef . SsUnitRef ^ . UntIdentAtomDict
+                   , Attribute . SaChars 
+                   , ScHash 
+                   ) 
+          ; Attribute . SaIsReservedId := FALSE (* NOT predeclared. *)  
+          ; Attribute . SaTok := FM3SrcToks . StkPragmaId 
+(* TODO: Make the parser give a message on this and skip the pragma. *) 
+          ELSE 
+            Attribute . SaIsReservedId := TRUE 
+          ; Attribute . SaTok 
+              := GCurRwValue (* A recognized reserved pragma name. *) 
+          END (*CASE*) 
+        ELSE (* Looking for a reserved word or reserved identifier. *) 
+          CASE GCurRwValue 
+          OF FM3SrcToks . RidABS .. FM3SrcToks . RidVAL  
+          => (* Reserved identifier. *) 
+             (* To reduce the parser size, these are all mapped to single token
+                StkIdent, with the specific ident's token as its atom. *) 
+              Attribute . SaIsReservedId := TRUE 
+            ; Attribute . SaAtom := GCurRwValue 
+            ; Attribute . SaTok := FM3SrcToks . StkIdent
+          | FM3LexTable . ValueUnrecognized , FM3LexTable . ValueNull 
+          => (* Plain ol' identifier. *)
+              Attribute . SaIsReservedId := FALSE (* NOT predeclared. *)
+            ; Attribute . SaAtom 
+                := FM3Atom_OAChars . MakeAtom 
+                     ( GTopSsRef . SsUnitRef ^ . UntIdentAtomDict
+                     , Attribute . SaChars 
+                     , ScHash 
+                     ) 
+            ; Attribute . SaTok := FM3SrcToks . StkIdent
+          ELSE (* Reserved word. *) 
+            Attribute . SaIsReservedId := TRUE 
+          ; Attribute . SaTok := GCurRwValue 
+          END (*CASE*) 
         END (*IF*) 
-      ; IF GCurRwValue # FM3LexTable . ValueUnrecognized  
-           AND GCurRwValue # FM3LexTable . ValueNull 
-        THEN Attribute . SaTok := GCurRwValue  
-        ELSIF ScAtBegOfPragma 
-              AND FM3Globals . PgRwDict # NIL 
-              AND FM3Dict_OAChars_Int . LookupGrowable 
-                    ( FM3Globals . PgRwDict 
-                    , Attribute . SaChars 
-                    , ScHash 
-                    , (*OUT*) LIntTok 
-                    ) 
-        THEN Attribute . SaTok := LIntTok 
-        ELSIF FM3Globals . M3RwDict # NIL 
-              AND FM3Dict_OAChars_Int . LookupGrowable 
-                    ( FM3Globals . M3RwDict 
-                    , Attribute . SaChars 
-                    , ScHash 
-                    , (*OUT*) LIntTok 
-                    ) 
-        THEN Attribute . SaTok := LIntTok 
-        ELSE 
-          Attribute . SaAtom 
-            := FM3Atom_OAChars . MakeAtom 
-                 ( GTopSsRef . SsUnitRef ^ . UntIdentAtomDict
-                 , Attribute . SaChars 
-                 , ScHash 
-                 ) 
-        ; Attribute . SaTok := FM3SrcToks . StkIdent
-        END (* IF *) 
       END IdentSuffix 
 
   ; CONST DigitChars = SET OF CHAR { '0' .. '9' , 'A' .. 'F' , 'a' .. 'f' }

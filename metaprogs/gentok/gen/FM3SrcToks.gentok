@@ -137,6 +137,56 @@ ABS 5
    StkCharLit . 
    StkWideCharLit .
    StkLexErrChars .
-   StkReservedId . 
+   StkReservedId . (* ^Any reserved ident, but with the Rid as its atom. *) 
+   StkPragmaId . (* ^Not a known pragma ident, but found where one is expected. *)  
 
-(* End FM3SrcToks.gentok *) 
+   (* Reserved identifiers: *)
+   (* We want to scan these with the same lex machine as reserved words,
+      but then treat each of them as source token StkReservedId, using the
+      code the lex table gives as an atom id.  This may rebiasing them
+      to agree with FM3PreDecl, which the scanner will do.
+   *) 
+
+   RidNull             "<RidNull>" . (* Scanner will never present this. *) 
+   RidABS              "ABS" . 
+   RidADDRESS          "ADDRESS" . 
+   RidADR              "ADR" . 
+   RidADRSIZE          "ADRSIZE" . 
+   RidBITSIZE          "BITSIZE" . 
+   RidBOOLEAN          "BOOLEAN" . 
+   RidBYTESIZE         "BYTESIZE" . 
+   RidCARDINAL         "CARDINAL" . 
+   RidCEILING          "CEILING" . 
+   RidCHAR             "CHAR" . 
+   RidDEC              "DEC" . 
+   RidDISPOSE          "DISPOSE" . 
+   RidEXTENDED         "EXTENDED" . 
+   RidFALSE            "FALSE" . 
+   RidFIRST            "FIRST" . 
+   RidFLOAT            "FLOAT" . 
+   RidFLOOR            "FLOOR" . 
+   RidINC              "INC" . 
+   RidINTEGER          "INTEGER" . 
+   RidISTYPE           "ISTYPE" . 
+   RidLAST             "LAST" . 
+   RidLONGREAL         "LONGREAL" . 
+   RidLOOHOLE          "LOOHOLE" . 
+   RidMAX              "MAX" . 
+   RidMIN              "MIN" . 
+   RidMUTEX            "MUTEX" . 
+   RidNARROW           "NARROW" . 
+   RidNEW              "NEW" . 
+   RidNIL              "NIL" . 
+   RidNULL             "NULL" . 
+   RidNUMBER           "NUMBER" . 
+   RidORD              "ORD" . 
+   RidREAL             "REAL" . 
+   RidREFANY           "REFANY" . 
+   RidROUND            "ROUND" . 
+   RidSUBARRAY         "SUBARRAY" . 
+   RidTEXT             "TEXT" . 
+   RidTRUE             "TRUE" . 
+   RidTRUNC            "TRUNC" . 
+   RidTYPECODE         "TYPECODE" . 
+   RidVAL              "VAL" . 
+

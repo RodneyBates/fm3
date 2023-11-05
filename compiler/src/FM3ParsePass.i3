@@ -52,14 +52,13 @@ INTERFACE FM3ParsePass
   (* Of the current unit. *)
   
 ; PROCEDURE PushUnnestStk ( READONLY ParsAttr : tParsAttribute )
-  (* Source token.  Some of these (in fact, probably the only ones that
-     will be passed in) have arguments, depending on the value of Token.
-     Used for source code variable terminals.
-  *) 
   
 ; PROCEDURE PushUnnest ( Value : INTEGER )
 ; PROCEDURE PushUnnestLong ( Value : LONGINT )
-  (* Zero args. *) 
+  (* Zero args. *)
+
+; PROCEDURE Push_ListSepPatchPos
+    ( ListT : Itk . TokTyp ; C : LONGINT ; Position : FM3Scanner . tPosition )
 
 (* Here is the naming code, of namings of these Push_<x> procedures:
 
@@ -170,7 +169,7 @@ INTERFACE FM3ParsePass
 
 ; PROCEDURE Pop8 ( )
 
-; PROCEDURE CheckTypeAndOrValue 
+; PROCEDURE RequireTypeAndOrValue 
     ( Position : FM3Scanner . tPosition
     ; HasType : BOOLEAN 
     ; HasValue : BOOLEAN
@@ -223,8 +222,9 @@ INTERFACE FM3ParsePass
     ( ScopeKind : FM3Scopes . ScopeKindTyp ; Position : FM3Base . tPosition )
   : FM3Base . ScopeNoTyp (* Scope no. that was created. *) 
 
-; PROCEDURE DeclIdL2R ( )
-  : BOOLEAN (* Use this declared id.  It's not a duplicate in current scope. *) 
+; PROCEDURE DeclIdL2R ( READONLY Attribute : tParsAttribute )
+  : BOOLEAN (* Use this declared id.  It's not a duplicate in current scope. *)
+  (* PRE: Attribute is for an identifier in a declaration context. *) 
 
 (* Needed?
 ; PROCEDURE RefIdL2R
