@@ -6,12 +6,15 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-MODULE DumpWork
+MODULE FM3Disass
 
 ; IMPORT Fmt
 ; IMPORT Long
 ; IMPORT Params 
 ; IMPORT Pathname
+; IMPORT Rd 
+; IMPORT Text 
+; IMPORT TextRd  
 ; IMPORT Wr 
 
 ; IMPORT IntSets 
@@ -19,10 +22,14 @@ MODULE DumpWork
 ; IMPORT FM3SharedGlobals 
 ; IMPORT FM3SharedUtils 
 
+; IMPORT FM3Atom_OAChars
+; IMPORT FM3Base 
 ; IMPORT FM3Compress
 ; IMPORT FM3SrcToks 
-; IMPORT FM3IntToks 
+; IMPORT FM3IntToks
+; IMPORT FM3OpenArray_Char
 ; IMPORT RdBackFile
+; IMPORT FM3Units 
 
 ; VAR GResourceDirName : TEXT 
 ; VAR GIntFilePrefix : TEXT 
@@ -37,9 +44,11 @@ MODULE DumpWork
 ; VAR GTokSetGE4Args : IntSets . T 
 ; VAR GTokSetGE5Args : IntSets . T 
 ; VAR GTokSetGE6Args : IntSets . T 
-; VAR GResourcesLoaded := FALSE  
+; VAR GResourcesLoaded := FALSE
 
-; PROCEDURE DumpPrefix
+; VAR GitRef : FM3Units . UnitRefTyp 
+
+; PROCEDURE PutPrefix
     ( RBT : RdBackFile . T ; WrT : Wr . T )
   : LONGINT
   RAISES { RdBackFile .  BOF }
@@ -53,12 +62,13 @@ MODULE DumpWork
     ; Wr . PutText ( WrT , " 16_" ) 
     ; Wr . PutText
         ( WrT
-        , Fmt . Pad ( Fmt . LongInt ( LValueL , 16 ) , 16 , padChar := '0' )
+        , Fmt . Pad
+            ( Fmt . LongUnsigned ( LValueL , 16 ) , 16 , padChar := '0' )
         )
     ; Wr . PutText ( WrT , " " ) 
     ; Wr . PutText ( WrT , Fmt . Pad ( Fmt . LongInt ( LValueL ) , 21 ) )
     ; RETURN LValueL 
-    END DumpPrefix
+    END PutPrefix
 
 (*EXPORTED:*) 
 ; PROCEDURE DumpNumericBwd ( RBT : RdBackFile . T ; WrT : Wr . T )
@@ -69,7 +79,10 @@ MODULE DumpWork
 
 ; CONST OpndIndent = "   "
 
-(*EXPORTED:*) 
+(*EXPORTED:*)
+
+
+
 ; PROCEDURE DumpInterpretBwd ( RBT : RdBackFile . T ; WrT : Wr . T )
 
   = VAR LTokenL : LONGINT
@@ -80,7 +93,7 @@ MODULE DumpWork
     = VAR LOpndL : LONGINT
     
     ; BEGIN
-        LOpndL := DumpPrefix ( RBT , WrT )
+        LOpndL := PutPrefix ( RBT , WrT )
       ; Wr . PutText ( WrT , OpndIndent ) 
       ; Wr . PutText ( WrT , Label ) 
       ; Wr . PutText ( WrT , Fmt . LongInt ( LOpndL ) )
@@ -91,7 +104,7 @@ MODULE DumpWork
       LoadResources ( ) 
     ; TRY 
         LOOP
-          LTokenL := DumpPrefix ( RBT , WrT )
+          LTokenL := PutPrefix ( RBT , WrT )
         ; IF Long . LE ( LTokenL , VAL ( LAST ( INTEGER ) , LONGINT ) )
           THEN (* Nonneg INTEGER *) 
             LToken := VAL ( LTokenL , INTEGER ) 
@@ -190,6 +203,7 @@ MODULE DumpWork
       END (*EXCEPT*)
     END DumpInterpretBwd
 
+(*  A naive way:
                 IF IntSets . IsElement ( LToken , GTokSetPatch )
                 THEN DobPutOpnd ( "Patch coord: " )
                 END (*IF*) 
@@ -213,105 +227,234 @@ MODULE DumpWork
                 THEN DobPutOpnd ( "Opnd 5: " ) 
                 END (*IF*) 
               ; Wr . PutText ( WrT , Wr . EOL )
-              END (*LOOP*) 
+              END (*LOOP*)
+ *) 
 
-; PROCEDRE DobIntArg ( ArgNo : INTEGER )
-  = VAR LArgL : LONGINT
+; EXCEPTION Check1 
+; EXCEPTION Check2 
+; EXCEPTION Check3 
+; EXCEPTION Check4 
+; EXCEPTION Check5 
+; EXCEPTION Check6
 
-  ; BEGIN
-      IF ArgNo > 0 THEN Wr . PutChar ( WrT , ',' )
-    ; LArgL := FM3Compress . GetBwd ( RBT )
-    ; Wr . PutText ( WrT , Fmt . Long ( LArgL ) ) 
-    END DobIntArg 
+; PROCEDURE NumArgCt ( IntToken : INTEGER ; MinCt : INTEGER )
+    : INTEGER
 
-; PROCEDRE DobLineNoArg ( ArgNo : INTEGER )
-  = VAR LArgL : LONGINT
+  = BEGIN
+    (* This is really crazy, but if the compiler optimizes an
+       in-procedure RAISE-EXCEPT pair into a static branch or
+       fall-through, it should be as fast as if we had a statement
+       like C's 'switch', where alternatives fall though, by default.
+       This simulates that.
+       
+       This avoids duplicated code, runtime loop execution with
+       subscript arithmetic and internal procedure calls.  This
+       procedure is likely quite frequently executed, but the
+       dynamic number of the GTokenSetGE* sets to be checked is
+       typically quite small.
+    *) 
+      CASE MinCt OF 
+      | 0 => RAISE Check1
+      | 1 => RAISE Check2
+      | 2 => RAISE Check3
+      | 3 => RAISE Check4
+      | 4 => RAISE Check5
+      | 5 => RAISE Check6
+      ELSE RETURN MinCt 
+      END (*CASE*) 
 
-  ; BEGIN
-      IF ArgNo > 0 THEN Wr . PutChar ( WrT , ',' )
-    ; LArgL := FM3Compress . GetBwd ( RBT )
-    ; Wr . PutChar ( WrT , 'L' ) 
-    ; Wr . PutText ( WrT , Fmt . Long ( LArgL ) ) 
-    END DobLineNoArg 
+    ; TRY RAISE Check1
+      EXCEPT Check1
+        => IF NOT IntSets . IsElement ( IntToken , GTokSetGE1Arg )
+           THEN RETURN 0 END (*IF*)
+      END (*EXCEPT*) 
 
-; PROCEDRE DobColNoArg ( ArgNo : INTEGER )
-  = VAR LArgL : LONGINT
+    ; TRY RAISE Check2
+      EXCEPT Check2
+        => IF NOT IntSets . IsElement ( IntToken , GTokSetGE2Args )
+           THEN RETURN 1 END (*IF*)
+      END (*EXCEPT*) 
 
-  ; BEGIN
-      IF ArgNo > 0 THEN Wr . PutChar ( WrT , ',' )
-    ; LArgL := FM3Compress . GetBwd ( RBT )
-    ; Wr . PutChar ( WrT , 'H' ) 
-    ; Wr . PutText ( WrT , Fmt . Long ( LArgL ) ) 
-    END DobColNoArg 
+    ; TRY RAISE Check3
+      EXCEPT Check3
+        => IF NOT IntSets . IsElement ( IntToken , GTokSetGE3Args )
+           THEN RETURN 2 END (*IF*)
+      END (*EXCEPT*) 
 
-; PROCEDRE DobPosArg ( ArgNo : INTEGER )
-  = VAR LLineL , LColL: LONGINT
+    ; TRY RAISE Check4
+      EXCEPT Check4
+        => IF NOT IntSets . IsElement ( IntToken , GTokSetGE4Args )
+           THEN RETURN 3 END (*IF*)
+      END (*EXCEPT*) 
 
-  ; BEGIN
-      IF ArgNo > 0 THEN Wr . PutChar ( WrT , ',' )
-    ; LLineL := FM3Compress . GetBwd ( RBT )
-    ; LColL := FM3Compress . GetBwd ( RBT )
-    ; Wr . PutChar ( WrT , '[' ) 
-    ; Wr . PutText ( WrT , Fmt . Long ( LLineL ) ) 
-    ; Wr . PutChar ( WrT , ',' ) 
-    ; Wr . PutText ( WrT , Fmt . Long ( LLineL ) ) 
-    ; Wr . PutChar ( WrT , ']' ) 
+    ; TRY RAISE Check5
+      EXCEPT Check5
+        => IF NOT IntSets . IsElement ( IntToken , GTokSetGE5Args )
+           THEN RETURN 4 END (*IF*)
+      END (*EXCEPT*) 
 
-    END DobPosArg 
+    ; TRY RAISE Check6
+      EXCEPT Check6
+        => IF NOT IntSets . IsElement ( IntToken , GTokSetGE6Args )
+           THEN RETURN 5 END (*IF*)
+      END (*EXCEPT*)
 
-; PROCEDRE DobBoolArg ( ArgNo : INTEGER )
-  = VAR LArgL : LONGINT
-  ; VAR LVal : TEXT 
+    ; RETURN 6
 
-  ; BEGIN
-      IF ArgNo > 0 THEN Wr . PutChar ( WrT , ',' )
-    ; LArgL := FM3Compress . GetBwd ( RBT )
-    ; IF LArgL = 0L THEN LVal := "FALSE" ELSE LVal := "TRUE" END (*IF*)  
-    ; Wr . PutText ( WrT , LVal) 
-    END DobBoolArg 
-
-; PROCEDRE DobIdentAtomArg ( ArgNo : INTEGER )
-  = VAR LArgL : LONGINT
-(*TODO: track down and display the atom's ident. *) 
-  ; BEGIN
-      IF ArgNo > 0 THEN Wr . PutChar ( WrT , ',' )
-    ; LArgL := FM3Compress . GetBwd ( RBT )
-    ; Wr . PutChar ( WrT , 'A' ) 
-    ; Wr . PutText ( WrT , Fmt . Long ( LArgL ) ) 
-    END DobAtomIdentArg 
-
-; PROCEDRE DobDeclNoArg ( ArgNo : INTEGER )
-  = VAR LArgL : LONGINT
-(*TODO: track down and display the decl's ident. *) 
-  ; BEGIN
-      IF ArgNo > 0 THEN Wr . PutChar ( WrT , ',' )
-    ; LArgL := FM3Compress . GetBwd ( RBT )
-    ; Wr . PutChar ( WrT , 'D' ) 
-    ; Wr . PutText ( WrT , Fmt . Long ( LArgL ) ) 
-    END DobDeclNoArg 
-
-; PROCEDRE DobCoordArg ( ArgNo : INTEGER )
-  = VAR LArgL : LONGINT
-(* TODO: Show this in hex (and decimal both? *) 
-  ; BEGIN
-      IF ArgNo > 0 THEN Wr . PutChar ( WrT , ',' )
-    ; LArgL := FM3Compress . GetBwd ( RBT )
-    ; Wr . PutChar ( WrT , 'C' ) 
-    ; Wr . PutText ( WrT , Fmt . Long ( LArgL ) ) 
-    END DodCoordArg 
+(* A brute-force way:
+      IF NOT IntSets . IsElement ( IntToken , GTokSetGE1Arg )
+      THEN RETURN 0 
+      ELSIF NOT IntSets . IsElement ( IntToken , GTokSetGE2Args )
+      THEN RETURN 1 
+      ELSIF NOT IntSets . IsElement ( IntToken , GTokSetGE3Args )
+      THEN RETURN 2 
+      ELSIF NOT IntSets . IsElement ( IntToken , GTokSetGE4Args )
+      THEN RETURN 3 
+      ELSIF NOT IntSets . IsElement ( IntToken , GTokSetGE5Args )
+      THEN RETURN4 
+      ELSIF NOT IntSets . IsElement ( IntToken , GTokSetGE6Args )
+      THEN RETURN 5 
+      ELSE RETURN 6
+*)
+    END NumArgCt 
 
 (*EXPORTED:*) 
 ; PROCEDURE DisassWOperandsBwd ( RBT : RdBackFile . T ; WrT : Wr . T )
 
   = VAR LTokenL : LONGINT
-  ; VAR LToken : INTEGER 
+  ; VAR LToken : INTEGER
+  ; VAR LArgNo : INTEGER
+  ; VAR LArgCt : INTEGER
+  ; VAR LArgRdT : Rd . T
+  ; VAR LArgChar : CHAR 
+
+  ; PROCEDURE DobPutOpnd ( Label : TEXT ) RAISES { RdBackFile . BOF } 
+
+    = VAR LOpndL : LONGINT
+    
+    ; BEGIN
+        LOpndL := PutPrefix ( RBT , WrT )
+      ; Wr . PutText ( WrT , OpndIndent ) 
+      ; Wr . PutText ( WrT , Label ) 
+      ; Wr . PutText ( WrT , Fmt . LongInt ( LOpndL ) )
+      ; Wr . PutText ( WrT , Wr . EOL )
+      END DobPutOpnd  
+
+  ; PROCEDURE DobLongArg ( ArgNo : INTEGER ; Tag : CHAR )
+    = VAR LArgL : LONGINT
+
+    ; BEGIN
+        IF ArgNo > 0 THEN Wr . PutChar ( WrT , ',' ) END (*IF*) 
+      ; LArgL := FM3Compress . GetBwd ( RBT )
+      ; Wr . PutChar ( WrT , Tag ) 
+      ; Wr . PutText ( WrT , Fmt . LongInt ( LArgL ) ) 
+      ; Wr . PutText ( WrT , "(16_" ) 
+      ; Wr . PutText ( WrT , Fmt . LongUnsigned ( LArgL , 16 ) ) 
+      ; Wr . PutChar ( WrT , ')') 
+      END DobLongArg 
+
+  ; PROCEDURE DobBoolArg ( ArgNo : INTEGER )
+    = VAR LArgL : LONGINT
+    ; VAR LVal : TEXT 
+
+    ; BEGIN
+        IF ArgNo > 0 THEN Wr . PutChar ( WrT , ',' ) END (*IF*)
+      ; LArgL := FM3Compress . GetBwd ( RBT )
+      ; IF LArgL = 0L THEN LVal := "FALSE" ELSE LVal := "TRUE" END (*IF*)  
+      ; Wr . PutText ( WrT , LVal) 
+      END DobBoolArg 
+
+  ; PROCEDURE DobLineNoArg ( ArgNo : INTEGER )
+    = VAR LArgL : LONGINT
+
+    ; BEGIN
+        IF ArgNo > 0 THEN Wr . PutChar ( WrT , ',' ) END (*IF*)
+      ; LArgL := FM3Compress . GetBwd ( RBT )
+      ; Wr . PutChar ( WrT , 'N' ) 
+      ; Wr . PutText ( WrT , Fmt . LongInt ( LArgL ) ) 
+      END DobLineNoArg 
+
+  ; PROCEDURE DobColNoArg ( ArgNo : INTEGER )
+    = VAR LArgL : LONGINT
+
+    ; BEGIN
+        IF ArgNo > 0 THEN Wr . PutChar ( WrT , ',' ) END (*IF*)
+      ; LArgL := FM3Compress . GetBwd ( RBT )
+      ; Wr . PutChar ( WrT , 'H' ) 
+      ; Wr . PutText ( WrT , Fmt . LongInt ( LArgL ) ) 
+      END DobColNoArg 
+
+  ; PROCEDURE DobPosArg ( ArgNo : INTEGER )
+    = VAR LLineL , LColL: LONGINT
+
+    ; BEGIN
+        IF ArgNo > 0 THEN Wr . PutChar ( WrT , ',' ) END (*IF*)
+      ; LLineL := FM3Compress . GetBwd ( RBT )
+      ; LColL := FM3Compress . GetBwd ( RBT )
+      ; Wr . PutChar ( WrT , '[' ) 
+      ; Wr . PutText ( WrT , Fmt . LongInt ( LLineL ) ) 
+      ; Wr . PutChar ( WrT , ',' ) 
+      ; Wr . PutText ( WrT , Fmt . LongInt ( LLineL ) ) 
+      ; Wr . PutChar ( WrT , ']' ) 
+
+      END DobPosArg 
+
+  ; PROCEDURE DobIdentAtomArg ( ArgNo : INTEGER )
+
+    = VAR LArgL : LONGINT
+    ; VAR LIdentOAChars : FM3OpenArray_Char . T 
+    ; VAR LIdentName : TEXT 
+
+    ; BEGIN
+        IF ArgNo > 0 THEN Wr . PutChar ( WrT , ',' ) END (*IF*)
+      ; LArgL := FM3Compress . GetBwd ( RBT )
+      ; WITH WUnitRef = FM3Units . UnitStackTopRef
+        DO IF WUnitRef = NIL
+          THEN LIdentName := "<NoUnit>"
+          ELSIF FM3Atom_OAChars . Key 
+                  ( WUnitRef ^ . UntIdentAtomDict
+                  , VAL ( LArgL , FM3Base . AtomTyp )
+                  , (*OUT*) LIdentOAChars
+                  )
+          THEN
+            LIdentName := Text . FromChars ( LIdentOAChars ^ ) 
+          ELSE LIdentName := "<NoName>" 
+          END (*IF*)
+        ; Wr . PutChar ( WrT , 'I' ) 
+        ; Wr . PutText ( WrT , Fmt . LongInt ( LArgL ) )
+        ; Wr . PutChar ( WrT , '(' ) 
+        ; Wr . PutText ( WrT , LIdentName )
+        ; Wr . PutChar ( WrT , ')' ) 
+        END (*WITH*)
+      END DobIdentAtomArg 
+
+  ; PROCEDURE DobDeclNoArg ( ArgNo : INTEGER )
+    = VAR LArgL : LONGINT
+  (*TODO: track down and display the decl's ident. *) 
+    ; BEGIN
+        IF ArgNo > 0 THEN Wr . PutChar ( WrT , ',' ) END (*IF*)
+      ; LArgL := FM3Compress . GetBwd ( RBT )
+      ; Wr . PutChar ( WrT , 'D' ) 
+      ; Wr . PutText ( WrT , Fmt . LongInt ( LArgL ) ) 
+      END DobDeclNoArg 
+
+  ; PROCEDURE DobCoordArg ( ArgNo : INTEGER )
+    = VAR LArgL : LONGINT
+  (* TODO: Show this in hex (and decimal both? *) 
+    ; BEGIN
+        IF ArgNo > 0 THEN Wr . PutChar ( WrT , ',' ) END (*IF*)
+      ; LArgL := FM3Compress . GetBwd ( RBT )
+      ; Wr . PutChar ( WrT , 'C' ) 
+      ; Wr . PutText ( WrT , Fmt . LongInt ( LArgL ) ) 
+      END DobCoordArg 
 
   ; BEGIN (* DisassWOperandsBwd *) 
       LoadResources ( ) 
     ; TRY 
-        LOOP (* Thru' token-with-operands groups. *) 
-          LTokenL := DumpPrefix ( RBT , WrT )
-        ; IF Long . LE ( LTokenL , VAL ( LAST ( INTEGER ) , LONGINT ) )
+        LOOP (* Thru' token-with-args groups. *) 
+          LTokenL := PutPrefix ( RBT , WrT )
+        ; IF Long . LE
+               ( LTokenL , VAL ( LAST ( INTEGER ) , LONGINT ) )
           THEN (* Nonneg INTEGER *) 
             LToken := VAL ( LTokenL , INTEGER ) 
 
@@ -334,7 +477,8 @@ MODULE DumpWork
             , FM3SrcToks . StkRealLit 
             , FM3SrcToks . StkLongRealLit 
             , FM3SrcToks . StkExtendedLit 
-              => PushOACharsBwd ( WRdBack , FM3Scanner . Attribute . SaChars )
+              => PushOACharsBwd
+                   ( WRdBack , FM3Scanner . Attribute . SaChars )
             | FM3SrcToks . StkTextLit 
               => PushOACharsBwd
                    ( WRdBack , FM3Scanner . Attribute . SaChars )
@@ -345,12 +489,15 @@ MODULE DumpWork
             , FM3SrcToks . StkWideCharLit 
               => FM3Compress . PutBwd
                    ( WRdBack
-                   , VAL ( ORD ( FM3Scanner . Attribute . SaWCh ) , LONGINT ) 
+                   , VAL ( ORD ( FM3Scanner . Attribute . SaWCh )
+                         , LONGINT
+                         ) 
                    )
-            | FM3SrcToks . StkLexErrChars => Throw these away, for now. 
           *) 
+            | FM3SrcToks . StkLexErrChars
+              => (* Throw these away, for now. *) 
 
-            | FM3SrcToks . TkMinTok .. FM3SrcToks . TkMaxTok 
+            | FM3SrcToks . StkRwAND .. FM3SrcToks . StkClosePragma  
             =>  (* Constant terminal: (will this ever happen? *)
                 Wr . PutText ( WrT , " " ) 
               ; Wr . PutText ( WrT , FM3SrcToks . Image ( LToken ) )
@@ -363,60 +510,81 @@ MODULE DumpWork
             ; Wr . PutText ( WrT , Wr . EOL )
 
             (* Display operands. *) 
-            ; LArgCt := ArgCt ( LToken )
             ; LArgNo := 0
-            ; LArgRdT := TextRd . New ( ArgString ( LToken ) )
+            ; LArgRdT
+                := TextRd . New ( FM3IntToks . Operands ( LToken) )
             ; LArgChar := Rd . GetChar ( LArgRdT ) 
             ; Wr . PutChar ( WrT , '(' ) 
-            ; LOOP (* Thru' operands. *)
-                IF Rd . EOF ( LArgString )
-                THEN WHILE LArgNo < LArgCt
-                  DO (* Counted argument. *)
-                    DobIntArg ( LArgNo )
-                  ; INC ( LArgNo ) 
-                  END (*WHILE*)
-                ; EXIT 
-                ELSE (* A string-defined arg. *)
-                  (* INVARIANT: NOT Rd . EOF ( LArgRdT ) *) 
-                  LArgChar := Rd . GetChar ( LArgRdT )
-                ; IF LArgChar = '_'
-                  THEN
-                    IF NOT Rd . EOF ( LArgRdT )
-                    THEN 
-                      LArgChar := Rd . GetChar ( LArgRdT )
-                    ; CASE LArgChar OF
-                      | 'I' => DobIntArg ( LArgNo )
-                      | 'B' => DobBoolArg ( )
-                      | 'D' => DobDeclNoArg ( )
-                      | 'P' => DobPositiohArg ( )
-                      | 'B' => DobColNoArg ( )
-                      | 'L' => (* Is it "_L_B"? 
-                          IF Rd . EOF ( LArgRdT )
-                          THEN DobLineNoArg ( )
-                          ELSE
-                            LArgChar := Rd . GetChar ( LArgRdT )
-                          ; IF LArgChar = '_' AND NOT Rd . EOF ( LArgRdT )
-                            THEN
-                              LArgChar := Rd . GetChar ( LArgRdT )
-                            ; IF LArgChar = 'B'
-                              THEN DobPositionArg ( )
-                              END (*IF*) 
-                            END (*IF*) 
-                          END (*IF*)
+            ; LOOP (* Thru' arguments. *)
+                IF Rd . EOF ( LArgRdT )
+                THEN (* No more string-defined args. *)
+                  EXIT 
+                END (*IF*) 
+              ; LArgChar := Rd . GetChar ( LArgRdT )
+              (* Arg does not necessarily have a leadnhg '_' *)
+              ; IF LArgChar = '_'
+                THEN
+                  IF Rd . EOF ( LArgRdT )
+                  THEN EXIT
+                  ELSE 
+                    LArgChar := Rd . GetChar ( LArgRdT )
+                  END (*IF*)
+                ; CASE LArgChar OF
+                  | 'L' => DobLongArg ( LArgNo , 'L' )
+                  | 'B' => DobBoolArg ( LArgNo )
+                  | 'N' => (* Is it "_N_H"? *)  
+                      IF Rd . EOF ( LArgRdT )
+                      THEN
+                        DobLineNoArg ( LArgNo )
+                      ; EXIT 
                       ELSE
-                      END (*CASE*) 
-                    END (*IF*) 
-                  END (*IF*) 
+                        LArgChar := Rd . GetChar ( LArgRdT )
+                      ; IF LArgChar # '_'
+                        THEN
+                          Rd . UnGetChar ( LArgRdT )
+                        ; DobLineNoArg ( LArgNo )
+                        ELSIF Rd . EOF ( LArgRdT )
+                        THEN
+                          DobLineNoArg ( LArgNo )
+                        ; EXIT 
+                        ELSIF LArgChar = 'H'
+                        THEN DobPosArg ( LArgNo )
+                        ELSE
+                          Rd . UnGetChar ( LArgRdT )
+                        ; DobLineNoArg ( LArgNo )
+                        (* Go around for another arg letter, whose
+                           leading '_' is in this case, already
+                           consumed.
+                        *)  
+                        END (*IF*) 
+                      END (*IF*)
+                  | 'H' => DobColNoArg ( LArgNo )
+                  | 'P' => DobPosArg ( LArgNo )
+                  | 'I' => DobIdentAtomArg ( LArgNo )
+                  | 'D' => DobDeclNoArg ( LArgNo )
+                  | 'C' => DobCoordArg ( LArgNo )
+                  ELSE
+                    DobLongArg ( LArgNo , '?' )
+                  END (*CASE*)
                 END (*IF*)
-              END (*LOOP*) 
+              END (*LOOP*)
+              
+            ; LArgCt := NumArgCt ( LToken , LArgNo )
+            ; WHILE LArgNo < LArgCt
+              DO (* Counted argument. *)
+                DobLongArg ( LArgNo , 'L' )
+              ; INC ( LArgNo ) 
+              END (*WHILE*)
             ; Wr . PutChar ( WrT , ')' ) 
             ELSE (* Don't know what this token is. *) 
-              Wr . PutText ( WrT , " unknown>" ) 
+              Wr . PutText ( WrT , " <unknown token:> " )
+            ; Wr . PutText ( WrT , Fmt . LongInt ( LTokenL ) )
             ; Wr . PutText ( WrT , Wr . EOL )
             END (*CASE*)
 
           ELSE (* out of nonneg INTEGER range *) 
-            Wr . PutText ( WrT , " unknown, negative>" ) 
+            Wr . PutText ( WrT , " <unknown token, out of range:> " ) 
+          ; Wr . PutText ( WrT , Fmt . LongInt ( LTokenL ) )
           ; Wr . PutText ( WrT , Wr . EOL )
           END (*IF*)
         END (*LOOP*)
@@ -457,6 +625,6 @@ MODULE DumpWork
 
 ; BEGIN
     GResourcesLoaded := FALSE  
-  END DumpWork
+  END FM3Disass
 .
 

@@ -418,7 +418,7 @@ MODULE FM3ParsePass
     ; Log ( "Compiling " , SrcFileName , "..." ) 
     ; LUnitRef ^ . UntParseResult := FM3Parser . FM3Parser ( )
 (* TODO:           ^Something with this? *) 
-    ; FM3Parser . CloseFM3Parser  ( )
+    ; FM3Parser . CloseFM3Parser ( )
 
 ; Unnest ( LUnitRef ^ . UntUnnestStackEmpty ) 
 

@@ -62,7 +62,7 @@ INTERFACE FM3ParsePass
 
 (* Here is the naming code, of namings of these Push_<x> procedures:
 
-   Each of the Push_<x> procedures pushes a list of things onto the unnest stack.
+   Each of the Push_<x> procedures pushes a list of things on the unnest stack.
    The letters after the "_" encode what that is.  The letters in the code and
    the parameters are in left-to-right order, for ease of thought but the actual
    pushing is in the reverse order, because this stuff needs to be popped

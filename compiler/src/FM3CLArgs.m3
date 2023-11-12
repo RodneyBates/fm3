@@ -88,7 +88,9 @@ MODULE FM3CLArgs
       ; CASE LArgChar
         OF 'v' => RAISE HelpExc  ( FALSE )  
         | 'h' => RAISE HelpExc  ( TRUE )
-        | 's' => SrcFileName := PaHyphenArgWMore ( )  
+        | 's' => SrcFileName := PaHyphenArgWMore ( )
+        | 'd' => DoDisass := TRUE
+        | 'k' => DoKeep := TRUE 
         | 'I'
           => LMore := PaHyphenArgWMore ( )
           ; GSourceDirNames
@@ -140,6 +142,10 @@ MODULE FM3CLArgs
 ; PROCEDURE DisplayHelp ( )
 
   = BEGIN
+
+(* FIXME: This is from the gentok program.  Put the right stuff in here. *) 
+
+
       Wr . PutText ( Stdio . stderr , "Usage: ") 
     ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
     ; Wr . PutText ( Stdio . stderr , Params . Get ( 0 ) ) 
@@ -229,6 +235,9 @@ MODULE FM3CLArgs
     ; DoKeep := TRUE (* Temporary, during development *)
         (* Keep intermediate files. *)
 
+    ; DoDisass := TRUE (* Temporary, during development *) 
+        (* Disassemble intermediate files. *)
+
     ; FM3Messages . DoStdErr := TRUE
         (* Write compilation process messages to stderr. *)
 
@@ -257,7 +266,10 @@ MODULE FM3CLArgs
 ; PROCEDURE ComputeDerivedInfo ( ) 
 
   = BEGIN
-      IF FM3Messages . DoLog
+
+      DoKeep := DoKeep OR DoDisass
+      
+    ; IF FM3Messages . DoLog
       THEN 
         TRY FM3Messages . LogFileWrT
               := FileWr . Open ( FM3Messages . LogFileName ) 

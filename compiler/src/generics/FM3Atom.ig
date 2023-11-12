@@ -43,7 +43,7 @@ GENERIC INTERFACE FM3Atom ( DictGenformal )
   : T 
   (* A new, empty table of Key-value/atom pairs. 
      InitSize is an initial estimate of the eventual number of Keys. 
-     New will expand Internal allocations asneeded.
+     New will expand Internal allocations as needed.
   *)
   
 ; PROCEDURE MakeAtom
