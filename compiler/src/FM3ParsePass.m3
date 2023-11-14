@@ -150,26 +150,27 @@ MODULE FM3ParsePass
 
 ; CONST UnitLogSuffix = ".log" 
 
-; PROCEDURE OpenUnit ( FileName : TEXT ) : FM3Units . UnitRefTyp
+; PROCEDURE OpenUnit ( SrcFileName : TEXT ) : FM3Units . UnitRefTyp
 
   = VAR LFullFileName : TEXT 
-  ; VAR LPathPrefix : TEXT 
+  ; VAR LSimpleSrcFileName : TEXT 
+  ; VAR LSrcFilePath : TEXT 
   ; VAR LUniRd : UniRd . T
   ; VAR LUnitRef : FM3Units . UnitRefTyp 
 
   ; BEGIN
     (* Open source file. *) 
-      LPathPrefix := Pathname . Prefix ( FileName )
+      LSrcFilePath := Pathname . Prefix ( SrcFileName )
+    ; LSimpleSrcFileName := Pathname . Last ( SrcFileName )
     ; LUniRd
         := FM3Files . OpenUniRd
-             ( FileName , LPathPrefix , "source file " , NIL ) 
+             ( LSimpleSrcFileName , LSrcFilePath , "source file " , NIL ) 
     ; LUnitRef := FM3Units . NewUnitRef ( )
-    ; LUnitRef ^ . UntSrcFileName := FileName 
-    ; LUnitRef ^ . UntSrcFilePrefix := LPathPrefix
+    ; LUnitRef ^ . UntSrcFileName := LSimpleSrcFileName 
+    ; LUnitRef ^ . UntSrcFilePath := LSrcFilePath
     
     (* Create the log output file. A pure text file. *) 
-    ; LUnitRef ^ . UntLogName := FileName & UnitLogSuffix
-    ; LUnitRef ^ . UntWorkFilePrefix := FM3Globals . BuildDirName  
+    ; LUnitRef ^ . UntLogName := SrcFileName & UnitLogSuffix
 
     ; TRY LUnitRef ^ . UntLogWrT
             := FileWr . Open ( LUnitRef ^ . UntLogName ) 
@@ -190,20 +191,21 @@ MODULE FM3ParsePass
       ; LUnitRef ^ . UntLogWrT := NIL 
       END (*EXCEPT*)
 
-    (* Create the three readback files. *) 
-    ; LUnitRef ^ . UntWorkFilePrefix := FM3Globals . BuildDirName  
-(* TODO: Provide a path here. *) 
+    (* Create build files for the unit. *) 
+    ; LUnitRef ^ . UntBuildDirPath
+        := LSrcFilePath & "/" & FM3Globals . BuildDirRelPath
+(* TODO: Use Pathname to construct paths so works in Windows too. *) 
     ; LUnitRef ^ . UntPatchStackName
-        := FileName & FM3Globals . PatchStackSuffix   
+        := SrcFileName & FM3Globals . PatchStackSuffix   
     ; LUnitRef ^ . UntUnnestStackName
-        := FileName & FM3Globals . UnnestStackSuffix   
+        := SrcFileName & FM3Globals . UnnestStackSuffix   
     ; LUnitRef ^ . UntParsePassName
-        := FileName & FM3Globals . ParsePassSuffix   
+        := SrcFileName & FM3Globals . ParsePassSuffix   
     ; TRY (*EXCEPT*)
-        (* Heh, heh.  Only code the exception handler once for all 3 files. *) 
+        (* Heh, heh.  Only code the exception handler once for all files. *) 
         LFullFileName
           := Pathname . Join
-               ( LUnitRef ^ . UntWorkFilePrefix 
+               ( LUnitRef ^ . UntBuildDirPath 
                , LUnitRef ^ . UntUnnestStackName
                , NIL
                )
@@ -212,7 +214,7 @@ MODULE FM3ParsePass
           
       ; LFullFileName
           := Pathname . Join
-               ( LUnitRef ^ . UntWorkFilePrefix 
+               ( LUnitRef ^ . UntBuildDirPath 
                , LUnitRef ^ . UntPatchStackName
                , NIL
                ) 
@@ -221,12 +223,18 @@ MODULE FM3ParsePass
       
       ; LFullFileName
           := Pathname . Join
-               ( LUnitRef ^ . UntWorkFilePrefix 
+               ( LUnitRef ^ . UntBuildDirPath 
                , LUnitRef ^ . UntParsePassName
                , NIL
                )
       ; LUnitRef ^ . UntParsePassRdBack
           := RdBackFile . Create ( LFullFileName , Truncate := TRUE )
+      ; IF FM3CLArgs . DoDisass
+        THEN
+          LUnitRef ^ . UntParsePassDisassRdBack
+            := RdBackFile . Create
+                 ( LFullFileName & FM3Globals . DisassSuffix, Truncate := TRUE )
+        END (*IF*) 
       EXCEPT
       | OSError . E ( EMsg ) 
       => FatalArr
@@ -320,13 +328,13 @@ MODULE FM3ParsePass
     ; RETURN LUnitRef 
     END OpenUnit 
 
-; PROCEDURE DeleteFile ( PathPrefix , FileName : TEXT ) 
+; PROCEDURE DeleteFile ( PathPrefix , SrcFileName : TEXT ) 
 
   = BEGIN 
       TRY  
-        FS . DeleteFile ( Pathname . Join ( PathPrefix , FileName , NIL ) ) 
+        FS . DeleteFile ( Pathname . Join ( PathPrefix , SrcFileName , NIL ) ) 
       EXCEPT OSError . E ( EMsg )
-      => Log ( "Unable to remove " , FileName , ": " , ALOSE ( EMsg ) , "." 
+      => Log ( "Unable to remove " , SrcFileName , ": " , ALOSE ( EMsg ) , "." 
              ) 
       END (*EXCEPT*) 
     END DeleteFile 
@@ -359,7 +367,7 @@ MODULE FM3ParsePass
             )
         END (*IF*)
       FINALLY 
-        RdBackFile . Close (  UnitRef ^ . UntPatchStackRdBack )
+        RdBackFile . Close (  UnitRef ^ . UntPatchStackRdBack , 0L )
       ; IF NOT FM3CLArgs . DoKeep
         THEN FS . DeleteFile ( UnitRef ^ . UntPatchStackName )
         END (*IF*)
@@ -389,7 +397,7 @@ MODULE FM3ParsePass
             )
         END (*IF*)
       FINALLY 
-        RdBackFile . Close (  UnitRef ^ . UntUnnestStackRdBack )
+        RdBackFile . Close (  UnitRef ^ . UntUnnestStackRdBack , - 1L)
       ; IF NOT FM3CLArgs . DoKeep
         THEN FS . DeleteFile ( UnitRef ^ . UntUnnestStackName )
         END (*IF*)
@@ -401,7 +409,7 @@ MODULE FM3ParsePass
               ( RdBackFile . LengthL ( UnitRef ^ . UntParsePassRdBack) ) 
           , " bytes."
           ) 
-    ; RdBackFile . Close (  UnitRef ^ . UntParsePassRdBack )
+    ; RdBackFile . Close (  UnitRef ^ . UntParsePassRdBack , - 1L ) 
 (* TODO: code point counts. *)
     END CloseUnit
 
@@ -1158,7 +1166,7 @@ MODULE FM3ParsePass
 (* FIXME: But the copied portion will not have BOF and LeftEnd tokens. *) 
       ; RdBackFile . Copy
           ( LUnnestRdBack
-          , FM3Globals . BuildDirName & "UnnestCopy"
+          , FM3Globals . BuildDirRelPath & "UnnestCopy"
           , LMUnnestDepth
           )
       ; EVAL GetBwd ( LUnitRef ^ . UntUnnestStackRdBack ) 

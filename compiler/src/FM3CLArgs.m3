@@ -97,7 +97,7 @@ MODULE FM3CLArgs
               := AtomList . Cons
                    ( Atom . FromText ( LMore ) , GSourceDirNames )
         | 'B'
-          => FM3Globals . BuildDirName := PaHyphenArgWMore ( ) 
+          => FM3Globals . BuildDirRelPath := PaHyphenArgWMore ( ) 
         ELSE RAISE HelpExc  ( TRUE )
         END (*CASE*)
       END PaHyphenArg 
@@ -229,7 +229,7 @@ MODULE FM3CLArgs
     ; BEGIN
       GSourceDirNames := NIL 
     ; GFileNames := NIL 
-    ; FM3Globals . BuildDirName := "../build"
+    ; FM3Globals . BuildDirRelPath := "../build"
     ; SrcFileName := "test1.m3" (* Temporary, during development *)
 
     ; DoKeep := TRUE (* Temporary, during development *)
@@ -243,7 +243,7 @@ MODULE FM3CLArgs
 
     ; FM3Messages . DoLog := TRUE
         (* Write compilation process messages to compiler log file. *)
-    ; FM3Messages . LogFileName := FM3Globals . BuildDirName & "/FM3Log"
+    ; FM3Messages . LogFileName := FM3Globals . BuildDirRelPath & "/FM3Log"
 
     ; FM3Messages . DoStdOut := TRUE
         (* Write compiled code messages to stdout. *)

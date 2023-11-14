@@ -53,8 +53,8 @@ MODULE FM3Units
     ; LUnitRef . UntStackLink := NIL 
     ; LUnitRef . UntUnitNo := LUnitNo
     ; LUnitRef . UntSrcFileName := NIL 
-    ; LUnitRef . UntSrcFilePrefix := NIL(* Without simple name. *) 
-    ; LUnitRef . UntWorkFilePrefix := NIL
+    ; LUnitRef . UntSrcFilePath := NIL
+    ; LUnitRef . UntBuildDirPath := NIL
     ; LUnitRef . UntPatchStackName := NIL
     ; LUnitRef . UntPatchStackRdBack := NIL
     ; LUnitRef . UntMaxPatchStackDepth := 0L 

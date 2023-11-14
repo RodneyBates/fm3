@@ -175,7 +175,9 @@ MODULE FM3Messages
     ; LUnitRef := FM3Units . UnitStackTopRef 
     ; IF LUnitRef # NIL
       THEN
-        Wr . PutText ( LWrT , LUnitRef . UntSrcFileName )
+        Wr . PutText ( LWrT , LUnitRef . UntSrcFilePath )
+      ; Wr . PutChar ( LWrT , ' ' ) 
+      ; Wr . PutText ( LWrT , LUnitRef . UntSrcFileName )
       ; LBlankNeeded := TRUE 
       END (*IF*)
 

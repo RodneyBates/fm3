@@ -387,10 +387,15 @@ MODULE RdBackFile
 ; PROCEDURE TempFileName ( OrigFileName : TEXT ) : TEXT
 
   = BEGIN
-      RETURN OrigFileName & "tempA3v6JT9" 
+      RETURN OrigFileName & "_tempA3v6JT9"
+(* TODO: Get a non-constant temp file name suffix, or maybe MUTEX
+         the copy operation. *) 
     END TempFileName 
 
-; PROCEDURE InnerCopy ( RbFile : T ; CopyFile : T )
+; PROCEDURE InnerCopy ( RbFile : T ; CopyFile : T ; TruncTo : LONGINT ) 
+  (* PRE: RbFile is open. *)
+  (* PRE: TruncTo IN [ 0L .. RbFile . RbDiskLenghtL ] *) 
+  (* PRE: CopyFile is open and empty. *) 
 
   = VAR LFullBlockCt : INTEGER (*I.e., count of full blocks. *)
   ; VAR LTotalBlockCt : INTEGER
@@ -398,10 +403,8 @@ MODULE RdBackFile
   ; VAR LBuffer : BlockTyp  
 
   ; BEGIN (*InnerCopy*)
-      LFullBlockCt
-        := VAL ( RbFile . RbLengthL DIV BlockSizeL , INTEGER ) 
-    ; LPartialBlockSize 
-        := VAL ( RbFile . RbLengthL MOD BlockSizeL , INTEGER )
+      LFullBlockCt := VAL ( TruncTo DIV BlockSizeL , INTEGER ) 
+    ; LPartialBlockSize := VAL ( TruncTo MOD BlockSizeL , INTEGER )
     ; LTotalBlockCt
         := LFullBlockCt + ORD ( LPartialBlockSize > 0 )  
     ; FOR RBlockNo := 0 TO LFullBlockCt - 1
@@ -446,20 +449,27 @@ MODULE RdBackFile
     END InnerCopy
       
 (*EXPORTED*)
-; PROCEDURE Copy ( RbFile : T ; CopyFileName : TEXT ; LMUnnestDepth : LONGINT )
+; PROCEDURE Copy
+    ( RbFile : T ; CopyFileName : TEXT ; TruncTo : LONGINT )
+  (* PRE: RbFile is open. *)
+  (* PRE: TruncTo IN [ 0L .. RbFile . RbDiskLenghtL ] *) 
+  (* PRE: file named CopyFileName is open. *) 
 
   = VAR LCopyFile : T 
 
   ; BEGIN (*Copy*)
       LCopyFile := Create ( CopyFileName , Truncate := TRUE )
-    ; InnerCopy ( RbFile , LCopyFile ) 
+    ; InnerCopy ( RbFile , LCopyFile , TruncTo ) 
     ; SimpleClose ( LCopyFile ) 
     END Copy
 
 (*EXPORTED*)
-; PROCEDURE Close ( RbFile : T ) 
+; PROCEDURE Close ( RbFile : T ; TruncTo : LONGINT )
+  (* TruncTo < 0 means max length. *) 
 
-  = VAR LTempFile : T
+
+  = VAR LTruncTo : LONGINT
+  ; VAR LTempFile : T
   ; VAR LFileName : TEXT
   ; VAR LTempFileName : TEXT
 
@@ -475,14 +485,19 @@ MODULE RdBackFile
           , RbFile . RbBuffer
           , "Close"
           )
+      END (*IF*)
+
+    ; IF TruncTo < 0L THEN LTruncTo := RbFile . RbLengthL
+      ELSE LTruncTo := MIN ( TruncTo , RbFile . RbMaxLengthL )
       END (*IF*) 
 
     ; IF FALSE (* Disable this for now, because: *) 
                (* But we don't have even a full Truncate library call. *)
-         AND RbFile . RbLengthL = 0L
+         AND LTruncTo = 0L
       THEN (* Make the disk file empty too. *)
+(* TODO: Get an OS truncate function and use it. *) 
         SimpleClose ( RbFile ) 
-      ELSIF RbFile . RbDiskLengthL = RbFile . RbLengthL
+      ELSIF LTruncTo = RbFile . RbDiskLengthL 
       THEN (* Disk is the exact length, no truncation needed. *)
         SimpleClose ( RbFile ) 
 
@@ -494,14 +509,14 @@ MODULE RdBackFile
          the latest RegularFile in the CM3 installation.  I don't what to
          get into that now, so am resorting to doing a partial copy of the
          disk file.  Yes, it's crude, inefficient, and entails a lot of
-         code to acheive such a simple result, but it's the path of least
+         code to achieve such a simple result, but it's the path of least
          resistance now. 
       *)
       
-        LTempFileName := TempFileName ( RbFile . RbFileName ) 
+        LFileName := RbFile . RbFileName (* Just paranoia. *) 
+      ; LTempFileName := TempFileName ( LFileName ) 
       ; LTempFile := Create ( LTempFileName , Truncate := FALSE )
-      ; InnerCopy ( RbFile , LTempFile ) 
-      ; LFileName := RbFile . RbFileName (* Just paranoia. *) 
+      ; InnerCopy ( RbFile , LTempFile , LTruncTo ) 
       ; SimpleClose ( RbFile ) 
       ; TRY FS . DeleteFile ( LFileName )
         EXCEPT OSError . E ( Code ) 

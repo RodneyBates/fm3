@@ -29,14 +29,15 @@ INTERFACE FM3Units
 ; TYPE UnitTyp
     = RECORD
         UntStackLink : UnitRefTyp := NIL 
-      ; UntSrcFileName : TEXT := NIL 
-      ; UntSrcFilePrefix : TEXT := NIL(* Without simple name. *)
+      ; UntSrcFileName : TEXT := NIL (* Simple name *) 
+      ; UntSrcFilePath : TEXT := NIL (* I.e, directory wherein UntSrcFileName lives. *) 
       ; UntLogName : TEXT := NIL 
       ; UntLogWrT : Wr . T := NIL 
-      ; UntWorkFilePrefix : TEXT := NIL
+      ; UntBuildDirPath : TEXT := NIL 
       (* ^Same for unnest stack, patch stack, and parse pass output file. *)  
       ; UntPatchStackName : TEXT := NIL
       ; UntPatchStackRdBack : RdBackFile . T := NIL
+      ; UntParsePassDisassRdBack : RdBackFile . T := NIL 
       ; UntMaxPatchStackDepth : LONGINT := 0L
       ; UntPatchStackEmpty : LONGINT := 0L
         (* ^Value of RdBackFile.LengthL when conceptually empty, but may be

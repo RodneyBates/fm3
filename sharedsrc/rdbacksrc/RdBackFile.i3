@@ -47,7 +47,8 @@ INTERFACE RdBackFile
 ; PROCEDURE IsEmpty ( RbFile : T ) : BOOLEAN RAISES { OSError . E }
   (* Possibly faster than LengthL(F)=0L. *) 
 
-; PROCEDURE Close ( RbFile : T ) 
+; PROCEDURE Close ( RbFile : T ; TruncTo : LONGINT )
+  (* TruncTo < 0 means max length. *) 
 
 ; PROCEDURE Put ( RbFile : T ; Value : ByteTyp )
   RAISES { Thread . Alerted , OSError . E }  
@@ -55,7 +56,11 @@ INTERFACE RdBackFile
 ; PROCEDURE GetBwd
     ( RbFile : T ; Consume := TRUE ) : ByteTyp RAISES { OSError . E , BOF }
 
-; PROCEDURE Copy ( RbFile : T ; CopyFileName : TEXT ; LMUnnestDepth : LONGINT )
+; PROCEDURE Copy ( RbFile : T ; CopyFileName : TEXT ; TruncTo : LONGINT )
+  (* PRE: RbFile is open. *)
+  (* PRE: TruncTo IN [ 0L .. RbFile . RbDiskLenghtL ] *) 
+  (* PRE: file named CopyFileName is open. *) 
+
 
 ; END RdBackFile
 .

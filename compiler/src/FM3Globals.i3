@@ -20,7 +20,9 @@ INTERFACE FM3Globals
 ; VAR PatchStackSuffix := ".Patch" (* The patch stack, during parse pass. *) 
 ; VAR UnnestStackSuffix := ".Unnest" (* The Unnest stack, during parse pass. *) 
 ; VAR ParsePassSuffix := ".ParsePass" (* Output of the parse pass. *)
-; VAR BuildDirName := "../build" 
+; VAR BuildDirRelPath := "../build"
+      (* ^Relative to where the current unit's source file lives. *)
+; VAR DisassSuffix := ".FM3Disass"
 
 ; VAR M3RwDict : FM3Dict_OAChars_Int . GrowableTyp  
 ; VAR PgRwDict : FM3Dict_OAChars_Int . GrowableTyp 
@@ -37,7 +39,7 @@ INTERFACE FM3Globals
 ; VAR FirstRealAtom := 1
 
 ; VAR ResourcePathName : TEXT := "."
-  (* ^Set this from a CLI option. *)
+  (* ^Push this from a CLI option. *)
 
 
 ; PROCEDURE Init ( ) 
