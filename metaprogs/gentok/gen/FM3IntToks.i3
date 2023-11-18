@@ -72,13 +72,13 @@ INTERFACE FM3IntToks
 ; CONST ItkLeftEnd                      (*ArgCt: 0*) =   131 (*16_83 01 *)
 (* LONE ItkRightEnd: *)
 ; CONST ItkRightEnd                     (*ArgCt: 0*) =   132 (*16_84 01 *)
-(* Atom, Line, Column. *)
+(* IdAtom, Line, Column. *)
 (* LONE ItkImport: *)
 ; CONST ItkImport                       (*ArgCt: 3*) =   133 (*16_85 01 *)
-(* (Atom, Line, Column) for interface, decl. *)
+(* (IdAtom, Line, Column) for interface, decl. *)
 (* LONE ItkFromImport: *)
 ; CONST ItkFromImport                   (*ArgCt: 6*) =   134 (*16_86 01 *)
-(* (Atom, Line, Column) for interface, as. *)
+(* (IdAtom, Line, Column) for interface, as. *)
 (* LONE ItkImportAs: *)
 ; CONST ItkImportAs                     (*ArgCt: 6*) =   135 (*16_87 01 *)
 (* LONE ItkFormalsListEmpty: *)
@@ -409,7 +409,7 @@ INTERFACE FM3IntToks
 
 (*
 
-FIXED ItkModule ATOM INT 2 (* Name, UnitNo. *)
+FIXED ItkModule IDENT INT 2 (* IdAtom , UnitNo. *)
         Begin
 . 
 

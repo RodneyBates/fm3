@@ -634,11 +634,13 @@ EXPORTS Main
         ELSIF Text . Equal ( GToken , "POS" ) 
         THEN
           INC ( LKindCt ) (* Position is 2 operands. *) 
-        ; AppendCoord ( "_L_B" ) 
+        ; AppendCoord ( "_P" ) 
         ELSIF Text . Equal ( GToken , "INT" ) 
-        THEN AppendCoord ( "_I" ) 
+        THEN AppendCoord ( "_L" ) 
         ELSIF Text . Equal ( GToken , "BOOL" ) 
         THEN AppendCoord ( "_B" ) 
+        ELSIF Text . Equal ( GToken , "IDENT" ) 
+        THEN AppendCoord ( "_I" )
         ELSIF Text . Equal ( GToken , "ATOM" ) 
         THEN AppendCoord ( "_A" )
         ELSIF Text . Equal ( GToken , "DECL" ) 
@@ -995,9 +997,9 @@ EXPORTS Main
       LRootName := GToken 
     ; GToken := GetSyntTok ( ) (* Consume the root name. *) 
     ; LArgCtOfList := 3 (* Count, position. *)
-    ; LArgStringOfList := "_L_B" 
+    ; LArgStringOfList := "_L_P" 
     ; LArgCtOfSep := 3 (* ElemNo, position. *) 
-    ; LArgStringOfSep := "_L_B" 
+    ; LArgStringOfSep := "_L_P" 
     ; IF GDoGenIntToks
       THEN 
         MaybePutMinTokNo ( ) 

@@ -427,7 +427,7 @@ MODULE FM3SharedUtils
 
 (*EXPORTED*) 
 ; PROCEDURE ReadSets
-    ( FileName : TEXT
+    ( FileName : TEXT (* Simple name. *)
     ; Kind : FileKindTyp
     ; VAR Temp : IntSets . T 
     ; VAR Patch : IntSets . T 
@@ -438,7 +438,12 @@ MODULE FM3SharedUtils
     ; VAR Arg5 : IntSets . T 
     ; VAR Arg6 : IntSets . T 
     )
-  RAISES { FatalError , Thread . Alerted } 
+  RAISES { FatalError , Thread . Alerted }
+
+(* TODO: Aside from LoadSets below, only DumpWork calls ReadSets.
+         Dump and DumpWork will likely be eliminated, so if so,
+         merge ReadSets into LoadSets.
+*) 
 
   = VAR LRdT : Rd . T
 
@@ -481,18 +486,14 @@ MODULE FM3SharedUtils
 
   = VAR LIntFilePrefix : TEXT 
   ; VAR LSetsName : TEXT 
-  ; VAR LSetsFullName : TEXT
 
   ; BEGIN
       IF NOT FM3SharedGlobals . GSetsLoaded
       THEN
         LIntFilePrefix := "FM3IntToks"
       ; LSetsName := FM3SharedGlobals . GIntFilePrefix & "Sets.pkl"
-      ; LSetsFullName
-          := Libm3Pathname . Join
-               ( FM3SharedGlobals . GResourceDirName , LSetsName , "pkl" )
       ; ReadSets
-          ( LSetsName (* NOT LSetsFullName *) 
+          ( LSetsName (* Simple name.  *) 
           , FM3SharedGlobals . FM3FileKindTokSetsPkl
           , FM3SharedGlobals . GTokSetTemp
           , FM3SharedGlobals . GTokSetPatch

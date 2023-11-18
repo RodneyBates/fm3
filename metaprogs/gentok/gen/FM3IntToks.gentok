@@ -29,9 +29,9 @@ LONE
      ItkRightEnd . 
 
 LONE
-ItkImport ATOM POS 3 (* Atom, Line, Column. *) .
-ItkFromImport ATOM POS ATOM POS 6 (* (Atom, Line, Column) for interface, decl. *) .
-ItkImportAs ATOM POS ATOM POS 6 (* (Atom, Line, Column) for interface, as. *) .
+ItkImport IDENT POS 3 (* IdAtom, Line, Column. *) .
+ItkFromImport IDENT POS IDENT POS 6 (* (IdAtom, Line, Column) for interface, decl. *) .
+ItkImportAs IDENT POS IDENT POS 6 (* (IdAtom, Line, Column) for interface, as. *) .
 ItkFormalsListEmpty . 
 ItkFormalTypeAbsent 2 (* Position. *).
 ItkFormalExprAbsent 2 (* Position. *).
@@ -44,10 +44,10 @@ ItkProcBodyAbsent 2 (* Position. *).
 LONE
 ItkScopeLt 1 (* ScopeNo. *) (* ItkScopePatch not used. *) .
 ItkScopeRt 1 (* ScopeNo. *) . 
-ItkRefId ATOM POS 3 (* IdAtom, position. Occurs before unnest. *). 
+ItkRefId IDENT POS 3 (* IdAtom, position. Occurs before unnest. *). 
 ItkRefNo DECL POS (* DeclNo, position. Occurs after unnest. *) . 
-ItkDuplDeclId ATOM POS 3 (* IdAtom, position *) . 
-ItkDeclId INT ATOM POS 4 (* DeclKind, IdAtom, position *) .
+ItkDuplDeclId IDENT POS 3 (* IdAtom, position *) . 
+ItkDeclId INT IDENT POS 4 (* DeclKind, IdAtom, position *) .
 ItkDeclNo DECL POS 3 (* DeclNo, position *) .
  
 FIXED
@@ -124,7 +124,7 @@ FIXED ItkBecomes 2 Infix 2 (* Position of infix token, x3. *) .
 
 (*
 
-FIXED ItkModule ATOM INT 2 (* Name, UnitNo. *)
+FIXED ItkModule IDENT INT 2 (* IdAtom , UnitNo. *)
         Begin
 . 
 
