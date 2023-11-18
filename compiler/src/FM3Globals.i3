@@ -22,7 +22,7 @@ INTERFACE FM3Globals
 ; VAR ParsePassSuffix := ".ParsePass" (* Output of the parse pass. *)
 ; VAR BuildDirRelPath := "../build"
       (* ^Relative to where the current unit's source file lives. *)
-; VAR DisassSuffix := ".FM3Disass"
+; VAR DisassParsePassSuffix := ".Disass"
 
 ; VAR M3RwDict : FM3Dict_OAChars_Int . GrowableTyp  
 ; VAR PgRwDict : FM3Dict_OAChars_Int . GrowableTyp 
