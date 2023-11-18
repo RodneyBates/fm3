@@ -1061,7 +1061,7 @@ EXPORTS Main
       ; EmitTok ( LRootName & "LtTemp" , LArgCtFixed , LOperandStringFixed )  
       ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
       ; EmitTok
-          ( LRootName & "LtPatch" , LArgCtFixed , "_L_B" & LOperandStringFixed )
+          ( LRootName & "LtPatch" , LArgCtFixed , "_L_C" & LOperandStringFixed )
       ; EmitTok ( LRootName & "Rt" , LArgCtFixed , LOperandStringFixed)    
       ; Layout . PutEol ( GOStream )
       ELSIF GDoCountIntToks
@@ -1085,7 +1085,7 @@ EXPORTS Main
         ; EmitTok
             ( LRootName & LSubName & "Patch" 
             , LArgCtSub 
-            , "_L_B" & LOperandStringSub 
+            , "_L_C" & LOperandStringSub 
             )
         ; Layout . PutEol ( GOStream )
         ELSIF GDoCountIntToks
