@@ -37,9 +37,8 @@ INTERFACE FM3Units
       (* ^Same for unnest stack, patch stack, and parse pass output file. *)  
       ; UntPatchStackName : TEXT := NIL
       ; UntPatchStackRdBack : RdBackFile . T := NIL
-      ; UntParsePassDisassRdBack : RdBackFile . T := NIL 
       ; UntMaxPatchStackDepth : LONGINT := 0L
-      ; UntPatchStackEmpty : LONGINT := 0L
+      ; UntPatchStackEmptyCoord : LONGINT := 0L
         (* ^Value of RdBackFile.LengthL when conceptually empty, but may be
            nonzero, on account of file tag, length, etc. *) 
       ; UntPatchStackTopCoord : LONGINT := 0L
@@ -51,10 +50,10 @@ INTERFACE FM3Units
       ; UntUnnestStackName : TEXT := NIL
       ; UntUnnestStackRdBack : RdBackFile . T := NIL
       ; UntMaxUnnestStackDepth : LONGINT := 0L 
-      ; UntUnnestStackEmpty : LONGINT := 0L
+      ; UntUnnestStackEmptyCoord : LONGINT := 0L
       ; UntParsePassName : TEXT := NIL (* Parse pass output file. *) 
       ; UntParsePassRdBack : RdBackFile . T := NIL
-      ; UntParsePassEmpty : LONGINT := 0L
+      ; UntParsePassEmptyCoord : LONGINT := 0L
       ; UntIdentAtomDict : FM3Atom_OAChars . T := NIL (* Identifiers. *)   
       ; UntNumberAtomDict : FM3Atom_OAChars . T := NIL (* Numeric literals. *)  
       ; UntCharsAtomDict : FM3Atom_OAChars . T := NIL (* TEXT literals. *) 

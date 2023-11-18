@@ -10,6 +10,8 @@ INTERFACE FM3Files
 
 ; IMPORT UniRd 
 
+; PROCEDURE AbsFileName ( Name : TEXT ) : TEXT 
+
 ; PROCEDURE OpenUniRd
     ( FileName , PathHame , Note1 , Note2 : TEXT := "" ) : UniRd . T
 

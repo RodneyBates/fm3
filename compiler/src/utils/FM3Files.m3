@@ -8,9 +8,10 @@
 
 MODULE FM3Files
 
-; IMPORT FileRd 
+; IMPORT FileRd
+; IMPORT FS 
 ; IMPORT OSError
-; IMPORT Pathname AS Libm3Pathname 
+; IMPORT Pathname 
 ; IMPORT Rd
 ; IMPORT UniEncoding 
 ; IMPORT UniRd 
@@ -20,6 +21,24 @@ MODULE FM3Files
 
 ; VAR SrcEnc : UniEncoding . Encoding := UniEncoding . Encoding . ISO8859_1
       (* UTF8 is a reasonable alternative. *)   
+
+(* EXPORTED: *) 
+; PROCEDURE AbsFileName ( Name : TEXT ) : TEXT 
+
+  = VAR LResult : TEXT 
+
+  ; BEGIN (* AbsFileName *) 
+      IF Pathname . Absolute ( Name ) 
+      THEN RETURN Name 
+      ELSE 
+        TRY 
+          LResult := FS . GetAbsolutePathname ( Name ) 
+        ; RETURN LResult
+        EXCEPT OSError . E 
+        => RETURN Name
+        END (* TRY EXCEPT *) 
+      END (* IF *) 
+    END AbsFileName 
 
 (*EXPORTED*) 
 ; PROCEDURE OpenUniRd
@@ -31,7 +50,7 @@ MODULE FM3Files
   ; VAR LResult : UniRd . T 
   
   ; BEGIN
-      LFullFileName := Libm3Pathname . Join ( PathName , FileName ) 
+      LFullFileName := Pathname . Join ( PathName , FileName ) 
     ; TRY 
        LRdT := FileRd . Open ( LFullFileName ) 
       EXCEPT
