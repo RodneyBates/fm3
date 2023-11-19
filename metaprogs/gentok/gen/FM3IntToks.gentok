@@ -33,12 +33,12 @@ ItkImport IDENT POS 3 (* IdAtom, Line, Column. *) .
 ItkFromImport IDENT POS IDENT POS 6 (* (IdAtom, Line, Column) for interface, decl. *) .
 ItkImportAs IDENT POS IDENT POS 6 (* (IdAtom, Line, Column) for interface, as. *) .
 ItkFormalsListEmpty . 
-ItkFormalTypeAbsent 2 (* Position. *).
-ItkFormalExprAbsent 2 (* Position. *).
-ItkRaisesSetAbsent 2 (* Position. *).
-ItkRaisesANY 2 (* Position. *) .
-ItkResultTypeAbsent 2 (* Position. *). 
-ItkProcBodyAbsent 2 (* Position. *).
+ItkFormalTypeAbsent POS 2 (* Position. *).
+ItkFormalExprAbsent POS 2 (* Position. *).
+ItkRaisesSetAbsent POS 2 (* Position. *).
+ItkRaisesANY POS 2 (* Position. *) .
+ItkResultTypeAbsent POS 2 (* Position. *). 
+ItkProcBodyAbsent POS 2 (* Position. *).
 
 (* Scopes and declarations within. *) 
 LONE
@@ -54,18 +54,18 @@ FIXED
 ItkQualId .
 
 FIXED   
-ItkFuncSignature 2 (* Position. *) .
-ItkProcSignature 2 (* Position. *).
-ItkFormalType 2 (* Position of colon. *) . 
-ItkFormalExpr 2 (* Position of ":=" *).
-ItkResultType 2 (* Position of colon. *).
-ItkRaisesSet 2 (* Position of RAISES. *). 
+ItkFuncSignature POS 2 (* Position. *) .
+ItkProcSignature POS 2 (* Position. *).
+ItkFormalType POS 2 (* Position of colon. *) . 
+ItkFormalExpr POS 2 (* Position of ":=" *).
+ItkResultType POS 2 (* Position of colon. *).
+ItkRaisesSet POS 2 (* Position of RAISES. *). 
 ItkProcNoBody 1 (* Atom of signature. *) .
 ItkProcWBody 1 (* Atom of signature. *) .
-ItkProcBody 2 (* Position of equal sign. *) .
-ItkProcType 2 (* Position of "(". *) .
-ItkBlock 2 (* Position of LM declaration. *)
-  Beg 2 (* Position of BEGIN. *) . 
+ItkProcBody POS 2 (* Position of equal sign. *) .
+ItkProcType POS 2 (* Position of "(". *) .
+ItkBlock POS 2 (* Position of LM declaration. *)
+  Beg POS 2 (* Position of BEGIN. *) . 
 
 (* Type decls. *)
 
@@ -77,23 +77,23 @@ ItkVARFormalId .
 ItkROFormalId . 
 
 FIXED
-ItkRecDef 3 (* Position of RECORD, field count. *) .
-ItkRecField 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
-  Type 2     (* Position of colon. *) 
-  Val 2      (* Position of becomes/ *) 
+ItkRecDef POS INT 3 (* Position of RECORD, field count. *) .
+ItkRecField POS 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
+  Type POS 2     (* Position of colon. *) 
+  Val POS 2      (* Position of becomes/ *) 
 .
 
 FIXED
-ItkTypeDecl 2 (* Position of ident (Lt) or position of semicolon (Rt). *)
+ItkTypeDecl POS 2 (* Position of ident (Lt) or position of semicolon (Rt). *)
   Eq (* I don't think we need a position for this. *) . 
 
 (* Variable decls. *)
 
 FIXED
 (* One decl, with possibly multiple idents. *) 
-ItkVarDecl 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
-  Type 2     (* Position of colon. *) 
-  Val 2      (* Position of becomes/ *) 
+ItkVarDecl POS 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
+  Type POS 2     (* Position of colon. *) 
+  Val POS 2      (* Position of becomes/ *) 
 .
 
 LIST
@@ -120,7 +120,7 @@ ItkDeclList  .
 
 (* Statements *)
 
-FIXED ItkBecomes 2 Infix 2 (* Position of infix token, x3. *) .  
+FIXED ItkBecomes POS 2 Infix POS 2 (* Position of infix token, x3. *) .  
 
 (*
 
