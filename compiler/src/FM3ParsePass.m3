@@ -485,7 +485,7 @@ MODULE FM3ParsePass
 
 (*EXPORTED:*)
 ; PROCEDURE UnnestCoord ( ) : LONGINT
-  (* Of the current unit. *)
+  (* Current coordinate of the current unit. *)
   
   = BEGIN
       RETURN RdBackFile . LengthL

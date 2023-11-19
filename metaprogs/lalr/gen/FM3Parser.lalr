@@ -1,3 +1,4 @@
+
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2023,       Rodney M. Bates.                                    *)
@@ -813,7 +814,7 @@ RULE
      : StkRwRAISES StkOpenBrace QualIdStarList StkCloseBrace 
      { $$ . PaBool (* Raises set is present. *) := TRUE;
        $$ . Scan . Position := $1 . Scan . Position; 
-       MakeListPos ( $$ , Itk . ItkRaisesSetLt , $1 . Scan . Position, $2 ) ;
+       MakeListPos ( $$ , Itk . ItkRaisesSetLt , $1 . Scan . Position , $2 ) ;
      } . 
    Raises : /*Empty*/
      { $$ . PaBool (* Raises set is present. *) := FALSE (* Absent. *);
@@ -905,11 +906,15 @@ Expr: StkIntLit .
 (* ------------------------ Declaration lists -------------------------- *)
 
    DeclList : DeclListRecurse
-     { MakeList ( $$ , Itk . ItkDeclListLt , $1 ) ; } .  
+     { MakeListPos
+         ( $$ , Itk . ItkDeclListLt , $1 . Scan . Position , $1 ) ;
+     } .  
    DeclListRecurse : DeclListRecurse Decl  
      { $$ . PaInt := $1 . PaInt + 1 ; } .
    DeclListRecurse : /*Empty*/
-     { $$ . PaInt := 0 ; } .
+     { $$ . PaInt := 0 ;
+       $$ . Scan . Position := FM3Scanner . Attribute . Position ;
+     } .
 
    Decl : ConstDeclGroup .
    Decl : VarDeclGroup .
