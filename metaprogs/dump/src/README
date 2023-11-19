@@ -1,0 +1,9 @@
+Dump will not compile on account of an incomplete attempt
+to use compiler/src/utils/FM3Messages in it.
+
+This would have to pull in a lot of stuff, unit-at-a-time.
+Dump's functions are now integrated into the compiler, and
+expanded to display different argument kinds.  So dump will
+probably be removed in the future.
+
+Replacement code is (mostly) in compiler/src/FM3Disass.[im]3.
