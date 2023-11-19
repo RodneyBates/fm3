@@ -10,6 +10,7 @@ MODULE DumpWork
 
 ; IMPORT Fmt
 ; IMPORT Long
+; IMPORT Params 
 ; IMPORT Pathname
 ; IMPORT Wr 
 
@@ -194,7 +195,9 @@ MODULE DumpWork
   = BEGIN
       IF NOT GResourcesLoaded
       THEN
-        GResourceDirName := "." 
+        GResourceDirName
+          := FM3SharedUtils . SibDirectoryPath ( Params . Get ( 0 )  , "lib" ) 
+
       ; GIntFilePrefix := "FM3IntToks"
       ; GSetsName := GIntFilePrefix & "Sets"
       ; GSetsFullName

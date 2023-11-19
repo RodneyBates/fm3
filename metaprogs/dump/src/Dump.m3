@@ -132,7 +132,8 @@ MODULE Dump EXPORTS Main
         DisplayVersion ( )
       ; DisplayHelp ( ) 
       ; RAISE Terminate 
-      END (*IF*) 
+      END (*IF*)
+(* 
     ; IF GDoToks 
       THEN
         Wr . PutText
@@ -142,6 +143,7 @@ MODULE Dump EXPORTS Main
           ) 
       ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
       END (*IF*)
+*) 
     END DeriveOptions
 
 ; PROCEDURE DisplayVersion ( )
