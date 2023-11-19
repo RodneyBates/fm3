@@ -326,7 +326,7 @@ MODULE FM3Disass
       ; Wr . PutChar ( WrT , '[' ) 
       ; Wr . PutText ( WrT , Fmt . LongInt ( LLineL ) ) 
       ; Wr . PutChar ( WrT , ',' ) 
-      ; Wr . PutText ( WrT , Fmt . LongInt ( LLineL ) ) 
+      ; Wr . PutText ( WrT , Fmt . LongInt ( LColL ) ) 
       ; Wr . PutChar ( WrT , ']' ) 
       END DobPosArg 
 
