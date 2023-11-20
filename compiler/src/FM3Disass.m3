@@ -25,6 +25,7 @@ MODULE FM3Disass
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Base 
 ; IMPORT FM3Compress
+; IMPORT FM3Decls 
 ; IMPORT FM3SrcToks 
 ; IMPORT FM3IntToks
 ; IMPORT FM3OpenArray_Char
@@ -372,6 +373,25 @@ MODULE FM3Disass
       ; Wr . PutText ( WrT , Fmt . LongInt ( LArgL ) ) 
       END DobDeclNoArg 
 
+  ; PROCEDURE DobDeclKindArg ( ArgNo : INTEGER )
+    = VAR LArgL : LONGINT
+    ; VAR LResult : TEXT 
+
+    ; BEGIN
+        IF ArgNo > 0 THEN Wr . PutChar ( WrT , ',' ) END (*IF*)
+      ; LArgL := FM3Compress . GetBwd ( RBT )
+      ; CASE LArgL OF
+        | VAL ( ORD ( FIRST ( FM3Decls . DeclKindTyp ) ) , LONGINT )  
+          .. VAL ( ORD ( LAST ( FM3Decls . DeclKindTyp ) ) , LONGINT )
+        => LResult
+             := FM3Decls . DeclKindImage
+                  ( VAL ( LArgL , FM3Decls . DeclKindTyp ) )
+        ELSE
+          LResult := "OutOfRangeDeclKind(" & Fmt . LongInt ( LArgL ) & ")"
+        END (*CASE*) 
+      ; Wr . PutText ( WrT , LResult ) 
+      END DobDeclKindArg 
+
   ; PROCEDURE DobCoordArg ( ArgNo : INTEGER )
   
     = VAR LArgL : LONGINT
@@ -514,6 +534,7 @@ MODULE FM3Disass
                   | 'I' => DobIdentAtomArg ( LArgNo )
                   | 'D' => DobDeclNoArg ( LArgNo )
                   | 'C' => DobCoordArg ( LArgNo )
+                  | 'k' => DobDeclKindArg ( LArgNo ) 
                   ELSE
                     DobLongArg ( LArgNo , '?' )
                   END (*CASE*)

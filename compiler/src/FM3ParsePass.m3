@@ -1440,20 +1440,12 @@ MODULE FM3ParsePass
           WScope . ScpDeclIdSet
             := IntSets . Include
                  ( WScope . ScpDeclIdSet , Attribute . Scan . SaAtom )
-        ; WITH WDeclInfo = FM3Decls . TopDeclInfo ( )
-          DO 
-            PutBwd
-              ( WunRdBack
-              , VAL ( Attribute . Scan . Position . Column , LONGINT )
-              ) 
-          ; PutBwd
-              ( WunRdBack
-              , VAL ( Attribute . Scan . Position . Line , LONGINT )
-              )
-          ; PutBwd ( WunRdBack , VAL ( Attribute . Scan . SaAtom , LONGINT ) )  
-          ; PutBwd ( WunRdBack , VAL ( ORD ( WDeclInfo . DiKind ) , LONGINT ) )  
-          ; PutBwd ( WunRdBack , VAL ( WDeclInfo . DiIdTok , LONGINT ) )
-          END (*WITH*) 
+        (* Change StkIdent to an Itk decl ident.  Args are unchanged. *) 
+        ; EVAL GetBwd ( WunRdBack ) 
+        ; PutBwd
+            ( WunRdBack
+            , VAL ( FM3Decls . TopDeclInfo ( ) . DiIdTok , LONGINT )
+            )
         ; RETURN TRUE (* Caller, Use this decl id. *) 
         END (*IF*)
       END (*WITH*) 

@@ -17,6 +17,34 @@ MODULE FM3Decls
 ; IMPORT VarArray_Int_Refany
 
 (*EXPORTED*) 
+; PROCEDURE DeclKindImage ( Kind : DeclKindTyp ) : TEXT
+
+  = BEGIN 
+      CASE Kind OF 
+      | DeclKindTyp . DkNull => RETURN ", DkNull"
+      | DeclKindTyp . DkDuplDecl => RETURN ", DkDuplDecl"
+      | DeclKindTyp . DkMod => RETURN ", DkMod" 
+      | DeclKindTyp . DkIntf => RETURN ", DkIntf" 
+      | DeclKindTyp . DkGenMod => RETURN ", DkGenMod"
+      | DeclKindTyp . DkGenIntf => RETURN ", DkGenIntf"
+      | DeclKindTyp . DkExcp => RETURN ", DkExcp"
+      | DeclKindTyp . DkType => RETURN ", DkType"
+      | DeclKindTyp . DkConst => RETURN ", DkConst"
+      | DeclKindTyp . DkVar => RETURN ", DkVar"
+      | DeclKindTyp . DkValueFormal => RETURN ", DkValueFormal"
+      | DeclKindTyp . DkVarFormal => RETURN ", DkVarFormal"
+      | DeclKindTyp . DkROFormal => RETURN ", DkROFormal"
+      | DeclKindTyp . DkRecField => RETURN ", DkRecField"
+      | DeclKindTyp . DkObjField => RETURN ", DkObjField"
+      | DeclKindTyp . DkMethod => RETURN ", DkMethod"
+      | DeclKindTyp . DkProc => RETURN ", DkProc"
+      | DeclKindTyp . DkWith => RETURN ", DkWith"
+      | DeclKindTyp . DkFor => RETURN ", DkFor"
+      | DeclKindTyp . DkExcArg => RETURN ", DkExcArg"
+      END (*CASE*)
+    END DeclKindImage
+
+(*EXPORTED*) 
 ; PROCEDURE NewDeclMap ( InitDeclCt : FM3Base . DeclNoTyp ) : DeclMapTyp
   (* One of these per Unit. *) 
 

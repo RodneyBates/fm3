@@ -34,6 +34,8 @@ INTERFACE FM3Decls
       , DkExcArg
       } 
 
+; PROCEDURE DeclKindImage ( Kind : DeclKindTyp ) : TEXT
+
 ; TYPE DeclRefTyp = REF DeclTyp 
 ; TYPE DeclTyp
     = RECORD 
