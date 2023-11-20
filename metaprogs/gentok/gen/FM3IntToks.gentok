@@ -70,11 +70,11 @@ ItkBlock POS 2 (* Position of LM declaration. *)
 (* Type decls. *)
 
 LONE
-ItkVarDeclId . 
-ItkRecFieldId . 
-ItkVALUEFormalId . 
-ItkVARFormalId . 
-ItkROFormalId . 
+ItkVarDeclId IDENT POS . 
+ItkRecFieldId IDENT POS . 
+ItkVALUEFormalId IDENT POS . 
+ItkVARFormalId IDENT POS . 
+ItkROFormalId IDENT POS . 
 
 FIXED
 ItkRecDef POS INT 3 (* Position of RECORD, field count. *) .

@@ -645,6 +645,8 @@ EXPORTS Main
         THEN AppendCoord ( "_A" )
         ELSIF Text . Equal ( GToken , "DECL" ) 
         THEN AppendCoord ( "_D" )
+        ELSIF Text . Equal ( GToken , "DECLKIND" ) 
+        THEN AppendCoord ( "_k" )
         ELSE EXIT 
         END (*IF*)
       END (*LOOP*)
