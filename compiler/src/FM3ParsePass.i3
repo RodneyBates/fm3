@@ -58,7 +58,11 @@ INTERFACE FM3ParsePass
   (* Zero args. *)
 
 ; PROCEDURE Push_ListSepPatchPos
-    ( ListT : Itk . TokTyp ; C : LONGINT ; Position : FM3Scanner . tPosition )
+    ( ListT : Itk . TokTyp
+    ; C : LONGINT
+    ; IdNo : INTEGER
+    ; Position : FM3Scanner . tPosition
+    )
 
 (* Here is the naming code, of namings of these Push_<x> procedures:
 
@@ -222,8 +226,10 @@ INTERFACE FM3ParsePass
     ( ScopeKind : FM3Scopes . ScopeKindTyp ; Position : FM3Base . tPosition )
   : FM3Base . ScopeNoTyp (* Scope no. that was created. *) 
 
-; PROCEDURE DeclIdL2R ( READONLY Attribute : tParsAttribute )
-  : BOOLEAN (* Use this declared id.  It's not a duplicate in current scope. *)
+; PROCEDURE DeclIdL2R 
+    ( READONLY Attribute : tParsAttribute ; PriorIdCt : INTEGER )
+  : BOOLEAN (* Use this declared id.  (It's not predefined and not a duplicate
+               in current scope.) *)
   (* PRE: Attribute is for an identifier in a declaration context. *) 
 
 (* Needed?

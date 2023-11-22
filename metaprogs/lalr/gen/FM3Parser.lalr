@@ -287,16 +287,17 @@ RULE
    DeclIdPlusList : StkIdent 
      { (* PaUnnestCoord already copied from $1 to $$ by parser. *)
        $$ . PaInt (* Valid Id count. *)
-         := ORD ( FM3ParsePass . DeclIdL2R ( $1 ) ) ; 
+         := ORD ( FM3ParsePass . DeclIdL2R ( $1 , 0 ) ) ; 
      } . 
    DeclIdPlusList : DeclIdPlusList StkComma StkIdent
      { (* PaUnnestCoord already copied from $1 to $$ by parser. *)
-       IF FM3ParsePass . DeclIdL2R ( $3 ) (* Use this ident. *) 
+       IF FM3ParsePass . DeclIdL2R ( $3 , $1 . PaInt ) (* Use this ident. *) 
        THEN 
          $$ . PaInt := $1 . PaInt + 1 ;  
          FM3ParsePass . Push_ListSepPatchPos 
-           ( FM3Decls . TopDeclInfo ( ) . DiIdTok
+           ( FM3Decls . TopDeclInfo ( ) . DiDeclTok
            , $1 . PaUnnestCoord
+           , $$ . PaInt (* Id number, 0-origin *) 
            , $2 . Scan . Position 
            ) ;
        ELSE $$ . PaInt := $1 . PaInt ; 
@@ -496,7 +497,7 @@ RULE
 
 (* ------------------------- Variable Declarations -------------------- . *) 
 
-   (* VarDeclGroup, VarDecls, VarDecl . PsInt is declaration count. *) 
+   (* VarDeclGroup, VarDecls, VarDecl . PaInt is declaration count. *) 
 
    (* VarDeclGroup is a list of variable declarations all following
       a single occurrence of "VAR".  The parsing removes this grouping

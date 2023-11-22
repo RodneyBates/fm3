@@ -597,13 +597,18 @@ MODULE FM3ParsePass
 
 (*EXPORTED:*)
 ; PROCEDURE Push_ListSepPatchPos
-    ( ListT : Itk . TokTyp ; C : LONGINT ; Position : FM3Scanner . tPosition )
+    ( ListT : Itk . TokTyp
+    ; C : LONGINT
+    ; IdNo : INTEGER
+    ; Position : FM3Scanner . tPosition
+    )
 
   = BEGIN
       WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
       DO
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( IdNo , LONGINT ) ) 
       ; PutBwd ( WRdBack , C ) 
       ; PutBwd
           ( WRdBack , VAL ( ListT + Itk . LtToListSepPatch , LONGINT ) )
@@ -1391,22 +1396,22 @@ MODULE FM3ParsePass
       END (*WITH*) 
     END ScopeLtL2R
 
+
+
 (*EXPORTED.*)
-; PROCEDURE DeclIdL2R ( READONLY Attribute : tParsAttribute )
-  : BOOLEAN (* Use this declared id.  It's not a duplicate in current scope. *)
+; PROCEDURE DeclIdL2R 
+    ( READONLY Attribute : tParsAttribute ; PriorIdCt : INTEGER )
+  : BOOLEAN (* Use this declared id.  (It's not predefined and not a duplicate
+               in current scope.) *)
   (* PRE: Attribute is for an identifier in a declaration context. *) 
 
-  = BEGIN (*DeclIdL2R*)
+  = VAR LTokToPut : Itk . TokTyp
+  ; VAR LResult : BOOLEAN
+
+  ; BEGIN (*DeclIdL2R*)
       WITH WScope = FM3Scopes . ScopeStackTopRef ^
            , WunRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack 
       DO
-
-(* FIXME: Don't do the following: *) 
-        (* An StkIdent, /w args, was pushed by parser shift, as it does for
-           all variable terminals.  Convert it to ItkDeclId or ItkDuplDeclId.
-           Done by PushUnnestStk. 
-        *) 
-
         IF Attribute . Scan . SaIsReservedId 
         THEN
           ErrorArr
@@ -1419,13 +1424,8 @@ MODULE FM3ParsePass
             )
           (* No output. *) 
         ; RETURN FALSE (* Caller, Don't use this Id. *) 
-        ELSIF IntSets . IsElement
-                ( Attribute . Scan . SaAtom , WScope . ScpDeclIdSet )
-        THEN (* A Duplicate declaration of SaAtom in current scope. *)
-          WScope . ScpDuplDeclIdSet
-            := IntSets . Include
-                 ( WScope . ScpDuplDeclIdSet , Attribute . Scan . SaAtom )
-        ; PutBwd
+        ELSE
+          PutBwd
             ( WunRdBack
             , VAL ( Attribute . Scan . Position . Column , LONGINT )
             ) 
@@ -1434,19 +1434,24 @@ MODULE FM3ParsePass
             , VAL ( Attribute . Scan . Position . Line , LONGINT )
             )
         ; PutBwd ( WunRdBack , VAL ( Attribute . Scan . SaAtom , LONGINT ) ) 
-        ; PutBwd ( WunRdBack , VAL ( Itk . ItkDuplDeclId , LONGINT ) )
-        ; RETURN FALSE (* Caller, Don't use this Id. *) 
-        ELSE (* Valid declaration Ident. *) 
-          WScope . ScpDeclIdSet
-            := IntSets . Include
-                 ( WScope . ScpDeclIdSet , Attribute . Scan . SaAtom )
-        (* Change StkIdent to an Itk decl ident.  Args are unchanged. *) 
-        ; EVAL GetBwd ( WunRdBack ) 
-        ; PutBwd
-            ( WunRdBack
-            , VAL ( FM3Decls . TopDeclInfo ( ) . DiIdTok , LONGINT )
-            )
-        ; RETURN TRUE (* Caller, Use this decl id. *) 
+        ; IF IntSets . IsElement
+                  ( Attribute . Scan . SaAtom , WScope . ScpDeclIdSet )
+          THEN (* A Duplicate declaration of SaAtom in current scope. *)
+            WScope . ScpDuplDeclIdSet
+              := IntSets . Include
+                   ( WScope . ScpDuplDeclIdSet , Attribute . Scan . SaAtom )
+          ; LTokToPut := Itk . ItkDuplDeclId
+          ; LResult := FALSE (* Caller, Don't use this Id. *)
+          ELSE (* Valid declaration Ident. *) 
+            WScope . ScpDeclIdSet
+              := IntSets . Include
+                   ( WScope . ScpDeclIdSet , Attribute . Scan . SaAtom )
+          ; PutBwd ( WunRdBack , VAL ( PriorIdCt , LONGINT ) )
+          ; LTokToPut := FM3Decls . TopDeclInfo ( ) . DiIdTok
+          ; LResult := TRUE (* Caller, Use this decl id. *)
+          END (*IF*)
+        ; PutBwd ( WunRdBack , VAL ( LTokToPut , LONGINT ) )
+        ; RETURN LResult 
         END (*IF*)
       END (*WITH*) 
     END DeclIdL2R
