@@ -100,7 +100,7 @@ MODULE FM3Disass
       ; Wr . PutText ( WrT , Wr . EOL )
       END DibPutOpnd  
 
-  ; BEGIN
+  ; BEGIN (* DumpInterpretBwd *) 
       FM3SharedUtils . LoadSets ( ) (* Probably redundant. *)  
     ; TRY 
         LOOP

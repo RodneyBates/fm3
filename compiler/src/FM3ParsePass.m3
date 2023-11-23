@@ -337,10 +337,7 @@ MODULE FM3ParsePass
 
 ; PROCEDURE CloseUnit ( UnitRef : FM3Units . UnitRefTyp )
 
-  = VAR LDisassFileName : TEXT
-  ; VAR LDisassWrT : Wr . T
-  
-  ; BEGIN
+  = BEGIN
       UnitRef . UntParsePassResult := 0 
     ; EVAL FM3Scanner . PopState ( )
 
@@ -404,10 +401,15 @@ MODULE FM3ParsePass
             )
         END (*IF*)
       FINALLY 
-        RdBackFile . Close (  UnitRef ^ . UntUnnestStackRdBack , - 1L)
+        RdBackFile . Close ( UnitRef ^ . UntUnnestStackRdBack , - 1L )
       ; IF NOT FM3CLArgs . DoKeep
         THEN FS . DeleteFile ( UnitRef ^ . UntUnnestStackName )
         END (*IF*)
+      ; Disass
+          ( UnitRef 
+          , UnitRef ^ . UntUnnestStackName
+          , FM3CLArgs . DoDisassUnnest
+          ) 
       END (*FINALLY*)
 
     (* Finish with parse pass RdBack, the output of this pass. *) 
@@ -419,22 +421,52 @@ MODULE FM3ParsePass
             , " bytes."
             )
       FINALLY 
-        RdBackFile . Close (  UnitRef ^ . UntParsePassRdBack , - 1L )
-      ; LDisassFileName
-          := UnitRef ^ . UntParsePassName & FM3Globals . DisassParsePassSuffix
-      ; TRY FS . DeleteFile ( LDisassFileName )
-        EXCEPT OSError . E => (* Didn't exist. *) 
-        END (*EXCEPT*) 
-      ; IF FM3CLArgs . DoDisass
-        THEN
-          LDisassWrT := FileWr . Open ( LDisassFileName )
-        ; FM3Disass . DisassWOperandsBwd 
-            ( UnitRef ^ . UntParsePassRdBack , LDisassWrT )
-        ; Wr . Close ( LDisassWrT ) 
-        END (*IF*) 
+        RdBackFile . Close ( UnitRef ^ . UntParsePassRdBack , - 1L )
+      ; IF NOT FM3CLArgs . DoKeep
+        THEN FS . DeleteFile ( UnitRef ^ . UntParsePassName )
+        END (*IF*)
+      ; Disass
+          ( UnitRef
+          , UnitRef ^ . UntParsePassName
+          , FM3CLArgs . DoDisassParsePass
+          ) 
       END (*FINALLY*)
 (* TODO: code point counts. *)
     END CloseUnit
+
+; PROCEDURE Disass
+    ( UnitRef : FM3Units . UnitRefTyp
+    ; RdBackFileName : TEXT 
+    ; Do : BOOLEAN
+    )
+
+  = VAR LFullDisassFileName : TEXT
+  ; VAR LFullRdBackFileName : TEXT
+  ; VAR LDisassWrT : Wr . T
+  ; VAR LRdBack : RdBackFile . T
+  
+  ; BEGIN
+      LFullDisassFileName
+        := Pathname . Join
+             ( UnitRef ^ . UntBuildDirPath
+             , RdBackFileName
+             , FM3Globals . DisassFileSuffix
+             ) 
+    ; TRY FS . DeleteFile ( LFullDisassFileName )
+      EXCEPT OSError . E => (* Didn't exist. *) 
+      END (*EXCEPT*) 
+    ; IF Do
+      THEN
+        LFullRdBackFileName
+          := Pathname . Join
+               ( UnitRef ^ . UntBuildDirPath , RdBackFileName , NIL )
+      ; LRdBack := RdBackFile . Open ( LFullRdBackFileName )
+      ; LDisassWrT := FileWr . Open ( LFullDisassFileName )
+      ; FM3Disass . DisassWOperandsBwd ( LRdBack , LDisassWrT )
+      ; RdBackFile . Close ( LRdBack , - 1L )      
+      ; Wr . Close ( LDisassWrT ) 
+      END (*IF*) 
+    END Disass 
 
 ; PROCEDURE CompileUnit ( SrcFileName : TEXT )
 

@@ -359,7 +359,8 @@ MODULE RdBackFile
   = VAR LSeekToL : LONGINT 
 
   ; BEGIN
-      IF Length <= 0 THEN RETURN END (*IF*) 
+      IF Length <= 0 THEN RETURN END (*IF*)
+    ; IF BlockNo < 0 THEN RETURN END (*IF*)
     ; LSeekToL := VAL ( BlockNo , LONGINT ) * BlockSizeL 
     ; Seek ( RbFile , LSeekToL , MsgTag )
     ; TRY RbFile . RbFileHandle . write ( SUBARRAY ( Buffer , 0 , Length ) ) 
@@ -382,6 +383,7 @@ MODULE RdBackFile
       => (* Let's log this one but not raise an exception. *) 
         LogMsg ( "Close of " & RbFile . RbFileName & " failed." )  
       END (*EXCEPT*)
+    ; RbFile . RbIsOpen := FALSE 
     END SimpleClose
 
 ; PROCEDURE TempFileName ( OrigFileName : TEXT ) : TEXT
@@ -467,7 +469,6 @@ MODULE RdBackFile
 ; PROCEDURE Close ( RbFile : T ; TruncTo : LONGINT )
   (* TruncTo < 0 means max length. *) 
 
-
   = VAR LTruncTo : LONGINT
   ; VAR LTempFile : T
   ; VAR LFileName : TEXT
@@ -476,18 +477,18 @@ MODULE RdBackFile
   ; BEGIN
       IF RbFile = NIL THEN RETURN END (*IF*)
     ; IF NOT RbFile . RbIsOpen THEN RETURN  END (*IF*)
-    ; IF RbFile . RbBlockNextIn > 0
-      THEN
-        WriteBuffer
-          ( RbFile
-          , RbFile . RbBlockNo
-          , RbFile . RbBlockNextIn
-          , RbFile . RbBuffer
-          , "Close"
-          )
-      END (*IF*)
+    ; WriteBuffer
+        ( RbFile
+        , RbFile . RbBlockNo
+        , MIN ( BlockSize
+              , VAL ( RbFile . RbMaxLengthL , INTEGER ) 
+                - RbFile . RbBlockNo * BlockSize
+              ) 
+        , RbFile . RbBuffer
+        , "Close"
+        )
 
-    ; IF TruncTo < 0L THEN LTruncTo := RbFile . RbLengthL
+    ; IF TruncTo < 0L THEN LTruncTo := RbFile . RbMaxLengthL
       ELSE LTruncTo := MIN ( TruncTo , RbFile . RbMaxLengthL )
       END (*IF*) 
 
@@ -560,9 +561,21 @@ MODULE RdBackFile
              ) 
         END (*IF*)
       (* Moving rightward to a new block number.  It will, extremely soon,
-         contain an unstored byte. *)
+         contain a byte not written to disk. *)
       ; INC ( RbFile . RbBlockNo ) 
-      ; RbFile . RbBlockNextIn := 0 
+      ; RbFile . RbBlockNextIn := 0
+      ; IF RbFile . RbMaxLengthL > RbFile . RbLengthL + 1L 
+        THEN (* Byte(s) previously stored in the new disk block to the right
+                will be needed, if they are neither overlaid, nor truncated
+                when closing. *) 
+          ReadBuffer
+            ( RbFile
+            , RbFile . RbBlockNo
+            , BlockSize
+            , RbFile . RbBuffer
+            , "Put"
+            )
+        END (*IF*) 
       END (*IF*)
       
     (* Store the new byte. *) 
@@ -585,13 +598,25 @@ MODULE RdBackFile
       THEN Raise ( "GetBwd, " , RbFile . RbFileName , " is not open." )
       END (*IF*) 
 
-    ; IF RbFile . RbLengthL = 0L THEN RAISE BOF END (* IF *)
+    ; IF RbFile . RbLengthL = 0L THEN RAISE BOF END (*IF*)
 
-    (* If necessary, read block RbBlockNo into RbBuffer. *) 
+    (* If necessary, make RbBuffer contain the block to the left. *) 
     ; IF RbFile . RbBlockNextIn = 0 (* Left of the block in RbBuffer. *)
-         (* Not empty => Block to left exists. *) 
+         (* But RbFile not empty, => Block to left exists. *) 
       THEN
-        DEC ( RbFile . RbBlockNo )
+        IF RbFile . RbMaxLengthL > RbFile . RbLengthL + 1L
+        THEN (* Byte(s) in the current buffer will be needed on disk,
+                if they are neither overlaid, nor truncated when closing. *)
+          WriteBuffer
+            ( RbFile
+            , RbFile . RbBlockNo
+            , BlockSize
+            , RbFile . RbBuffer
+            , "GetBwd"
+            )
+        END (*IF*) 
+      ; DEC ( RbFile . RbBlockNo )
+
       ; ReadBuffer
           ( RbFile
           , RbFile . RbBlockNo
@@ -616,7 +641,9 @@ MODULE RdBackFile
 
     GLogWrT := NIL
   ; GDoStderr := TRUE 
-  ; GDoLog := FALSE  
+  ; GDoLog := FALSE
+
+(* TODO: Use FM3Messages here. *) 
 (* 
     TRY 
       GLogWrT := FileWr . Open ( "FM3Log")
