@@ -34,6 +34,8 @@ UNSAFE MODULE FM3Compress
 ; IMPORT Long
 ; IMPORT Wr
 
+; IMPORT FM3Units 
+
 ; CONST DivL = Long . Divide 
 ; CONST AndL = Long . And 
 ; CONST OrL = Long . Or 
@@ -70,8 +72,24 @@ UNSAFE MODULE FM3Compress
      in reversed order.  This was tricky. *) 
 
   = VAR LSignBitsL : LONGINT
+; VAR Debug := 1
 
   ; BEGIN
+
+IF ValueL = 207L
+THEN
+  Debug := 11
+END
+; 
+
+IF FM3Units . UnitStackTopRef # NIL
+   AND File = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
+THEN
+  Debug := 9 
+END
+; 
+
+
       LSignBitsL := DivL ( ValueL , TwoTo6thL )
                  (* ^Shift right 6 bits, with sign extension. *) 
     ; IF LSignBitsL # 16_FFFFFFFFFFFFFFFFL AND LSignBitsL # 0L

@@ -27,6 +27,7 @@ LONE
      ItkEOF .
      ItkLeftEnd .
      ItkRightEnd . 
+     ItkRightEndIncomplete . 
 
 LONE
 ItkImport IDENT POS 3 (* IdAtom, Line, Column. *) .
@@ -70,11 +71,13 @@ ItkBlock POS 2 (* Position of LM declaration. *)
 (* Type decls. *)
 
 LONE
-ItkVarDeclId     INT IDENT POS . 
-ItkRecFieldId    INT IDENT POS . 
-ItkVALUEFormalId INT IDENT POS . 
-ItkVARFormalId   INT IDENT POS . 
-ItkROFormalId    INT IDENT POS . 
+ItkExportId      IDENT POS . 
+ItkExportIdSep      IDENT POS . 
+ItkVarDeclId     IDENT POS . 
+ItkRecFieldId    IDENT POS . 
+ItkVALUEFormalId IDENT POS . 
+ItkVARFormalId   IDENT POS . 
+ItkROFormalId    IDENT POS . 
 
 FIXED
 ItkRecDef POS INT 3 (* Position of RECORD, field count. *) .
@@ -88,10 +91,30 @@ ItkTypeDecl POS 2 (* Position of ident (Lt) or position of semicolon (Rt). *)
   Eq (* I don't think we need a position for this. *) . 
 
 (* Variable decls. *)
+LIST
+ItkVarDeclList
 
 FIXED
 (* One decl, with possibly multiple idents. *) 
 ItkVarDecl POS 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
+  Type POS 2     (* Position of colon. *) 
+  Val POS 2      (* Position of becomes/ *) 
+.
+
+(* One formal, with possibly multiple idents. *) 
+ItkVALUEFormal POS 2 (* Position of LM ident (Lt) or of semicolon (Rt). *)
+  Type POS 2     (* Position of colon. *) 
+  Val POS 2      (* Position of becomes/ *) 
+.
+
+(* One formal, with possibly multiple idents. *) 
+ItkVARFormal POS 2 (* Position of LM ident (Lt) or of semicolon (Rt). *)
+  Type POS 2     (* Position of colon. *) 
+  Val POS 2      (* Position of becomes/ *) 
+.
+
+(* One formal, with possibly multiple idents. *) 
+ItkROFormal POS 2 (* Position of LM ident (Lt) or of semicolon (Rt). *)
   Type POS 2     (* Position of colon. *) 
   Val POS 2      (* Position of becomes/ *) 
 .
@@ -106,16 +129,16 @@ LIST
        For separators, of the source separator, or if none, beginning
        of element to right.
 *) 
-
-ItkExportIdList (* Position of EXPORTS. *) . 
-ItkGenFormalIdList (* Position of "(" *) .
-ItkGenActualIdList (* Position of "(" *) .
-ItkVarDeclIdList (* Position of "(" *) .
-ItkRecFieldIdList (* Position of "RECORD" *) .
-ItkFormalsList (* Position of "(" *) .
-ItkVALUEFormalIdList (* Position of VALUE or 1st ident, if no mode. *). 
-ItkVARFormalIdList (* Position of VAR. *) . 
-ItkROFormalIdList (* Position of READONLY. *). 
+ 
+ItkExportIdList (* Position is EXPORTS. *) . 
+ItkGenFormalIdList (* Position is "(" *) .
+ItkGenActualIdList (* Position is "(" *) .
+ItkVarDeclIdList (* Position is "(" *) .
+ItkRecFieldIdList (* Position is "RECORD" *) .
+ItkFormalsList (* Position is "(" *) .
+ItkVALUEFormalIdList (* Position is VALUE or 1st ident, if no mode. *). 
+ItkVARFormalIdList (* Position is VAR. *) . 
+ItkROFormalIdList (* Position is READONLY. *). 
 ItkDeclList  . 
 
 (* Statements *)

@@ -128,7 +128,7 @@ MODULE FM3Decls
       IF DeclInfoStack = NIL
       THEN RETURN
         DeclInfoTyp
-          { DiIdTok := FM3IntToks . ItkNull
+          { DiIdListTok := FM3IntToks . ItkNull
           , DiDeclTok := FM3IntToks . ItkNull
           , DiKind := DeclKindTyp.DkNull
           } 

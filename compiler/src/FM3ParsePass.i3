@@ -24,7 +24,8 @@ INTERFACE FM3ParsePass
       ; PaConstructNo : INTEGER
       ; PaListItemNo : INTEGER
       ; PaInt : INTEGER
-      ; PaTok : FM3Base . TokTyp 
+      ; PaTok1 : FM3Base . TokTyp 
+      ; PaTok2 : FM3Base . TokTyp 
       ; PaByte : [ 0 .. 16_FF ] 
       ; PaBool : BOOLEAN 
       END (* tParsAttribute *)
@@ -37,7 +38,8 @@ INTERFACE FM3ParsePass
         , PaConstructNo := FIRST ( INTEGER ) 
         , PaListItemNo := FIRST ( INTEGER )
         , PaInt := FIRST ( INTEGER )
-        , PaTok := FM3Base . TokNull
+        , PaTok1 := FM3Base . TokNull
+        , PaTok2 := FM3Base . TokNull
         , PaByte := 16_FF 
         , PaBool := FALSE
         }
@@ -60,7 +62,7 @@ INTERFACE FM3ParsePass
 ; PROCEDURE Push_ListSepPatchPos
     ( ListT : Itk . TokTyp
     ; C : LONGINT
-    ; IdNo : INTEGER
+    ; ElemNo : INTEGER
     ; Position : FM3Scanner . tPosition
     )
 
@@ -69,10 +71,10 @@ INTERFACE FM3ParsePass
    Each of the Push_<x> procedures pushes a list of things on the unnest stack.
    The letters after the "_" encode what that is.  The letters in the code and
    the parameters are in left-to-right order, for ease of thought but the actual
-   pushing is in the reverse order, because this stuff needs to be popped
-   backwards.
+   pushing is temporarily in the reverse order, because this stuff needs to be
+   popped backwards.
 
-   A capital letter denotes a value that is passed to the Push_ procedure as
+   A capital letter denotes a value that is passed to the Push_<x> procedure as
    a parameter.  The parameters are in the same order as the capital letters.
    A lower case letter denotes a value derived from the previous case-
    homonym of itself.
@@ -98,7 +100,7 @@ INTERFACE FM3ParsePass
 
    A 'P' or 'p' denotes a position in the source code.  When passed in, it
    is a single parameter, of type tPosition, a two-field record of line-number
-   and column=number.  The procedure pushes it as two separate numbers on the
+   and column-number.  The procedure pushes it as two separate numbers on the
    unnest stack, column number deeper.
 
    A "I' or 'i' is an integer value. A 'B' or 'b' is a boolean value.
@@ -227,17 +229,21 @@ INTERFACE FM3ParsePass
   : FM3Base . ScopeNoTyp (* Scope no. that was created. *) 
 
 ; PROCEDURE DeclIdL2R 
-    ( READONLY Attribute : tParsAttribute ; PriorIdCt : INTEGER )
+    ( READONLY SepPosition : FM3Scanner . tPosition 
+    ; READONLY IdAttribute : tParsAttribute
+    ; PriorIdCt : INTEGER (* Number of ids to left of this one. *) 
+    ; IdListTokLt : Itk . TokTyp 
+    )
   : BOOLEAN (* Use this declared id.  (It's not predefined and not a duplicate
                in current scope.) *)
-  (* PRE: Attribute is for an identifier in a declaration context. *) 
+  (* PRE: IdAttribute is for an identifier in a declaration context. *) 
 
 (* Needed?
 ; PROCEDURE RefIdL2R
     ( RefIdAtom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
 *)
 
-; PROCEDURE ScopeRtL2R ( )
+; PROCEDURE ScopeRtL2R ( ScopeNo : FM3Scopes . ScopeNoTyp )
   (* Create an identifier-to-declNo dictionary for the scope, of
      exactly the needed size, and load it up with DeclIdAtom to
      DeclNo mappings, using the idents declared in the scope and

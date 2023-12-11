@@ -80,9 +80,6 @@ MODULE FM3Disass
 ; CONST OpndIndent = "   "
 
 (*EXPORTED:*)
-
-
-
 ; PROCEDURE DumpInterpretBwd ( RBT : RdBackFile . T ; WrT : Wr . T )
 
   = VAR LTokenL : LONGINT
@@ -350,16 +347,15 @@ MODULE FM3Disass
                   )
           THEN
             IF LIdentOAChars = NIL THEN LIdentName := "<NoAtomIdent>"
-            
             ELSE LIdentName := Text . FromChars ( LIdentOAChars ^ )
             END (*IF*) 
           ELSE LIdentName := "<NoAtomIdent>" 
           END (*IF*)
         ; Wr . PutText ( WrT , "Id" ) 
         ; Wr . PutText ( WrT , Fmt . LongInt ( LArgL ) )
-        ; Wr . PutChar ( WrT , '(' ) 
+        ; Wr . PutChar ( WrT , '\"' ) 
         ; Wr . PutText ( WrT , LIdentName )
-        ; Wr . PutChar ( WrT , ')' ) 
+        ; Wr . PutChar ( WrT , '\"' ) 
         END (*WITH*)
       END DobIdentAtomArg 
 
@@ -410,6 +406,12 @@ MODULE FM3Disass
     ; TRY 
         LOOP (* Thru' token-with-args groups. *) 
           LTokenL := PutPrefix ( RBT , WrT )
+
+
+; IF LTokenL = 313L OR LTokenL = 312L OR LTokenL = 319L
+  THEN
+    LToken := 4001
+  END
         ; IF Long . LE
                ( LTokenL , VAL ( LAST ( INTEGER ) , LONGINT ) )
           THEN (* Nonneg INTEGER *) 
@@ -496,8 +498,16 @@ MODULE FM3Disass
                     END (*IF*)
                   END (*IF*)
                 ; CASE LArgChar OF
+                  | 'C' => DobCoordArg ( LArgNo )
                   | 'L' => DobLongArg ( LArgNo , 'L' )
                   | 'B' => DobBoolArg ( LArgNo )
+                  | 'H' => DobColNoArg ( LArgNo )
+                  | 'I' => DobIdentAtomArg ( LArgNo )
+                  | 'D' => DobDeclNoArg ( LArgNo )
+                  | 'k' => DobDeclKindArg ( LArgNo ) 
+                  | 'P'
+                  => DobPosArg ( LArgNo )
+                    ; INC ( LArgNo ) 
                   | 'N'
                   => (* Is it "_N_H"? *)  
                     IF Rd . EOF ( LArgRdT )
@@ -526,15 +536,6 @@ MODULE FM3Disass
                       *)  
                       END (*IF*) 
                     END (*IF*)
-                  | 'H' => DobColNoArg ( LArgNo )
-                  | 'P'
-                  => DobPosArg ( LArgNo )
-                    ; INC ( LArgNo ) 
-
-                  | 'I' => DobIdentAtomArg ( LArgNo )
-                  | 'D' => DobDeclNoArg ( LArgNo )
-                  | 'C' => DobCoordArg ( LArgNo )
-                  | 'k' => DobDeclKindArg ( LArgNo ) 
                   ELSE
                     DobLongArg ( LArgNo , '?' )
                   END (*CASE*)

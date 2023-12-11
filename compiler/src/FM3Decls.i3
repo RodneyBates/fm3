@@ -18,6 +18,7 @@ INTERFACE FM3Decls
       , DkIntf 
       , DkGenMod
       , DkGenIntf
+      , DkExports (* EXPORTS list is declaration-ish. *) 
       , DkExcp
       , DkType
       , DkConst
@@ -71,7 +72,7 @@ INTERFACE FM3Decls
 
 ; TYPE DeclInfoTyp
     = RECORD
-        DiIdTok : FM3Base . TokTyp
+        DiIdListTok : FM3Base . TokTyp
       ; DiDeclTok : FM3Base . TokTyp 
       ; DiKind : DeclKindTyp 
       END 

@@ -682,7 +682,7 @@ EXPORTS Main
       END (*IF*)
 
     ; FOR RI := LKindCt + 1  TO LNumCount   
-      DO Wr . PutText ( LWrT , "_I" ) 
+      DO Wr . PutText ( LWrT , "_L" ) 
       END (*FOR*) 
     ; OperandString := TextWr . ToText ( LWrT )
 
@@ -991,8 +991,8 @@ EXPORTS Main
 
 ; PROCEDURE EmitListToks ( ) 
 
-  = VAR LArgCtOfList , LArgCtOfSep : [ - 1 .. 7 ]
-  ; VAR LArgStringOfList , LArgStringOfSep : TEXT 
+  = VAR LArgCtOfList , LArgCtOfSep , LArgCtOfElem : [ - 1 .. 7 ]
+  ; VAR LArgStringOfList , LArgStringOfSep , LArgStringOfElem : TEXT 
   ; VAR LRootName : TEXT 
 
   ; BEGIN
@@ -1002,6 +1002,8 @@ EXPORTS Main
     ; LArgStringOfList := "_L_P" 
     ; LArgCtOfSep := 3 (* ElemNo, position. *) 
     ; LArgStringOfSep := "_L_P" 
+    ; LArgCtOfElem := 3 (* ElemNo, position. *) 
+    ; LArgStringOfElem := "_I_P" 
     ; IF GDoGenIntToks
       THEN 
         MaybePutMinTokNo ( ) 
@@ -1011,6 +1013,7 @@ EXPORTS Main
       ; Layout . PutText ( GOStream , ": *)" )
       ; Layout . PutEol ( GOStream )
 
+      (* List bookends: *) 
       ; EmitTok ( LRootName & "Lt" , LArgCtOfList , LArgStringOfList )  
       ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
       ; EmitTok ( LRootName & "LtTemp" , LArgCtOfList , LArgStringOfList )  
@@ -1020,12 +1023,17 @@ EXPORTS Main
       ; EmitTok ( LRootName & "Rt" , LArgCtOfList , LArgStringOfList )
       ; Layout . PutEol ( GOStream )
 
+      (* Separators: *) 
       ; EmitTok ( LRootName & "Sep" , LArgCtOfSep , LArgStringOfSep )  
       ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
       ; EmitTok ( LRootName & "SepTemp" , LArgCtOfSep , LArgStringOfSep )  
       ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
       ; EmitTok
           ( LRootName & "SepPatch" , LArgCtOfSep , "_C" & LArgStringOfSep )  
+      ; Layout . PutEol ( GOStream )
+
+      (* Elements: *) 
+      ; EmitTok ( LRootName & "Elem" , LArgCtOfElem , LArgStringOfElem )  
       ; Layout . PutEol ( GOStream )
 
       ELSIF GDoCountIntToks
@@ -1392,6 +1400,17 @@ EXPORTS Main
       ; Layout . PutText
           ( GOStream
           , "(* ^Add this to list Lt tokcode to get SepPatch tokcode. *)"
+          )
+      ; Layout . PutEol ( GOStream ) 
+
+      ; Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText ( GOStream , "; CONST LtToListElem = 7    " )  
+      ; Layout . PutEol ( GOStream )
+
+      ; Layout . PadAbs ( GOStream , 8 )
+      ; Layout . PutText
+          ( GOStream
+          , "(* ^Add this to list Lt tokcode to get ListElem tokcode. *)"
           )
       ; Layout . PutEol ( GOStream )
 

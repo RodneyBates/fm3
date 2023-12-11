@@ -1,4 +1,3 @@
-
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2023        Rodney M. Bates.                                    *)
@@ -25,7 +24,8 @@ MODULE FM3ParsePass
       into the token stream.
 *)
 
-; IMPORT FileWr 
+; IMPORT FileWr
+; IMPORT Fmt 
 ; IMPORT FS 
 ; IMPORT OSError
 ; IMPORT Pathname
@@ -112,7 +112,16 @@ MODULE FM3ParsePass
      2. Conditionally do nothing when skipping. 
   *)
 
-  = BEGIN
+  = VAR Debug := 0
+  ; BEGIN
+
+IF FM3Units . UnitStackTopRef # NIL
+   AND File = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
+   AND ValueL = 110L 
+THEN
+  Debug := 7 
+END
+; 
       IF GSkipDepth <= 0
       THEN
         TRY
@@ -391,7 +400,9 @@ MODULE FM3ParsePass
               , " final size = "
               , FM3Base . Int64Image
                   ( RdBackFile . LengthL ( UnitRef ^ . UntUnnestStackRdBack ) )
-              ) 
+              )
+        ; FM3CLArgs . DoKeep := TRUE 
+        ; FM3CLArgs . DoDisassUnnest := TRUE 
         ; FatalArr
             ( ARRAY OF REFANY
                 { "Unnest stack is not sufficiently empty, should be "
@@ -401,15 +412,30 @@ MODULE FM3ParsePass
             )
         END (*IF*)
       FINALLY 
-        RdBackFile . Close ( UnitRef ^ . UntUnnestStackRdBack , - 1L )
+        PutBwd
+          ( UnitRef ^ . UntUnnestStackRdBack
+          , VAL ( Itk . ItkRightEnd , LONGINT )
+          )
+      ; PutBwd
+          ( UnitRef ^ . UntUnnestStackRdBack
+          , VAL ( Itk . ItkEOF , LONGINT )
+          )
       ; IF NOT FM3CLArgs . DoKeep
-        THEN FS . DeleteFile ( UnitRef ^ . UntUnnestStackName )
+        THEN
+          RdBackFile . Close ( UnitRef ^ . UntUnnestStackRdBack , - 1L )
+        ; FS . DeleteFile ( UnitRef ^ . UntUnnestStackName )
+        ELSE 
+          RdBackFile . Close
+            ( UnitRef ^ . UntUnnestStackRdBack
+            , RdBackFile . MaxLengthL ( UnitRef ^ . UntUnnestStackRdBack )
+(* FIXME      ^ I don't think this will reset it properly to its once length. *) 
+            )
+        ;  Disass
+            ( UnitRef 
+            , UnitRef ^ . UntUnnestStackName
+            , FM3CLArgs . DoDisassUnnest
+            ) 
         END (*IF*)
-      ; Disass
-          ( UnitRef 
-          , UnitRef ^ . UntUnnestStackName
-          , FM3CLArgs . DoDisassUnnest
-          ) 
       END (*FINALLY*)
 
     (* Finish with parse pass RdBack, the output of this pass. *) 
@@ -421,7 +447,16 @@ MODULE FM3ParsePass
             , " bytes."
             )
       FINALLY 
-        RdBackFile . Close ( UnitRef ^ . UntParsePassRdBack , - 1L )
+        PutBwd
+          ( FM3Units . UnitStackTopRef ^ . UntParsePassRdBack
+          , VAL ( Itk . ItkLeftEnd , LONGINT ) 
+          )
+      ; PutBwd
+          ( FM3Units . UnitStackTopRef ^ . UntParsePassRdBack
+          , VAL ( Itk . ItkEOF , LONGINT ) 
+          )
+
+      ; RdBackFile . Close ( UnitRef ^ . UntParsePassRdBack , - 1L )
       ; IF NOT FM3CLArgs . DoKeep
         THEN FS . DeleteFile ( UnitRef ^ . UntParsePassName )
         END (*IF*)
@@ -431,7 +466,7 @@ MODULE FM3ParsePass
           , FM3CLArgs . DoDisassParsePass
           ) 
       END (*FINALLY*)
-(* TODO: code point counts. *)
+(* TODO: display code point counts. *)
     END CloseUnit
 
 ; PROCEDURE Disass
@@ -439,6 +474,7 @@ MODULE FM3ParsePass
     ; RdBackFileName : TEXT 
     ; Do : BOOLEAN
     )
+  (*PRE: RdBackFile is closed. *) 
 
   = VAR LFullDisassFileName : TEXT
   ; VAR LFullRdBackFileName : TEXT
@@ -466,11 +502,12 @@ MODULE FM3ParsePass
       ; RdBackFile . Close ( LRdBack , - 1L )      
       ; Wr . Close ( LDisassWrT ) 
       END (*IF*) 
-    END Disass 
+    END Disass
 
 ; PROCEDURE CompileUnit ( SrcFileName : TEXT )
 
   = VAR LUnitRef , LPoppedUnitRef : FM3Units . UnitRefTyp
+  ; VAR LUnnDepthL , LPpDepthL : LONGINT 
 
   ; BEGIN
       IF GSkipDepth > 0 THEN RETURN END (*IF*) 
@@ -478,21 +515,88 @@ MODULE FM3ParsePass
     ; FM3Units . PushUnit ( LUnitRef ) 
     ; FM3Units . UnitStackTopRef := LUnitRef
 (* TODO ^ Replace uses of this by FM3Units . UnitStackTopRef. *) 
-    ; Log ( "Compiling " , SrcFileName , "..." ) 
-    ; LUnitRef ^ . UntParseResult := FM3Parser . FM3Parser ( )
-(* TODO:           ^Something with this? *) 
-    ; FM3Parser . CloseFM3Parser ( )
-
-; Unnest ( LUnitRef ^ . UntUnnestStackEmptyCoord ) 
-
+    ; Log ( "Compiling " , SrcFileName , "..." )
+    ; TRY 
+        LUnitRef ^ . UntParseResult := FM3Parser . FM3Parser ( )
+(* TODO:           ^Something with this? *)
+      ; FM3Parser . CloseFM3Parser ( )
+      EXCEPT
+      | FM3SharedUtils . Terminate ( Arg )
+      => RAISE FM3SharedUtils . Terminate ( Arg ) 
+      ELSE (* Disassemble the incomplete Unnest stack before crashing. *)
+        LUnnDepthL := RdBackFile . LengthL ( LUnitRef ^ . UntUnnestStackRdBack )
+      ; PutBwd
+          ( LUnitRef ^ . UntUnnestStackRdBack
+          , VAL ( Itk . ItkRightEndIncomplete , LONGINT )
+          )
+      ; PutBwd
+          ( LUnitRef ^ . UntUnnestStackRdBack
+          , VAL ( Itk . ItkEOF , LONGINT )
+          )
+      ; RdBackFile . Close ( LUnitRef ^ . UntUnnestStackRdBack , - 1L )
+      ; Disass ( LUnitRef , LUnitRef ^ . UntUnnestStackName , Do := TRUE )
+      ; FM3Messages . FatalArr
+           ( ARRAY OF REFANY
+               { "Failure pushing unnest stack at depth "
+               , Fmt . LongInt ( LUnnDepthL ) 
+               }
+           )
+      ; RAISE FM3SharedUtils . FatalError ( "Failure pushing unnest stack." ) 
+      END (*EXCEPT *)
+      
+    (* Building the unnest RdBack succeeded.  Maybe disassemble it, but also
+       keep it ready for generating the parse pass RdBack.
+    *) 
     ; PutBwd
-        ( FM3Units . UnitStackTopRef ^ . UntParsePassRdBack
-        , VAL ( Itk . ItkLeftEnd , LONGINT ) 
+        ( LUnitRef ^ . UntUnnestStackRdBack
+        , VAL ( Itk . ItkRightEnd , LONGINT )
         )
     ; PutBwd
-        ( FM3Units . UnitStackTopRef ^ . UntParsePassRdBack
-        , VAL ( Itk . ItkEOF , LONGINT ) 
+        ( LUnitRef ^ . UntUnnestStackRdBack
+        , VAL ( Itk . ItkEOF , LONGINT )
         )
+    ; RdBackFile . Close ( LUnitRef ^ . UntUnnestStackRdBack , - 1L )
+    ; IF FM3CLArgs . DoDisassUnnest
+      THEN
+        RdBackFile . Close ( LUnitRef ^ . UntUnnestStackRdBack , - 1L )
+      ; Disass ( LUnitRef , LUnitRef ^ . UntUnnestStackName , Do := TRUE )
+      ; LUnitRef ^ . UntUnnestStackRdBack
+          := RdBackFile . Open ( LUnitRef ^ . UntUnnestStackName )
+      END (*IF*)
+      
+    (* Now build the ParsePass RdBack. *) 
+    ; TRY 
+        Unnest ( LUnitRef ^ . UntUnnestStackEmptyCoord ) 
+    ; EXCEPT
+      | FM3SharedUtils . Terminate ( Arg )
+      => RAISE FM3SharedUtils . Terminate ( Arg )
+      ELSE (* Disassemble the incomplete ParsePass RdBack before crashing. *)
+        LUnnDepthL := RdBackFile . LengthL ( LUnitRef ^ . UntUnnestStackRdBack )
+      ; LPpDepthL := RdBackFile . LengthL ( LUnitRef ^ . UntParsePassRdBack )
+      ; RdBackFile . Close
+          ( LUnitRef ^ . UntParsePassRdBack
+          , TruncTo := - 1L (* Leave current length. *)
+          )
+      ; Disass ( LUnitRef , LUnitRef ^ . UntParsePassName , Do := TRUE ) 
+      ; FM3Messages . FatalArr
+           ( ARRAY OF REFANY
+               { "Failure pushing parse pass stack at unnest depth "
+               , Fmt . LongInt ( LUnnDepthL ) 
+               , ", parse pass depth " 
+               , Fmt . LongInt ( LPpDepthL ) 
+               }
+           )
+      ; RAISE FM3SharedUtils . FatalError ( "" )
+      END (*EXCEPT *)
+
+(* FIXME: The cases of deleting, keeping, disassembling the unnest and
+          ParsePass RdBacks are a mess.  We really need RdBackFile to be
+          able to do a snapshot, and revert to it.  When building it has
+          succeeded, unnest will start popping it, but we may need to keep
+          the full contents, either to keep or disassemble later.  We don't
+          know here whether the parse pass build will succeed, which can
+          affect whether the unnest RdBack would be disassembled.
+*) 
 
     ; CloseUnit ( LUnitRef ) 
     ; Log ( "Finished compiling " , SrcFileName , "." )
@@ -631,7 +735,7 @@ MODULE FM3ParsePass
 ; PROCEDURE Push_ListSepPatchPos
     ( ListT : Itk . TokTyp
     ; C : LONGINT
-    ; IdNo : INTEGER
+    ; ElemNo : INTEGER
     ; Position : FM3Scanner . tPosition
     )
 
@@ -640,7 +744,7 @@ MODULE FM3ParsePass
       DO
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
-      ; PutBwd ( WRdBack , VAL ( IdNo , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( ElemNo , LONGINT ) ) 
       ; PutBwd ( WRdBack , C ) 
       ; PutBwd
           ( WRdBack , VAL ( ListT + Itk . LtToListSepPatch , LONGINT ) )
@@ -1070,14 +1174,15 @@ MODULE FM3ParsePass
 ; PROCEDURE MakeListPos
     ( VAR LHSAttr : tParsAttribute
     ; TokLt : Itk . TokTyp
-    ; Position : FM3Scanner . tPosition 
+    ; Position : FM3Scanner . tPosition
     ; READONLY ElemsAttr : tParsAttribute 
     )
 
   = BEGIN
-      LHSAttr . PaInt := ElemsAttr . PaInt
+      LHSAttr . PaInt := ElemsAttr . PaInt (* Valid Id count. *) 
     ; LHSAttr . PaUnnestCoord := ElemsAttr . PaUnnestCoord (* Ever used? *)
-    ; IF ElemsAttr . PaInt > 0
+    ; IF TRUE OR ElemsAttr . PaInt > 0
+(* REVIEW: bracket the list even if empty.  Do we really want this? *) 
       THEN 
         PushUnnest ( Position . Column ) 
       ; PushUnnest ( Position . Line ) 
@@ -1215,7 +1320,8 @@ MODULE FM3ParsePass
     ; LParsePassRdBack := LUnitRef . UntParsePassRdBack
     ; LMUnnestDepth := MAX ( LMUnnestDepth , LUnitRef . UntUnnestStackEmptyCoord )
 
-    ; IF GDoCopy THEN
+    ; IF
+FALSE AND GDoCopy THEN
         (* Temporarily make it look like the unnest stack is ended. *) 
         PutBwd
           ( LUnitRef ^ . UntUnnestStackRdBack
@@ -1246,7 +1352,7 @@ MODULE FM3ParsePass
         THEN
 
         (* Move a modified token from the patch stack to the output. *) 
-          <*ASSERT LUnnestCoord = LUnitRef . UntPatchStackTopCoord *>
+          <*ASSERT LUnnestCoord = LUnitRef . UntPatchStackTopCoord *> 
           LPatchTokenL
             := FM3Compress . GetBwd ( LPatchRdBack )
         ; LPatchToken := VAL ( LPatchTokenL , Itk . TokTyp ) 
@@ -1428,14 +1534,16 @@ MODULE FM3ParsePass
       END (*WITH*) 
     END ScopeLtL2R
 
-
-
 (*EXPORTED.*)
 ; PROCEDURE DeclIdL2R 
-    ( READONLY Attribute : tParsAttribute ; PriorIdCt : INTEGER )
+    ( READONLY SepPosition : FM3Scanner . tPosition 
+    ; READONLY IdAttribute : tParsAttribute
+    ; PriorIdCt : INTEGER (* Number of ids to left of this one. *)
+    ; IdListTokLt : Itk . TokTyp 
+    )
   : BOOLEAN (* Use this declared id.  (It's not predefined and not a duplicate
                in current scope.) *)
-  (* PRE: Attribute is for an identifier in a declaration context. *) 
+  (* PRE: IdAttribute is for an identifier in a declaration context. *) 
 
   = VAR LTokToPut : Itk . TokTyp
   ; VAR LResult : BOOLEAN
@@ -1444,94 +1552,61 @@ MODULE FM3ParsePass
       WITH WScope = FM3Scopes . ScopeStackTopRef ^
            , WunRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack 
       DO
-        IF Attribute . Scan . SaIsReservedId 
+        IF IdAttribute . Scan . SaIsReservedId 
         THEN
           ErrorArr
             ( ARRAY OF REFANY
-                { PosImage ( Attribute . Scan . Position )
+                { PosImage ( IdAttribute . Scan . Position )
                 , " Identifier \""
-                , FM3SrcToks . Image ( Attribute . Scan . SaAtom )
+                , FM3SrcToks . Image ( IdAttribute . Scan . SaAtom )
                 , "\" is predefined and cannot be redeclared (2.8.2)."
                 } 
             )
           (* No output. *) 
         ; RETURN FALSE (* Caller, Don't use this Id. *) 
         ELSE
-          PutBwd
+          IF NOT IntSets . IsElement
+                   ( IdAttribute . Scan . SaAtom , WScope . ScpDeclIdSet )
+          THEN  (* 1st declaration of Ident in scope . *) 
+            WScope . ScpDeclIdSet
+              := IntSets . Include
+                   ( WScope . ScpDeclIdSet , IdAttribute . Scan . SaAtom )
+          (* Push Separator token: *)
+          ; IF PriorIdCt > 0
+            THEN 
+              PutBwd ( WunRdBack , VAL ( SepPosition . Column , LONGINT ) ) 
+            ; PutBwd ( WunRdBack , VAL ( SepPosition . Line , LONGINT ) )
+            ; PutBwd ( WunRdBack , VAL ( PriorIdCt , LONGINT ) )
+            ; PutBwd ( WunRdBack , VAL ( IdListTokLt + Itk . LtToListSep , LONGINT ) )
+            END (*IF*) 
+          (* Plan to push Ident token: *)
+          ; LTokToPut := IdListTokLt + Itk . LtToListElem 
+          ; LResult := TRUE (* Caller, Use this decl id. *)
+          ELSE (* A Duplicate declaration of SaAtom in current scope. *)
+            WScope . ScpDuplDeclIdSet
+              := IntSets . Include
+                   ( WScope . ScpDuplDeclIdSet , IdAttribute . Scan . SaAtom )
+          (* Plan to push duplicate Ident token: *) 
+          ; LTokToPut := Itk . ItkDuplDeclId
+          ; LResult := FALSE (* Caller, Don't use this Id. *)
+          END (*IF*) 
+        ; PutBwd
             ( WunRdBack
-            , VAL ( Attribute . Scan . Position . Column , LONGINT )
+            , VAL ( IdAttribute . Scan . Position . Column , LONGINT )
             ) 
         ; PutBwd
             ( WunRdBack
-            , VAL ( Attribute . Scan . Position . Line , LONGINT )
+            , VAL ( IdAttribute . Scan . Position . Line , LONGINT )
             )
-        ; PutBwd ( WunRdBack , VAL ( Attribute . Scan . SaAtom , LONGINT ) ) 
-        ; IF IntSets . IsElement
-                  ( Attribute . Scan . SaAtom , WScope . ScpDeclIdSet )
-          THEN (* A Duplicate declaration of SaAtom in current scope. *)
-            WScope . ScpDuplDeclIdSet
-              := IntSets . Include
-                   ( WScope . ScpDuplDeclIdSet , Attribute . Scan . SaAtom )
-          ; LTokToPut := Itk . ItkDuplDeclId
-          ; LResult := FALSE (* Caller, Don't use this Id. *)
-          ELSE (* Valid declaration Ident. *) 
-            WScope . ScpDeclIdSet
-              := IntSets . Include
-                   ( WScope . ScpDeclIdSet , Attribute . Scan . SaAtom )
-          ; PutBwd ( WunRdBack , VAL ( PriorIdCt , LONGINT ) )
-          ; LTokToPut := FM3Decls . TopDeclInfo ( ) . DiIdTok
-          ; LResult := TRUE (* Caller, Use this decl id. *)
-          END (*IF*)
+        ; PutBwd
+            ( WunRdBack
+            , VAL ( IdAttribute . Scan . SaAtom , LONGINT )
+            )
         ; PutBwd ( WunRdBack , VAL ( LTokToPut , LONGINT ) )
-        ; RETURN LResult 
+        ; RETURN LResult
         END (*IF*)
       END (*WITH*) 
     END DeclIdL2R
-
-(* Old version: ************
-; PROCEDURE DeclIdL2R ( Attribute : tParsAttribute )
-  : BOOLEAN (* Use this declared id.  It's not a duplicate in current scope. *) 
-
-  = VAR LTokenL : LONGINT 
-  ; VAR LIdAtomL : LONGINT 
-  ; VAR LToken : FM3Base . TokTyp
-  ; VAR LIdAtom : FM3Base . AtomTyp
-  ; VAR LDeclKind : FM3Decls . DeclKindTyp
-  ; VAR LDeclIdTok : FM3Base . TokTyp  
-
-  ; BEGIN (*DeclIdL2R*)
-      WITH WScope = FM3Scopes . ScopeStackTopRef ^
-           , WunRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack 
-      DO
-        (* An StkIdent, /w args, was pushed by parser shift, as it does for
-           all variable terminals.  Convert it to ItkDeclId or ItkDuplDeclId.
-        *) 
-        LTokenL := GetBwd ( WunRdBack ) 
-      ; LToken := VAL ( LTokenL , FM3Base . TokTyp ) 
-      ; LIdAtomL := GetBwd ( WunRdBack )
-      ; LIdAtom := VAL ( LIdAtomL , FM3Base . AtomTyp ) 
-      ; PutBwd ( WunRdBack , LIdAtomL )
-      (* Each of the 3 tokens involved here has a Position argument,
-         but no need to pop and repush it.
-      *) 
-      ; IF IntSets . IsElement ( LIdAtom , WScope . ScpDeclIdSet )
-        THEN (* A duplicate declaration of LIdAtom. *)
-             (* Except for this inserted Itk, skip the decl. *) 
-          WScope . ScpDuplDeclIdSet
-            := IntSets . Include ( WScope . ScpDuplDeclIdSet , LIdAtom )
-        ; PutBwd ( WunRdBack , VAL ( Itk . ItkDuplDeclId , LONGINT ) )
-        ; RETURN FALSE 
-        ELSE 
-          WScope . ScpDeclIdSet
-            := IntSets . Include ( WScope . ScpDeclIdSet , LIdAtom )
-        ; FM3Decls . GetTopDeclInfo ( (*OUT*) LDeclKind , (*OUT*) LDeclIdTok ) 
-        ; PutBwd ( WunRdBack , VAL ( ORD ( LDeclKind ) , LONGINT ) )  
-        ; PutBwd ( WunRdBack , VAL ( ORD ( LDeclIdTok ) , LONGINT ) )  
-        ; RETURN TRUE  
-        END (*IF*)
-      END (*WITH*) 
-    END DeclIdL2R
-**************** old version *) 
 
 (*EXPORTED.*)
 ; PROCEDURE RefIdL2R
@@ -1550,10 +1625,10 @@ MODULE FM3ParsePass
     END RefIdL2R
 
 (*EXPORTED.*)
-; PROCEDURE ScopeRtL2R ( )
+; PROCEDURE ScopeRtL2R ( ScopeNo : FM3Scopes . ScopeNoTyp )
   (* Create an IdAtom-to-declNo, fixed-size dictionary for the scope, of
      exactly the needed size, and load it up with mappings of the idents
-     declared in the scope, and with a contiguously-numbered range of DeclNos.
+     declared in the scope, using a contiguously-numbered range of DeclNos.
   *) 
 
   = VAR SrtDeclNo : INTEGER 
@@ -1577,7 +1652,13 @@ MODULE FM3ParsePass
           END SrtVisit
           
       ; BEGIN (* Block. *)
-          LDeclCt := IntSets . Card ( WScope . ScpDeclIdSet )
+          <* ASSERT WScope . ScpScopeNo = ScopeNo *> 
+          IF WScope . ScpKind = FM3Scopes . ScopeKindTyp . SkExports
+          THEN
+(*COMPLETEME: Handle getting exported interfaces here. *) 
+            RETURN
+          END (*IF*)
+        ; LDeclCt := IntSets . Card ( WScope . ScpDeclIdSet )
         (* LDeclCt is exactly the needed dictionary size. *)
         ; WScope . ScpDeclDict 
             := FM3Dict_Int_Int . NewFixed 
@@ -1604,7 +1685,7 @@ MODULE FM3ParsePass
           END (*WITH*) 
         END (*Block*)
       END (*WITH*) 
-    ; EVAL FM3Scopes . PopScope ( ) 
+    ; EVAL FM3Scopes . PopScope ( )   
     END ScopeRtL2R
 
 (* Right-to-left scope handling.  These are called during unnesting. *)
@@ -1628,7 +1709,11 @@ MODULE FM3ParsePass
 
 ; PROCEDURE DuplDeclIdR2L
     ( DeclIdAtom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
-  : FM3Base . DeclNoTyp 
+  : FM3Base . DeclNoTyp
+  (* Append a temporary, pseudo-decl node to the linked list rooted at
+     the the decl number.  The position of the original declaration of
+     the ident is not known right now.
+  *) 
 
   = PROCEDURE Visit ( DeclNoI : INTEGER ; VAR DeclRefany : REFANY )
     (* PRE: DeclNoI IN FM3Base . DeclNoTyp *)  

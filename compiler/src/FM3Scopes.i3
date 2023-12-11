@@ -24,6 +24,7 @@ INTERFACE FM3Scopes
       , SkCompEnv (* Compiled, IMPORTed, EXPORTed. *) 
       , SkInterface
       , SkModule
+      , SkExports 
       , SkFormals
       , SkProcBody 
       , SkBlock
