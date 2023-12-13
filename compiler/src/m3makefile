@@ -54,7 +54,7 @@ module("FM3Decls")
 module("FM3Scopes")
 module("FM3Sets")
 module("FM3PreDecl")
-module("FM3Disass")
+module("FM3DisAsm")
 
 implementation("FM3")
 

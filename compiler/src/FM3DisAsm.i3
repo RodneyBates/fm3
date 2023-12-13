@@ -6,7 +6,7 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-INTERFACE FM3Disass 
+INTERFACE FM3DisAsm 
 
 ; IMPORT Wr 
 
@@ -16,9 +16,9 @@ INTERFACE FM3Disass
 
 ; PROCEDURE DumpInterpretBwd ( RBT : RdBackFile . T ; WrT : Wr . T )
 
-; PROCEDURE DisassWOperandsBwd ( RBT : RdBackFile . T ; WrT : Wr . T )
+; PROCEDURE DisAsmWOperandsBwd ( RBT : RdBackFile . T ; WrT : Wr . T )
   (* PRE: RBT is open. *) 
 
-; END FM3Disass
+; END FM3DisAsm
 .
 

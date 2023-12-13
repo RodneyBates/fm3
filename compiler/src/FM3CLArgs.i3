@@ -17,8 +17,8 @@ INTERFACE FM3CLArgs
 ; VAR DoKeep : BOOLEAN := FALSE
       (* Keep intermediate files. *)
       
-; VAR DoDisassUnnest : BOOLEAN := FALSE
-; VAR DoDisassParsePass : BOOLEAN := FALSE
+; VAR DoDisAsmUnnest : BOOLEAN := FALSE
+; VAR DoDisAsmParsePass : BOOLEAN := FALSE
 
 (*
 ; VAR DoStdErr : BOOLEAN := TRUE

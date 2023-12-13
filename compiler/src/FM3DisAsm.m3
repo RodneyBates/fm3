@@ -6,7 +6,7 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-MODULE FM3Disass
+MODULE FM3DisAsm
 
 ; IMPORT Fmt
 ; IMPORT Long
@@ -248,7 +248,7 @@ MODULE FM3Disass
     END NumArgCt 
 
 (*EXPORTED:*) 
-; PROCEDURE DisassWOperandsBwd ( RBT : RdBackFile . T ; WrT : Wr . T )
+; PROCEDURE DisAsmWOperandsBwd ( RBT : RdBackFile . T ; WrT : Wr . T )
   (* PRE: RBT is open. *) 
 
   = VAR LTokenL : LONGINT
@@ -401,7 +401,7 @@ MODULE FM3Disass
       ; Wr . PutText ( WrT , Fmt . LongInt ( LArgL ) ) 
       END DobCoordArg 
 
-  ; BEGIN (* DisassWOperandsBwd *) 
+  ; BEGIN (* DisAsmWOperandsBwd *) 
       FM3SharedUtils . LoadSets ( ) 
 
     ; TRY 
@@ -577,9 +577,9 @@ MODULE FM3Disass
       => Wr . PutText ( WrT , Fmt . Pad ( Fmt . LongInt ( 0L) , 6 ) )
       ; Wr . PutText ( WrT , Wr . EOL ) 
       END (*EXCEPT*)
-    END DisassWOperandsBwd
+    END DisAsmWOperandsBwd
 
 ; BEGIN
-  END FM3Disass
+  END FM3DisAsm
 .
 

@@ -45,7 +45,7 @@ MODULE FM3ParsePass
 ; FROM FM3Compress IMPORT GetBwd
 ; IMPORT FM3Decls
 ; IMPORT FM3Dict_Int_Int
-; IMPORT FM3Disass 
+; IMPORT FM3DisAsm 
 ; IMPORT FM3Files
 ; IMPORT FM3Globals
 ; IMPORT FM3IntToks AS Itk
@@ -112,16 +112,7 @@ MODULE FM3ParsePass
      2. Conditionally do nothing when skipping. 
   *)
 
-  = VAR Debug := 0
-  ; BEGIN
-
-IF FM3Units . UnitStackTopRef # NIL
-   AND File = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
-   AND ValueL = 110L 
-THEN
-  Debug := 7 
-END
-; 
+  = BEGIN
       IF GSkipDepth <= 0
       THEN
         TRY
@@ -333,29 +324,29 @@ END
     ; RETURN LUnitRef 
     END OpenUnit 
 
-; PROCEDURE Disass
+; PROCEDURE DisAsm
     ( UnitRef : FM3Units . UnitRefTyp ; RdBackFileName : TEXT )
   (*PRE: RdBackFile.Copy is closed. *) 
   (*POST: RdBackFile.Copy is reclosed. *) 
 
-  = VAR LFullDisassFileName : TEXT
+  = VAR LFullDisAsmFileName : TEXT
   ; VAR LFullRdBackFileName : TEXT
-  ; VAR LDisassWrT : Wr . T
+  ; VAR LDisAsmWrT : Wr . T
   ; VAR LRdBack : RdBackFile . T
   
   ; BEGIN
-      LFullDisassFileName
+      LFullDisAsmFileName
         := Pathname . Join
-             ( NIL , RdBackFileName , FM3Globals . DisassFileSuffix ) 
+             ( NIL , RdBackFileName , FM3Globals . DisAsmFileSuffix ) 
     ; LFullRdBackFileName
         := Pathname . Join
              ( NIL , RdBackFileName , FM3Globals . CopyFileSuffix )
     ; LRdBack := RdBackFile . Open ( LFullRdBackFileName )
-    ; LDisassWrT := FileWr . Open ( LFullDisassFileName )
-    ; FM3Disass . DisassWOperandsBwd ( LRdBack , LDisassWrT )
+    ; LDisAsmWrT := FileWr . Open ( LFullDisAsmFileName )
+    ; FM3DisAsm . DisAsmWOperandsBwd ( LRdBack , LDisAsmWrT )
     ; RdBackFile . Close ( LRdBack , - 1L )      
-    ; Wr . Close ( LDisassWrT ) 
-    END Disass
+    ; Wr . Close ( LDisAsmWrT ) 
+    END DisAsm
 
 ; PROCEDURE CompileUnit ( SrcFileName : TEXT )
 
@@ -414,9 +405,9 @@ END
              ( NIL , LUnnestFullFileName , FM3Globals . CopyFileSuffix ) 
     ; RdBackFile . Copy 
         ( LUnitRef ^ . UntUnnestStackRdBack , LUnnestFullCopyName , - 1L )
-    ; IF LUnnestFailed OR FM3CLArgs . DoDisassUnnest
+    ; IF LUnnestFailed OR FM3CLArgs . DoDisAsmUnnest
       THEN (* Disassemble it now. *) 
-        Disass ( LUnitRef , LUnnestFullFileName )
+        DisAsm ( LUnitRef , LUnnestFullFileName )
 (*
       ; TRY FS . DeleteFile ( LUnnestFullCopyName )
         EXCEPT OSError . E => (* It didn't exist. *) 
@@ -458,9 +449,9 @@ END
           , VAL ( Itk . ItkLeftEndIncomplete , LONGINT )
           )
       ; LParsePassFailed := TRUE 
-      ; IF NOT ( LUnnestFailed OR FM3CLArgs . DoDisassUnnest ) 
+      ; IF NOT ( LUnnestFailed OR FM3CLArgs . DoDisAsmUnnest ) 
         THEN (* Didn't already disassemble unnest stack.  Do it now. *) 
-          Disass ( LUnitRef , LUnnestFullFileName )
+          DisAsm ( LUnitRef , LUnnestFullFileName )
 (*
         ; TRY FS . DeleteFile ( LUnnestFullCopyName )
           EXCEPT OSError . E => (* It didn't exist. *) 
@@ -480,9 +471,9 @@ END
     ; RdBackFile . Copy 
         ( LUnitRef ^ . UntParsePassRdBack , LParsePassFullCopyName , - 1L )
 
-    ; IF LParsePassFailed OR FM3CLArgs . DoDisassParsePass
+    ; IF LParsePassFailed OR FM3CLArgs . DoDisAsmParsePass
       THEN (* Disassemble it now. *) 
-        Disass ( LUnitRef , LParsePassFullFileName )
+        DisAsm ( LUnitRef , LParsePassFullFileName )
 (*
       ; TRY FS . DeleteFile ( LParsePassFullCopyName )
         EXCEPT OSError . E => (* It didn't exist. *) 
@@ -549,9 +540,9 @@ END
             , " final size = "
             , FM3Base . Int64Image ( LLengthL ) 
             )
-      ; IF NOT FM3CLArgs . DoDisassUnnest
+      ; IF NOT FM3CLArgs . DoDisAsmUnnest
         THEN 
-          Disass ( LUnitRef , LUnnestFullFileName )
+          DisAsm ( LUnitRef , LUnnestFullFileName )
 (*
         ; TRY FS . DeleteFile ( LUnnestFullCopyName )
           EXCEPT OSError . E => (* It didn't exist. *) 
@@ -569,7 +560,7 @@ END
       ; RAISE FM3SharedUtils . FatalError
                 ( "Unnest stack is not sufficiently empty." )
       END (*IF*) 
-    ; IF NOT FM3CLArgs . DoDisassUnnest  
+    ; IF NOT FM3CLArgs . DoDisAsmUnnest  
       THEN
 (*
         TRY FS . DeleteFile ( LUnnestCopyName )
