@@ -1014,9 +1014,11 @@ EXPORTS Main
       ; Layout . PutEol ( GOStream )
 
       (* List bookends: *) 
-      ; EmitTok ( LRootName & "Lt" , LArgCtOfList , LArgStringOfList )  
+      ; EmitTok ( LRootName & "Lt" , LArgCtOfList , LArgStringOfList )
+
       ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
-      ; EmitTok ( LRootName & "LtTemp" , LArgCtOfList , LArgStringOfList )  
+      ; EmitTok ( LRootName & "LtTemp" , LArgCtOfList , LArgStringOfList )
+
       ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
       ; EmitTok
           ( LRootName & "LtPatch" , LArgCtOfList , "_C" & LArgStringOfList )  
@@ -1025,8 +1027,10 @@ EXPORTS Main
 
       (* Separators: *) 
       ; EmitTok ( LRootName & "Sep" , LArgCtOfSep , LArgStringOfSep )  
+
       ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
-      ; EmitTok ( LRootName & "SepTemp" , LArgCtOfSep , LArgStringOfSep )  
+      ; EmitTok ( LRootName & "SepTemp" , LArgCtOfSep , LArgStringOfSep )
+
       ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
       ; EmitTok
           ( LRootName & "SepPatch" , LArgCtOfSep , "_C" & LArgStringOfSep )  
@@ -1067,8 +1071,10 @@ EXPORTS Main
       ; Layout . PutEol ( GOStream )
 
       ; EmitTok ( LRootName & "Lt" , LArgCtFixed , LOperandStringFixed )  
+
       ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
-      ; EmitTok ( LRootName & "LtTemp" , LArgCtFixed , LOperandStringFixed )  
+      ; EmitTok ( LRootName & "LtTemp" , LArgCtFixed , LOperandStringFixed )
+
       ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
       ; EmitTok
           ( LRootName & "LtPatch" , LArgCtFixed , "_C" & LOperandStringFixed )
@@ -1088,9 +1094,11 @@ EXPORTS Main
       ; IF GDoGenIntToks
         THEN 
           EmitTok ( LRootName & LSubName , LArgCtSub , LOperandStringSub )  
+
         ; GTokSetTemp := IntSets . Include ( GTokSetTemp , GNextTokNo ) 
         ; EmitTok
-            ( LRootName & LSubName & "Temp" , LArgCtSub , LOperandStringSub )  
+            ( LRootName & LSubName & "Temp" , LArgCtSub , LOperandStringSub )
+
         ; GTokSetPatch := IntSets . Include ( GTokSetPatch , GNextTokNo )  
         ; EmitTok
             ( LRootName & LSubName & "Patch" 
