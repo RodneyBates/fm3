@@ -553,7 +553,7 @@ MODULE FM3ParsePass
       END (*IF*) 
     ; IF NOT FM3CLArgs . DoDisAsmUnnest  
       THEN
-        TRY FS . DeleteFile ( LUnnestCopyName )
+        TRY FS . DeleteFile ( LUnnestFullCopyName )
         EXCEPT OSError . E => (* It didn't exist. *) 
         END (*EXCEPT*) 
       END (*IF*)
