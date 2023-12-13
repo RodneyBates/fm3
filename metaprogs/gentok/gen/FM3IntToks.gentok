@@ -71,6 +71,7 @@ ItkBlock POS 2 (* Position of LM declaration. *)
 
 (* Type decls. *)
 
+(*
 LONE
 ItkExportId      IDENT POS . 
 ItkExportIdSep      IDENT POS . 
@@ -79,7 +80,7 @@ ItkRecFieldId    IDENT POS .
 ItkVALUEFormalId IDENT POS . 
 ItkVARFormalId   IDENT POS . 
 ItkROFormalId    IDENT POS . 
-
+*)
 FIXED
 ItkRecDef POS INT 3 (* Position of RECORD, field count. *) .
 ItkRecField POS 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
