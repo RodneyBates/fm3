@@ -807,30 +807,19 @@ RULE
            END (*IF*) ;
 
          IF $3 . PaInt > 0 (* Have been skipping this decl. *) 
-         THEN (* Have been omitting the declaration. *)
+         THEN 
            <* ASSERT FM3ParsePass . StopSkipping ( ) = $3 . PaInt *> 
          ELSE
-           VAR LIdTokLt : Itk . TokTyp ; 
-           BEGIN 
-             CASE WDeclInfo . DiKind OF
-             | Dk . DkValueFormal => LIdTokLt := Itk . ItkVALUEFormalIdListLt
-             | Dk . DkVarFormal => LIdTokLt := Itk . ItkVARFormalIdListLt
-             | Dk . DkROFormal => LIdTokLt := Itk . ItkROFormalIdListLt
-             END (*CASE*) ; 
-(*           MakeListPos
-               ( $$ , WDeclInfo . DiIdListTok , $2 . Scan . Position , $2 ) ;
-*) 
-             Push_LCP_eCP_zCP_rP 
-               ( WDeclInfo . DiDeclTok 
-               , $1 . PaUnnestCoord
-               , $1 . Scan . Position
-               , $4 . PaUnnestCoord
-               , $4 . Scan . Position
-               , $5 . PaUnnestCoord
-               , $5 . Scan . Position 
-               , $1 . Scan . Position 
-               ) ;
-           END (*block*) 
+           Push_LCP_eCP_zCP_rP 
+             ( WDeclInfo . DiDeclTok 
+             , $1 . PaUnnestCoord
+             , $1 . Scan . Position
+             , $4 . PaUnnestCoord
+             , $4 . Scan . Position
+             , $5 . PaUnnestCoord
+             , $5 . Scan . Position 
+             , $1 . Scan . Position 
+             ) ;
          END (*WITH*) 
        END (*IF*) ;
        <* ASSERT FM3Decls . PopDeclInfo ( ) = $1 . PaInt *>
