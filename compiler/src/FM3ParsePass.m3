@@ -408,11 +408,9 @@ MODULE FM3ParsePass
     ; IF LUnnestFailed OR FM3CLArgs . DoDisAsmUnnest
       THEN (* Disassemble it now. *) 
         DisAsm ( LUnitRef , LUnnestFullFileName )
-(*
       ; TRY FS . DeleteFile ( LUnnestFullCopyName )
         EXCEPT OSError . E => (* It didn't exist. *) 
         END (*EXCEPT*) 
-*) 
       END (*IF*)
     ; IF LUnnestFailed 
       THEN 
@@ -452,11 +450,9 @@ MODULE FM3ParsePass
       ; IF NOT ( LUnnestFailed OR FM3CLArgs . DoDisAsmUnnest ) 
         THEN (* Didn't already disassemble unnest stack.  Do it now. *) 
           DisAsm ( LUnitRef , LUnnestFullFileName )
-(*
         ; TRY FS . DeleteFile ( LUnnestFullCopyName )
           EXCEPT OSError . E => (* It didn't exist. *) 
           END (*EXCEPT*) 
-*) 
         END (*IF*) 
       END (*EXCEPT *)
     ; LParsePassFullFileName
@@ -474,11 +470,9 @@ MODULE FM3ParsePass
     ; IF LParsePassFailed OR FM3CLArgs . DoDisAsmParsePass
       THEN (* Disassemble it now. *) 
         DisAsm ( LUnitRef , LParsePassFullFileName )
-(*
       ; TRY FS . DeleteFile ( LParsePassFullCopyName )
         EXCEPT OSError . E => (* It didn't exist. *) 
         END (*EXCEPT*) 
-*) 
       END (*IF*)
     ; IF LParsePassFailed 
       THEN 
@@ -543,12 +537,9 @@ MODULE FM3ParsePass
       ; IF NOT FM3CLArgs . DoDisAsmUnnest
         THEN 
           DisAsm ( LUnitRef , LUnnestFullFileName )
-(*
         ; TRY FS . DeleteFile ( LUnnestFullCopyName )
           EXCEPT OSError . E => (* It didn't exist. *) 
           END (*EXCEPT*)
-*) 
-
         END (*IF*) 
       ; FatalArr
           ( ARRAY OF REFANY
@@ -562,11 +553,9 @@ MODULE FM3ParsePass
       END (*IF*) 
     ; IF NOT FM3CLArgs . DoDisAsmUnnest  
       THEN
-(*
         TRY FS . DeleteFile ( LUnnestCopyName )
         EXCEPT OSError . E => (* It didn't exist. *) 
         END (*EXCEPT*) 
-*) 
       END (*IF*)
     ; IF NOT FM3CLArgs . DoKeep
       THEN 
