@@ -78,16 +78,16 @@ MODULE RdBackFile
 
 (* The file is handled in fixed-sized blocks of size BlockSize.  RbBuffer is
    an in-memory copy of block number RbBlockNo, which is not necessarily
-   up-to-date on disk.  RbBlockNo is the rightmost that contains meaningful
-   data, which occupy bytes [0..RbBlockNextIn-1] of RbBuffer.  RbBlockNextIn
-   is the subscript where the next byte would go into RbBuffer, but it can
-   be one beyond the end of RbBuffer, i.e. equal to BlockSize.  If a Put occurs
-   in this state, RbBuffer must first be changed to contain the block to the
-   right, flushing its old contents to disk.  RbBlockNextIn-1 is the subscript
-   of the next byte to be removed, but analogous to the above, it can be one
-   to the left of the beginning of RbBuffer, i.e., -1, with an analogous
-   requirement to flush and change the block to the left, should a GetBwd
-   occur in this state.
+   up-to-date on disk.  RbBlockNo denotes the rightmost block that contains
+   meaningful current data, which occupy bytes [0..RbBlockNextIn-1] of RbBuffer.
+   RbBlockNextIn is the subscript where the next byte would go into RbBuffer,
+   but it can be one beyond the end of RbBuffer, i.e. equal to BlockSize.
+   If a Put occurs in this state, RbBuffer must first be changed to contain
+   the block to the right, after flushing its old contents to disk.
+   RbBlockNextIn-1 is the subscript of the next byte to be removed, but
+   analogous to the above, it can be one to the left of the beginning of
+   RbBuffer, i.e., -1, with an analogous requirement to flush and change
+   the block to the left, should a GetBwd occur in this state.
 *)
 
 ; VAR GDoStderr := TRUE 
@@ -396,8 +396,8 @@ MODULE RdBackFile
 
 ; PROCEDURE InnerCopy ( RbFile : T ; CopyFile : T ; TruncTo : LONGINT ) 
   (* PRE: RbFile is open. *)
-  (* PRE: TruncTo IN [ 0L .. RbFile . RbDiskLenghtL ] *) 
-  (* PRE: CopyFile is open and empty. *) 
+  (* PRE: TruncTo IN [ 0L .. RbFile . RbMaxLenghtL ] *) 
+  (* POST: CopyFile is open. *) 
 
   = VAR LFullBlockCt : INTEGER (*I.e., count of full blocks. *)
   ; VAR LTotalBlockCt : INTEGER
@@ -453,15 +453,20 @@ MODULE RdBackFile
 (*EXPORTED*)
 ; PROCEDURE Copy
     ( RbFile : T ; CopyFileName : TEXT ; TruncTo : LONGINT )
-  (* PRE: RbFile is open. *)
-  (* PRE: TruncTo IN [ 0L .. RbFile . RbDiskLenghtL ] *) 
-  (* PRE: file named CopyFileName is open. *) 
+  (* TruncTo < 0 means max length. *)
+  (* Does not alter RbFile *) 
+  (* PRE & POST: RbFile is open. *)
+  (* POST: The copy is closed. *)
 
-  = VAR LCopyFile : T 
+  = VAR LTruncTo : LONGINT
+  ; VAR LCopyFile : T 
 
   ; BEGIN (*Copy*)
       LCopyFile := Create ( CopyFileName , Truncate := TRUE )
-    ; InnerCopy ( RbFile , LCopyFile , TruncTo ) 
+    ; IF TruncTo < 0L THEN LTruncTo := RbFile . RbMaxLengthL
+      ELSE LTruncTo := MIN ( TruncTo , RbFile . RbMaxLengthL )
+      END (*IF*) 
+    ; InnerCopy ( RbFile , LCopyFile , LTruncTo ) 
     ; SimpleClose ( LCopyFile ) 
     END Copy
 

@@ -57,10 +57,10 @@ INTERFACE RdBackFile
     ( RbFile : T ; Consume := TRUE ) : ByteTyp RAISES { OSError . E , BOF }
 
 ; PROCEDURE Copy ( RbFile : T ; CopyFileName : TEXT ; TruncTo : LONGINT )
-  (* PRE: RbFile is open. *)
-  (* PRE: TruncTo IN [ 0L .. RbFile . RbDiskLenghtL ] *) 
-  (* PRE: file named CopyFileName is open. *) 
-
+  (* TruncTo < 0 means max length. *)
+  (* Does not alter RbFile *) 
+  (* PRE & POST: RbFile is open. *)
+  (* POST: The copy is closed. *)
 
 ; END RdBackFile
 .

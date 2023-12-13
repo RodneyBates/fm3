@@ -249,6 +249,7 @@ MODULE FM3Disass
 
 (*EXPORTED:*) 
 ; PROCEDURE DisassWOperandsBwd ( RBT : RdBackFile . T ; WrT : Wr . T )
+  (* PRE: RBT is open. *) 
 
   = VAR LTokenL : LONGINT
   ; VAR LArgString : TEXT
@@ -406,14 +407,7 @@ MODULE FM3Disass
     ; TRY 
         LOOP (* Thru' token-with-args groups. *) 
           LTokenL := PutPrefix ( RBT , WrT )
-
-
-; IF LTokenL = 313L OR LTokenL = 312L OR LTokenL = 319L
-  THEN
-    LToken := 4001
-  END
-        ; IF Long . LE
-               ( LTokenL , VAL ( LAST ( INTEGER ) , LONGINT ) )
+        ; IF Long . LE ( LTokenL , VAL ( LAST ( INTEGER ) , LONGINT ) )
           THEN (* Nonneg INTEGER *) 
             LToken := VAL ( LTokenL , INTEGER ) 
 

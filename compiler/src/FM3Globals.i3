@@ -10,7 +10,6 @@ INTERFACE FM3Globals
 
 ; IMPORT TextIntTbl 
 
-
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars
 ; IMPORT FM3Dict_OAChars_Int
@@ -22,6 +21,7 @@ INTERFACE FM3Globals
 ; VAR ParsePassSuffix := ".ParsePass" (* Output of the parse pass. *)
 ; VAR BuildDirRelPath := "../build"
       (* ^Relative to where the current unit's source file lives. *)
+; VAR CopyFileSuffix := "Copy" (* W/O  '.'. so can use Pathname.Join. *) 
 ; VAR DisassFileSuffix := "Disass" (* W/O  '.'. so can use Pathname.Join. *) 
 
 ; VAR M3RwDict : FM3Dict_OAChars_Int . GrowableTyp  

@@ -27,6 +27,7 @@ LONE
      ItkEOF .
      ItkLeftEnd .
      ItkRightEnd . 
+     ItkLeftEndIncomplete . 
      ItkRightEndIncomplete . 
 
 LONE

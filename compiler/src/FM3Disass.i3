@@ -17,6 +17,7 @@ INTERFACE FM3Disass
 ; PROCEDURE DumpInterpretBwd ( RBT : RdBackFile . T ; WrT : Wr . T )
 
 ; PROCEDURE DisassWOperandsBwd ( RBT : RdBackFile . T ; WrT : Wr . T )
+  (* PRE: RBT is open. *) 
 
 ; END FM3Disass
 .

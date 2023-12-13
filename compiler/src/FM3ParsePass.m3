@@ -333,148 +333,10 @@ END
     ; RETURN LUnitRef 
     END OpenUnit 
 
-; PROCEDURE DeleteFile ( PathPrefix , SrcFileName : TEXT ) 
-
-  = BEGIN 
-      TRY  
-        FS . DeleteFile ( Pathname . Join ( PathPrefix , SrcFileName , NIL ) ) 
-      EXCEPT OSError . E ( EMsg )
-      => Log ( "Unable to remove " , SrcFileName , ": " , ALOSE ( EMsg ) , "." 
-             ) 
-      END (*EXCEPT*) 
-    END DeleteFile 
-
-; PROCEDURE CloseUnit ( UnitRef : FM3Units . UnitRefTyp )
-
-  = BEGIN
-      UnitRef . UntParsePassResult := 0 
-    ; EVAL FM3Scanner . PopState ( )
-
-    (* Finish with patch stack. *) 
-    ; UnitRef ^ . UntMaxPatchStackDepth
-        := RdBackFile . MaxLengthL ( UnitRef ^ . UntPatchStackRdBack ) 
-    ; Log ( "Patch stack " , UnitRef ^ . UntPatchStackName , " peak size = "
-          , FM3Base . Int64Image  ( UnitRef ^ . UntMaxPatchStackDepth ) , "."  
-          ) 
-    ; TRY
-        IF NOT RdBackFile . LengthL ( UnitRef ^ . UntPatchStackRdBack )
-               <= UnitRef ^ . UntPatchStackEmptyCoord 
-        THEN
-          UnitRef . UntParsePassResult := 1 
-        ; Log ( "Patch stack " , UnitRef ^ . UntPatchStackName
-              , " final size = "
-              , FM3Base . Int64Image
-                  ( RdBackFile . LengthL ( UnitRef ^ . UntPatchStackRdBack ) )
-              ) 
-        ; FatalArr
-            ( ARRAY OF REFANY
-                { "Patch stack is not sufficiently empty, should be "  
-                , FM3Base . Int64Image ( UnitRef ^ . UntPatchStackEmptyCoord )
-                , "." 
-                } 
-            )
-        END (*IF*)
-      FINALLY 
-        RdBackFile . Close (  UnitRef ^ . UntPatchStackRdBack , 0L )
-      ; IF TRUE (* Not a lot of point in keeping this, after closing it empty. *) 
-           OR NOT FM3CLArgs . DoKeep
-        THEN
-          TRY FS . DeleteFile ( UnitRef ^ . UntPatchStackName )
-          EXCEPT OSError . E => (* It didn't exist. *) 
-          END (*EXCEPT*) 
-        END (*IF*)
-      END (*FINALLY*)
-
-    (* Finish with unnest stack. *) 
-    ; UnitRef ^ . UntMaxUnnestStackDepth
-        := RdBackFile . MaxLengthL ( UnitRef ^ . UntUnnestStackRdBack )
-    ; Log ( "Unnest stack " , UnitRef ^ . UntUnnestStackName , " peak size = "
-          , FM3Base . Int64Image  ( UnitRef ^ . UntMaxUnnestStackDepth ) , "." 
-          ) 
-    ; TRY 
-        IF NOT RdBackFile . LengthL ( UnitRef ^ . UntUnnestStackRdBack )
-               <= UnitRef ^ . UntUnnestStackEmptyCoord 
-        THEN
-          UnitRef . UntParsePassResult := 2 
-        ; Log ( "Unnest stack " , UnitRef ^ . UntUnnestStackName
-              , " final size = "
-              , FM3Base . Int64Image
-                  ( RdBackFile . LengthL ( UnitRef ^ . UntUnnestStackRdBack ) )
-              )
-        ; FM3CLArgs . DoKeep := TRUE 
-        ; FM3CLArgs . DoDisassUnnest := TRUE 
-        ; FatalArr
-            ( ARRAY OF REFANY
-                { "Unnest stack is not sufficiently empty, should be "
-                , FM3Base . Int64Image ( UnitRef ^ . UntUnnestStackEmptyCoord )
-                , "."
-                }
-            )
-        END (*IF*)
-      FINALLY 
-        PutBwd
-          ( UnitRef ^ . UntUnnestStackRdBack
-          , VAL ( Itk . ItkRightEnd , LONGINT )
-          )
-      ; PutBwd
-          ( UnitRef ^ . UntUnnestStackRdBack
-          , VAL ( Itk . ItkEOF , LONGINT )
-          )
-      ; IF NOT FM3CLArgs . DoKeep
-        THEN
-          RdBackFile . Close ( UnitRef ^ . UntUnnestStackRdBack , - 1L )
-        ; FS . DeleteFile ( UnitRef ^ . UntUnnestStackName )
-        ELSE 
-          RdBackFile . Close
-            ( UnitRef ^ . UntUnnestStackRdBack
-            , RdBackFile . MaxLengthL ( UnitRef ^ . UntUnnestStackRdBack )
-(* FIXME      ^ I don't think this will reset it properly to its once length. *) 
-            )
-        ;  Disass
-            ( UnitRef 
-            , UnitRef ^ . UntUnnestStackName
-            , FM3CLArgs . DoDisassUnnest
-            ) 
-        END (*IF*)
-      END (*FINALLY*)
-
-    (* Finish with parse pass RdBack, the output of this pass. *) 
-    ; TRY
-        Log ( "Parse pass output file "
-            , UnitRef ^ . UntParsePassName , " has " 
-            , FM3Base . Int64Image 
-                ( RdBackFile . LengthL ( UnitRef ^ . UntParsePassRdBack ) ) 
-            , " bytes."
-            )
-      FINALLY 
-        PutBwd
-          ( FM3Units . UnitStackTopRef ^ . UntParsePassRdBack
-          , VAL ( Itk . ItkLeftEnd , LONGINT ) 
-          )
-      ; PutBwd
-          ( FM3Units . UnitStackTopRef ^ . UntParsePassRdBack
-          , VAL ( Itk . ItkEOF , LONGINT ) 
-          )
-
-      ; RdBackFile . Close ( UnitRef ^ . UntParsePassRdBack , - 1L )
-      ; IF NOT FM3CLArgs . DoKeep
-        THEN FS . DeleteFile ( UnitRef ^ . UntParsePassName )
-        END (*IF*)
-      ; Disass
-          ( UnitRef
-          , UnitRef ^ . UntParsePassName
-          , FM3CLArgs . DoDisassParsePass
-          ) 
-      END (*FINALLY*)
-(* TODO: display code point counts. *)
-    END CloseUnit
-
 ; PROCEDURE Disass
-    ( UnitRef : FM3Units . UnitRefTyp
-    ; RdBackFileName : TEXT 
-    ; Do : BOOLEAN
-    )
-  (*PRE: RdBackFile is closed. *) 
+    ( UnitRef : FM3Units . UnitRefTyp ; RdBackFileName : TEXT )
+  (*PRE: RdBackFile.Copy is closed. *) 
+  (*POST: RdBackFile.Copy is reclosed. *) 
 
   = VAR LFullDisassFileName : TEXT
   ; VAR LFullRdBackFileName : TEXT
@@ -484,30 +346,25 @@ END
   ; BEGIN
       LFullDisassFileName
         := Pathname . Join
-             ( UnitRef ^ . UntBuildDirPath
-             , RdBackFileName
-             , FM3Globals . DisassFileSuffix
-             ) 
-    ; TRY FS . DeleteFile ( LFullDisassFileName )
-      EXCEPT OSError . E => (* Didn't exist. *) 
-      END (*EXCEPT*) 
-    ; IF Do
-      THEN
-        LFullRdBackFileName
-          := Pathname . Join
-               ( UnitRef ^ . UntBuildDirPath , RdBackFileName , NIL )
-      ; LRdBack := RdBackFile . Open ( LFullRdBackFileName )
-      ; LDisassWrT := FileWr . Open ( LFullDisassFileName )
-      ; FM3Disass . DisassWOperandsBwd ( LRdBack , LDisassWrT )
-      ; RdBackFile . Close ( LRdBack , - 1L )      
-      ; Wr . Close ( LDisassWrT ) 
-      END (*IF*) 
+             ( NIL , RdBackFileName , FM3Globals . DisassFileSuffix ) 
+    ; LFullRdBackFileName
+        := Pathname . Join
+             ( NIL , RdBackFileName , FM3Globals . CopyFileSuffix )
+    ; LRdBack := RdBackFile . Open ( LFullRdBackFileName )
+    ; LDisassWrT := FileWr . Open ( LFullDisassFileName )
+    ; FM3Disass . DisassWOperandsBwd ( LRdBack , LDisassWrT )
+    ; RdBackFile . Close ( LRdBack , - 1L )      
+    ; Wr . Close ( LDisassWrT ) 
     END Disass
 
 ; PROCEDURE CompileUnit ( SrcFileName : TEXT )
 
   = VAR LUnitRef , LPoppedUnitRef : FM3Units . UnitRefTyp
-  ; VAR LUnnDepthL , LPpDepthL : LONGINT 
+  ; VAR LUnnDepthL , LPpDepthL : LONGINT
+  ; VAR LLengthL : LONGINT
+  ; VAR LUnnestFullFileName , LUnnestFullCopyName : TEXT 
+  ; VAR LParsePassFullFileName , LParsePassFullCopyName : TEXT 
+  ; VAR LUnnestFailed , LParsePassFailed : BOOLEAN
 
   ; BEGIN
       IF GSkipDepth > 0 THEN RETURN END (*IF*) 
@@ -519,86 +376,234 @@ END
     ; TRY 
         LUnitRef ^ . UntParseResult := FM3Parser . FM3Parser ( )
 (* TODO:           ^Something with this? *)
-      ; FM3Parser . CloseFM3Parser ( )
-      EXCEPT
-      | FM3SharedUtils . Terminate ( Arg )
-      => RAISE FM3SharedUtils . Terminate ( Arg ) 
-      ELSE (* Disassemble the incomplete Unnest stack before crashing. *)
-        LUnnDepthL := RdBackFile . LengthL ( LUnitRef ^ . UntUnnestStackRdBack )
+
+      (* Unnest stack before building ParsePass file. *) 
       ; PutBwd
           ( LUnitRef ^ . UntUnnestStackRdBack
-          , VAL ( Itk . ItkRightEndIncomplete , LONGINT )
+          , VAL ( Itk . ItkRightEnd , LONGINT )
           )
       ; PutBwd
           ( LUnitRef ^ . UntUnnestStackRdBack
           , VAL ( Itk . ItkEOF , LONGINT )
           )
-      ; RdBackFile . Close ( LUnitRef ^ . UntUnnestStackRdBack , - 1L )
-      ; Disass ( LUnitRef , LUnitRef ^ . UntUnnestStackName , Do := TRUE )
-      ; FM3Messages . FatalArr
+      ; LUnnDepthL := RdBackFile . LengthL ( LUnitRef ^ . UntUnnestStackRdBack )
+      ; LUnnestFailed := FALSE 
+      ; FM3Parser . CloseFM3Parser ( )
+(*TODO ^ Do this sometime later. *) 
+      EXCEPT
+      | FM3SharedUtils . Terminate ( Arg )
+      => (*Re-*) RAISE FM3SharedUtils . Terminate ( Arg ) 
+      ELSE
+(*TODO: get the exception name here and put into the messages later. *) 
+        LUnnDepthL := RdBackFile . LengthL ( LUnitRef ^ . UntUnnestStackRdBack )
+      ; PutBwd
+          ( LUnitRef ^ . UntUnnestStackRdBack
+          , VAL ( Itk . ItkRightEndIncomplete , LONGINT )
+          )
+      ; LUnnestFailed := TRUE 
+      END (*EXCEPT *)
+      
+    ; LUnnestFullFileName
+        := Pathname . Join
+             ( LUnitRef ^ . UntBuildDirPath 
+             , LUnitRef ^ . UntUnnestStackName
+             , NIL
+             )
+    ; LUnnestFullCopyName 
+        := Pathname . Join
+             ( NIL , LUnnestFullFileName , FM3Globals . CopyFileSuffix ) 
+    ; RdBackFile . Copy 
+        ( LUnitRef ^ . UntUnnestStackRdBack , LUnnestFullCopyName , - 1L )
+    ; IF LUnnestFailed OR FM3CLArgs . DoDisassUnnest
+      THEN (* Disassemble it now. *) 
+        Disass ( LUnitRef , LUnnestFullFileName )
+(*
+      ; TRY FS . DeleteFile ( LUnnestFullCopyName )
+        EXCEPT OSError . E => (* It didn't exist. *) 
+        END (*EXCEPT*) 
+*) 
+      END (*IF*)
+    ; IF LUnnestFailed 
+      THEN 
+        FM3Messages . FatalArr
            ( ARRAY OF REFANY
                { "Failure pushing unnest stack at depth "
                , Fmt . LongInt ( LUnnDepthL ) 
                }
            )
-      ; RAISE FM3SharedUtils . FatalError ( "Failure pushing unnest stack." ) 
-      END (*EXCEPT *)
-      
-    (* Building the unnest RdBack succeeded.  Maybe disassemble it, but also
-       keep it ready for generating the parse pass RdBack.
-    *) 
-    ; PutBwd
-        ( LUnitRef ^ . UntUnnestStackRdBack
-        , VAL ( Itk . ItkRightEnd , LONGINT )
-        )
-    ; PutBwd
-        ( LUnitRef ^ . UntUnnestStackRdBack
-        , VAL ( Itk . ItkEOF , LONGINT )
-        )
-    ; RdBackFile . Close ( LUnitRef ^ . UntUnnestStackRdBack , - 1L )
-    ; IF FM3CLArgs . DoDisassUnnest
-      THEN
-        RdBackFile . Close ( LUnitRef ^ . UntUnnestStackRdBack , - 1L )
-      ; Disass ( LUnitRef , LUnitRef ^ . UntUnnestStackName , Do := TRUE )
-      ; LUnitRef ^ . UntUnnestStackRdBack
-          := RdBackFile . Open ( LUnitRef ^ . UntUnnestStackName )
-      END (*IF*)
-      
+      ; RAISE FM3SharedUtils . FatalError ( "Failure pushing unnest stack." )
+      END (*IF*) 
+
     (* Now build the ParsePass RdBack. *) 
     ; TRY 
-        Unnest ( LUnitRef ^ . UntUnnestStackEmptyCoord ) 
-    ; EXCEPT
-      | FM3SharedUtils . Terminate ( Arg )
-      => RAISE FM3SharedUtils . Terminate ( Arg )
-      ELSE (* Disassemble the incomplete ParsePass RdBack before crashing. *)
-        LUnnDepthL := RdBackFile . LengthL ( LUnitRef ^ . UntUnnestStackRdBack )
-      ; LPpDepthL := RdBackFile . LengthL ( LUnitRef ^ . UntParsePassRdBack )
-      ; RdBackFile . Close
+        Unnest ( LUnitRef ^ . UntParsePassEmptyCoord ) 
+      ; PutBwd
           ( LUnitRef ^ . UntParsePassRdBack
-          , TruncTo := - 1L (* Leave current length. *)
+          , VAL ( Itk . ItkLeftEnd , LONGINT )
           )
-      ; Disass ( LUnitRef , LUnitRef ^ . UntParsePassName , Do := TRUE ) 
-      ; FM3Messages . FatalArr
+      ; PutBwd
+          ( LUnitRef ^ . UntParsePassRdBack
+          , VAL ( Itk . ItkEOF , LONGINT )
+          )
+      ; LPpDepthL := RdBackFile . LengthL ( LUnitRef ^ . UntParsePassRdBack )
+      ; LParsePassFailed := FALSE 
+      EXCEPT
+      | FM3SharedUtils . Terminate ( Arg )
+      => (*Re-*) RAISE FM3SharedUtils . Terminate ( Arg ) 
+      ELSE 
+(*TODO: get the exception name here and put into the messages later. *) 
+        LPpDepthL := RdBackFile . LengthL ( LUnitRef ^ . UntParsePassRdBack )
+      ; PutBwd
+          ( LUnitRef ^ . UntParsePassRdBack
+          , VAL ( Itk . ItkLeftEndIncomplete , LONGINT )
+          )
+      ; LParsePassFailed := TRUE 
+      ; IF NOT ( LUnnestFailed OR FM3CLArgs . DoDisassUnnest ) 
+        THEN (* Didn't already disassemble unnest stack.  Do it now. *) 
+          Disass ( LUnitRef , LUnnestFullFileName )
+(*
+        ; TRY FS . DeleteFile ( LUnnestFullCopyName )
+          EXCEPT OSError . E => (* It didn't exist. *) 
+          END (*EXCEPT*) 
+*) 
+        END (*IF*) 
+      END (*EXCEPT *)
+    ; LParsePassFullFileName
+        := Pathname . Join
+             ( LUnitRef ^ . UntBuildDirPath 
+             , LUnitRef ^ . UntParsePassName
+             , NIL
+             )
+    ; LParsePassFullCopyName 
+        := Pathname . Join
+             ( NIL , LParsePassFullFileName , FM3Globals . CopyFileSuffix ) 
+    ; RdBackFile . Copy 
+        ( LUnitRef ^ . UntParsePassRdBack , LParsePassFullCopyName , - 1L )
+
+    ; IF LParsePassFailed OR FM3CLArgs . DoDisassParsePass
+      THEN (* Disassemble it now. *) 
+        Disass ( LUnitRef , LParsePassFullFileName )
+(*
+      ; TRY FS . DeleteFile ( LParsePassFullCopyName )
+        EXCEPT OSError . E => (* It didn't exist. *) 
+        END (*EXCEPT*) 
+*) 
+      END (*IF*)
+    ; IF LParsePassFailed 
+      THEN 
+        FM3Messages . FatalArr
            ( ARRAY OF REFANY
-               { "Failure pushing parse pass stack at unnest depth "
-               , Fmt . LongInt ( LUnnDepthL ) 
-               , ", parse pass depth " 
+               { "Failure writing parse pass at depth "
                , Fmt . LongInt ( LPpDepthL ) 
                }
            )
-      ; RAISE FM3SharedUtils . FatalError ( "" )
-      END (*EXCEPT *)
+      ; RAISE FM3SharedUtils . FatalError ( "Failure writing parse pass." )
+      END (*IF*)
 
-(* FIXME: The cases of deleting, keeping, disassembling the unnest and
-          ParsePass RdBacks are a mess.  We really need RdBackFile to be
-          able to do a snapshot, and revert to it.  When building it has
-          succeeded, unnest will start popping it, but we may need to keep
-          the full contents, either to keep or disassemble later.  We don't
-          know here whether the parse pass build will succeed, which can
-          affect whether the unnest RdBack would be disassembled.
+    (* Close first pass. *) 
+    ; LUnitRef . UntParsePassResult := 0 
+    ; EVAL FM3Scanner . PopState ( )
+(* TODO^ Maybe do this elsewhere. *) 
+
+    (* Finish with patch stack. *) 
+    ; LUnitRef ^ . UntMaxPatchStackDepth
+        := RdBackFile . MaxLengthL ( LUnitRef ^ . UntPatchStackRdBack ) 
+    ; Log ( "Patch stack " , LUnitRef ^ . UntPatchStackName , " peak size = "
+          , FM3Base . Int64Image  ( LUnitRef ^ . UntMaxPatchStackDepth ) , "."  
+          ) 
+    ; IF NOT RdBackFile . LengthL ( LUnitRef ^ . UntPatchStackRdBack )
+             <= LUnitRef ^ . UntPatchStackEmptyCoord 
+      THEN
+        LUnitRef . UntParsePassResult := 1 
+      ; Log ( "Patch stack " , LUnitRef ^ . UntPatchStackName
+            , " final size = "
+            , FM3Base . Int64Image
+                ( RdBackFile . LengthL ( LUnitRef ^ . UntPatchStackRdBack ) )
+            ) 
+      ; FatalArr
+          ( ARRAY OF REFANY
+              { "Patch stack is not sufficiently empty, should be "  
+              , FM3Base . Int64Image ( LUnitRef ^ . UntPatchStackEmptyCoord )
+              , "." 
+              } 
+          )
+      END (*IF*)
+    ; RdBackFile . Close (  LUnitRef ^ . UntPatchStackRdBack , 0L )
+      (* No point in keeping the patch stack. It has pogo-sticked and now is empty. *) 
+    ; TRY FS . DeleteFile ( LUnitRef ^ . UntPatchStackName )
+      EXCEPT OSError . E => (* It didn't exist. *) 
+      END (*EXCEPT*) 
+
+    (* Finish with unnest stack. *) 
+    ; LUnitRef ^ . UntMaxUnnestStackDepth
+        := RdBackFile . MaxLengthL ( LUnitRef ^ . UntUnnestStackRdBack )
+    ; Log ( "Unnest stack " , LUnitRef ^ . UntUnnestStackName , " peak size = "
+          , FM3Base . Int64Image  ( LUnitRef ^ . UntMaxUnnestStackDepth ) , "." 
+          )
+    ; LLengthL := RdBackFile . LengthL ( LUnitRef ^ . UntUnnestStackRdBack )
+    ; RdBackFile . Close (  LUnitRef ^ . UntUnnestStackRdBack , - 1L )
+    ; IF LLengthL # LUnitRef ^ . UntUnnestStackEmptyCoord 
+      THEN
+        LUnitRef . UntParsePassResult := 2 
+      ; Log ( "Unnest stack " , LUnitRef ^ . UntUnnestStackName
+            , " final size = "
+            , FM3Base . Int64Image ( LLengthL ) 
+            )
+      ; IF NOT FM3CLArgs . DoDisassUnnest
+        THEN 
+          Disass ( LUnitRef , LUnnestFullFileName )
+(*
+        ; TRY FS . DeleteFile ( LUnnestFullCopyName )
+          EXCEPT OSError . E => (* It didn't exist. *) 
+          END (*EXCEPT*)
 *) 
 
-    ; CloseUnit ( LUnitRef ) 
+        END (*IF*) 
+      ; FatalArr
+          ( ARRAY OF REFANY
+              { "Unnest stack is not sufficiently empty, should be "
+              , FM3Base . Int64Image ( LUnitRef ^ . UntUnnestStackEmptyCoord )
+              , "."
+              }
+          )
+      ; RAISE FM3SharedUtils . FatalError
+                ( "Unnest stack is not sufficiently empty." )
+      END (*IF*) 
+    ; IF NOT FM3CLArgs . DoDisassUnnest  
+      THEN
+(*
+        TRY FS . DeleteFile ( LUnnestCopyName )
+        EXCEPT OSError . E => (* It didn't exist. *) 
+        END (*EXCEPT*) 
+*) 
+      END (*IF*)
+    ; IF NOT FM3CLArgs . DoKeep
+      THEN 
+        TRY FS . DeleteFile ( LUnitRef ^ . UntUnnestStackName )
+        EXCEPT OSError . E => (* It didn't exist. *) 
+        END (*EXCEPT*) 
+      END (*IF*)
+
+    (* Finish with parse pass RdBack, the output of this pass. *) 
+    ; Log ( "Parse pass output file "
+          , LUnitRef ^ . UntParsePassName , " has " 
+          , FM3Base . Int64Image 
+              ( RdBackFile . LengthL ( LUnitRef ^ . UntParsePassRdBack ) ) 
+          , " bytes."
+          )
+    ; PutBwd
+        ( FM3Units . UnitStackTopRef ^ . UntParsePassRdBack
+        , VAL ( Itk . ItkLeftEnd , LONGINT ) 
+        )
+    ; PutBwd
+        ( FM3Units . UnitStackTopRef ^ . UntParsePassRdBack
+        , VAL ( Itk . ItkEOF , LONGINT ) 
+        )
+
+    ; RdBackFile . Close ( LUnitRef ^ . UntParsePassRdBack , - 1L )
+
+(* TODO: display code point counts. *)
+
     ; Log ( "Finished compiling " , SrcFileName , "." )
     ; LPoppedUnitRef := FM3Units . PopUnit ( )
     ; <* ASSERT LPoppedUnitRef = LUnitRef *> 
