@@ -1304,25 +1304,8 @@ MODULE FM3ParsePass
     ; LPatchRdBack := LUnitRef . UntPatchStackRdBack 
     ; LParsePassRdBack := LUnitRef . UntParsePassRdBack
     ; LMUnnestDepth := MAX ( LMUnnestDepth , LUnitRef . UntUnnestStackEmptyCoord )
-
-    ; IF
-FALSE AND GDoCopy THEN
-        (* Temporarily make it look like the unnest stack is ended. *) 
-        PutBwd
-          ( LUnitRef ^ . UntUnnestStackRdBack
-          , VAL ( Itk . ItkRightEnd , LONGINT )
-          )
-      ; PutBwd
-          ( LUnitRef ^ . UntUnnestStackRdBack , VAL ( Itk . ItkEOF , LONGINT ) )
-(* FIXME: But the copied portion will not have BOF and LeftEnd tokens. *) 
-      ; RdBackFile . Copy
-          ( LUnnestRdBack
-          , FM3Globals . BuildDirRelPath & "UnnestCopy"
-          , LMUnnestDepth
-          )
-      ; EVAL GetBwd ( LUnitRef ^ . UntUnnestStackRdBack ) 
-      ; EVAL GetBwd ( LUnitRef ^ . UntUnnestStackRdBack ) 
-      END (*IF*)
+    ; EVAL GetBwd ( LUnitRef ^ . UntUnnestStackRdBack ) 
+    ; EVAL GetBwd ( LUnitRef ^ . UntUnnestStackRdBack ) 
 
     ; LOOP
         LUnnestCoord := RdBackFile . LengthL ( LUnnestRdBack )
