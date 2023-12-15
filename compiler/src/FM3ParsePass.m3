@@ -1506,8 +1506,8 @@ MODULE FM3ParsePass
 ; PROCEDURE DeclIdL2R 
     ( READONLY SepPosition : FM3Scanner . tPosition 
     ; READONLY IdAttribute : tParsAttribute
-    ; PriorIdCt : INTEGER (* Number of ids to left of this one. *)
     ; IdListTokLt : Itk . TokTyp 
+    ; PriorIdCt : INTEGER (* Number of ids to left of this one. *)
     )
   : BOOLEAN (* Use this declared id.  (It's not predefined and not a duplicate
                in current scope.) *)
