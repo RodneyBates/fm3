@@ -313,7 +313,8 @@ RULE
      { IF $0 . PaInt <= 0 (* No usable idents. *)
        THEN (* Skip entire decl, along with any Ids. *) 
          $$ . PaInt := FM3ParsePass . StartSkipping ( ) ;
-       ELSE $0 . PaInt := 0 ;
+         $0 . PaInt := 0 ;
+       ELSE 
          MakeListPos (* The identifier list. *) 
            ( $$
            , FM3Decls . TopDeclInfo ( ) . DiIdListTok
