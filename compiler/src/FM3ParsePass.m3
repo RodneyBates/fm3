@@ -81,15 +81,12 @@ MODULE FM3ParsePass
 
 ; CONST ALOSE = FM3Messages . AtomListToOSError
 
-; VAR GSkipDepth : CARDINAL := 0
-  (* Zero means we are not skipping *) 
-
 (*EXPORTED*)
 ; PROCEDURE StartSkipping ( ) : CARDINAL (* depth after. *)
 
   = BEGIN
-      INC ( GSkipDepth )
-    ; RETURN GSkipDepth 
+      INC ( SkipDepth )
+    ; RETURN SkipDepth 
     END StartSkipping
 
 (*EXPORTED*)
@@ -101,8 +98,8 @@ MODULE FM3ParsePass
   = VAR LDepth : CARDINAL
 
   ; BEGIN
-      LDepth := GSkipDepth
-    ; IF LDepth > 0 THEN DEC ( GSkipDepth ) END (*IF*)  
+      LDepth := SkipDepth
+    ; IF LDepth > 0 THEN DEC ( SkipDepth ) END (*IF*)  
     ; RETURN LDepth 
     END StopSkipping
 
@@ -113,7 +110,7 @@ MODULE FM3ParsePass
   *)
 
   = BEGIN
-      IF GSkipDepth <= 0
+      IF SkipDepth <= 0
       THEN
         TRY
           FM3Compress . PutBwd ( File , ValueL ) 
@@ -358,7 +355,7 @@ MODULE FM3ParsePass
   ; VAR LUnnestFailed , LParsePassFailed : BOOLEAN
 
   ; BEGIN
-      IF GSkipDepth > 0 THEN RETURN END (*IF*) 
+      IF SkipDepth > 0 THEN RETURN END (*IF*) 
     ; LUnitRef := OpenUnit ( SrcFileName ) 
     ; FM3Units . PushUnit ( LUnitRef ) 
     ; FM3Units . UnitStackTopRef := LUnitRef
@@ -597,7 +594,7 @@ MODULE FM3ParsePass
 
   ; BEGIN
       LSrcFileName := FM3CLArgs . SrcFileName
-    ; GSkipDepth := 0 
+    ; SkipDepth := 0 
     ; CompileUnit ( LSrcFileName ) 
     END Run
 
@@ -1165,7 +1162,7 @@ MODULE FM3ParsePass
 
   = BEGIN
       LHSAttr . PaInt := ElemsAttr . PaInt (* Valid Id count. *) 
-    ; LHSAttr . PaUnnestCoord := ElemsAttr . PaUnnestCoord (* Ever used? *)
+    ; LHSAttr . PaUnnestCoord := ElemsAttr . PaUnnestCoord (* Redundant? used? *)
     ; IF TRUE OR ElemsAttr . PaInt > 0
 (* REVIEW: bracket the list even if empty.  Do we really want this? *) 
       THEN 

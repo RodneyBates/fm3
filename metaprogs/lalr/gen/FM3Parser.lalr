@@ -1,4 +1,3 @@
-
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2023,       Rodney M. Bates.                                    *)
@@ -50,7 +49,17 @@ GLOBAL
 LOCAL
   { TYPE Sk = FM3Scopes . ScopeKindTyp ;
     TYPE Dk = FM3Decls . DeclKindTyp ; 
-    TYPE Uk = FM3Units . UnitKindTyp ; 
+    TYPE Uk = FM3Units . UnitKindTyp ;
+
+PROCEDURE Test ( READONLY Attr : tParsAttribute )
+= VAR Debug : INTEGER := 0
+; BEGIN
+    IF Attr . PaInt = FIRST ( INTEGER)
+    THEN
+      Debug := 19
+    END 
+  END Test ;
+
   }
 
 /* Parser module initialization. */ 
@@ -278,9 +287,9 @@ RULE
        $$ . PaInt := $1 . PaInt + 1 ;
      } .
 
-   (* DeclIdPlusList . PaInt > 0 is count of valid Idents. *) 
+   (* DeclIdListElems . PaInt > 0 is count of valid Idents. *) 
 
-   DeclIdPlusList : StkIdent
+   DeclIdListElems : StkIdent
    /* PRE: $0 . PaTok1 is the Id list left token. */ 
      { $$ . PaUnnestCoord := $0 . PaUnnestCoord ; 
        $$ . PaInt (* Valid Id count. *)
@@ -292,9 +301,11 @@ RULE
                   , PriorIdCt := 0 
                   )
               ) ;
+EVAL $$ . PaInt ; 
+Test ( $$ ) ; 
      } .
      
-   DeclIdPlusList : DeclIdPlusList StkComma StkIdent
+   DeclIdListElems : DeclIdListElems StkComma StkIdent
    /* PRE: $0 . PaTok1 is the Id list left token. */ 
      { $$ . PaUnnestCoord := $1 . PaUnnestCoord (* Needed? *) ;
        IF FM3ParsePass . DeclIdL2R
@@ -305,16 +316,19 @@ RULE
             ) 
        THEN (* Use this ident. *) $$ . PaInt := $1 . PaInt + 1 ;  
        ELSE $$ . PaInt := $1 . PaInt (* Valid Id count, no increase. *) ; 
-       END (*IF*) 
+       END (*IF*) ; 
+EVAL $$ . PaInt ; 
+Test ( $$ ) ; 
      } .
 
-   DeclIdListLt : /* Empty */
-   /* $0 must be a top-level DeclIdPlusList.  */
-     { IF $0 . PaInt <= 0 (* No usable idents. *)
+(* TODO: Inline this any remaining places: *) 
+   DeclIdListRt : /* Empty */
+   /* $0 must be a top-level DeclIdListElems.  */
+     { IF $0 . PaInt = 0 (* No usable idents. *)
        THEN (* Skip entire decl, along with any Ids. *) 
          $$ . PaInt := FM3ParsePass . StartSkipping ( ) ;
-         $0 . PaInt := 0 ;
-       ELSE 
+       ELSE
+         $$ . PaInt := FM3ParsePass . SkipDepth ; 
          MakeListPos (* The identifier list. *) 
            ( $$
            , FM3Decls . TopDeclInfo ( ) . DiIdListTok
@@ -457,7 +471,7 @@ RULE
    Otherwise contains at least one ident. Bracket with ItkportList*.
 *) 
 
-   ExportsRt : StkRwEXPORTS
+   ExportsLt : StkRwEXPORTS
      { $$ . Scan . Position := $1 . Scan . Position ;
        $$ . PaTok1 := Itk . ItkExportIdListLt ; 
 (* TODO: check push/pop of scope numbers, similarly to DeclInfoDepth. *)
@@ -480,9 +494,20 @@ RULE
      
      } . 
 
-   Exports : ExportsRt DeclIdPlusList DeclIdListLt   
-     { (* MakeListPos
-         ( $$ , Itk . ItkExportIdListLt , $1 . Scan . Position , $2 ) ; *) 
+   Exports : ExportsLt DeclIdListElems  
+     { IF $2 . PaInt <= 0 (* No usable idents. *)
+       THEN (* Skip entire decl, along with any Ids. *) 
+         $$ . PaInt := FM3ParsePass . StartSkipping ( ) ;
+       ELSE 
+         MakeListPos (* The identifier list. *) 
+           ( $$
+           , Itk . ItkExportIdListLt
+           , $2 . Scan . Position
+(* CHECK: MakeListPos could take the position from ElemsAttr.
+          Do ther calls have the same property? *) 
+           , ElemsAttr := $2
+           ) ; 
+       END (*IF*) ;
        <* ASSERT FM3Decls . PopDeclInfo ( ) = $1 . PaInt (* Scope No. *) *>
        FM3ParsePass . ScopeRtL2R ( $1 . PaConstructNo ) ; 
      } .
@@ -564,7 +589,7 @@ RULE
       } . 
 
    (* VarDecls is also used for record and object fields. *)
-   (* Also see DeclIdPlusList. *)
+   (* Also see DeclIdListElems. *)
    VarDecls : VarDecl
    /* PRE: $0 . PaTok1 is the Id list left token. */ 
    /* PRE: $0 . PaTok2 is the variable decl left token */  
@@ -586,35 +611,50 @@ RULE
        $$ . PaTok2 := $0 . PaTok2 ; 
      } .
 
-   VarDecl : DeclIdPlusList DeclIdListLt OptVarType OptVarValue 
-   /* PRE: $0 . PaTok1 is the Id list left token. */ 
-   /* PRE: $0 . PaTok2 is the variable decl left token */  
-     { $$ . PaInt (* Decl count. *) := $1 . PaInt (* Valid id count. *) ; 
-       FM3ParsePass . RequireTypeAndOrValue
-         ( $1 . Scan . Position , $3 . PaBool , $4 . PaBool ) ;
-       (* ^Do this Even if there are zero valid decl ids. *)
-
-       IF $2 . PaInt > 0 (* Skipping depth. *) 
+   VarDecl : VarDeclIds OptVarType OptVarValue
+     { FM3ParsePass . RequireTypeAndOrValue
+         ( $1 . Scan . Position , $2 . PaBool , $3 . PaBool ) ;
+       (* ^Check this even if there are no valid ids. *)
+Test ( $1 ) ; 
+       IF $1 . PaInt < 0 (* Skipping depth. *) 
        THEN (* Have been omitting the declaration. *)
-         <* ASSERT FM3ParsePass . StopSkipping ( ) = $2 . PaInt *> 
+         <* ASSERT FM3ParsePass . StopSkipping ( ) = - $1 . PaInt *> 
        ELSE
+         $$ . PaInt := $1 . PaInt (* Valid id count. *) ;
          WITH WDeclInfo = FM3Decls . TopDeclInfo ( )
          DO 
-(*         MakeListPos (* The identifier list. *) 
-             ( $$ , WDeclInfo . DiIdListTok , $1 . Scan . Position , $1 ) ;
-*) 
            Push_LCP_eCP_zCP_rP (* The declaration itself. *) 
              ( WDeclInfo . DiDeclTok 
              , $1 . PaUnnestCoord
              , $1 . Scan . Position
+             , $2 . PaUnnestCoord
+             , $2 . Scan . Position
              , $3 . PaUnnestCoord
-             , $3 . Scan . Position
-             , $4 . PaUnnestCoord
-             , $4 . Scan . Position 
+             , $3 . Scan . Position 
              , $1 . Scan . Position 
             ) ;
          END (*WITH*) 
        END (*IF*) 
+     } . 
+
+   VarDeclIds : DeclIdListElems /*DeclIdListRt*/  
+   /* PRE: $0 . PaTok1 is the Id list left token. */ 
+   /* PRE: $0 . PaTok2 is the variable decl left token */  
+     { $$ . PaInt := $1 . PaInt (* Valid id count. *) ;
+       IF $1 . PaInt <= 0 (* No usable idents. *)
+       THEN (* No ouput and skip remainder of decl. *) 
+         $$ . PaInt (* Minus Skipping depth. *) 
+           := - FM3ParsePass . StartSkipping ( ) ;
+       ELSE
+         $$ . PaInt := $1 . PaInt (* Valid id count. *) ;
+         MakeListPos (* The identifier list. *) 
+           ( $$
+           , FM3Decls . TopDeclInfo ( ) . DiIdListTok
+           , $1 . Scan . Position
+           , ElemsAttr := $1
+           ) ; 
+       END (*IF*) ;
+Test ( $$ ) ; 
      } .
 
    OptVarType : StkColon Type 
@@ -651,6 +691,7 @@ RULE
        $$ . PaConstructNo  
          := FM3ParsePass . ScopeLtL2R
               ( Sk . SkRec , $1 . Scan . Position ) ;
+       $$ . PaUnnestCoord := UnnestCoord ( ) ;
        $$ . PaInt (* DeclInfoDepth *) 
          := FM3Decls . PushDeclInfo
               ( FM3Decls . DeclInfoTyp
@@ -715,6 +756,7 @@ RULE
        $$ . PaConstructNo 
          := FM3ParsePass . ScopeLtL2R
               ( Sk . SkFormals , $1 . Scan . Position ) ;
+       $$ . PaUnnestCoord := UnnestCoord ( ) ;
      } . 
    FormalsPlusList : FormalsPlusList StkSemicolon Formal 
      { $$ . PaInt := $1 . PaInt + $3 . PaInt ; } .  
@@ -782,7 +824,8 @@ RULE
 
 (* Formal is a formal declaration with PaInt valid ids. *)
 
-   Formal : FormalLt DeclIdPlusList DeclIdListLt FormalType FormalExpr
+   Formal : FormalLt DeclIdListElems DeclIdListRt FormalType FormalExpr
+/* TODO^ Inline DeclIdListRt and adjust $s. */ 
      { $$ . PaInt := $2 . PaInt (* Decl count. *) ;
        $$ . Scan . Position  := $1 . Scan . Position ; 
          WITH WDeclInfo = FM3Decls . TopDeclInfo ( )
@@ -953,6 +996,7 @@ RULE
      { $$ . PaConstructNo
          := FM3ParsePass . ScopeLtL2R
               ( Sk . SkProcBody , $0 . Scan . Position ) ;
+       $$ . PaUnnestCoord := UnnestCoord ( ) ;
      } .
 
 (* ---------------------------- Expressions ---------------------------- *)

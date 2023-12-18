@@ -44,11 +44,16 @@ INTERFACE FM3ParsePass
         , PaBool := FALSE
         }
 
-(* ---------------------------- Unnest stack ------------------------ *)
+(* ------------------------ Skipping erroneous code ----------------- *)
+
+; VAR SkipDepth : INTEGER := 0
+  (* Zero means we are not skipping *) 
 
 ; PROCEDURE StartSkipping ( ) : CARDINAL (* depth after. *)
 
 ; PROCEDURE StopSkipping ( ) : CARDINAL (* depth before. *)
+
+(* ---------------------------- Unnest stack ------------------------ *)
 
 ; PROCEDURE UnnestCoord ( ) : LONGINT
   (* Of the current unit. *)
