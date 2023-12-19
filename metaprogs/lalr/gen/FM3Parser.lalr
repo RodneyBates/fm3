@@ -324,8 +324,7 @@ Test ( $$ ) ;
 (* TODO: Inline this any remaining places: *) 
    DeclIdListRt : /* Empty */
    /* $0 must be a top-level DeclIdListElems.  */
-     { $$ . PaUnnestCoord := UnnestCoord ( ) ; 
-       IF $0 . PaInt = 0 (* No usable idents. *)
+     { IF $0 . PaInt = 0 (* No usable idents. *)
        THEN (* Skip entire decl, along with any Ids. *) 
          $$ . PaInt := FM3ParsePass . StartSkipping ( ) ;
        ELSE
@@ -559,9 +558,7 @@ Test ( $$ ) ;
      { $$ . PaUnnestCoord := $1 . PaUnnestCoord ;
        $$ . PaBool (* Present. *) := TRUE ; } . 
    OptConstType : /*Empty*/
-     { $$ . PaUnnestCoord := UnnestCoord ( ) ;
-       $$ . PaBool (* Present. *) := FALSE (* Absent. *) ;
-     } . 
+     { $$ . PaBool (* Present. *) := FALSE (* Absent. *) ; } . 
 
 (* ------------------------- Variable Declarations -------------------- . *) 
 
@@ -670,8 +667,7 @@ Test ( $$ ) ;
        $$ . Scan . Position := $1 . Scan . Position ; 
      } . 
    OptVarType : /*Empty*/
-     { $$ . PaUnnestCoord := UnnestCoord ( ); 
-       $$ . PaBool (* Present. *) := FALSE (* Absent. *) ;
+     { $$ . PaBool (* Present. *) := FALSE (* Absent. *) ;
        $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
      } . 
    OptVarValue : StkBecomes Expr 
@@ -680,8 +676,7 @@ Test ( $$ ) ;
        $$ . Scan . Position := $1 . Scan . Position ; 
      } . 
    OptVarValue : /*Empty*/
-     { $$ . PaUnnestCoord := UnnestCoord ( ); 
-       $$ . PaBool (* Present. *) := FALSE (* Absent. *) ;
+     { $$ . PaBool (* Present. *) := FALSE (* Absent. *) ;
        $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
      } . 
 
@@ -776,7 +771,6 @@ Test ( $$ ) ;
        $$ . PaTok1 := Itk . ItkVALUEFormalLt ;
        $$ . PaTok2 := Itk . ItkVALUEFormalIdListLt ;
        $$ . PaByte := ORD ( Dk . DkValueFormal ) ;  
-       $$ . PaUnnestCoord := UnnestCoord ( ) ; 
        $$ . PaInt (* DeclInfoDepth after push. *) 
          := FM3Decls . PushDeclInfo
               ( FM3Decls . DeclInfoTyp
@@ -921,7 +915,6 @@ Test ( $$ ) ;
    FormalType : /*Empty*/
      { $$ . PaBool (* Type is present. *) := FALSE (* Absent. *) ;
        $$ . Scan . Position := FM3Scanner . Attribute . Position; 
-       $$ . PaUnnestCoord := UnnestCoord ( ) ; 
        Push_LP
          ( Itk . ItkFormalTypeAbsent , FM3Scanner . Attribute . Position ) ;
      } .
@@ -939,7 +932,6 @@ Test ( $$ ) ;
    FormalExpr : /*Empty*/
      { $$ . PaBool (* Expr is present. *) := FALSE (* Absent. *) ;
        $$ . Scan . Position := FM3Scanner . Attribute . Position; 
-    (* $$ . PaUnnestCoord := UnnestCoord ( ) ; *) 
        Push_LP
          ( Itk . ItkFormalExprAbsent , FM3Scanner . Attribute . Position ) ;
      } .
@@ -1039,7 +1031,6 @@ Test ( $$ ) ;
      { $$ . PaConstructNo
          := FM3ParsePass . ScopeLtL2R
               ( Sk . SkProcBody , $0 . Scan . Position ) ;
-       $$ . PaUnnestCoord := UnnestCoord ( ) ;
      } .
 
 (* ---------------------------- Expressions ---------------------------- *)
@@ -1084,8 +1075,7 @@ Expr: StkIntLit .
    Stmts : StmtPlusList OptSemicolon .
    StmtPlusList : Stmt . 
    StmtPlusList : StmtPlusList StkSemicolon Stmt . 
-   Stmts : /*Empty*/
-     { $$ . PaUnnestCoord := UnnestCoord ( ) ; } .
+   Stmts : /*Empty*/ . 
    
 (* ---------------------------- Assignment statements ------------------ *)
 
