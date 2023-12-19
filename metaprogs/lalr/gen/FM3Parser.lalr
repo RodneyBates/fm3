@@ -301,14 +301,11 @@ RULE
                   , PriorIdCt := 0 
                   )
               ) ;
-EVAL $$ . PaInt ; 
-Test ( $$ ) ; 
-     } .
+     } . 
      
    DeclIdListElems : DeclIdListElems StkComma StkIdent
    /* PRE: $0 . PaTok1 is the Id list left token. */ 
-     { $$ . PaUnnestCoord := $1 . PaUnnestCoord (* Needed? *) ;
-       IF FM3ParsePass . DeclIdL2R
+     { IF FM3ParsePass . DeclIdL2R
             ( $2 . Scan . Position
             , $3
             , FM3Decls . TopDeclInfo ( ) . DiIdListTok
@@ -316,10 +313,8 @@ Test ( $$ ) ;
             ) 
        THEN (* Use this ident. *) $$ . PaInt := $1 . PaInt + 1 ;  
        ELSE $$ . PaInt := $1 . PaInt (* Valid Id count, no increase. *) ; 
-       END (*IF*) ; 
-EVAL $$ . PaInt ; 
-Test ( $$ ) ; 
-     } .
+       END (*IF*) ;
+     } . 
 
 (* TODO: Inline this any remaining places: *) 
    DeclIdListRt : /* Empty */
@@ -478,15 +473,15 @@ Test ( $$ ) ;
    ExportsLt : StkRwEXPORTS
      { $$ . Scan . Position := $1 . Scan . Position ;
        $$ . PaTok1 := Itk . ItkExportIdListLt ; 
-(* TODO: check push/pop of scope numbers, similarly to DeclInfoDepth. *)
-       $$ . PaConstructNo 
-         := FM3ParsePass . ScopeLtL2R
-              ( FM3Scopes . ScopeKindTyp . SkExports , $1 . Scan . Position ) ;
        (* Although an export list is not exactly a scope, we Use the scope
           and DeclInfo mechanisms to check reserved and duplicated idents.
           ScopeRtL2R will handle the legal ones specially.
        *)
-       $$ . PaUnnestCoord := UnnestCoord ( ) ; 
+       $$ . PaConstructNo 
+         := FM3ParsePass . ScopeLtL2R
+              ( FM3Scopes . ScopeKindTyp . SkExports , $1 . Scan . Position ) ;
+       $$ . PaUnnestCoord := UnnestCoord ( ) ;
+    (* ^ScopeLtL2R Pushes a token and changes UnnestCoord. *) 
        $$ . PaInt (* DeclInfoDepth *) 
          := FM3Decls . PushDeclInfo
               ( FM3Decls . DeclInfoTyp
@@ -555,8 +550,7 @@ Test ( $$ ) ;
    ConstDecls : ConstDecls ConstDecl . 
    ConstDecl : StkIdent OptConstType StkEqual Expr StkSemicolon .
    OptConstType : StkColon Type
-     { $$ . PaUnnestCoord := $1 . PaUnnestCoord ;
-       $$ . PaBool (* Present. *) := TRUE ; } . 
+     { $$ . PaBool (* Present. *) := TRUE ; } . 
    OptConstType : /*Empty*/
      { $$ . PaBool (* Present. *) := FALSE (* Absent. *) ; } . 
 
@@ -662,8 +656,7 @@ Test ( $$ ) ;
      } .
 
    OptVarType : StkColon Type 
-     { $$ . PaUnnestCoord := $1 . PaUnnestCoord ;
-       $$ . PaBool (* Present. *) := TRUE ;
+     { $$ . PaBool (* Present. *) := TRUE ;
        $$ . Scan . Position := $1 . Scan . Position ; 
      } . 
    OptVarType : /*Empty*/
@@ -671,8 +664,7 @@ Test ( $$ ) ;
        $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
      } . 
    OptVarValue : StkBecomes Expr 
-     { $$ . PaUnnestCoord := $1 . PaUnnestCoord ;
-       $$ . PaBool (* Present. *) := TRUE ;
+     { $$ . PaBool (* Present. *) := TRUE ;
        $$ . Scan . Position := $1 . Scan . Position ; 
      } . 
    OptVarValue : /*Empty*/
@@ -694,6 +686,7 @@ Test ( $$ ) ;
          := FM3ParsePass . ScopeLtL2R
               ( Sk . SkRec , $1 . Scan . Position ) ;
        $$ . PaUnnestCoord := UnnestCoord ( ) ;
+    (* ^ScopeLtL2R Pushes a token and changes UnnestCoord. *) 
        $$ . PaInt (* DeclInfoDepth *) 
          := FM3Decls . PushDeclInfo
               ( FM3Decls . DeclInfoTyp
@@ -759,6 +752,7 @@ Test ( $$ ) ;
          := FM3ParsePass . ScopeLtL2R
               ( Sk . SkFormals , $1 . Scan . Position ) ;
        $$ . PaUnnestCoord := UnnestCoord ( ) ;
+    (* ^ScopeLtL2R Pushes a token and changes UnnestCoord. *) 
      } . 
    FormalsPlusList : FormalsPlusList StkSemicolon Formal 
      { $$ . PaInt := $1 . PaInt + $3 . PaInt ; } .  
@@ -785,7 +779,6 @@ Test ( $$ ) ;
        $$ . PaTok1 := Itk . ItkVALUEFormalIdListLt ;
        $$ . PaTok2 := Itk . ItkVALUEFormalLt ;
        $$ . PaByte := ORD ( Dk . DkValueFormal ) ;
-       $$ . PaUnnestCoord := UnnestCoord ( ) ; 
        $$ . PaInt (* DeclInfoDepth after push. *) 
          := FM3Decls . PushDeclInfo
               ( FM3Decls . DeclInfoTyp
@@ -801,7 +794,6 @@ Test ( $$ ) ;
        $$ . PaTok1 := Itk . ItkVARFormalIdListLt ;
        $$ . PaTok2 := Itk . ItkVARFormalLt ;
        $$ . PaByte := ORD ( Dk . DkVarFormal ) ;
-       $$ . PaUnnestCoord := UnnestCoord ( ) ; 
        $$ . PaInt (* DeclInfoDepth after push. *) 
          := FM3Decls . PushDeclInfo
               ( FM3Decls . DeclInfoTyp
@@ -816,7 +808,6 @@ Test ( $$ ) ;
        $$ . PaTok1 := Itk . ItkROFormalIdListLt ;
        $$ . PaTok2 := Itk . ItkROFormalLt ;
        $$ . PaByte := ORD ( Dk . DkROFormal ) ;
-       $$ . PaUnnestCoord := UnnestCoord ( ) ; 
        $$ . PaInt (* DeclInfoDepth after push. *) 
          := FM3Decls . PushDeclInfo
               ( FM3Decls . DeclInfoTyp
@@ -1004,8 +995,7 @@ Test ( $$ ) ;
             LTokLt := Itk . ItkProcWBodyLt ; 
 (* TODO: Error recovery.  Insert or remove body. *) 
          END (*CASE*);
-         Push_LCIri
-           ( LTokLt,  $1 . PaUnnestCoord, $2 . Scan . SaAtom ); 
+         Push_LCIri ( LTokLt,  $1 . PaUnnestCoord, $2 . Scan . SaAtom ); 
        END (*Block*) 
      } . 
 
@@ -1031,6 +1021,8 @@ Test ( $$ ) ;
      { $$ . PaConstructNo
          := FM3ParsePass . ScopeLtL2R
               ( Sk . SkProcBody , $0 . Scan . Position ) ;
+       $$ . PaUnnestCoord := UnnestCoord ( ) ;
+    (* ^ScopeLtL2R Pushes a token and changes UnnestCoord. *) 
      } .
 
 (* ---------------------------- Expressions ---------------------------- *)
