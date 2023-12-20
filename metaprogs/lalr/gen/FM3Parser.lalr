@@ -291,7 +291,8 @@ RULE
 
    DeclIdListElems : StkIdent
    /* PRE: $0 . PaTok1 is the Id list left token. */ 
-     { $$ . PaUnnestCoord := $0 . PaUnnestCoord ; 
+     { $$ . PaUnnestCoord := $0 . PaUnnestCoord ;
+(* CHECK ^Is this right? *) 
        $$ . PaInt (* Valid Id count. *)
          := ORD
               ( FM3ParsePass . DeclIdL2R
@@ -314,23 +315,6 @@ RULE
        THEN (* Use this ident. *) $$ . PaInt := $1 . PaInt + 1 ;  
        ELSE $$ . PaInt := $1 . PaInt (* Valid Id count, no increase. *) ; 
        END (*IF*) ;
-     } . 
-
-(* TODO: Inline this any remaining places: *) 
-   DeclIdListRt : /* Empty */
-   /* $0 must be a top-level DeclIdListElems.  */
-     { IF $0 . PaInt = 0 (* No usable idents. *)
-       THEN (* Skip entire decl, along with any Ids. *) 
-         $$ . PaInt := FM3ParsePass . StartSkipping ( ) ;
-       ELSE
-         $$ . PaInt := FM3ParsePass . SkipDepth ; 
-         MakeListPos (* The identifier list. *) 
-           ( $$
-           , FM3Decls . TopDeclInfo ( ) . DiIdListTok
-           , $0 . Scan . Position
-           , ElemsAttr := $0
-           ) ; 
-       END (*IF*)
      } . 
 
 (* List of zero or more comma-separated Idents. *)
@@ -473,13 +457,13 @@ RULE
    ExportsLt : StkRwEXPORTS
      { $$ . Scan . Position := $1 . Scan . Position ;
        $$ . PaTok1 := Itk . ItkExportIdListLt ; 
-       (* Although an export list is not exactly a scope, we Use the scope
+       (* Although an export list is not exactly a scope, we use the scope
           and DeclInfo mechanisms to check reserved and duplicated idents.
           ScopeRtL2R will handle the legal ones specially.
        *)
        $$ . PaConstructNo 
          := FM3ParsePass . ScopeLtL2R
-              ( FM3Scopes . ScopeKindTyp . SkExports , $1 . Scan . Position ) ;
+              ( Sk . SkExports , $1 . Scan . Position ) ;
        $$ . PaUnnestCoord := UnnestCoord ( ) ;
     (* ^ScopeLtL2R Pushes a token and changes UnnestCoord. *) 
        $$ . PaInt (* DeclInfoDepth *) 
@@ -503,7 +487,7 @@ RULE
            , Itk . ItkExportIdListLt
            , $2 . Scan . Position
 (* CHECK: MakeListPos could take the position from ElemsAttr.
-          Do ther calls have the same property? *) 
+          Do other calls have the same property? *) 
            , ElemsAttr := $2
            ) ; 
        END (*IF*) ;
@@ -679,8 +663,7 @@ RULE
 (* ----------------------------- Record Types -------------------------- *)
 
    RecTypeLt : StkRwRECORD  
-     { $$ . Scan . Position :=  $1 . Scan . Position ;
-       $$ . PaTok1 := Itk . ItkRecFieldIdListLt ;
+     { $$ . PaTok1 := Itk . ItkRecFieldIdListLt ;
        $$ . PaTok2 := Itk . ItkRecFieldIdListElem ;
        $$ . PaConstructNo  
          := FM3ParsePass . ScopeLtL2R
@@ -698,13 +681,14 @@ RULE
      } . 
 
    Type : RecTypeLt VarDecls OptSemicolon StkRwEND
-     { FM3ParsePass . Push_LCPI_rpi
+     { FM3ParsePass . Push_LCIP_rip
          ( Itk . ItkRecDefLt
          , $1 . PaUnnestCoord
-         , $1 . Scan . Position
          , $2 . PaInt (* Count of decls, fields, formals, etc. *) 
+         , $1 . Scan . Position
          ) ;
-       <* ASSERT FM3Decls . PopDeclInfo ( ) = $1 . PaInt *> 
+       <* ASSERT FM3Decls . PopDeclInfo ( )
+                 = $1 . PaInt (* DeclInfoDepth. *) *> 
        FM3ParsePass . ScopeRtL2R ( $1 . PaConstructNo ) ; 
      } .
 
@@ -821,7 +805,6 @@ RULE
 (* Formal is a formal declaration with PaInt valid ids. *)
 
    Formal : FormalLt FormalIds FormalType FormalExpr
-/* TODO^ Inline DeclIdListRt and adjust $s. */ 
      { $$ . PaInt := $2 . PaInt (* Decl count. *) ;
        $$ . Scan . Position := $1 . Scan . Position ; 
        WITH WDeclInfo = FM3Decls . TopDeclInfo ( )
@@ -876,7 +859,6 @@ RULE
      } .
 
    FormalIds : DeclIdListElems 
-/* TODO^ Inline DeclIdListRt and adjust $s. */ 
      { $$ . Scan . Position  := $1 . Scan . Position ; 
        IF $1 . PaInt = 0 (* No valid ids. *)
        THEN (* Start skipping this formal. *) 

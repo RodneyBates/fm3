@@ -120,6 +120,13 @@ INTERFACE FM3ParsePass
 ; PROCEDURE Push_LCP_rp
    ( T : Itk . TokTyp ; C : LONGINT ; Position : FM3Scanner . tPosition )
 
+; PROCEDURE Push_LCIP_rip
+    ( T : Itk . TokTyp 
+    ; C : LONGINT 
+    ; I : INTEGER 
+    ; Position : FM3Scanner . tPosition 
+    )
+
 ; PROCEDURE Push_LCPI_rpi
     ( T : Itk . TokTyp 
     ; C : LONGINT 

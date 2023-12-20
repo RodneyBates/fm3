@@ -42,10 +42,11 @@ INTERFACE FM3Units
         (* ^Value of RdBackFile.LengthL when conceptually empty, but may be
            nonzero, on account of file tag, length, etc. *) 
       ; UntPatchStackTopCoord : LONGINT := 0L
-      ; UntPatchStackTopToken : LONGINT := 0L
-        (* ^The token and patch coordinate of the topmost item conceptually on
-           the patch stack are kept, decompressed, in the above two fields,
-           for easy access.  Any operands remain on the RdBack file.
+        (* ^The patch coordinate of what is conceptually the top token on the
+           patch stack is actually kept, decompresed, in UntPatchStackTopCoord,
+           for easy access.  The token itself and its other operands are on the
+           RdBackFile proper.  For deeper tokens, the coordinate is kept on top
+           of the token, opposite of the usual order, on top of its other operands. 
         *) 
       ; UntUnnestStackName : TEXT := NIL
       ; UntUnnestStackRdBack : RdBackFile . T := NIL

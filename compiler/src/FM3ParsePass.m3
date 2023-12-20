@@ -269,7 +269,6 @@ MODULE FM3ParsePass
     ; LUnitRef ^ . UntMaxPatchStackDepth
         := LUnitRef ^ . UntPatchStackEmptyCoord
     ; LUnitRef . UntPatchStackTopCoord := LUnitRef . UntUnnestStackEmptyCoord
-    ; LUnitRef . UntPatchStackTopToken := VAL ( Itk . ItkNull , LONGINT )  
 
     ; PutBwd
         ( LUnitRef ^ . UntParsePassRdBack , VAL ( Itk . ItkBOF , LONGINT ) ) 
@@ -348,6 +347,8 @@ MODULE FM3ParsePass
 ; PROCEDURE CompileUnit ( SrcFileName : TEXT )
 
   = VAR LUnitRef , LPoppedUnitRef : FM3Units . UnitRefTyp
+
+(* TODO: Consistify "Depth" in ideentifiers with "Length" ih RdBackFile. *)  
   ; VAR LUnnDepthL , LPpDepthL : LONGINT
   ; VAR LLengthL : LONGINT
   ; VAR LUnnestFullFileName , LUnnestFullCopyName : TEXT 
@@ -417,6 +418,7 @@ MODULE FM3ParsePass
                , Fmt . LongInt ( LUnnDepthL ) 
                }
            )
+(*TODO: Get exception name, etc. and put in these FatalError messages. *) 
       ; RAISE FM3SharedUtils . FatalError ( "Failure pushing unnest stack." )
       END (*IF*) 
 
@@ -444,7 +446,7 @@ MODULE FM3ParsePass
           , VAL ( Itk . ItkLeftEndIncomplete , LONGINT )
           )
       ; LParsePassFailed := TRUE 
-      ; IF NOT ( LUnnestFailed OR FM3CLArgs . DoDisAsmUnnest ) 
+      ; IF NOT LUnnestFailed AND NOT FM3CLArgs . DoDisAsmUnnest  
         THEN (* Didn't already disassemble unnest stack.  Do it now. *) 
           DisAsm ( LUnitRef , LUnnestFullFileName )
         ; TRY FS . DeleteFile ( LUnnestFullCopyName )
@@ -509,6 +511,7 @@ MODULE FM3ParsePass
               , "." 
               } 
           )
+      ; RAISE FM3SharedUtils . FatalError ( "Nonempty patch stack." )
       END (*IF*)
     ; RdBackFile . Close (  LUnitRef ^ . UntPatchStackRdBack , 0L )
       (* No point in keeping the patch stack. It has pogo-sticked and now is empty. *) 
@@ -578,6 +581,7 @@ MODULE FM3ParsePass
         )
 
     ; RdBackFile . Close ( LUnitRef ^ . UntParsePassRdBack , - 1L )
+    (* ^Don't, later when next pass is implemented. *) 
 
 (* TODO: display code point counts. *)
 
@@ -807,6 +811,30 @@ MODULE FM3ParsePass
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
       END (*WITH*) 
     END Push_LCPI_rpi
+
+(*EXPORTED:*)
+; PROCEDURE Push_LCIP_rip
+    ( T : Itk . TokTyp 
+    ; C : LONGINT 
+    ; I : INTEGER 
+    ; Position : FM3Scanner . tPosition 
+    )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) )
+      
+      ; PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , C ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END Push_LCIP_rip
 
 (*EXPORTED:*)
 ; PROCEDURE Push_LCPeCrP
@@ -1288,8 +1316,8 @@ MODULE FM3ParsePass
   ; VAR LPatchRdBack : RdBackFile . T 
   ; VAR LParsePassRdBack : RdBackFile . T 
   ; VAR LUnnestCoord : LONGINT
-  ; VAR LPatchTokenL , LNowPatchedTokenL , LTokenL : LONGINT 
-  ; VAR LPatchToken , LNowPatchedToken , LToken : Itk . TokTyp
+  ; VAR LPatchTokenL , LPatchedTokenL , LTokenL : LONGINT 
+  ; VAR LPatchToken , LPatchedToken , LToken : Itk . TokTyp
   ; VAR LScopeNo : FM3Base . ScopeNoTyp
   ; VAR LAtom : FM3Base . AtomTyp
   ; VAR LPosition : FM3Base . tPosition
@@ -1313,11 +1341,14 @@ MODULE FM3ParsePass
            (* ^ Nothing more to pop off Patch stack. *) 
         THEN EXIT
         END (*IF*)
+      (* Check first for a patch. *) 
       ; IF LUnnestCoord <= LUnitRef . UntPatchStackTopCoord
         THEN
 
         (* Move a modified token from the patch stack to the output. *) 
-          <*ASSERT LUnnestCoord = LUnitRef . UntPatchStackTopCoord *> 
+          <*ASSERT LUnnestCoord = LUnitRef . UntPatchStackTopCoord
+                   (* Haven't missed a patch stack token. *)
+          *> 
           LPatchTokenL
             := FM3Compress . GetBwd ( LPatchRdBack )
         ; LPatchToken := VAL ( LPatchTokenL , Itk . TokTyp ) 
@@ -1325,25 +1356,26 @@ MODULE FM3ParsePass
               IntSets . IsElement
                 ( LPatchToken , FM3SharedGlobals . GTokSetPatch )
           *>
-          LNowPatchedToken := LPatchToken - Itk . LtToPatch
+          LPatchedToken := LPatchToken - Itk . LtToPatch
 (* FIXME: The patch operation can apply to any non-Rt token.  I think
           the necessary bias is always the same as LtToPatch, but check
           this and then use a better name for it.
 *) 
           
-         (* Copy up to 6 operands, without reversing by stack operations. *)
+         (* Copy up to 6 operands, reversing them to coueract the reversal
+            accomplished by stack operations. *)
         ; RereverseOpnds
-            ( LNowPatchedToken
+            ( LPatchedToken
             , LPatchRdBack
             , LParsePassRdBack
             ) 
 
-          (* Put the unpatched token. *)
-        ; LNowPatchedTokenL := VAL ( LNowPatchedToken , LONGINT ) 
-        ; PutBwd ( LParsePassRdBack , LNowPatchedTokenL )
+          (* Put the patched token. *)
+        ; LPatchedTokenL := VAL ( LPatchedToken , LONGINT ) 
+        ; PutBwd ( LParsePassRdBack , LPatchedTokenL )
 
         (* Conceptually finish popping the Patch stack by caching the
-           next patch coordinate.
+           next patch coordinate, which is on top of its token.
         *)
         ; LUnitRef . UntPatchStackTopCoord
             := FM3Compress . GetBwd ( LPatchRdBack )
@@ -1359,7 +1391,8 @@ MODULE FM3ParsePass
             PutBwd
               ( LPatchRdBack
               , LUnitRef . UntPatchStackTopCoord
-              ) (* Uncache the existing coordinate by pushing. *) 
+              ) (* Uncache the existing patch coordinate by pushing it on top
+                   of its token. *) 
 
           ; LUnitRef . UntPatchStackTopCoord
               := FM3Compress . GetBwd ( LUnnestRdBack )
@@ -1388,6 +1421,9 @@ MODULE FM3ParsePass
               ; LAtom := GetBwdAtom ( LUnnestRdBack )
               ; LPosition := GetBwdPos ( LUnnestRdBack )
               ; EVAL DeclIdR2L ( LDeclKind , LAtom , LPosition )
+
+(* FIXME: We now use different tokens for different declkinds, eg.
+          ItkVALUEFormalIdListElem. *) 
               
             | Itk . ItkRefId
             => LAtom := GetBwdAtom ( LUnnestRdBack )

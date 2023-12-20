@@ -22,7 +22,7 @@ INTERFACE FM3Globals
 ; VAR BuildDirRelPath := "../build"
       (* ^Relative to where the current unit's source file lives. *)
 ; VAR CopyFileSuffix := "Copy" (* W/O  '.'. so can use Pathname.Join. *) 
-; VAR DisAsmFileSuffix := "Disass" (* W/O  '.'. so can use Pathname.Join. *) 
+; VAR DisAsmFileSuffix := "DisAsm" (* W/O  '.'. so can use Pathname.Join. *) 
 
 ; VAR M3RwDict : FM3Dict_OAChars_Int . GrowableTyp  
 ; VAR PgRwDict : FM3Dict_OAChars_Int . GrowableTyp 

@@ -229,7 +229,7 @@ ItkVALUEFormalId IDENT POS .
 ItkVARFormalId   IDENT POS . 
 ItkROFormalId    IDENT POS . 
 *)
-(* Position of RECORD, field count. *)
+(* field count, Position of RECORD, field count. *)
 (* FIXED ItkRecDef: *)
 ; CONST ItkRecDefLt                     (*ArgCt: 3*) =   203 (*16_cb 01 *)
 ; CONST ItkRecDefLtTemp                 (*ArgCt: 3*) =   204 (*16_cc 01 *)
