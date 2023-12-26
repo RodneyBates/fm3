@@ -72,6 +72,7 @@ EXPORTS Main
 ; VAR GCompressedTab : INTEGER := 8 (* Relative *) 
 ; VAR GTokNoPad : INTEGER := 5 
 ; VAR GConstTag : TEXT
+; VAR GTokImagesArrayRef : IntRefArray . T 
 ; VAR GTokNamesArrayRef : IntRefArray . T 
 ; VAR GOperandsArrayRef : IntRefArray . T 
 ; VAR GTokSetTemp : IntSets . T 
@@ -100,7 +101,8 @@ EXPORTS Main
 ; VAR GDoHelp : BOOLEAN := FALSE 
 ; VAR GDoGenInterface : BOOLEAN := FALSE
 ; VAR GDoGenModule : BOOLEAN := FALSE
-; VAR GDoImageFunc : BOOLEAN := FALSE
+; VAR GDoGenImageFunc : BOOLEAN := FALSE
+; VAR GDoGenNameFunc : BOOLEAN := FALSE
 ; VAR GDoCountIntToks : BOOLEAN := FALSE
 ; VAR GDoGenIntToks : BOOLEAN := FALSE
 ; VAR GDoGenIntOperands : BOOLEAN := FALSE
@@ -144,7 +146,8 @@ EXPORTS Main
       GDoHelp := FALSE 
     ; GDoGenInterface := FALSE
     ; GDoGenModule := FALSE
-    ; GDoImageFunc := FALSE
+    ; GDoGenImageFunc := FALSE
+    ; GDoGenNameFunc := FALSE
     ; GDoCountIntToks := FALSE
     ; GDoGenIntToks := FALSE
     ; GDoGenIntOperands := FALSE
@@ -242,11 +245,16 @@ EXPORTS Main
             ; GDoGenIntToks := TRUE 
             ; GDoGenInterface := TRUE
             ; GDoGenIntOperands := TRUE 
+            ELSIF Text . Equal ( LArgPrefix , "-i" )
+            THEN
+              GDoGenImageFunc := TRUE 
+            ; GDoGenInterface := TRUE 
+            ; GDoGenModule := TRUE  
             ELSIF Text . Equal ( LArgPrefix , "-n" )
             THEN
-              GDoImageFunc := TRUE 
+              GDoGenNameFunc := TRUE 
             ; GDoGenInterface := TRUE 
-            ; GDoGenModule := TRUE 
+            ; GDoGenModule := TRUE  
             ELSIF Text . Equal ( LArgPrefix , "-c" )
             THEN GDoGenSets := TRUE 
             ELSIF Text . Equal ( LArgPrefix , "-l" )
@@ -369,7 +377,11 @@ EXPORTS Main
 
     ; Wr . PutText
         ( Stdio . stderr
-        , "  -n Generate Image function (tokNo-to-string map)."
+        , "  -i Generate Image function (tokNo-to-string map)."
+        ) 
+    ; Wr . PutText
+        ( Stdio . stderr
+        , "  -n Generate Name function (tokNo-to-compilerid map)."
         ) 
     ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
     ; Wr . PutText
@@ -907,10 +919,8 @@ EXPORTS Main
   = <* FATAL IntRefArray . AllocationFailure *>
     BEGIN
       IntRefArray . Assign ( GTokNamesArrayRef , GNextTokNo , Name )
-    ; IF GDoGenIntOperands 
-      THEN
-        IntRefArray . Assign ( GOperandsArrayRef , GNextTokNo , ArgString )
-      END (*IF*) 
+    ; IntRefArray . Assign ( GOperandsArrayRef , GNextTokNo , ArgString )
+
     ; Layout . PadAbs ( GOStream , GSemiTab )
     ; Layout . PutText ( GOStream , GConstTag )
     ; GConstTag := "; CONST" (* For the future. *) 
@@ -1133,13 +1143,18 @@ EXPORTS Main
         THEN
           LStringLen := Text . Length ( LString ) 
         ; LNoQuoteString := Text . Sub ( LString , 1 , LStringLen - 2 ) 
+        ; IntRefArray . Assign
+            ( GTokImagesArrayRef , GNextTokNo , LNoQuoteString )
         ; FM3BuildLexMachine . AddPair
             ( LNoQuoteString , GNextTokNo , ReverseMap := FALSE )
+            
         END (*IF*)
       ; IF NOT GDoEmitSrcComments
-        THEN LString := NIL 
+        THEN LString := NIL  
         END (*IF*)
-      ELSE LString := NIL 
+      ELSE
+        LString := NIL 
+      ; IntRefArray . Assign ( GTokImagesArrayRef , GNextTokNo , LSrcName )
       END (*IF*)
     ; IF GDoGenSrcToks
       THEN 
@@ -1258,7 +1273,7 @@ EXPORTS Main
 ; PROCEDURE EmitInterfaceDecls ( )
 
   = BEGIN
-      IF GDoImageFunc OR GDoGenIntOperands 
+      IF GDoGenImageFunc OR GDoGenNameFunc OR GDoGenIntOperands 
       THEN
         Layout . PadAbs ( GOStream , GSemiTab )
       ; Layout . PutText ( GOStream , "; TYPE TokTyp = INTEGER " ) 
@@ -1266,11 +1281,20 @@ EXPORTS Main
       ; Layout . PutEol ( GOStream )
       END (*IF*) 
      
-    ; IF GDoImageFunc 
+    ; IF GDoGenImageFunc 
       THEN
         Layout . PadAbs ( GOStream , GSemiTab )
       ; Layout . PutText 
           ( GOStream , "; PROCEDURE Image ( TokNo : TokTyp ) : TEXT " ) 
+      ; Layout . PutEol ( GOStream )
+      ; Layout . PutEol ( GOStream )
+      END (*IF*) 
+    
+    ; IF GDoGenNameFunc 
+      THEN
+        Layout . PadAbs ( GOStream , GSemiTab )
+      ; Layout . PutText 
+          ( GOStream , "; PROCEDURE Name ( TokNo : TokTyp ) : TEXT " ) 
       ; Layout . PutEol ( GOStream )
       ; Layout . PutEol ( GOStream )
       END (*IF*) 
@@ -1685,64 +1709,61 @@ EXPORTS Main
       END (*IF*) 
     END EmitModuleProlog 
 
-; PROCEDURE GenImageFunc
+; PROCEDURE GenTokNoMap
     ( Min , Max : INTEGER ; FuncName : TEXT ; ArrayRef : IntRefArray . T ) 
 
   = VAR LName : TEXT
 
   ; BEGIN
-      IF GDoImageFunc
-      THEN 
-        Layout . PadAbs ( GOStream , GSemiTab )
-      ; Layout . PutText 
-          ( GOStream , "(*EXPORTED*)" ) 
-      ; Layout . PutEol ( GOStream )
-      ; Layout . PadAbs ( GOStream , GSemiTab )
-      ; Layout . PutText ( GOStream , "; PROCEDURE " ) 
-      ; Layout . PutText ( GOStream , FuncName ) 
-      ; Layout . PutText ( GOStream , " ( TokNo : TokTyp ) : TEXT " ) 
-      ; Layout . PutEol ( GOStream )
-      ; Layout . PutEol ( GOStream )
+      Layout . PadAbs ( GOStream , GSemiTab )
+    ; Layout . PutText 
+        ( GOStream , "(*EXPORTED*)" ) 
+    ; Layout . PutEol ( GOStream )
+    ; Layout . PadAbs ( GOStream , GSemiTab )
+    ; Layout . PutText ( GOStream , "; PROCEDURE " ) 
+    ; Layout . PutText ( GOStream , FuncName ) 
+    ; Layout . PutText ( GOStream , " ( TokNo : TokTyp ) : TEXT " ) 
+    ; Layout . PutEol ( GOStream )
+    ; Layout . PutEol ( GOStream )
 
-      ; Layout . PadAbs ( GOStream , GSemiTab + 2 )
-      ; Layout . PutText ( GOStream , "= BEGIN " ) 
-      ; Layout . PutEol ( GOStream )
+    ; Layout . PadAbs ( GOStream , GSemiTab + 2 )
+    ; Layout . PutText ( GOStream , "= BEGIN " ) 
+    ; Layout . PutEol ( GOStream )
 
-      ; Layout . PadAbs ( GOStream , GSemiTab + 6 )
-      ; Layout . PutText ( GOStream , "CASE TokNo OF " ) 
-      ; Layout . PutEol ( GOStream )
+    ; Layout . PadAbs ( GOStream , GSemiTab + 6 )
+    ; Layout . PutText ( GOStream , "CASE TokNo OF " ) 
+    ; Layout . PutEol ( GOStream )
 
-      ; FOR RI := Min TO Max
-        DO
-          LName := IntRefArray . Fetch ( ArrayRef , RI )
-             (* ^Implied NARROW *) 
-        ; IF LName # NIL
-          THEN 
-            Layout . PadAbs ( GOStream , GSemiTab + 6 )
-          ; Layout . PutText ( GOStream , "| " ) 
-          ; Layout . PutText ( GOStream , Fmt . Int ( RI ) ) 
-          ; Layout . PutText ( GOStream , " => RETURN \"" ) 
-          ; Layout . PutText ( GOStream , LName ) 
-          ; Layout . PutText ( GOStream , "\"") 
-          ; Layout . PutEol ( GOStream )
-          END (*IF*) 
-        END (*FOR*)
+    ; FOR RI := Min TO Max
+      DO
+        LName := IntRefArray . Fetch ( ArrayRef , RI )
+           (* ^Implied NARROW *) 
+      ; IF LName # NIL
+        THEN 
+          Layout . PadAbs ( GOStream , GSemiTab + 6 )
+        ; Layout . PutText ( GOStream , "| " ) 
+        ; Layout . PutText ( GOStream , Fmt . Int ( RI ) ) 
+        ; Layout . PutText ( GOStream , " => RETURN \"" ) 
+        ; Layout . PutText ( GOStream , LName ) 
+        ; Layout . PutText ( GOStream , "\"") 
+        ; Layout . PutEol ( GOStream )
+        END (*IF*) 
+      END (*FOR*)
 
-      ; Layout . PadAbs ( GOStream , GSemiTab + 6 )
-      ; Layout . PutText ( GOStream , "ELSE RETURN \"<Undef>\"" ) 
-      ; Layout . PutEol ( GOStream )
+    ; Layout . PadAbs ( GOStream , GSemiTab + 6 )
+    ; Layout . PutText ( GOStream , "ELSE RETURN \"<Undef>\"" ) 
+    ; Layout . PutEol ( GOStream )
 
-      ; Layout . PadAbs ( GOStream , GSemiTab + 6 )
-      ; Layout . PutText ( GOStream , "END (*CASE*) " ) 
-      ; Layout . PutEol ( GOStream )
+    ; Layout . PadAbs ( GOStream , GSemiTab + 6 )
+    ; Layout . PutText ( GOStream , "END (*CASE*) " ) 
+    ; Layout . PutEol ( GOStream )
 
-      ; Layout . PadAbs ( GOStream , GSemiTab + 4 )
-      ; Layout . PutText ( GOStream , "END " ) 
-      ; Layout . PutText ( GOStream , FuncName ) 
-      ; Layout . PutEol ( GOStream )
-      ; Layout . PutEol ( GOStream )
-      END (*IF*) 
-    END GenImageFunc 
+    ; Layout . PadAbs ( GOStream , GSemiTab + 4 )
+    ; Layout . PutText ( GOStream , "END " ) 
+    ; Layout . PutText ( GOStream , FuncName ) 
+    ; Layout . PutEol ( GOStream )
+    ; Layout . PutEol ( GOStream )
+    END GenTokNoMap 
 
 ; PROCEDURE EmitModuleEpilog ( )
 
@@ -1767,14 +1788,25 @@ EXPORTS Main
 
   = BEGIN
       IF GDoGenModule
-      THEN
+      THEN 
         GOutputWrT := OpenOutput ( GModuleFullName ) 
       ; GOStream := OpenLayout ( GOutputWrT )
       ; EmitModuleProlog ( ) 
-      ; GenImageFunc
-          ( GMinTokNo , GNextTokNo - 1 , "Image" , GTokNamesArrayRef ) 
-      ; GenImageFunc
-          ( GMinTokNo , GNextTokNo - 1 , "Operands" , GOperandsArrayRef ) 
+      ; IF GDoGenImageFunc
+        THEN
+          GenTokNoMap
+            ( GMinTokNo , GNextTokNo - 1 , "Image" , GTokImagesArrayRef )
+        END (*IF*) 
+      ; IF GDoGenNameFunc
+        THEN
+          GenTokNoMap
+            ( GMinTokNo , GNextTokNo - 1 , "Name" , GTokNamesArrayRef ) 
+        END (*IF*) 
+      ; IF GDoGenIntOperands
+        THEN
+          GenTokNoMap
+            ( GMinTokNo , GNextTokNo - 1 , "Operands" , GOperandsArrayRef ) 
+          END (*IF*) 
       ; EmitModuleEpilog ( )
       ; CloseLayout ( GOStream )
       END (*IF*) 
@@ -1884,6 +1916,7 @@ EXPORTS Main
     ; GNextTokNo := 0
     ; GMinTokNo := 0
     ; GConstTag := "; CONST"
+    ; GTokImagesArrayRef := IntRefArray . New ( NIL ) 
     ; GTokNamesArrayRef := IntRefArray . New ( NIL ) 
     ; GOperandsArrayRef := IntRefArray . New ( NIL ) 
     ; GTokSetTemp := IntSets . Empty ( )  
