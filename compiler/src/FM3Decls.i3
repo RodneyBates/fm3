@@ -72,8 +72,9 @@ INTERFACE FM3Decls
 
 ; TYPE DeclInfoTyp
     = RECORD
-        DiIdListTok : FM3Base . TokTyp
-      ; DiDeclTok : FM3Base . TokTyp 
+        DiDeclTok : FM3Base . TokTyp 
+      ; DiIdTok : FM3Base . TokTyp
+      ; DiIdSepTok : FM3Base . TokTyp 
       ; DiKind : DeclKindTyp 
       END 
  
@@ -84,7 +85,7 @@ INTERFACE FM3Decls
   : INTEGER (* Depth before pop. *) 
 
 ; PROCEDURE TopDeclInfo ( ) : DeclInfoTyp
-  (* Result.DiKind = DeclKindTyp.DkNull, if stack is empty. *) 
+  (* <Result>.DiKind = DeclKindTyp.DkNull, => stack is empty. *) 
 
 ; END FM3Decls
 .

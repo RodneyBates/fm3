@@ -441,7 +441,7 @@ MODULE FM3Scanner
                    ) 
           ; Attribute . SaIsReservedId := FALSE (* NOT predeclared. *)  
           ; Attribute . SaTok := FM3SrcToks . StkPragmaId 
-(* TODO: Make the parser give a message on this and skip the pragma. *) 
+(* TODO: Make the parser give a message on this and skips the pragma. *) 
           ELSE 
             Attribute . SaIsReservedId := TRUE 
           ; Attribute . SaTok 
@@ -1317,7 +1317,6 @@ MODULE FM3Scanner
 ; PROCEDURE ReadFsm ( NamePrefix : TEXT ; Kind : FM3SharedUtils . FileKindTyp )
   : FM3LexTable . T
   RAISES { Thread . Alerted } 
-
 
   = VAR LFileName : TEXT
   ; VAR LResult : FM3LexTable . T

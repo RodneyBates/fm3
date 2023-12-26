@@ -75,7 +75,7 @@ INTERFACE FM3ParsePass
 
    Each of the Push_<x> procedures pushes a list of things on the unnest stack.
    The letters after the "_" encode what that is.  The letters in the code and
-   the parameters are in left-to-right order, for ease of thought but the actual
+   the parameters are in left-to-right order, for ease of thought, but the actual
    pushing is temporarily in the reverse order, because this stuff needs to be
    popped backwards.
 
@@ -98,22 +98,25 @@ INTERFACE FM3ParsePass
      V,v  4th infix token
      F,f  5th infix token
 
-   A 'C' or 'c' denotes a patch coordinate, passed in ('C'), or copied from
+   'C' or 'c' denotes a patch coordinate, passed in ('C'), or copied from
    from the previous coordinate ('c').  If present, it must immediately follow
    a token, and it causes the push procedure to convert the preceding token
    to its patch counterpart.
 
-   A 'P' or 'p' denotes a position in the source code.  When passed in, it
+   'P' or 'p' denotes a position in the source code.  When passed in, it
    is a single parameter, of type tPosition, a two-field record of line-number
    and column-number.  The procedure pushes it as two separate numbers on the
    unnest stack, column number deeper.
 
-   A "I' or 'i' is an integer value. A 'B' or 'b' is a boolean value.
+   'I' or 'i' is an integer value.  'B' or 'b' is a boolean value.
 *) 
 
 ; PROCEDURE Push_L ( T : Itk . TokTyp )
 
 ; PROCEDURE Push_LP ( T : Itk . TokTyp ; Position : FM3Scanner . tPosition )
+
+; PROCEDURE Push_LIP
+    ( T : Itk . TokTyp ; I : INTEGER ; Position : FM3Scanner . tPosition )
 
 ; PROCEDURE Push_LCr ( T : Itk . TokTyp ; C : LONGINT )
 
@@ -134,11 +137,12 @@ INTERFACE FM3ParsePass
     ; I : INTEGER 
     )
 
-; PROCEDURE Push_LCPeCrP
+; PROCEDURE Push_LCP_eCP_rP
    ( T : Itk . TokTyp
    ; CLt : LONGINT
    ; PositionLt : FM3Scanner . tPosition
-   ; COne : LONGINT
+   ; CEins : LONGINT
+   ; PositionEins : FM3Scanner . tPosition
    ; PositionRt : FM3Scanner . tPosition
    )
 
@@ -232,7 +236,9 @@ INTERFACE FM3ParsePass
     ; DeclPos : FM3Base . tPosition
     )
 
-; PROCEDURE BeginBlock ( )
+; PROCEDURE BeginBlock ( ) 
+
+; PROCEDURE EndBlock ( )
 
 ; PROCEDURE ScopeEmpty ( ScopeKind : FM3Scopes . ScopeKindTyp )
 
@@ -241,10 +247,12 @@ INTERFACE FM3ParsePass
   : FM3Base . ScopeNoTyp (* Scope no. that was created. *) 
 
 ; PROCEDURE DeclIdL2R 
-    ( READONLY SepPosition : FM3Scanner . tPosition 
+    ( DeclIdTok : Itk . TokTyp 
     ; READONLY IdAttribute : tParsAttribute
-    ; IdListTokLt : Itk . TokTyp 
-    ; PriorIdCt : INTEGER (* Number of ids to left of this one. *) 
+    ; SepTok : Itk . TokTyp := Itk . ItkNull
+                            (* ^Implies single decl id, not in a list. *)  
+    ; READONLY SepPosition : FM3Scanner . tPosition := FM3Base . PositionNull 
+    ; PriorIdCt : INTEGER := 0 (* Number of ids to left of this one. *)
     )
   : BOOLEAN (* Use this declared id.  (It's not predefined and not a duplicate
                in current scope.) *)

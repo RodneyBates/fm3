@@ -760,6 +760,20 @@ MODULE FM3ParsePass
     END Push_LP
 
 (*EXPORTED:*)
+; PROCEDURE Push_LIP
+    ( T : Itk . TokTyp ; I : INTEGER ; Position : FM3Scanner . tPosition )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T , LONGINT ) ) 
+      END (*WITH*) 
+    END Push_LIP
+
+(*EXPORTED:*)
 ; PROCEDURE Push_LCr ( T : Itk . TokTyp ; C : LONGINT )
 
   = BEGIN
@@ -837,11 +851,12 @@ MODULE FM3ParsePass
     END Push_LCIP_rip
 
 (*EXPORTED:*)
-; PROCEDURE Push_LCPeCrP
+; PROCEDURE Push_LCP_eCP_rP
    ( T : Itk . TokTyp
    ; CLt : LONGINT
    ; PositionLt : FM3Scanner . tPosition
-   ; COne : LONGINT
+   ; CEins : LONGINT
+   ; PositionEins : FM3Scanner . tPosition
    ; PositionRt : FM3Scanner . tPosition
    )
 
@@ -851,14 +866,16 @@ MODULE FM3ParsePass
         PutBwd ( WRdBack , VAL ( PositionRt . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( PositionRt . Line , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) ) 
-      ; PutBwd ( WRdBack , COne ) 
+      ; PutBwd ( WRdBack , VAL ( PositionEins . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( PositionEins . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , CEins ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToOnePatch , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( PositionLt . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( PositionLt . Line , LONGINT ) ) 
       ; PutBwd ( WRdBack , CLt ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
       END (*WITH*) 
-    END Push_LCPeCrP
+    END Push_LCP_eCP_rP
 
 (*EXPORTED:*)
 ; PROCEDURE Push_LCP_eCP_zCP_rP
@@ -1260,9 +1277,15 @@ MODULE FM3ParsePass
   = BEGIN (*BeginBlock*)
     END BeginBlock
 
+(*EXPORTED:*)
+; PROCEDURE EndBlock ( )
+
+  = BEGIN (*BeginBlock*)
+    END EndBlock
+
 ; PROCEDURE RereverseOpnds
     ( Token : Itk . TokTyp ; FromRdBack , ToRdBack : RdBackFile . T )
-  (* Copy up to 6 operands, without final reversing.  Pop/8ush reverses
+  (* Copy up to 6 operands, without final reversing.  Pop/Push reverses
      them, but this procedure does its own reversal, resulting in
      net same order.
   *)
@@ -1425,7 +1448,7 @@ MODULE FM3ParsePass
 (* FIXME: We now use different tokens for different declkinds, eg.
           ItkVALUEFormalIdListElem. *) 
               
-            | Itk . ItkRefId
+            | Itk . ItkIdRefAtom 
             => LAtom := GetBwdAtom ( LUnnestRdBack )
               ; LPosition := GetBwdPos ( LUnnestRdBack )
               ; EVAL RefIdR2L ( LAtom , LPosition )
@@ -1537,10 +1560,12 @@ MODULE FM3ParsePass
 
 (*EXPORTED.*)
 ; PROCEDURE DeclIdL2R 
-    ( READONLY SepPosition : FM3Scanner . tPosition 
+    ( DeclIdTok : Itk . TokTyp 
     ; READONLY IdAttribute : tParsAttribute
-    ; IdListTokLt : Itk . TokTyp 
-    ; PriorIdCt : INTEGER (* Number of ids to left of this one. *)
+    ; SepTok : Itk . TokTyp := Itk . ItkNull
+                            (* ^Implies single decl id, not in a list. *)  
+    ; READONLY SepPosition : FM3Scanner . tPosition := FM3Base . PositionNull 
+    ; PriorIdCt : INTEGER := 0 (* Number of ids to left of this one. *)
     )
   : BOOLEAN (* Use this declared id.  (It's not predefined and not a duplicate
                in current scope.) *)
@@ -1572,16 +1597,16 @@ MODULE FM3ParsePass
             WScope . ScpDeclIdSet
               := IntSets . Include
                    ( WScope . ScpDeclIdSet , IdAttribute . Scan . SaAtom )
-          (* Push Separator token: *)
-          ; IF PriorIdCt > 0
+          (* Maybe push Separator token: *)
+          ; IF SepTok # Itk . ItkNull AND PriorIdCt > 0
             THEN 
               PutBwd ( WunRdBack , VAL ( SepPosition . Column , LONGINT ) ) 
             ; PutBwd ( WunRdBack , VAL ( SepPosition . Line , LONGINT ) )
             ; PutBwd ( WunRdBack , VAL ( PriorIdCt , LONGINT ) )
-            ; PutBwd ( WunRdBack , VAL ( IdListTokLt + Itk . LtToListSep , LONGINT ) )
+            ; PutBwd ( WunRdBack , VAL ( SepTok , LONGINT ) )
             END (*IF*) 
-          (* Plan to push Ident token: *)
-          ; LTokToPut := IdListTokLt + Itk . LtToListElem 
+          (* Id is valid. Plan to push Ident token: *)
+          ; LTokToPut := DeclIdTok 
           ; LResult := TRUE (* Caller, Use this decl id. *)
           ELSE (* A Duplicate declaration of SaAtom in current scope. *)
             WScope . ScpDuplDeclIdSet
@@ -1621,7 +1646,7 @@ MODULE FM3ParsePass
       ; PutBwd ( WunRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WunRdBack , VAL ( Position . Line , LONGINT ) ) 
       ; PutBwd ( WunRdBack , VAL ( RefIdAtom , LONGINT ) ) 
-      ; PutBwd ( WunRdBack , VAL ( Itk . ItkRefId , LONGINT ) ) 
+      ; PutBwd ( WunRdBack , VAL ( Itk . ItkIdRefAtom , LONGINT ) ) 
       END (*WITH*) 
     END RefIdL2R
 
@@ -1763,7 +1788,7 @@ MODULE FM3ParsePass
         LDeclRef := DeclRefany (* Implied NARROW. *)
       ; LParentScopeRef := FM3Scopes . ScopeStackTopRef 
       ; IF LDeclRef # NIL
-        THEN  (* Some duplicate decls of DeclNoI were found. *)
+        THEN  (* Some duplicate decls of DeclNoI were found. *) 
           LIdentText := FM3Units . TextOfIdAtom ( DeclIdAtom ) 
         ; WHILE LDeclRef # NIL
           DO
@@ -1806,7 +1831,8 @@ MODULE FM3ParsePass
         ; PutBwd ( WppRdBack , VAL ( Position . Column , LONGINT ) ) 
         ; PutBwd ( WppRdBack , VAL ( Position . Line , LONGINT ) ) 
         ; PutBwd ( WppRdBack , VAL ( LDeclNo , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( Itk . ItkDeclNo , LONGINT ) )  
+        ; PutBwd ( WppRdBack , VAL ( Itk . ItkDeclNo , LONGINT ) )
+(* FIXME: Put a token for the Id. *) 
         ; RETURN LDeclNo
         END (*WITH*) 
       END (* Block *) 
@@ -1830,13 +1856,13 @@ MODULE FM3ParsePass
           PutBwd ( WppRdBack , VAL ( Position . Column , LONGINT ) ) 
         ; PutBwd ( WppRdBack , VAL ( Position . Line , LONGINT ) ) 
         ; PutBwd ( WppRdBack , VAL ( LDeclNo , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( Itk . ItkRefNo , LONGINT ) )  
+        ; PutBwd ( WppRdBack , VAL ( Itk . ItkIdRefDeclNo , LONGINT ) )  
         ; RETURN LDeclNo
         ELSE (* Leave as-is. *)
           PutBwd ( WppRdBack , VAL ( Position . Column , LONGINT ) ) 
         ; PutBwd ( WppRdBack , VAL ( Position . Line , LONGINT ) ) 
         ; PutBwd ( WppRdBack , VAL ( RefIdAtom , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( Itk . ItkRefId , LONGINT ) )  
+        ; PutBwd ( WppRdBack , VAL ( Itk . ItkIdRefAtom , LONGINT ) )  
         ; RETURN FM3Base . DeclNoNull 
         END (*IF*)
       END (*WITH*) 

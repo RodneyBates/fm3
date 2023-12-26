@@ -231,7 +231,7 @@ MODULE FM3CLArgs
       GSourceDirNames := NIL 
     ; GFileNames := NIL 
     ; FM3Globals . BuildDirRelPath := "../build"
-    ; SrcFileName := "test1.m3" (* Temporary, during development *)
+    ; SrcFileName := "Main.m3" (* Temporary default, during development *)
 
     ; DoKeep := TRUE (* Temporary, during development *)
         (* Keep intermediate files. *)

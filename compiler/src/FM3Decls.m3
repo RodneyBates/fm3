@@ -74,7 +74,7 @@ MODULE FM3Decls
     ; RETURN LDeclRef 
     END NewDeclRef 
 
-(* A stack of pairs of a declaration kind and an Id-declaring token. *)
+(* A stack of about a declaration, with possibly multiple identifiers. *)
 (* Let's make it a linked stack.  Simpler to implement, and will never
    be very deep.
 *) 
@@ -122,14 +122,15 @@ MODULE FM3Decls
 
 (*EXPORTED*) 
 ; PROCEDURE TopDeclInfo ( ) : DeclInfoTyp
-  (* Result.DiKind = DeclKindTyp.DkNull, if stack is empty. *) 
+  (* <Result>.DiKind = DeclKindTyp.DkNull, => stack is empty. *) 
 
   = BEGIN
       IF DeclInfoStack = NIL
       THEN RETURN
         DeclInfoTyp
-          { DiIdListTok := FM3IntToks . ItkNull
-          , DiDeclTok := FM3IntToks . ItkNull
+          { DiDeclTok := FM3IntToks . ItkNull
+          , DiIdTok := FM3IntToks . ItkNull
+          , DiIdSepTok := FM3IntToks . ItkNull
           , DiKind := DeclKindTyp.DkNull
           } 
       ELSE RETURN DeclInfoStack . DinInfo 
