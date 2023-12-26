@@ -93,35 +93,35 @@ ABS 5
    StkRwWITH           "WITH" .
 
    (* Special character tokens: *) 
-   StkSemicolon . 
-   StkDot . 
-   StkEqual . 
-   StkOpenParen . 
-   StkCloseParen . 
-   StkComma . 
-   StkColon . 
-   StkSubtype . 
-   StkBecomes . 
-   StkOpenBrace . 
-   StkCloseBrace . 
-   StkStroke . 
-   StkArrow . 
-   StkEllipsis . 
-   StkOpenBracket . 
-   StkCloseBracket . 
-   StkUnequal . 
-   StkLess . 
-   StkGreater . 
-   StkLessEqual . 
-   StkGreaterEqual . 
-   StkPlus . 
-   StkMinus . 
-   StkAmpersand . 
-   StkStar . 
-   StkSlash . 
-   StkDeref . 
-   StkOpenPragma . 
-   StkClosePragma .
+   StkSemicolon        ";" . 
+   StkDot              "." . 
+   StkEqual            "=" . 
+   StkOpenParen        "(" . 
+   StkCloseParen       ")" . 
+   StkComma            "," . 
+   StkColon            ":" . 
+   StkSubtype          "<:" . 
+   StkBecomes          ":=" . 
+   StkOpenBrace        "{" . 
+   StkCloseBrace       "}" . 
+   StkStroke           "|" . 
+   StkArrow            "=>" . 
+   StkEllipsis         ".." . 
+   StkOpenBracket      "[" . 
+   StkCloseBracket     "]" . 
+   StkUnequal          "#" . 
+   StkLess             "<" . 
+   StkGreater          ">" . 
+   StkLessEqual        "<=" . 
+   StkGreaterEqual     ">=" . 
+   StkPlus             "+" . 
+   StkMinus            "-" . 
+   StkAmpersand        "&" . 
+   StkStar             "*" . 
+   StkSlash            "/" . 
+   StkDeref            "^" . 
+   StkOpenPragma       "<*" . 
+   StkClosePragma      "*>" .
 
    (* Variable tokens: *) 
    StkIdent .
