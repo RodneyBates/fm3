@@ -46,8 +46,8 @@ ItkProcBodyAbsent POS 2 (* Position. *).
 LONE
 ItkScopeLt 1 (* ScopeNo. *) (* ItkScopePatch not used. *) .
 ItkScopeRt 1 (* ScopeNo. *) . 
-ItkRefId IDENT POS 3 (* IdAtom, position. Occurs before unnest. *). 
-ItkRefNo DECL POS (* DeclNo, position. Occurs after unnest. *) . 
+ItkIdRefAtom IDENT POS 3 (* IdAtom, position. Occurs before unnest. *). 
+ItkIdRefDeclNo DECL POS (* DeclNo, position. Occurs after unnest. *) . 
 ItkDuplDeclId IDENT POS 3 (* IdAtom, position *) . 
 ItkDeclId INT IDENT POS 4 (* DeclKind, IdAtom, position *) .
 ItkDeclNo DECL POS 3 (* DeclNo, position *) .
@@ -71,10 +71,17 @@ ItkBlock POS 2 (* Position of LM declaration. *)
 
 (* Type decls. *)
 
+LONE
+ItkTypeDeclId IDENT POS 3 .
+
+FIXED
+ItkTypeDecl POS 2 (* Position of ident (Lt) or position of semicolon (Rt). *)
+  Def POS 2 . 
+
 (*
 LONE
 ItkExportId      IDENT POS . 
-ItkExportIdSep      IDENT POS . 
+ItkExportIdSep   IDENT POS . 
 ItkVarDeclId     IDENT POS . 
 ItkRecFieldId    IDENT POS . 
 ItkVALUEFormalId IDENT POS . 
@@ -82,15 +89,14 @@ ItkVARFormalId   IDENT POS .
 ItkROFormalId    IDENT POS . 
 *)
 FIXED
+ItkREFDef POS 2 . 
+
+FIXED
 ItkRecDef INT POS 3 (* field count, Position of RECORD, field count. *) .
 ItkRecField POS 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
   Type POS 2      (* Position of colon. *) 
   Val POS 2       (* Position of becomes/ *) 
 .
-
-FIXED
-ItkTypeDecl POS 2 (* Position of ident (Lt) or position of semicolon (Rt). *)
-  Eq (* I don't think we need a position for this. *) . 
 
 (* Variable decls. *)
 LIST
