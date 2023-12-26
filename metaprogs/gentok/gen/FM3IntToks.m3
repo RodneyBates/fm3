@@ -15,7 +15,7 @@ MODULE FM3IntToks
 ; IMPORT IntSets
 
 (*EXPORTED*)
-; PROCEDURE Image ( TokNo : TokTyp ) : TEXT 
+; PROCEDURE Name ( TokNo : TokTyp ) : TEXT 
 
   = BEGIN 
       CASE TokNo OF 
@@ -257,7 +257,7 @@ MODULE FM3IntToks
       | 363 => RETURN "ItkBecomesInfixPatch"
       ELSE RETURN "<Undef>"
       END (*CASE*) 
-    END Image
+    END Name
 
 (*EXPORTED*)
 ; PROCEDURE Operands ( TokNo : TokTyp ) : TEXT 

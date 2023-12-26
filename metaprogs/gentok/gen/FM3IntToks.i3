@@ -16,7 +16,7 @@ INTERFACE FM3IntToks
 
 ; TYPE TokTyp = INTEGER 
 
-; PROCEDURE Image ( TokNo : TokTyp ) : TEXT 
+; PROCEDURE Name ( TokNo : TokTyp ) : TEXT 
 
 ; PROCEDURE Operands ( TokNo : TokTyp ) : TEXT 
 
