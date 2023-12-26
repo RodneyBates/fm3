@@ -36,7 +36,8 @@ GLOBAL
     FROM FM3ParsePass IMPORT ParsAttrNull;
     FROM FM3ParsePass IMPORT PushUnnestStk , PushUnnest, PushUnnestLong;
     FROM FM3ParsePass IMPORT
-      Push_L , Push_LP , Push_LCr , Push_LCP_rp , Push_LCPeCrP , Push_LCPeCprp ,
+      Push_L , Push_LP , Push_LCr , Push_LCP_rp , Push_LCP_eCP_rP ,
+      Push_LCPeCprp , Push_LIP , 
       Push_ECPrP , Push_LCBr , Push_LCIri , Push_LI3 , Push_LI6 , Push_LCeCr ,
       Push_LCIeCri , Push_LCP_eCP_zCP_rP , Pop4 , Pop8 ;
     FROM FM3ParsePass IMPORT MakeList , MakeListPos;
@@ -276,7 +277,13 @@ RULE
    OptSemicolon : StkSemicolon .
    OptSemicolon : /*Empty*/ . 
  
-(* ----------------------------- Identifier lists ---------------------- *)
+(* ----------------------------- Identifiers ---------------------------- *)
+
+   IdRefAtom : StkIdent
+     { Push_LIP
+         ( Itk . ItkIdRefAtom , $1 . Scan . SaAtom , $1 . Scan . Position ) ;
+     } .
+
 (* List of one or more comma-separated Idents.*)
    IdPlusList : StkIdent 
      { (* PaUnnestCoord copied from $1 by parser. *) 
@@ -296,9 +303,10 @@ RULE
        $$ . PaInt (* Valid Id count. *)
          := ORD
               ( FM3ParsePass . DeclIdL2R
-                  ( FM3Base . PositionNull
-                  , $1
-                  , FM3Decls . TopDeclInfo ( ) . DiIdListTok
+                  ( FM3Decls . TopDeclInfo ( ) . DiIdTok
+                  , IdAttribute := $1
+                  , SepTok := Itk . ItkNull 
+                  , SepPosition := FM3Base . PositionNull
                   , PriorIdCt := 0 
                   )
               ) ;
@@ -307,9 +315,10 @@ RULE
    DeclIdListElems : DeclIdListElems StkComma StkIdent
    /* PRE: $0 . PaTok1 is the Id list left token. */ 
      { IF FM3ParsePass . DeclIdL2R
-            ( $2 . Scan . Position
-            , $3
-            , FM3Decls . TopDeclInfo ( ) . DiIdListTok
+            ( FM3Decls . TopDeclInfo ( ) . DiIdTok
+            , IdAttribute := $3
+            , SepTok := FM3Decls . TopDeclInfo ( ) . DiIdSepTok
+            , SepPosition := $2 . Scan . Position
             , PriorIdCt := $1 . PaInt
             ) 
        THEN (* Use this ident. *) $$ . PaInt := $1 . PaInt + 1 ;  
@@ -465,12 +474,13 @@ RULE
          := FM3ParsePass . ScopeLtL2R
               ( Sk . SkExports , $1 . Scan . Position ) ;
        $$ . PaUnnestCoord := UnnestCoord ( ) ;
-    (* ^ScopeLtL2R Pushes a token and changes UnnestCoord. *) 
+    (* ^Because ScopeLtL2R Pushes a token, thus changing UnnestCoord. *) 
        $$ . PaInt (* DeclInfoDepth *) 
          := FM3Decls . PushDeclInfo
               ( FM3Decls . DeclInfoTyp
-                  { DiIdListTok := Itk . ItkExportIdListLt
-                  , DiDeclTok := Itk . ItkNull
+                  { DiDeclTok := Itk . ItkNull
+                  , DiIdTok := Itk . ItkExportIdListLt
+                  , DiIdSepTok := Itk . ItkExportIdListLt + Itk . LtToListSep
                   , DiKind := Dk . DkExports 
                   }
               ) ;
@@ -516,15 +526,34 @@ RULE
 
    TypeDeclGroup : StkRwTYPE TypeDecls .
    TypeDecls : TypeDecl . 
-   TypeDecls : TypeDecls TypeDecl . 
-   TypeDecl : StkIdent StkEqual Type StkSemicolon
-     { Push_LCPeCrP
-         ( Itk . ItkTypeDeclLt
-         , $0 . PaUnnestCoord
-         , $1 . Scan . Position
-         , $2 . PaUnnestCoord
-         , $4 . Scan . Position
-         ) ; 
+   TypeDecls : TypeDecls TypeDecl .
+
+   TypeDeclId : StkIdent
+     { $$ . PaBool
+         := FM3ParsePass . DeclIdL2R
+              ( Itk . ItkTypeDeclId , IdAttribute := $1 ) ;
+       IF NOT $$ . PaBool
+       THEN $$ . PaInt :=  FM3ParsePass . StartSkipping ( )
+       END (*IF*) ; 
+   } . 
+
+   TypeDecl : TypeDeclId StkEqual Type StkSemicolon 
+     { IF $1 . PaBool (* Using this decl? *) 
+       THEN
+         IF FM3ParsePass . SkipDepth = 0 
+         THEN 
+           Push_LCP_eCP_rP
+             ( Itk . ItkTypeDeclLt
+             , $1 . PaUnnestCoord
+             , $1 . Scan . Position
+             , $3 . PaUnnestCoord
+             , $3 . Scan . Position
+             , $4 . Scan . Position
+             ) ;
+         END (*IF*) 
+       ELSE 
+         <* ASSERT $1 . PaInt = FM3ParsePass . StopSkipping ( ) *>
+       END (*IF**) ; 
      } .
 
 (* ------------------------- Constant Declarations -------------------- . *) 
@@ -555,8 +584,9 @@ RULE
        $$ . PaInt (* DeclInfoDepth *) 
          := FM3Decls . PushDeclInfo
               ( FM3Decls . DeclInfoTyp
-                  { DiIdListTok := Itk . ItkVarDeclIdListLt
-                  , DiDeclTok := Itk . ItkVarDeclLt
+                  { DiDeclTok := Itk . ItkVarDeclLt
+                  , DiIdTok := Itk . ItkVarDeclIdListLt
+                  , DiIdSepTok := Itk . ItkVarDeclIdListLt + Itk . LtToListSep
                   , DiKind := Dk . DkVar
                   }
               ) ;
@@ -632,7 +662,7 @@ RULE
          $$ . PaInt := $1 . PaInt (* Valid id count. *) ;
          MakeListPos (* The identifier list. *) 
            ( $$
-           , FM3Decls . TopDeclInfo ( ) . DiIdListTok
+           , FM3Decls . TopDeclInfo ( ) . DiIdTok
            , $1 . Scan . Position
            , ElemsAttr := $1
            ) ; 
@@ -658,7 +688,15 @@ RULE
 
 (* --------------------------------- Types ----------------------------- *)
 
-   Type : StkIdent .
+   Type : IdRefAtom . 
+
+   Type : StkRwREF Type 
+     { Push_LCP_rp
+         ( Itk . ItkREFDefLt
+         , $1 . PaUnnestCoord
+         , $1 . Scan . Position 
+         ) ;
+     } . 
 
 (* ----------------------------- Record Types -------------------------- *)
 
@@ -673,8 +711,9 @@ RULE
        $$ . PaInt (* DeclInfoDepth *) 
          := FM3Decls . PushDeclInfo
               ( FM3Decls . DeclInfoTyp
-                  { DiIdListTok := Itk . ItkRecFieldIdListLt
-                  , DiDeclTok := Itk . ItkRecFieldLt
+                  { DiDeclTok := Itk . ItkRecFieldLt
+                  , DiIdTok := Itk . ItkRecFieldIdListLt
+                  , DiIdSepTok := Itk . ItkRecFieldIdListLt + Itk . LtToListSep
                   , DiKind := Dk . DkRecField 
                   }
               ) ;
@@ -752,8 +791,10 @@ RULE
        $$ . PaInt (* DeclInfoDepth after push. *) 
          := FM3Decls . PushDeclInfo
               ( FM3Decls . DeclInfoTyp
-                  { DiIdListTok := Itk . ItkVALUEFormalIdListLt 
-                  , DiDeclTok := Itk . ItkVALUEFormalLt
+                  { DiDeclTok := Itk . ItkVALUEFormalLt
+                  , DiIdTok := Itk . ItkVALUEFormalIdListLt 
+                  , DiIdSepTok
+                      := Itk . ItkVALUEFormalIdListLt + Itk . LtToListSep
                   , DiKind := Dk . DkValueFormal
                   }
               ) ;
@@ -766,8 +807,10 @@ RULE
        $$ . PaInt (* DeclInfoDepth after push. *) 
          := FM3Decls . PushDeclInfo
               ( FM3Decls . DeclInfoTyp
-                  { DiIdListTok := Itk . ItkVALUEFormalIdListLt 
-                  , DiDeclTok := Itk . ItkVALUEFormalLt
+                  { DiDeclTok := Itk . ItkVALUEFormalLt
+                  , DiIdTok := Itk . ItkVALUEFormalIdListLt 
+                  , DiIdSepTok
+                      := Itk . ItkVALUEFormalIdListLt + Itk . LtToListSep
                   , DiKind := Dk . DkValueFormal
                   }
               ) ;
@@ -781,8 +824,9 @@ RULE
        $$ . PaInt (* DeclInfoDepth after push. *) 
          := FM3Decls . PushDeclInfo
               ( FM3Decls . DeclInfoTyp
-                  { DiIdListTok := Itk . ItkVARFormalIdListLt 
-                  , DiDeclTok := Itk . ItkVARFormalLt
+                  { DiDeclTok := Itk . ItkVARFormalLt
+                  , DiIdTok := Itk . ItkVARFormalIdListLt 
+                  , DiIdSepTok := Itk . ItkVARFormalIdListLt + Itk . LtToListSep
                   , DiKind := Dk . DkValueFormal
                   }
               ) ;
@@ -795,8 +839,9 @@ RULE
        $$ . PaInt (* DeclInfoDepth after push. *) 
          := FM3Decls . PushDeclInfo
               ( FM3Decls . DeclInfoTyp
-                  { DiIdListTok := Itk . ItkROFormalIdListLt 
-                  , DiDeclTok := Itk . ItkROFormalLt
+                  { DiDeclTok := Itk . ItkROFormalLt
+                  , DiIdTok := Itk . ItkROFormalIdListLt 
+                  , DiIdSepTok := Itk . ItkROFormalIdListLt + Itk . LtToListSep
                   , DiKind := Dk . DkROFormal
                   }
               ) ;
@@ -868,7 +913,7 @@ RULE
          $$ .PaInt := $1 . PaInt (* Valid Id Ct. *) ; 
          MakeListPos
            ( $$
-           , FM3Decls . TopDeclInfo ( ) . DiIdListTok
+           , FM3Decls . TopDeclInfo ( ) . DiIdTok
            , $1 . Scan . Position
            , ElemsAttr := $1
            ) ; 
@@ -1014,18 +1059,23 @@ Expr: StkIntLit .
 
 (* ------------------------------ Blocks ------------------------------- *)
 
+   BlockLt : /*EMPTY*/
+     { $$ . PaConstructNo
+         := FM3ParsePass . ScopeLtL2R
+              ( Sk . SkBlock , FM3Scanner . Attribute . Position ) ;
+       FM3ParsePass . BeginBlock ( ) ;
+       Push_LP ( Itk . ItkBlockLt , FM3Scanner . Attribute . Position ); 
+     } .
+
    Block : BlockLt DeclList StkRwBEGIN Stmts StkRwEND
-     { Push_ECPrP
+     { FM3ParsePass . EndBlock ( ) ;
+       FM3ParsePass . ScopeRtL2R ( $1 . PaConstructNo ) ; 
+       Push_ECPrP
          ( Itk . ItkBlockLt , $3 . PaUnnestCoord
          , $3 . Scan . Position
          , $5 . Scan . Position
          ) ;
      } .
-   BlockLt : /*EMPTY*/
-     { FM3ParsePass . BeginBlock ( ) ;
-       Push_LP ( Itk . ItkBlockLt , FM3Scanner . Attribute . Position ); 
-     } .
-
 (* ------------------------ Declaration lists -------------------------- *)
 
    DeclList : DeclListRecurse
