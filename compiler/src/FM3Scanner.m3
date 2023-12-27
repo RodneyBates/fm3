@@ -429,8 +429,8 @@ MODULE FM3Scanner
                  ( GCurRwLexTable , FM3LexTable . NullChar , GCurRwState ) 
         END (*IF*)
 
-      ; IF ScAtBegOfPragma
-        THEN (* Looking for a pragma id. *) 
+      ; IF ScAtBegOfPragma (* expectig a pragma id? *) 
+        THEN (* GCurRwValue will be pragma id or nothing. *)
           CASE GCurRwValue 
           OF FM3LexTable . ValueUnrecognized , FM3LexTable . ValueNull 
           => Attribute . SaAtom 
@@ -441,7 +441,7 @@ MODULE FM3Scanner
                    ) 
           ; Attribute . SaIsReservedId := FALSE (* NOT predeclared. *)  
           ; Attribute . SaTok := FM3SrcToks . StkPragmaId 
-(* TODO: Make the parser give a message on this and skips the pragma. *) 
+(* TODO: Handle this as an unrecognized pragma and skip the entire thing. pragma. *) 
           ELSE 
             Attribute . SaIsReservedId := TRUE 
           ; Attribute . SaTok 

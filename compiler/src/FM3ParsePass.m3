@@ -1,3 +1,4 @@
+
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2023        Rodney M. Bates.                                    *)
@@ -1451,7 +1452,7 @@ MODULE FM3ParsePass
             | Itk . ItkIdRefAtom 
             => LAtom := GetBwdAtom ( LUnnestRdBack )
               ; LPosition := GetBwdPos ( LUnnestRdBack )
-              ; EVAL RefIdR2L ( LAtom , LPosition )
+              ; EVAL IdentRefR2L ( LAtom , LPosition )
 
             | Itk . ItkScopeLt 
             => RereverseOpnds
@@ -1635,20 +1636,27 @@ MODULE FM3ParsePass
     END DeclIdL2R
 
 (*EXPORTED.*)
-; PROCEDURE RefIdL2R
-    ( RefIdAtom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
+; PROCEDURE IdentRefL2R ( READONLY IdAttribute : tParsAttribute ) 
 
-  = BEGIN (*RefIdL2R*)
-      WITH WRefIdSet = FM3Scopes . ScopeStackTopRef ^ . ScpRefIdSet
+  = VAR LTokToPut : Itk . TokTyp
+
+  ; BEGIN (*IdentRefL2R*)
+      WITH WScan = IdAttribute . Scan
            , WunRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack 
-      DO
-        WRefIdSet := IntSets . Include ( WRefIdSet , RefIdAtom )
-      ; PutBwd ( WunRdBack , VAL ( Position . Column , LONGINT ) ) 
-      ; PutBwd ( WunRdBack , VAL ( Position . Line , LONGINT ) ) 
-      ; PutBwd ( WunRdBack , VAL ( RefIdAtom , LONGINT ) ) 
-      ; PutBwd ( WunRdBack , VAL ( Itk . ItkIdRefAtom , LONGINT ) ) 
+      DO IF WScan . SaIsReservedId
+        THEN LTokToPut := Itk . ItkIdReserved 
+        ELSE
+          WITH WIdentRefSet = FM3Scopes . ScopeStackTopRef ^ . ScpRefIdSet
+          DO WIdentRefSet := IntSets . Include ( WIdentRefSet , Itk . ItkIdRefAtom )
+          END (*WITH*) 
+        ; LTokToPut := Itk . ItkIdRefAtom 
+        END (*IF*) 
+      ; PutBwd ( WunRdBack , VAL ( WScan . Position . Column , LONGINT ) ) 
+      ; PutBwd ( WunRdBack , VAL ( WScan . Position . Line , LONGINT ) ) 
+      ; PutBwd ( WunRdBack , VAL ( WScan . SaAtom , LONGINT ) ) 
+      ; PutBwd ( WunRdBack , VAL ( LTokToPut , LONGINT ) ) 
       END (*WITH*) 
-    END RefIdL2R
+    END IdentRefL2R
 
 (*EXPORTED.*)
 ; PROCEDURE ScopeRtL2R ( ScopeNo : FM3Scopes . ScopeNoTyp )
@@ -1838,20 +1846,20 @@ MODULE FM3ParsePass
       END (* Block *) 
     END DeclIdR2L
 
-; PROCEDURE RefIdR2L
-    ( RefIdAtom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
+; PROCEDURE IdentRefR2L
+    ( IdentRefAtom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
   : FM3Base . DeclNoTyp 
 
   = VAR LDeclNo : FM3Base . DeclNoTyp
   
-  ; BEGIN (*RefIdR2L*)
+  ; BEGIN (*IdentRefR2L*)
       WITH WScope = FM3Scopes . ScopeStackTopRef ^  
            , WppRdBack
              = FM3Units . UnitStackTopRef ^ . UntParsePassRdBack 
       DO
-        IF IntSets . IsElement ( RefIdAtom , WScope . ScpDeclIdSet )
+        IF IntSets . IsElement ( IdentRefAtom , WScope . ScpDeclIdSet )
         THEN (* Decl'd in this scope.  Replace Id with DeclNo. *) 
-          LookupId ( WScope , RefIdAtom , (*OUT*) LDeclNo )
+          LookupId ( WScope , IdentRefAtom , (*OUT*) LDeclNo )
         ; <*ASSERT LDeclNo # FM3Base . DeclNoNull *>
           PutBwd ( WppRdBack , VAL ( Position . Column , LONGINT ) ) 
         ; PutBwd ( WppRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -1861,12 +1869,12 @@ MODULE FM3ParsePass
         ELSE (* Leave as-is. *)
           PutBwd ( WppRdBack , VAL ( Position . Column , LONGINT ) ) 
         ; PutBwd ( WppRdBack , VAL ( Position . Line , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( RefIdAtom , LONGINT ) ) 
+        ; PutBwd ( WppRdBack , VAL ( IdentRefAtom , LONGINT ) ) 
         ; PutBwd ( WppRdBack , VAL ( Itk . ItkIdRefAtom , LONGINT ) )  
         ; RETURN FM3Base . DeclNoNull 
         END (*IF*)
       END (*WITH*) 
-    END RefIdR2L
+    END IdentRefR2L
 
 (* ----------------------- Procedure signatures --------------------- *)
 

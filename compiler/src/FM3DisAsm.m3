@@ -157,7 +157,7 @@ MODULE FM3DisAsm
                   AND LToken <= FM3IntToks . TkMaxTok 
             THEN (* Internal token. *)
               Wr . PutText ( WrT , " " ) 
-            ; Wr . PutText ( WrT , FM3IntToks . Image ( LToken ) ) 
+            ; Wr . PutText ( WrT , FM3IntToks . Name ( LToken ) ) 
             ; Wr . PutText ( WrT , Wr . EOL )
             ; IF IntSets . IsElement ( LToken , GTokSetPatch )
               THEN DibPutOpnd ( "Patch coord: " )
@@ -360,6 +360,20 @@ MODULE FM3DisAsm
         END (*WITH*)
       END DobIdentAtomArg 
 
+  ; PROCEDURE DobIdentReservedArg ( ArgNo : INTEGER ; )
+
+    = VAR LArgL : LONGINT
+    ; VAR LIdentImage : TEXT 
+
+    ; BEGIN
+        IF ArgNo > 0 THEN Wr . PutChar ( WrT , ',' ) END (*IF*)
+      ; LArgL := FM3Compress . GetBwd ( RBT )
+      ; LIdentImage := FM3SrcToks . Image ( VAL ( LArgL , FM3SrcToks . TokTyp ) )  
+      ; Wr . PutText ( WrT , "Rid\"" ) 
+      ; Wr . PutText ( WrT , LIdentImage )
+      ; Wr . PutChar ( WrT , '\"' ) 
+      END DobIdentReservedArg 
+
   ; PROCEDURE DobDeclNoArg ( ArgNo : INTEGER )
     = VAR LArgL : LONGINT
   (*TODO: track down and display the decl's ident. *) 
@@ -416,7 +430,7 @@ MODULE FM3DisAsm
           (* Variable terminals. *) 
             | FM3SrcToks . StkIdent 
               => Wr . PutText ( WrT , " " ) 
-              ; Wr . PutText ( WrT , FM3SrcToks . Image ( LToken ) )
+              ; Wr . PutText ( WrT , FM3SrcToks . Name ( LToken ) )
               ; Wr . PutChar ( WrT , '(')
               ; DobIdentAtomArg ( 0 )
               ; DobPosArg ( 1 )
@@ -460,111 +474,134 @@ MODULE FM3DisAsm
               ; Wr . PutText ( WrT , FM3SrcToks . Image ( LToken ) )
               ; Wr . PutText ( WrT , Wr . EOL )
             
-            (* Internal tokens. *) 
-            | FM3IntToks . TkMinTok .. FM3IntToks . TkMaxTok 
-            => (* Internal token. *)
-              Wr . PutText ( WrT , " " ) 
-            ; Wr . PutText ( WrT , FM3IntToks . Image ( LToken ) ) 
+            (* Special case internal tokens. *)
+            
+            | FM3IntToks . ItkIdRefAtom  
+              => Wr . PutText ( WrT , " " ) 
+              ; Wr . PutText ( WrT , FM3IntToks . Name ( LToken ) )
+              ; Wr . PutChar ( WrT , '(')
+              ; DobIdentAtomArg ( 0 )
+              ; DobPosArg ( 1 )
+              ; Wr . PutChar ( WrT , ')')
+              ; Wr . PutText ( WrT , Wr . EOL )
 
-            (* Display operands. *) 
-            ; LArgNo := 0
-            ; Wr . PutChar ( WrT , '(' )
+            | FM3IntToks . ItkIdReserved 
+              => Wr . PutText ( WrT , " " ) 
+              ; Wr . PutText ( WrT , FM3IntToks . Name ( LToken ) )
+              ; Wr . PutChar ( WrT , '(')
+              ; DobIdentReservedArg ( 0 )
+              ; DobPosArg ( 1 )
+              ; Wr . PutChar ( WrT , ')')
+              ; Wr . PutText ( WrT , Wr . EOL )
 
-            (* Tagged operands: *) 
-            ; LArgString := FM3IntToks . Operands ( LToken ) 
-            ; IF LArgString # NIL AND Text . Length ( LArgString ) > 0
-              THEN
-                LArgRdT := TextRd . New ( LArgString )
-              ; LArgChar := Rd . GetChar ( LArgRdT ) 
-              ; LOOP (* Thru' arguments. *)
-                  IF Rd . EOF ( LArgRdT )
-                  THEN (* No more string-defined args. *)
-                    EXIT 
-                  END (*IF*) 
-                ; LArgChar := Rd . GetChar ( LArgRdT )
-                (* Arg does not necessarily have a leading '_' *)
-                ; IF LArgChar = '_'
-                  THEN
+            ELSE (* Of outer CASE. *) 
+              CASE LToken OF 
+              | FM3IntToks . TkMinTok .. FM3IntToks . TkMaxTok 
+              => (* Other internal token. Special case internal tokens
+                    won't get here. *)
+                Wr . PutText ( WrT , " " ) 
+              ; Wr . PutText ( WrT , FM3IntToks . Name ( LToken ) ) 
+
+              (* Display operands. *) 
+              ; LArgNo := 0
+              ; Wr . PutChar ( WrT , '(' )
+
+              (* Tagged operands: *) 
+              ; LArgString := FM3IntToks . Operands ( LToken ) 
+              ; IF LArgString # NIL AND Text . Length ( LArgString ) > 0
+                THEN
+                  LArgRdT := TextRd . New ( LArgString )
+                ; LArgChar := Rd . GetChar ( LArgRdT ) 
+                ; LOOP (* Thru' arguments. *)
                     IF Rd . EOF ( LArgRdT )
-                    THEN EXIT
-                    ELSE 
-                      LArgChar := Rd . GetChar ( LArgRdT )
-                    END (*IF*)
-                  END (*IF*)
-                ; CASE LArgChar OF
-                  | 'C' => DobCoordArg ( LArgNo )
-                  | 'L' => DobLongArg ( LArgNo , 'L' )
-                  | 'B' => DobBoolArg ( LArgNo )
-                  | 'H' => DobColNoArg ( LArgNo )
-                  | 'I' => DobIdentAtomArg ( LArgNo )
-                  | 'D' => DobDeclNoArg ( LArgNo )
-                  | 'k' => DobDeclKindArg ( LArgNo ) 
-                  | 'P'
-                  => DobPosArg ( LArgNo )
-                    ; INC ( LArgNo ) 
-                  | 'N'
-                  => (* Is it "_N_H"? *)  
-                    IF Rd . EOF ( LArgRdT )
+                    THEN (* No more string-defined args. *)
+                      EXIT 
+                    END (*IF*) 
+                  ; LArgChar := Rd . GetChar ( LArgRdT )
+                  (* Arg does not necessarily have a leading '_' *)
+                  ; IF LArgChar = '_'
                     THEN
-                      DobLineNoArg ( LArgNo )
-                    ; EXIT 
-                    ELSE
-                      LArgChar := Rd . GetChar ( LArgRdT )
-                    ; IF LArgChar # '_'
-                      THEN
-                        Rd . UnGetChar ( LArgRdT )
-                      ; DobLineNoArg ( LArgNo )
-                      ELSIF Rd . EOF ( LArgRdT )
+                      IF Rd . EOF ( LArgRdT )
+                      THEN EXIT
+                      ELSE 
+                        LArgChar := Rd . GetChar ( LArgRdT )
+                      END (*IF*)
+                    END (*IF*)
+                  ; CASE LArgChar OF
+                    | 'C' => DobCoordArg ( LArgNo )
+                    | 'L' => DobLongArg ( LArgNo , 'L' )
+                    | 'B' => DobBoolArg ( LArgNo )
+                    | 'H' => DobColNoArg ( LArgNo )
+                    | 'I' => DobIdentAtomArg ( LArgNo )
+                    | 'D' => DobDeclNoArg ( LArgNo )
+                    | 'k' => DobDeclKindArg ( LArgNo ) 
+                    | 'P'
+                    => DobPosArg ( LArgNo )
+                      ; INC ( LArgNo ) 
+                    | 'N'
+                    => (* Is it "_N_H"? *)  
+                      IF Rd . EOF ( LArgRdT )
                       THEN
                         DobLineNoArg ( LArgNo )
                       ; EXIT 
-                      ELSIF LArgChar = 'H'
-                      THEN DobPosArg ( LArgNo )
-                      ; INC ( LArgNo ) 
                       ELSE
-                        Rd . UnGetChar ( LArgRdT )
-                      ; DobLineNoArg ( LArgNo )
-                      (* Go around for another arg letter, whose
-                         leading '_' is in this case, already
-                         consumed.
-                      *)  
-                      END (*IF*) 
-                    END (*IF*)
-                  ELSE
-                    DobLongArg ( LArgNo , '?' )
-                  END (*CASE*)
-                ; INC ( LArgNo )
-                END (*LOOP*)
-              END (*IF*) 
+                        LArgChar := Rd . GetChar ( LArgRdT )
+                      ; IF LArgChar # '_'
+                        THEN
+                          Rd . UnGetChar ( LArgRdT )
+                        ; DobLineNoArg ( LArgNo )
+                        ELSIF Rd . EOF ( LArgRdT )
+                        THEN
+                          DobLineNoArg ( LArgNo )
+                        ; EXIT 
+                        ELSIF LArgChar = 'H'
+                        THEN DobPosArg ( LArgNo )
+                        ; INC ( LArgNo ) 
+                        ELSE
+                          Rd . UnGetChar ( LArgRdT )
+                        ; DobLineNoArg ( LArgNo )
+                        (* Go around for another arg letter, whose
+                           leading '_' is in this case, already
+                           consumed.
+                        *)  
+                        END (*IF*) 
+                      END (*IF*)
+                    ELSE
+                      DobLongArg ( LArgNo , '?' )
+                    END (*CASE*)
+                  ; INC ( LArgNo )
+                  END (*LOOP*)
+                END (*IF*) 
 
-            (* Any remaining counted args: *) 
-            ; LOOP 
-                CASE LArgNo OF 
-                | 0 => IF NOT IntSets . IsElement ( LToken , GTokSetGE1Arg )
-                       THEN EXIT END (*IF*)
-                | 1 => IF NOT IntSets . IsElement ( LToken , GTokSetGE2Args )
-                       THEN EXIT END (*IF*)
-                | 2 => IF NOT IntSets . IsElement ( LToken , GTokSetGE3Args )
-                       THEN EXIT END (*IF*)
-                | 3 => IF NOT IntSets . IsElement ( LToken , GTokSetGE4Args )
-                       THEN EXIT END (*IF*)
-                | 4 => IF NOT IntSets . IsElement ( LToken , GTokSetGE5Args )
-                       THEN EXIT END (*IF*)
-                | 5 => IF NOT IntSets . IsElement ( LToken , GTokSetGE6Args )
-                       THEN EXIT END (*IF*)
-                ELSE EXIT 
-                END (*CASE*) 
-              ; DobLongArg ( LArgNo , 'L' )
-              ; INC ( LArgNo ) 
-              END (*LOOP*) 
+              (* Any remaining counted args: *) 
+              ; LOOP 
+                  CASE LArgNo OF 
+                  | 0 => IF NOT IntSets . IsElement ( LToken , GTokSetGE1Arg )
+                         THEN EXIT END (*IF*)
+                  | 1 => IF NOT IntSets . IsElement ( LToken , GTokSetGE2Args )
+                         THEN EXIT END (*IF*)
+                  | 2 => IF NOT IntSets . IsElement ( LToken , GTokSetGE3Args )
+                         THEN EXIT END (*IF*)
+                  | 3 => IF NOT IntSets . IsElement ( LToken , GTokSetGE4Args )
+                         THEN EXIT END (*IF*)
+                  | 4 => IF NOT IntSets . IsElement ( LToken , GTokSetGE5Args )
+                         THEN EXIT END (*IF*)
+                  | 5 => IF NOT IntSets . IsElement ( LToken , GTokSetGE6Args )
+                         THEN EXIT END (*IF*)
+                  ELSE EXIT 
+                  END (*CASE*) 
+                ; DobLongArg ( LArgNo , 'L' )
+                ; INC ( LArgNo ) 
+                END (*LOOP*) 
 
-            ; Wr . PutChar ( WrT , ')' ) 
-            ; Wr . PutText ( WrT , Wr . EOL )
-            ELSE (* Don't know what this token is. *) 
-              Wr . PutText ( WrT , " <unknown token:> " )
-            ; Wr . PutText ( WrT , Fmt . LongInt ( LTokenL ) )
-            ; Wr . PutText ( WrT , Wr . EOL )
-            END (*CASE*)
+              ; Wr . PutChar ( WrT , ')' ) 
+              ; Wr . PutText ( WrT , Wr . EOL )
+              ELSE (* Don't know what this token is. *) 
+                Wr . PutText ( WrT , " <unknown token:> " )
+              ; Wr . PutText ( WrT , Fmt . LongInt ( LTokenL ) )
+              ; Wr . PutText ( WrT , Wr . EOL )
+              END (*CASE*)
+            END (*CASE*) 
 
           ELSE (* out of nonneg INTEGER range *) 
             Wr . PutText ( WrT , " <unknown token, out of range:> " ) 

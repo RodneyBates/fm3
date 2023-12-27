@@ -138,9 +138,9 @@ INTERFACE FM3SrcToks
 ; CONST StkWideCharLit                               =   106 (*16_ea 00 *)
 ; CONST StkLexErrChars                               =   107 (*16_eb 00 *)
 ; CONST StkReservedId                                =   108 (*16_ec 00 *)
-(* ^Any reserved ident, but with the Rid as its atom. *)
+(* Any reserved ident, but with the Rid as its atom. *)
 ; CONST StkPragmaId                                  =   109 (*16_ed 00 *)
-(* ^Not a known pragma ident, but found where one is expected. *)
+(* Not a known pragma ident, but found where one is expected. *)
 (* Reserved identifiers: *)
 (* We want to scan these with the same lex machine as reserved words,
       but then treat each of them as source token StkReservedId, using the

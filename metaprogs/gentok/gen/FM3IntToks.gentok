@@ -46,6 +46,7 @@ ItkProcBodyAbsent POS 2 (* Position. *).
 LONE
 ItkScopeLt 1 (* ScopeNo. *) (* ItkScopePatch not used. *) .
 ItkScopeRt 1 (* ScopeNo. *) . 
+ItkIdReserved IDENT POS 3 (* Rid*, Position. *). 
 ItkIdRefAtom IDENT POS 3 (* IdAtom, position. Occurs before unnest. *). 
 ItkIdRefDeclNo DECL POS (* DeclNo, position. Occurs after unnest. *) . 
 ItkDuplDeclId IDENT POS 3 (* IdAtom, position *) . 
@@ -80,8 +81,6 @@ ItkTypeDecl POS 2 (* Position of ident (Lt) or position of semicolon (Rt). *)
 
 (*
 LONE
-ItkExportId      IDENT POS . 
-ItkExportIdSep   IDENT POS . 
 ItkVarDeclId     IDENT POS . 
 ItkRecFieldId    IDENT POS . 
 ItkVALUEFormalId IDENT POS . 

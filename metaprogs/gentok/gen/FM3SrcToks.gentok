@@ -137,8 +137,8 @@ ABS 5
    StkCharLit . 
    StkWideCharLit .
    StkLexErrChars .
-   StkReservedId . (* ^Any reserved ident, but with the Rid as its atom. *) 
-   StkPragmaId . (* ^Not a known pragma ident, but found where one is expected. *)  
+   StkReservedId . (* Any reserved ident, but with the Rid as its atom. *) 
+   StkPragmaId . (* Not a known pragma ident, but found where one is expected. *)  
 
    (* Reserved identifiers: *)
    (* We want to scan these with the same lex machine as reserved words,

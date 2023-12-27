@@ -1,3 +1,4 @@
+
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2023,       Rodney M. Bates.                                    *)
@@ -279,17 +280,15 @@ RULE
  
 (* ----------------------------- Identifiers ---------------------------- *)
 
-   IdRefAtom : StkIdent
-     { Push_LIP
-         ( Itk . ItkIdRefAtom , $1 . Scan . SaAtom , $1 . Scan . Position ) ;
-     } .
+   IdentRef : StkIdent
+     { FM3ParsePass . IdentRefL2R ( $1 ) ; } .
 
 (* List of one or more comma-separated Idents.*)
-   IdPlusList : StkIdent 
+   IdPlusList : IdRef 
      { (* PaUnnestCoord copied from $1 by parser. *) 
        $$ . PaInt := 1 ;
      } . 
-   IdPlusList : IdPlusList StkComma StkIdent
+   IdPlusList : IdPlusList StkComma IdRef
      { (* PaUnnestCoord copied from $1 by parser. *) 
        $$ . PaInt := $1 . PaInt + 1 ;
      } .
@@ -317,7 +316,7 @@ RULE
      { IF FM3ParsePass . DeclIdL2R
             ( FM3Decls . TopDeclInfo ( ) . DiIdTok
             , IdAttribute := $3
-            , SepTok := FM3Decls . TopDeclInfo ( ) . DiIdSepTok
+            , SepTok := FM3Decls . TopDeclInfo ( ) . DiIdTok
             , SepPosition := $2 . Scan . Position
             , PriorIdCt := $1 . PaInt
             ) 
@@ -327,7 +326,7 @@ RULE
      } . 
 
 (* List of zero or more comma-separated Idents. *)
-   IdStarList : IdStarList StkComma StkIdent
+   IdStarList : IdStarList StkComma IdRef
      { $$ . PaInt := $1 . PaInt + 1 ; } . 
    IdStarList : /*Empty*/
      { $$ . PaInt := 0 ; } . 
@@ -340,7 +339,7 @@ RULE
      
 (* Qualified ident. *)   
    QualId : StkIdent .
-   QualId : StkIdent StkDot StkIdent
+   QualId : IdRef StkDot StkIdent
      { Push_LCeCr
          ( Itk . ItkQualIdLt ,  $1 . PaUnnestCoord , $3 . PaUnnestCoord );
      } .
@@ -397,7 +396,7 @@ RULE
      { $$ . PaInt := $1 . PaInt ;
        $$ . PaLong := $1 . PaLong ; 
      } .
-   FromImportPlusList : StkRwFROM StkIdent StkRwIMPORT StkIdent
+   FromImportPlusList : StkRwFROM IdRef StkRwIMPORT StkIdent
      { $$ . PaInt := 1 (* InterfaceCt. *) ;
        $$ . PaLong := 1L ;
        $$ . Scan . SaAtom := $2 . Scan . SaAtom ; 
@@ -420,7 +419,7 @@ RULE
          , $4 . Scan . Position . Column
          ) ;
      } . 
-   FromImportPlusList : FromImportPlusList StkComma StkIdent
+   FromImportPlusList : FromImportPlusList StkComma IdRef
      { $$ . PaInt := 1 ;
        $$ . PaLong := $1 . PaLong + 1L ;
        $$ . Scan . SaAtom := $1 . Scan . SaAtom ; 
@@ -446,7 +445,7 @@ RULE
 
 (* IMPORT Id AS Id; *)
 (*
-   ImportItem : StkRwFROM StkIdent StkRwIMPORT IdPlusList StkSemicolon 
+   ImportItem : StkRwFROM IdRef StkRwIMPORT IdPlusList StkSemicolon 
      { $$ . PaInt := 1 ;
        $$ . PaLong := VAL ( $4 . PaInt (* IdPlusList Ct. *) , LONGINT ) ;
        Push_LCIeCri
@@ -479,7 +478,8 @@ RULE
          := FM3Decls . PushDeclInfo
               ( FM3Decls . DeclInfoTyp
                   { DiDeclTok := Itk . ItkNull
-                  , DiIdTok := Itk . ItkExportIdListLt
+                  , DiIdListTok := Itk . ItkExportIdListLt 
+                  , DiIdTok := Itk . ItkExportIdListLt + Itk . LtToListElem
                   , DiIdSepTok := Itk . ItkExportIdListLt + Itk . LtToListSep
                   , DiKind := Dk . DkExports 
                   }
@@ -531,7 +531,7 @@ RULE
    TypeDeclId : StkIdent
      { $$ . PaBool
          := FM3ParsePass . DeclIdL2R
-              ( Itk . ItkTypeDeclId , IdAttribute := $1 ) ;
+              ( DeclIdTok := Itk . ItkTypeDeclId , IdAttribute := $1 ) ;
        IF NOT $$ . PaBool
        THEN $$ . PaInt :=  FM3ParsePass . StartSkipping ( )
        END (*IF*) ; 
@@ -548,7 +548,7 @@ RULE
              , $1 . Scan . Position
              , $3 . PaUnnestCoord
              , $3 . Scan . Position
-             , $4 . Scan . Position
+             , $4 . Scan . Position (* Really? Not $1? *) 
              ) ;
          END (*IF*) 
        ELSE 
@@ -585,7 +585,8 @@ RULE
          := FM3Decls . PushDeclInfo
               ( FM3Decls . DeclInfoTyp
                   { DiDeclTok := Itk . ItkVarDeclLt
-                  , DiIdTok := Itk . ItkVarDeclIdListLt
+                  , DiIdListTok := Itk . ItkVarDeclIdListLt 
+                  , DiIdTok := Itk . ItkVarDeclIdListLt + Itk . LtToListElem
                   , DiIdSepTok := Itk . ItkVarDeclIdListLt + Itk . LtToListSep
                   , DiKind := Dk . DkVar
                   }
@@ -662,7 +663,7 @@ RULE
          $$ . PaInt := $1 . PaInt (* Valid id count. *) ;
          MakeListPos (* The identifier list. *) 
            ( $$
-           , FM3Decls . TopDeclInfo ( ) . DiIdTok
+           , FM3Decls . TopDeclInfo ( ) . DiIdListTok
            , $1 . Scan . Position
            , ElemsAttr := $1
            ) ; 
@@ -688,7 +689,7 @@ RULE
 
 (* --------------------------------- Types ----------------------------- *)
 
-   Type : IdRefAtom . 
+   Type :  IdentRef . 
 
    Type : StkRwREF Type 
      { Push_LCP_rp
@@ -712,7 +713,8 @@ RULE
          := FM3Decls . PushDeclInfo
               ( FM3Decls . DeclInfoTyp
                   { DiDeclTok := Itk . ItkRecFieldLt
-                  , DiIdTok := Itk . ItkRecFieldIdListLt
+                  , DiIdListTok := Itk . ItkRecFieldIdListLt
+                  , DiIdTok := Itk . ItkRecFieldIdListLt + Itk . LtToListElem
                   , DiIdSepTok := Itk . ItkRecFieldIdListLt + Itk . LtToListSep
                   , DiKind := Dk . DkRecField 
                   }
@@ -792,7 +794,8 @@ RULE
          := FM3Decls . PushDeclInfo
               ( FM3Decls . DeclInfoTyp
                   { DiDeclTok := Itk . ItkVALUEFormalLt
-                  , DiIdTok := Itk . ItkVALUEFormalIdListLt 
+                  , DiIdListTok := Itk . ItkVALUEFormalIdListLt 
+                  , DiIdTok := Itk . ItkVALUEFormalIdListLt + Itk . LtToListElem
                   , DiIdSepTok
                       := Itk . ItkVALUEFormalIdListLt + Itk . LtToListSep
                   , DiKind := Dk . DkValueFormal
@@ -808,7 +811,8 @@ RULE
          := FM3Decls . PushDeclInfo
               ( FM3Decls . DeclInfoTyp
                   { DiDeclTok := Itk . ItkVALUEFormalLt
-                  , DiIdTok := Itk . ItkVALUEFormalIdListLt 
+                  , DiIdListTok := Itk . ItkVALUEFormalIdListLt 
+                  , DiIdTok := Itk . ItkVALUEFormalIdListLt + Itk . LtToListElem
                   , DiIdSepTok
                       := Itk . ItkVALUEFormalIdListLt + Itk . LtToListSep
                   , DiKind := Dk . DkValueFormal
@@ -825,7 +829,8 @@ RULE
          := FM3Decls . PushDeclInfo
               ( FM3Decls . DeclInfoTyp
                   { DiDeclTok := Itk . ItkVARFormalLt
-                  , DiIdTok := Itk . ItkVARFormalIdListLt 
+                  , DiIdListTok := Itk . ItkVARFormalIdListLt 
+                  , DiIdTok := Itk . ItkVARFormalIdListLt + Itk . LtToListElem
                   , DiIdSepTok := Itk . ItkVARFormalIdListLt + Itk . LtToListSep
                   , DiKind := Dk . DkValueFormal
                   }
@@ -840,7 +845,8 @@ RULE
          := FM3Decls . PushDeclInfo
               ( FM3Decls . DeclInfoTyp
                   { DiDeclTok := Itk . ItkROFormalLt
-                  , DiIdTok := Itk . ItkROFormalIdListLt 
+                  , DiIdListTok := Itk . ItkROFormalIdListLt 
+                  , DiIdTok := Itk . ItkROFormalIdListLt + Itk . LtToListElem
                   , DiIdSepTok := Itk . ItkROFormalIdListLt + Itk . LtToListSep
                   , DiKind := Dk . DkROFormal
                   }
@@ -913,7 +919,7 @@ RULE
          $$ .PaInt := $1 . PaInt (* Valid Id Ct. *) ; 
          MakeListPos
            ( $$
-           , FM3Decls . TopDeclInfo ( ) . DiIdTok
+           , FM3Decls . TopDeclInfo ( ) . DiIdListTok
            , $1 . Scan . Position
            , ElemsAttr := $1
            ) ; 
@@ -1054,8 +1060,9 @@ RULE
 
 (* ---------------------------- Expressions ---------------------------- *)
 
-Expr: StkIdent .
-Expr: StkIntLit . 
+   Expr: IdentRef . 
+
+   Expr: StkIntLit . 
 
 (* ------------------------------ Blocks ------------------------------- *)
 

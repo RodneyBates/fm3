@@ -258,10 +258,7 @@ INTERFACE FM3ParsePass
                in current scope.) *)
   (* PRE: IdAttribute is for an identifier in a declaration context. *) 
 
-(* Needed?
-; PROCEDURE RefIdL2R
-    ( RefIdAtom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
-*)
+; PROCEDURE IdentRefL2R ( READONLY IdAttribute : tParsAttribute ) 
 
 ; PROCEDURE ScopeRtL2R ( ScopeNo : FM3Scopes . ScopeNoTyp )
   (* Create an identifier-to-declNo dictionary for the scope, of
@@ -292,8 +289,8 @@ INTERFACE FM3ParsePass
   : FM3Base . DeclNoTyp
   (* May be 1st or a later duplicate decl of DeclIdAtom *)
 
-; PROCEDURE RefIdR2L
-    ( RefIdAtom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
+; PROCEDURE IdentRefR2L
+    ( IdentRefAtom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
   : FM3Base . DeclNoTyp 
 
 ; PROCEDURE ScopeLtR2L ( ScopeNo : FM3Base . ScopeNoTyp )

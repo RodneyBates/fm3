@@ -129,6 +129,7 @@ MODULE FM3Decls
       THEN RETURN
         DeclInfoTyp
           { DiDeclTok := FM3IntToks . ItkNull
+          , DiIdListTok := FM3IntToks . ItkNull
           , DiIdTok := FM3IntToks . ItkNull
           , DiIdSepTok := FM3IntToks . ItkNull
           , DiKind := DeclKindTyp.DkNull
