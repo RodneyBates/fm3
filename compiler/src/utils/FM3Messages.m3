@@ -183,11 +183,7 @@ MODULE FM3Messages
 
     ; IF Pos # FM3Base . PositionNull
       THEN
-        Wr . PutChar ( LWrT , '[' )
-      ; Wr . PutText ( LWrT , Fmt . Int ( Pos . Line ) ) 
-      ; Wr . PutChar ( LWrT , ',' ) 
-      ; Wr . PutText ( LWrT , Fmt . Int ( Pos . Column ) ) 
-      ; Wr . PutChar ( LWrT , ']' ) 
+        PutPositionImage ( LWrT , Pos )
       ; LBlankNeeded := TRUE 
       END (*IF*)
       
@@ -337,6 +333,18 @@ MODULE FM3Messages
     ; PutStdOut ( LMsg ) 
     ; PutUnitLog ( LMsg ) 
     END IndentArr
+
+(*EXPORTED*)
+; PROCEDURE PutPositionImage ( WrT : Wr . T ; Pos : FM3Base . tPosition )
+
+  = BEGIN 
+      Wr . PutChar ( WrT , '[' )
+    ; Wr . PutText ( WrT , Fmt . Int ( Pos . Line ) ) 
+    ; Wr . PutChar ( WrT , ',' ) 
+    ; Wr . PutText ( WrT , Fmt . Int ( Pos . Column ) ) 
+    ; Wr . PutChar ( WrT , ']' )
+    END PutPositionImage 
+
 
 (*EXPORTED*)
 ; PROCEDURE StartUnit

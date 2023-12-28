@@ -25,6 +25,10 @@ INTERFACE FM3Units
            , UkInstModule
            } 
 
+; PROCEDURE UnitKindImage ( Kind : UnitKindTyp ) : TEXT
+
+; PROCEDURE UnitKindSectionNo ( Kind : UnitKindTyp ) : TEXT
+
 ; TYPE UnitRefTyp = REF UnitTyp
 ; TYPE UnitTyp
     = RECORD
@@ -32,7 +36,8 @@ INTERFACE FM3Units
       ; UntSrcFileName : TEXT := NIL (* Simple name *) 
       ; UntSrcFilePath : TEXT := NIL (* I.e, directory wherein UntSrcFileName lives. *) 
       ; UntLogName : TEXT := NIL 
-      ; UntLogWrT : Wr . T := NIL 
+      ; UntLogWrT : Wr . T := NIL
+      ; UntUnitIdAtom : FM3Base . AtomTyp := FM3Base . AtomNull 
       ; UntBuildDirPath : TEXT := NIL 
       (* ^Same for unnest stack, patch stack, and parse pass output file. *)  
       ; UntPatchStackName : TEXT := NIL
@@ -77,7 +82,7 @@ INTERFACE FM3Units
 ; VAR UnitMap : UnitMapTyp
 
 ; PROCEDURE NewUnitMap ( InitUnitCt : FM3Base . UnitNoTyp ) : UnitMapTyp
-  (* One UnnitMap in a compile. *) 
+  (* One UnitMap in a compile. *) 
 
 ; VAR UnitStackTopRef : UnitRefTyp := NIL 
     (* One UnitStack in a compile *)

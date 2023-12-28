@@ -106,6 +106,8 @@ INTERFACE FM3Messages
 
 ; VAR UnitLogWrT : Wr . T := NIL 
 
+; PROCEDURE PutPositionImage ( WrT : Wr . T ; Pos : FM3Base . tPosition )
+
 ; PROCEDURE StartUnit
     ( UnitName : TEXT ; UnitLogWrT : Wr . T := NIL )
   RAISES { Thread . Alerted } 

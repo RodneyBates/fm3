@@ -11,13 +11,14 @@
 (* WARNING: Do not put a lone single quote in a semantic action, e.g.:
             (* Don't do this. *).  Probably applies to double quote too.
             lalr will run to the end of its internal buffer looking
-            for the quote's mate and give an unclosed-string error. *)
+            for the quote's mate and give an unclosed-string error.
+*)
             
 SCANNER FM3Scanner
 
 PARSER FM3Parser
 
-/* Stuff to go into the parser interface. */ 
+/* Stuff to go into the front of the parser interface. */ 
 EXPORT
   { IMPORT FM3IntToks;
     IMPORT FM3ParsePass;
@@ -227,6 +228,36 @@ RULE
    Compilation : InstInterface . 
    Compilation : InstModule .
 
+   UnitId : StkIdent
+     { $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
+       $$ . Scan . Position := $1 . Scan . Position ;
+
+(* IF FM3ParsePass . DeclIdL2R ( Itk . ItkUnitId , $1 )
+       THEN $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
+       ELSE $$ . Scan . SaAtom := FM3Base . AtomNull ;
+       END (*IF*) ;
+*)
+       FM3Units . UnitStackTopRef ^ . UntUnitIdAtom := $$ . Scan . SaAtom ;
+     } . 
+       
+   UnitIdImpliedEXPORTS : UnitId 
+     { $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
+       (* Synthesize EXPORTS <self>. *) 
+       Push_LIP ( Itk . ItkExportIdListLt , 1 , $1 . Scan . Position )  ; 
+       Push_LIP
+         ( Itk . ItkExportIdListLt + Itk . LtToListElem
+         , $1 . Scan . SaAtom 
+         , $1 . Scan . Position
+         ) ;
+       Push_LIP ( Itk . ItkExportIdListRt , 1 , $1 . Scan . Position ) ;
+     } .
+
+   UnitIdAndExports : UnitId Exports 
+     { $$ . Scan . SaAtom := $1 . Scan . SaAtom ; } .
+
+   UnitIdAndExports : UnitIdImpliedEXPORTS
+     { $$ . Scan . SaAtom := $1 . Scan . SaAtom ; } . 
+
    InterfaceKind : /*Empty*/ 
        { FM3Units . UnitStackTopRef ^ . UntKind := Uk . UkInterface ; } .
 
@@ -246,27 +277,27 @@ RULE
        { FM3Units . UnitStackTopRef ^ . UntKind := Uk . UkInstModule ; } . 
 
    Interface : 
-       OptUnsafe StkRwINTERFACE StkIdent InterfaceKind StkSemicolon
+       OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon
        Imports DeclList StkRwEND StkIdent StkDot .
 
    Module :
-       OptUnsafe StkRwMODULE StkIdent Exports ModuleKind StkSemicolon
+       OptUnsafe StkRwMODULE UnitIdAndExports ModuleKind StkSemicolon
        Imports Block StkIdent StkDot .
 
    GenInterface :
-       StkRwGENERIC StkRwINTERFACE StkIdent GenInterfaceKind GenFormalList
+       StkRwGENERIC StkRwINTERFACE UnitId GenInterfaceKind GenFormalList
        StkSemicolon Imports DeclList StkRwEND StkIdent StkDot . 
 
    GenModule :
-       StkRwGENERIC StkRwMODULE StkIdent GenModuleKind GenFormalList
+       StkRwGENERIC StkRwMODULE UnitId GenModuleKind GenFormalList
        StkSemicolon Imports Block StkIdent StkDot . 
 
    InstInterface :
-       OptUnsafe StkRwINTERFACE StkIdent InstInterfaceKind StkEqual
+       OptUnsafe StkRwINTERFACE UnitId InstInterfaceKind StkEqual
        StkIdent GenActualList StkRwEND StkIdent StkDot . 
 
    InstModule :
-       OptUnsafe StkRwMODULE StkIdent Exports InstModuleKind StkEqual
+       OptUnsafe StkRwMODULE UnitIdAndExports InstModuleKind StkEqual
        StkIdent GenActualList StkRwEND StkIdent StkDot . 
 
    OptUnsafe : StkRwUNSAFE { $$ . PaBool (* Unsafe.*) := TRUE ; } .
@@ -284,11 +315,11 @@ RULE
      { FM3ParsePass . IdentRefL2R ( $1 ) ; } .
 
 (* List of one or more comma-separated Idents.*)
-   IdPlusList : IdRef 
+   IdPlusList : IdentRef 
      { (* PaUnnestCoord copied from $1 by parser. *) 
        $$ . PaInt := 1 ;
      } . 
-   IdPlusList : IdPlusList StkComma IdRef
+   IdPlusList : IdPlusList StkComma IdentRef
      { (* PaUnnestCoord copied from $1 by parser. *) 
        $$ . PaInt := $1 . PaInt + 1 ;
      } .
@@ -316,7 +347,7 @@ RULE
      { IF FM3ParsePass . DeclIdL2R
             ( FM3Decls . TopDeclInfo ( ) . DiIdTok
             , IdAttribute := $3
-            , SepTok := FM3Decls . TopDeclInfo ( ) . DiIdTok
+            , SepTok := FM3Decls . TopDeclInfo ( ) . DiIdSepTok
             , SepPosition := $2 . Scan . Position
             , PriorIdCt := $1 . PaInt
             ) 
@@ -326,7 +357,7 @@ RULE
      } . 
 
 (* List of zero or more comma-separated Idents. *)
-   IdStarList : IdStarList StkComma IdRef
+   IdStarList : IdStarList StkComma IdentRef
      { $$ . PaInt := $1 . PaInt + 1 ; } . 
    IdStarList : /*Empty*/
      { $$ . PaInt := 0 ; } . 
@@ -339,7 +370,7 @@ RULE
      
 (* Qualified ident. *)   
    QualId : StkIdent .
-   QualId : IdRef StkDot StkIdent
+   QualId : IdentRef StkDot StkIdent
      { Push_LCeCr
          ( Itk . ItkQualIdLt ,  $1 . PaUnnestCoord , $3 . PaUnnestCoord );
      } .
@@ -396,7 +427,7 @@ RULE
      { $$ . PaInt := $1 . PaInt ;
        $$ . PaLong := $1 . PaLong ; 
      } .
-   FromImportPlusList : StkRwFROM IdRef StkRwIMPORT StkIdent
+   FromImportPlusList : StkRwFROM IdentRef StkRwIMPORT StkIdent
      { $$ . PaInt := 1 (* InterfaceCt. *) ;
        $$ . PaLong := 1L ;
        $$ . Scan . SaAtom := $2 . Scan . SaAtom ; 
@@ -419,7 +450,7 @@ RULE
          , $4 . Scan . Position . Column
          ) ;
      } . 
-   FromImportPlusList : FromImportPlusList StkComma IdRef
+   FromImportPlusList : FromImportPlusList StkComma IdentRef
      { $$ . PaInt := 1 ;
        $$ . PaLong := $1 . PaLong + 1L ;
        $$ . Scan . SaAtom := $1 . Scan . SaAtom ; 
@@ -445,7 +476,7 @@ RULE
 
 (* IMPORT Id AS Id; *)
 (*
-   ImportItem : StkRwFROM IdRef StkRwIMPORT IdPlusList StkSemicolon 
+   ImportItem : StkRwFROM IdentRef StkRwIMPORT IdPlusList StkSemicolon 
      { $$ . PaInt := 1 ;
        $$ . PaLong := VAL ( $4 . PaInt (* IdPlusList Ct. *) , LONGINT ) ;
        Push_LCIeCri
@@ -459,7 +490,7 @@ RULE
 (* ------------------------------- Exports ------------------------- . *)
 
 (* Exports.  Possibly absent, in which case construct "EXPORTS Main".
-   Otherwise contains at least one ident. Bracket with ItkportList*.
+   Otherwise contains at least one ident. Bracket with ItkExportIdList*.
 *) 
 
    ExportsLt : StkRwEXPORTS
@@ -504,9 +535,6 @@ RULE
        <* ASSERT FM3Decls . PopDeclInfo ( ) = $1 . PaInt (* Scope No. *) *>
        FM3ParsePass . ScopeRtL2R ( $1 . PaConstructNo ) ; 
      } .
-
-   Exports : /*Empty*/
-     { FM3ParsePass . PushEXPORTSMain ( $0 . Scan . Position ) ; } .
 
 (* ------------------------ Generic parameters ---------------------- . *)
 

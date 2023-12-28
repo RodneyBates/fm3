@@ -382,7 +382,7 @@ MODULE FM3Scanner
       END LexErrorChars 
 
   ; CONST IdentFollowChars 
-            = SET OF CHAR { 'A' .. 'Z' , 'a' .. 'z' , '0' .. '9' , '_' }
+            = SET OF CHAR { 'A' .. 'Z' , 'a' .. 'z' , '0' .. '9' , '_' } 
 
   ; PROCEDURE StartIdent ( ) 
 

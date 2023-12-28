@@ -29,7 +29,10 @@ INTERFACE FM3Scanner
     = RECORD
         Position : tPosition (* Lalr-generated code stores into this. *)
         
-      (* Fields beyond here are not accessed by Lalr-generated parser code. *) 
+      (* Fields beyond here are not accessed by Lalr-emitted parsing
+         algorithm code, but may be by semantic action code taken from the
+         .lalr file and translated and inserted into the parser  by lalr.
+      *) 
       ; SaArgValue : LONGINT
         (* ORD (either TrAtom or TrWCh). *) 
       ; SaHash : FM3Base . HashTyp

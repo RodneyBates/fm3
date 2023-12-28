@@ -9,7 +9,7 @@
 
   INTERFACE FM3Parser;
 
-(* line 22 "FM3Parser.lalr" *)
+(* line 23 "FM3Parser.lalr" *)
  IMPORT FM3IntToks;
     IMPORT FM3ParsePass;
   

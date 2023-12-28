@@ -278,7 +278,8 @@ MODULE FM3ParsePass
     ; LUnitRef ^ . UntParsePassEmptyCoord
         := RdBackFile . LengthL ( LUnitRef ^ . UntParsePassRdBack )  
 
-    (* Create unit data structures. *) 
+    (* Create unit data structures. *)
+(* TODO: eliminate redundant initialization between here are FM3Units.NewUnit. *) 
     ; LUnitRef ^ . UntIdentAtomDict
         := FM3Atom_OAChars . New
              ( FM3Globals . IdentAtomInitSize
@@ -604,7 +605,39 @@ MODULE FM3ParsePass
     END Run
 
 
-(* ---------------------------- Unnest stack ------------------------ *)
+(* ---------------------------- Unnest stack ------------------------ *) 
+
+(*EXPORTED:*)
+; PROCEDURE CheckUnitEndId
+    ( READONLY StartAttr : tParsAttribute 
+    ; VAR EndAttr : tParsAttribute 
+    ; UnitKind : FM3Units . UnitKindTyp
+    )
+  = BEGIN 
+      IF StartAttr . Scan . SaAtom # FM3Base . AtomNull
+         AND EndAttr . Scan . SaAtom # FM3Base . AtomNull
+         AND EndAttr . Scan . SaAtom # StartAttr . Scan . SaAtom 
+      THEN
+        FM3Messages . ErrorArr
+          ( ARRAY OF REFANY 
+              { "Identifier at end of "
+              , FM3Units . UnitKindImage ( UnitKind )
+              , " "
+              , FM3Units . TextOfIdAtom ( StartAttr . Scan . SaAtom )
+              , ", at " 
+              , PosImage ( StartAttr . Scan . Position ) 
+              , " must repeat its name ("
+              , FM3Units . UnitKindSectionNo ( UnitKind )
+              , ")." 
+              } 
+          )
+      (* Just in case it's used from the right end. *) 
+      ; EndAttr . Scan . SaAtom := StartAttr . Scan . SaAtom 
+      ; EndAttr . Scan . SaArgValue := StartAttr . Scan . SaArgValue 
+      ; EndAttr . Scan . SaHash := StartAttr . Scan . SaHash 
+      ; EndAttr . Scan . SaChars := StartAttr . Scan . SaChars 
+      END (*IF*) 
+    END CheckUnitEndId
 
 (*EXPORTED:*)
 ; PROCEDURE UnnestCoord ( ) : LONGINT

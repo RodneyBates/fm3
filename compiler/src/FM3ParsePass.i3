@@ -55,6 +55,12 @@ INTERFACE FM3ParsePass
 
 (* ---------------------------- Unnest stack ------------------------ *)
 
+; PROCEDURE CheckUnitEndId
+    ( READONLY StartAttr : tParsAttribute 
+    ; VAR EndAttr : tParsAttribute 
+    ; UnitKind : FM3Units . UnitKindTyp
+    )
+
 ; PROCEDURE UnnestCoord ( ) : LONGINT
   (* Of the current unit. *)
   

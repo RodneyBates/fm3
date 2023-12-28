@@ -20,7 +20,40 @@ MODULE FM3Units
 ; IMPORT Ranges_Int
 ; IMPORT VarArray_Int_Refany 
 
-; VAR NextUnitNo : INTEGER := 1 
+; VAR NextUnitNo : INTEGER := 1
+
+; TYPE Ukt = UnitKindTyp 
+
+(*EXPORTED*) 
+; PROCEDURE UnitKindImage ( Kind : Ukt ) : TEXT
+
+  = BEGIN
+      CASE Kind OF 
+      | Ukt . UkNull => RETURN "<NullUnitKind>"
+      | Ukt . UkInterface => RETURN "INTERFACE"
+      | Ukt . UkGenInterface => RETURN "GENERIC INTERFACE"
+      | Ukt . UkInstInterface => RETURN "iNTERFACE"
+      | Ukt . UkModule => RETURN "MODULE"
+      | Ukt . UkGenModule => RETURN "GENERIC MODULE"
+      | Ukt . UkInstModule => RETURN "MODULE"
+      END (*CASE*) 
+    END UnitKindImage 
+
+(*EXPORTED*) 
+; PROCEDURE UnitKindSectionNo ( Kind : Ukt ) : TEXT
+
+  = BEGIN
+      CASE Kind OF 
+      | Ukt . UkNull => RETURN ""
+      | Ukt . UkInterface => RETURN "2.5.2"
+      | Ukt . UkGenInterface => RETURN "2.5.5"
+      | Ukt . UkInstInterface => RETURN "2.5.5"
+      | Ukt . UkModule => RETURN "2.5.3"
+      | Ukt . UkGenModule => RETURN "2.5.5"
+      | Ukt . UkInstModule => RETURN "2.5.5"
+      END (*CASE*) 
+    END UnitKindSectionNo  
+
 
 (*EXPORTED*) 
 ; PROCEDURE NewUnitMap ( InitUnitCt : FM3Base . UnitNoTyp ) : UnitMapTyp
