@@ -45,8 +45,8 @@ ItkProcBodyAbsent POS 2 (* Position. *).
 
 (* Scopes and declarations within. *) 
 LONE
-ItkScopeLt 1 (* ScopeNo. *) (* ItkScopePatch not used. *) .
-ItkScopeRt 1 (* ScopeNo. *) . 
+ItkScopeLt INT (* ScopeNo. *) .
+ItkScopeRt INT (* ScopeNo. *) . 
 ItkIdReserved IDENT POS 3 (* Rid*, Position. *). 
 ItkIdRefAtom IDENT POS 3 (* IdAtom, position. Occurs before unnest. *). 
 ItkIdRefDeclNo DECL POS (* DeclNo, position. Occurs after unnest. *) . 
@@ -68,8 +68,10 @@ ItkProcNoBody 1 (* Atom of signature. *) .
 ItkProcWBody 1 (* Atom of signature. *) .
 ItkProcBody POS 2 (* Position of equal sign. *) .
 ItkProcType POS 2 (* Position of "(". *) .
-ItkBlock POS 2 (* Position of LM declaration. *)
-  Beg POS 2 (* Position of BEGIN. *) . 
+
+FIXED
+ItkBlock INT POS 3 (* Construct no., Position of LM declaration. *)
+  BEGIN INT POS 3 (* Construct no.,Position of BEGIN. *) . 
 
 (* Type decls. *)
 
@@ -78,7 +80,7 @@ ItkTypeDeclId IDENT POS 3 .
 
 FIXED
 ItkTypeDecl POS 2 (* Position of ident (Lt) or position of semicolon (Rt). *)
-  Def POS 2 . 
+  Equals POS 2 . 
 
 (*
 LONE

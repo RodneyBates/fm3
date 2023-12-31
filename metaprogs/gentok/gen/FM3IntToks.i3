@@ -112,7 +112,6 @@ INTERFACE FM3IntToks
 ; CONST ItkProcBodyAbsent               (*ArgCt: 2*) =   145 (*16_91 01 *)
 (* Scopes and declarations within. *)
 (* ScopeNo. *)
-(* ItkScopePatch not used. *)
 (* LONE ItkScopeLt: *)
 ; CONST ItkScopeLt                      (*ArgCt: 1*) =   146 (*16_92 01 *)
 (* ScopeNo. *)
@@ -212,17 +211,17 @@ INTERFACE FM3IntToks
 ; CONST ItkProcTypeLtPatch              (*ArgCt: 2*) =   196 (*16_c4 01 *)
 ; CONST ItkProcTypeRt                   (*ArgCt: 2*) =   197 (*16_c5 01 *)
 
-(* Position of LM declaration. *)
+(* Construct no., Position of LM declaration. *)
 (* FIXED ItkBlock: *)
-; CONST ItkBlockLt                      (*ArgCt: 2*) =   198 (*16_c6 01 *)
-; CONST ItkBlockLtTemp                  (*ArgCt: 2*) =   199 (*16_c7 01 *)
-; CONST ItkBlockLtPatch                 (*ArgCt: 2*) =   200 (*16_c8 01 *)
-; CONST ItkBlockRt                      (*ArgCt: 2*) =   201 (*16_c9 01 *)
+; CONST ItkBlockLt                      (*ArgCt: 3*) =   198 (*16_c6 01 *)
+; CONST ItkBlockLtTemp                  (*ArgCt: 3*) =   199 (*16_c7 01 *)
+; CONST ItkBlockLtPatch                 (*ArgCt: 3*) =   200 (*16_c8 01 *)
+; CONST ItkBlockRt                      (*ArgCt: 3*) =   201 (*16_c9 01 *)
 
-(* Position of BEGIN. *)
-; CONST ItkBlockBeg                     (*ArgCt: 2*) =   202 (*16_ca 01 *)
-; CONST ItkBlockBegTemp                 (*ArgCt: 2*) =   203 (*16_cb 01 *)
-; CONST ItkBlockBegPatch                (*ArgCt: 2*) =   204 (*16_cc 01 *)
+(* Construct no.,Position of BEGIN. *)
+; CONST ItkBlockBEGIN                   (*ArgCt: 3*) =   202 (*16_ca 01 *)
+; CONST ItkBlockBEGINTemp               (*ArgCt: 3*) =   203 (*16_cb 01 *)
+; CONST ItkBlockBEGINPatch              (*ArgCt: 3*) =   204 (*16_cc 01 *)
 
 (* Type decls. *)
 (* LONE ItkTypeDeclId: *)
@@ -234,9 +233,9 @@ INTERFACE FM3IntToks
 ; CONST ItkTypeDeclLtPatch              (*ArgCt: 2*) =   208 (*16_d0 01 *)
 ; CONST ItkTypeDeclRt                   (*ArgCt: 2*) =   209 (*16_d1 01 *)
 
-; CONST ItkTypeDeclDef                  (*ArgCt: 2*) =   210 (*16_d2 01 *)
-; CONST ItkTypeDeclDefTemp              (*ArgCt: 2*) =   211 (*16_d3 01 *)
-; CONST ItkTypeDeclDefPatch             (*ArgCt: 2*) =   212 (*16_d4 01 *)
+; CONST ItkTypeDeclEquals               (*ArgCt: 2*) =   210 (*16_d2 01 *)
+; CONST ItkTypeDeclEqualsTemp           (*ArgCt: 2*) =   211 (*16_d3 01 *)
+; CONST ItkTypeDeclEqualsPatch          (*ArgCt: 2*) =   212 (*16_d4 01 *)
 
 (*
 LONE

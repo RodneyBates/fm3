@@ -994,6 +994,30 @@ MODULE FM3ParsePass
     END Push_ECPrP
 
 (*EXPORTED:*)
+; PROCEDURE Push_ECIP_riP
+   ( T : Itk . TokTyp
+   ; CLt : LONGINT
+   ; I : INTEGER 
+   ; PositionOne : FM3Scanner . tPosition
+   ; PositionRt : FM3Scanner . tPosition
+   )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( PositionRt . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( PositionRt . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( PositionOne . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( PositionOne . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , CLt ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToOnePatch , LONGINT ) ) 
+      END (*WITH*) 
+    END Push_ECIP_riP
+
+(*EXPORTED:*)
 ; PROCEDURE Push_LCBr ( T : Itk . TokTyp ; C : LONGINT ; B : BOOLEAN )
 
   = BEGIN
@@ -1306,7 +1330,7 @@ MODULE FM3ParsePass
     END FromImport
 
 (*EXPORTED:*)
-; PROCEDURE BeginBlock ( )
+; PROCEDURE BeginBlock ( ) : FM3Base . ScopeNoTyp (* Created. *) 
 
   = BEGIN (*BeginBlock*)
     END BeginBlock
@@ -1314,37 +1338,35 @@ MODULE FM3ParsePass
 (*EXPORTED:*)
 ; PROCEDURE EndBlock ( )
 
-  = BEGIN (*BeginBlock*)
+  = BEGIN (*EndBlock*)
     END EndBlock
 
 ; PROCEDURE RereverseOpnds
-    ( Token : Itk . TokTyp ; FromRdBack , ToRdBack : RdBackFile . T )
+    ( OpndCt : INTEGER ; FromRdBack , ToRdBack : RdBackFile . T )
   (* Copy up to 6 operands, without final reversing.  Pop/Push reverses
      them, but this procedure does its own reversal, resulting in
      net same order.
   *)
  
   = VAR LOpnd1 , LOpnd2 , LOpnd3 , LOpnd4 , LOpnd5 , LOpnd6 : LONGINT
-  ; VAR LOpndCt : INTEGER 
   
   ; BEGIN (*RereverseOpnds*)
-      LOpndCt := FM3Utils . TokenOpndCt ( Token )
-    ; IF LOpndCt >= 1 
+      IF OpndCt >= 1 
       THEN
         LOpnd1 := FM3Compress . GetBwd ( FromRdBack )
-      ; IF LOpndCt >= 2
+      ; IF OpndCt >= 2
         THEN
           LOpnd2 := FM3Compress . GetBwd ( FromRdBack )
-        ; IF LOpndCt >= 3
+        ; IF OpndCt >= 3
           THEN
             LOpnd3 := FM3Compress . GetBwd ( FromRdBack )
-          ; IF LOpndCt >= 4
+          ; IF OpndCt >= 4
             THEN
               LOpnd4 := FM3Compress . GetBwd ( FromRdBack )
-            ; IF LOpndCt >= 5
+            ; IF OpndCt >= 5
               THEN
                 LOpnd5 := FM3Compress . GetBwd ( FromRdBack )
-              ; IF LOpndCt >= 6
+              ; IF OpndCt >= 6
                 THEN
                   LOpnd6 := FM3Compress . GetBwd ( FromRdBack )
                 ; PutBwd ( ToRdBack , LOpnd6 ) 
@@ -1357,7 +1379,7 @@ MODULE FM3ParsePass
           END (*IF*) 
         ; PutBwd ( ToRdBack , LOpnd2 ) 
         END (*IF*)
-(* EXPANDME: For now, treat LOpndCt < 0 as zero. *) 
+(* EXPANDME: For now, treat OpndCt < 0 as zero. *) 
       ; PutBwd ( ToRdBack , LOpnd1 ) 
       END (*IF*)
 
@@ -1422,7 +1444,7 @@ MODULE FM3ParsePass
          (* Copy up to 6 operands, reversing them to coueract the reversal
             accomplished by stack operations. *)
         ; RereverseOpnds
-            ( LPatchedToken
+            ( FM3Utils . TokenOpndCt ( LPatchedToken ) 
             , LPatchRdBack
             , LParsePassRdBack
             ) 
@@ -1454,8 +1476,8 @@ MODULE FM3ParsePass
           ; LUnitRef . UntPatchStackTopCoord
               := FM3Compress . GetBwd ( LUnnestRdBack )
                  (* New cached top coordinate. *) 
-          ; RereverseOpnds
-              ( LToken
+          ; RereverseOpnds 
+              ( FM3Utils . TokenOpndCt ( LToken ) 
               , LUnnestRdBack
               , LPatchRdBack
               ) 
@@ -1487,15 +1509,30 @@ MODULE FM3ParsePass
               ; LPosition := GetBwdPos ( LUnnestRdBack )
               ; EVAL IdentRefR2L ( LAtom , LPosition )
 
-            | Itk . ItkScopeLt 
+            | Itk . ItkBlockRt
+            => LScopeNo := GetBwdScopeNo ( LUnnestRdBack ) 
+              ; ScopeRtR2L ( LScopeNo  )
+              ; RereverseOpnds
+                 ( 2 (*Position*), LUnnestRdBack , LParsePassRdBack )
+              ; PutBwd ( LParsePassRdBack , VAL ( LScopeNo , LONGINT ) ) 
+              ; PutBwd ( LParsePassRdBack , VAL ( Itk . ItkBlockRt , LONGINT ) )
+
+            | Itk . ItkBlockLt 
+            , Itk . ItkScopeLt 
             => RereverseOpnds
-                 ( LToken , LUnnestRdBack , LParsePassRdBack )
+                 ( FM3Utils . TokenOpndCt ( LToken ) 
+                 , LUnnestRdBack
+                 , LParsePassRdBack
+                 )
               ; PutBwd ( LParsePassRdBack , LTokenL )
               ; EVAL FM3Scopes . PopScope ( ) 
 
             ELSE (* Move directly, unnest to the output.*)
               RereverseOpnds
-                ( LToken , LUnnestRdBack , LParsePassRdBack ) 
+                ( FM3Utils . TokenOpndCt ( LToken )
+                , LUnnestRdBack
+                , LParsePassRdBack
+                ) 
             ; PutBwd ( LParsePassRdBack , LTokenL )
             END (*CASE*) 
           END (*IF*) 
@@ -1586,8 +1623,6 @@ MODULE FM3ParsePass
       ; LNewScopeRef ^ . ScpKind := ScopeKind
       ; LNewScopeRef ^ . ScpPosition := Position
       ; FM3Scopes . PushScope ( LNewScopeRef ) 
-      ; PutBwd ( WunRdBack , VAL ( LNewScopeRef . ScpScopeNo , LONGINT ) ) 
-      ; PutBwd ( WunRdBack , VAL ( Itk . ItkScopeLt , LONGINT ) )
       ; RETURN LNewScopeRef . ScpScopeNo
       END (*WITH*) 
     END ScopeLtL2R
@@ -1723,7 +1758,6 @@ MODULE FM3ParsePass
           IF WScope . ScpKind = FM3Scopes . ScopeKindTyp . SkExports
           THEN
 (*COMPLETEME: Handle getting exported interfaces here. *) 
-            RETURN
           END (*IF*)
         ; LDeclCt := IntSets . Card ( WScope . ScpDeclIdSet )
         (* LDeclCt is exactly the needed dictionary size. *)
@@ -1745,11 +1779,6 @@ MODULE FM3ParsePass
                  }
                ) 
           END (*EXCEPT*)
-        ; WITH WunRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack 
-          DO 
-            PutBwd ( WunRdBack , VAL ( WScope . ScpScopeNo , LONGINT ) ) 
-          ; PutBwd ( WunRdBack , VAL ( Itk . ItkScopeRt , LONGINT ) )
-          END (*WITH*) 
         END (*Block*)
       END (*WITH*) 
     ; EVAL FM3Scopes . PopScope ( )   
@@ -1767,11 +1796,6 @@ MODULE FM3ParsePass
       LScopeMap := FM3Units . UnitStackTopRef ^ . UntScopeMap 
     ; LScopeRef := VarArray_Int_Refany . Fetch ( LScopeMap , ScopeNo )
     ; FM3Scopes . PushScope ( LScopeRef ) 
-    ; WITH WppRdBack = FM3Units . UnitStackTopRef ^ . UntParsePassRdBack 
-      DO
-        PutBwd ( WppRdBack , VAL ( ScopeNo , LONGINT ) ) 
-      ; PutBwd ( WppRdBack , VAL ( Itk . ItkScopeRt , LONGINT ) )
-      END (*WITH*) 
     END ScopeRtR2L
 
 ; PROCEDURE DuplDeclIdR2L

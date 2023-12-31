@@ -33,7 +33,7 @@ IMPORT FM3SharedUtils;
     FROM FM3ParsePass IMPORT
       Push_L , Push_LP , Push_LCr , Push_LCP_rp , Push_LCP_eCP_rP ,
       Push_LCPeCprp , Push_LIP , 
-      Push_ECPrP , Push_LCBr , Push_LCIri , Push_LI3 , Push_LI6 , Push_LCeCr ,
+      Push_ECIP_riP , Push_LCBr , Push_LCIri , Push_LI3 , Push_LI6 , Push_LCeCr ,
       Push_LCIeCri , Push_LCP_eCP_zCP_rP , Pop4 , Pop8 ;
     FROM FM3ParsePass IMPORT MakeList , MakeListPos;
     IMPORT FM3Scopes;
@@ -2095,35 +2095,39 @@ yyNonterminal := 180;
                  yySynAttribute . PaConstructNo
                          := FM3ParsePass . ScopeLtL2R
                               ( Sk . SkBlock , FM3Scanner . Attribute . Position ) ;
-                       FM3ParsePass . BeginBlock ( ) ;
-                       Push_LP ( Itk . ItkBlockLt , FM3Scanner . Attribute . Position ); 
+                       Push_LIP
+                         ( Itk . ItkBlockLt
+                         , yySynAttribute . PaConstructNo
+                         , FM3Scanner . Attribute . Position
+                         ); 
                      
               | 323,152 => (* P110 Block (129): BlockLt DeclList StkRwBEGIN Stmts StkRwEND .*)
                 DEC (yyStackPtr, 5); yyNonterminal := 129;
-                (* line 1106 of "FM3Parser.lalr" *)
-                 FM3ParsePass . EndBlock ( ) ;
-                       FM3ParsePass . ScopeRtL2R ( yyAttributeStack^[yyStackPtr+1] . PaConstructNo ) ; 
-                       Push_ECPrP
-                         ( Itk . ItkBlockLt , yyAttributeStack^[yyStackPtr+3] . PaUnnestCoord
+                (* line 1109 of "FM3Parser.lalr" *)
+                 FM3ParsePass . ScopeRtL2R ( yyAttributeStack^[yyStackPtr+1] . PaConstructNo ) ; 
+                       Push_ECIP_riP
+                         ( Itk . ItkBlockLt
+                         , yyAttributeStack^[yyStackPtr+3] . PaUnnestCoord
+                         , yyAttributeStack^[yyStackPtr+1] . PaConstructNo 
                          , yyAttributeStack^[yyStackPtr+3] . Scan . Position
-                         , yyAttributeStack^[yyStackPtr+5] . Scan . Position
+                         , yyAttributeStack^[yyStackPtr+1] . Scan . Position
                          ) ;
                      
               | 324 => (* P111 DeclList (128): DeclListRecurse .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 128;
-                (* line 1117 of "FM3Parser.lalr" *)
+                (* line 1121 of "FM3Parser.lalr" *)
                  MakeListPos
                          ( yySynAttribute , Itk . ItkDeclListLt , yyAttributeStack^[yyStackPtr+1] . Scan . Position , yyAttributeStack^[yyStackPtr+1] ) ;
                      
               | 325,202 => (* P112 DeclListRecurse (182): DeclListRecurse Decl .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 182;
-                (* line 1121 of "FM3Parser.lalr" *)
+                (* line 1125 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt + 1 ; 
               | 326 => (* P113 DeclListRecurse (182): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 182;
-                (* line 1123 of "FM3Parser.lalr" *)
+                (* line 1127 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := 0 ;
                        yySynAttribute . Scan . Position := FM3Scanner . Attribute . Position ;
                      
@@ -2158,7 +2162,7 @@ yyNonterminal := 181;
 
               | 336,190 => (* P123 AssignStmt (186): Expr StkBecomes Expr .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 186;
-                (* line 1144 of "FM3Parser.lalr" *)
+                (* line 1148 of "FM3Parser.lalr" *)
                  Push_LCPeCprp
                          ( Itk . ItkBecomesLt
                          , yyAttributeStack^[yyStackPtr+1] . PaUnnestCoord

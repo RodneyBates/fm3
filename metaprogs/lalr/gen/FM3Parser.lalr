@@ -40,7 +40,7 @@ GLOBAL
     FROM FM3ParsePass IMPORT
       Push_L , Push_LP , Push_LCr , Push_LCP_rp , Push_LCP_eCP_rP ,
       Push_LCPeCprp , Push_LIP , 
-      Push_ECPrP , Push_LCBr , Push_LCIri , Push_LI3 , Push_LI6 , Push_LCeCr ,
+      Push_ECIP_riP , Push_LCBr , Push_LCIri , Push_LI3 , Push_LI6 , Push_LCeCr ,
       Push_LCIeCri , Push_LCP_eCP_zCP_rP , Pop4 , Pop8 ;
     FROM FM3ParsePass IMPORT MakeList , MakeListPos;
     IMPORT FM3Scopes;
@@ -1098,17 +1098,21 @@ RULE
      { $$ . PaConstructNo
          := FM3ParsePass . ScopeLtL2R
               ( Sk . SkBlock , FM3Scanner . Attribute . Position ) ;
-       FM3ParsePass . BeginBlock ( ) ;
-       Push_LP ( Itk . ItkBlockLt , FM3Scanner . Attribute . Position ); 
+       Push_LIP
+         ( Itk . ItkBlockLt
+         , $$ . PaConstructNo
+         , FM3Scanner . Attribute . Position
+         ); 
      } .
 
    Block : BlockLt DeclList StkRwBEGIN Stmts StkRwEND
-     { FM3ParsePass . EndBlock ( ) ;
-       FM3ParsePass . ScopeRtL2R ( $1 . PaConstructNo ) ; 
-       Push_ECPrP
-         ( Itk . ItkBlockLt , $3 . PaUnnestCoord
+     { FM3ParsePass . ScopeRtL2R ( $1 . PaConstructNo ) ; 
+       Push_ECIP_riP
+         ( Itk . ItkBlockLt
+         , $3 . PaUnnestCoord
+         , $1 . PaConstructNo 
          , $3 . Scan . Position
-         , $5 . Scan . Position
+         , $1 . Scan . Position
          ) ;
      } .
 (* ------------------------ Declaration lists -------------------------- *)

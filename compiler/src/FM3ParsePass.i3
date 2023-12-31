@@ -170,6 +170,14 @@ INTERFACE FM3ParsePass
    ; PositionInfix : FM3Scanner . tPosition
    )
 
+; PROCEDURE Push_ECIP_riP
+   ( T : Itk . TokTyp
+   ; CLt : LONGINT
+   ; I : INTEGER 
+   ; PositionOne : FM3Scanner . tPosition
+   ; PositionRt : FM3Scanner . tPosition
+   )
+
 ; PROCEDURE Push_ECPrP
    ( T : Itk . TokTyp
    ; CLt : LONGINT
@@ -242,7 +250,7 @@ INTERFACE FM3ParsePass
     ; DeclPos : FM3Base . tPosition
     )
 
-; PROCEDURE BeginBlock ( ) 
+; PROCEDURE BeginBlock ( ) : FM3Base . ScopeNoTyp (* Created. *) 
 
 ; PROCEDURE EndBlock ( )
 
