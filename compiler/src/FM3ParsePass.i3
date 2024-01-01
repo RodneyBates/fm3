@@ -71,7 +71,7 @@ INTERFACE FM3ParsePass
   (* Zero args. *)
 
 ; PROCEDURE Push_ListSepPatchPos
-    ( ListT : Itk . TokTyp
+    ( ListTokLt : Itk . TokTyp
     ; C : LONGINT
     ; ElemNo : INTEGER
     ; Position : FM3Scanner . tPosition

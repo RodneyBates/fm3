@@ -753,7 +753,7 @@ MODULE FM3ParsePass
 
 (*EXPORTED:*)
 ; PROCEDURE Push_ListSepPatchPos
-    ( ListT : Itk . TokTyp
+    ( ListTokLt : Itk . TokTyp
     ; C : LONGINT
     ; ElemNo : INTEGER
     ; Position : FM3Scanner . tPosition
@@ -767,7 +767,7 @@ MODULE FM3ParsePass
       ; PutBwd ( WRdBack , VAL ( ElemNo , LONGINT ) ) 
       ; PutBwd ( WRdBack , C ) 
       ; PutBwd
-          ( WRdBack , VAL ( ListT + Itk . LtToListSepPatch , LONGINT ) )
+          ( WRdBack , VAL ( ListTokLt + Itk . LtToListSepPatch , LONGINT ) )
       END (*WITH*) 
     END Push_ListSepPatchPos 
 

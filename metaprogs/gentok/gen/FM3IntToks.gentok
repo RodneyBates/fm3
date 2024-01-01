@@ -97,12 +97,15 @@ FIXED
 ItkRecDef INT POS 3 (* field count, Position of RECORD, field count. *) .
 ItkRecField POS 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
   Type POS 2      (* Position of colon. *) 
-  Val POS 2       (* Position of becomes/ *) 
+  Val POS 2       (* Position of becomes. *)
 .
+
+LIST
+ItkRecFieldList .
 
 (* Variable decls. *)
 LIST
-ItkVarDeclList
+ItkVarDeclList . 
 
 FIXED
 (* One decl, with possibly multiple idents. *) 
