@@ -343,24 +343,14 @@ RULE
      { $$ . PaInt (* Valid Id count. *)
          := ORD
               ( FM3ParsePass . DeclIdL2R
-                  ( FM3Decls . TopDeclInfo ( ) . DiIdTok
-                  , IdAttribute := $1
-                  , SepTok := Itk . ItkNull (* No Itk separator. *)
-                  , SepPosition := FM3Base . PositionNull
-                  , PriorIdCt := 0 
-                  )
+                  ( FM3Decls . TopDeclInfo ( ) . DiIdTok , IdAttribute := $1 )
               ) ;
      } . 
      
    DeclIdListElems : DeclIdListElems StkComma StkIdent
      { IF FM3ParsePass . DeclIdL2R
-            ( FM3Decls . TopDeclInfo ( ) . DiIdTok
-            , IdAttribute := $3
-            , SepTok := FM3Decls . TopDeclInfo ( ) . DiIdSepTok
-            , SepPosition := $2 . Scan . Position
-            , PriorIdCt := $1 . PaInt
-            )
-        (* ^DeclIdL2R will conditionally insert a separator. *) 
+            ( FM3Decls . TopDeclInfo ( ) . DiIdTok , IdAttribute := $3 )
+       (* ^No seprators here.  It would be kinda silly. *) 
        THEN (* Use this ident. *) $$ . PaInt := $1 . PaInt + 1 ;  
        ELSE $$ . PaInt := $1 . PaInt (* Valid Id count, no increase. *) ; 
        END (*IF*) ;
