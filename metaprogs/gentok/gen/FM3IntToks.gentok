@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023        Rodney M. Bates.                                    *)
+(* Copyright 2023..2024 Rodney M. Bates.                                     *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -16,7 +16,8 @@ UNITNAME FM3IntToks
 
 (* WARNING: Do not use single quotes inside a comment in this file. *) 
 
-ABS 128
+ABS 160
+(* ^Be sure not to overlap the source tokens! *) 
 
 (* Being low-numbered, these will read and write either forward
    or backward, without value change.
@@ -93,6 +94,7 @@ ItkROFormalId    IDENT POS .
 FIXED
 ItkREFDef POS 2 . 
 
+(* Record type definitions. *) 
 FIXED
 ItkRecDef INT POS 3 (* field count, Position of RECORD, field count. *) .
 ItkRecField POS 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
@@ -105,7 +107,7 @@ ItkRecFieldList .
 
 (* Variable decls. *)
 LIST
-ItkVarDeclList . 
+ItkVarDeclList .
 
 FIXED
 (* One decl, with possibly multiple idents. *) 
@@ -152,7 +154,7 @@ ItkFormalsList (* Position is "(" *) .
 ItkVALUEFormalIdList (* Position is VALUE or 1st ident, if no mode. *). 
 ItkVARFormalIdList (* Position is VAR. *) . 
 ItkROFormalIdList (* Position is READONLY. *). 
-ItkDeclList  . 
+ItkDeclList . 
 
 (* Statements *)
 

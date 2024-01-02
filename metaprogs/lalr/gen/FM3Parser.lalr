@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023,       Rodney M. Bates.                                    *)
+(* Copyright 2024..2024 Rodney M. Bates.                                     *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -39,7 +39,7 @@ GLOBAL
     FROM FM3ParsePass IMPORT PushUnnestStk , PushUnnest, PushUnnestLong;
     FROM FM3ParsePass IMPORT
       Push_L , Push_LP , Push_LCr , Push_LCP_rp , Push_LCP_eCP_rP ,
-      Push_LCPeCprp , Push_LIP , 
+      Push_LCPeCprp , Push_LIP , Push_LIP_rip , Push_EIP ,  
       Push_ECIP_riP , Push_LCBr , Push_LCIri , Push_LI3 , Push_LI6 , Push_LCeCr ,
       Push_LCIeCri , Push_LCP_eCP_zCP_rP , Pop4 , Pop8 ;
     FROM FM3ParsePass IMPORT MakeList , MakeListPos;
@@ -340,9 +340,7 @@ RULE
    *) 
 
    DeclIdListElems : StkIdent
-     { $$ . PaUnnestCoord := $0 . PaUnnestCoord ;
-(* CHECK ^Is this right? *) 
-       $$ . PaInt (* Valid Id count. *)
+     { $$ . PaInt (* Valid Id count. *)
          := ORD
               ( FM3ParsePass . DeclIdL2R
                   ( FM3Decls . TopDeclInfo ( ) . DiIdTok
@@ -608,7 +606,7 @@ RULE
 
 (* ------------------------- Variable Declarations -------------------- . *) 
 
-   (* VarDeclGroup, VarDecls, VarDecl . PaInt is declaration count. *) 
+   (* VarDeclGroup, VarDeclList, VarDecl . PaInt is declaration count. *) 
 
    (* VarDeclGroup is a list of variable declarations all following
       a single occurrence of "VAR".  The parsing removes this grouping
@@ -631,21 +629,39 @@ RULE
        $$ . Scan . Position := $1 . Scan . Position;
      } .
 
-   VarDeclGroup : VarDeclGroupLt VarDecls StkSemicolon 
+   VarDeclGroup : VarDeclGroupLt VarDeclList StkSemicolon 
       { $$ . PaInt (* Decl count. *) := $2 . PaInt ;
         <* ASSERT FM3Decls . PopDeclInfo ( ) = $1 . PaInt *>
       } . 
 
-   (* VarDecls is also used for record and object fields. *)
+   (* VarDeclList is also used for record and object fields. *)
    (* Also see DeclIdListElems. *)
+
+   VarDeclList : /*Empty*/
+      { Push_LIP_rip
+          ( Itk . ItkVarDeclListLt , 0 , FM3Scanner . Attribute . Position ) ; 
+      } .
+
+   VarDeclList : VarDeclPlus OptSemicolon 
+     { FM3ParsePass . MakeListPos
+         ( $$
+         , Itk . ItkVarDeclListLt
+         , $1 . Scan . Position
+         , $1 (* For element count & Left patch coord. *) 
+         ) ;
+     } . 
    
-   VarDecls : VarDecl
-     { $$ . PaInt (* Decl count, could be zero. *) := $1 . PaInt ; } .
-     
-   VarDeclsSemicolon : StkSemicolon { } .
-     
-   VarDecls : VarDecls VarDeclsSemicolon VarDecl
-     { $$ . PaInt (* Decl count. *):= $1 . PaInt + $3 . PaInt ; } .
+   VarDeclPlus : VarDecl 
+     { $$ . PaInt (* Decl count. *) := $1 . PaInt ; } .
+
+   VarDeclPrefix : VarDeclPlus StkSemicolon 
+     { $$ . PaInt (* Decl count. *):= $1 . PaInt ;
+       Push_EIP
+         ( Itk . ItkVarDeclListLt , $1 . PaInt , $2 . Scan . Position ) ; 
+     } . 
+
+   VarDeclPlus : VarDeclPrefix VarDecl
+     { $$ . PaInt (* Decl count. *):= $1 . PaInt + $2 . PaInt ; } .
 
    VarDecl : VarDeclIds OptVarType OptVarValue
      { FM3ParsePass . RequireTypeAndOrValue
@@ -741,7 +757,7 @@ RULE
               ) ;
      } . 
 
-   Type : RecTypeLt VarDecls OptSemicolon StkRwEND
+   Type : RecTypeLt VarDeclList OptSemicolon StkRwEND
      { FM3ParsePass . Push_LCIP_rip
          ( Itk . ItkRecDefLt
          , $1 . PaUnnestCoord
@@ -1065,7 +1081,7 @@ RULE
    ProcBodyScopeLt : /* Empty */
      { $$ . PaConstructNo
          := FM3ParsePass . ScopeLtL2R
-              ( Sk . SkProcBody , $0 . Scan . Position ) ;
+              ( Sk . SkProcBody , FM3Scanner . Attribute . Position ) ;
        $$ . PaUnnestCoord := UnnestCoord ( ) ;
     (* ^ScopeLtL2R Pushes a token and changes UnnestCoord. *) 
      } .

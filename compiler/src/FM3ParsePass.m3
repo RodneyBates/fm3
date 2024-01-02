@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023        Rodney M. Bates.                                    *)
+(* Copyright 2023..2024  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -50,7 +50,8 @@ MODULE FM3ParsePass
 ; IMPORT FM3Files
 ; IMPORT FM3Globals
 ; IMPORT FM3IntToks AS Itk
-; FROM FM3IntToks IMPORT LtToRt , LtToPatch , LtToOnePatch , LtToTwoPatch 
+; FROM FM3IntToks
+  IMPORT LtToRt , LtToPatch , LtToOne , LtToOnePatch , LtToTwoPatch 
 ; IMPORT FM3SharedUtils 
 ; IMPORT FM3SrcToks AS Stk
 ; FROM FM3StreamUtils
@@ -806,6 +807,38 @@ MODULE FM3ParsePass
       ; PutBwd ( WRdBack , VAL ( T , LONGINT ) ) 
       END (*WITH*) 
     END Push_LIP
+
+(*EXPORTED:*)
+; PROCEDURE Push_LIP_rip
+    ( T : Itk . TokTyp ; I : INTEGER ; Position : FM3Scanner . tPosition )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + Itk . LtToRt , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T , LONGINT ) ) 
+      END (*WITH*) 
+    END Push_LIP_rip
+
+(*EXPORTED:*)
+; PROCEDURE Push_EIP
+    ( T : Itk . TokTyp ; I : INTEGER ; Position : FM3Scanner . tPosition )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToOne , LONGINT ) ) 
+      END (*WITH*) 
+    END Push_EIP
 
 (*EXPORTED:*)
 ; PROCEDURE Push_LCr ( T : Itk . TokTyp ; C : LONGINT )

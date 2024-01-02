@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023        Rodney M. Bates.                                    *)
+(* Copyright 2023..2024  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
@@ -98,7 +98,7 @@ INTERFACE FM3ParsePass
 
      L,l  Left token
      R,r  Right token
-     E,e  1st infix token
+     E,e  1st infix token or list separator token
      Z,z  2nd infix token
      D,d  3rd infix token
      V,v  4th infix token
@@ -122,6 +122,12 @@ INTERFACE FM3ParsePass
 ; PROCEDURE Push_LP ( T : Itk . TokTyp ; Position : FM3Scanner . tPosition )
 
 ; PROCEDURE Push_LIP
+    ( T : Itk . TokTyp ; I : INTEGER ; Position : FM3Scanner . tPosition )
+
+; PROCEDURE Push_LIP_rip
+    ( T : Itk . TokTyp ; I : INTEGER ; Position : FM3Scanner . tPosition )
+
+; PROCEDURE Push_EIP
     ( T : Itk . TokTyp ; I : INTEGER ; Position : FM3Scanner . tPosition )
 
 ; PROCEDURE Push_LCr ( T : Itk . TokTyp ; C : LONGINT )
