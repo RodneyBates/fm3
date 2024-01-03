@@ -39,7 +39,7 @@ GLOBAL
     FROM FM3ParsePass IMPORT PushUnnestStk , PushUnnest, PushUnnestLong;
     FROM FM3ParsePass IMPORT
       Push_L , Push_LP , Push_LCr , Push_LCP_rp , Push_LCP_eCP_rP ,
-      Push_LCPeCprp , Push_LIP , Push_LIP_rip , Push_EIP ,  
+      Push_LCPeCprp , Push_LIP , Push_LIP_rip , Push_EIP , Push_ECIP , 
       Push_ECIP_riP , Push_LCBr , Push_LCIri , Push_LI3 , Push_LI6 , Push_LCeCr ,
       Push_LCIeCri , Push_LCP_eCP_zCP_rP , Pop4 , Pop8 ;
     FROM FM3ParsePass IMPORT MakeList , MakeListPos;
@@ -624,15 +624,13 @@ RULE
         <* ASSERT FM3Decls . PopDeclInfo ( ) = $1 . PaInt *>
       } . 
 
-   (* VarDeclList is also used for record and object fields. *)
-   (* Also see DeclIdListElems. *)
-
+(* -------------------------- Using split production: ---------------------- *) 
    VarDeclList : /*Empty*/
       { Push_LIP_rip
           ( Itk . ItkVarDeclListLt , 0 , FM3Scanner . Attribute . Position ) ; 
       } .
 
-   VarDeclList : VarDeclPlus OptSemicolon 
+   VarDeclList : VarDeclPlus StkSemicolon 
      { FM3ParsePass . MakeListPos
          ( $$
          , Itk . ItkVarDeclListLt
@@ -644,8 +642,8 @@ RULE
    VarDeclPlus : VarDecl 
      { $$ . PaInt (* Decl count. *) := $1 . PaInt ; } .
 
-   VarDeclPrefix : VarDeclPlus StkSemicolon 
-     { $$ . PaInt (* Decl count. *):= $1 . PaInt ;
+   VarDeclPrefix : VarDeclPlus 
+     { $$ . PaInt (* Decl count. *) := $1 . PaInt ;
        Push_EIP
          ( Itk . ItkVarDeclListLt , $1 . PaInt , $2 . Scan . Position ) ; 
      } . 
@@ -653,7 +651,11 @@ RULE
    VarDeclPlus : VarDeclPrefix VarDecl
      { $$ . PaInt (* Decl count. *):= $1 . PaInt + $2 . PaInt ; } .
 
-   VarDecl : VarDeclIds OptVarType OptVarValue
+(* ------------------------ End using split production^ -------------------- *)
+
+(* Used for variable, field, and formal declarations, *)
+
+   VarDecl : VarDeclIds OptDeclType OptDeclValue
      { FM3ParsePass . RequireTypeAndOrValue
          ( $1 . Scan . Position , $2 . PaBool , $3 . PaBool ) ;
        (* ^Check this even if there are no valid ids. *)
@@ -699,19 +701,19 @@ RULE
        END (*IF*) ;
      } .
 
-   OptVarType : StkColon Type 
+   OptDeclType : StkColon Type 
      { $$ . PaBool (* Present. *) := TRUE ;
        $$ . Scan . Position := $1 . Scan . Position ; 
      } . 
-   OptVarType : /*Empty*/
+   OptDeclType : /*Empty*/
      { $$ . PaBool (* Present. *) := FALSE (* Absent. *) ;
        $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
      } . 
-   OptVarValue : StkBecomes Expr 
+   OptDeclValue : StkBecomes Expr 
      { $$ . PaBool (* Present. *) := TRUE ;
        $$ . Scan . Position := $1 . Scan . Position ; 
      } . 
-   OptVarValue : /*Empty*/
+   OptDeclValue : /*Empty*/
      { $$ . PaBool (* Present. *) := FALSE (* Absent. *) ;
        $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
      } . 
@@ -728,6 +730,36 @@ RULE
          ) ;
      } . 
 
+(* -----------------------------field decl lists ---------------------------- *)
+(* Used in both record types and object types. *) 
+
+   FieldDeclList : /*Empty*/
+      { Push_LIP_rip
+          ( Itk . ItkFieldDeclListLt , 0 , FM3Scanner . Attribute . Position ) ; 
+      } .
+
+   FieldDeclList : FieldDeclPlus OptSemicolon 
+     { FM3ParsePass . MakeListPos
+         ( $$
+         , Itk . ItkFieldDeclListLt
+         , $1 . Scan . Position
+         , $1 (* For element count & Left patch coord. *) 
+         ) ;
+     } . 
+   
+   FieldDeclPlus : VarDecl 
+     { $$ . PaInt (* Decl count. *) := $1 . PaInt ; } .
+
+   FieldDeclPlus : FieldDeclPlus StkSemicolon VarDecl
+     { $$ . PaInt (* Decl count. *):= $1 . PaInt + $3 . PaInt ;
+       Push_ECIP
+         ( Itk . ItkFieldDeclListLt
+         , $2 . PaUnnestCoord 
+         , $1 . PaInt
+         , $2 . Scan . Position
+         ) ; 
+     } . 
+
 (* ----------------------------- Record Types -------------------------- *)
 
    RecTypeLt : StkRwRECORD  
@@ -738,16 +770,16 @@ RULE
        $$ . PaInt (* DeclInfoDepth *) 
          := FM3Decls . PushDeclInfo
               ( FM3Decls . DeclInfoTyp
-                  { DiDeclTok := Itk . ItkRecFieldLt
-                  , DiIdListTok := Itk . ItkRecFieldIdListLt
-                  , DiIdTok := Itk . ItkRecFieldIdListLt + Itk . LtToListElem
-                  , DiIdSepTok := Itk . ItkRecFieldIdListLt + Itk . LtToListSep
+                  { DiDeclTok := Itk . ItkFieldDeclLt
+                  , DiIdListTok := Itk . ItkFieldDeclIdListLt
+                  , DiIdTok := Itk . ItkFieldDeclIdListLt + Itk . LtToListElem
+                  , DiIdSepTok := Itk . ItkFieldDeclIdListLt + Itk . LtToListSep
                   , DiKind := Dk . DkRecField 
                   }
               ) ;
      } . 
-
-   Type : RecTypeLt VarDeclList OptSemicolon StkRwEND
+ 
+   Type : RecTypeLt FieldDeclList StkRwEND
      { FM3ParsePass . Push_LCIP_rip
          ( Itk . ItkRecDefLt
          , $1 . PaUnnestCoord

@@ -103,7 +103,7 @@ ItkRecField POS 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
 .
 
 LIST
-ItkRecFieldList .
+ItkFieldDeclList .
 
 (* Variable decls. *)
 LIST
@@ -111,27 +111,33 @@ ItkVarDeclList .
 
 FIXED
 (* One decl, with possibly multiple idents. *) 
+ItkFieldDecl POS 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
+  Type POS 2     (* Position of colon. *) 
+  Val POS 2      (* Position of becomes. *)
+. 
+
+(* One decl, with possibly multiple idents. *) 
 ItkVarDecl POS 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
   Type POS 2     (* Position of colon. *) 
-  Val POS 2      (* Position of becomes/ *) 
+  Val POS 2      (* Position of becomes. *) 
 .
 
 (* One formal, with possibly multiple idents. *) 
 ItkVALUEFormal POS 2 (* Position of LM ident (Lt) or of semicolon (Rt). *)
   Type POS 2     (* Position of colon. *) 
-  Val POS 2      (* Position of becomes/ *) 
+  Val POS 2      (* Position of becomes. *) 
 .
 
 (* One formal, with possibly multiple idents. *) 
 ItkVARFormal POS 2 (* Position of LM ident (Lt) or of semicolon (Rt). *)
   Type POS 2     (* Position of colon. *) 
-  Val POS 2      (* Position of becomes/ *) 
+  Val POS 2      (* Position of becomes. *) 
 .
 
 (* One formal, with possibly multiple idents. *) 
 ItkROFormal POS 2 (* Position of LM ident (Lt) or of semicolon (Rt). *)
   Type POS 2     (* Position of colon. *) 
-  Val POS 2      (* Position of becomes/ *) 
+  Val POS 2      (* Position of becomes, *) 
 .
 
 LIST
@@ -149,7 +155,7 @@ ItkExportIdList (* Position is EXPORTS. *) .
 ItkGenFormalIdList (* Position is "(" *) .
 ItkGenActualIdList (* Position is "(" *) .
 ItkVarDeclIdList (* Position is "(" *) .
-ItkRecFieldIdList (* Position is "RECORD" *) .
+ItkFieldDeclIdList (* Position is "RECORD" *) .
 ItkFormalsList (* Position is "(" *) .
 ItkVALUEFormalIdList (* Position is VALUE or 1st ident, if no mode. *). 
 ItkVARFormalIdList (* Position is VAR. *) . 

@@ -51,7 +51,8 @@ MODULE FM3ParsePass
 ; IMPORT FM3Globals
 ; IMPORT FM3IntToks AS Itk
 ; FROM FM3IntToks
-  IMPORT LtToRt , LtToPatch , LtToOne , LtToOnePatch , LtToTwoPatch 
+    IMPORT LtToRt , LtToPatch , LtToOne , LtToOnePatch , LtToTwoPatch
+           , LtToListSepPatch 
 ; IMPORT FM3SharedUtils 
 ; IMPORT FM3SrcToks AS Stk
 ; FROM FM3StreamUtils
@@ -839,6 +840,25 @@ MODULE FM3ParsePass
       ; PutBwd ( WRdBack , VAL ( T + LtToOne , LONGINT ) ) 
       END (*WITH*) 
     END Push_EIP
+
+(*EXPORTED:*)
+; PROCEDURE Push_ECIP
+    ( T : Itk . TokTyp
+    ; Coord : LONGINT
+    ; I : INTEGER
+    ; Position : FM3Scanner . tPosition
+    )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , Coord ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToListSepPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END Push_ECIP
 
 (*EXPORTED:*)
 ; PROCEDURE Push_LCr ( T : Itk . TokTyp ; C : LONGINT )

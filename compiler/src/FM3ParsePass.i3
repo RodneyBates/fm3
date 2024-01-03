@@ -130,6 +130,13 @@ INTERFACE FM3ParsePass
 ; PROCEDURE Push_EIP
     ( T : Itk . TokTyp ; I : INTEGER ; Position : FM3Scanner . tPosition )
 
+; PROCEDURE Push_ECIP
+    ( T : Itk . TokTyp
+    ; Coord : LONGINT
+    ; I : INTEGER
+    ; Position : FM3Scanner . tPosition
+    )
+
 ; PROCEDURE Push_LCr ( T : Itk . TokTyp ; C : LONGINT )
 
 ; PROCEDURE Push_LCP_rp
