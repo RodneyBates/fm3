@@ -624,6 +624,36 @@ RULE
         <* ASSERT FM3Decls . PopDeclInfo ( ) = $1 . PaInt *>
       } . 
 
+(* -------------------------- Using empty production: ---------------------- *) 
+   VarDeclList : /*Empty*/
+      { Push_LIP_rip
+          ( Itk . ItkVarDeclListLt , 0 , FM3Scanner . Attribute . Position ) ; 
+      } .
+
+   VarDeclList : VarDeclPlus OptSemicolon 
+     { FM3ParsePass . MakeListPos
+         ( $$
+         , Itk . ItkVarDeclListLt
+         , $1 . Scan . Position
+         , $1 (* For element count & Left patch coord. *) 
+         ) ;
+     } . 
+   
+   VarDeclPlus : VarDecl 
+     { $$ . PaInt (* Decl count. *) := $1 . PaInt ; } .
+
+   VarDeclPlus : VarDeclPlus StkSemicolon VarDecl
+     { $$ . PaInt (* Decl count. *):= $1 . PaInt + $3 . PaInt ;
+       Push_ECIP
+         ( Itk . ItkVarDeclListLt
+         , $2 . PaUnnestCoord 
+         , $1 . PaInt
+         , $2 . Scan . Position
+         ) ; 
+     } . 
+
+
+
 (* -------------------------- Using split production: ---------------------- *) 
    VarDeclList : /*Empty*/
       { Push_LIP_rip
