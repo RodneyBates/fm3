@@ -74,6 +74,15 @@ UNSAFE MODULE FM3Compress
   = VAR LSignBitsL : LONGINT
 
   ; BEGIN
+
+
+IF ValueL = 16_8000000000000003L
+THEN LSignBitsL := 19L
+END
+;
+
+
+
       LSignBitsL := DivL ( ValueL , TwoTo6thL )
                  (* ^Shift right 6 bits, with sign extension. *) 
     ; IF LSignBitsL # 16_FFFFFFFFFFFFFFFFL AND LSignBitsL # 0L
@@ -274,6 +283,11 @@ UNSAFE MODULE FM3Compress
 
   ; BEGIN
       LByteL := VAL ( GetRdBack ( File ) , LONGINT )  
+
+; IF LByteL = 16_83L
+THEN LResultL := 19L
+END
+
     ; LResultL := AndL ( LByteL , 16_7FL )
     ; IF AndL ( LByteL , 16_80L ) # 0L
       THEN (* Byte 1 follows. *)
@@ -306,7 +320,7 @@ UNSAFE MODULE FM3Compress
                   ; IF AndL ( LByteL , 16_80L ) # 0L
                     THEN (* Byte 8 follows. *)
                       LByteL := VAL ( GetRdBack ( File ) , LONGINT )  
-                    ; LResultL := OrL ( LResultL , LSL ( AndL ( LByteL , 16_FFL ) , 49 ) ) 
+                    ; LResultL := OrL ( LResultL , LSL ( AndL ( LByteL , 16_FFL ) , 56 ) ) 
                     END (*IF*) 
                   END (*IF*) 
                 END (*IF*) 
