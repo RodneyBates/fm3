@@ -518,17 +518,12 @@ RULE
      } . 
 
    Exports : ExportsLt DeclIdListElems  
-     { IF $2 . PaInt <= 0 (* No usable idents. *)
-       THEN (* Skip entire decl, along with any Ids. *) 
-         $$ . PaInt := FM3ParsePass . StartSkipping ( ) ;
-(* FIXME: Stop the skipping. *) 
-       ELSE 
+     { IF $2 . PaInt > 0 (* Some valid idents. *)
+       THEN 
          MakeListPos (* The identifier list. *) 
            ( $$
            , Itk . ItkExportIdListLt
-           , $2 . Scan . Position
-(* CHECK: MakeListPos could take the position from ElemsAttr.
-          Do other calls have the same property? *) 
+           , $1 . Scan . Position
            , ElemsAttr := $2
            ) ; 
        END (*IF*) ;
@@ -624,15 +619,15 @@ RULE
      } .
 
    TypeDeclId : StkIdent
-     { $$ . PaBool := FM3ParsePass . DeclIdL2R ( Itk . ItkTypeDeclId , $1 ) ;
-       IF $$ . PaBool 
-       THEN (* Valid Id, use as normal. *) 
-       ELSE $$ . PaInt := FM3ParsePass . StartSkipping ( ) 
+     { IF FM3ParsePass . DeclIdL2R ( Itk . ItkTypeDeclId , $1 ) 
+       THEN (* Valid Id, count and use it. *)
+         $$ . PaInt := 1 ; 
+       ELSE $$ . PaInt := - FM3ParsePass . StartSkipping ( ) 
        END (*IF*) 
      } . 
 
    TypeDecl : TypeDeclId StkEqual Type StkSemicolon 
-     { IF $1 . PaBool 
+     { IF $1 . PaInt > 0 
        THEN $$ . PaInt := 1 (* BlockDecl count. *) ; 
          IF FM3ParsePass . SkipDepth = 0 
          THEN 
@@ -648,7 +643,7 @@ RULE
        ELSE
          $$ . PaInt := 0 (* BlockDecl count. *); 
          <* ASSERT $1 . PaInt (* Skipping depth *)
-                   = FM3ParsePass . StopSkipping ( )
+                   = - FM3ParsePass . StopSkipping ( )
          *>
        END (*IF**) ; 
      } .
@@ -682,8 +677,6 @@ RULE
       { $$ . PaInt (* Decl count. *) := $2 . PaInt ;
         <* ASSERT FM3Decls . PopDeclInfo ( ) = $1 . PaInt *>
       } . 
-
-(* -------------------------- Using empty production: ---------------------- *)
 
    VarDeclList : /*Empty*/ 
       { $$ . PaInt := 0 ;
@@ -752,8 +745,8 @@ RULE
 
        IF $1 . PaInt = 0 (* No usable idents. *)
        THEN (* Start skipping this decl. *) 
-         $$ . PaInt (* Negative Skipping depth. *) 
-           := - FM3ParsePass . StartSkipping ( ) ;
+         $$ . PaInt  := - FM3ParsePass . StartSkipping ( ) ;
+           (* ^Negative Skipping depth. *)
        ELSE
          $$ . PaInt := $1 . PaInt (* Valid id count. *) ;
          MakeListPos (* The identifier list. *) 
@@ -794,7 +787,8 @@ RULE
          ) ;
      } . 
 
-(* -----------------------------field decl lists ---------------------------- *)
+(* -----------------------------Field decl lists ---------------------------- *)
+
 (* Used in both record types and object types. *) 
 
    FieldDeclList : /*Empty*/
@@ -970,8 +964,7 @@ RULE
 (* Formal is a formal declaration with PaInt valid ids. *)
 
    Formal : FormalLt FormalIds FormalType FormalExpr
-     { $$ . PaInt := $2 . PaInt (* Decl count. *) ;
-       $$ . Scan . Position := $1 . Scan . Position ; 
+     { $$ . Scan . Position := $1 . Scan . Position ; 
        WITH WDeclInfo = FM3Decls . TopDeclInfo ( )
        DO (* Check this even if no valid ids. *) 
          IF VAL ( $1 . PaByte , Dk ) = Dk . DkVarFormal   
@@ -1001,13 +994,14 @@ RULE
          END (*IF*) ;
 
          IF $2 . PaInt < 0 (* Skipping this formal? *)
-         THEN (* No output and skip remainder of decl. *) 
-           <* ASSERT FM3ParsePass . StopSkipping ( ) = $2 . PaInt *>
+         THEN 
+           $$ . PaInt := 0 ;
+           <* ASSERT FM3ParsePass . StopSkipping ( ) = - $2 . PaInt *>
          ELSIF FM3ParsePass . SkipDepth > 0
                (* Skipping some containing construct? *)
          THEN (* No output. *) 
          ELSE 
-           $$ .PaInt := $2 . PaInt (* Valid Id Ct. *) ;  
+           $$ .PaInt := $2 . PaInt (* Valid Id count. *) ;  
            Push_LCP_eCP_zCP_rP 
              ( WDeclInfo . DiDeclTok 
              , $1 . PaUnnestCoord
