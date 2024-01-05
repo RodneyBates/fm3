@@ -79,6 +79,7 @@ ItkBlock INT POS 3 (* Construct no., Position of LM declaration. *)
 LONE
 ItkTypeDeclId IDENT POS 3 .
 
+(* One type decl, with possibly multiple idents. *) 
 FIXED
 ItkTypeDecl POS 2 (* Position of ident (Lt) or position of semicolon (Rt). *)
   Equals POS 2 . 
@@ -91,7 +92,7 @@ ItkVALUEFormalId IDENT POS .
 ItkVARFormalId   IDENT POS . 
 ItkROFormalId    IDENT POS . 
 *)
-FIXED
+FIXED 
 ItkREFDef POS 2 . 
 
 (* Record type definitions. *) 
@@ -104,19 +105,17 @@ ItkRecField POS 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
 
 LIST
 ItkFieldDeclList .
-
-(* Variable decls. *)
-LIST
 ItkVarDeclList .
+ItkTypeDeclList .
 
 FIXED
-(* One decl, with possibly multiple idents. *) 
+(* One field decl, with possibly multiple idents. *) 
 ItkFieldDecl POS 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
   Type POS 2     (* Position of colon. *) 
   Val POS 2      (* Position of becomes. *)
 . 
 
-(* One decl, with possibly multiple idents. *) 
+(* One variable decl, with possibly multiple idents. *) 
 ItkVarDecl POS 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
   Type POS 2     (* Position of colon. *) 
   Val POS 2      (* Position of becomes. *) 
@@ -154,15 +153,18 @@ LIST
 ItkExportIdList (* Position is EXPORTS. *) . 
 ItkGenFormalIdList (* Position is "(" *) .
 ItkGenActualIdList (* Position is "(" *) .
-ItkVarDeclIdList (* Position is "(" *) .
+ItkVarDeclIdList (* Position is is LM ident. *) .
+ItkTypeDeclIdList (* Position is LM ident . *) .
 ItkFieldDeclIdList (* Position is "RECORD" *) .
 ItkFormalsList (* Position is "(" *) .
-ItkVALUEFormalIdList (* Position is VALUE or 1st ident, if no mode. *). 
+ItkVALUEFormalIdList (* Position is VALUE or LM ident, if no mode. *). 
 ItkVARFormalIdList (* Position is VAR. *) . 
 ItkROFormalIdList (* Position is READONLY. *). 
-ItkDeclList . 
+ItkBlockDeclList . 
 
 (* Statements *)
+
+LIST ItkStmtList . 
 
 FIXED ItkBecomes POS 2 Infix POS 2 (* Position of infix token, x3. *) .  
 

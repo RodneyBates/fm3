@@ -1734,7 +1734,9 @@ MODULE FM3ParsePass
             WScope . ScpDuplDeclIdSet
               := IntSets . Include
                    ( WScope . ScpDuplDeclIdSet , IdAttribute . Scan . SaAtom )
-          (* Plan to push duplicate Ident token: *) 
+          (* Plan to push duplicate Ident token.  The only effect will be to
+             emit an error later, during R2L, when the position of the original
+             declaring occurrence is known. *) 
           ; LTokToPut := Itk . ItkDuplDeclId
           ; LResult := FALSE (* Caller, Don't use this Id. *)
           END (*IF*) 

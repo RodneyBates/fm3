@@ -1,4 +1,3 @@
-
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2024..2024 Rodney M. Bates.                                     *)
@@ -54,14 +53,14 @@ LOCAL
     TYPE Dk = FM3Decls . DeclKindTyp ; 
     TYPE Uk = FM3Units . UnitKindTyp ;
 
-PROCEDURE Test ( READONLY Attr : tParsAttribute )
-= VAR Debug : INTEGER := 0
-; BEGIN
-    IF Attr . PaInt = FIRST ( INTEGER)
-    THEN
-      Debug := 19
-    END 
-  END Test ;
+    PROCEDURE Test ( READONLY Attr : tParsAttribute )
+    = VAR Debug : INTEGER := 0
+    ; BEGIN
+        IF Attr . PaInt = FIRST ( INTEGER)
+        THEN
+          Debug := 19
+        END 
+      END Test ;
 
   }
 
@@ -221,7 +220,8 @@ TOKEN
    stack pointer into .PaUnnestCoord.  For a reduce, and if the semantic
    action doesn't set PaUnnestCoord, then the parser sets it to a default.
    If the RHS is empty, this is the current unnest stack pointer.  If the
-   reduce is nonempty, this is a copy from the leftmost RHS's attribute.
+   reduce is nonempty, this is a copy from the attribute of the RHS's
+   leftmost token.
 *) 
 
 
@@ -521,6 +521,7 @@ RULE
      { IF $2 . PaInt <= 0 (* No usable idents. *)
        THEN (* Skip entire decl, along with any Ids. *) 
          $$ . PaInt := FM3ParsePass . StartSkipping ( ) ;
+(* FIXME: Stop the skipping. *) 
        ELSE 
          MakeListPos (* The identifier list. *) 
            ( $$
@@ -549,20 +550,83 @@ RULE
          ( $$ , Itk. ItkGenActualIdListLt , $1 . Scan . Position , $2 ) ;
      } .
 
+(* ------------------------- Constant Declarations -------------------- . *) 
+
+   ConstDeclGroup : StkRwCONST ConstDecls .
+   ConstDecls : ConstDecl . 
+   ConstDecls : ConstDecls ConstDecl . 
+   ConstDecl : StkIdent OptConstType StkEqual Expr StkSemicolon .
+   OptConstType : StkColon Type
+     { $$ . PaBool (* Present. *) := TRUE ; } . 
+   OptConstType : /*Empty*/
+     { $$ . PaBool (* Present. *) := FALSE (* Absent. *) ; } . 
+
 (* -------------------------- Type Declarations. --------------------- . *)
 
-   TypeDeclGroup : StkRwTYPE TypeDecls .
-   TypeDecls : TypeDecl . 
-   TypeDecls : TypeDecls TypeDecl .
+
+   (* TypeDeclGroup, TypeDeclList, TypeDecl . PaInt is declaration count. *) 
+
+   (* TypeDeclGroup is a list of type declarations all following
+      a single occurrence of "TYPE".  The parsing removes this grouping
+      from the internal token stream, as if every semicolon-terminated
+      declaration had its own occurrence of "VAR".  But a comma-separated
+      list of identifiers on a single type/expression is preserved.
+   *)
+   
+   TypeDeclGroupLt : StkRwTYPE
+     { $$ . PaInt (* DeclInfoDepth *) 
+         := FM3Decls . PushDeclInfo
+              ( FM3Decls . DeclInfoTyp
+                  { DiDeclTok := Itk . ItkTypeDeclLt
+                  , DiIdListTok := Itk . ItkTypeDeclIdListLt 
+                  , DiIdTok := Itk . ItkTypeDeclIdListLt + Itk . LtToListElem
+                  , DiIdSepTok := Itk . ItkTypeDeclIdListLt + Itk . LtToListSep
+                  , DiKind := Dk . DkType
+                  }
+              ) ;
+       $$ . Scan . Position := $1 . Scan . Position;
+     } .
+
+   TypeDeclGroup : TypeDeclGroupLt TypeDeclList 
+      { $$ . PaInt (* Decl count. *) := $2 . PaInt ;
+        <* ASSERT FM3Decls . PopDeclInfo ( ) = $1 . PaInt *>
+      } . 
+
+   TypeDeclList : /*Empty*/ 
+      { Push_LIP_rip
+          ( Itk . ItkTypeDeclListLt , 0 , FM3Scanner . Attribute . Position ) ; 
+      } .
+
+   TypeDeclList : TypeDeclPlus  
+     { $$ . PaInt := $1 . PaInt ; 
+       FM3ParsePass . MakeListPos
+         ( $$
+         , Itk . ItkTypeDeclListLt
+         , $1 . Scan . Position
+         , $1 (* For element count & Left patch coord. *) 
+         ) ;
+     } . 
+   
+   TypeDeclPlus : TypeDecl 
+     { $$ . PaInt (* Decl count. *) := $1 . PaInt ; } .
+
+   TypeDeclPlus : TypeDeclPlus TypeDecl
+     { $$ . PaInt (* Decl count. *):= $1 . PaInt + $2 . PaInt ;
+       Push_ECIP
+         ( Itk . ItkTypeDeclListLt
+         , $2 . PaUnnestCoord 
+         , $1 . PaInt
+         , $2 . Scan . Position
+         ) ; 
+     } .
 
    TypeDeclId : StkIdent
-     { $$ . PaBool
-         := FM3ParsePass . DeclIdL2R
-              ( DeclIdTok := Itk . ItkTypeDeclId , IdAttribute := $1 ) ;
-       IF NOT $$ . PaBool
-       THEN $$ . PaInt :=  FM3ParsePass . StartSkipping ( )
-       END (*IF*) ; 
-   } . 
+     { $$ . PaBool := FM3ParsePass . DeclIdL2R ( Itk . ItkTypeDeclId , $1 ) ;
+       IF $$ . PaBool 
+       THEN (* Valid Id, use as normal. *) 
+       ELSE $$ . PaInt := FM3ParsePass . StartSkipping ( ) 
+       END (*IF*) 
+     } . 
 
    TypeDecl : TypeDeclId StkEqual Type StkSemicolon 
      { IF $1 . PaBool (* Using this decl? *) 
@@ -582,17 +646,6 @@ RULE
          <* ASSERT $1 . PaInt = FM3ParsePass . StopSkipping ( ) *>
        END (*IF**) ; 
      } .
-
-(* ------------------------- Constant Declarations -------------------- . *) 
-
-   ConstDeclGroup : StkRwCONST ConstDecls .
-   ConstDecls : ConstDecl . 
-   ConstDecls : ConstDecls ConstDecl . 
-   ConstDecl : StkIdent OptConstType StkEqual Expr StkSemicolon .
-   OptConstType : StkColon Type
-     { $$ . PaBool (* Present. *) := TRUE ; } . 
-   OptConstType : /*Empty*/
-     { $$ . PaBool (* Present. *) := FALSE (* Absent. *) ; } . 
 
 (* ------------------------- Variable Declarations -------------------- . *) 
 
@@ -619,19 +672,21 @@ RULE
        $$ . Scan . Position := $1 . Scan . Position;
      } .
 
-   VarDeclGroup : VarDeclGroupLt VarDeclList StkSemicolon 
+   VarDeclGroup : VarDeclGroupLt VarDeclList 
       { $$ . PaInt (* Decl count. *) := $2 . PaInt ;
         <* ASSERT FM3Decls . PopDeclInfo ( ) = $1 . PaInt *>
       } . 
 
-(* -------------------------- Using empty production: ---------------------- *) 
-   VarDeclList : /*Empty*/
+(* -------------------------- Using empty production: ---------------------- *)
+
+   VarDeclList : /*Empty*/ 
       { Push_LIP_rip
           ( Itk . ItkVarDeclListLt , 0 , FM3Scanner . Attribute . Position ) ; 
       } .
 
-   VarDeclList : VarDeclPlus OptSemicolon 
-     { FM3ParsePass . MakeListPos
+   VarDeclList : VarDeclPlus  
+     { $$ . PaInt := $1 . PaInt ; 
+       FM3ParsePass . MakeListPos
          ( $$
          , Itk . ItkVarDeclListLt
          , $1 . Scan . Position
@@ -642,8 +697,8 @@ RULE
    VarDeclPlus : VarDecl 
      { $$ . PaInt (* Decl count. *) := $1 . PaInt ; } .
 
-   VarDeclPlus : VarDeclPlus StkSemicolon VarDecl
-     { $$ . PaInt (* Decl count. *):= $1 . PaInt + $3 . PaInt ;
+   VarDeclPlus : VarDeclPlus VarDecl
+     { $$ . PaInt (* Decl count. *):= $1 . PaInt + $2 . PaInt ;
        Push_ECIP
          ( Itk . ItkVarDeclListLt
          , $2 . PaUnnestCoord 
@@ -652,40 +707,9 @@ RULE
          ) ; 
      } . 
 
-
-
-(* -------------------------- Using split production: ---------------------- *) 
-   VarDeclList : /*Empty*/
-      { Push_LIP_rip
-          ( Itk . ItkVarDeclListLt , 0 , FM3Scanner . Attribute . Position ) ; 
-      } .
-
-   VarDeclList : VarDeclPlus StkSemicolon 
-     { FM3ParsePass . MakeListPos
-         ( $$
-         , Itk . ItkVarDeclListLt
-         , $1 . Scan . Position
-         , $1 (* For element count & Left patch coord. *) 
-         ) ;
-     } . 
-   
-   VarDeclPlus : VarDecl 
-     { $$ . PaInt (* Decl count. *) := $1 . PaInt ; } .
-
-   VarDeclPrefix : VarDeclPlus 
-     { $$ . PaInt (* Decl count. *) := $1 . PaInt ;
-       Push_EIP
-         ( Itk . ItkVarDeclListLt , $1 . PaInt , $2 . Scan . Position ) ; 
-     } . 
-
-   VarDeclPlus : VarDeclPrefix VarDecl
-     { $$ . PaInt (* Decl count. *):= $1 . PaInt + $2 . PaInt ; } .
-
-(* ------------------------ End using split production^ -------------------- *)
-
 (* Used for variable, field, and formal declarations, *)
 
-   VarDecl : VarDeclIds OptDeclType OptDeclValue
+   VarDecl : VarDeclIds OptDeclType OptDeclValue StkSemicolon 
      { FM3ParsePass . RequireTypeAndOrValue
          ( $1 . Scan . Position , $2 . PaBool , $3 . PaBool ) ;
        (* ^Check this even if there are no valid ids. *)
@@ -1142,9 +1166,12 @@ RULE
 
    Expr: IdentRef . 
 
-   Expr: StkIntLit . 
+   Expr: StkIntLit .
+
+   Expr : Expr StkDeref . 
 
 (* ------------------------------ Blocks ------------------------------- *)
+
 
    BlockLt : /*EMPTY*/
      { $$ . PaConstructNo
@@ -1157,7 +1184,7 @@ RULE
          ); 
      } .
 
-   Block : BlockLt DeclList StkRwBEGIN Stmts StkRwEND
+   Block : BlockLt BlockDeclList StkRwBEGIN StmtList StkRwEND
      { FM3ParsePass . ScopeRtL2R ( $1 . PaConstructNo ) ; 
        Push_ECIP_riP
          ( Itk . ItkBlockLt
@@ -1167,33 +1194,73 @@ RULE
          , $1 . Scan . Position
          ) ;
      } .
-(* ------------------------ Declaration lists -------------------------- *)
+     
+(* ------------------------ Block declarations ------------------------- *)
 
-   (* A declaration always includes a terminating semicolon. *) 
-   DeclList : DeclListRecurse
-     { MakeListPos
-         ( $$ , Itk . ItkDeclListLt , $1 . Scan . Position , $1 ) ;
-     } .  
-   DeclListRecurse : DeclListRecurse Decl  
-     { $$ . PaInt := $1 . PaInt + 1 ;
-       (* Emit an Itk decl separator. *) 
-     } .
-   DeclListRecurse : /*Empty*/
-     { $$ . PaInt := 0 ;
-       $$ . Scan . Position := FM3Scanner . Attribute . Position ;
-     } .
-
-   Decl : ConstDeclGroup .
-   Decl : VarDeclGroup .
-   Decl : TypeDeclGroup . 
-   Decl : ProcDecl . 
+   BlockDecl : ConstDeclGroup { $$ . PaInt := $1 . PaInt ; } .
+   BlockDecl : TypeDeclGroup { $$ . PaInt := $1 . PaInt ; } . 
+   BlockDecl : VarDeclGroup { $$ . PaInt := $1 . PaInt ; } . 
+   BlockDecl : ExceptDeclGroup { $$ . PaInt := $1 . PaInt ; } . 
+   BlockDecl : ProcDecl .
+   BlockDecl : RevelationGroup { $$ . PaInt := $1 . PaInt ; } . 
  
+   (* A block declaration always includes a terminating semicolon in the
+      source syntax, but we emit only Itk _separators_. *)
+
+   BlockDeclList : /*Empty*/
+     { Push_LIP_rip
+         ( Itk . ItkBlockDeclListLt , 0 , FM3Scanner . Attribute . Position ) ; 
+     } .
+     
+   BlockDeclList : BlockDeclPlus 
+     { MakeListPos
+         ( $$
+         , Itk . ItkBlockDeclListLt
+         , $1 . Scan . Position
+         , $1 (* Used for element count and left patch coordinate. *) 
+         ) ;
+     } .
+     
+   BlockDeclPlus : BlockDecl 
+     { $$ . PaInt := $1 . PaInt (* Decl count. *) ; } .
+
+   BlockDeclPlus : BlockDeclPlus BlockDecl  
+     { $$ . PaInt := $1 . PaInt + $2 . PaInt (* Decl count. *) ;
+       Push_ECIP (* Internal separator. *)
+         ( Itk . ItkBlockDeclListLt
+         , $2 . PaUnnestCoord
+         , $1 . PaInt
+         , $2 . Scan . Position
+         ) ; 
+     } .
+
 (* ---------------------------- Statements ----------------------------- *)
 
-   Stmts : StmtPlusList OptSemicolon .
-   StmtPlusList : Stmt . 
-   StmtPlusList : StmtPlusList StkSemicolon Stmt . 
-   Stmts : /*Empty*/ . 
+   StmtList : /*Empty*/
+     { Push_LIP_rip
+         ( Itk . ItkStmtListLt , 0 , FM3Scanner . Attribute . Position ) ; 
+     } .
+
+   StmtList : StmtPlus OptSemicolon 
+     { MakeListPos
+         ( $$
+         , Itk . ItkStmtListLt
+         , $1 . Scan . Position
+         , $1 (* Used for element count and left patch coordinate. *) 
+         ) ;
+     } .
+
+   StmtPlus : Stmt { $$ . PaInt := $1 . PaInt (* Stmt count. *) ; } .
+     
+   StmtPlusList : StmtPlusList StkSemicolon Stmt  
+     { $$ . PaInt := $1 . PaInt + 1 (* Stmt count. *) ;
+       Push_ECIP (* Internal separator. *)
+         ( Itk . ItkStmtListLt
+         , $2 . PaUnnestCoord
+         , $1 . PaInt
+         , $2 . Scan . Position
+         ) ; 
+     } .
    
 (* ---------------------------- Assignment statements ------------------ *)
 
