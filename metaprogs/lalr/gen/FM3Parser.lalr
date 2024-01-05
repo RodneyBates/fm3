@@ -593,18 +593,21 @@ RULE
       } . 
 
    TypeDeclList : /*Empty*/ 
-      { Push_LIP_rip
-          ( Itk . ItkTypeDeclListLt , 0 , FM3Scanner . Attribute . Position ) ; 
+      { $$ . PaInt := 0 ;
+        (*Push_LIP_rip
+          ( Itk . ItkTypeDeclListLt , 0 , FM3Scanner . Attribute . Position ) ;
+        *)
       } .
 
    TypeDeclList : TypeDeclPlus  
      { $$ . PaInt := $1 . PaInt ; 
-       FM3ParsePass . MakeListPos
+       (*FM3ParsePass . MakeListPos
          ( $$
          , Itk . ItkTypeDeclListLt
          , $1 . Scan . Position
          , $1 (* For element count & Left patch coord. *) 
          ) ;
+       *)
      } . 
    
    TypeDeclPlus : TypeDecl 
@@ -613,7 +616,7 @@ RULE
    TypeDeclPlus : TypeDeclPlus TypeDecl
      { $$ . PaInt (* Decl count. *):= $1 . PaInt + $2 . PaInt ;
        Push_ECIP
-         ( Itk . ItkTypeDeclListLt
+         ( Itk . ItkBlockDeclListLt
          , $2 . PaUnnestCoord 
          , $1 . PaInt
          , $2 . Scan . Position
@@ -629,8 +632,8 @@ RULE
      } . 
 
    TypeDecl : TypeDeclId StkEqual Type StkSemicolon 
-     { IF $1 . PaBool (* Using this decl? *) 
-       THEN
+     { IF $1 . PaBool 
+       THEN $$ . PaInt := 1 (* BlockDecl count. *) ; 
          IF FM3ParsePass . SkipDepth = 0 
          THEN 
            Push_LCP_eCP_rP
@@ -642,8 +645,11 @@ RULE
              , $4 . Scan . Position (* Really? Not $1? *) 
              ) ;
          END (*IF*) 
-       ELSE 
-         <* ASSERT $1 . PaInt = FM3ParsePass . StopSkipping ( ) *>
+       ELSE
+         $$ . PaInt := 0 (* BlockDecl count. *); 
+         <* ASSERT $1 . PaInt (* Skipping depth *)
+                   = FM3ParsePass . StopSkipping ( )
+         *>
        END (*IF**) ; 
      } .
 
@@ -680,18 +686,21 @@ RULE
 (* -------------------------- Using empty production: ---------------------- *)
 
    VarDeclList : /*Empty*/ 
-      { Push_LIP_rip
-          ( Itk . ItkVarDeclListLt , 0 , FM3Scanner . Attribute . Position ) ; 
+      { $$ . PaInt := 0 ;
+        (*Push_LIP_rip
+          ( Itk . ItkVarDeclListLt , 0 , FM3Scanner . Attribute . Position ) ;
+        *)
       } .
 
    VarDeclList : VarDeclPlus  
      { $$ . PaInt := $1 . PaInt ; 
-       FM3ParsePass . MakeListPos
+       (*FM3ParsePass . MakeListPos
          ( $$
          , Itk . ItkVarDeclListLt
          , $1 . Scan . Position
          , $1 (* For element count & Left patch coord. *) 
          ) ;
+       *) 
      } . 
    
    VarDeclPlus : VarDecl 
@@ -700,7 +709,7 @@ RULE
    VarDeclPlus : VarDeclPlus VarDecl
      { $$ . PaInt (* Decl count. *):= $1 . PaInt + $2 . PaInt ;
        Push_ECIP
-         ( Itk . ItkVarDeclListLt
+         ( Itk . ItkBlockDeclListLt
          , $2 . PaUnnestCoord 
          , $1 . PaInt
          , $2 . Scan . Position
@@ -714,7 +723,8 @@ RULE
          ( $1 . Scan . Position , $2 . PaBool , $3 . PaBool ) ;
        (* ^Check this even if there are no valid ids. *)
        IF $1 . PaInt < 0 (* Skipping this decl?  *) 
-       THEN (* Have been omitting the declaration. *)
+       THEN (* Have been skipping the declaration. *)
+         $$ . PaInt := 0 (* BlockDeclCt. *) ; 
          <* ASSERT FM3ParsePass . StopSkipping ( ) = - $1 . PaInt *> 
        ELSIF FM3ParsePass . SkipDepth > 0
              (* Skipping some containing construct? *)
@@ -1201,7 +1211,7 @@ RULE
    BlockDecl : TypeDeclGroup { $$ . PaInt := $1 . PaInt ; } . 
    BlockDecl : VarDeclGroup { $$ . PaInt := $1 . PaInt ; } . 
    BlockDecl : ExceptDeclGroup { $$ . PaInt := $1 . PaInt ; } . 
-   BlockDecl : ProcDecl .
+   BlockDecl : ProcDecl { $$ . PaInt := 1 ; } .
    BlockDecl : RevelationGroup { $$ . PaInt := $1 . PaInt ; } . 
  
    (* A block declaration always includes a terminating semicolon in the
