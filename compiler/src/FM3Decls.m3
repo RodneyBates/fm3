@@ -115,7 +115,8 @@ MODULE FM3Decls
       ELSE
         LResult := DeclInfoStackDepth
       ; <* ASSERT LResult > 0 *>
-        DeclInfoStack := DeclInfoStack . DinLink
+        DEC ( DeclInfoStackDepth ) 
+      ; DeclInfoStack := DeclInfoStack . DinLink
       ; RETURN LResult
       END (*IF*)  
     END PopDeclInfo 
