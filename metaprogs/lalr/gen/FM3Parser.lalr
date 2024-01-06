@@ -635,9 +635,9 @@ RULE
              ( Itk . ItkTypeDeclLt
              , $1 . PaUnnestCoord
              , $1 . Scan . Position
-             , $3 . PaUnnestCoord
-             , $3 . Scan . Position
-             , $4 . Scan . Position (* Really? Not $1? *) 
+             , $2 . PaUnnestCoord
+             , $2 . Scan . Position
+             , $1 . Scan . Position 
              ) ;
          END (*IF*) 
        ELSE
@@ -696,10 +696,10 @@ RULE
        *) 
      } . 
    
-   VarDeclPlus : VarDecl 
+   VarDeclPlus : VarDecl StkSemicolon  
      { $$ . PaInt (* Decl count. *) := $1 . PaInt ; } .
 
-   VarDeclPlus : VarDeclPlus VarDecl
+   VarDeclPlus : VarDeclPlus VarDecl StkSemicolon 
      { $$ . PaInt (* Decl count. *):= $1 . PaInt + $2 . PaInt ;
        Push_ECIP
          ( Itk . ItkBlockDeclListLt
@@ -711,7 +711,7 @@ RULE
 
 (* Used for variable, field, and formal declarations, *)
 
-   VarDecl : VarDeclIds OptDeclType OptDeclValue StkSemicolon 
+   VarDecl : VarDeclIds OptDeclType OptDeclValue 
      { FM3ParsePass . RequireTypeAndOrValue
          ( $1 . Scan . Position , $2 . PaBool , $3 . PaBool ) ;
        (* ^Check this even if there are no valid ids. *)
@@ -805,7 +805,7 @@ RULE
          ) ;
      } . 
    
-   FieldDeclPlus : VarDecl 
+   FieldDeclPlus : VarDecl  
      { $$ . PaInt (* Decl count. *) := $1 . PaInt ; } .
 
    FieldDeclPlus : FieldDeclPlus StkSemicolon VarDecl
