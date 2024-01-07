@@ -605,10 +605,10 @@ RULE
        *)
      } . 
    
-   TypeDeclPlus : TypeDecl 
+   TypeDeclPlus : TypeDecl StkSemicolon  
      { $$ . PaInt (* Decl count. *) := $1 . PaInt ; } .
 
-   TypeDeclPlus : TypeDeclPlus TypeDecl
+   TypeDeclPlus : TypeDeclPlus TypeDecl StkSemicolon
      { $$ . PaInt (* Decl count. *):= $1 . PaInt + $2 . PaInt ;
        Push_ECIP
          ( Itk . ItkBlockDeclListLt
@@ -626,7 +626,7 @@ RULE
        END (*IF*) 
      } . 
 
-   TypeDecl : TypeDeclId StkEqual Type StkSemicolon 
+   TypeDecl : TypeDeclId StkEqual Type  
      { IF $1 . PaInt > 0 
        THEN $$ . PaInt := 1 (* BlockDecl count. *) ; 
          IF FM3ParsePass . SkipDepth = 0 
