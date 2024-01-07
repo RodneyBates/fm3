@@ -98,7 +98,7 @@ Formals = 171
 ResultType = 172
 Raises = 173
 FormalsLt = 174
-FormalsPlusList = 175
+FormalPlus = 175
 Formal = 176
 FormalLt = 177
 FormalIds = 178
@@ -398,7 +398,7 @@ State 51 = {
     P89 Type (Nonterm) -> StkRwPROCEDURE°Signature 
     P90 Signature (Nonterm) -> °Formals ResultType Raises 
     P91 Formals (Term) -> °StkOpenParen StkCloseParen 
-    P92 Formals (Nonterm) -> °FormalsLt FormalsPlusList OptSemicolon StkCloseParen 
+    P92 Formals (Nonterm) -> °FormalsLt FormalPlus OptSemicolon StkCloseParen 
     P93 FormalsLt (2) -> °StkOpenParen 
  } 
 
@@ -641,14 +641,14 @@ State 96 = {
  } 
 
 State 97 = { 
-    P92 Formals (Nonterm) -> FormalsLt°FormalsPlusList OptSemicolon StkCloseParen 
-    P95 FormalsPlusList (Nonterm) -> °Formal 
+    P92 Formals (Nonterm) -> FormalsLt°FormalPlus OptSemicolon StkCloseParen 
+    P95 FormalPlus (Nonterm) -> °Formal 
     P100 Formal (Nonterm) -> °FormalLt FormalIds FormalType FormalExpr 
     P96 FormalLt (Reduce) -> -Epsilon-.
     P97 FormalLt (Term) -> °StkRwVALUE 
     P98 FormalLt (Term) -> °StkRwVAR 
     P99 FormalLt (Term) -> °StkRwREADONLY 
-    P94 FormalsPlusList (0) -> °FormalsPlusList StkSemicolon Formal 
+    P94 FormalPlus (0) -> °FormalPlus StkSemicolon Formal 
  } 
 
 State 98 = { 
@@ -664,15 +664,15 @@ State 100 = {
  } 
 
 State 101 = { 
-    P92 Formals (Nonterm) -> FormalsLt FormalsPlusList°OptSemicolon StkCloseParen 
+    P92 Formals (Nonterm) -> FormalsLt FormalPlus°OptSemicolon StkCloseParen 
     P28 OptSemicolon (Reduce) -> -Epsilon-.
     P27 OptSemicolon (Term) -> °StkSemicolon 
-    P94 FormalsPlusList (2) -> FormalsPlusList°StkSemicolon Formal 
+    P94 FormalPlus (2) -> FormalPlus°StkSemicolon Formal 
  } 
 
 State 102 = { 
     P27 OptSemicolon (Reduce) -> StkSemicolon°
-    P94 FormalsPlusList (Nonterm) -> FormalsPlusList StkSemicolon°Formal 
+    P94 FormalPlus (Nonterm) -> FormalPlus StkSemicolon°Formal 
     P100 Formal (Nonterm) -> °FormalLt FormalIds FormalType FormalExpr 
     P96 FormalLt (Reduce) -> -Epsilon-.
     P97 FormalLt (Term) -> °StkRwVALUE 
@@ -681,7 +681,7 @@ State 102 = {
  } 
 
 State 103 = { 
-    P94 FormalsPlusList (Reduce) -> FormalsPlusList StkSemicolon Formal°
+    P94 FormalPlus (Reduce) -> FormalPlus StkSemicolon Formal°
  } 
 
 State 104 = { 
@@ -740,15 +740,15 @@ State 112 = {
  } 
 
 State 113 = { 
-    P92 Formals (Term) -> FormalsLt FormalsPlusList OptSemicolon°StkCloseParen 
+    P92 Formals (Term) -> FormalsLt FormalPlus OptSemicolon°StkCloseParen 
  } 
 
 State 114 = { 
-    P92 Formals (Reduce) -> FormalsLt FormalsPlusList OptSemicolon StkCloseParen°
+    P92 Formals (Reduce) -> FormalsLt FormalPlus OptSemicolon StkCloseParen°
  } 
 
 State 115 = { 
-    P95 FormalsPlusList (Reduce) -> Formal°
+    P95 FormalPlus (Reduce) -> Formal°
  } 
 
 State 116 = { 
@@ -798,7 +798,7 @@ State 125 = {
     P111 ProcDecl (Nonterm) -> StkRwPROCEDURE StkIdent°Signature OptBody 
     P90 Signature (Nonterm) -> °Formals ResultType Raises 
     P91 Formals (Term) -> °StkOpenParen StkCloseParen 
-    P92 Formals (Nonterm) -> °FormalsLt FormalsPlusList OptSemicolon StkCloseParen 
+    P92 Formals (Nonterm) -> °FormalsLt FormalPlus OptSemicolon StkCloseParen 
     P93 FormalsLt (2) -> °StkOpenParen 
  } 
 
@@ -1358,7 +1358,7 @@ State 57: (StkIdent->(A58)) (IdentRef->(A59)) (QualId->(A192,P36))
 State 58: (StkDot->(A252,P29)) (StkComma->(A261,P38)) (StkCloseBrace->(A261,P38))
 State 59: (StkDot->(A60))
 State 60: (StkIdent->(A153,P39))
-State 61: (StkRwREADONLY->(A155,P99)) (StkRwVALUE->(A156,P97)) (StkRwVAR->(A157,P98)) (StkIdent->(A319,P96)) (FormalsPlusList->(A62)) (Formal->(A197,P95)) (FormalLt->(A64))
+State 61: (StkRwREADONLY->(A155,P99)) (StkRwVALUE->(A156,P97)) (StkRwVAR->(A157,P98)) (StkIdent->(A319,P96)) (FormalPlus->(A62)) (Formal->(A197,P95)) (FormalLt->(A64))
 State 62: (StkSemicolon->(A63)) (StkCloseParen->(A251,P28)) (OptSemicolon->(A71))
 State 63: (StkRwREADONLY->(A155,P99)) (StkRwVALUE->(A156,P97)) (StkRwVAR->(A157,P98)) (StkCloseParen->(A250,P27)) (StkIdent->(A319,P96)) (Formal->(A194,P94)) (FormalLt->(A64))
 State 64: (StkIdent->(A147,P32)) (DeclIdListElems->(A65)) (FormalIds->(A66))

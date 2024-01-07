@@ -709,7 +709,7 @@ RULE
          ) ; 
      } . 
 
-(* Used for variable, field, and formal declarations, *)
+(* Used for variable and field declarations. *)
 
    VarDecl : VarDeclIds OptDeclType OptDeclValue 
      { FM3ParsePass . RequireTypeAndOrValue
@@ -870,7 +870,7 @@ RULE
 
 (* List of formal decls. *)
 
-(* Formals, FormalsPlusList, Formal . PaInt
+(* Formals, FormalPlus, Formal . PaInt
    is formals count. *)
 
    Formals : StkOpenParen StkCloseParen /* Empty formals list. */
@@ -879,7 +879,7 @@ RULE
        FM3ParsePass . ScopeEmpty ( Sk . SkFormals ) ; 
        PushUnnest ( Itk . ItkFormalsListEmpty )
      } .
-   Formals : FormalsLt FormalsPlusList OptSemicolon StkCloseParen
+   Formals : FormalsLt FormalPlus OptSemicolon StkCloseParen
      { $$ . Scan . Position := $1 . Scan . Position ;
        $$ . PaInt := $2 . PaInt ; 
        FM3ParsePass . ScopeRtL2R ( $1 . PaConstructNo ) ;
@@ -895,9 +895,16 @@ RULE
        $$ . PaUnnestCoord := UnnestCoord ( ) ;
     (* ^ScopeLtL2R Pushes a token and changes UnnestCoord. *) 
      } . 
-   FormalsPlusList : FormalsPlusList StkSemicolon Formal 
-     { $$ . PaInt := $1 . PaInt + $3 . PaInt ; } .  
-   FormalsPlusList : Formal 
+   FormalPlus : FormalPlus StkSemicolon Formal 
+     { $$ . PaInt := $1 . PaInt + $3 . PaInt ;
+       Push_ECIP
+         ( Itk . ItkFormalsListLt 
+         , $2 . PaUnnestCoord 
+         , $1 . PaInt 
+         , $2 . Scan . Position
+         ) ; 
+     } .  
+   FormalPlus : Formal 
      { $$ . PaInt := $1 . PaInt ; } .
 
 (* Formal parameter modes. *) 
@@ -974,7 +981,7 @@ RULE
              FM3Messages . ErrorArr
                ( ARRAY OF REFANY 
                    { " VAR formal must have a type (2.2.8)." } 
-               , $3 . Scan . Position
+               , $2 . Scan . Position
                );
            END (*IF*) ; 
            IF $4 . PaBool (* Formal expression is present? *) 
@@ -987,7 +994,7 @@ RULE
            END (*IF*) ;
          ELSE (* VALUE or READONLY *)  
            FM3ParsePass . RequireTypeAndOrValue
-             ( $3 . Scan . Position 
+             ( $2 . Scan . Position 
              , $3 . PaBool
              , $4 . PaBool
              )
@@ -1005,7 +1012,7 @@ RULE
            Push_LCP_eCP_zCP_rP 
              ( WDeclInfo . DiDeclTok 
              , $1 . PaUnnestCoord
-             , $1 . Scan . Position
+             , $2 . Scan . Position
              , $3 . PaUnnestCoord
              , $3 . Scan . Position
              , $4 . PaUnnestCoord
