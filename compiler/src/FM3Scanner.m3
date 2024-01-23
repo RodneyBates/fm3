@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
-(* This file is part of the FM3sfm3dict Modula-3 compiler.                   *)
-(* Copyright 2023        Rodney M. Bates.                                    *)
+(* This file is part of the FM3 Modula-3 compiler.                           *)
+(* Copyright 2023..2024  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -420,8 +420,7 @@ MODULE FM3Scanner
 (* NOTE: ^This is a workaround for FM3BuildLexMachine's inconsistent habit
           of having a transition on NullChar for the end of a string, IFF
           it is a prefix of a longer string. 
-*) 
-(* TODO: Regularize FM3BuildLexMachine and FM3LexTable so this distinction
+   TODO: Regularize FM3BuildLexMachine and FM3LexTable so this distinction
          need not be accomodated by client code. 
 *)   
           GCurRwValue (* Done with string. *) 
@@ -429,7 +428,7 @@ MODULE FM3Scanner
                  ( GCurRwLexTable , FM3LexTable . NullChar , GCurRwState ) 
         END (*IF*)
 
-      ; IF ScAtBegOfPragma (* expectig a pragma id? *) 
+      ; IF ScAtBegOfPragma (* expecting a pragma id? *) 
         THEN (* GCurRwValue will be pragma id or nothing. *)
           CASE GCurRwValue 
           OF FM3LexTable . ValueUnrecognized , FM3LexTable . ValueNull 
@@ -441,7 +440,7 @@ MODULE FM3Scanner
                    ) 
           ; Attribute . SaIsReservedId := FALSE (* NOT predeclared. *)  
           ; Attribute . SaTok := FM3SrcToks . StkPragmaId 
-(* TODO: Handle this as an unrecognized pragma and skip the entire thing. pragma. *) 
+(* TODO: Handle this as an unrecognized pragma and skip the entire thing. *) 
           ELSE 
             Attribute . SaIsReservedId := TRUE 
           ; Attribute . SaTok 

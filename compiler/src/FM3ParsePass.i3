@@ -274,7 +274,8 @@ INTERFACE FM3ParsePass
   : FM3Base . ScopeNoTyp (* Scope no. that was created. *) 
 
 ; PROCEDURE DeclIdL2R 
-    ( DeclIdTok : Itk . TokTyp 
+    ( DeclIdTok : Itk . TokTyp
+    ; DeclKind : FM3Decls . DeclKindTyp  
     ; READONLY IdAttribute : tParsAttribute
     ; SepTok : Itk . TokTyp := Itk . ItkNull
                             (* ^Implies single decl id, not in a list. *)  
@@ -285,7 +286,10 @@ INTERFACE FM3ParsePass
                in current scope.) *)
   (* PRE: IdAttribute is for an identifier in a declaration context. *) 
 
-; PROCEDURE IdentRefL2R ( READONLY IdAttribute : tParsAttribute ) 
+; PROCEDURE IdentRefL2R ( READONLY StkIdAttribute : tParsAttribute )
+
+; PROCEDURE QualIdentL2R
+    ( READONLY StkLtAttribute , StkRtAttribute : tParsAttribute ) 
 
 ; PROCEDURE ScopeRtL2R ( ScopeNo : FM3Scopes . ScopeNoTyp )
   (* Create an identifier-to-declNo dictionary for the scope, of

@@ -19,12 +19,12 @@ INTERFACE FM3Decls
       , DkGenMod
       , DkGenIntf
       , DkExports (* EXPORTS list is declaration-ish. *) 
-      , DkExcp
-      , DkType
+      , DkExc
+      , DkType                        
       , DkConst
       , DkVar
-      , DkValueFormal
-      , DkVarFormal
+      , DkVALUEFormal
+      , DkVARFormal
       , DkROFormal
       , DkRecField
       , DkObjField
@@ -33,6 +33,7 @@ INTERFACE FM3Decls
       , DkWith
       , DkFor
       , DkExcArg
+      , DkReveal (* Not a scope.  Here as an experiment. *) 
       } 
 
 ; PROCEDURE DeclKindImage ( Kind : DeclKindTyp ) : TEXT

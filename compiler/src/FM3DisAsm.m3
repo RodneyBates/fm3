@@ -485,7 +485,7 @@ MODULE FM3DisAsm
               ; Wr . PutChar ( WrT , ')')
               ; Wr . PutText ( WrT , Wr . EOL )
 
-            | FM3IntToks . ItkIdReserved 
+            | FM3IntToks . ItkReservedId 
               => Wr . PutText ( WrT , " " ) 
               ; Wr . PutText ( WrT , FM3IntToks . Name ( LToken ) )
               ; Wr . PutChar ( WrT , '(')
