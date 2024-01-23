@@ -190,7 +190,14 @@ INTERFACE FM3SrcToks
 ; CONST RidTRUNC                                     =   149 (*16_95 01 *)
 ; CONST RidTYPECODE                                  =   150 (*16_96 01 *)
 ; CONST RidVAL                                       =   151 (*16_97 01 *)
-; CONST TkMaxTok                                     =   151
+(* These behave semantically like reserved identifiers, but each occurs in
+      a different set of syntactic contexts from identifiers, so they are
+      source-code reserved words.  We convert them as reserved idents with
+      the following Rid atoms.
+   *)
+; CONST RidROOT                                      =   152 (*16_98 01 *)
+; CONST RidUNTRACEDROOT                              =   153 (*16_99 01 *)
+; CONST TkMaxTok                                     =   153
 
 ; END FM3SrcToks
 .

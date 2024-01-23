@@ -48,15 +48,21 @@ ItkProcBodyAbsent POS 2 (* Position. *).
 LONE
 ItkScopeLt INT (* ScopeNo. *) .
 ItkScopeRt INT (* ScopeNo. *) . 
-ItkIdReserved IDENT POS 3 (* Rid*, Position. *). 
-ItkIdRefAtom IDENT POS 3 (* IdAtom, position. Occurs before unnest. *). 
-ItkIdRefDeclNo DECL POS (* DeclNo, position. Occurs after unnest. *) . 
+ItkReservedId IDENT POS 3 (* Rid*, Position. *). 
 ItkDuplDeclId IDENT POS 3 (* IdAtom, position *) . 
 ItkDeclId INT IDENT POS 4 (* DeclKind, IdAtom, position *) .
 ItkDeclNo DECL POS 3 (* DeclNo, position *) .
- 
-FIXED
-ItkQualId .
+
+(* Identifier references. *) 
+
+ItkIdRefAtom IDENT POS 3 (* IdAtom, position. Occurs before unnest. *). 
+ItkIdRefDeclNo DECL POS (* DeclNo, position. Occurs after unnest. *) . 
+
+ItkQualIdAtoms      IDENT IDENT POS POS (* Lt & Rt Id atoms. *) .
+ItkQualIdDeclNoAtom DECL  IDENT POS POS (* Lt decl no, Rt id atom. *) .
+ItkQualIdDeclNos    DECL  DECL  POS POS (* Lt & Rt decl nos. *) .
+
+ItkInvalidRef POS .
 
 FIXED   
 ItkFuncSignature POS 2 (* Position. *) .
@@ -78,11 +84,19 @@ ItkBlock INT POS 3 (* Construct no., Position of LM declaration. *)
 
 LONE
 ItkTypeDeclId IDENT POS 3 .
+ItkRevealId IDENT POS 3 . 
 
-(* One type decl, with possibly multiple idents. *) 
+
 FIXED
-ItkTypeDecl POS 2 (* Position of ident (Lt) or position of semicolon (Rt). *)
+ItkTypeDecl POS 2 (* Position of ident. *)
   Equals POS 2 . 
+ItkSubtypeDecl POS 2 (* Position of ident (Lt). *)
+  Subtype POS 2 . 
+
+ItkFullReveal POS 2 (* Position of ident. *)
+  Equals POS 2 . 
+ItkPartialReveal POS 2 (* Position of ident. *)
+  Subtype POS 2 . 
 
 (*
 LONE
@@ -155,6 +169,7 @@ ItkGenFormalIdList (* Position is "(" *) .
 ItkGenActualIdList (* Position is "(" *) .
 ItkVarDeclIdList (* Position is is LM ident. *) .
 ItkTypeDeclIdList (* Position is LM ident . *) .
+ItkRevealIdList (* Position is LM ident . *) .
 ItkFieldDeclIdList (* Position is "RECORD" *) .
 ItkFormalsList (* Position is "(" *) .
 ItkVALUEFormalIdList (* Position is VALUE or LM ident, if no mode. *). 

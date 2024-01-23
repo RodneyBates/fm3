@@ -167,6 +167,8 @@ MODULE FM3SrcToks
       | 149 => RETURN "TRUNC"
       | 150 => RETURN "TYPECODE"
       | 151 => RETURN "VAL"
+      | 152 => RETURN "ROOT"
+      | 153 => RETURN "UNTRACED_ROOT"
       ELSE RETURN "<Undef>"
       END (*CASE*) 
     END Image
@@ -326,6 +328,8 @@ MODULE FM3SrcToks
       | 149 => RETURN "RidTRUNC"
       | 150 => RETURN "RidTYPECODE"
       | 151 => RETURN "RidVAL"
+      | 152 => RETURN "RidROOT"
+      | 153 => RETURN "RidUNTRACEDROOT"
       ELSE RETURN "<Undef>"
       END (*CASE*) 
     END Name

@@ -188,5 +188,14 @@ ABS 5
    RidTRUE             "TRUE" . 
    RidTRUNC            "TRUNC" . 
    RidTYPECODE         "TYPECODE" . 
-   RidVAL              "VAL" . 
+   RidVAL              "VAL" .
+
+   (* These behave semantically like reserved identifiers, but each occurs in
+      a different set of syntactic contexts from identifiers, so they are
+      source-code reserved words.  We convert them as reserved idents with
+      the following Rid atoms.
+   *)
+   
+   RidROOT             "ROOT" .
+   RidUNTRACEDROOT     "UNTRACED_ROOT" .
 
