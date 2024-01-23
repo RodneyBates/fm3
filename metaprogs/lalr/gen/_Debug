@@ -1,17 +1,16 @@
-State 84
+State 52
 
 
 Compilation _EndOfFile 
-Module 
-OptUnsafe StkRwMODULE UnitIdAndExports ModuleKind StkSemicolon Imports Block StkIdent StkDot 
-.......................................................................:
+Interface 
+OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
+...................................................................:
 :
-BlockLt BlockDeclList StkRwBEGIN StmtList StkRwEND 
-        BlockDeclPlus 
-        BlockDecl 
-        ProcDecl 
-        StkRwPROCEDURE StkIdent Signature OptBody 
-................................:
+BlockDeclPlus 
+BlockDecl 
+ProcDecl 
+StkRwPROCEDURE StkIdent Signature OptBody 
+........................:
 :
 Formals ResultType Raises 
         :          StkRwRAISES StkRwANY 
@@ -25,9 +24,210 @@ Formals ResultType Raises
                                   read   Raises -> .StkRwRAISES StkOpenBrace QualIdStarList StkCloseBrace ?
 
 
-ignored                     P110 Raises (Reduce) -> -Epsilon-. {StkRwRAISES}
-retained                    P108 Raises (Term) -> °StkRwRAISES StkRwANY 
-retained                    P109 Raises (209) -> °StkRwRAISES StkOpenBrace QualIdStarList StkCloseBrace 
+ignored                     P120 Raises (Reduce) -> -Epsilon-. {StkRwRAISES}
+retained                    P118 Raises (Term) -> °StkRwRAISES StkRwANY 
+retained                    P119 Raises (159) -> °StkRwRAISES StkOpenBrace QualIdStarList StkCloseBrace 
+
+
+State 142
+
+
+Compilation _EndOfFile 
+Interface 
+OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
+...................................................................:
+:
+BlockDeclPlus 
+BlockDeclPlus BlockDecl 
+:             ConstDeclGroup 
+:             StkRwCONST ConstDecls 
+:
+BlockDecl 
+RevelationGroup 
+:....................
+                    :
+reduce BlockDecl -> RevelationGroup. {StkRwCONST} ?
+
+
+Compilation _EndOfFile 
+Interface 
+OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
+...................................................................:
+:
+BlockDeclPlus 
+BlockDeclPlus BlockDecl 
+:             ProcDecl 
+:             StkRwPROCEDURE StkIdent Signature OptBody 
+:
+BlockDecl 
+RevelationGroup 
+:....................
+                    :
+reduce BlockDecl -> RevelationGroup. {StkRwPROCEDURE} ?
+
+
+Compilation _EndOfFile 
+Interface 
+OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
+...................................................................:
+:
+BlockDeclPlus 
+BlockDeclPlus BlockDecl 
+:             RevelationGroup 
+:             RevelationGroupLt RevelationList 
+:             StkRwREVEAL 
+:
+BlockDecl 
+RevelationGroup 
+:....................
+                    :
+reduce BlockDecl -> RevelationGroup. {StkRwREVEAL} ?
+
+
+Compilation _EndOfFile 
+Interface 
+OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
+...................................................................:
+:
+BlockDeclPlus 
+BlockDeclPlus BlockDecl 
+:             TypeDeclGroup 
+:             TypeDeclGroupLt TypeDeclList 
+:             StkRwTYPE 
+:
+BlockDecl 
+RevelationGroup 
+:....................
+                    :
+reduce BlockDecl -> RevelationGroup. {StkRwTYPE} ?
+
+
+Compilation _EndOfFile 
+Interface 
+OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
+...................................................................:
+:
+BlockDeclPlus 
+BlockDeclPlus BlockDecl 
+:             VarDeclGroup 
+:             VarDeclGroupLt VarDeclList 
+:             StkRwVAR 
+:
+BlockDecl 
+RevelationGroup 
+:....................
+                    :
+reduce BlockDecl -> RevelationGroup. {StkRwVAR} ?
+
+
+Compilation _EndOfFile 
+Interface 
+OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
+...................................................................:
+:
+BlockDeclPlus 
+BlockDeclPlus BlockDecl 
+:             ConstDeclGroup 
+:             StkRwCONST ConstDecls 
+:
+BlockDecl 
+RevelationGroup 
+:....................
+                    :
+reduce BlockDecl -> RevelationGroup. {StkRwCONST} ?
+
+
+Compilation _EndOfFile 
+Interface 
+OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
+...................................................................:
+:
+BlockDeclPlus 
+BlockDeclPlus BlockDecl 
+:             ProcDecl 
+:             StkRwPROCEDURE StkIdent Signature OptBody 
+:
+BlockDecl 
+RevelationGroup 
+:....................
+                    :
+reduce BlockDecl -> RevelationGroup. {StkRwPROCEDURE} ?
+
+
+Compilation _EndOfFile 
+Interface 
+OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
+...................................................................:
+:
+BlockDeclPlus 
+BlockDeclPlus BlockDecl 
+:             RevelationGroup 
+:             RevelationGroupLt RevelationList 
+:             StkRwREVEAL 
+:
+BlockDecl 
+RevelationGroup 
+:....................
+                    :
+reduce BlockDecl -> RevelationGroup. {StkRwREVEAL} ?
+
+
+Compilation _EndOfFile 
+Interface 
+OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
+...................................................................:
+:
+BlockDeclPlus 
+BlockDeclPlus BlockDecl 
+:             TypeDeclGroup 
+:             TypeDeclGroupLt TypeDeclList 
+:             StkRwTYPE 
+:
+BlockDecl 
+RevelationGroup 
+:....................
+                    :
+reduce BlockDecl -> RevelationGroup. {StkRwTYPE} ?
+
+
+Compilation _EndOfFile 
+Interface 
+OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
+...................................................................:
+:
+BlockDeclPlus 
+BlockDeclPlus BlockDecl 
+:             VarDeclGroup 
+:             VarDeclGroupLt VarDeclList 
+:             StkRwVAR 
+:
+BlockDecl 
+RevelationGroup 
+:....................
+                    :
+reduce BlockDecl -> RevelationGroup. {StkRwVAR} ?
+
+
+retained                    P134 BlockDecl (Reduce) -> RevelationGroup° {StkRwBEGIN}
+ignored                     P136 BlockDecl (Reduce) -> RevelationGroup° {StkRwBEGIN}
+
+retained                    P134 BlockDecl (Reduce) -> RevelationGroup° {StkRwCONST}
+ignored                     P136 BlockDecl (Reduce) -> RevelationGroup° {StkRwCONST}
+
+retained                    P134 BlockDecl (Reduce) -> RevelationGroup° {StkRwEND}
+ignored                     P136 BlockDecl (Reduce) -> RevelationGroup° {StkRwEND}
+
+retained                    P134 BlockDecl (Reduce) -> RevelationGroup° {StkRwPROCEDURE}
+ignored                     P136 BlockDecl (Reduce) -> RevelationGroup° {StkRwPROCEDURE}
+
+retained                    P134 BlockDecl (Reduce) -> RevelationGroup° {StkRwREVEAL}
+ignored                     P136 BlockDecl (Reduce) -> RevelationGroup° {StkRwREVEAL}
+
+retained                    P134 BlockDecl (Reduce) -> RevelationGroup° {StkRwTYPE}
+ignored                     P136 BlockDecl (Reduce) -> RevelationGroup° {StkRwTYPE}
+
+retained                    P134 BlockDecl (Reduce) -> RevelationGroup° {StkRwVAR}
+ignored                     P136 BlockDecl (Reduce) -> RevelationGroup° {StkRwVAR}
 
 
 ****** Nonterminals ******
@@ -37,7 +237,7 @@ Compilation = 110
 Module = 111
 GenInterface = 112
 GenModule = 113
-InstInterface = 114
+InstInterface = 114SS
 InstModule = 115
 UnitId = 116
 UnitIdImpliedEXPORTS = 117
@@ -51,7 +251,7 @@ InstInterfaceKind = 124
 InstModuleKind = 125
 OptUnsafe = 126
 Imports = 127
-DeclList = 128
+BlockDeclList = 128
 Block = 129
 GenFormalList = 130
 GenActualList = 131
@@ -76,77 +276,83 @@ ConstDecl = 149
 OptConstType = 150
 Expr = 151
 Type = 152
-TypeDeclGroupLt = 153
-TypeDeclList = 154
-TypeDeclGroup = 155
-TypeDeclPlus = 156
-TypeDecl = 157
-TypeDeclId = 158
-VarDeclGroupLt = 159
-VarDeclList = 160
-VarDeclGroup = 161
-VarDeclPlus = 162
-VarDecl = 163
-VarDeclIds = 164
-OptDeclType = 165
-OptDeclValue = 166
-FieldDeclList = 167
-FieldDeclPlus = 168
-RecTypeLt = 169
-Signature = 170
-Formals = 171
-ResultType = 172
-Raises = 173
-FormalsLt = 174
-FormalPlus = 175
-Formal = 176
-FormalLt = 177
-FormalIds = 178
-FormalType = 179
-FormalExpr = 180
-OptBody = 181
-ProcDecl = 182
-ProcBodyScopeLt = 183
-BlockLt = 184
-BlockDeclList = 185
-StmtList = 186
-BlockDecl = 187
-ExceptDeclGroup = 188
-RevelationGroup = 189
-BlockDeclPlus = 190
-StmtPlus = 191
-Stmt = 192
-StmtPlusList = 193
-AssignStmt = 194
-_0000_ = 195
+TypeRelation = 153
+TypeDeclGroupLt = 154
+TypeDeclList = 155
+TypeDeclGroup = 156
+TypeDeclPlus = 157
+TypeDecl = 158
+TypeDeclId = 159
+RevelationGroupLt = 160
+RevelationList = 161
+RevelationGroup = 162
+RevelationPlus = 163
+Revelation = 164
+RevelationId = 165
+TypeId = 166
+VarDeclGroupLt = 167
+VarDeclList = 168
+VarDeclGroup = 169
+VarDeclPlus = 170
+VarDecl = 171
+VarDeclIds = 172
+OptDeclType = 173
+OptDeclValue = 174
+FieldDeclList = 175
+FieldDeclPlus = 176
+RecTypeLt = 177
+Signature = 178
+Formals = 179
+ResultType = 180
+Raises = 181
+FormalsLt = 182
+FormalPlus = 183
+Formal = 184
+FormalLt = 185
+FormalIds = 186
+FormalType = 187
+FormalExpr = 188
+OptBody = 189
+ProcDecl = 190
+ProcBodyScopeLt = 191
+BlockLt = 192
+StmtList = 193
+BlockDecl = 194
+ExceptDeclGroup = 195
+BlockDeclPlus = 196
+StmtPlus = 197
+Stmt = 198
+StmtPlusList = 199
+AssignStmt = 200
+_0000_ = 201
 
 ****** Item sets ******
 
 State 1 = { 
     P1 _0000_ (Nonterm) -> °Compilation _EndOfFile 
-    P3 Compilation (Nonterm) -> °Module 
-    P19 Module (Nonterm) -> °OptUnsafe StkRwMODULE UnitIdAndExports ModuleKind StkSemicolon Imports Block StkIdent StkDot 
+    P2 Compilation (Nonterm) -> °Interface 
+    P18 Interface (Nonterm) -> °OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
     P25 OptUnsafe (Reduce) -> -Epsilon-.
     P24 OptUnsafe (Term) -> °StkRwUNSAFE 
+    P3 Compilation (Nonterm) -> °Module 
+    P19 Module (2) -> °OptUnsafe StkRwMODULE UnitIdAndExports ModuleKind StkSemicolon Imports Block StkIdent StkDot 
+    P4 Compilation (Nonterm) -> °GenInterface 
+    P20 GenInterface (Term) -> °StkRwGENERIC StkRwINTERFACE UnitId GenInterfaceKind GenFormalList StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
     P6 Compilation (Nonterm) -> °InstInterface 
     P22 InstInterface (2) -> °OptUnsafe StkRwINTERFACE UnitId InstInterfaceKind StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot 
     P7 Compilation (Nonterm) -> °InstModule 
     P23 InstModule (2) -> °OptUnsafe StkRwMODULE UnitIdAndExports InstModuleKind StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot 
     P5 Compilation (Nonterm) -> °GenModule 
-    P21 GenModule (Term) -> °StkRwGENERIC StkRwMODULE UnitId GenModuleKind GenFormalList StkSemicolon Imports Block StkIdent StkDot 
-    P2 Compilation (Nonterm) -> °Interface 
-    P18 Interface (2) -> °OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports DeclList StkRwEND StkIdent StkDot 
-    P4 Compilation (Nonterm) -> °GenInterface 
-    P20 GenInterface (10) -> °StkRwGENERIC StkRwINTERFACE UnitId GenInterfaceKind GenFormalList StkSemicolon Imports DeclList StkRwEND StkIdent StkDot 
+    P21 GenModule (8) -> °StkRwGENERIC StkRwMODULE UnitId GenModuleKind GenFormalList StkSemicolon Imports Block StkIdent StkDot 
  } 
 
 State 2 = { 
+    P20 GenInterface (Term) -> StkRwGENERIC°StkRwINTERFACE UnitId GenInterfaceKind GenFormalList StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
     P21 GenModule (Term) -> StkRwGENERIC°StkRwMODULE UnitId GenModuleKind GenFormalList StkSemicolon Imports Block StkIdent StkDot 
-    P20 GenInterface (Term) -> StkRwGENERIC°StkRwINTERFACE UnitId GenInterfaceKind GenFormalList StkSemicolon Imports DeclList StkRwEND StkIdent StkDot 
  } 
 
 State 3 = { 
-    P20 GenInterface (Nonterm) -> StkRwGENERIC StkRwINTERFACE°UnitId GenInterfaceKind GenFormalList StkSemicolon Imports DeclList StkRwEND StkIdent StkDot 
+    P20 GenInterface (Nonterm) -> StkRwGENERIC StkRwINTERFACE°UnitId GenInterfaceKind GenFormalList StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
     P8 UnitId (Term) -> °StkIdent 
  } 
 
@@ -155,12 +361,12 @@ State 4 = {
  } 
 
 State 5 = { 
-    P20 GenInterface (Nonterm) -> StkRwGENERIC StkRwINTERFACE UnitId°GenInterfaceKind GenFormalList StkSemicolon Imports DeclList StkRwEND StkIdent StkDot 
+    P20 GenInterface (Nonterm) -> StkRwGENERIC StkRwINTERFACE UnitId°GenInterfaceKind GenFormalList StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
     P14 GenInterfaceKind (Reduce) -> -Epsilon-.
  } 
 
 State 6 = { 
-    P20 GenInterface (Nonterm) -> StkRwGENERIC StkRwINTERFACE UnitId GenInterfaceKind°GenFormalList StkSemicolon Imports DeclList StkRwEND StkIdent StkDot 
+    P20 GenInterface (Nonterm) -> StkRwGENERIC StkRwINTERFACE UnitId GenInterfaceKind°GenFormalList StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
     P53 GenFormalList (Term) -> °StkOpenParen IdStarList StkCloseParen 
  } 
 
@@ -193,42 +399,847 @@ State 12 = {
  } 
 
 State 13 = { 
-    P20 GenInterface (Term) -> StkRwGENERIC StkRwINTERFACE UnitId GenInterfaceKind GenFormalList°StkSemicolon Imports DeclList StkRwEND StkIdent StkDot 
+    P20 GenInterface (Term) -> StkRwGENERIC StkRwINTERFACE UnitId GenInterfaceKind GenFormalList°StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
  } 
 
 State 14 = { 
-    P20 GenInterface (Nonterm) -> StkRwGENERIC StkRwINTERFACE UnitId GenInterfaceKind GenFormalList StkSemicolon°Imports DeclList StkRwEND StkIdent StkDot 
+    P20 GenInterface (Nonterm) -> StkRwGENERIC StkRwINTERFACE UnitId GenInterfaceKind GenFormalList StkSemicolon°Imports BlockDeclList StkRwEND StkIdent StkDot 
     P40 Imports (Nonterm) -> °ImportsLt ImportsRecurse ImportsRt 
     P41 ImportsLt (Reduce) -> -Epsilon-.
  } 
 
 State 15 = { 
-    P20 GenInterface (Nonterm) -> StkRwGENERIC StkRwINTERFACE UnitId GenInterfaceKind GenFormalList StkSemicolon Imports°DeclList StkRwEND StkIdent StkDot 
+    P20 GenInterface (Nonterm) -> StkRwGENERIC StkRwINTERFACE UnitId GenInterfaceKind GenFormalList StkSemicolon Imports°BlockDeclList StkRwEND StkIdent StkDot 
+    P137 BlockDeclList (Reduce) -> -Epsilon-.
+    P138 BlockDeclList (Nonterm) -> °BlockDeclPlus 
+    P139 BlockDeclPlus (Nonterm) -> °BlockDecl 
+    P131 BlockDecl (Nonterm) -> °TypeDeclGroup 
+    P64 TypeDeclGroup (Nonterm) -> °TypeDeclGroupLt TypeDeclList 
+    P63 TypeDeclGroupLt (Term) -> °StkRwTYPE 
+    P132 BlockDecl (Nonterm) -> °VarDeclGroup 
+    P80 VarDeclGroup (Nonterm) -> °VarDeclGroupLt VarDeclList 
+    P79 VarDeclGroupLt (Term) -> °StkRwVAR 
+    P134 BlockDecl (Nonterm) -> °RevelationGroup 
+    P72 RevelationGroup (Nonterm) -> °RevelationGroupLt RevelationList 
+    P71 RevelationGroupLt (Term) -> °StkRwREVEAL 
+    P136 BlockDecl (10) -> °RevelationGroup 
+    P130 BlockDecl (Nonterm) -> °ConstDeclGroup 
+    P55 ConstDeclGroup (Term) -> °StkRwCONST ConstDecls 
+    P135 BlockDecl (Nonterm) -> °ProcDecl 
+    P121 ProcDecl (Term) -> °StkRwPROCEDURE StkIdent Signature OptBody 
+    P133 BlockDecl (Nonterm) -> °ExceptDeclGroup 
+    P140 BlockDeclPlus (2) -> °BlockDeclPlus BlockDecl 
  } 
 
 State 16 = { 
-    P20 GenInterface (Term) -> StkRwGENERIC StkRwINTERFACE UnitId GenInterfaceKind GenFormalList StkSemicolon Imports DeclList°StkRwEND StkIdent StkDot 
+    P55 ConstDeclGroup (Nonterm) -> StkRwCONST°ConstDecls 
+    P56 ConstDecls (Nonterm) -> °ConstDecl 
+    P58 ConstDecl (Term) -> °StkIdent OptConstType StkEqual Expr StkSemicolon 
+    P57 ConstDecls (0) -> °ConstDecls ConstDecl 
  } 
 
 State 17 = { 
-    P20 GenInterface (Term) -> StkRwGENERIC StkRwINTERFACE UnitId GenInterfaceKind GenFormalList StkSemicolon Imports DeclList StkRwEND°StkIdent StkDot 
+    P58 ConstDecl (Nonterm) -> StkIdent°OptConstType StkEqual Expr StkSemicolon 
+    P60 OptConstType (Reduce) -> -Epsilon-.
+    P59 OptConstType (Term) -> °StkColon Type 
  } 
 
 State 18 = { 
-    P20 GenInterface (Term) -> StkRwGENERIC StkRwINTERFACE UnitId GenInterfaceKind GenFormalList StkSemicolon Imports DeclList StkRwEND StkIdent°StkDot 
+    P59 OptConstType (Nonterm) -> StkColon°Type 
+    P91 Type (Nonterm) -> °IdentRef 
+    P29 IdentRef (Term) -> °StkIdent 
+    P92 Type (Term) -> °StkRwREF Type 
+    P98 Type (Nonterm) -> °RecTypeLt FieldDeclList StkRwEND 
+    P97 RecTypeLt (Term) -> °StkRwRECORD 
+    P99 Type (Term) -> °StkRwPROCEDURE Signature 
  } 
 
 State 19 = { 
-    P20 GenInterface (Reduce) -> StkRwGENERIC StkRwINTERFACE UnitId GenInterfaceKind GenFormalList StkSemicolon Imports DeclList StkRwEND StkIdent StkDot°
+    P99 Type (Nonterm) -> StkRwPROCEDURE°Signature 
+    P100 Signature (Nonterm) -> °Formals ResultType Raises 
+    P101 Formals (Term) -> °StkOpenParen StkCloseParen 
+    P102 Formals (Nonterm) -> °FormalsLt FormalPlus OptSemicolon StkCloseParen 
+    P103 FormalsLt (2) -> °StkOpenParen 
  } 
 
 State 20 = { 
+    P101 Formals (Term) -> StkOpenParen°StkCloseParen 
+    P103 FormalsLt (Reduce) -> StkOpenParen°
+ } 
+
+State 21 = { 
+    P101 Formals (Reduce) -> StkOpenParen StkCloseParen°
+ } 
+
+State 22 = { 
+    P99 Type (Reduce) -> StkRwPROCEDURE Signature°
+ } 
+
+State 23 = { 
+    P100 Signature (Nonterm) -> Formals°ResultType Raises 
+    P117 ResultType (Reduce) -> -Epsilon-.
+    P116 ResultType (Term) -> °StkColon Type 
+ } 
+
+State 24 = { 
+    P116 ResultType (Nonterm) -> StkColon°Type 
+    P91 Type (Nonterm) -> °IdentRef 
+    P29 IdentRef (Term) -> °StkIdent 
+    P92 Type (Term) -> °StkRwREF Type 
+    P98 Type (Nonterm) -> °RecTypeLt FieldDeclList StkRwEND 
+    P97 RecTypeLt (Term) -> °StkRwRECORD 
+    P99 Type (Term) -> °StkRwPROCEDURE Signature 
+ } 
+
+State 25 = { 
+    P97 RecTypeLt (Reduce) -> StkRwRECORD°
+ } 
+
+State 26 = { 
+    P92 Type (Nonterm) -> StkRwREF°Type 
+    P91 Type (Nonterm) -> °IdentRef 
+    P29 IdentRef (Term) -> °StkIdent 
+    P92 Type (Term) -> °StkRwREF Type 
+    P98 Type (Nonterm) -> °RecTypeLt FieldDeclList StkRwEND 
+    P97 RecTypeLt (Term) -> °StkRwRECORD 
+    P99 Type (Term) -> °StkRwPROCEDURE Signature 
+ } 
+
+State 27 = { 
+    P91 Type (Reduce) -> IdentRef°
+ } 
+
+State 28 = { 
+    P92 Type (Reduce) -> StkRwREF Type°
+ } 
+
+State 29 = { 
+    P98 Type (Nonterm) -> RecTypeLt°FieldDeclList StkRwEND 
+    P93 FieldDeclList (Reduce) -> -Epsilon-.
+    P94 FieldDeclList (Nonterm) -> °FieldDeclPlus OptSemicolon 
+    P95 FieldDeclPlus (Nonterm) -> °VarDecl 
+    P85 VarDecl (Nonterm) -> °VarDeclIds OptDeclType OptDeclValue 
+    P86 VarDeclIds (Nonterm) -> °DeclIdListElems 
+    P32 DeclIdListElems (Term) -> °StkIdent 
+    P33 DeclIdListElems (5) -> °DeclIdListElems StkComma StkIdent 
+    P96 FieldDeclPlus (2) -> °FieldDeclPlus StkSemicolon VarDecl 
+ } 
+
+State 30 = { 
+    P32 DeclIdListElems (Reduce) -> StkIdent°
+ } 
+
+State 31 = { 
+    P86 VarDeclIds (Reduce) -> DeclIdListElems°
+    P33 DeclIdListElems (Term) -> DeclIdListElems°StkComma StkIdent 
+ } 
+
+State 32 = { 
+    P33 DeclIdListElems (Term) -> DeclIdListElems StkComma°StkIdent 
+ } 
+
+State 33 = { 
+    P33 DeclIdListElems (Reduce) -> DeclIdListElems StkComma StkIdent°
+ } 
+
+State 34 = { 
+    P95 FieldDeclPlus (Reduce) -> VarDecl°
+ } 
+
+State 35 = { 
+    P85 VarDecl (Nonterm) -> VarDeclIds°OptDeclType OptDeclValue 
+    P88 OptDeclType (Reduce) -> -Epsilon-.
+    P87 OptDeclType (Term) -> °StkColon Type 
+ } 
+
+State 36 = { 
+    P87 OptDeclType (Nonterm) -> StkColon°Type 
+    P91 Type (Nonterm) -> °IdentRef 
+    P29 IdentRef (Term) -> °StkIdent 
+    P92 Type (Term) -> °StkRwREF Type 
+    P98 Type (Nonterm) -> °RecTypeLt FieldDeclList StkRwEND 
+    P97 RecTypeLt (Term) -> °StkRwRECORD 
+    P99 Type (Term) -> °StkRwPROCEDURE Signature 
+ } 
+
+State 37 = { 
+    P87 OptDeclType (Reduce) -> StkColon Type°
+ } 
+
+State 38 = { 
+    P85 VarDecl (Nonterm) -> VarDeclIds OptDeclType°OptDeclValue 
+    P90 OptDeclValue (Reduce) -> -Epsilon-.
+    P89 OptDeclValue (Term) -> °StkBecomes Expr 
+ } 
+
+State 39 = { 
+    P89 OptDeclValue (Nonterm) -> StkBecomes°Expr 
+    P125 Expr (Nonterm) -> °IdentRef 
+    P29 IdentRef (Term) -> °StkIdent 
+    P126 Expr (Term) -> °StkIntLit 
+    P127 Expr (0) -> °Expr StkDeref 
+ } 
+
+State 40 = { 
+    P126 Expr (Reduce) -> StkIntLit°
+ } 
+
+State 41 = { 
+    P125 Expr (Reduce) -> IdentRef°
+ } 
+
+State 42 = { 
+    P89 OptDeclValue (Reduce) -> StkBecomes Expr°
+    P127 Expr (Term) -> Expr°StkDeref 
+ } 
+
+State 43 = { 
+    P127 Expr (Reduce) -> Expr StkDeref°
+ } 
+
+State 44 = { 
+    P85 VarDecl (Reduce) -> VarDeclIds OptDeclType OptDeclValue°
+ } 
+
+State 45 = { 
+    P98 Type (Term) -> RecTypeLt FieldDeclList°StkRwEND 
+ } 
+
+State 46 = { 
+    P98 Type (Reduce) -> RecTypeLt FieldDeclList StkRwEND°
+ } 
+
+State 47 = { 
+    P94 FieldDeclList (Nonterm) -> FieldDeclPlus°OptSemicolon 
+    P28 OptSemicolon (Reduce) -> -Epsilon-.
+    P27 OptSemicolon (Term) -> °StkSemicolon 
+    P96 FieldDeclPlus (2) -> FieldDeclPlus°StkSemicolon VarDecl 
+ } 
+
+State 48 = { 
+    P27 OptSemicolon (Reduce) -> StkSemicolon°
+    P96 FieldDeclPlus (Nonterm) -> FieldDeclPlus StkSemicolon°VarDecl 
+    P85 VarDecl (Nonterm) -> °VarDeclIds OptDeclType OptDeclValue 
+    P86 VarDeclIds (Nonterm) -> °DeclIdListElems 
+    P32 DeclIdListElems (Term) -> °StkIdent 
+    P33 DeclIdListElems (3) -> °DeclIdListElems StkComma StkIdent 
+ } 
+
+State 49 = { 
+    P96 FieldDeclPlus (Reduce) -> FieldDeclPlus StkSemicolon VarDecl°
+ } 
+
+State 50 = { 
+    P94 FieldDeclList (Reduce) -> FieldDeclPlus OptSemicolon°
+ } 
+
+State 51 = { 
+    P116 ResultType (Reduce) -> StkColon Type°
+ } 
+
+State 52 = { 
+    P100 Signature (Nonterm) -> Formals ResultType°Raises 
+    P120 Raises (Reduce) -> -Epsilon-.
+    P118 Raises (Term) -> °StkRwRAISES StkRwANY 
+    P119 Raises (2) -> °StkRwRAISES StkOpenBrace QualIdStarList StkCloseBrace 
+ } 
+
+State 53 = { 
+    P118 Raises (Term) -> StkRwRAISES°StkRwANY 
+    P119 Raises (Term) -> StkRwRAISES°StkOpenBrace QualIdStarList StkCloseBrace 
+ } 
+
+State 54 = { 
+    P118 Raises (Reduce) -> StkRwRAISES StkRwANY°
+ } 
+
+State 55 = { 
+    P119 Raises (Nonterm) -> StkRwRAISES StkOpenBrace°QualIdStarList StkCloseBrace 
+    P37 QualIdStarList (Reduce) -> -Epsilon-.
+    P36 QualIdStarList (0) -> °QualIdStarList StkComma QualId 
+ } 
+
+State 56 = { 
+    P119 Raises (Term) -> StkRwRAISES StkOpenBrace QualIdStarList°StkCloseBrace 
+    P36 QualIdStarList (Term) -> QualIdStarList°StkComma QualId 
+ } 
+
+State 57 = { 
+    P36 QualIdStarList (Nonterm) -> QualIdStarList StkComma°QualId 
+    P38 QualId (Term) -> °StkIdent 
+    P39 QualId (Nonterm) -> °IdentRef StkDot StkIdent 
+    P29 IdentRef (1) -> °StkIdent 
+ } 
+
+State 58 = { 
+    P38 QualId (Reduce) -> StkIdent°
+    P29 IdentRef (Reduce) -> StkIdent°
+ } 
+
+State 59 = { 
+    P39 QualId (Term) -> IdentRef°StkDot StkIdent 
+ } 
+
+State 60 = { 
+    P39 QualId (Term) -> IdentRef StkDot°StkIdent 
+ } 
+
+State 61 = { 
+    P39 QualId (Reduce) -> IdentRef StkDot StkIdent°
+ } 
+
+State 62 = { 
+    P36 QualIdStarList (Reduce) -> QualIdStarList StkComma QualId°
+ } 
+
+State 63 = { 
+    P119 Raises (Reduce) -> StkRwRAISES StkOpenBrace QualIdStarList StkCloseBrace°
+ } 
+
+State 64 = { 
+    P100 Signature (Reduce) -> Formals ResultType Raises°
+ } 
+
+State 65 = { 
+    P102 Formals (Nonterm) -> FormalsLt°FormalPlus OptSemicolon StkCloseParen 
+    P105 FormalPlus (Nonterm) -> °Formal 
+    P110 Formal (Nonterm) -> °FormalLt FormalIds FormalType FormalExpr 
+    P106 FormalLt (Reduce) -> -Epsilon-.
+    P107 FormalLt (Term) -> °StkRwVALUE 
+    P108 FormalLt (Term) -> °StkRwVAR 
+    P109 FormalLt (Term) -> °StkRwREADONLY 
+    P104 FormalPlus (0) -> °FormalPlus StkSemicolon Formal 
+ } 
+
+State 66 = { 
+    P109 FormalLt (Reduce) -> StkRwREADONLY°
+ } 
+
+State 67 = { 
+    P107 FormalLt (Reduce) -> StkRwVALUE°
+ } 
+
+State 68 = { 
+    P108 FormalLt (Reduce) -> StkRwVAR°
+ } 
+
+State 69 = { 
+    P102 Formals (Nonterm) -> FormalsLt FormalPlus°OptSemicolon StkCloseParen 
+    P28 OptSemicolon (Reduce) -> -Epsilon-.
+    P27 OptSemicolon (Term) -> °StkSemicolon 
+    P104 FormalPlus (2) -> FormalPlus°StkSemicolon Formal 
+ } 
+
+State 70 = { 
+    P27 OptSemicolon (Reduce) -> StkSemicolon°
+    P104 FormalPlus (Nonterm) -> FormalPlus StkSemicolon°Formal 
+    P110 Formal (Nonterm) -> °FormalLt FormalIds FormalType FormalExpr 
+    P106 FormalLt (Reduce) -> -Epsilon-.
+    P107 FormalLt (Term) -> °StkRwVALUE 
+    P108 FormalLt (Term) -> °StkRwVAR 
+    P109 FormalLt (Term) -> °StkRwREADONLY 
+ } 
+
+State 71 = { 
+    P104 FormalPlus (Reduce) -> FormalPlus StkSemicolon Formal°
+ } 
+
+State 72 = { 
+    P110 Formal (Nonterm) -> FormalLt°FormalIds FormalType FormalExpr 
+    P111 FormalIds (Nonterm) -> °DeclIdListElems 
+    P32 DeclIdListElems (Term) -> °StkIdent 
+    P33 DeclIdListElems (1) -> °DeclIdListElems StkComma StkIdent 
+ } 
+
+State 73 = { 
+    P111 FormalIds (Reduce) -> DeclIdListElems°
+    P33 DeclIdListElems (Term) -> DeclIdListElems°StkComma StkIdent 
+ } 
+
+State 74 = { 
+    P110 Formal (Nonterm) -> FormalLt FormalIds°FormalType FormalExpr 
+    P113 FormalType (Reduce) -> -Epsilon-.
+    P112 FormalType (Term) -> °StkColon Type 
+ } 
+
+State 75 = { 
+    P112 FormalType (Nonterm) -> StkColon°Type 
+    P91 Type (Nonterm) -> °IdentRef 
+    P29 IdentRef (Term) -> °StkIdent 
+    P92 Type (Term) -> °StkRwREF Type 
+    P98 Type (Nonterm) -> °RecTypeLt FieldDeclList StkRwEND 
+    P97 RecTypeLt (Term) -> °StkRwRECORD 
+    P99 Type (Term) -> °StkRwPROCEDURE Signature 
+ } 
+
+State 76 = { 
+    P112 FormalType (Reduce) -> StkColon Type°
+ } 
+
+State 77 = { 
+    P110 Formal (Nonterm) -> FormalLt FormalIds FormalType°FormalExpr 
+    P115 FormalExpr (Reduce) -> -Epsilon-.
+    P114 FormalExpr (Term) -> °StkBecomes Expr 
+ } 
+
+State 78 = { 
+    P114 FormalExpr (Nonterm) -> StkBecomes°Expr 
+    P125 Expr (Nonterm) -> °IdentRef 
+    P29 IdentRef (Term) -> °StkIdent 
+    P126 Expr (Term) -> °StkIntLit 
+    P127 Expr (0) -> °Expr StkDeref 
+ } 
+
+State 79 = { 
+    P114 FormalExpr (Reduce) -> StkBecomes Expr°
+    P127 Expr (Term) -> Expr°StkDeref 
+ } 
+
+State 80 = { 
+    P110 Formal (Reduce) -> FormalLt FormalIds FormalType FormalExpr°
+ } 
+
+State 81 = { 
+    P102 Formals (Term) -> FormalsLt FormalPlus OptSemicolon°StkCloseParen 
+ } 
+
+State 82 = { 
+    P102 Formals (Reduce) -> FormalsLt FormalPlus OptSemicolon StkCloseParen°
+ } 
+
+State 83 = { 
+    P105 FormalPlus (Reduce) -> Formal°
+ } 
+
+State 84 = { 
+    P59 OptConstType (Reduce) -> StkColon Type°
+ } 
+
+State 85 = { 
+    P58 ConstDecl (Term) -> StkIdent OptConstType°StkEqual Expr StkSemicolon 
+ } 
+
+State 86 = { 
+    P58 ConstDecl (Nonterm) -> StkIdent OptConstType StkEqual°Expr StkSemicolon 
+    P125 Expr (Nonterm) -> °IdentRef 
+    P29 IdentRef (Term) -> °StkIdent 
+    P126 Expr (Term) -> °StkIntLit 
+    P127 Expr (0) -> °Expr StkDeref 
+ } 
+
+State 87 = { 
+    P58 ConstDecl (Term) -> StkIdent OptConstType StkEqual Expr°StkSemicolon 
+    P127 Expr (Term) -> Expr°StkDeref 
+ } 
+
+State 88 = { 
+    P58 ConstDecl (Reduce) -> StkIdent OptConstType StkEqual Expr StkSemicolon°
+ } 
+
+State 89 = { 
+    P55 ConstDeclGroup (Reduce) -> StkRwCONST ConstDecls°
+    P57 ConstDecls (Nonterm) -> ConstDecls°ConstDecl 
+    P58 ConstDecl (Term) -> °StkIdent OptConstType StkEqual Expr StkSemicolon 
+ } 
+
+State 90 = { 
+    P57 ConstDecls (Reduce) -> ConstDecls ConstDecl°
+ } 
+
+State 91 = { 
+    P56 ConstDecls (Reduce) -> ConstDecl°
+ } 
+
+State 92 = { 
+    P121 ProcDecl (Term) -> StkRwPROCEDURE°StkIdent Signature OptBody 
+ } 
+
+State 93 = { 
+    P121 ProcDecl (Nonterm) -> StkRwPROCEDURE StkIdent°Signature OptBody 
+    P100 Signature (Nonterm) -> °Formals ResultType Raises 
+    P101 Formals (Term) -> °StkOpenParen StkCloseParen 
+    P102 Formals (Nonterm) -> °FormalsLt FormalPlus OptSemicolon StkCloseParen 
+    P103 FormalsLt (2) -> °StkOpenParen 
+ } 
+
+State 94 = { 
+    P121 ProcDecl (Nonterm) -> StkRwPROCEDURE StkIdent Signature°OptBody 
+    P122 OptBody (Term) -> °StkSemicolon 
+    P123 OptBody (Term) -> °StkEqual ProcBodyScopeLt Block StkIdent StkSemicolon 
+ } 
+
+State 95 = { 
+    P122 OptBody (Reduce) -> StkSemicolon°
+ } 
+
+State 96 = { 
+    P123 OptBody (Nonterm) -> StkEqual°ProcBodyScopeLt Block StkIdent StkSemicolon 
+    P124 ProcBodyScopeLt (Reduce) -> -Epsilon-.
+ } 
+
+State 97 = { 
+    P123 OptBody (Nonterm) -> StkEqual ProcBodyScopeLt°Block StkIdent StkSemicolon 
+    P129 Block (Nonterm) -> °BlockLt BlockDeclList StkRwBEGIN StmtList StkRwEND 
+    P128 BlockLt (Reduce) -> -Epsilon-.
+ } 
+
+State 98 = { 
+    P123 OptBody (Term) -> StkEqual ProcBodyScopeLt Block°StkIdent StkSemicolon 
+ } 
+
+State 99 = { 
+    P123 OptBody (Term) -> StkEqual ProcBodyScopeLt Block StkIdent°StkSemicolon 
+ } 
+
+State 100 = { 
+    P123 OptBody (Reduce) -> StkEqual ProcBodyScopeLt Block StkIdent StkSemicolon°
+ } 
+
+State 101 = { 
+    P129 Block (Nonterm) -> BlockLt°BlockDeclList StkRwBEGIN StmtList StkRwEND 
+    P137 BlockDeclList (Reduce) -> -Epsilon-.
+    P138 BlockDeclList (Nonterm) -> °BlockDeclPlus 
+    P139 BlockDeclPlus (Nonterm) -> °BlockDecl 
+    P131 BlockDecl (Nonterm) -> °TypeDeclGroup 
+    P64 TypeDeclGroup (Nonterm) -> °TypeDeclGroupLt TypeDeclList 
+    P63 TypeDeclGroupLt (Term) -> °StkRwTYPE 
+    P132 BlockDecl (Nonterm) -> °VarDeclGroup 
+    P80 VarDeclGroup (Nonterm) -> °VarDeclGroupLt VarDeclList 
+    P79 VarDeclGroupLt (Term) -> °StkRwVAR 
+    P134 BlockDecl (Nonterm) -> °RevelationGroup 
+    P72 RevelationGroup (Nonterm) -> °RevelationGroupLt RevelationList 
+    P71 RevelationGroupLt (Term) -> °StkRwREVEAL 
+    P136 BlockDecl (10) -> °RevelationGroup 
+    P130 BlockDecl (Nonterm) -> °ConstDeclGroup 
+    P55 ConstDeclGroup (Term) -> °StkRwCONST ConstDecls 
+    P135 BlockDecl (Nonterm) -> °ProcDecl 
+    P121 ProcDecl (Term) -> °StkRwPROCEDURE StkIdent Signature OptBody 
+    P133 BlockDecl (Nonterm) -> °ExceptDeclGroup 
+    P140 BlockDeclPlus (2) -> °BlockDeclPlus BlockDecl 
+ } 
+
+State 102 = { 
+    P71 RevelationGroupLt (Reduce) -> StkRwREVEAL°
+ } 
+
+State 103 = { 
+    P63 TypeDeclGroupLt (Reduce) -> StkRwTYPE°
+ } 
+
+State 104 = { 
+    P79 VarDeclGroupLt (Reduce) -> StkRwVAR°
+ } 
+
+State 105 = { 
+    P129 Block (Term) -> BlockLt BlockDeclList°StkRwBEGIN StmtList StkRwEND 
+ } 
+
+State 106 = { 
+    P129 Block (Nonterm) -> BlockLt BlockDeclList StkRwBEGIN°StmtList StkRwEND 
+    P141 StmtList (Reduce) -> -Epsilon-.
+    P142 StmtList (Nonterm) -> °StmtPlus OptSemicolon 
+    P143 StmtPlus (Nonterm) -> °Stmt 
+    P145 Stmt (Nonterm) -> °AssignStmt 
+    P146 AssignStmt (Nonterm) -> °Expr StkBecomes Expr 
+    P125 Expr (Nonterm) -> °IdentRef 
+    P29 IdentRef (Term) -> °StkIdent 
+    P126 Expr (Term) -> °StkIntLit 
+    P127 Expr (5) -> °Expr StkDeref 
+ } 
+
+State 107 = { 
+    P146 AssignStmt (Term) -> Expr°StkBecomes Expr 
+    P127 Expr (Term) -> Expr°StkDeref 
+ } 
+
+State 108 = { 
+    P146 AssignStmt (Nonterm) -> Expr StkBecomes°Expr 
+    P125 Expr (Nonterm) -> °IdentRef 
+    P29 IdentRef (Term) -> °StkIdent 
+    P126 Expr (Term) -> °StkIntLit 
+    P127 Expr (0) -> °Expr StkDeref 
+ } 
+
+State 109 = { 
+    P146 AssignStmt (Reduce) -> Expr StkBecomes Expr°
+    P127 Expr (Term) -> Expr°StkDeref 
+ } 
+
+State 110 = { 
+    P129 Block (Term) -> BlockLt BlockDeclList StkRwBEGIN StmtList°StkRwEND 
+ } 
+
+State 111 = { 
+    P129 Block (Reduce) -> BlockLt BlockDeclList StkRwBEGIN StmtList StkRwEND°
+ } 
+
+State 112 = { 
+    P142 StmtList (Nonterm) -> StmtPlus°OptSemicolon 
+    P28 OptSemicolon (Reduce) -> -Epsilon-.
+    P27 OptSemicolon (Term) -> °StkSemicolon 
+ } 
+
+State 113 = { 
+    P27 OptSemicolon (Reduce) -> StkSemicolon°
+ } 
+
+State 114 = { 
+    P142 StmtList (Reduce) -> StmtPlus OptSemicolon°
+ } 
+
+State 115 = { 
+    P143 StmtPlus (Reduce) -> Stmt°
+ } 
+
+State 116 = { 
+    P145 Stmt (Reduce) -> AssignStmt°
+ } 
+
+State 117 = { 
+    P130 BlockDecl (Reduce) -> ConstDeclGroup°
+ } 
+
+State 118 = { 
+    P64 TypeDeclGroup (Nonterm) -> TypeDeclGroupLt°TypeDeclList 
+    P65 TypeDeclList (Reduce) -> -Epsilon-.
+    P66 TypeDeclList (Nonterm) -> °TypeDeclPlus 
+    P67 TypeDeclPlus (Nonterm) -> °TypeDecl StkSemicolon 
+    P70 TypeDecl (Nonterm) -> °TypeDeclId TypeRelation Type 
+    P69 TypeDeclId (Term) -> °StkIdent 
+    P68 TypeDeclPlus (2) -> °TypeDeclPlus TypeDecl StkSemicolon 
+ } 
+
+State 119 = { 
+    P69 TypeDeclId (Reduce) -> StkIdent°
+ } 
+
+State 120 = { 
+    P64 TypeDeclGroup (Reduce) -> TypeDeclGroupLt TypeDeclList°
+ } 
+
+State 121 = { 
+    P66 TypeDeclList (Reduce) -> TypeDeclPlus°
+    P68 TypeDeclPlus (Nonterm) -> TypeDeclPlus°TypeDecl StkSemicolon 
+    P70 TypeDecl (Nonterm) -> °TypeDeclId TypeRelation Type 
+    P69 TypeDeclId (Term) -> °StkIdent 
+ } 
+
+State 122 = { 
+    P68 TypeDeclPlus (Term) -> TypeDeclPlus TypeDecl°StkSemicolon 
+ } 
+
+State 123 = { 
+    P68 TypeDeclPlus (Reduce) -> TypeDeclPlus TypeDecl StkSemicolon°
+ } 
+
+State 124 = { 
+    P70 TypeDecl (Nonterm) -> TypeDeclId°TypeRelation Type 
+    P61 TypeRelation (Term) -> °StkEqual 
+    P62 TypeRelation (Term) -> °StkSubtype 
+ } 
+
+State 125 = { 
+    P61 TypeRelation (Reduce) -> StkEqual°
+ } 
+
+State 126 = { 
+    P62 TypeRelation (Reduce) -> StkSubtype°
+ } 
+
+State 127 = { 
+    P70 TypeDecl (Nonterm) -> TypeDeclId TypeRelation°Type 
+    P91 Type (Nonterm) -> °IdentRef 
+    P29 IdentRef (Term) -> °StkIdent 
+    P92 Type (Term) -> °StkRwREF Type 
+    P98 Type (Nonterm) -> °RecTypeLt FieldDeclList StkRwEND 
+    P97 RecTypeLt (Term) -> °StkRwRECORD 
+    P99 Type (Term) -> °StkRwPROCEDURE Signature 
+ } 
+
+State 128 = { 
+    P70 TypeDecl (Reduce) -> TypeDeclId TypeRelation Type°
+ } 
+
+State 129 = { 
+    P67 TypeDeclPlus (Term) -> TypeDecl°StkSemicolon 
+ } 
+
+State 130 = { 
+    P67 TypeDeclPlus (Reduce) -> TypeDecl StkSemicolon°
+ } 
+
+State 131 = { 
+    P131 BlockDecl (Reduce) -> TypeDeclGroup°
+ } 
+
+State 132 = { 
+    P72 RevelationGroup (Nonterm) -> RevelationGroupLt°RevelationList 
+    P73 RevelationList (Reduce) -> -Epsilon-.
+    P74 RevelationList (Nonterm) -> °RevelationPlus 
+    P75 RevelationPlus (Nonterm) -> °Revelation StkSemicolon 
+    P78 Revelation (Nonterm) -> °TypeId TypeRelation Type 
+    P76 RevelationPlus (2) -> °RevelationPlus Revelation StkSemicolon 
+ } 
+
+State 133 = { 
+    P72 RevelationGroup (Reduce) -> RevelationGroupLt RevelationList°
+ } 
+
+State 134 = { 
+    P74 RevelationList (Reduce) -> RevelationPlus°
+    P76 RevelationPlus (Nonterm) -> RevelationPlus°Revelation StkSemicolon 
+    P78 Revelation (Nonterm) -> °TypeId TypeRelation Type 
+ } 
+
+State 135 = { 
+    P76 RevelationPlus (Term) -> RevelationPlus Revelation°StkSemicolon 
+ } 
+
+State 136 = { 
+    P76 RevelationPlus (Reduce) -> RevelationPlus Revelation StkSemicolon°
+ } 
+
+State 137 = { 
+    P78 Revelation (Nonterm) -> TypeId°TypeRelation Type 
+    P61 TypeRelation (Term) -> °StkEqual 
+    P62 TypeRelation (Term) -> °StkSubtype 
+ } 
+
+State 138 = { 
+    P78 Revelation (Nonterm) -> TypeId TypeRelation°Type 
+    P91 Type (Nonterm) -> °IdentRef 
+    P29 IdentRef (Term) -> °StkIdent 
+    P92 Type (Term) -> °StkRwREF Type 
+    P98 Type (Nonterm) -> °RecTypeLt FieldDeclList StkRwEND 
+    P97 RecTypeLt (Term) -> °StkRwRECORD 
+    P99 Type (Term) -> °StkRwPROCEDURE Signature 
+ } 
+
+State 139 = { 
+    P78 Revelation (Reduce) -> TypeId TypeRelation Type°
+ } 
+
+State 140 = { 
+    P75 RevelationPlus (Term) -> Revelation°StkSemicolon 
+ } 
+
+State 141 = { 
+    P75 RevelationPlus (Reduce) -> Revelation StkSemicolon°
+ } 
+
+State 142 = { 
+    P134 BlockDecl (Reduce) -> RevelationGroup°
+    P136 BlockDecl (1) -> RevelationGroup°
+ } 
+
+State 143 = { 
+    P80 VarDeclGroup (Nonterm) -> VarDeclGroupLt°VarDeclList 
+    P81 VarDeclList (Reduce) -> -Epsilon-.
+    P82 VarDeclList (Nonterm) -> °VarDeclPlus 
+    P83 VarDeclPlus (Nonterm) -> °VarDecl StkSemicolon 
+    P85 VarDecl (Nonterm) -> °VarDeclIds OptDeclType OptDeclValue 
+    P86 VarDeclIds (Nonterm) -> °DeclIdListElems 
+    P32 DeclIdListElems (Term) -> °StkIdent 
+    P33 DeclIdListElems (5) -> °DeclIdListElems StkComma StkIdent 
+    P84 VarDeclPlus (2) -> °VarDeclPlus VarDecl StkSemicolon 
+ } 
+
+State 144 = { 
+    P80 VarDeclGroup (Reduce) -> VarDeclGroupLt VarDeclList°
+ } 
+
+State 145 = { 
+    P82 VarDeclList (Reduce) -> VarDeclPlus°
+    P84 VarDeclPlus (Nonterm) -> VarDeclPlus°VarDecl StkSemicolon 
+    P85 VarDecl (Nonterm) -> °VarDeclIds OptDeclType OptDeclValue 
+    P86 VarDeclIds (Nonterm) -> °DeclIdListElems 
+    P32 DeclIdListElems (Term) -> °StkIdent 
+    P33 DeclIdListElems (3) -> °DeclIdListElems StkComma StkIdent 
+ } 
+
+State 146 = { 
+    P84 VarDeclPlus (Term) -> VarDeclPlus VarDecl°StkSemicolon 
+ } 
+
+State 147 = { 
+    P84 VarDeclPlus (Reduce) -> VarDeclPlus VarDecl StkSemicolon°
+ } 
+
+State 148 = { 
+    P83 VarDeclPlus (Term) -> VarDecl°StkSemicolon 
+ } 
+
+State 149 = { 
+    P83 VarDeclPlus (Reduce) -> VarDecl StkSemicolon°
+ } 
+
+State 150 = { 
+    P132 BlockDecl (Reduce) -> VarDeclGroup°
+ } 
+
+State 151 = { 
+    P135 BlockDecl (Reduce) -> ProcDecl°
+ } 
+
+State 152 = { 
+    P139 BlockDeclPlus (Reduce) -> BlockDecl°
+ } 
+
+State 153 = { 
+    P133 BlockDecl (Reduce) -> ExceptDeclGroup°
+ } 
+
+State 154 = { 
+    P138 BlockDeclList (Reduce) -> BlockDeclPlus°
+    P140 BlockDeclPlus (Nonterm) -> BlockDeclPlus°BlockDecl 
+    P131 BlockDecl (Nonterm) -> °TypeDeclGroup 
+    P64 TypeDeclGroup (Nonterm) -> °TypeDeclGroupLt TypeDeclList 
+    P63 TypeDeclGroupLt (Term) -> °StkRwTYPE 
+    P132 BlockDecl (Nonterm) -> °VarDeclGroup 
+    P80 VarDeclGroup (Nonterm) -> °VarDeclGroupLt VarDeclList 
+    P79 VarDeclGroupLt (Term) -> °StkRwVAR 
+    P134 BlockDecl (Nonterm) -> °RevelationGroup 
+    P72 RevelationGroup (Nonterm) -> °RevelationGroupLt RevelationList 
+    P71 RevelationGroupLt (Term) -> °StkRwREVEAL 
+    P136 BlockDecl (8) -> °RevelationGroup 
+    P130 BlockDecl (Nonterm) -> °ConstDeclGroup 
+    P55 ConstDeclGroup (Term) -> °StkRwCONST ConstDecls 
+    P135 BlockDecl (Nonterm) -> °ProcDecl 
+    P121 ProcDecl (Term) -> °StkRwPROCEDURE StkIdent Signature OptBody 
+    P133 BlockDecl (Nonterm) -> °ExceptDeclGroup 
+ } 
+
+State 155 = { 
+    P140 BlockDeclPlus (Reduce) -> BlockDeclPlus BlockDecl°
+ } 
+
+State 156 = { 
+    P121 ProcDecl (Reduce) -> StkRwPROCEDURE StkIdent Signature OptBody°
+ } 
+
+State 157 = { 
+    P20 GenInterface (Term) -> StkRwGENERIC StkRwINTERFACE UnitId GenInterfaceKind GenFormalList StkSemicolon Imports BlockDeclList°StkRwEND StkIdent StkDot 
+ } 
+
+State 158 = { 
+    P20 GenInterface (Term) -> StkRwGENERIC StkRwINTERFACE UnitId GenInterfaceKind GenFormalList StkSemicolon Imports BlockDeclList StkRwEND°StkIdent StkDot 
+ } 
+
+State 159 = { 
+    P20 GenInterface (Term) -> StkRwGENERIC StkRwINTERFACE UnitId GenInterfaceKind GenFormalList StkSemicolon Imports BlockDeclList StkRwEND StkIdent°StkDot 
+ } 
+
+State 160 = { 
+    P20 GenInterface (Reduce) -> StkRwGENERIC StkRwINTERFACE UnitId GenInterfaceKind GenFormalList StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot°
+ } 
+
+State 161 = { 
     P40 Imports (Nonterm) -> ImportsLt°ImportsRecurse ImportsRt 
     P44 ImportsRecurse (Reduce) -> -Epsilon-.
     P43 ImportsRecurse (0) -> °ImportsRecurse ImportItem 
  } 
 
-State 21 = { 
+State 162 = { 
     P40 Imports (Nonterm) -> ImportsLt ImportsRecurse°ImportsRt 
     P42 ImportsRt (Reduce) -> -Epsilon-.
     P43 ImportsRecurse (Nonterm) -> ImportsRecurse°ImportItem 
@@ -238,960 +1249,269 @@ State 21 = {
     P50 FromImportPlusList (4) -> °FromImportPlusList StkComma IdentRef 
  } 
 
-State 22 = { 
+State 163 = { 
     P49 FromImportPlusList (Nonterm) -> StkRwFROM°IdentRef StkRwIMPORT StkIdent 
     P29 IdentRef (Term) -> °StkIdent 
  } 
 
-State 23 = { 
+State 164 = { 
     P49 FromImportPlusList (Term) -> StkRwFROM IdentRef°StkRwIMPORT StkIdent 
  } 
 
-State 24 = { 
+State 165 = { 
     P49 FromImportPlusList (Term) -> StkRwFROM IdentRef StkRwIMPORT°StkIdent 
  } 
 
-State 25 = { 
+State 166 = { 
     P49 FromImportPlusList (Reduce) -> StkRwFROM IdentRef StkRwIMPORT StkIdent°
  } 
 
-State 26 = { 
+State 167 = { 
     P45 ImportItem (Nonterm) -> StkRwIMPORT°ImportIntfPlusList StkSemicolon 
     P46 ImportIntfPlusList (Term) -> °StkIdent 
     P47 ImportIntfPlusList (0) -> °ImportIntfPlusList StkComma StkIdent 
  } 
 
-State 27 = { 
+State 168 = { 
     P46 ImportIntfPlusList (Reduce) -> StkIdent°
  } 
 
-State 28 = { 
+State 169 = { 
     P45 ImportItem (Term) -> StkRwIMPORT ImportIntfPlusList°StkSemicolon 
     P47 ImportIntfPlusList (Term) -> ImportIntfPlusList°StkComma StkIdent 
  } 
 
-State 29 = { 
+State 170 = { 
     P45 ImportItem (Reduce) -> StkRwIMPORT ImportIntfPlusList StkSemicolon°
  } 
 
-State 30 = { 
+State 171 = { 
     P47 ImportIntfPlusList (Term) -> ImportIntfPlusList StkComma°StkIdent 
  } 
 
-State 31 = { 
+State 172 = { 
     P47 ImportIntfPlusList (Reduce) -> ImportIntfPlusList StkComma StkIdent°
  } 
 
-State 32 = { 
+State 173 = { 
     P40 Imports (Reduce) -> ImportsLt ImportsRecurse ImportsRt°
  } 
 
-State 33 = { 
+State 174 = { 
     P43 ImportsRecurse (Reduce) -> ImportsRecurse ImportItem°
  } 
 
-State 34 = { 
+State 175 = { 
     P48 ImportItem (Term) -> FromImportPlusList°StkSemicolon 
     P50 FromImportPlusList (Term) -> FromImportPlusList°StkComma IdentRef 
  } 
 
-State 35 = { 
+State 176 = { 
     P48 ImportItem (Reduce) -> FromImportPlusList StkSemicolon°
  } 
 
-State 36 = { 
+State 177 = { 
     P50 FromImportPlusList (Nonterm) -> FromImportPlusList StkComma°IdentRef 
     P29 IdentRef (Term) -> °StkIdent 
  } 
 
-State 37 = { 
+State 178 = { 
     P50 FromImportPlusList (Reduce) -> FromImportPlusList StkComma IdentRef°
  } 
 
-State 38 = { 
+State 179 = { 
     P21 GenModule (Nonterm) -> StkRwGENERIC StkRwMODULE°UnitId GenModuleKind GenFormalList StkSemicolon Imports Block StkIdent StkDot 
     P8 UnitId (Term) -> °StkIdent 
  } 
 
-State 39 = { 
+State 180 = { 
     P21 GenModule (Nonterm) -> StkRwGENERIC StkRwMODULE UnitId°GenModuleKind GenFormalList StkSemicolon Imports Block StkIdent StkDot 
     P15 GenModuleKind (Reduce) -> -Epsilon-.
  } 
 
-State 40 = { 
+State 181 = { 
     P21 GenModule (Nonterm) -> StkRwGENERIC StkRwMODULE UnitId GenModuleKind°GenFormalList StkSemicolon Imports Block StkIdent StkDot 
     P53 GenFormalList (Term) -> °StkOpenParen IdStarList StkCloseParen 
  } 
 
-State 41 = { 
+State 182 = { 
     P21 GenModule (Term) -> StkRwGENERIC StkRwMODULE UnitId GenModuleKind GenFormalList°StkSemicolon Imports Block StkIdent StkDot 
  } 
 
-State 42 = { 
+State 183 = { 
     P21 GenModule (Nonterm) -> StkRwGENERIC StkRwMODULE UnitId GenModuleKind GenFormalList StkSemicolon°Imports Block StkIdent StkDot 
     P40 Imports (Nonterm) -> °ImportsLt ImportsRecurse ImportsRt 
     P41 ImportsLt (Reduce) -> -Epsilon-.
  } 
 
-State 43 = { 
-    P21 GenModule (Nonterm) -> StkRwGENERIC StkRwMODULE UnitId GenModuleKind GenFormalList StkSemicolon Imports°Block StkIdent StkDot 
-    P119 Block (Nonterm) -> °BlockLt BlockDeclList StkRwBEGIN StmtList StkRwEND 
-    P118 BlockLt (Reduce) -> -Epsilon-.
- } 
-
-State 44 = { 
-    P21 GenModule (Term) -> StkRwGENERIC StkRwMODULE UnitId GenModuleKind GenFormalList StkSemicolon Imports Block°StkIdent StkDot 
- } 
-
-State 45 = { 
-    P21 GenModule (Term) -> StkRwGENERIC StkRwMODULE UnitId GenModuleKind GenFormalList StkSemicolon Imports Block StkIdent°StkDot 
- } 
-
-State 46 = { 
-    P21 GenModule (Reduce) -> StkRwGENERIC StkRwMODULE UnitId GenModuleKind GenFormalList StkSemicolon Imports Block StkIdent StkDot°
- } 
-
-State 47 = { 
-    P119 Block (Nonterm) -> BlockLt°BlockDeclList StkRwBEGIN StmtList StkRwEND 
-    P126 BlockDeclList (Reduce) -> -Epsilon-.
-    P127 BlockDeclList (Nonterm) -> °BlockDeclPlus 
-    P128 BlockDeclPlus (Nonterm) -> °BlockDecl 
-    P121 BlockDecl (Nonterm) -> °TypeDeclGroup 
-    P62 TypeDeclGroup (Nonterm) -> °TypeDeclGroupLt TypeDeclList 
-    P61 TypeDeclGroupLt (Term) -> °StkRwTYPE 
-    P122 BlockDecl (Nonterm) -> °VarDeclGroup 
-    P70 VarDeclGroup (Nonterm) -> °VarDeclGroupLt VarDeclList 
-    P69 VarDeclGroupLt (Term) -> °StkRwVAR 
-    P120 BlockDecl (Nonterm) -> °ConstDeclGroup 
-    P55 ConstDeclGroup (Term) -> °StkRwCONST ConstDecls 
-    P124 BlockDecl (Nonterm) -> °ProcDecl 
-    P111 ProcDecl (Term) -> °StkRwPROCEDURE StkIdent Signature OptBody 
-    P123 BlockDecl (Nonterm) -> °ExceptDeclGroup 
-    P125 BlockDecl (Nonterm) -> °RevelationGroup 
-    P129 BlockDeclPlus (2) -> °BlockDeclPlus BlockDecl 
- } 
-
-State 48 = { 
-    P55 ConstDeclGroup (Nonterm) -> StkRwCONST°ConstDecls 
-    P56 ConstDecls (Nonterm) -> °ConstDecl 
-    P58 ConstDecl (Term) -> °StkIdent OptConstType StkEqual Expr StkSemicolon 
-    P57 ConstDecls (0) -> °ConstDecls ConstDecl 
- } 
-
-State 49 = { 
-    P58 ConstDecl (Nonterm) -> StkIdent°OptConstType StkEqual Expr StkSemicolon 
-    P60 OptConstType (Reduce) -> -Epsilon-.
-    P59 OptConstType (Term) -> °StkColon Type 
- } 
-
-State 50 = { 
-    P59 OptConstType (Nonterm) -> StkColon°Type 
-    P81 Type (Nonterm) -> °IdentRef 
-    P29 IdentRef (Term) -> °StkIdent 
-    P82 Type (Term) -> °StkRwREF Type 
-    P88 Type (Nonterm) -> °RecTypeLt FieldDeclList StkRwEND 
-    P87 RecTypeLt (Term) -> °StkRwRECORD 
-    P89 Type (Term) -> °StkRwPROCEDURE Signature 
- } 
-
-State 51 = { 
-    P89 Type (Nonterm) -> StkRwPROCEDURE°Signature 
-    P90 Signature (Nonterm) -> °Formals ResultType Raises 
-    P91 Formals (Term) -> °StkOpenParen StkCloseParen 
-    P92 Formals (Nonterm) -> °FormalsLt FormalPlus OptSemicolon StkCloseParen 
-    P93 FormalsLt (2) -> °StkOpenParen 
- } 
-
-State 52 = { 
-    P91 Formals (Term) -> StkOpenParen°StkCloseParen 
-    P93 FormalsLt (Reduce) -> StkOpenParen°
- } 
-
-State 53 = { 
-    P91 Formals (Reduce) -> StkOpenParen StkCloseParen°
- } 
-
-State 54 = { 
-    P89 Type (Reduce) -> StkRwPROCEDURE Signature°
- } 
-
-State 55 = { 
-    P90 Signature (Nonterm) -> Formals°ResultType Raises 
-    P107 ResultType (Reduce) -> -Epsilon-.
-    P106 ResultType (Term) -> °StkColon Type 
- } 
-
-State 56 = { 
-    P106 ResultType (Nonterm) -> StkColon°Type 
-    P81 Type (Nonterm) -> °IdentRef 
-    P29 IdentRef (Term) -> °StkIdent 
-    P82 Type (Term) -> °StkRwREF Type 
-    P88 Type (Nonterm) -> °RecTypeLt FieldDeclList StkRwEND 
-    P87 RecTypeLt (Term) -> °StkRwRECORD 
-    P89 Type (Term) -> °StkRwPROCEDURE Signature 
- } 
-
-State 57 = { 
-    P87 RecTypeLt (Reduce) -> StkRwRECORD°
- } 
-
-State 58 = { 
-    P82 Type (Nonterm) -> StkRwREF°Type 
-    P81 Type (Nonterm) -> °IdentRef 
-    P29 IdentRef (Term) -> °StkIdent 
-    P82 Type (Term) -> °StkRwREF Type 
-    P88 Type (Nonterm) -> °RecTypeLt FieldDeclList StkRwEND 
-    P87 RecTypeLt (Term) -> °StkRwRECORD 
-    P89 Type (Term) -> °StkRwPROCEDURE Signature 
- } 
-
-State 59 = { 
-    P81 Type (Reduce) -> IdentRef°
- } 
-
-State 60 = { 
-    P82 Type (Reduce) -> StkRwREF Type°
- } 
-
-State 61 = { 
-    P88 Type (Nonterm) -> RecTypeLt°FieldDeclList StkRwEND 
-    P83 FieldDeclList (Reduce) -> -Epsilon-.
-    P84 FieldDeclList (Nonterm) -> °FieldDeclPlus OptSemicolon 
-    P85 FieldDeclPlus (Nonterm) -> °VarDecl 
-    P75 VarDecl (Nonterm) -> °VarDeclIds OptDeclType OptDeclValue 
-    P76 VarDeclIds (Nonterm) -> °DeclIdListElems 
-    P32 DeclIdListElems (Term) -> °StkIdent 
-    P33 DeclIdListElems (5) -> °DeclIdListElems StkComma StkIdent 
-    P86 FieldDeclPlus (2) -> °FieldDeclPlus StkSemicolon VarDecl 
- } 
-
-State 62 = { 
-    P32 DeclIdListElems (Reduce) -> StkIdent°
- } 
-
-State 63 = { 
-    P76 VarDeclIds (Reduce) -> DeclIdListElems°
-    P33 DeclIdListElems (Term) -> DeclIdListElems°StkComma StkIdent 
- } 
-
-State 64 = { 
-    P33 DeclIdListElems (Term) -> DeclIdListElems StkComma°StkIdent 
- } 
-
-State 65 = { 
-    P33 DeclIdListElems (Reduce) -> DeclIdListElems StkComma StkIdent°
- } 
-
-State 66 = { 
-    P85 FieldDeclPlus (Reduce) -> VarDecl°
- } 
-
-State 67 = { 
-    P75 VarDecl (Nonterm) -> VarDeclIds°OptDeclType OptDeclValue 
-    P78 OptDeclType (Reduce) -> -Epsilon-.
-    P77 OptDeclType (Term) -> °StkColon Type 
- } 
-
-State 68 = { 
-    P77 OptDeclType (Nonterm) -> StkColon°Type 
-    P81 Type (Nonterm) -> °IdentRef 
-    P29 IdentRef (Term) -> °StkIdent 
-    P82 Type (Term) -> °StkRwREF Type 
-    P88 Type (Nonterm) -> °RecTypeLt FieldDeclList StkRwEND 
-    P87 RecTypeLt (Term) -> °StkRwRECORD 
-    P89 Type (Term) -> °StkRwPROCEDURE Signature 
- } 
-
-State 69 = { 
-    P77 OptDeclType (Reduce) -> StkColon Type°
- } 
-
-State 70 = { 
-    P75 VarDecl (Nonterm) -> VarDeclIds OptDeclType°OptDeclValue 
-    P80 OptDeclValue (Reduce) -> -Epsilon-.
-    P79 OptDeclValue (Term) -> °StkBecomes Expr 
- } 
-
-State 71 = { 
-    P79 OptDeclValue (Nonterm) -> StkBecomes°Expr 
-    P115 Expr (Nonterm) -> °IdentRef 
-    P29 IdentRef (Term) -> °StkIdent 
-    P116 Expr (Term) -> °StkIntLit 
-    P117 Expr (0) -> °Expr StkDeref 
- } 
-
-State 72 = { 
-    P116 Expr (Reduce) -> StkIntLit°
- } 
-
-State 73 = { 
-    P115 Expr (Reduce) -> IdentRef°
- } 
-
-State 74 = { 
-    P79 OptDeclValue (Reduce) -> StkBecomes Expr°
-    P117 Expr (Term) -> Expr°StkDeref 
- } 
-
-State 75 = { 
-    P117 Expr (Reduce) -> Expr StkDeref°
- } 
-
-State 76 = { 
-    P75 VarDecl (Reduce) -> VarDeclIds OptDeclType OptDeclValue°
- } 
-
-State 77 = { 
-    P88 Type (Term) -> RecTypeLt FieldDeclList°StkRwEND 
- } 
-
-State 78 = { 
-    P88 Type (Reduce) -> RecTypeLt FieldDeclList StkRwEND°
- } 
-
-State 79 = { 
-    P84 FieldDeclList (Nonterm) -> FieldDeclPlus°OptSemicolon 
-    P28 OptSemicolon (Reduce) -> -Epsilon-.
-    P27 OptSemicolon (Term) -> °StkSemicolon 
-    P86 FieldDeclPlus (2) -> FieldDeclPlus°StkSemicolon VarDecl 
- } 
-
-State 80 = { 
-    P27 OptSemicolon (Reduce) -> StkSemicolon°
-    P86 FieldDeclPlus (Nonterm) -> FieldDeclPlus StkSemicolon°VarDecl 
-    P75 VarDecl (Nonterm) -> °VarDeclIds OptDeclType OptDeclValue 
-    P76 VarDeclIds (Nonterm) -> °DeclIdListElems 
-    P32 DeclIdListElems (Term) -> °StkIdent 
-    P33 DeclIdListElems (3) -> °DeclIdListElems StkComma StkIdent 
- } 
-
-State 81 = { 
-    P86 FieldDeclPlus (Reduce) -> FieldDeclPlus StkSemicolon VarDecl°
- } 
-
-State 82 = { 
-    P84 FieldDeclList (Reduce) -> FieldDeclPlus OptSemicolon°
- } 
-
-State 83 = { 
-    P106 ResultType (Reduce) -> StkColon Type°
- } 
-
-State 84 = { 
-    P90 Signature (Nonterm) -> Formals ResultType°Raises 
-    P110 Raises (Reduce) -> -Epsilon-.
-    P108 Raises (Term) -> °StkRwRAISES StkRwANY 
-    P109 Raises (2) -> °StkRwRAISES StkOpenBrace QualIdStarList StkCloseBrace 
- } 
-
-State 85 = { 
-    P108 Raises (Term) -> StkRwRAISES°StkRwANY 
-    P109 Raises (Term) -> StkRwRAISES°StkOpenBrace QualIdStarList StkCloseBrace 
- } 
-
-State 86 = { 
-    P108 Raises (Reduce) -> StkRwRAISES StkRwANY°
- } 
-
-State 87 = { 
-    P109 Raises (Nonterm) -> StkRwRAISES StkOpenBrace°QualIdStarList StkCloseBrace 
-    P37 QualIdStarList (Reduce) -> -Epsilon-.
-    P36 QualIdStarList (0) -> °QualIdStarList StkComma QualId 
- } 
-
-State 88 = { 
-    P109 Raises (Term) -> StkRwRAISES StkOpenBrace QualIdStarList°StkCloseBrace 
-    P36 QualIdStarList (Term) -> QualIdStarList°StkComma QualId 
- } 
-
-State 89 = { 
-    P36 QualIdStarList (Nonterm) -> QualIdStarList StkComma°QualId 
-    P38 QualId (Term) -> °StkIdent 
-    P39 QualId (Nonterm) -> °IdentRef StkDot StkIdent 
-    P29 IdentRef (1) -> °StkIdent 
- } 
-
-State 90 = { 
-    P38 QualId (Reduce) -> StkIdent°
-    P29 IdentRef (Reduce) -> StkIdent°
- } 
-
-State 91 = { 
-    P39 QualId (Term) -> IdentRef°StkDot StkIdent 
- } 
-
-State 92 = { 
-    P39 QualId (Term) -> IdentRef StkDot°StkIdent 
- } 
-
-State 93 = { 
-    P39 QualId (Reduce) -> IdentRef StkDot StkIdent°
- } 
-
-State 94 = { 
-    P36 QualIdStarList (Reduce) -> QualIdStarList StkComma QualId°
- } 
-
-State 95 = { 
-    P109 Raises (Reduce) -> StkRwRAISES StkOpenBrace QualIdStarList StkCloseBrace°
- } 
-
-State 96 = { 
-    P90 Signature (Reduce) -> Formals ResultType Raises°
- } 
-
-State 97 = { 
-    P92 Formals (Nonterm) -> FormalsLt°FormalPlus OptSemicolon StkCloseParen 
-    P95 FormalPlus (Nonterm) -> °Formal 
-    P100 Formal (Nonterm) -> °FormalLt FormalIds FormalType FormalExpr 
-    P96 FormalLt (Reduce) -> -Epsilon-.
-    P97 FormalLt (Term) -> °StkRwVALUE 
-    P98 FormalLt (Term) -> °StkRwVAR 
-    P99 FormalLt (Term) -> °StkRwREADONLY 
-    P94 FormalPlus (0) -> °FormalPlus StkSemicolon Formal 
- } 
-
-State 98 = { 
-    P99 FormalLt (Reduce) -> StkRwREADONLY°
- } 
-
-State 99 = { 
-    P97 FormalLt (Reduce) -> StkRwVALUE°
- } 
-
-State 100 = { 
-    P98 FormalLt (Reduce) -> StkRwVAR°
- } 
-
-State 101 = { 
-    P92 Formals (Nonterm) -> FormalsLt FormalPlus°OptSemicolon StkCloseParen 
-    P28 OptSemicolon (Reduce) -> -Epsilon-.
-    P27 OptSemicolon (Term) -> °StkSemicolon 
-    P94 FormalPlus (2) -> FormalPlus°StkSemicolon Formal 
- } 
-
-State 102 = { 
-    P27 OptSemicolon (Reduce) -> StkSemicolon°
-    P94 FormalPlus (Nonterm) -> FormalPlus StkSemicolon°Formal 
-    P100 Formal (Nonterm) -> °FormalLt FormalIds FormalType FormalExpr 
-    P96 FormalLt (Reduce) -> -Epsilon-.
-    P97 FormalLt (Term) -> °StkRwVALUE 
-    P98 FormalLt (Term) -> °StkRwVAR 
-    P99 FormalLt (Term) -> °StkRwREADONLY 
- } 
-
-State 103 = { 
-    P94 FormalPlus (Reduce) -> FormalPlus StkSemicolon Formal°
- } 
-
-State 104 = { 
-    P100 Formal (Nonterm) -> FormalLt°FormalIds FormalType FormalExpr 
-    P101 FormalIds (Nonterm) -> °DeclIdListElems 
-    P32 DeclIdListElems (Term) -> °StkIdent 
-    P33 DeclIdListElems (1) -> °DeclIdListElems StkComma StkIdent 
- } 
-
-State 105 = { 
-    P101 FormalIds (Reduce) -> DeclIdListElems°
-    P33 DeclIdListElems (Term) -> DeclIdListElems°StkComma StkIdent 
- } 
-
-State 106 = { 
-    P100 Formal (Nonterm) -> FormalLt FormalIds°FormalType FormalExpr 
-    P103 FormalType (Reduce) -> -Epsilon-.
-    P102 FormalType (Term) -> °StkColon Type 
- } 
-
-State 107 = { 
-    P102 FormalType (Nonterm) -> StkColon°Type 
-    P81 Type (Nonterm) -> °IdentRef 
-    P29 IdentRef (Term) -> °StkIdent 
-    P82 Type (Term) -> °StkRwREF Type 
-    P88 Type (Nonterm) -> °RecTypeLt FieldDeclList StkRwEND 
-    P87 RecTypeLt (Term) -> °StkRwRECORD 
-    P89 Type (Term) -> °StkRwPROCEDURE Signature 
- } 
-
-State 108 = { 
-    P102 FormalType (Reduce) -> StkColon Type°
- } 
-
-State 109 = { 
-    P100 Formal (Nonterm) -> FormalLt FormalIds FormalType°FormalExpr 
-    P105 FormalExpr (Reduce) -> -Epsilon-.
-    P104 FormalExpr (Term) -> °StkBecomes Expr 
- } 
-
-State 110 = { 
-    P104 FormalExpr (Nonterm) -> StkBecomes°Expr 
-    P115 Expr (Nonterm) -> °IdentRef 
-    P29 IdentRef (Term) -> °StkIdent 
-    P116 Expr (Term) -> °StkIntLit 
-    P117 Expr (0) -> °Expr StkDeref 
- } 
-
-State 111 = { 
-    P104 FormalExpr (Reduce) -> StkBecomes Expr°
-    P117 Expr (Term) -> Expr°StkDeref 
- } 
-
-State 112 = { 
-    P100 Formal (Reduce) -> FormalLt FormalIds FormalType FormalExpr°
- } 
-
-State 113 = { 
-    P92 Formals (Term) -> FormalsLt FormalPlus OptSemicolon°StkCloseParen 
- } 
-
-State 114 = { 
-    P92 Formals (Reduce) -> FormalsLt FormalPlus OptSemicolon StkCloseParen°
- } 
-
-State 115 = { 
-    P95 FormalPlus (Reduce) -> Formal°
- } 
-
-State 116 = { 
-    P59 OptConstType (Reduce) -> StkColon Type°
- } 
-
-State 117 = { 
-    P58 ConstDecl (Term) -> StkIdent OptConstType°StkEqual Expr StkSemicolon 
- } 
-
-State 118 = { 
-    P58 ConstDecl (Nonterm) -> StkIdent OptConstType StkEqual°Expr StkSemicolon 
-    P115 Expr (Nonterm) -> °IdentRef 
-    P29 IdentRef (Term) -> °StkIdent 
-    P116 Expr (Term) -> °StkIntLit 
-    P117 Expr (0) -> °Expr StkDeref 
- } 
-
-State 119 = { 
-    P58 ConstDecl (Term) -> StkIdent OptConstType StkEqual Expr°StkSemicolon 
-    P117 Expr (Term) -> Expr°StkDeref 
- } 
-
-State 120 = { 
-    P58 ConstDecl (Reduce) -> StkIdent OptConstType StkEqual Expr StkSemicolon°
- } 
-
-State 121 = { 
-    P55 ConstDeclGroup (Reduce) -> StkRwCONST ConstDecls°
-    P57 ConstDecls (Nonterm) -> ConstDecls°ConstDecl 
-    P58 ConstDecl (Term) -> °StkIdent OptConstType StkEqual Expr StkSemicolon 
- } 
-
-State 122 = { 
-    P57 ConstDecls (Reduce) -> ConstDecls ConstDecl°
- } 
-
-State 123 = { 
-    P56 ConstDecls (Reduce) -> ConstDecl°
- } 
-
-State 124 = { 
-    P111 ProcDecl (Term) -> StkRwPROCEDURE°StkIdent Signature OptBody 
- } 
-
-State 125 = { 
-    P111 ProcDecl (Nonterm) -> StkRwPROCEDURE StkIdent°Signature OptBody 
-    P90 Signature (Nonterm) -> °Formals ResultType Raises 
-    P91 Formals (Term) -> °StkOpenParen StkCloseParen 
-    P92 Formals (Nonterm) -> °FormalsLt FormalPlus OptSemicolon StkCloseParen 
-    P93 FormalsLt (2) -> °StkOpenParen 
- } 
-
-State 126 = { 
-    P111 ProcDecl (Nonterm) -> StkRwPROCEDURE StkIdent Signature°OptBody 
-    P112 OptBody (Term) -> °StkSemicolon 
-    P113 OptBody (Term) -> °StkEqual ProcBodyScopeLt Block StkIdent StkSemicolon 
- } 
-
-State 127 = { 
-    P112 OptBody (Reduce) -> StkSemicolon°
- } 
-
-State 128 = { 
-    P113 OptBody (Nonterm) -> StkEqual°ProcBodyScopeLt Block StkIdent StkSemicolon 
-    P114 ProcBodyScopeLt (Reduce) -> -Epsilon-.
- } 
-
-State 129 = { 
-    P113 OptBody (Nonterm) -> StkEqual ProcBodyScopeLt°Block StkIdent StkSemicolon 
-    P119 Block (Nonterm) -> °BlockLt BlockDeclList StkRwBEGIN StmtList StkRwEND 
-    P118 BlockLt (Reduce) -> -Epsilon-.
- } 
-
-State 130 = { 
-    P113 OptBody (Term) -> StkEqual ProcBodyScopeLt Block°StkIdent StkSemicolon 
- } 
-
-State 131 = { 
-    P113 OptBody (Term) -> StkEqual ProcBodyScopeLt Block StkIdent°StkSemicolon 
- } 
-
-State 132 = { 
-    P113 OptBody (Reduce) -> StkEqual ProcBodyScopeLt Block StkIdent StkSemicolon°
- } 
-
-State 133 = { 
-    P111 ProcDecl (Reduce) -> StkRwPROCEDURE StkIdent Signature OptBody°
- } 
-
-State 134 = { 
-    P61 TypeDeclGroupLt (Reduce) -> StkRwTYPE°
- } 
-
-State 135 = { 
-    P69 VarDeclGroupLt (Reduce) -> StkRwVAR°
- } 
-
-State 136 = { 
-    P120 BlockDecl (Reduce) -> ConstDeclGroup°
- } 
-
-State 137 = { 
-    P62 TypeDeclGroup (Nonterm) -> TypeDeclGroupLt°TypeDeclList 
-    P63 TypeDeclList (Reduce) -> -Epsilon-.
-    P64 TypeDeclList (Nonterm) -> °TypeDeclPlus 
-    P65 TypeDeclPlus (Nonterm) -> °TypeDecl StkSemicolon 
-    P68 TypeDecl (Nonterm) -> °TypeDeclId StkEqual Type 
-    P67 TypeDeclId (Term) -> °StkIdent 
-    P66 TypeDeclPlus (2) -> °TypeDeclPlus TypeDecl StkSemicolon 
- } 
-
-State 138 = { 
-    P67 TypeDeclId (Reduce) -> StkIdent°
- } 
-
-State 139 = { 
-    P62 TypeDeclGroup (Reduce) -> TypeDeclGroupLt TypeDeclList°
- } 
-
-State 140 = { 
-    P64 TypeDeclList (Reduce) -> TypeDeclPlus°
-    P66 TypeDeclPlus (Nonterm) -> TypeDeclPlus°TypeDecl StkSemicolon 
-    P68 TypeDecl (Nonterm) -> °TypeDeclId StkEqual Type 
-    P67 TypeDeclId (Term) -> °StkIdent 
- } 
-
-State 141 = { 
-    P66 TypeDeclPlus (Term) -> TypeDeclPlus TypeDecl°StkSemicolon 
- } 
-
-State 142 = { 
-    P66 TypeDeclPlus (Reduce) -> TypeDeclPlus TypeDecl StkSemicolon°
- } 
-
-State 143 = { 
-    P68 TypeDecl (Term) -> TypeDeclId°StkEqual Type 
- } 
-
-State 144 = { 
-    P68 TypeDecl (Nonterm) -> TypeDeclId StkEqual°Type 
-    P81 Type (Nonterm) -> °IdentRef 
-    P29 IdentRef (Term) -> °StkIdent 
-    P82 Type (Term) -> °StkRwREF Type 
-    P88 Type (Nonterm) -> °RecTypeLt FieldDeclList StkRwEND 
-    P87 RecTypeLt (Term) -> °StkRwRECORD 
-    P89 Type (Term) -> °StkRwPROCEDURE Signature 
- } 
-
-State 145 = { 
-    P68 TypeDecl (Reduce) -> TypeDeclId StkEqual Type°
- } 
-
-State 146 = { 
-    P65 TypeDeclPlus (Term) -> TypeDecl°StkSemicolon 
- } 
-
-State 147 = { 
-    P65 TypeDeclPlus (Reduce) -> TypeDecl StkSemicolon°
- } 
-
-State 148 = { 
-    P121 BlockDecl (Reduce) -> TypeDeclGroup°
- } 
-
-State 149 = { 
-    P70 VarDeclGroup (Nonterm) -> VarDeclGroupLt°VarDeclList 
-    P71 VarDeclList (Reduce) -> -Epsilon-.
-    P72 VarDeclList (Nonterm) -> °VarDeclPlus 
-    P73 VarDeclPlus (Nonterm) -> °VarDecl StkSemicolon 
-    P75 VarDecl (Nonterm) -> °VarDeclIds OptDeclType OptDeclValue 
-    P76 VarDeclIds (Nonterm) -> °DeclIdListElems 
-    P32 DeclIdListElems (Term) -> °StkIdent 
-    P33 DeclIdListElems (5) -> °DeclIdListElems StkComma StkIdent 
-    P74 VarDeclPlus (2) -> °VarDeclPlus VarDecl StkSemicolon 
- } 
-
-State 150 = { 
-    P70 VarDeclGroup (Reduce) -> VarDeclGroupLt VarDeclList°
- } 
-
-State 151 = { 
-    P72 VarDeclList (Reduce) -> VarDeclPlus°
-    P74 VarDeclPlus (Nonterm) -> VarDeclPlus°VarDecl StkSemicolon 
-    P75 VarDecl (Nonterm) -> °VarDeclIds OptDeclType OptDeclValue 
-    P76 VarDeclIds (Nonterm) -> °DeclIdListElems 
-    P32 DeclIdListElems (Term) -> °StkIdent 
-    P33 DeclIdListElems (3) -> °DeclIdListElems StkComma StkIdent 
- } 
-
-State 152 = { 
-    P74 VarDeclPlus (Term) -> VarDeclPlus VarDecl°StkSemicolon 
- } 
-
-State 153 = { 
-    P74 VarDeclPlus (Reduce) -> VarDeclPlus VarDecl StkSemicolon°
- } 
-
-State 154 = { 
-    P73 VarDeclPlus (Term) -> VarDecl°StkSemicolon 
- } 
-
-State 155 = { 
-    P73 VarDeclPlus (Reduce) -> VarDecl StkSemicolon°
- } 
-
-State 156 = { 
-    P122 BlockDecl (Reduce) -> VarDeclGroup°
- } 
-
-State 157 = { 
-    P124 BlockDecl (Reduce) -> ProcDecl°
- } 
-
-State 158 = { 
-    P119 Block (Term) -> BlockLt BlockDeclList°StkRwBEGIN StmtList StkRwEND 
- } 
-
-State 159 = { 
-    P119 Block (Nonterm) -> BlockLt BlockDeclList StkRwBEGIN°StmtList StkRwEND 
-    P130 StmtList (Reduce) -> -Epsilon-.
-    P131 StmtList (Nonterm) -> °StmtPlus OptSemicolon 
-    P132 StmtPlus (Nonterm) -> °Stmt 
-    P134 Stmt (Nonterm) -> °AssignStmt 
-    P135 AssignStmt (Nonterm) -> °Expr StkBecomes Expr 
-    P115 Expr (Nonterm) -> °IdentRef 
-    P29 IdentRef (Term) -> °StkIdent 
-    P116 Expr (Term) -> °StkIntLit 
-    P117 Expr (5) -> °Expr StkDeref 
- } 
-
-State 160 = { 
-    P135 AssignStmt (Term) -> Expr°StkBecomes Expr 
-    P117 Expr (Term) -> Expr°StkDeref 
- } 
-
-State 161 = { 
-    P135 AssignStmt (Nonterm) -> Expr StkBecomes°Expr 
-    P115 Expr (Nonterm) -> °IdentRef 
-    P29 IdentRef (Term) -> °StkIdent 
-    P116 Expr (Term) -> °StkIntLit 
-    P117 Expr (0) -> °Expr StkDeref 
- } 
-
-State 162 = { 
-    P135 AssignStmt (Reduce) -> Expr StkBecomes Expr°
-    P117 Expr (Term) -> Expr°StkDeref 
- } 
-
-State 163 = { 
-    P119 Block (Term) -> BlockLt BlockDeclList StkRwBEGIN StmtList°StkRwEND 
- } 
-
-State 164 = { 
-    P119 Block (Reduce) -> BlockLt BlockDeclList StkRwBEGIN StmtList StkRwEND°
- } 
-
-State 165 = { 
-    P131 StmtList (Nonterm) -> StmtPlus°OptSemicolon 
-    P28 OptSemicolon (Reduce) -> -Epsilon-.
-    P27 OptSemicolon (Term) -> °StkSemicolon 
- } 
-
-State 166 = { 
-    P27 OptSemicolon (Reduce) -> StkSemicolon°
- } 
-
-State 167 = { 
-    P131 StmtList (Reduce) -> StmtPlus OptSemicolon°
- } 
-
-State 168 = { 
-    P132 StmtPlus (Reduce) -> Stmt°
- } 
-
-State 169 = { 
-    P134 Stmt (Reduce) -> AssignStmt°
- } 
-
-State 170 = { 
-    P128 BlockDeclPlus (Reduce) -> BlockDecl°
- } 
-
-State 171 = { 
-    P123 BlockDecl (Reduce) -> ExceptDeclGroup°
- } 
-
-State 172 = { 
-    P125 BlockDecl (Reduce) -> RevelationGroup°
- } 
-
-State 173 = { 
-    P127 BlockDeclList (Reduce) -> BlockDeclPlus°
-    P129 BlockDeclPlus (Nonterm) -> BlockDeclPlus°BlockDecl 
-    P121 BlockDecl (Nonterm) -> °TypeDeclGroup 
-    P62 TypeDeclGroup (Nonterm) -> °TypeDeclGroupLt TypeDeclList 
-    P61 TypeDeclGroupLt (Term) -> °StkRwTYPE 
-    P122 BlockDecl (Nonterm) -> °VarDeclGroup 
-    P70 VarDeclGroup (Nonterm) -> °VarDeclGroupLt VarDeclList 
-    P69 VarDeclGroupLt (Term) -> °StkRwVAR 
-    P120 BlockDecl (Nonterm) -> °ConstDeclGroup 
-    P55 ConstDeclGroup (Term) -> °StkRwCONST ConstDecls 
-    P124 BlockDecl (Nonterm) -> °ProcDecl 
-    P111 ProcDecl (Term) -> °StkRwPROCEDURE StkIdent Signature OptBody 
-    P123 BlockDecl (Nonterm) -> °ExceptDeclGroup 
-    P125 BlockDecl (Nonterm) -> °RevelationGroup 
- } 
-
-State 174 = { 
-    P129 BlockDeclPlus (Reduce) -> BlockDeclPlus BlockDecl°
- } 
-
-State 175 = { 
-    P24 OptUnsafe (Reduce) -> StkRwUNSAFE°
- } 
-
-State 176 = { 
-    P2 Compilation (Reduce) -> Interface°
- } 
-
-State 177 = { 
-    P1 _0000_ (Term) -> Compilation°_EndOfFile 
- } 
-
-State 178 = { 
-    P1 _0000_ (Reduce) -> Compilation _EndOfFile°
- } 
-
-State 179 = { 
-    P3 Compilation (Reduce) -> Module°
- } 
-
-State 180 = { 
-    P4 Compilation (Reduce) -> GenInterface°
- } 
-
-State 181 = { 
-    P5 Compilation (Reduce) -> GenModule°
- } 
-
-State 182 = { 
-    P6 Compilation (Reduce) -> InstInterface°
- } 
-
-State 183 = { 
-    P7 Compilation (Reduce) -> InstModule°
- } 
-
 State 184 = { 
-    P19 Module (Term) -> OptUnsafe°StkRwMODULE UnitIdAndExports ModuleKind StkSemicolon Imports Block StkIdent StkDot 
-    P22 InstInterface (Term) -> OptUnsafe°StkRwINTERFACE UnitId InstInterfaceKind StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot 
-    P23 InstModule (0) -> OptUnsafe°StkRwMODULE UnitIdAndExports InstModuleKind StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot 
-    P18 Interface (1) -> OptUnsafe°StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports DeclList StkRwEND StkIdent StkDot 
+    P21 GenModule (Nonterm) -> StkRwGENERIC StkRwMODULE UnitId GenModuleKind GenFormalList StkSemicolon Imports°Block StkIdent StkDot 
+    P129 Block (Nonterm) -> °BlockLt BlockDeclList StkRwBEGIN StmtList StkRwEND 
+    P128 BlockLt (Reduce) -> -Epsilon-.
  } 
 
 State 185 = { 
-    P22 InstInterface (Nonterm) -> OptUnsafe StkRwINTERFACE°UnitId InstInterfaceKind StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot 
-    P8 UnitId (Term) -> °StkIdent 
-    P18 Interface (0) -> OptUnsafe StkRwINTERFACE°UnitId InterfaceKind StkSemicolon Imports DeclList StkRwEND StkIdent StkDot 
+    P21 GenModule (Term) -> StkRwGENERIC StkRwMODULE UnitId GenModuleKind GenFormalList StkSemicolon Imports Block°StkIdent StkDot 
  } 
 
 State 186 = { 
-    P22 InstInterface (Nonterm) -> OptUnsafe StkRwINTERFACE UnitId°InstInterfaceKind StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot 
-    P16 InstInterfaceKind (Reduce) -> -Epsilon-.
-    P18 Interface (Nonterm) -> OptUnsafe StkRwINTERFACE UnitId°InterfaceKind StkSemicolon Imports DeclList StkRwEND StkIdent StkDot 
-    P12 InterfaceKind (Reduce) -> -Epsilon-.
+    P21 GenModule (Term) -> StkRwGENERIC StkRwMODULE UnitId GenModuleKind GenFormalList StkSemicolon Imports Block StkIdent°StkDot 
  } 
 
 State 187 = { 
-    P18 Interface (Term) -> OptUnsafe StkRwINTERFACE UnitId InterfaceKind°StkSemicolon Imports DeclList StkRwEND StkIdent StkDot 
+    P21 GenModule (Reduce) -> StkRwGENERIC StkRwMODULE UnitId GenModuleKind GenFormalList StkSemicolon Imports Block StkIdent StkDot°
  } 
 
 State 188 = { 
-    P18 Interface (Nonterm) -> OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon°Imports DeclList StkRwEND StkIdent StkDot 
+    P24 OptUnsafe (Reduce) -> StkRwUNSAFE°
+ } 
+
+State 189 = { 
+    P2 Compilation (Reduce) -> Interface°
+ } 
+
+State 190 = { 
+    P1 _0000_ (Term) -> Compilation°_EndOfFile 
+ } 
+
+State 191 = { 
+    P1 _0000_ (Reduce) -> Compilation _EndOfFile°
+ } 
+
+State 192 = { 
+    P3 Compilation (Reduce) -> Module°
+ } 
+
+State 193 = { 
+    P4 Compilation (Reduce) -> GenInterface°
+ } 
+
+State 194 = { 
+    P5 Compilation (Reduce) -> GenModule°
+ } 
+
+State 195 = { 
+    P6 Compilation (Reduce) -> InstInterface°
+ } 
+
+State 196 = { 
+    P7 Compilation (Reduce) -> InstModule°
+ } 
+
+State 197 = { 
+    P18 Interface (Term) -> OptUnsafe°StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
+    P19 Module (Term) -> OptUnsafe°StkRwMODULE UnitIdAndExports ModuleKind StkSemicolon Imports Block StkIdent StkDot 
+    P22 InstInterface (0) -> OptUnsafe°StkRwINTERFACE UnitId InstInterfaceKind StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot 
+    P23 InstModule (1) -> OptUnsafe°StkRwMODULE UnitIdAndExports InstModuleKind StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot 
+ } 
+
+State 198 = { 
+    P18 Interface (Nonterm) -> OptUnsafe StkRwINTERFACE°UnitId InterfaceKind StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
+    P8 UnitId (Term) -> °StkIdent 
+    P22 InstInterface (0) -> OptUnsafe StkRwINTERFACE°UnitId InstInterfaceKind StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot 
+ } 
+
+State 199 = { 
+    P18 Interface (Nonterm) -> OptUnsafe StkRwINTERFACE UnitId°InterfaceKind StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
+    P12 InterfaceKind (Reduce) -> -Epsilon-.
+    P22 InstInterface (Nonterm) -> OptUnsafe StkRwINTERFACE UnitId°InstInterfaceKind StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot 
+    P16 InstInterfaceKind (Reduce) -> -Epsilon-.
+ } 
+
+State 200 = { 
+    P18 Interface (Term) -> OptUnsafe StkRwINTERFACE UnitId InterfaceKind°StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
+ } 
+
+State 201 = { 
+    P18 Interface (Nonterm) -> OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon°Imports BlockDeclList StkRwEND StkIdent StkDot 
     P40 Imports (Nonterm) -> °ImportsLt ImportsRecurse ImportsRt 
     P41 ImportsLt (Reduce) -> -Epsilon-.
  } 
 
-State 189 = { 
-    P18 Interface (Nonterm) -> OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports°DeclList StkRwEND StkIdent StkDot 
+State 202 = { 
+    P18 Interface (Nonterm) -> OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports°BlockDeclList StkRwEND StkIdent StkDot 
+    P137 BlockDeclList (Reduce) -> -Epsilon-.
+    P138 BlockDeclList (Nonterm) -> °BlockDeclPlus 
+    P139 BlockDeclPlus (Nonterm) -> °BlockDecl 
+    P131 BlockDecl (Nonterm) -> °TypeDeclGroup 
+    P64 TypeDeclGroup (Nonterm) -> °TypeDeclGroupLt TypeDeclList 
+    P63 TypeDeclGroupLt (Term) -> °StkRwTYPE 
+    P132 BlockDecl (Nonterm) -> °VarDeclGroup 
+    P80 VarDeclGroup (Nonterm) -> °VarDeclGroupLt VarDeclList 
+    P79 VarDeclGroupLt (Term) -> °StkRwVAR 
+    P134 BlockDecl (Nonterm) -> °RevelationGroup 
+    P72 RevelationGroup (Nonterm) -> °RevelationGroupLt RevelationList 
+    P71 RevelationGroupLt (Term) -> °StkRwREVEAL 
+    P136 BlockDecl (10) -> °RevelationGroup 
+    P130 BlockDecl (Nonterm) -> °ConstDeclGroup 
+    P55 ConstDeclGroup (Term) -> °StkRwCONST ConstDecls 
+    P135 BlockDecl (Nonterm) -> °ProcDecl 
+    P121 ProcDecl (Term) -> °StkRwPROCEDURE StkIdent Signature OptBody 
+    P133 BlockDecl (Nonterm) -> °ExceptDeclGroup 
+    P140 BlockDeclPlus (2) -> °BlockDeclPlus BlockDecl 
  } 
 
-State 190 = { 
-    P18 Interface (Term) -> OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports DeclList°StkRwEND StkIdent StkDot 
+State 203 = { 
+    P18 Interface (Term) -> OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports BlockDeclList°StkRwEND StkIdent StkDot 
  } 
 
-State 191 = { 
-    P18 Interface (Term) -> OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports DeclList StkRwEND°StkIdent StkDot 
+State 204 = { 
+    P18 Interface (Term) -> OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports BlockDeclList StkRwEND°StkIdent StkDot 
  } 
 
-State 192 = { 
-    P18 Interface (Term) -> OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports DeclList StkRwEND StkIdent°StkDot 
+State 205 = { 
+    P18 Interface (Term) -> OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports BlockDeclList StkRwEND StkIdent°StkDot 
  } 
 
-State 193 = { 
-    P18 Interface (Reduce) -> OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports DeclList StkRwEND StkIdent StkDot°
+State 206 = { 
+    P18 Interface (Reduce) -> OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot°
  } 
 
-State 194 = { 
+State 207 = { 
     P22 InstInterface (Term) -> OptUnsafe StkRwINTERFACE UnitId InstInterfaceKind°StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot 
  } 
 
-State 195 = { 
+State 208 = { 
     P22 InstInterface (Term) -> OptUnsafe StkRwINTERFACE UnitId InstInterfaceKind StkEqual°StkIdent GenActualList StkRwEND StkIdent StkDot 
  } 
 
-State 196 = { 
+State 209 = { 
     P22 InstInterface (Nonterm) -> OptUnsafe StkRwINTERFACE UnitId InstInterfaceKind StkEqual StkIdent°GenActualList StkRwEND StkIdent StkDot 
     P54 GenActualList (Term) -> °StkOpenParen IdStarList StkCloseParen 
  } 
 
-State 197 = { 
+State 210 = { 
     P54 GenActualList (Nonterm) -> StkOpenParen°IdStarList StkCloseParen 
     P35 IdStarList (Reduce) -> -Epsilon-.
     P34 IdStarList (0) -> °IdStarList StkComma IdentRef 
  } 
 
-State 198 = { 
+State 211 = { 
     P54 GenActualList (Term) -> StkOpenParen IdStarList°StkCloseParen 
     P34 IdStarList (Term) -> IdStarList°StkComma IdentRef 
  } 
 
-State 199 = { 
+State 212 = { 
     P54 GenActualList (Reduce) -> StkOpenParen IdStarList StkCloseParen°
  } 
 
-State 200 = { 
+State 213 = { 
     P22 InstInterface (Term) -> OptUnsafe StkRwINTERFACE UnitId InstInterfaceKind StkEqual StkIdent GenActualList°StkRwEND StkIdent StkDot 
  } 
 
-State 201 = { 
+State 214 = { 
     P22 InstInterface (Term) -> OptUnsafe StkRwINTERFACE UnitId InstInterfaceKind StkEqual StkIdent GenActualList StkRwEND°StkIdent StkDot 
  } 
 
-State 202 = { 
+State 215 = { 
     P22 InstInterface (Term) -> OptUnsafe StkRwINTERFACE UnitId InstInterfaceKind StkEqual StkIdent GenActualList StkRwEND StkIdent°StkDot 
  } 
 
-State 203 = { 
+State 216 = { 
     P22 InstInterface (Reduce) -> OptUnsafe StkRwINTERFACE UnitId InstInterfaceKind StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot°
  } 
 
-State 204 = { 
+State 217 = { 
     P19 Module (Nonterm) -> OptUnsafe StkRwMODULE°UnitIdAndExports ModuleKind StkSemicolon Imports Block StkIdent StkDot 
     P11 UnitIdAndExports (Nonterm) -> °UnitIdImpliedEXPORTS 
     P9 UnitIdImpliedEXPORTS (Nonterm) -> °UnitId 
@@ -1200,97 +1520,97 @@ State 204 = {
     P23 InstModule (0) -> OptUnsafe StkRwMODULE°UnitIdAndExports InstModuleKind StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot 
  } 
 
-State 205 = { 
+State 218 = { 
     P9 UnitIdImpliedEXPORTS (Reduce) -> UnitId°
     P10 UnitIdAndExports (Nonterm) -> UnitId°Exports 
     P52 Exports (Nonterm) -> °ExportsLt DeclIdListElems 
     P51 ExportsLt (Term) -> °StkRwEXPORTS 
  } 
 
-State 206 = { 
+State 219 = { 
     P51 ExportsLt (Reduce) -> StkRwEXPORTS°
  } 
 
-State 207 = { 
+State 220 = { 
     P10 UnitIdAndExports (Reduce) -> UnitId Exports°
  } 
 
-State 208 = { 
+State 221 = { 
     P52 Exports (Nonterm) -> ExportsLt°DeclIdListElems 
     P32 DeclIdListElems (Term) -> °StkIdent 
     P33 DeclIdListElems (0) -> °DeclIdListElems StkComma StkIdent 
  } 
 
-State 209 = { 
+State 222 = { 
     P52 Exports (Reduce) -> ExportsLt DeclIdListElems°
     P33 DeclIdListElems (Term) -> DeclIdListElems°StkComma StkIdent 
  } 
 
-State 210 = { 
+State 223 = { 
     P11 UnitIdAndExports (Reduce) -> UnitIdImpliedEXPORTS°
  } 
 
-State 211 = { 
+State 224 = { 
     P19 Module (Nonterm) -> OptUnsafe StkRwMODULE UnitIdAndExports°ModuleKind StkSemicolon Imports Block StkIdent StkDot 
     P13 ModuleKind (Reduce) -> -Epsilon-.
     P23 InstModule (Nonterm) -> OptUnsafe StkRwMODULE UnitIdAndExports°InstModuleKind StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot 
     P17 InstModuleKind (Reduce) -> -Epsilon-.
  } 
 
-State 212 = { 
+State 225 = { 
     P19 Module (Term) -> OptUnsafe StkRwMODULE UnitIdAndExports ModuleKind°StkSemicolon Imports Block StkIdent StkDot 
  } 
 
-State 213 = { 
+State 226 = { 
     P19 Module (Nonterm) -> OptUnsafe StkRwMODULE UnitIdAndExports ModuleKind StkSemicolon°Imports Block StkIdent StkDot 
     P40 Imports (Nonterm) -> °ImportsLt ImportsRecurse ImportsRt 
     P41 ImportsLt (Reduce) -> -Epsilon-.
  } 
 
-State 214 = { 
+State 227 = { 
     P19 Module (Nonterm) -> OptUnsafe StkRwMODULE UnitIdAndExports ModuleKind StkSemicolon Imports°Block StkIdent StkDot 
-    P119 Block (Nonterm) -> °BlockLt BlockDeclList StkRwBEGIN StmtList StkRwEND 
-    P118 BlockLt (Reduce) -> -Epsilon-.
+    P129 Block (Nonterm) -> °BlockLt BlockDeclList StkRwBEGIN StmtList StkRwEND 
+    P128 BlockLt (Reduce) -> -Epsilon-.
  } 
 
-State 215 = { 
+State 228 = { 
     P19 Module (Term) -> OptUnsafe StkRwMODULE UnitIdAndExports ModuleKind StkSemicolon Imports Block°StkIdent StkDot 
  } 
 
-State 216 = { 
+State 229 = { 
     P19 Module (Term) -> OptUnsafe StkRwMODULE UnitIdAndExports ModuleKind StkSemicolon Imports Block StkIdent°StkDot 
  } 
 
-State 217 = { 
+State 230 = { 
     P19 Module (Reduce) -> OptUnsafe StkRwMODULE UnitIdAndExports ModuleKind StkSemicolon Imports Block StkIdent StkDot°
  } 
 
-State 218 = { 
+State 231 = { 
     P23 InstModule (Term) -> OptUnsafe StkRwMODULE UnitIdAndExports InstModuleKind°StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot 
  } 
 
-State 219 = { 
+State 232 = { 
     P23 InstModule (Term) -> OptUnsafe StkRwMODULE UnitIdAndExports InstModuleKind StkEqual°StkIdent GenActualList StkRwEND StkIdent StkDot 
  } 
 
-State 220 = { 
+State 233 = { 
     P23 InstModule (Nonterm) -> OptUnsafe StkRwMODULE UnitIdAndExports InstModuleKind StkEqual StkIdent°GenActualList StkRwEND StkIdent StkDot 
     P54 GenActualList (Term) -> °StkOpenParen IdStarList StkCloseParen 
  } 
 
-State 221 = { 
+State 234 = { 
     P23 InstModule (Term) -> OptUnsafe StkRwMODULE UnitIdAndExports InstModuleKind StkEqual StkIdent GenActualList°StkRwEND StkIdent StkDot 
  } 
 
-State 222 = { 
+State 235 = { 
     P23 InstModule (Term) -> OptUnsafe StkRwMODULE UnitIdAndExports InstModuleKind StkEqual StkIdent GenActualList StkRwEND°StkIdent StkDot 
  } 
 
-State 223 = { 
+State 236 = { 
     P23 InstModule (Term) -> OptUnsafe StkRwMODULE UnitIdAndExports InstModuleKind StkEqual StkIdent GenActualList StkRwEND StkIdent°StkDot 
  } 
 
-State 224 = { 
+State 237 = { 
     P23 InstModule (Reduce) -> OptUnsafe StkRwMODULE UnitIdAndExports InstModuleKind StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot°
  } 
 
@@ -1298,138 +1618,144 @@ State 224 = {
   A<a> is action number.
   P<p> is corresponding production number, if shift-reduce or shift.
 
-State 1: (StkRwGENERIC->(A2)) (StkRwINTERFACE->(A248,P25)) (StkRwMODULE->(A248,P25)) (StkRwUNSAFE->(A171,P24)) (Interface->(A216,P2)) (Compilation->(A101)) (Module->(A217,P3)) (GenInterface->(A218,P4)) (GenModule->(A219,P5)) (InstInterface->(A220,P6)) (InstModule->(A221,P7)) (OptUnsafe->(A102))
-State 2: (StkRwINTERFACE->(A3)) (StkRwMODULE->(A25))
-State 3: (StkIdent->(A135,P8)) (UnitId->(A4))
-State 4: (StkOpenParen->(A237,P14)) (GenInterfaceKind->(A5))
+State 1: (StkRwGENERIC->(A2)) (StkRwINTERFACE->(A261,P25)) (StkRwMODULE->(A261,P25)) (StkRwUNSAFE->(A182,P24)) (Interface->(A229,P2)) (Compilation->(A107)) (Module->(A230,P3)) (GenInterface->(A231,P4)) (GenModule->(A232,P5)) (InstInterface->(A233,P6)) (InstModule->(A234,P7)) (OptUnsafe->(A108))
+State 2: (StkRwINTERFACE->(A3)) (StkRwMODULE->(A99))
+State 3: (StkIdent->(A141,P8)) (UnitId->(A4))
+State 4: (StkOpenParen->(A250,P14)) (GenInterfaceKind->(A5))
 State 5: (StkOpenParen->(A6)) (GenFormalList->(A9))
-State 6: (StkCloseParen->(A258,P35)) (StkComma->(A258,P35)) (IdStarList->(A7))
-State 7: (StkCloseParen->(A136,P53)) (StkComma->(A8))
-State 8: (StkIdent->(A137,P29)) (IdentRef->(A178,P34))
+State 6: (StkCloseParen->(A271,P35)) (StkComma->(A271,P35)) (IdStarList->(A7))
+State 7: (StkCloseParen->(A142,P53)) (StkComma->(A8))
+State 8: (StkIdent->(A143,P29)) (IdentRef->(A189,P34))
 State 9: (StkSemicolon->(A10))
-State 10: (StkRwFROM->(A264,P41)) (StkRwIMPORT->(A264,P41)) (Imports->(A11)) (ImportsLt->(A15))
-State 11: (DeclList->(A12))
-State 12: (StkRwEND->(A13))
-State 13: (StkIdent->(A14))
-State 14: (StkDot->(A138,P20))
-State 15: (StkRwBEGIN->(A267,P44)) (StkRwCONST->(A267,P44)) (StkRwFROM->(A267,P44)) (StkRwIMPORT->(A267,P44)) (StkRwPROCEDURE->(A267,P44)) (StkRwTYPE->(A267,P44)) (StkRwVAR->(A267,P44)) (ImportsRecurse->(A16))
-State 16: (StkRwBEGIN->(A265,P42)) (StkRwCONST->(A265,P42)) (StkRwFROM->(A17)) (StkRwIMPORT->(A20)) (StkRwPROCEDURE->(A265,P42)) (StkRwTYPE->(A265,P42)) (StkRwVAR->(A265,P42)) (ImportsRt->(A179,P40)) (ImportItem->(A180,P43)) (FromImportPlusList->(A23))
-State 17: (StkIdent->(A137,P29)) (IdentRef->(A18))
-State 18: (StkRwIMPORT->(A19))
-State 19: (StkIdent->(A139,P49))
-State 20: (StkIdent->(A140,P46)) (ImportIntfPlusList->(A21))
-State 21: (StkSemicolon->(A141,P45)) (StkComma->(A22))
-State 22: (StkIdent->(A142,P47))
-State 23: (StkSemicolon->(A143,P48)) (StkComma->(A24))
-State 24: (StkIdent->(A137,P29)) (IdentRef->(A181,P50))
-State 25: (StkIdent->(A135,P8)) (UnitId->(A26))
-State 26: (StkOpenParen->(A238,P15)) (GenModuleKind->(A27))
-State 27: (StkOpenParen->(A6)) (GenFormalList->(A28))
-State 28: (StkSemicolon->(A29))
-State 29: (StkRwBEGIN->(A264,P41)) (StkRwCONST->(A264,P41)) (StkRwFROM->(A264,P41)) (StkRwIMPORT->(A264,P41)) (StkRwPROCEDURE->(A264,P41)) (StkRwTYPE->(A264,P41)) (StkRwVAR->(A264,P41)) (Imports->(A30)) (ImportsLt->(A15))
-State 30: (StkRwBEGIN->(A341,P118)) (StkRwCONST->(A341,P118)) (StkRwPROCEDURE->(A341,P118)) (StkRwTYPE->(A341,P118)) (StkRwVAR->(A341,P118)) (Block->(A31)) (BlockLt->(A33))
-State 31: (StkIdent->(A32))
-State 32: (StkDot->(A144,P21))
-State 33: (StkRwBEGIN->(A349,P126)) (StkRwCONST->(A34)) (StkRwPROCEDURE->(A76)) (StkRwTYPE->(A162,P61)) (StkRwVAR->(A163,P69)) (ConstDeclGroup->(A202,P120)) (TypeDeclGroupLt->(A83)) (TypeDeclGroup->(A205,P121)) (VarDeclGroupLt->(A89)) (VarDeclGroup->(A207,P122)) (ProcDecl->(A208,P124)) (BlockDeclList->(A93)) (BlockDecl->(A212,P128)) (ExceptDeclGroup->(A213,P123)) (RevelationGroup->(A214,P125)) (BlockDeclPlus->(A100))
-State 34: (StkIdent->(A35)) (ConstDecls->(A75)) (ConstDecl->(A200,P56))
-State 35: (StkEqual->(A283,P60)) (StkColon->(A36)) (OptConstType->(A72))
-State 36: (StkRwPROCEDURE->(A37)) (StkRwRECORD->(A146,P87)) (StkRwREF->(A41)) (StkIdent->(A137,P29)) (IdentRef->(A183,P81)) (Type->(A198,P59)) (RecTypeLt->(A42))
-State 37: (StkOpenParen->(A38)) (Signature->(A182,P89)) (Formals->(A39)) (FormalsLt->(A61))
-State 38: (StkRwREADONLY->(A316,P93)) (StkRwVALUE->(A316,P93)) (StkRwVAR->(A316,P93)) (StkCloseParen->(A145,P91)) (StkIdent->(A316,P93))
-State 39: (StkRwEND->(A330,P107)) (StkRwRAISES->(A330,P107)) (StkSemicolon->(A330,P107)) (StkEqual->(A330,P107)) (StkCloseParen->(A330,P107)) (StkColon->(A40)) (StkBecomes->(A330,P107)) (ResultType->(A53))
-State 40: (StkRwPROCEDURE->(A37)) (StkRwRECORD->(A146,P87)) (StkRwREF->(A41)) (StkIdent->(A137,P29)) (IdentRef->(A183,P81)) (Type->(A191,P106)) (RecTypeLt->(A42))
-State 41: (StkRwPROCEDURE->(A37)) (StkRwRECORD->(A146,P87)) (StkRwREF->(A41)) (StkIdent->(A137,P29)) (IdentRef->(A183,P81)) (Type->(A184,P82)) (RecTypeLt->(A42))
-State 42: (StkRwEND->(A306,P83)) (StkIdent->(A147,P32)) (DeclIdListElems->(A43)) (VarDecl->(A185,P85)) (VarDeclIds->(A45)) (FieldDeclList->(A50)) (FieldDeclPlus->(A51))
-State 43: (StkRwEND->(A299,P76)) (StkSemicolon->(A299,P76)) (StkComma->(A44)) (StkColon->(A299,P76)) (StkBecomes->(A299,P76))
-State 44: (StkIdent->(A148,P33))
-State 45: (StkRwEND->(A301,P78)) (StkSemicolon->(A301,P78)) (StkColon->(A46)) (StkBecomes->(A301,P78)) (OptDeclType->(A47))
-State 46: (StkRwPROCEDURE->(A37)) (StkRwRECORD->(A146,P87)) (StkRwREF->(A41)) (StkIdent->(A137,P29)) (IdentRef->(A183,P81)) (Type->(A186,P77)) (RecTypeLt->(A42))
-State 47: (StkRwEND->(A303,P80)) (StkSemicolon->(A303,P80)) (StkBecomes->(A48)) (OptDeclValue->(A188,P75))
-State 48: (StkIdent->(A137,P29)) (StkIntLit->(A149,P116)) (IdentRef->(A187,P115)) (Expr->(A49))
-State 49: (StkRwEND->(A302,P79)) (StkSemicolon->(A302,P79)) (StkDeref->(A150,P117))
-State 50: (StkRwEND->(A151,P88))
-State 51: (StkRwEND->(A251,P28)) (StkSemicolon->(A52)) (OptSemicolon->(A190,P84))
-State 52: (StkRwEND->(A250,P27)) (StkIdent->(A147,P32)) (DeclIdListElems->(A43)) (VarDecl->(A189,P86)) (VarDeclIds->(A45))
-State 53: (StkRwEND->(A333,P110)) (StkRwRAISES->(A54)) (StkSemicolon->(A333,P110)) (StkEqual->(A333,P110)) (StkCloseParen->(A333,P110)) (StkBecomes->(A333,P110)) (Raises->(A193,P90))
-State 54: (StkRwANY->(A152,P108)) (StkOpenBrace->(A55))
-State 55: (StkComma->(A260,P37)) (StkCloseBrace->(A260,P37)) (QualIdStarList->(A56))
-State 56: (StkComma->(A57)) (StkCloseBrace->(A154,P109))
-State 57: (StkIdent->(A58)) (IdentRef->(A59)) (QualId->(A192,P36))
-State 58: (StkDot->(A252,P29)) (StkComma->(A261,P38)) (StkCloseBrace->(A261,P38))
-State 59: (StkDot->(A60))
-State 60: (StkIdent->(A153,P39))
-State 61: (StkRwREADONLY->(A155,P99)) (StkRwVALUE->(A156,P97)) (StkRwVAR->(A157,P98)) (StkIdent->(A319,P96)) (FormalPlus->(A62)) (Formal->(A197,P95)) (FormalLt->(A64))
-State 62: (StkSemicolon->(A63)) (StkCloseParen->(A251,P28)) (OptSemicolon->(A71))
-State 63: (StkRwREADONLY->(A155,P99)) (StkRwVALUE->(A156,P97)) (StkRwVAR->(A157,P98)) (StkCloseParen->(A250,P27)) (StkIdent->(A319,P96)) (Formal->(A194,P94)) (FormalLt->(A64))
-State 64: (StkIdent->(A147,P32)) (DeclIdListElems->(A65)) (FormalIds->(A66))
-State 65: (StkSemicolon->(A324,P101)) (StkCloseParen->(A324,P101)) (StkComma->(A44)) (StkColon->(A324,P101)) (StkBecomes->(A324,P101))
-State 66: (StkSemicolon->(A326,P103)) (StkCloseParen->(A326,P103)) (StkColon->(A67)) (StkBecomes->(A326,P103)) (FormalType->(A68))
-State 67: (StkRwPROCEDURE->(A37)) (StkRwRECORD->(A146,P87)) (StkRwREF->(A41)) (StkIdent->(A137,P29)) (IdentRef->(A183,P81)) (Type->(A195,P102)) (RecTypeLt->(A42))
-State 68: (StkSemicolon->(A328,P105)) (StkCloseParen->(A328,P105)) (StkBecomes->(A69)) (FormalExpr->(A196,P100))
-State 69: (StkIdent->(A137,P29)) (StkIntLit->(A149,P116)) (IdentRef->(A187,P115)) (Expr->(A70))
-State 70: (StkSemicolon->(A327,P104)) (StkCloseParen->(A327,P104)) (StkDeref->(A150,P117))
-State 71: (StkCloseParen->(A158,P92))
-State 72: (StkEqual->(A73))
-State 73: (StkIdent->(A137,P29)) (StkIntLit->(A149,P116)) (IdentRef->(A187,P115)) (Expr->(A74))
-State 74: (StkSemicolon->(A159,P58)) (StkDeref->(A150,P117))
-State 75: (StkRwBEGIN->(A278,P55)) (StkRwCONST->(A278,P55)) (StkRwPROCEDURE->(A278,P55)) (StkRwTYPE->(A278,P55)) (StkRwVAR->(A278,P55)) (StkIdent->(A35)) (ConstDecl->(A199,P57))
-State 76: (StkIdent->(A77))
-State 77: (StkOpenParen->(A38)) (Signature->(A78)) (Formals->(A39)) (FormalsLt->(A61))
-State 78: (StkSemicolon->(A160,P112)) (StkEqual->(A79)) (OptBody->(A201,P111))
-State 79: (StkRwBEGIN->(A337,P114)) (StkRwCONST->(A337,P114)) (StkRwPROCEDURE->(A337,P114)) (StkRwTYPE->(A337,P114)) (StkRwVAR->(A337,P114)) (ProcBodyScopeLt->(A80))
-State 80: (StkRwBEGIN->(A341,P118)) (StkRwCONST->(A341,P118)) (StkRwPROCEDURE->(A341,P118)) (StkRwTYPE->(A341,P118)) (StkRwVAR->(A341,P118)) (Block->(A81)) (BlockLt->(A33))
-State 81: (StkIdent->(A82))
-State 82: (StkSemicolon->(A161,P113))
-State 83: (StkRwBEGIN->(A286,P63)) (StkRwCONST->(A286,P63)) (StkRwPROCEDURE->(A286,P63)) (StkRwTYPE->(A286,P63)) (StkRwVAR->(A286,P63)) (StkIdent->(A164,P67)) (TypeDeclList->(A203,P62)) (TypeDeclPlus->(A84)) (TypeDecl->(A88)) (TypeDeclId->(A86))
-State 84: (StkRwBEGIN->(A287,P64)) (StkRwCONST->(A287,P64)) (StkRwPROCEDURE->(A287,P64)) (StkRwTYPE->(A287,P64)) (StkRwVAR->(A287,P64)) (StkIdent->(A164,P67)) (TypeDecl->(A85)) (TypeDeclId->(A86))
-State 85: (StkSemicolon->(A165,P66))
-State 86: (StkEqual->(A87))
-State 87: (StkRwPROCEDURE->(A37)) (StkRwRECORD->(A146,P87)) (StkRwREF->(A41)) (StkIdent->(A137,P29)) (IdentRef->(A183,P81)) (Type->(A204,P68)) (RecTypeLt->(A42))
-State 88: (StkSemicolon->(A166,P65))
-State 89: (StkRwBEGIN->(A294,P71)) (StkRwCONST->(A294,P71)) (StkRwPROCEDURE->(A294,P71)) (StkRwTYPE->(A294,P71)) (StkRwVAR->(A294,P71)) (StkIdent->(A147,P32)) (DeclIdListElems->(A43)) (VarDeclList->(A206,P70)) (VarDeclPlus->(A90)) (VarDecl->(A92)) (VarDeclIds->(A45))
-State 90: (StkRwBEGIN->(A295,P72)) (StkRwCONST->(A295,P72)) (StkRwPROCEDURE->(A295,P72)) (StkRwTYPE->(A295,P72)) (StkRwVAR->(A295,P72)) (StkIdent->(A147,P32)) (DeclIdListElems->(A43)) (VarDecl->(A91)) (VarDeclIds->(A45))
-State 91: (StkSemicolon->(A167,P74))
-State 92: (StkSemicolon->(A168,P73))
-State 93: (StkRwBEGIN->(A94))
-State 94: (StkRwEND->(A353,P130)) (StkIdent->(A137,P29)) (StkIntLit->(A149,P116)) (IdentRef->(A187,P115)) (Expr->(A95)) (StmtList->(A98)) (StmtPlus->(A99)) (Stmt->(A210,P132)) (AssignStmt->(A211,P134))
-State 95: (StkBecomes->(A96)) (StkDeref->(A150,P117))
-State 96: (StkIdent->(A137,P29)) (StkIntLit->(A149,P116)) (IdentRef->(A187,P115)) (Expr->(A97))
-State 97: (StkRwEND->(A358,P135)) (StkSemicolon->(A358,P135)) (StkDeref->(A150,P117))
-State 98: (StkRwEND->(A169,P119))
-State 99: (StkRwEND->(A251,P28)) (StkSemicolon->(A170,P27)) (OptSemicolon->(A209,P131))
-State 100: (StkRwBEGIN->(A350,P127)) (StkRwCONST->(A34)) (StkRwPROCEDURE->(A76)) (StkRwTYPE->(A162,P61)) (StkRwVAR->(A163,P69)) (ConstDeclGroup->(A202,P120)) (TypeDeclGroupLt->(A83)) (TypeDeclGroup->(A205,P121)) (VarDeclGroupLt->(A89)) (VarDeclGroup->(A207,P122)) (ProcDecl->(A208,P124)) (BlockDecl->(A215,P129)) (ExceptDeclGroup->(A213,P123)) (RevelationGroup->(A214,P125))
-State 101: (_EndOfFile->(A224,P1))
-State 102: (StkRwINTERFACE->(A103)) (StkRwMODULE->(A119))
-State 103: (StkIdent->(A135,P8)) (UnitId->(A104))
-State 104: (StkSemicolon->(A235,P12)) (StkEqual->(A239,P16)) (InterfaceKind->(A105)) (InstInterfaceKind->(A111))
-State 105: (StkSemicolon->(A106))
-State 106: (StkRwFROM->(A264,P41)) (StkRwIMPORT->(A264,P41)) (Imports->(A107)) (ImportsLt->(A15))
-State 107: (DeclList->(A108))
-State 108: (StkRwEND->(A109))
-State 109: (StkIdent->(A110))
-State 110: (StkDot->(A172,P18))
-State 111: (StkEqual->(A112))
-State 112: (StkIdent->(A113))
-State 113: (StkOpenParen->(A114)) (GenActualList->(A116))
-State 114: (StkCloseParen->(A258,P35)) (StkComma->(A258,P35)) (IdStarList->(A115))
-State 115: (StkCloseParen->(A173,P54)) (StkComma->(A8))
-State 116: (StkRwEND->(A117))
-State 117: (StkIdent->(A118))
-State 118: (StkDot->(A174,P22))
-State 119: (StkIdent->(A135,P8)) (UnitId->(A120)) (UnitIdImpliedEXPORTS->(A223,P11)) (UnitIdAndExports->(A123))
-State 120: (StkRwEXPORTS->(A175,P51)) (StkSemicolon->(A232,P9)) (StkEqual->(A232,P9)) (Exports->(A222,P10)) (ExportsLt->(A121))
-State 121: (StkIdent->(A147,P32)) (DeclIdListElems->(A122))
-State 122: (StkSemicolon->(A275,P52)) (StkEqual->(A275,P52)) (StkComma->(A44))
-State 123: (StkSemicolon->(A236,P13)) (StkEqual->(A240,P17)) (ModuleKind->(A124)) (InstModuleKind->(A129))
-State 124: (StkSemicolon->(A125))
-State 125: (StkRwBEGIN->(A264,P41)) (StkRwCONST->(A264,P41)) (StkRwFROM->(A264,P41)) (StkRwIMPORT->(A264,P41)) (StkRwPROCEDURE->(A264,P41)) (StkRwTYPE->(A264,P41)) (StkRwVAR->(A264,P41)) (Imports->(A126)) (ImportsLt->(A15))
-State 126: (StkRwBEGIN->(A341,P118)) (StkRwCONST->(A341,P118)) (StkRwPROCEDURE->(A341,P118)) (StkRwTYPE->(A341,P118)) (StkRwVAR->(A341,P118)) (Block->(A127)) (BlockLt->(A33))
-State 127: (StkIdent->(A128))
-State 128: (StkDot->(A176,P19))
-State 129: (StkEqual->(A130))
-State 130: (StkIdent->(A131))
-State 131: (StkOpenParen->(A114)) (GenActualList->(A132))
-State 132: (StkRwEND->(A133))
+State 10: (StkRwCONST->(A277,P41)) (StkRwEND->(A277,P41)) (StkRwFROM->(A277,P41)) (StkRwIMPORT->(A277,P41)) (StkRwPROCEDURE->(A277,P41)) (StkRwREVEAL->(A277,P41)) (StkRwTYPE->(A277,P41)) (StkRwVAR->(A277,P41)) (Imports->(A11)) (ImportsLt->(A89))
+State 11: (StkRwCONST->(A12)) (StkRwEND->(A373,P137)) (StkRwPROCEDURE->(A54)) (StkRwREVEAL->(A161,P71)) (StkRwTYPE->(A162,P63)) (StkRwVAR->(A163,P79)) (BlockDeclList->(A86)) (ConstDeclGroup->(A212,P130)) (TypeDeclGroupLt->(A69)) (TypeDeclGroup->(A215,P131)) (RevelationGroupLt->(A75)) (RevelationGroup->(A218,P134)) (VarDeclGroupLt->(A81)) (VarDeclGroup->(A220,P132)) (ProcDecl->(A221,P135)) (BlockDecl->(A222,P139)) (ExceptDeclGroup->(A223,P133)) (BlockDeclPlus->(A85))
+State 12: (StkIdent->(A13)) (ConstDecls->(A53)) (ConstDecl->(A208,P56))
+State 13: (StkEqual->(A296,P60)) (StkColon->(A14)) (OptConstType->(A50))
+State 14: (StkRwPROCEDURE->(A15)) (StkRwRECORD->(A145,P97)) (StkRwREF->(A19)) (StkIdent->(A143,P29)) (IdentRef->(A191,P91)) (Type->(A206,P59)) (RecTypeLt->(A20))
+State 15: (StkOpenParen->(A16)) (Signature->(A190,P99)) (Formals->(A17)) (FormalsLt->(A39))
+State 16: (StkRwREADONLY->(A339,P103)) (StkRwVALUE->(A339,P103)) (StkRwVAR->(A339,P103)) (StkCloseParen->(A144,P101)) (StkIdent->(A339,P103))
+State 17: (StkRwEND->(A353,P117)) (StkRwRAISES->(A353,P117)) (StkSemicolon->(A353,P117)) (StkEqual->(A353,P117)) (StkCloseParen->(A353,P117)) (StkColon->(A18)) (StkBecomes->(A353,P117)) (ResultType->(A31))
+State 18: (StkRwPROCEDURE->(A15)) (StkRwRECORD->(A145,P97)) (StkRwREF->(A19)) (StkIdent->(A143,P29)) (IdentRef->(A191,P91)) (Type->(A199,P116)) (RecTypeLt->(A20))
+State 19: (StkRwPROCEDURE->(A15)) (StkRwRECORD->(A145,P97)) (StkRwREF->(A19)) (StkIdent->(A143,P29)) (IdentRef->(A191,P91)) (Type->(A192,P92)) (RecTypeLt->(A20))
+State 20: (StkRwEND->(A329,P93)) (StkIdent->(A146,P32)) (DeclIdListElems->(A21)) (VarDecl->(A193,P95)) (VarDeclIds->(A23)) (FieldDeclList->(A28)) (FieldDeclPlus->(A29))
+State 21: (StkRwEND->(A322,P86)) (StkSemicolon->(A322,P86)) (StkComma->(A22)) (StkColon->(A322,P86)) (StkBecomes->(A322,P86))
+State 22: (StkIdent->(A147,P33))
+State 23: (StkRwEND->(A324,P88)) (StkSemicolon->(A324,P88)) (StkColon->(A24)) (StkBecomes->(A324,P88)) (OptDeclType->(A25))
+State 24: (StkRwPROCEDURE->(A15)) (StkRwRECORD->(A145,P97)) (StkRwREF->(A19)) (StkIdent->(A143,P29)) (IdentRef->(A191,P91)) (Type->(A194,P87)) (RecTypeLt->(A20))
+State 25: (StkRwEND->(A326,P90)) (StkSemicolon->(A326,P90)) (StkBecomes->(A26)) (OptDeclValue->(A196,P85))
+State 26: (StkIdent->(A143,P29)) (StkIntLit->(A148,P126)) (IdentRef->(A195,P125)) (Expr->(A27))
+State 27: (StkRwEND->(A325,P89)) (StkSemicolon->(A325,P89)) (StkDeref->(A149,P127))
+State 28: (StkRwEND->(A150,P98))
+State 29: (StkRwEND->(A264,P28)) (StkSemicolon->(A30)) (OptSemicolon->(A198,P94))
+State 30: (StkRwEND->(A263,P27)) (StkIdent->(A146,P32)) (DeclIdListElems->(A21)) (VarDecl->(A197,P96)) (VarDeclIds->(A23))
+State 31: (StkRwEND->(A356,P120)) (StkRwRAISES->(A32)) (StkSemicolon->(A356,P120)) (StkEqual->(A356,P120)) (StkCloseParen->(A356,P120)) (StkBecomes->(A356,P120)) (Raises->(A201,P100))
+State 32: (StkRwANY->(A151,P118)) (StkOpenBrace->(A33))
+State 33: (StkComma->(A273,P37)) (StkCloseBrace->(A273,P37)) (QualIdStarList->(A34))
+State 34: (StkComma->(A35)) (StkCloseBrace->(A153,P119))
+State 35: (StkIdent->(A36)) (IdentRef->(A37)) (QualId->(A200,P36))
+State 36: (StkDot->(A265,P29)) (StkComma->(A274,P38)) (StkCloseBrace->(A274,P38))
+State 37: (StkDot->(A38))
+State 38: (StkIdent->(A152,P39))
+State 39: (StkRwREADONLY->(A154,P109)) (StkRwVALUE->(A155,P107)) (StkRwVAR->(A156,P108)) (StkIdent->(A342,P106)) (FormalPlus->(A40)) (Formal->(A205,P105)) (FormalLt->(A42))
+State 40: (StkSemicolon->(A41)) (StkCloseParen->(A264,P28)) (OptSemicolon->(A49))
+State 41: (StkRwREADONLY->(A154,P109)) (StkRwVALUE->(A155,P107)) (StkRwVAR->(A156,P108)) (StkCloseParen->(A263,P27)) (StkIdent->(A342,P106)) (Formal->(A202,P104)) (FormalLt->(A42))
+State 42: (StkIdent->(A146,P32)) (DeclIdListElems->(A43)) (FormalIds->(A44))
+State 43: (StkSemicolon->(A347,P111)) (StkCloseParen->(A347,P111)) (StkComma->(A22)) (StkColon->(A347,P111)) (StkBecomes->(A347,P111))
+State 44: (StkSemicolon->(A349,P113)) (StkCloseParen->(A349,P113)) (StkColon->(A45)) (StkBecomes->(A349,P113)) (FormalType->(A46))
+State 45: (StkRwPROCEDURE->(A15)) (StkRwRECORD->(A145,P97)) (StkRwREF->(A19)) (StkIdent->(A143,P29)) (IdentRef->(A191,P91)) (Type->(A203,P112)) (RecTypeLt->(A20))
+State 46: (StkSemicolon->(A351,P115)) (StkCloseParen->(A351,P115)) (StkBecomes->(A47)) (FormalExpr->(A204,P110))
+State 47: (StkIdent->(A143,P29)) (StkIntLit->(A148,P126)) (IdentRef->(A195,P125)) (Expr->(A48))
+State 48: (StkSemicolon->(A350,P114)) (StkCloseParen->(A350,P114)) (StkDeref->(A149,P127))
+State 49: (StkCloseParen->(A157,P102))
+State 50: (StkEqual->(A51))
+State 51: (StkIdent->(A143,P29)) (StkIntLit->(A148,P126)) (IdentRef->(A195,P125)) (Expr->(A52))
+State 52: (StkSemicolon->(A158,P58)) (StkDeref->(A149,P127))
+State 53: (StkRwBEGIN->(A291,P55)) (StkRwCONST->(A291,P55)) (StkRwEND->(A291,P55)) (StkRwPROCEDURE->(A291,P55)) (StkRwREVEAL->(A291,P55)) (StkRwTYPE->(A291,P55)) (StkRwVAR->(A291,P55)) (StkIdent->(A13)) (ConstDecl->(A207,P57))
+State 54: (StkIdent->(A55))
+State 55: (StkOpenParen->(A16)) (Signature->(A56)) (Formals->(A17)) (FormalsLt->(A39))
+State 56: (StkSemicolon->(A159,P122)) (StkEqual->(A57)) (OptBody->(A225,P121))
+State 57: (StkRwBEGIN->(A360,P124)) (StkRwCONST->(A360,P124)) (StkRwPROCEDURE->(A360,P124)) (StkRwREVEAL->(A360,P124)) (StkRwTYPE->(A360,P124)) (StkRwVAR->(A360,P124)) (ProcBodyScopeLt->(A58))
+State 58: (StkRwBEGIN->(A364,P128)) (StkRwCONST->(A364,P128)) (StkRwPROCEDURE->(A364,P128)) (StkRwREVEAL->(A364,P128)) (StkRwTYPE->(A364,P128)) (StkRwVAR->(A364,P128)) (Block->(A59)) (BlockLt->(A61))
+State 59: (StkIdent->(A60))
+State 60: (StkSemicolon->(A160,P123))
+State 61: (StkRwBEGIN->(A373,P137)) (StkRwCONST->(A12)) (StkRwPROCEDURE->(A54)) (StkRwREVEAL->(A161,P71)) (StkRwTYPE->(A162,P63)) (StkRwVAR->(A163,P79)) (BlockDeclList->(A62)) (ConstDeclGroup->(A212,P130)) (TypeDeclGroupLt->(A69)) (TypeDeclGroup->(A215,P131)) (RevelationGroupLt->(A75)) (RevelationGroup->(A218,P134)) (VarDeclGroupLt->(A81)) (VarDeclGroup->(A220,P132)) (ProcDecl->(A221,P135)) (BlockDecl->(A222,P139)) (ExceptDeclGroup->(A223,P133)) (BlockDeclPlus->(A85))
+State 62: (StkRwBEGIN->(A63))
+State 63: (StkRwEND->(A377,P141)) (StkIdent->(A143,P29)) (StkIntLit->(A148,P126)) (IdentRef->(A195,P125)) (Expr->(A64)) (StmtList->(A67)) (StmtPlus->(A68)) (Stmt->(A210,P143)) (AssignStmt->(A211,P145))
+State 64: (StkBecomes->(A65)) (StkDeref->(A149,P127))
+State 65: (StkIdent->(A143,P29)) (StkIntLit->(A148,P126)) (IdentRef->(A195,P125)) (Expr->(A66))
+State 66: (StkRwEND->(A382,P146)) (StkSemicolon->(A382,P146)) (StkDeref->(A149,P127))
+State 67: (StkRwEND->(A164,P129))
+State 68: (StkRwEND->(A264,P28)) (StkSemicolon->(A165,P27)) (OptSemicolon->(A209,P142))
+State 69: (StkRwBEGIN->(A301,P65)) (StkRwCONST->(A301,P65)) (StkRwEND->(A301,P65)) (StkRwPROCEDURE->(A301,P65)) (StkRwREVEAL->(A301,P65)) (StkRwTYPE->(A301,P65)) (StkRwVAR->(A301,P65)) (StkIdent->(A166,P69)) (TypeDeclList->(A213,P64)) (TypeDeclPlus->(A70)) (TypeDecl->(A74)) (TypeDeclId->(A72))
+State 70: (StkRwBEGIN->(A302,P66)) (StkRwCONST->(A302,P66)) (StkRwEND->(A302,P66)) (StkRwPROCEDURE->(A302,P66)) (StkRwREVEAL->(A302,P66)) (StkRwTYPE->(A302,P66)) (StkRwVAR->(A302,P66)) (StkIdent->(A166,P69)) (TypeDecl->(A71)) (TypeDeclId->(A72))
+State 71: (StkSemicolon->(A167,P68))
+State 72: (StkEqual->(A168,P61)) (StkSubtype->(A169,P62)) (TypeRelation->(A73))
+State 73: (StkRwPROCEDURE->(A15)) (StkRwRECORD->(A145,P97)) (StkRwREF->(A19)) (StkIdent->(A143,P29)) (IdentRef->(A191,P91)) (Type->(A214,P70)) (RecTypeLt->(A20))
+State 74: (StkSemicolon->(A170,P67))
+State 75: (StkRwBEGIN->(A309,P73)) (StkRwCONST->(A309,P73)) (StkRwEND->(A309,P73)) (StkRwPROCEDURE->(A309,P73)) (StkRwREVEAL->(A309,P73)) (StkRwTYPE->(A309,P73)) (StkRwVAR->(A309,P73)) (RevelationList->(A216,P72)) (RevelationPlus->(A76)) (Revelation->(A80)) (TypeId->(A78))
+State 76: (StkRwBEGIN->(A310,P74)) (StkRwCONST->(A310,P74)) (StkRwEND->(A310,P74)) (StkRwPROCEDURE->(A310,P74)) (StkRwREVEAL->(A310,P74)) (StkRwTYPE->(A310,P74)) (StkRwVAR->(A310,P74)) (Revelation->(A77)) (TypeId->(A78))
+State 77: (StkSemicolon->(A171,P76))
+State 78: (StkEqual->(A168,P61)) (StkSubtype->(A169,P62)) (TypeRelation->(A79))
+State 79: (StkRwPROCEDURE->(A15)) (StkRwRECORD->(A145,P97)) (StkRwREF->(A19)) (StkIdent->(A143,P29)) (IdentRef->(A191,P91)) (Type->(A217,P78)) (RecTypeLt->(A20))
+State 80: (StkSemicolon->(A172,P75))
+State 81: (StkRwBEGIN->(A317,P81)) (StkRwCONST->(A317,P81)) (StkRwEND->(A317,P81)) (StkRwPROCEDURE->(A317,P81)) (StkRwREVEAL->(A317,P81)) (StkRwTYPE->(A317,P81)) (StkRwVAR->(A317,P81)) (StkIdent->(A146,P32)) (DeclIdListElems->(A21)) (VarDeclList->(A219,P80)) (VarDeclPlus->(A82)) (VarDecl->(A84)) (VarDeclIds->(A23))
+State 82: (StkRwBEGIN->(A318,P82)) (StkRwCONST->(A318,P82)) (StkRwEND->(A318,P82)) (StkRwPROCEDURE->(A318,P82)) (StkRwREVEAL->(A318,P82)) (StkRwTYPE->(A318,P82)) (StkRwVAR->(A318,P82)) (StkIdent->(A146,P32)) (DeclIdListElems->(A21)) (VarDecl->(A83)) (VarDeclIds->(A23))
+State 83: (StkSemicolon->(A173,P84))
+State 84: (StkSemicolon->(A174,P83))
+State 85: (StkRwBEGIN->(A374,P138)) (StkRwCONST->(A12)) (StkRwEND->(A374,P138)) (StkRwPROCEDURE->(A54)) (StkRwREVEAL->(A161,P71)) (StkRwTYPE->(A162,P63)) (StkRwVAR->(A163,P79)) (ConstDeclGroup->(A212,P130)) (TypeDeclGroupLt->(A69)) (TypeDeclGroup->(A215,P131)) (RevelationGroupLt->(A75)) (RevelationGroup->(A218,P134)) (VarDeclGroupLt->(A81)) (VarDeclGroup->(A220,P132)) (ProcDecl->(A221,P135)) (BlockDecl->(A224,P140)) (ExceptDeclGroup->(A223,P133))
+State 86: (StkRwEND->(A87))
+State 87: (StkIdent->(A88))
+State 88: (StkDot->(A175,P20))
+State 89: (StkRwBEGIN->(A280,P44)) (StkRwCONST->(A280,P44)) (StkRwEND->(A280,P44)) (StkRwFROM->(A280,P44)) (StkRwIMPORT->(A280,P44)) (StkRwPROCEDURE->(A280,P44)) (StkRwREVEAL->(A280,P44)) (StkRwTYPE->(A280,P44)) (StkRwVAR->(A280,P44)) (ImportsRecurse->(A90))
+State 90: (StkRwBEGIN->(A278,P42)) (StkRwCONST->(A278,P42)) (StkRwEND->(A278,P42)) (StkRwFROM->(A91)) (StkRwIMPORT->(A94)) (StkRwPROCEDURE->(A278,P42)) (StkRwREVEAL->(A278,P42)) (StkRwTYPE->(A278,P42)) (StkRwVAR->(A278,P42)) (ImportsRt->(A226,P40)) (ImportItem->(A227,P43)) (FromImportPlusList->(A97))
+State 91: (StkIdent->(A143,P29)) (IdentRef->(A92))
+State 92: (StkRwIMPORT->(A93))
+State 93: (StkIdent->(A176,P49))
+State 94: (StkIdent->(A177,P46)) (ImportIntfPlusList->(A95))
+State 95: (StkSemicolon->(A178,P45)) (StkComma->(A96))
+State 96: (StkIdent->(A179,P47))
+State 97: (StkSemicolon->(A180,P48)) (StkComma->(A98))
+State 98: (StkIdent->(A143,P29)) (IdentRef->(A228,P50))
+State 99: (StkIdent->(A141,P8)) (UnitId->(A100))
+State 100: (StkOpenParen->(A251,P15)) (GenModuleKind->(A101))
+State 101: (StkOpenParen->(A6)) (GenFormalList->(A102))
+State 102: (StkSemicolon->(A103))
+State 103: (StkRwBEGIN->(A277,P41)) (StkRwCONST->(A277,P41)) (StkRwFROM->(A277,P41)) (StkRwIMPORT->(A277,P41)) (StkRwPROCEDURE->(A277,P41)) (StkRwREVEAL->(A277,P41)) (StkRwTYPE->(A277,P41)) (StkRwVAR->(A277,P41)) (Imports->(A104)) (ImportsLt->(A89))
+State 104: (StkRwBEGIN->(A364,P128)) (StkRwCONST->(A364,P128)) (StkRwPROCEDURE->(A364,P128)) (StkRwREVEAL->(A364,P128)) (StkRwTYPE->(A364,P128)) (StkRwVAR->(A364,P128)) (Block->(A105)) (BlockLt->(A61))
+State 105: (StkIdent->(A106))
+State 106: (StkDot->(A181,P21))
+State 107: (_EndOfFile->(A237,P1))
+State 108: (StkRwINTERFACE->(A109)) (StkRwMODULE->(A125))
+State 109: (StkIdent->(A141,P8)) (UnitId->(A110))
+State 110: (StkSemicolon->(A248,P12)) (StkEqual->(A252,P16)) (InterfaceKind->(A111)) (InstInterfaceKind->(A117))
+State 111: (StkSemicolon->(A112))
+State 112: (StkRwCONST->(A277,P41)) (StkRwEND->(A277,P41)) (StkRwFROM->(A277,P41)) (StkRwIMPORT->(A277,P41)) (StkRwPROCEDURE->(A277,P41)) (StkRwREVEAL->(A277,P41)) (StkRwTYPE->(A277,P41)) (StkRwVAR->(A277,P41)) (Imports->(A113)) (ImportsLt->(A89))
+State 113: (StkRwCONST->(A12)) (StkRwEND->(A373,P137)) (StkRwPROCEDURE->(A54)) (StkRwREVEAL->(A161,P71)) (StkRwTYPE->(A162,P63)) (StkRwVAR->(A163,P79)) (BlockDeclList->(A114)) (ConstDeclGroup->(A212,P130)) (TypeDeclGroupLt->(A69)) (TypeDeclGroup->(A215,P131)) (RevelationGroupLt->(A75)) (RevelationGroup->(A218,P134)) (VarDeclGroupLt->(A81)) (VarDeclGroup->(A220,P132)) (ProcDecl->(A221,P135)) (BlockDecl->(A222,P139)) (ExceptDeclGroup->(A223,P133)) (BlockDeclPlus->(A85))
+State 114: (StkRwEND->(A115))
+State 115: (StkIdent->(A116))
+State 116: (StkDot->(A183,P18))
+State 117: (StkEqual->(A118))
+State 118: (StkIdent->(A119))
+State 119: (StkOpenParen->(A120)) (GenActualList->(A122))
+State 120: (StkCloseParen->(A271,P35)) (StkComma->(A271,P35)) (IdStarList->(A121))
+State 121: (StkCloseParen->(A184,P54)) (StkComma->(A8))
+State 122: (StkRwEND->(A123))
+State 123: (StkIdent->(A124))
+State 124: (StkDot->(A185,P22))
+State 125: (StkIdent->(A141,P8)) (UnitId->(A126)) (UnitIdImpliedEXPORTS->(A236,P11)) (UnitIdAndExports->(A129))
+State 126: (StkRwEXPORTS->(A186,P51)) (StkSemicolon->(A245,P9)) (StkEqual->(A245,P9)) (Exports->(A235,P10)) (ExportsLt->(A127))
+State 127: (StkIdent->(A146,P32)) (DeclIdListElems->(A128))
+State 128: (StkSemicolon->(A288,P52)) (StkEqual->(A288,P52)) (StkComma->(A22))
+State 129: (StkSemicolon->(A249,P13)) (StkEqual->(A253,P17)) (ModuleKind->(A130)) (InstModuleKind->(A135))
+State 130: (StkSemicolon->(A131))
+State 131: (StkRwBEGIN->(A277,P41)) (StkRwCONST->(A277,P41)) (StkRwFROM->(A277,P41)) (StkRwIMPORT->(A277,P41)) (StkRwPROCEDURE->(A277,P41)) (StkRwREVEAL->(A277,P41)) (StkRwTYPE->(A277,P41)) (StkRwVAR->(A277,P41)) (Imports->(A132)) (ImportsLt->(A89))
+State 132: (StkRwBEGIN->(A364,P128)) (StkRwCONST->(A364,P128)) (StkRwPROCEDURE->(A364,P128)) (StkRwREVEAL->(A364,P128)) (StkRwTYPE->(A364,P128)) (StkRwVAR->(A364,P128)) (Block->(A133)) (BlockLt->(A61))
 State 133: (StkIdent->(A134))
-State 134: (StkDot->(A177,P23))
+State 134: (StkDot->(A187,P19))
+State 135: (StkEqual->(A136))
+State 136: (StkIdent->(A137))
+State 137: (StkOpenParen->(A120)) (GenActualList->(A138))
+State 138: (StkRwEND->(A139))
+State 139: (StkIdent->(A140))
+State 140: (StkDot->(A188,P23))
 
