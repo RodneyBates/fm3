@@ -12,7 +12,7 @@ MODULE FM3Base
 ; IMPORT Text
 
 (* EXPORTED: *) 
-; PROCEDURE IntImage ( Value : INTEGER ) : TEXT 
+; PROCEDURE IntImage ( Value : INTEGER ) : TEXT
   (* Result never has blanks. *) 
 
   = VAR LImage : TEXT := Fmt . Int ( Value ) 
