@@ -6,19 +6,6 @@
 %(* Licensed under the MIT License.                                           *)
 %(* -----------------------------------------------------------------------2- *)
 
-% m3makefile for metaprogram GenTok of Flint Hills Modula-3.
-
-import("libm3")
-
-include_dir("../../../sharedsrc/intsetssrc") 
-include_dir("../../../sharedsrc/layoutsrc") 
-include_dir("../../../sharedsrc/vararraysrc")
-include_dir("../../../sharedsrc/globalsrc")
-include_dir("../../../sharedsrc/lexsrc")
-%include_dir("../../../compiler/src/shared")
-
-module("../../fsm/src/FM3BuildLexMachine")
-%module("../../sharedsrc/utilsrc/FM3Base")
-
-implementation ("GenTok")
-Program("gentok")
+interface("FM3LexTableRep")
+module("../../sharedsrc/utilsrc/FM3Base")
+module("FM3LexTable")
