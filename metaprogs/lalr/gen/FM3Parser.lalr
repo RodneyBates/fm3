@@ -20,14 +20,31 @@ PARSER FM3Parser
 
 /* Stuff to go into the front of the parser interface. */ 
 EXPORT
-  { IMPORT FM3IntToks;
+  {
+(* -----------------------------------------------------------------------1- *)
+(* This file is part of the FM3 Modula-3 compiler.                           *)
+(* Copyright 2023..2024 Rodney M. Bates.                                     *)
+(* rodney.m.bates@acm.org                                                    *)
+(* Licensed under the MIT License.                                           *)
+(* -----------------------------------------------------------------------2- *)
+
+    IMPORT FM3IntToks;
     IMPORT FM3ParsePass;
   }
 
 /* Stuff to go at front of the parser module, at global scope. */
 GLOBAL
 
-  { IMPORT FM3Base;
+  {
+
+(* -----------------------------------------------------------------------1- *)
+(* This file is part of the FM3 Modula-3 compiler.                           *)
+(* Copyright 2023..2024 Rodney M. Bates.                                     *)
+(* rodney.m.bates@acm.org                                                    *)
+(* Licensed under the MIT License.                                           *)
+(* -----------------------------------------------------------------------2- *)
+
+    IMPORT FM3Base;
     IMPORT FM3Decls;
     IMPORT FM3Messages;
     IMPORT FM3Globals;
