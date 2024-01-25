@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023        Rodney M. Bates.                                    *)
+(* Copyright 2023..2024  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -21,13 +21,13 @@ INTERFACE FM3Scopes
 ; TYPE ScopeKindTyp
     = { SkNull
       , SkUniverse (* {Predefined, interfaces? *)
-      , SkCompEnv (* Compiled, IMPORTed, EXPORTed. *) 
       , SkInterface
       , SkModule
-      , SkExports 
       , SkFormals
       , SkProcBody 
       , SkBlock
+      , SkCompEnv (* Compiled, IMPORTed, EXPORTed. *) 
+      , SkExports 
       , SkEnum
       , SkRec
       , SkObj
@@ -35,6 +35,10 @@ INTERFACE FM3Scopes
       , SkTypecase
       , SkExcept 
       } 
+
+; CONST ScopeKindSetBlock
+    = SET OF ScopeKindTyp
+        { ScopeKindTyp . SkUniverse .. ScopeKindTyp . SkBlock } 
 
 ; TYPE ScopeRefTyp = REF ScopeTyp
 ; TYPE ScopeTyp
@@ -65,6 +69,11 @@ INTERFACE FM3Scopes
 
 ; VAR ScopeStackTopRef : ScopeRefTyp := NIL
       (* A single, global, linked stack with scopes from multiple units. *) 
+      
+; VAR BlockScopeTopRef : ScopeRefTyp := NIL
+      (* Like ScopeStackTopRef, but only the top block scope.  All of
+         these are deeper than non-block scopes.
+      *) 
       
 ; PROCEDURE PushScope ( ScopeRef : ScopeRefTyp )  
 
