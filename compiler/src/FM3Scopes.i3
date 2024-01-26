@@ -75,9 +75,9 @@ INTERFACE FM3Scopes
          these are deeper than non-block scopes.
       *) 
       
-; PROCEDURE PushScope ( ScopeRef : ScopeRefTyp )  
+; PROCEDURE PushBlockScope ( ScopeRef : ScopeRefTyp )  
 
-; PROCEDURE PopScope ( ) : ScopeRefTyp  
+; PROCEDURE PopBlockScope ( ) : ScopeRefTyp  
 
 ; END FM3Scopes
 .

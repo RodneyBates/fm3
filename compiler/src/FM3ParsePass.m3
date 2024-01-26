@@ -1585,7 +1585,7 @@ MODULE FM3ParsePass
                  , LParsePassRdBack
                  )
               ; PutBwd ( LParsePassRdBack , LTokenL )
-              ; EVAL FM3Scopes . PopScope ( ) 
+              ; EVAL FM3Scopes . PopBlockScope ( ) 
 
             ELSE (* Move directly, unnest to the output.*)
               RereverseOpnds
@@ -1728,7 +1728,7 @@ MODULE FM3ParsePass
       ; LNewScopeRef ^ . ScpOwningUnitNo := LUnitRef ^ . UntUnitNo 
       ; LNewScopeRef ^ . ScpKind := ScopeKind
       ; LNewScopeRef ^ . ScpPosition := Position
-      ; FM3Scopes . PushScope ( LNewScopeRef ) 
+      ; FM3Scopes . PushBlockScope ( LNewScopeRef ) 
       ; RETURN LNewScopeRef . ScpScopeNo
       END (*WITH*) 
     END ScopeLtL2R
@@ -1969,7 +1969,7 @@ MODULE FM3ParsePass
           END (*EXCEPT*)
         END (*Block*)
       END (*WITH*) 
-    ; EVAL FM3Scopes . PopScope ( )   
+    ; EVAL FM3Scopes . PopBlockScope ( )   
     END ScopeRtL2R
 
 (* Right-to-left scope handling.  These are called during unnesting. *)
@@ -1983,7 +1983,7 @@ MODULE FM3ParsePass
   ; BEGIN
       LScopeMap := FM3Units . UnitStackTopRef ^ . UntScopeMap 
     ; LScopeRef := VarArray_Int_Refany . Fetch ( LScopeMap , ScopeNo )
-    ; FM3Scopes . PushScope ( LScopeRef ) 
+    ; FM3Scopes . PushBlockScope ( LScopeRef ) 
     END ScopeRtR2L
 
 ; PROCEDURE DuplDeclIdR2L

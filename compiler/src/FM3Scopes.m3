@@ -60,11 +60,11 @@ MODULE FM3Scopes
     END NewScopeRef 
 
 (*EXPORTED.*)
-; PROCEDURE PushScope ( ScopeRef : ScopeRefTyp ) 
+; PROCEDURE PushBlockScope ( ScopeRef : ScopeRefTyp ) 
 
   = VAR LBeneathScopeRef : ScopeRefTyp
 
-  ; BEGIN (*Push*)
+  ; BEGIN (*PushBlockScope*)
       IF ScopeRef = NIL THEN RETURN END (*IF*) 
     ; <* ASSERT ScopeRef . ScpStackDepth = 0 *> (* Not already on stack. *)
       LBeneathScopeRef := ScopeStackTopRef  
@@ -74,14 +74,14 @@ MODULE FM3Scopes
       END (*IF*) 
     ; ScopeRef ^ . ScpStackLink := LBeneathScopeRef  
     ; ScopeStackTopRef := ScopeRef
-    END PushScope
+    END PushBlockScope
 
 (*EXPORTED.*)
-; PROCEDURE PopScope ( ) : ScopeRefTyp  
+; PROCEDURE PopBlockScope ( ) : ScopeRefTyp  
 
   = VAR LPoppedScopeRef : ScopeRefTyp
 
-  ; BEGIN (*Pop*)
+  ; BEGIN (*PopBlockScope*)
       LPoppedScopeRef := ScopeStackTopRef 
     ; <* ASSERT LPoppedScopeRef # NIL *>
       ScopeStackTopRef := LPoppedScopeRef . ScpStackLink
@@ -95,7 +95,45 @@ MODULE FM3Scopes
       END (*IF*)
     ; LPoppedScopeRef . ScpStackDepth := 0  (* Note not on stack. *)
     ; RETURN LPoppedScopeRef
-    END PopScope 
+    END PopBlockScope 
+
+(*EXPORTED.*)
+; PROCEDURE PushQualScope ( ScopeRef : ScopeRefTyp ) 
+
+  = VAR LBeneathScopeRef : ScopeRefTyp
+
+  ; BEGIN (*PushQualScope*)
+      IF ScopeRef = NIL THEN RETURN END (*IF*) 
+    ; <* ASSERT ScopeRef . ScpStackDepth = 0 *> (* Not already on stack. *)
+      LBeneathScopeRef := ScopeStackTopRef  
+    ; IF LBeneathScopeRef = NIL
+      THEN ScopeRef . ScpStackDepth := 1
+      ELSE ScopeRef . ScpStackDepth := LBeneathScopeRef . ScpStackDepth + 1
+      END (*IF*) 
+    ; ScopeRef ^ . ScpStackLink := LBeneathScopeRef  
+    ; ScopeStackTopRef := ScopeRef
+    END PushQualScope
+
+(*EXPORTED.*)
+; PROCEDURE PopQualScope ( ) : ScopeRefTyp  
+
+  = VAR LPoppedScopeRef : ScopeRefTyp
+
+  ; BEGIN (*PopQualScope*)
+      LPoppedScopeRef := ScopeStackTopRef 
+    ; <* ASSERT LPoppedScopeRef # NIL *>
+      ScopeStackTopRef := LPoppedScopeRef . ScpStackLink
+    ; IF ScopeStackTopRef = NIL
+      THEN <* ASSERT LPoppedScopeRef . ScpStackDepth = 1 *>
+      ELSE
+        <* ASSERT
+             ScopeStackTopRef . ScpStackDepth
+             = LPoppedScopeRef . ScpStackDepth - 1
+        *>
+      END (*IF*)
+    ; LPoppedScopeRef . ScpStackDepth := 0  (* Note not on stack. *)
+    ; RETURN LPoppedScopeRef
+    END PopQualScope 
 
 ; BEGIN
     ScopeStackTopRef := NIL 
