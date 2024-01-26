@@ -1062,13 +1062,12 @@ MODULE FM3Scanner
             := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 160 } ) 
         ; ScWCharVarArr := NIL 
         ; StartIdent ( ) 
-        ; ContribToFsm ( GTopSsRef . SsCh ) 
+        ; ContribToFsm ( ScCh ) (* The 'w' or 'W'. *)  
         ; FM3Utils . ContribToHash 
             ( (*IN OUT*) ScHash 
-            , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
-            ) (* The 'w' or 'W'. *) 
-        ; VarArr_Char . Assign ( ScCharVarArr , 0 , GTopSsRef . SsCh ) 
-        ; NextChar ( ) 
+            , VAL ( ORD ( ScCh ) , FM3Utils . HashTyp ) 
+            )  
+        ; VarArr_Char . Assign ( ScCharVarArr , 0 , ScCh ) 
         ; IdentSuffix ( ) 
         END (*IF*)
 
