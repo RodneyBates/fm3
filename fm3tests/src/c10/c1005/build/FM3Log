@@ -1,6 +1,6 @@
 [32mFM3: [0mCompiling Main.m3...
-[31mERROR: [0m/home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1005/src Main.m3[8,5] VALUE formal must have a type and/or an initial value. (2.2.8)
+[31mERROR: [0m/home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1005/src Main.m3[8,6] VALUE formal must have a type and/or an initial value. (2.2.8)
 [32mFM3: [0mPatch stack Main.m3.Patch peak size = 49.
-[32mFM3: [0mUnnest stack Main.m3.Unnest peak size = 414.
-[32mFM3: [0mParse pass output file Main.m3.ParsePass has 360 bytes.
+[32mFM3: [0mUnnest stack Main.m3.Unnest peak size = 415.
+[32mFM3: [0mParse pass output file Main.m3.ParsePass has 361 bytes.
 [32mFM3: [0mFinished compiling Main.m3.
