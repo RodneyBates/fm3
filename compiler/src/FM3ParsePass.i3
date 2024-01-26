@@ -9,6 +9,7 @@
 INTERFACE FM3ParsePass
 
 ; IMPORT FM3Base
+; FROM FM3Base IMPORT tPosition 
 ; IMPORT FM3Decls 
 ; IMPORT FM3Units 
 ; IMPORT FM3Scanner
@@ -74,7 +75,7 @@ INTERFACE FM3ParsePass
     ( ListTokLt : Itk . TokTyp
     ; C : LONGINT
     ; ElemNo : INTEGER
-    ; Position : FM3Scanner . tPosition
+    ; READONLY Position : tPosition
     )
 
 (* Here is the naming code, of namings of these Push_<x> procedures:
@@ -119,83 +120,83 @@ INTERFACE FM3ParsePass
 
 ; PROCEDURE Push_L ( T : Itk . TokTyp )
 
-; PROCEDURE Push_LP ( T : Itk . TokTyp ; Position : FM3Scanner . tPosition )
+; PROCEDURE Push_LP ( T : Itk . TokTyp ; READONLY Position : tPosition )
 
 ; PROCEDURE Push_LIP
-    ( T : Itk . TokTyp ; I : INTEGER ; Position : FM3Scanner . tPosition )
+    ( T : Itk . TokTyp ; I : INTEGER ; READONLY Position : tPosition )
 
 ; PROCEDURE Push_LIP_rip
-    ( T : Itk . TokTyp ; I : INTEGER ; Position : FM3Scanner . tPosition )
+    ( T : Itk . TokTyp ; I : INTEGER ; READONLY Position : tPosition )
 
 ; PROCEDURE Push_EIP
-    ( T : Itk . TokTyp ; I : INTEGER ; Position : FM3Scanner . tPosition )
+    ( T : Itk . TokTyp ; I : INTEGER ; READONLY Position : tPosition )
 
 ; PROCEDURE Push_ECIP
     ( T : Itk . TokTyp
     ; Coord : LONGINT
     ; I : INTEGER
-    ; Position : FM3Scanner . tPosition
+    ; READONLY Position : tPosition
     )
 
 ; PROCEDURE Push_LCr ( T : Itk . TokTyp ; C : LONGINT )
 
 ; PROCEDURE Push_LCP_rp
-   ( T : Itk . TokTyp ; C : LONGINT ; Position : FM3Scanner . tPosition )
+   ( T : Itk . TokTyp ; C : LONGINT ; READONLY Position : tPosition )
 
 ; PROCEDURE Push_LCIP_rip
     ( T : Itk . TokTyp 
     ; C : LONGINT 
     ; I : INTEGER 
-    ; Position : FM3Scanner . tPosition 
+    ; READONLY Position : tPosition 
     )
 
 ; PROCEDURE Push_LCPI_rpi
     ( T : Itk . TokTyp 
     ; C : LONGINT 
-    ; Position : FM3Scanner . tPosition 
+    ; READONLY Position : tPosition 
     ; I : INTEGER 
     )
 
 ; PROCEDURE Push_LCP_eCP_rP
    ( T : Itk . TokTyp
    ; CLt : LONGINT
-   ; PositionLt : FM3Scanner . tPosition
+   ; READONLY PositionLt : tPosition
    ; CEins : LONGINT
-   ; PositionEins : FM3Scanner . tPosition
-   ; PositionRt : FM3Scanner . tPosition
+   ; READONLY PositionEins : tPosition
+   ; READONLY PositionRt : tPosition
    )
 
 ; PROCEDURE Push_LCP_eCP_zCP_rP
    ( L : Itk . TokTyp
    ; CL : LONGINT
-   ; PL : FM3Scanner . tPosition
+   ; READONLY PL : tPosition
    ; Ce : LONGINT
-   ; Pe : FM3Scanner . tPosition
+   ; READONLY Pe : tPosition
    ; Cz : LONGINT
-   ; Pz : FM3Scanner . tPosition
-   ; Pr : FM3Scanner . tPosition
+   ; READONLY Pz : tPosition
+   ; READONLY Pr : tPosition
    )
 
 ; PROCEDURE Push_LCPeCprp
    ( T : Itk . TokTyp
    ; CLt : LONGINT
    ; CInfix : LONGINT 
-   ; PositionInfix : FM3Scanner . tPosition
+   ; READONLY PositionInfix : tPosition
    )
 
 ; PROCEDURE Push_ECIP_riP
    ( T : Itk . TokTyp
    ; CLt : LONGINT
    ; I : INTEGER 
-   ; PositionOne : FM3Scanner . tPosition
-   ; PositionRt : FM3Scanner . tPosition
+   ; READONLY PositionOne : tPosition
+   ; READONLY PositionRt : tPosition
    )
 
 ; PROCEDURE Push_ECPrP
    ( T : Itk . TokTyp
    ; CLt : LONGINT
-   ; PositionOne : FM3Scanner . tPosition
-   ; PositionRt : FM3Scanner . tPosition
+   ; READONLY PositionOne : tPosition
+   ; READONLY PositionRt : tPosition
    )
 
 ; PROCEDURE Push_LCBr ( T : Itk . TokTyp ; C : LONGINT ; B : BOOLEAN )
@@ -212,14 +213,14 @@ INTERFACE FM3ParsePass
 ; PROCEDURE Push_LCIeCri
     ( T : Itk . TokTyp ; Ct : LONGINT ; I : INTEGER ; Co : LONGINT )
 
-; PROCEDURE PushEXPORTSMain  ( READONLY Position : FM3Scanner . tPosition )
+; PROCEDURE PushEXPORTSMain  ( READONLY Position : tPosition )
 
 ; PROCEDURE Pop4 ( )
 
 ; PROCEDURE Pop8 ( )
 
 ; PROCEDURE RequireTypeAndOrValue 
-    ( Position : FM3Scanner . tPosition
+    ( READONLY Position : tPosition
     ; HasType : BOOLEAN 
     ; HasValue : BOOLEAN
     ) 
@@ -236,7 +237,7 @@ INTERFACE FM3ParsePass
 ; PROCEDURE MakeListPos
     ( VAR LHSAttr : tParsAttribute
     ; TokLt : Itk . TokTyp
-    ; Position : FM3Scanner . tPosition 
+    ; READONLY Position : tPosition 
     ; READONLY ElemsAttr : tParsAttribute 
     )
 
@@ -254,13 +255,13 @@ INTERFACE FM3ParsePass
 ; PROCEDURE ImportsRt (  )
 
 ; PROCEDURE Import
-    ( Atom : FM3Base . AtomTyp ; Pos : FM3Base . tPosition ) 
+    ( Atom : FM3Base . AtomTyp ; READONLY Position : tPosition ) 
 
 ; PROCEDURE FromImport
     ( IntfAtom : FM3Base . AtomTyp
-    ; InftPos : FM3Base . tPosition
+    ; READONLY InftPos : tPosition
     ; DeclAtom : FM3Base . AtomTyp
-    ; DeclPos : FM3Base . tPosition
+    ; READONLY DeclPos : tPosition
     )
 
 ; PROCEDURE BeginBlock ( ) : FM3Base . ScopeNoTyp (* Created. *) 
@@ -270,7 +271,7 @@ INTERFACE FM3ParsePass
 ; PROCEDURE ScopeEmpty ( ScopeKind : FM3Scopes . ScopeKindTyp )
 
 ; PROCEDURE ScopeLtL2R
-    ( ScopeKind : FM3Scopes . ScopeKindTyp ; Position : FM3Base . tPosition )
+    ( ScopeKind : FM3Scopes . ScopeKindTyp ; READONLY Position : tPosition )
   : FM3Base . ScopeNoTyp (* Scope no. that was created. *) 
 
 ; PROCEDURE DeclIdL2R 
@@ -279,7 +280,7 @@ INTERFACE FM3ParsePass
     ; READONLY IdAttribute : tParsAttribute
     ; SepTok : Itk . TokTyp := Itk . ItkNull
                             (* ^Implies single decl id, not in a list. *)  
-    ; READONLY SepPosition : FM3Scanner . tPosition := FM3Base . PositionNull 
+    ; READONLY SepPosition : tPosition := FM3Base . PositionNull 
     ; PriorIdCt : INTEGER := 0 (* Number of ids to left of this one. *)
     )
   : BOOLEAN (* Use this declared id.  (It's not predefined and not a duplicate
@@ -302,26 +303,26 @@ INTERFACE FM3ParsePass
 ; PROCEDURE ScopeRtR2L ( ScopeNo : FM3Base . ScopeNoTyp )
 
 ; PROCEDURE DuplDeclR2L
-    ( DeclIdAtom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
+    ( DeclIdAtom : FM3Base . AtomTyp ; READONLY Position : tPosition )
   : FM3Base . DeclNoTyp 
 
 ; PROCEDURE DeclRtR2L
     ( DeclIdAtom : FM3Base . AtomTyp
-    ; Position : FM3Base . tPosition
+    ; READONLY Position : tPosition
     ; DeclKind : FM3Decls . DeclKindTyp 
     )
   : FM3Base . DeclNoTyp
 
 ; PROCEDURE DeclLtR2L
     ( DeclIdAtom : FM3Base . AtomTyp
-    ; Position : FM3Base . tPosition
+    ; READONLY Position : tPosition
     ; DeclKind : FM3Decls . DeclKindTyp 
     )
   : FM3Base . DeclNoTyp
   (* May be 1st or a later duplicate decl of DeclIdAtom *)
 
 ; PROCEDURE IdentRefR2L
-    ( IdentRefAtom : FM3Base . AtomTyp ; Position : FM3Base . tPosition )
+    ( IdentRefAtom : FM3Base . AtomTyp ; READONLY Position : tPosition )
   : FM3Base . DeclNoTyp 
 
 ; PROCEDURE ScopeLtR2L ( ScopeNo : FM3Base . ScopeNoTyp )
