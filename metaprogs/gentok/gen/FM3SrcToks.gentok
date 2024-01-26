@@ -169,8 +169,10 @@ ABS 5
    RidINTEGER          "INTEGER" . 
    RidISTYPE           "ISTYPE" . 
    RidLAST             "LAST" . 
+   RidLONGCARD         "LONGCARD" . 
+   RidLONGINT          "LONGINT" . 
    RidLONGREAL         "LONGREAL" . 
-   RidLOOHOLE          "LOOHOLE" . 
+   RidLOOPHOLE         "LOOPHOLE" . 
    RidMAX              "MAX" . 
    RidMIN              "MIN" . 
    RidMUTEX            "MUTEX" . 
@@ -189,6 +191,7 @@ ABS 5
    RidTRUNC            "TRUNC" . 
    RidTYPECODE         "TYPECODE" . 
    RidVAL              "VAL" .
+   RidWIDECHAR         "WIDECHAR" .
 
    (* These behave semantically like reserved identifiers, but each occurs in
       a different set of syntactic contexts from identifiers, so they are

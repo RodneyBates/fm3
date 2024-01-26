@@ -448,7 +448,7 @@ MODULE FM3Scanner
           END (*CASE*) 
         ELSE (* Looking for a reserved word or reserved identifier. *) 
           CASE GCurRwValue 
-          OF FM3SrcToks . RidABS .. FM3SrcToks . RidVAL  
+          OF FM3SrcToks . RidABS .. FM3SrcToks . RidWIDECHAR 
           => (* Reserved identifier. *) 
              (* To reduce the parser size, these are all mapped to single token
                 StkIdent, with the specific ident's token as its atom. *) 
