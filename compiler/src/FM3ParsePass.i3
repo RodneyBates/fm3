@@ -224,6 +224,7 @@ INTERFACE FM3ParsePass
     ; HasType : BOOLEAN 
     ; HasValue : BOOLEAN
     ) 
+  : BOOLEAN (* OK *) 
   (* Anything that requires a type and/or value: 
      variable , formal, field.  Gets DeclKnd from FM3Decls.TopDeclInfo. *) 
 

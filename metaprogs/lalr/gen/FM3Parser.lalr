@@ -398,7 +398,7 @@ RULE
    QualIdStarList : /*Empty*/
      { $$ . PaInt := 0 ; } . 
      
-(* Qualified ident. *)   
+(* (Possibly) Qualified ident. *)   
    QualId : StkIdent { FM3ParsePass . IdentRefL2R ( $1 ) ; } .
 
    QualId : StkIdent StkDot StkIdent
@@ -788,34 +788,39 @@ RULE
 (* Used for variable and field declarations. *)
 
    VarDecl : VarDeclIds OptDeclType OptDeclValue 
-     { FM3ParsePass . RequireTypeAndOrValue
-         ( $1 . Scan . Position , $2 . PaBool , $3 . PaBool ) ;
+     { VAR LOk := FM3ParsePass . RequireTypeAndOrValue
+                    ( $1 . Scan . Position , $2 . PaBool , $3 . PaBool ) ;
        (* ^Check this even if there are no valid ids. *)
-       IF $1 . PaInt < 0 (* Skipping this decl?  *) 
-       THEN (* Have been skipping the declaration. *)
-         $$ . PaInt := 0 (* BlockDeclCt. *) ; 
-         <* ASSERT FM3ParsePass . StopSkipping ( ) = - $1 . PaInt *> 
-       ELSIF FM3ParsePass . SkipDepth > 0
-             (* Skipping some containing construct? *)
-       THEN (* No output. *) 
-       ELSE
-         $$ . PaInt := $1 . PaInt (* Valid id count. *) ;
-         WITH WDeclInfo = FM3Decls . TopDeclInfo ( )
-         DO 
-           Push_LCP_eCP_zCP_rP (* The declaration itself. *) 
-             ( WDeclInfo . DiDeclTok 
-             , $1 . PaUnnestCoord
-             , $1 . Scan . Position
-             , $2 . PaUnnestCoord
-             , $2 . Scan . Position
-             , $3 . PaUnnestCoord
-             , $3 . Scan . Position 
-             , $1 . Scan . Position 
-            ) ;
-         END (*WITH*) 
-       END (*IF*) 
+       BEGIN 
+         IF $1 . PaInt < 0 (* Skipping this decl?  *) 
+         THEN (* VarDeclIds calls for skipping the declaration. *)
+           $$ . PaInt := 0 (* Contribution to BlockDeclCt. *) ; 
+           <* ASSERT FM3ParsePass . StopSkipping ( ) = - $1 . PaInt *> 
+         ELSIF FM3ParsePass . SkipDepth > 0
+               (* Skipping some containing construct? *)
+         THEN (* No output. *) 
+         ELSIF NOT LOk 
+         THEN (* Everything was empty anyway.  No output. *) 
+         ELSE
+           $$ . PaInt := $1 . PaInt (* Valid id count. *) ;
+           WITH WDeclInfo = FM3Decls . TopDeclInfo ( )
+           DO 
+             Push_LCP_eCP_zCP_rP (* The declaration itself. *) 
+               ( WDeclInfo . DiDeclTok 
+               , $1 . PaUnnestCoord
+               , $1 . Scan . Position
+               , $2 . PaUnnestCoord
+               , $2 . Scan . Position
+               , $3 . PaUnnestCoord
+               , $3 . Scan . Position 
+               , $1 . Scan . Position 
+              ) ;
+           END (*WITH*) 
+         END (*IF*)
+       END (*Block*) 
      } . 
 
+   (* VarDeclIds.PaInt > 0 is ident count.  < 0 is -skipdepth. *) 
    VarDeclIds : DeclIdListElems 
      { $$ . Scan . Position := $1 . Scan . Position ;
 
@@ -1049,57 +1054,66 @@ RULE
    Formal : FormalLt FormalIds FormalType FormalExpr
      { $$ . Scan . Position := $1 . Scan . Position ; 
        WITH WDeclInfo = FM3Decls . TopDeclInfo ( )
-       DO (* Check this even if no valid ids. *) 
-         IF VAL ( $1 . PaByte , Dkt ) = Dkt . DkVARFormal   
-         THEN
-           IF NOT $3 . PaBool (* Formal type is present (absent?). *)
+       DO (* Do these checks  even if no valid ids. *)
+         VAR LOk := TRUE ; 
+         BEGIN 
+           IF VAL ( $1 . PaByte , Dkt ) = Dkt . DkVARFormal   
            THEN
-             FM3Messages . ErrorArr
-               ( ARRAY OF REFANY 
-                   { " VAR formal must have a type (2.2.8)." } 
-               , $2 . Scan . Position
-               );
-           END (*IF*) ; 
-           IF $4 . PaBool (* Formal expression is present? *) 
-           THEN
-             FM3Messages . ErrorArr
-               ( ARRAY OF REFANY 
-                   { " VAR formal cannot have a default expression (2.2.8)." }
-               , $4 . Scan . Position
-               );
+             IF NOT $3 . PaBool (* Formal type is present (absent?). *)
+             THEN
+               FM3Messages . ErrorArr
+                 ( ARRAY OF REFANY 
+                     { " VAR formal must have a type (2.2.8)." } 
+                 , $2 . Scan . Position
+                 ) ;
+               LOk := FALSE ; 
+(* FIXME: Arrange to skip the FormalExpr, if any. *) 
+             END (*IF*) ; 
+             IF $4 . PaBool (* Formal expression is present? *) 
+             THEN
+               FM3Messages . ErrorArr
+                 ( ARRAY OF REFANY 
+                     { " VAR formal cannot have a default expression (2.2.8)." }
+                 , $4 . Scan . Position
+                 ) ;
+               LOk := FALSE ; 
+(* FIXME: Arrange to skip the FormalExpr, if any. *) 
+             END (*IF*) ;
+           ELSE (* VALUE or READONLY *)  
+             LOk := FM3ParsePass . RequireTypeAndOrValue
+                      ( $2 . Scan . Position , $3 . PaBool , $4 . PaBool )
            END (*IF*) ;
-         ELSE (* VALUE or READONLY *)  
-           FM3ParsePass . RequireTypeAndOrValue
-             ( $2 . Scan . Position 
-             , $3 . PaBool
-             , $4 . PaBool
-             )
-         END (*IF*) ;
 
-         IF $2 . PaInt < 0 (* Skipping this formal? *)
-         THEN 
-           $$ . PaInt := 0 ;
-           <* ASSERT FM3ParsePass . StopSkipping ( ) = - $2 . PaInt *>
-         ELSIF FM3ParsePass . SkipDepth > 0
-               (* Skipping some containing construct? *)
-         THEN (* No output. *) 
-         ELSE 
-           $$ .PaInt := $2 . PaInt (* Valid Id count. *) ;  
-           Push_LCP_eCP_zCP_rP 
-             ( WDeclInfo . DiDeclTok 
-             , $1 . PaUnnestCoord
-             , $2 . Scan . Position
-             , $3 . PaUnnestCoord
-             , $3 . Scan . Position
-             , $4 . PaUnnestCoord
-             , $4 . Scan . Position 
-             , $1 . Scan . Position 
-             ) ;
-         END (*WITH*) 
-       END (*IF*) ;
-       <* ASSERT FM3Decls . PopDeclInfo ( ) = $1 . PaInt *>
+           IF $2 . PaInt < 0 (* FormalIds calls for skipping the decl? *)
+           THEN 
+             $$ . PaInt := 0 ;
+             <* ASSERT FM3ParsePass . StopSkipping ( ) = - $2 . PaInt *>
+           ELSIF FM3ParsePass . SkipDepth > 0
+                 (* Skipping some containing construct? *)
+           THEN (* No output. *) 
+             $$ . PaInt := 0 ;
+           ELSIF NOT LOk 
+           THEN (* Everything was empty anyway.  No output. *) 
+             $$ . PaInt := 0 ;
+           ELSE 
+             $$ .PaInt := $2 . PaInt (* Valid Id count. *) ;  
+             Push_LCP_eCP_zCP_rP 
+               ( WDeclInfo . DiDeclTok 
+               , $1 . PaUnnestCoord
+               , $2 . Scan . Position
+               , $3 . PaUnnestCoord
+               , $3 . Scan . Position
+               , $4 . PaUnnestCoord
+               , $4 . Scan . Position 
+               , $1 . Scan . Position 
+               ) ;
+           END (*WITH*) 
+         END (*IF*) ;
+         <* ASSERT FM3Decls . PopDeclInfo ( ) = $1 . PaInt *>
+       END (*Block*) 
      } .
 
+   (* FormalIds.PaInt > 0 is ident count.  < 0 is -skipdepth. *) 
    FormalIds : DeclIdListElems 
      { $$ . Scan . Position  := $1 . Scan . Position ; 
        IF $1 . PaInt = 0 (* No valid ids. *)

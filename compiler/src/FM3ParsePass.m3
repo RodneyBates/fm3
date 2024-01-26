@@ -1253,6 +1253,7 @@ MODULE FM3ParsePass
     ; HasType : BOOLEAN 
     ; HasValue : BOOLEAN
     )
+  : BOOLEAN (* OK *) 
 
   (* Anything that requires a type and/or value: 
      variable , formal, field.  Gets DeclKind from FM3Decls.TopDeclInfo. *) 
@@ -1269,8 +1270,10 @@ MODULE FM3ParsePass
                , VarSection [ WDeclInfo . DiKind  ]
                } 
            , Position
-           );
-       END (*WITH*) 
+           )
+       ; RETURN FALSE 
+       END (*WITH*)
+     ELSE RETURN TRUE 
      END (*IF*) 
     END RequireTypeAndOrValue 
 
