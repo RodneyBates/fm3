@@ -60,7 +60,7 @@ GLOBAL
       Push_LCPeCprp , Push_LIP , Push_LIP_rip , Push_EIP , Push_ECIP , 
       Push_ECIP_riP , Push_LCBr , Push_LCIri , Push_LI3 , Push_LI6 , Push_LCeCr ,
       Push_LCIeCri , Push_LCP_eCP_zCP_rP , Pop4 , Pop8 ;
-    FROM FM3ParsePass IMPORT MakeList , MakeListPos;
+    FROM FM3ParsePass IMPORT MakeListPos;
     IMPORT FM3Scopes;
     IMPORT FM3Units;
     FROM FM3Utils IMPORT PositionImage;

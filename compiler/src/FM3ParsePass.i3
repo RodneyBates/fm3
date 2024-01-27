@@ -213,8 +213,6 @@ INTERFACE FM3ParsePass
 ; PROCEDURE Push_LCIeCri
     ( T : Itk . TokTyp ; Ct : LONGINT ; I : INTEGER ; Co : LONGINT )
 
-; PROCEDURE PushEXPORTSMain  ( READONLY Position : tPosition )
-
 ; PROCEDURE Pop4 ( )
 
 ; PROCEDURE Pop8 ( )
@@ -224,29 +222,17 @@ INTERFACE FM3ParsePass
     ; HasType : BOOLEAN 
     ; HasValue : BOOLEAN
     ) 
-  : BOOLEAN (* OK *) 
-  (* Anything that requires a type and/or value: 
-     variable , formal, field.  Gets DeclKnd from FM3Decls.TopDeclInfo. *) 
-
-; PROCEDURE MakeList
-    ( VAR LHSAttr : tParsAttribute
-    ; TokLt : Itk . TokTyp
-    ; READONLY ElemsAttr : tParsAttribute
-      (* ^For unnest coordinate and elem count. *) 
-    )
+  : BOOLEAN (* OK *)
+  (* Anything that requires a type and/or value: variable , formal, field. 
+     Check and maybe emit message. 
+     Gets DeclKind from FM3Decls.TopDeclInfo. 
+  *) 
 
 ; PROCEDURE MakeListPos
     ( VAR LHSAttr : tParsAttribute
     ; TokLt : Itk . TokTyp
     ; READONLY Position : tPosition 
     ; READONLY ElemsAttr : tParsAttribute 
-    )
-
-; PROCEDURE MakeListPatch
-    ( VAR LHSAttr : tParsAttribute
-    ; TokLt : Itk . TokTyp
-    ; PatchCoord : LONGINT
-    ; ElemCt : INTEGER 
     )
 
 (* ----------------------------- Parsing actions -------------------------- *)

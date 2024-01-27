@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023        Rodney M. Bates.                                    *)
+(* Copyright 2023..2024  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -48,7 +48,7 @@ INTERFACE FM3Units
            nonzero, on account of file tag, length, etc. *) 
       ; UntPatchStackTopCoord : LONGINT := 0L
         (* ^The patch coordinate of what is conceptually the top token on the
-           patch stack is actually kept, decompresed, in UntPatchStackTopCoord,
+           patch stack is actually kept, decompressed, in UntPatchStackTopCoord,
            for easy access.  The token itself and its other operands are on the
            RdBackFile proper.  For deeper tokens, the coordinate is kept on top
            of the token, opposite of the usual order, on top of its other operands. 

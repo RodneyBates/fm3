@@ -8,6 +8,7 @@
 
 MODULE FM3Types
 
+(* Types in the compiled code, not in the compiler. *)
 
 ; BEGIN
   END FM3Types

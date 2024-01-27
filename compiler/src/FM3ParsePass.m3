@@ -13,8 +13,7 @@ MODULE FM3ParsePass
    2. Replace identifers by numeric atoms. 
    3. Convert to a fully-delimited intermediate token stream, written
       to a file ready to be read backwards.
-   4. Pull constructs that have a scope of identifiers out to the left
-      of their containing scope constructs.
+
    5. Build a global table of atom-accessed Units.UnitTyp records for
       compilation units,
    6. For each unit, build atom-accessed records for identifiers, scopes,
@@ -25,18 +24,20 @@ MODULE FM3ParsePass
       into the token stream.
 *)
 
+; FROM File IMPORT Byte  
 ; IMPORT FileWr
 ; IMPORT Fmt 
 ; IMPORT FS 
+; IMPORT IntSets 
 ; IMPORT OSError
 ; IMPORT Pathname
 ; IMPORT Stdio
 ; IMPORT Text 
 ; IMPORT Thread 
 ; IMPORT UniRd
+; IMPORT VarArray_Int_Refany 
 ; IMPORT Wr
 
-; IMPORT IntSets 
 
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars
@@ -54,25 +55,22 @@ MODULE FM3ParsePass
 ; FROM FM3IntToks
     IMPORT LtToRt , LtToPatch , LtToOne , LtToOnePatch , LtToTwoPatch
            , LtToListSepPatch 
-; IMPORT FM3SharedUtils 
-; IMPORT FM3SrcToks AS Stk
 ; FROM FM3StreamUtils
     IMPORT GetBwdAtom , GetBwdDeclKind , GetBwdPos , GetBwdScopeNo 
 ; IMPORT FM3Messages 
-; FROM FM3Messages IMPORT FatalArr , ErrorArr , Log
+; FROM FM3Messages IMPORT FatalArr , ErrorArr , LogArr
 ; IMPORT FM3Parser
 ; IMPORT FM3Predefined
 ; IMPORT FM3Scanner
 ; IMPORT FM3Scopes
+; IMPORT FM3SharedGlobals 
+; IMPORT FM3SharedUtils 
 ; IMPORT FM3SrcToks
+; IMPORT FM3SrcToks AS Stk
 ; IMPORT FM3Units 
 ; IMPORT FM3Utils 
 ; IMPORT RdBackFile
-; IMPORT VarArray_Int_Refany 
 
-; IMPORT FM3SharedGlobals 
-
-; FROM File IMPORT Byte  
 
 ; TYPE Skt = FM3Scopes . ScopeKindTyp 
 
@@ -97,8 +95,8 @@ MODULE FM3ParsePass
 
 (*EXPORTED*)
 ; PROCEDURE StopSkipping ( ) : CARDINAL (* depth before. *)
-  (* Let's let callers check expected depth, so a failure will
-     be detected at the call site.
+  (* Let's leave it to  callers to check expected depth,
+     so a failure will be detected at the call site.
   *)
 
   = VAR LDepth : CARDINAL
@@ -123,7 +121,7 @@ MODULE FM3ParsePass
         EXCEPT OSError . E ( EMsg )
         => FatalArr
              ( ARRAY OF REFANY
-                 { "Unable to write to readbaci file: "
+                 { "Unable to write to readback file: "
 (*TODO: Give RdBackFile a "Filename" function,, then insert it here. *) 
                  , ALOSE ( EMsg ) , "."  
                  }
@@ -207,7 +205,7 @@ MODULE FM3ParsePass
     ; LUnitRef ^ . UntParsePassName
         := SrcFileName & FM3Globals . ParsePassSuffix   
     ; TRY (*EXCEPT*)
-        (* Heh, heh.  Only code the exception handler once for all files. *) 
+        (* Heh, heh.  Code the exception handler only once for all files. *) 
         LFullFileName
           := Pathname . Join
                ( LUnitRef ^ . UntBuildDirPath 
@@ -245,14 +243,6 @@ MODULE FM3ParsePass
                , "."
                } 
            ) 
-      | RdBackFile . Preexists
-      => FatalArr
-           ( ARRAY OF REFANY
-               { "Unable to open build file \""
-               , LFullFileName
-               , "\", already exists and is nonempty."
-               } 
-           )
       END (*EXCEPT*)
 
     (* Initialize the readback files. *)
@@ -284,7 +274,9 @@ MODULE FM3ParsePass
         := RdBackFile . LengthL ( LUnitRef ^ . UntParsePassRdBack )  
 
     (* Create unit data structures. *)
-(* TODO: eliminate redundant initialization between here are FM3Units.NewUnit. *) 
+(* TODO: eliminate redundant initialization between here are FM3Units.NewUnit. *)
+(* Check: Do we really need separate atom dictionaries for identifiers,
+          numbers, and CHAR literasl? *) 
     ; LUnitRef ^ . UntIdentAtomDict
         := FM3Atom_OAChars . New
              ( FM3Globals . IdentAtomInitSize
@@ -301,7 +293,7 @@ MODULE FM3ParsePass
              , DoReverseMap := TRUE 
              )
 
-    ; LUnitRef ^ . UntCharsAtomDict
+    ; LUnitRef ^ . UntCharsAtomDict (* For CHAR literals. *) 
         := FM3Atom_OAChars . New
              ( FM3Globals . CharsAtomInitSize
              , StartAtom := FM3Globals . FirstRealAtom
@@ -324,6 +316,7 @@ MODULE FM3ParsePass
 
       (* Initialize Scanner for unit. *)
     ; FM3Scanner . PushState ( LUniRd , LUnitRef )
+(* CHECK: ? *) 
     ; RETURN LUnitRef 
     END OpenUnit 
 
@@ -368,12 +361,12 @@ MODULE FM3ParsePass
     ; FM3Units . PushUnit ( LUnitRef ) 
     ; FM3Units . UnitStackTopRef := LUnitRef
 (* TODO ^ Replace uses of this by FM3Units . UnitStackTopRef. *) 
-    ; Log ( "Compiling " , SrcFileName , "..." )
+    ; LogArr ( ARRAY OF REFANY { "Compiling " , SrcFileName , "..." } )
     ; TRY 
         LUnitRef ^ . UntParseResult := FM3Parser . FM3Parser ( )
 (* TODO:           ^Something with this? *)
 
-      (* Unnest stack before building ParsePass file. *) 
+      (* Finish Unnest stack before building ParsePass file. *) 
       ; PutBwd
           ( LUnitRef ^ . UntUnnestStackRdBack
           , VAL ( Itk . ItkRightEnd , LONGINT )
@@ -499,18 +492,28 @@ MODULE FM3ParsePass
     (* Finish with patch stack. *) 
     ; LUnitRef ^ . UntMaxPatchStackDepth
         := RdBackFile . MaxLengthL ( LUnitRef ^ . UntPatchStackRdBack ) 
-    ; Log ( "Patch stack " , LUnitRef ^ . UntPatchStackName , " peak size = "
-          , FM3Base . Int64Image  ( LUnitRef ^ . UntMaxPatchStackDepth ) , "."  
-          ) 
+    ; LogArr
+        ( ARRAY OF REFANY
+            { "Patch stack "
+              , LUnitRef ^ . UntPatchStackName
+              , " peak size = "
+              , FM3Base . Int64Image  ( LUnitRef ^ . UntMaxPatchStackDepth )
+              , "."
+            } 
+        ) 
     ; IF NOT RdBackFile . LengthL ( LUnitRef ^ . UntPatchStackRdBack )
              <= LUnitRef ^ . UntPatchStackEmptyCoord 
       THEN
-        LUnitRef . UntParsePassResult := 1 
-      ; Log ( "Patch stack " , LUnitRef ^ . UntPatchStackName
-            , " final size = "
-            , FM3Base . Int64Image
-                ( RdBackFile . LengthL ( LUnitRef ^ . UntPatchStackRdBack ) )
-            ) 
+        LUnitRef . UntParsePassResult := FM3CLArgs . CcPatchStackNotEmpty  
+      ; LogArr
+          ( ARRAY OF REFANY
+              { "Patch stack " 
+              , LUnitRef ^ . UntPatchStackName
+              , " final size = "
+              , FM3Base . Int64Image
+                  ( RdBackFile . LengthL ( LUnitRef ^ . UntPatchStackRdBack ) )
+              }
+          ) 
       ; FatalArr
           ( ARRAY OF REFANY
               { "Patch stack is not sufficiently empty, should be "  
@@ -521,7 +524,8 @@ MODULE FM3ParsePass
       ; RAISE FM3SharedUtils . FatalError ( "Nonempty patch stack." )
       END (*IF*)
     ; RdBackFile . Close (  LUnitRef ^ . UntPatchStackRdBack , 0L )
-      (* No point in keeping the patch stack. It has pogo-sticked and now is empty. *) 
+      (* No point in keeping the patch stack.  It has pogo-sticked and 
+         now is empty. *) 
     ; TRY FS . DeleteFile ( LUnitRef ^ . UntPatchStackName )
       EXCEPT OSError . E => (* It didn't exist. *) 
       END (*EXCEPT*) 
@@ -529,18 +533,29 @@ MODULE FM3ParsePass
     (* Finish with unnest stack. *) 
     ; LUnitRef ^ . UntMaxUnnestStackDepth
         := RdBackFile . MaxLengthL ( LUnitRef ^ . UntUnnestStackRdBack )
-    ; Log ( "Unnest stack " , LUnitRef ^ . UntUnnestStackName , " peak size = "
-          , FM3Base . Int64Image  ( LUnitRef ^ . UntMaxUnnestStackDepth ) , "." 
-          )
+    ; LogArr
+        ( ARRAY OF REFANY
+            { "Unnest stack "
+            , LUnitRef ^ . UntUnnestStackName
+            , " peak size = "
+            , FM3Base . Int64Image  ( LUnitRef ^ . UntMaxUnnestStackDepth )
+            , "."
+            } 
+        )
     ; LLengthL := RdBackFile . LengthL ( LUnitRef ^ . UntUnnestStackRdBack )
-    ; RdBackFile . Close (  LUnitRef ^ . UntUnnestStackRdBack , - 1L )
+    ; RdBackFile . Close 
+        (  LUnitRef ^ . UntUnnestStackRdBack , - 1L (* Leave full length. *) )
     ; IF LLengthL # LUnitRef ^ . UntUnnestStackEmptyCoord 
       THEN
-        LUnitRef . UntParsePassResult := 2 
-      ; Log ( "Unnest stack " , LUnitRef ^ . UntUnnestStackName
-            , " final size = "
-            , FM3Base . Int64Image ( LLengthL ) 
-            )
+        LUnitRef . UntParsePassResult := FM3CLArgs . CcUnnestStackNotEmpty  
+      ; LogArr
+          ( ARRAY OF REFANY
+              { "Unnest stack "
+              , LUnitRef ^ . UntUnnestStackName
+              , " final size = "
+              , FM3Base . Int64Image ( LLengthL )
+              } 
+          )
       ; IF NOT FM3CLArgs . DoDisAsmUnnest
         THEN 
           DisAsm ( LUnitRef , LUnnestFullFileName )
@@ -572,12 +587,16 @@ MODULE FM3ParsePass
       END (*IF*)
 
     (* Finish with parse pass RdBack, the output of this pass. *) 
-    ; Log ( "Parse pass output file "
-          , LUnitRef ^ . UntParsePassName , " has " 
-          , FM3Base . Int64Image 
-              ( RdBackFile . LengthL ( LUnitRef ^ . UntParsePassRdBack ) ) 
-          , " bytes."
-          )
+    ; LogArr
+        ( ARRAY OF REFANY 
+            { "Parse pass output file "
+            , LUnitRef ^ . UntParsePassName 
+            , " has " 
+            , FM3Base . Int64Image 
+                ( RdBackFile . LengthL ( LUnitRef ^ . UntParsePassRdBack ) ) 
+            , " bytes."
+            } 
+        )
     ; PutBwd
         ( FM3Units . UnitStackTopRef ^ . UntParsePassRdBack
         , VAL ( Itk . ItkLeftEnd , LONGINT ) 
@@ -587,12 +606,16 @@ MODULE FM3ParsePass
         , VAL ( Itk . ItkEOF , LONGINT ) 
         )
 
-    ; RdBackFile . Close ( LUnitRef ^ . UntParsePassRdBack , - 1L )
+    ; RdBackFile . Close 
+        ( LUnitRef ^ . UntParsePassRdBack , - 1L (* Leave full length. *) )
     (* ^Don't, later when next pass is implemented. *) 
 
 (* TODO: display code point counts. *)
 
-    ; Log ( "Finished compiling " , SrcFileName , "." )
+    ; LogArr
+        ( ARRAY OF REFANY
+            { "Finished compiling " , SrcFileName , "." }
+        )
     ; LPoppedUnitRef := FM3Units . PopUnit ( )
     ; <* ASSERT LPoppedUnitRef = LUnitRef *> 
       FM3Units . UnitStackTopRef := LUnitRef
@@ -744,6 +767,7 @@ MODULE FM3ParsePass
         ( FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
         , VAL ( Value , LONGINT ) 
         )
+
     END PushUnnest
 
 (*EXPORTED:*)
@@ -1018,10 +1042,12 @@ MODULE FM3ParsePass
         PutBwd ( WRdBack , VAL ( PositionInfix . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( PositionInfix . Line , LONGINT ) )
       ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) ) 
+
       ; PutBwd ( WRdBack , VAL ( PositionInfix . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( PositionInfix . Line , LONGINT ) )
       ; PutBwd ( WRdBack , CInfix ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToOnePatch , LONGINT ) ) 
+
       ; PutBwd ( WRdBack , VAL ( PositionInfix . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( PositionInfix . Line , LONGINT ) )
       ; PutBwd ( WRdBack , CLt ) 
@@ -1043,6 +1069,7 @@ MODULE FM3ParsePass
         PutBwd ( WRdBack , VAL ( PositionRt . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( PositionRt . Line , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) ) 
+
       ; PutBwd ( WRdBack , VAL ( PositionOne . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( PositionOne . Line , LONGINT ) ) 
       ; PutBwd ( WRdBack , CLt ) 
@@ -1066,6 +1093,7 @@ MODULE FM3ParsePass
       ; PutBwd ( WRdBack , VAL ( PositionRt . Line , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) ) 
+
       ; PutBwd ( WRdBack , VAL ( PositionOne . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( PositionOne . Line , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
@@ -1081,6 +1109,7 @@ MODULE FM3ParsePass
       WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
       DO 
         PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) ) 
+
       ; PutBwd ( WRdBack , VAL ( ORD ( B ) , LONGINT ) ) 
       ; PutBwd ( WRdBack , C ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
@@ -1095,6 +1124,7 @@ MODULE FM3ParsePass
       DO 
         PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) ) 
+
       ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
       ; PutBwd ( WRdBack , C ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
@@ -1154,8 +1184,10 @@ MODULE FM3ParsePass
       DO 
         PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) ) 
+
       ; PutBwd ( WRdBack , Co ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToOnePatch , LONGINT ) ) 
+
       ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
       ; PutBwd ( WRdBack , Ct ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
@@ -1191,26 +1223,6 @@ MODULE FM3ParsePass
       ; EVAL GetBwd ( WRdBack ) 
       END (*WITH*) 
     END Pop8
-
-(*EXPORTED:*)
-; PROCEDURE PushEXPORTSMain  ( READONLY Position : tPosition )
-
-  = BEGIN (*PushEXPORTSMain *)
-      PushUnnest ( Position . Column ) 
-    ; PushUnnest ( Position . Line ) 
-    ; PushUnnest ( 1 (* ElemCt *) ) 
-    ; PushUnnest ( Itk . ItkExportIdListLt )
-    
-    ; PushUnnest ( Position . Column ) 
-    ; PushUnnest ( Position . Line ) 
-    ; PushUnnest ( FM3Predefined . AtomMain ) 
-    ; PushUnnest ( Stk . StkIdent )
-    
-    ; PushUnnest ( Position . Column ) 
-    ; PushUnnest ( Position . Line ) 
-    ; PushUnnest ( 1 (* ElemCt *) )  
-    ; PushUnnest ( Itk . ItkExportIdListRt )
-    END PushEXPORTSMain
 
 (*EXPORTED:*)
 ; PROCEDURE MakeConstruct
@@ -1255,8 +1267,10 @@ MODULE FM3ParsePass
     )
   : BOOLEAN (* OK *) 
 
-  (* Anything that requires a type and/or value: 
-     variable , formal, field.  Gets DeclKind from FM3Decls.TopDeclInfo. *) 
+  (* Anything that requires a type and/or value: variable , formal, field. 
+     Check and maybe emit message. 
+     Gets DeclKind from FM3Decls.TopDeclInfo. 
+  *) 
 
   = BEGIN 
      IF NOT  HasType AND NOT HasValue 
@@ -1292,28 +1306,11 @@ MODULE FM3ParsePass
     (* Right token: *) 
     ; PushUnnest ( ElemNo )
     ; PushUnnest ( TokLt + Itk . LtToRt )
-    (* Left token, to bemoved leftward: *) 
+    (* Left token, to be moved leftward: *) 
     ; PushUnnest ( ElemNo )
     ; PushUnnestLong ( PatchCoord ) (*Patch*)
     ; PushUnnest ( TokLt + Itk . LtToPatch )
     END MakeElem
-
-(*EXPORTED:*)
-; PROCEDURE MakeList
-    ( VAR LHSAttr : tParsAttribute
-    ; TokLt : Itk . TokTyp
-    ; READONLY ElemsAttr : tParsAttribute 
-    )
-
-  = BEGIN
-      LHSAttr . PaInt := ElemsAttr . PaInt
-    ; LHSAttr . PaUnnestCoord := ElemsAttr . PaUnnestCoord (* Ever used? *) 
-    ; PushUnnest ( ElemsAttr . PaInt )
-    ; PushUnnest ( TokLt + Itk . LtToRt )
-    ; PushUnnest ( ElemsAttr . PaInt )
-    ; PushUnnestLong ( ElemsAttr . PaUnnestCoord ) 
-    ; PushUnnest ( TokLt + Itk . LtToPatch )
-    END MakeList
 
 (*EXPORTED:*)
 ; PROCEDURE MakeListPos
@@ -1340,24 +1337,6 @@ MODULE FM3ParsePass
       ; PushUnnest ( TokLt + Itk . LtToPatch )
       END (*IF*)
     END MakeListPos 
-
-(*EXPORTED:*)
-; PROCEDURE MakeListPatch
-    ( VAR LHSAttr : tParsAttribute
-    ; TokLt : Itk . TokTyp
-    ; PatchCoord : LONGINT
-    ; ElemCt : INTEGER 
-    )
-
-  = BEGIN
-      LHSAttr . PaInt := ElemCt 
-    ; LHSAttr . PaUnnestCoord := PatchCoord (* Ever used? *)
-    ; PushUnnest ( ElemCt )
-    ; PushUnnest ( TokLt + Itk . LtToRt )
-    ; PushUnnest ( ElemCt )
-    ; PushUnnestLong ( PatchCoord ) (*Patch*)
-    ; PushUnnest ( TokLt )
-    END MakeListPatch
 
 (*EXPORTED:*)
 ; PROCEDURE ImportsLt (  )
@@ -1403,7 +1382,7 @@ MODULE FM3ParsePass
 
 ; PROCEDURE RereverseOpnds
     ( OpndCt : INTEGER ; FromRdBack , ToRdBack : RdBackFile . T )
-  (* Copy up to 6 operands, without final reversing.  Pop/Push reverses
+  (* Copy operands, up to 6, without final reversing.  Pop/Push reverses
      them, but this procedure does its own reversal, resulting in
      net same order.
   *)
@@ -1445,9 +1424,6 @@ MODULE FM3ParsePass
 
     END RereverseOpnds
 
-; VAR GDoCopy := TRUE
-(* TODO: ^Make this a command line option. *)
-  
 ; PROCEDURE Unnest ( LMUnnestDepth : LONGINT )
 
   = VAR LUnitRef : FM3Units . UnitRefTyp
@@ -1501,22 +1477,22 @@ MODULE FM3ParsePass
           this and then use a better name for it.
 *) 
           
-         (* Copy up to 6 operands, reversing them to coueract the reversal
-            accomplished by stack operations. *)
+       (* Copy the operands, reversing them to counteract the reversal
+          accomplished by stack operations. *)
         ; RereverseOpnds
             ( FM3Utils . TokenOpndCt ( LPatchedToken ) 
             , LPatchRdBack
             , LParsePassRdBack
             ) 
 
-          (* Put the patched token. *)
+        (* Put the patched token. *)
         ; LPatchedTokenL := VAL ( LPatchedToken , LONGINT ) 
         ; PutBwd ( LParsePassRdBack , LPatchedTokenL )
 
         (* Conceptually finish popping the Patch stack by caching the
-           next patch coordinate, which is on top of its token.
+           next patch coordinate, which, unusually, is on top of its token.
         *)
-        ; LUnitRef . UntPatchStackTopCoord
+        ; LUnitRef . UntPatchStackTopCoord 
             := FM3Compress . GetBwd ( LPatchRdBack )
           
         (* Now loop, possibly for more patches. *)
@@ -1535,7 +1511,7 @@ MODULE FM3ParsePass
 
           ; LUnitRef . UntPatchStackTopCoord
               := FM3Compress . GetBwd ( LUnnestRdBack )
-                 (* New cached top coordinate. *) 
+                 (* New cached top patch coordinate. *) 
           ; RereverseOpnds 
               ( FM3Utils . TokenOpndCt ( LToken ) 
               , LUnnestRdBack
@@ -1606,19 +1582,13 @@ MODULE FM3ParsePass
       END (*LOOP*)
     END Unnest
 
-(*EXPORTED.*)
-; PROCEDURE SnapshotUnnestStack (  )
-
-  = BEGIN (*SnapshotUnnestStack*)
-    END SnapshotUnnestStack
-
 ; PROCEDURE LookupId
     ( READONLY Scope : FM3Scopes . ScopeTyp 
     ; IdAtom : FM3Base . AtomTyp
     ; READONLY Position : tPosition
     ) 
   : FM3Base . DeclNoTyp 
-  (* PRE: IdAtom in in Scope's dictionary. *) 
+  (* PRE: IdAtom is in Scope's dictionary. *) 
 
   = VAR LDeclNoInt : INTEGER
   ; VAR LMsg : TEXT
@@ -1795,9 +1765,10 @@ MODULE FM3ParsePass
             WScope . ScpDuplDeclIdSet
               := IntSets . Include
                    ( WScope . ScpDuplDeclIdSet , IdAttribute . Scan . SaAtom )
+(* CHECK^ Do we need ScpDuplDeclIdSet? *)                                                                                
           (* Plan to push duplicate Ident token.  The only effect will be to
              emit an error later, during R2L, when the position of the original
-             declaring occurrence is known. *) 
+             declaring occurence is known. *) 
           ; LTokToPut := Itk . ItkDuplDeclId
           ; LResult := FALSE (* Caller, Don't use this Id. *)
           END (*IF*) 
@@ -1997,14 +1968,16 @@ MODULE FM3ParsePass
     ( DeclIdAtom : FM3Base . AtomTyp ; READONLY Position : tPosition )
   : FM3Base . DeclNoTyp
   (* Append a temporary, pseudo-decl node to the linked list rooted at
-     the the decl number.  The position of the original declaration of
+     the decl number.  The position of the original declaration of
      the ident is not known right now.
   *) 
 
   = PROCEDURE Visit ( DeclNoI : INTEGER ; VAR DeclRefany : REFANY )
     (* PRE: DeclNoI IN FM3Base . DeclNoTyp *)  
     (* PRE: DeclRefany <: FM3Decls . DeclRefTyp. *) 
-    = VAR LDeclRef : FM3Decls . DeclRefTyp 
+ 
+    = VAR LDeclRef : FM3Decls . DeclRefTyp  
+
     ; BEGIN
         LDeclRef
           := FM3Decls . NewDeclRef ( FM3Scopes . ScopeStackTopRef , DeclNoI )
@@ -2047,8 +2020,8 @@ MODULE FM3ParsePass
     ; BEGIN (* VisitDecl *)
         LDeclRef := DeclRefany (* Implied NARROW. *)
       ; LParentScopeRef := FM3Scopes . ScopeStackTopRef 
-      ; IF LDeclRef # NIL
-        THEN  (* Some duplicate decls of DeclNoI were found. *) 
+      ; IF LDeclRef # NIL (* Some duplicate decls of DeclNoI also exist? *) 
+        THEN (* Dispense with them with error messages. *) 
           LIdentText := FM3Units . TextOfIdAtom ( DeclIdAtom ) 
         ; WHILE LDeclRef # NIL
           DO
@@ -2066,6 +2039,7 @@ MODULE FM3ParsePass
           END (*WHILE*) 
         END (*IF*)
 
+      (* Now handle the original/only declaration. *) 
       ; LDeclRef
           := FM3Decls . NewDeclRef ( FM3Scopes . ScopeStackTopRef , DeclNoI )
       ; LDeclRef . DclLink := NIL 
