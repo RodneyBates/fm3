@@ -39,11 +39,13 @@ MODULE FM3 EXPORTS Main
                  , IntRanges . RangeTyp
                      {  0 , FM3Globals . InitSkipStackCt - 1 }
                  )
-        ; FM3Globals . NextSkipNo := 0 
+        ; IntIntVarArray . Touch (* It needs a lower bound. *) 
+            ( FM3Globals . SkipNoStack , IntRanges . RangeTyp { 0 , 0 } )   
+        ; FM3Globals . NextSkipNo := 1 (* But don't use element 0. *) 
         ; FM3ParsePass . Run ( )
         ; <* ASSERT
-               IntRanges . RangeIsEmpty
-                 ( IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack ) )
+               IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack )
+               = IntRanges . RangeTyp { 0 , 0 } 
           *> 
           FM3Globals . SkipNoStack := NIL 
         FINALLY FM3CLArgs . Cleanup ( ) 

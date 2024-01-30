@@ -142,9 +142,8 @@ MODULE FM3ParsePass
 
   = BEGIN (*PutBwdP2*) 
       <* ASSERT RdBack = FM3Globals . P2RdBack *> 
-      IF NOT Ranges_Int . RangeIsEmpty
-               ( IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack ) )
-      THEN RETURN
+      IF IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0 
+      THEN (* We are skipping output. *) RETURN
       END (*IF*) 
     ; TRY
         FM3Compress . PutBwd ( RdBack , ValueL ) 
@@ -1412,7 +1411,7 @@ MODULE FM3ParsePass
 ; PROCEDURE CopyOperands
     ( OpndCt : [ 0 .. 6 ] 
     ; FromRdBack , ToRdBack : RdBackFile . T
-    ; MaybeSkip : BOOLEAN 
+    ; MaybeSkip : BOOLEAN (* ToRdBack is conditional on SkipNoStack. *) 
     )
   (* Copy operands, up to 6, without final reversing.  Pop/Push reverses
      them, but this procedure does its own reversal, resulting in
@@ -1424,8 +1423,8 @@ MODULE FM3ParsePass
   ; BEGIN (*CopyOperands*)
 <* ASSERT MaybeSkip = ( ToRdBack = FM3Globals . P2RdBack ) *> 
       IF MaybeSkip
-         AND NOT Ranges_Int . RangeIsEmpty
-                   ( IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack ))
+         AND IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack ) . Hi
+             > 0 
       THEN (* Just read and discard OpndCt values. *)
         (* The obvious loop is unrolled. *) 
         IF OpndCt >= 1 
@@ -1498,7 +1497,8 @@ MODULE FM3ParsePass
   = BEGIN 
       WITH WSkipNoStack = FM3Globals . SkipNoStack
       , WSkipRange = IntIntVarArray . TouchedRange ( WSkipNoStack )
-      DO 
+      DO
+        <* ASSERT WSkipRange . Hi > 0 *>
         <* ASSERT 
              IntIntVarArray . Fetch ( WSkipNoStack , WSkipRange . Hi )
              = SkipNo
@@ -1522,7 +1522,7 @@ MODULE FM3ParsePass
   ; VAR LAtom : FM3Base . AtomTyp
   ; VAR LPosition : tPosition
   ; VAR LDeclKind : FM3Decls . DeclKindTyp
-  ; VAR LSkipNo : INTEGER 
+  ; VAR LSkipNo : INTEGER
 
   ; BEGIN
       LUnitRef := FM3Units . UnitStackTopRef
@@ -1603,7 +1603,7 @@ MODULE FM3ParsePass
 
           ; LUnitRef . UntPatchStackTopCoord
               := FM3Compress . GetBwd ( LUnnestRdBack )
-                 (* New cached top patch coordinate. *) 
+                 (* New cached top patch coordinate. *)
           ; CopyOperands 
               ( FM3Utils . TokenOpndCt ( LToken ) 
               , LUnnestRdBack
@@ -1623,10 +1623,10 @@ MODULE FM3ParsePass
               ; WITH WSkipNoStack = FM3Globals . SkipNoStack
                 DO IntIntVarArray . Assign
                     ( WSkipNoStack
-                    , IntIntVarArray . TouchedRange ( WSkipNoStack ). Hi 
+                    , IntIntVarArray . TouchedRange ( WSkipNoStack ) . Hi + 1  
                     , LSkipNo
                     )
-                (* Throw this one away. *)
+                (* Discard this token. *)
                 END (*WITH*) 
             
             | Itk . ItkScopeRt 
@@ -2089,18 +2089,20 @@ MODULE FM3ParsePass
     (* PRE: DeclNoI IN FM3Base . DeclNoTyp *)  
     (* PRE: DeclRefany <: FM3Decls . DeclRefTyp. *) 
  
-    = VAR LDeclRef : FM3Decls . DeclRefTyp  
+    = VAR LOldDeclRef : FM3Decls . DeclRefTyp  
+    ; VAR LNewDeclRef : FM3Decls . DeclRefTyp  
 
     ; BEGIN
-        LDeclRef
+        LOldDeclRef := DeclRefany (* Implied NARROW. *) 
+      ; LNewDeclRef
           := FM3Decls . NewDeclRef ( FM3Scopes . ScopeStackTopRef , DeclNoI )
-      ; LDeclRef . DclLink := DeclRefany (* Implied NARROW. *) 
-      ; LDeclRef . DclSelfScopeRef := FM3Scopes . ScopeStackTopRef (* Why not? *)
-      ; LDeclRef . DclIdAtom := DeclIdAtom 
-      ; LDeclRef . DclDeclNo := DeclNoI 
-      ; LDeclRef . DclPos := Position 
-      ; LDeclRef . DclKind := FM3Decls . DeclKindTyp . DkDuplDecl
-      ; DeclRefany := LDeclRef 
+     (* ^This will have, as a side-effect, made DeclRefany = LNewDeclRef *)
+      ; LNewDeclRef . DclLink := LOldDeclRef 
+      ; LNewDeclRef . DclSelfScopeRef := FM3Scopes . ScopeStackTopRef (* Why not? *)
+      ; LNewDeclRef . DclIdAtom := DeclIdAtom 
+      ; LNewDeclRef . DclDeclNo := DeclNoI 
+      ; LNewDeclRef . DclPos := Position 
+      ; LNewDeclRef . DclKind := FM3Decls . DeclKindTyp . DkDuplDecl
       END Visit
 
   ; BEGIN (* DuplDeclIdR2L *) 

@@ -328,8 +328,7 @@ MODULE FM3Utils
       | FM3SrcToks . StkIdent .. FM3SrcToks . StkWideCharLit
       => RETURN 3 (* Atom, Line, Column. *) 
 (* NOTE: May need to adjust this if literals have additional operands. *) 
-      | FM3IntToks . ItkNull .. FM3IntToks . ItkRightEnd
-      , FM3IntToks . ItkImport .. FM3IntToks . TkMaxTok
+      | FM3IntToks . TkMinTok .. FM3IntToks . TkMaxTok
       => IF IntSets . IsElement ( Token , FM3SharedGlobals . GTokSetGE6Args )
          THEN RETURN 6
          ELSIF IntSets . IsElement ( Token , FM3SharedGlobals . GTokSetGE5Args )

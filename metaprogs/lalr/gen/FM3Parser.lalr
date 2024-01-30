@@ -659,7 +659,7 @@ RULE
            ) ;
        ELSE (* Skip the decl. *) 
          Push_LCIri
-           ( Itk . ItkSkipLt , $$ . PaUnnestCoord , FM3Globals . NextSkipNo ) ;
+           ( Itk . ItkSkipLt , $1 . PaUnnestCoord , FM3Globals . NextSkipNo ) ;
          INC ( FM3Globals . NextSkipNo ) ;
        END (*IF*) ;
      } . 

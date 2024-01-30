@@ -167,6 +167,7 @@ MODULE FM3Units
       THEN LIdentText := "<NIL>"
       ELSE LIdentText := Text . FromChars ( LCharsRef ^ )
       END (*IF*)
+    ; RETURN LIdentText 
     END TextOfIdAtom
 
 (*EXPORTED.*)

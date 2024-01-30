@@ -1718,7 +1718,7 @@ yyNonterminal := 156;
                            ) ;
                        ELSE (* Skip the decl. *) 
                          Push_LCIri
-                           ( Itk . ItkSkipLt , yySynAttribute . PaUnnestCoord , FM3Globals . NextSkipNo ) ;
+                           ( Itk . ItkSkipLt , yyAttributeStack^[yyStackPtr+1] . PaUnnestCoord , FM3Globals . NextSkipNo ) ;
                          INC ( FM3Globals . NextSkipNo ) ;
                        END (*IF*) ;
                      
