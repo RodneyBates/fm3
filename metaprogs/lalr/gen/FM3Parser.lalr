@@ -630,14 +630,17 @@ RULE
 
    TypeDeclPlus : TypeDeclPlus TypeDecl StkSemicolon
      { $$ . PaInt (* Decl count. *):= $1 . PaInt + $2 . PaInt ;
-       Push_ECIP
-         ( Itk . ItkBlockDeclListLt
-         , $2 . PaUnnestCoord 
-         , $1 . PaInt
-         , $2 . Scan . Position
-         ) ; 
+       IF $2 . PaInt > 0
+       THEN (* Insert a separator. *) 
+         Push_ECIP
+           ( Itk . ItkBlockDeclListLt
+           , $2 . PaUnnestCoord 
+           , $1 . PaInt
+           , $2 . Scan . Position
+           ) ;
+       END (*IF*) ;  
      } .
-
+ 
    TypeDeclId : StkIdent
      { $$ . PaInt (* Ident is OK. *) 
          := ORD ( FM3ParsePass . DeclIdL2R
@@ -1301,7 +1304,7 @@ RULE
    BlockDecl : RevelationGroup { $$ . PaInt := $1 . PaInt ; } . 
  
    (* A block declaration always includes a terminating semicolon in the
-      source syntax, but we emit only Itk _separators_. *)
+      source syntax, but we emit only Itk *separators*. *)
 
    BlockDeclList : /*Empty*/
      { Push_LIP_rip
@@ -1322,12 +1325,15 @@ RULE
 
    BlockDeclPlus : BlockDeclPlus BlockDecl  
      { $$ . PaInt := $1 . PaInt + $2 . PaInt (* Decl count. *) ;
-       Push_ECIP (* Internal separator. *)
-         ( Itk . ItkBlockDeclListLt
-         , $2 . PaUnnestCoord
-         , $1 . PaInt
-         , $2 . Scan . Position
-         ) ; 
+       IF $2 . PaInt > 0
+       THEN
+         Push_ECIP (* Internal separator. *)
+           ( Itk . ItkBlockDeclListLt
+           , $2 . PaUnnestCoord
+           , $1 . PaInt
+           , $2 . Scan . Position
+           ) ;
+       END (*IF*) ; 
      } .
 
 (* ---------------------------- Statements ----------------------------- *)
