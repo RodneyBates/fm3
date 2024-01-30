@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023        Rodney M. Bates.                                    *)
+(* Copyright 2023..2024  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
@@ -57,7 +57,7 @@ MODULE FM3Units
 
 (*EXPORTED*) 
 ; PROCEDURE NewUnitMap ( InitUnitCt : FM3Base . UnitNoTyp ) : UnitMapTyp
-  (* One UnnitMap in a compile. *) 
+  (* One UnitMap in a compile. *) 
 
   = BEGIN
       RETURN
@@ -181,7 +181,10 @@ MODULE FM3Units
     ; IF LBeneathUnitRef = NIL
       THEN UnitRef . UntStackDepth := 1
       ELSE UnitRef . UntStackDepth := LBeneathUnitRef . UntStackDepth + 1
-      END (*IF*) 
+      END (*IF*)
+    ; FM3Globals . P1RdBack := UnitRef . UntUnnestStackRdBack 
+    ; FM3Globals . PatchRdBack := UnitRef . UntPatchStackRdBack 
+    ; FM3Globals . P2RdBack := UnitRef . UntParsePassRdBack 
     ; UnitRef ^ . UntStackLink := LBeneathUnitRef  
     ; UnitStackTopRef := UnitRef
     END PushUnit
@@ -192,7 +195,10 @@ MODULE FM3Units
   = VAR LPoppedUnitRef : UnitRefTyp
 
   ; BEGIN (*Pop*)
-      LPoppedUnitRef := UnitStackTopRef  
+      FM3Globals . P1RdBack := NIL 
+    ; FM3Globals . PatchRdBack := NIL 
+    ; FM3Globals . P2RdBack := NIL 
+    ; LPoppedUnitRef := UnitStackTopRef  
     ; <* ASSERT LPoppedUnitRef # NIL *>
       UnitStackTopRef := LPoppedUnitRef ^ . UntStackLink
     ; IF UnitStackTopRef = NIL

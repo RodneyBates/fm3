@@ -9,6 +9,7 @@ import("libvararray")
 module("Ranges_Int")
 module("VarArray_Int_Refany")
 
-module("VarArray_Int_Int")
+%module("VarArray_Int_Int")
+% ^libvararray contains this under the name IntIntVarArray, same brand. 
 
 module ("RangeUtils") 

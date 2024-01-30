@@ -29,7 +29,9 @@ LONE
      ItkLeftEnd .
      ItkRightEnd . 
      ItkLeftEndIncomplete . 
-     ItkRightEndIncomplete . 
+     ItkRightEndIncomplete .
+
+FIXED ItkSkip INT (* Unique Pair number. *) . 
 
 LONE
 ItkUnitId IDENT POS 3 (* IdAtom, Line, Column. *) . 
@@ -96,7 +98,10 @@ ItkSubtypeDecl POS 2 (* Position of ident (Lt). *)
 ItkFullReveal POS 2 (* Position of ident. *)
   Equals POS 2 . 
 ItkPartialReveal POS 2 (* Position of ident. *)
-  Subtype POS 2 . 
+  Subtype POS 2 .
+
+LONE
+ItkInvalidType POS (* To suppress derived errors. *) . 
 
 (*
 LONE

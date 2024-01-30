@@ -639,33 +639,28 @@ RULE
      } .
 
    TypeDeclId : StkIdent
-     { IF FM3ParsePass . DeclIdL2R ( Itk . ItkDeclId , Dkt . DkType , $1 ) 
-       THEN (* Valid Id, count and use it. *)
-         $$ . PaInt := 1 (* Decl count. *) 
-       ELSE $$ . PaInt := - FM3ParsePass . StartSkipping ( )
-                      (* <0 => it's a skip depth. *)
-       END (*IF*) 
+     { $$ . PaInt (* Ident is OK. *) 
+         := ORD ( FM3ParsePass . DeclIdL2R
+                    ( Itk . ItkDeclId , Dkt . DkType , $1 )
+                ) 
      } .
 
    TypeDecl : TypeDeclId TypeRelation Type  
-     { IF $1 . PaInt > 0 
-       THEN $$ . PaInt := 1 (* BlockDecl count. *) ; 
-         IF FM3ParsePass . SkipDepth = 0 
-         THEN 
-           Push_LCP_eCP_rP
-             ( $2 . PaTok1 
-             , $1 . PaUnnestCoord
-             , $1 . Scan . Position
-             , $2 . PaUnnestCoord
-             , $2 . Scan . Position
-             , $1 . Scan . Position 
-             ) ;
-         END (*IF*) 
-       ELSE
-         $$ . PaInt := 0 (* BlockDecl count. *) ; 
-         <* ASSERT $1 . PaInt (* Skipping depth *)
-                   = - FM3ParsePass . StopSkipping ( )
-         *>
+     { $$ . PaInt := $1 . PaInt (* Contribution to BlockDecl count. *) ; 
+       IF $$ . PaInt > 0 
+       THEN 
+         Push_LCP_eCP_rP
+           ( $2 . PaTok1 
+           , $1 . PaUnnestCoord
+           , $1 . Scan . Position
+           , $2 . PaUnnestCoord
+           , $2 . Scan . Position
+           , $1 . Scan . Position 
+           ) ;
+       ELSE (* Skip the decl. *) 
+         Push_LCIri
+           ( Itk . ItkSkipLt , $$ . PaUnnestCoord , FM3Globals . NextSkipNo ) ;
+         INC ( FM3Globals . NextSkipNo ) ;
        END (*IF*) ;
      } . 
 
@@ -708,8 +703,8 @@ RULE
 
    Revelation : TypeId RevelationRelation Type  
      { $$ . PaInt := 1 (* BlockDecl count. *) ;
-(* CHECK^ Do we really want to count this as a block decl?  It occupies a space in the
-          Blockdecl list,  but does not introduce a new identifier.
+(* CHECK^ Do we really want to count this as a block decl?  It occupies a 
+          space in the Blockdecl list, but does not introduce a new identifier.
 *) 
        IF FM3ParsePass . SkipDepth = 0 
        THEN 
@@ -795,7 +790,7 @@ RULE
          IF $1 . PaInt < 0 (* Skipping this decl?  *) 
          THEN (* VarDeclIds calls for skipping the declaration. *)
            $$ . PaInt := 0 (* Contribution to BlockDeclCt. *) ; 
-           <* ASSERT FM3ParsePass . StopSkipping ( ) = - $1 . PaInt *> 
+           <* ASSERT FM3ParsePass . StopSkipping0 ( ) = - $1 . PaInt *> 
          ELSIF FM3ParsePass . SkipDepth > 0
                (* Skipping some containing construct? *)
          THEN (* No output. *) 
@@ -826,7 +821,7 @@ RULE
 
        IF $1 . PaInt = 0 (* No usable idents. *)
        THEN (* Start skipping this decl. *) 
-         $$ . PaInt  := - FM3ParsePass . StartSkipping ( ) ;
+         $$ . PaInt  := - FM3ParsePass . StartSkipping0 ( ) ;
            (* ^Negative Skipping depth. *)
        ELSE
          $$ . PaInt := $1 . PaInt (* Valid id count. *) ;
@@ -1087,7 +1082,7 @@ RULE
            IF $2 . PaInt < 0 (* FormalIds calls for skipping the decl? *)
            THEN 
              $$ . PaInt := 0 ;
-             <* ASSERT FM3ParsePass . StopSkipping ( ) = - $2 . PaInt *>
+             <* ASSERT FM3ParsePass . StopSkipping0 ( ) = - $2 . PaInt *>
            ELSIF FM3ParsePass . SkipDepth > 0
                  (* Skipping some containing construct? *)
            THEN (* No output. *) 
@@ -1119,7 +1114,7 @@ RULE
        IF $1 . PaInt = 0 (* No valid ids. *)
        THEN (* Start skipping this formal. *) 
          $$ . PaInt (* Negative Skipping depth. *) 
-           := - FM3ParsePass . StartSkipping ( ) ;
+           := - FM3ParsePass . StartSkipping0 ( ) ;
        ELSE
          $$ .PaInt := $1 . PaInt (* Valid Id Ct. *) ; 
          MakeListPos

@@ -1,7 +1,18 @@
+
+(* -----------------------------------------------------------------------1- *)
+(* This file is part of the FM3 Modula-3 compiler.                           *)
+(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+(* rodney.m.bates@acm.org                                                    *)
+(* Licensed under the MIT License.                                           *)
+(* -----------------------------------------------------------------------2- *) 
+
 MODULE FM3 EXPORTS Main
 
 ; IMPORT Stdio
-; IMPORT Wr 
+; IMPORT Wr
+
+; IMPORT IntIntVarArray
+; IMPORT IntRanges 
 
 ; IMPORT FM3CLArgs
 ; IMPORT FM3Globals 
@@ -18,11 +29,23 @@ MODULE FM3 EXPORTS Main
 
   ; BEGIN
       TRY (*EXCEPT*)
-        TRY (*FIMALLY*)
+        TRY (*FINALLY*)
           FM3CLArgs . Process ( )
         ; FM3SharedUtils . LoadSets ( ) 
-        ; FM3Scanner . Init ( ) 
+        ; FM3Scanner . Init ( )
+        ; FM3Globals . SkipNoStack 
+            := IntIntVarArray . New
+                 ( FIRST ( INTEGER )
+                 , IntRanges . RangeTyp
+                     {  0 , FM3Globals . InitSkipStackCt - 1 }
+                 )
+        ; FM3Globals . NextSkipNo := 0 
         ; FM3ParsePass . Run ( )
+        ; <* ASSERT
+               IntRanges . RangeIsEmpty
+                 ( IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack ) )
+          *> 
+          FM3Globals . SkipNoStack := NIL 
         FINALLY FM3CLArgs . Cleanup ( ) 
         END (*FINALLY*)
       ; LDebug := 11 (* Ordinary completion.*)

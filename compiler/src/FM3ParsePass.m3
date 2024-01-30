@@ -1,4 +1,3 @@
-
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2023..2024  Rodney M. Bates.                                    *)
@@ -35,9 +34,12 @@ MODULE FM3ParsePass
 ; IMPORT Text 
 ; IMPORT Thread 
 ; IMPORT UniRd
-; IMPORT VarArray_Int_Refany 
 ; IMPORT Wr
 
+; IMPORT Ranges_Int
+; IMPORT RangeUtils 
+; IMPORT IntIntVarArray 
+; IMPORT VarArray_Int_Refany 
 
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars
@@ -56,7 +58,7 @@ MODULE FM3ParsePass
     IMPORT LtToRt , LtToPatch , LtToOne , LtToOnePatch , LtToTwoPatch
            , LtToListSepPatch 
 ; FROM FM3StreamUtils
-    IMPORT GetBwdAtom , GetBwdDeclKind , GetBwdPos , GetBwdScopeNo 
+    IMPORT GetBwdInt , GetBwdAtom , GetBwdDeclKind , GetBwdPos , GetBwdScopeNo 
 ; IMPORT FM3Messages 
 ; FROM FM3Messages IMPORT FatalArr , ErrorArr , LogArr
 ; IMPORT FM3Parser
@@ -86,16 +88,17 @@ MODULE FM3ParsePass
 ; CONST ALOSE = FM3Messages . AtomListToOSError
 
 (*EXPORTED*)
-; PROCEDURE StartSkipping ( ) : CARDINAL (* depth after. *)
+; PROCEDURE StartSkipping0 ( ) : CARDINAL (* depth after. *)
 
   = BEGIN
       INC ( SkipDepth )
     ; RETURN SkipDepth 
-    END StartSkipping
+    END StartSkipping0
 
 (*EXPORTED*)
-; PROCEDURE StopSkipping ( ) : CARDINAL (* depth before. *)
-  (* Let's leave it to  callers to check expected depth,
+; PROCEDURE StopSkipping0
+    ( ) : CARDINAL (* depth before. *)
+  (* Let's leave it to callers to check expected depth,
      so a failure will be detected at the call site.
   *)
 
@@ -105,19 +108,20 @@ MODULE FM3ParsePass
       LDepth := SkipDepth
     ; IF LDepth > 0 THEN DEC ( SkipDepth ) END (*IF*)  
     ; RETURN LDepth 
-    END StopSkipping
+    END StopSkipping0
 
-; PROCEDURE PutBwd ( File : RdBackFile . T ; ValueL : LONGINT )
+; PROCEDURE PutBwd ( RdBack : RdBackFile . T ; ValueL : LONGINT )
   (* Wrap FM3Compress . PutBwd
      1. Catch OSError.E.
      2. Conditionally do nothing when skipping. 
   *)
 
   = BEGIN
-      IF SkipDepth <= 0
+      <* ASSERT RdBack # FM3Globals . P2RdBack *> 
+      IF TRUE OR SkipDepth <= 0
       THEN
         TRY
-          FM3Compress . PutBwd ( File , ValueL ) 
+          FM3Compress . PutBwd ( RdBack , ValueL ) 
         EXCEPT OSError . E ( EMsg )
         => FatalArr
              ( ARRAY OF REFANY
@@ -129,6 +133,31 @@ MODULE FM3ParsePass
         END (*EXCEPT*) 
       END (*IF*)
     END PutBwd
+
+; PROCEDURE PutBwdP2 ( RdBack : RdBackFile . T ; ValueL : LONGINT )
+  (* Wrap FM3Compress . PutBwd
+     1. Catch OSError.E.
+     2. Conditionally do nothing when skipping. 
+  *)
+
+  = BEGIN (*PutBwdP2*) 
+      <* ASSERT RdBack = FM3Globals . P2RdBack *> 
+      IF NOT Ranges_Int . RangeIsEmpty
+               ( IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack ) )
+      THEN RETURN
+      END (*IF*) 
+    ; TRY
+        FM3Compress . PutBwd ( RdBack , ValueL ) 
+      EXCEPT OSError . E ( EMsg )
+      => FatalArr
+           ( ARRAY OF REFANY
+               { "Unable to write to readback file: "
+(*TODO: Give RdBackFile a "Filename" function,, then insert it here. *) 
+               , ALOSE ( EMsg ) , "."  
+               }
+           ) 
+      END (*EXCEPT*) 
+    END PutBwdP2
 
 (* 
 ; PROCEDURE FindFilePrefix ( FileName : TEXT ; Why : TEXT ) : TEXT
@@ -355,7 +384,7 @@ MODULE FM3ParsePass
   ; VAR LParsePassFullFileName , LParsePassFullCopyName : TEXT 
   ; VAR LUnnestFailed , LParsePassFailed : BOOLEAN
 
-  ; BEGIN
+  ; BEGIN (*CompileUnit*) 
       IF SkipDepth > 0 THEN RETURN END (*IF*) 
     ; LUnitRef := OpenUnit ( SrcFileName ) 
     ; FM3Units . PushUnit ( LUnitRef ) 
@@ -425,11 +454,11 @@ MODULE FM3ParsePass
     (* Now build the ParsePass RdBack. *) 
     ; TRY 
         Unnest ( LUnitRef ^ . UntParsePassEmptyCoord ) 
-      ; PutBwd
+      ; PutBwdP2
           ( LUnitRef ^ . UntParsePassRdBack
           , VAL ( Itk . ItkLeftEnd , LONGINT )
           )
-      ; PutBwd
+      ; PutBwdP2
           ( LUnitRef ^ . UntParsePassRdBack
           , VAL ( Itk . ItkEOF , LONGINT )
           )
@@ -441,7 +470,7 @@ MODULE FM3ParsePass
       ELSE 
 (*TODO: get the exception name here and put into the messages later. *) 
         LPpDepthL := RdBackFile . LengthL ( LUnitRef ^ . UntParsePassRdBack )
-      ; PutBwd
+      ; PutBwdP2
           ( LUnitRef ^ . UntParsePassRdBack
           , VAL ( Itk . ItkLeftEndIncomplete , LONGINT )
           )
@@ -597,11 +626,11 @@ MODULE FM3ParsePass
             , " bytes."
             } 
         )
-    ; PutBwd
+    ; PutBwdP2
         ( FM3Units . UnitStackTopRef ^ . UntParsePassRdBack
         , VAL ( Itk . ItkLeftEnd , LONGINT ) 
         )
-    ; PutBwd
+    ; PutBwdP2
         ( FM3Units . UnitStackTopRef ^ . UntParsePassRdBack
         , VAL ( Itk . ItkEOF , LONGINT ) 
         )
@@ -1380,8 +1409,11 @@ MODULE FM3ParsePass
   = BEGIN (*EndBlock*)
     END EndBlock
 
-; PROCEDURE RereverseOpnds
-    ( OpndCt : INTEGER ; FromRdBack , ToRdBack : RdBackFile . T )
+; PROCEDURE CopyOperands
+    ( OpndCt : [ 0 .. 6 ] 
+    ; FromRdBack , ToRdBack : RdBackFile . T
+    ; MaybeSkip : BOOLEAN 
+    )
   (* Copy operands, up to 6, without final reversing.  Pop/Push reverses
      them, but this procedure does its own reversal, resulting in
      net same order.
@@ -1389,40 +1421,93 @@ MODULE FM3ParsePass
  
   = VAR LOpnd1 , LOpnd2 , LOpnd3 , LOpnd4 , LOpnd5 , LOpnd6 : LONGINT
   
-  ; BEGIN (*RereverseOpnds*)
-      IF OpndCt >= 1 
-      THEN
-        LOpnd1 := FM3Compress . GetBwd ( FromRdBack )
-      ; IF OpndCt >= 2
-        THEN
-          LOpnd2 := FM3Compress . GetBwd ( FromRdBack )
-        ; IF OpndCt >= 3
-          THEN
-            LOpnd3 := FM3Compress . GetBwd ( FromRdBack )
-          ; IF OpndCt >= 4
-            THEN
-              LOpnd4 := FM3Compress . GetBwd ( FromRdBack )
-            ; IF OpndCt >= 5
-              THEN
-                LOpnd5 := FM3Compress . GetBwd ( FromRdBack )
-              ; IF OpndCt >= 6
-                THEN
-                  LOpnd6 := FM3Compress . GetBwd ( FromRdBack )
-                ; PutBwd ( ToRdBack , LOpnd6 ) 
+  ; BEGIN (*CopyOperands*)
+<* ASSERT MaybeSkip = ( ToRdBack = FM3Globals . P2RdBack ) *> 
+      IF MaybeSkip
+         AND NOT Ranges_Int . RangeIsEmpty
+                   ( IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack ))
+      THEN (* Just read and discard OpndCt values. *)
+        (* The obvious loop is unrolled. *) 
+        IF OpndCt >= 1 
+        THEN EVAL FM3Compress . GetBwd ( FromRdBack )
+        ; IF OpndCt >= 2
+          THEN EVAL FM3Compress . GetBwd ( FromRdBack )
+          ; IF OpndCt >= 3
+            THEN EVAL FM3Compress . GetBwd ( FromRdBack )
+            ; IF OpndCt >= 4
+              THEN EVAL FM3Compress . GetBwd ( FromRdBack )
+              ; IF OpndCt >= 5
+                THEN EVAL FM3Compress . GetBwd ( FromRdBack )
+                ; IF OpndCt >= 6
+                  THEN EVAL FM3Compress . GetBwd ( FromRdBack )
+                  END (*IF*) 
                 END (*IF*) 
-              ; PutBwd ( ToRdBack , LOpnd5 ) 
               END (*IF*) 
-            ; PutBwd ( ToRdBack , LOpnd4 ) 
             END (*IF*) 
-          ; PutBwd ( ToRdBack , LOpnd3 ) 
           END (*IF*) 
-        ; PutBwd ( ToRdBack , LOpnd2 ) 
+        END (*IF*) 
+      ELSE (* Actually copy, without net reversal. *) 
+        (* The obvious loop is unrolled. *) 
+        IF OpndCt >= 1 
+        THEN
+          LOpnd1 := FM3Compress . GetBwd ( FromRdBack )
+        ; IF OpndCt >= 2
+          THEN LOpnd2 := FM3Compress . GetBwd ( FromRdBack )
+          ; IF OpndCt >= 3
+            THEN LOpnd3 := FM3Compress . GetBwd ( FromRdBack )
+            ; IF OpndCt >= 4
+              THEN LOpnd4 := FM3Compress . GetBwd ( FromRdBack )
+              ; IF OpndCt >= 5
+                THEN LOpnd5 := FM3Compress . GetBwd ( FromRdBack )
+                ; IF OpndCt >= 6
+                  THEN LOpnd6 := FM3Compress . GetBwd ( FromRdBack )
+                  ; FM3Compress . PutBwd ( ToRdBack , LOpnd6 ) 
+                  END (*IF*) 
+                ; FM3Compress . PutBwd ( ToRdBack , LOpnd5 ) 
+                END (*IF*) 
+              ; FM3Compress . PutBwd ( ToRdBack , LOpnd4 ) 
+              END (*IF*) 
+            ; FM3Compress . PutBwd ( ToRdBack , LOpnd3 ) 
+            END (*IF*) 
+          ; FM3Compress . PutBwd ( ToRdBack , LOpnd2 ) 
+          END (*IF*)
+        ; FM3Compress . PutBwd ( ToRdBack , LOpnd1 ) 
         END (*IF*)
-(* EXPANDME: For now, treat OpndCt < 0 as zero. *) 
-      ; PutBwd ( ToRdBack , LOpnd1 ) 
-      END (*IF*)
+      END (*IF*) 
+    END CopyOperands
 
-    END RereverseOpnds
+(* Insert tok *) 
+
+(*EXPORTED*)
+; PROCEDURE StartSkipping ( PairNo := FIRST (  INTEGER ) ) 
+
+  = BEGIN
+
+    END StartSkipping
+
+(*EXPORTED*)
+; PROCEDURE StopSkipping ( PairNo := FIRST (  INTEGER ) ) 
+
+  = VAR LDepth : CARDINAL
+
+  ; BEGIN
+    END StopSkipping
+
+; PROCEDURE SkipLt ( SkipNo : INTEGER )
+
+  = BEGIN 
+      WITH WSkipNoStack = FM3Globals . SkipNoStack
+      , WSkipRange = IntIntVarArray . TouchedRange ( WSkipNoStack )
+      DO 
+        <* ASSERT 
+             IntIntVarArray . Fetch ( WSkipNoStack , WSkipRange . Hi )
+             = SkipNo
+        *>
+        IntIntVarArray . Project (* Pop SkipNoStack. *) 
+          ( WSkipNoStack , RangeUtils . TrimHi ( WSkipRange ) )
+     (* And throw this token away. *) 
+      END (*WITH*)
+    END SkipLt
 
 ; PROCEDURE Unnest ( LMUnnestDepth : LONGINT )
 
@@ -1436,10 +1521,12 @@ MODULE FM3ParsePass
   ; VAR LScopeNo : FM3Base . ScopeNoTyp
   ; VAR LAtom : FM3Base . AtomTyp
   ; VAR LPosition : tPosition
-  ; VAR LDeclKind : FM3Decls . DeclKindTyp 
+  ; VAR LDeclKind : FM3Decls . DeclKindTyp
+  ; VAR LSkipNo : INTEGER 
 
   ; BEGIN
       LUnitRef := FM3Units . UnitStackTopRef
+    (* For now, let's assume the skip mechanism is only used during pass 2.*)
     ; LUnnestRdBack := LUnitRef . UntUnnestStackRdBack 
     ; LPatchRdBack := LUnitRef . UntPatchStackRdBack 
     ; LParsePassRdBack := LUnitRef . UntParsePassRdBack
@@ -1460,34 +1547,39 @@ MODULE FM3ParsePass
       ; IF LUnnestCoord <= LUnitRef . UntPatchStackTopCoord
         THEN
 
-        (* Move a modified token from the patch stack to the output. *) 
+        (* Modify and move token from the patch stack to the output. *) 
           <*ASSERT LUnnestCoord = LUnitRef . UntPatchStackTopCoord
                    (* Haven't missed a patch stack token. *)
           *> 
-          LPatchTokenL
-            := FM3Compress . GetBwd ( LPatchRdBack )
+          LPatchTokenL := FM3Compress . GetBwd ( LPatchRdBack )
         ; LPatchToken := VAL ( LPatchTokenL , Itk . TokTyp ) 
         ; <*ASSERT
               IntSets . IsElement
                 ( LPatchToken , FM3SharedGlobals . GTokSetPatch )
           *>
-          LPatchedToken := LPatchToken - Itk . LtToPatch
-(* FIXME: The patch operation can apply to any non-Rt token.  I think
-          the necessary bias is always the same as LtToPatch, but check
-          this and then use a better name for it.
-*) 
-          
-       (* Copy the operands, reversing them to counteract the reversal
-          accomplished by stack operations. *)
-        ; RereverseOpnds
-            ( FM3Utils . TokenOpndCt ( LPatchedToken ) 
-            , LPatchRdBack
-            , LParsePassRdBack
-            ) 
+          IF LPatchToken = Itk . ItkSkipLtPatch
+          THEN (* Special handling, patching ItkSkipLtPatch. *)
+            SkipLt ( GetBwdInt ( FM3Globals . PatchRdBack ) )  
+          ELSE 
+            LPatchedToken := LPatchToken - Itk . LtToPatch
+  (* FIXME: The patch operation can apply to any non-Rt token.  I think
+            the necessary bias is always the same as LtToPatch, but check
+            this and then use a better name for it.
+  *) 
 
-        (* Put the patched token. *)
-        ; LPatchedTokenL := VAL ( LPatchedToken , LONGINT ) 
-        ; PutBwd ( LParsePassRdBack , LPatchedTokenL )
+         (* Copy the operands, reversing them to counteract the reversal
+            accomplished by stack operations. *)
+          ; CopyOperands
+              ( FM3Utils . TokenOpndCt ( LPatchedToken ) 
+              , LPatchRdBack
+              , LParsePassRdBack
+              , MaybeSkip := TRUE 
+              ) 
+
+          (* Put the patched token. *)
+          ; LPatchedTokenL := VAL ( LPatchedToken , LONGINT ) 
+          ; PutBwdP2 ( LParsePassRdBack , LPatchedTokenL )
+          END (*IF*) 
 
         (* Conceptually finish popping the Patch stack by caching the
            next patch coordinate, which, unusually, is on top of its token.
@@ -1512,15 +1604,30 @@ MODULE FM3ParsePass
           ; LUnitRef . UntPatchStackTopCoord
               := FM3Compress . GetBwd ( LUnnestRdBack )
                  (* New cached top patch coordinate. *) 
-          ; RereverseOpnds 
+          ; CopyOperands 
               ( FM3Utils . TokenOpndCt ( LToken ) 
               , LUnnestRdBack
               , LPatchRdBack
+              , MaybeSkip := FALSE  
               ) 
           ; PutBwd ( LPatchRdBack , LTokenL )
             (* ^Push the token code deeper than its patch coordinate. *) 
-          ELSE
-            CASE LToken OF (* Specially handled tokens. *) 
+          ELSE (* Move this token to the ParsePass stack. *) 
+            CASE LToken OF (* Specially handled tokens. *)
+
+            | Itk . ItkSkipLt
+            => SkipLt ( GetBwdInt ( FM3Globals . P1RdBack ) ) 
+ 
+            | Itk . ItkSkipRt
+            => LSkipNo := GetBwdInt ( LUnnestRdBack )
+              ; WITH WSkipNoStack = FM3Globals . SkipNoStack
+                DO IntIntVarArray . Assign
+                    ( WSkipNoStack
+                    , IntIntVarArray . TouchedRange ( WSkipNoStack ). Hi 
+                    , LSkipNo
+                    )
+                (* Throw this one away. *)
+                END (*WITH*) 
             
             | Itk . ItkScopeRt 
             => LScopeNo := GetBwdScopeNo ( LUnnestRdBack ) 
@@ -1552,28 +1659,34 @@ MODULE FM3ParsePass
             | Itk . ItkBlockRt
             => LScopeNo := GetBwdScopeNo ( LUnnestRdBack ) 
               ; ScopeRtR2L ( LScopeNo  )
-              ; RereverseOpnds
-                 ( 2 (*Position*), LUnnestRdBack , LParsePassRdBack )
-              ; PutBwd ( LParsePassRdBack , VAL ( LScopeNo , LONGINT ) ) 
-              ; PutBwd ( LParsePassRdBack , VAL ( Itk . ItkBlockRt , LONGINT ) )
+              ; CopyOperands
+                 ( 2 (*Position*)
+                 , LUnnestRdBack
+                 , LParsePassRdBack
+                 , MaybeSkip := TRUE 
+                 )
+              ; PutBwdP2 ( LParsePassRdBack , VAL ( LScopeNo , LONGINT ) ) 
+              ; PutBwdP2 ( LParsePassRdBack , VAL ( Itk . ItkBlockRt , LONGINT ) )
 
             | Itk . ItkBlockLt 
             , Itk . ItkScopeLt 
-            => RereverseOpnds
+            => CopyOperands
                  ( FM3Utils . TokenOpndCt ( LToken ) 
                  , LUnnestRdBack
                  , LParsePassRdBack
+                 , MaybeSkip := TRUE 
                  )
-              ; PutBwd ( LParsePassRdBack , LTokenL )
+              ; PutBwdP2 ( LParsePassRdBack , LTokenL )
               ; EVAL FM3Scopes . PopBlockScope ( ) 
 
             ELSE (* Move directly, unnest to the output.*)
-              RereverseOpnds
+              CopyOperands
                 ( FM3Utils . TokenOpndCt ( LToken )
                 , LUnnestRdBack
                 , LParsePassRdBack
+                , MaybeSkip := TRUE 
                 ) 
-            ; PutBwd ( LParsePassRdBack , LTokenL )
+            ; PutBwdP2 ( LParsePassRdBack , LTokenL )
             END (*CASE*) 
           END (*IF*) 
         (* And loop *)           
@@ -2063,10 +2176,10 @@ MODULE FM3ParsePass
         ; <*ASSERT LDeclNo # FM3Base . DeclNoNull *>
           VarArray_Int_Refany . CallbackWithElem 
             ( FM3Units . UnitStackTopRef ^ . UntDeclMap , LDeclNo , VisitDecl )
-        ; PutBwd ( WppRdBack , VAL ( Position . Column , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( Position . Line , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( LDeclNo , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( Itk . ItkDeclNo , LONGINT ) )
+        ; PutBwdP2 ( WppRdBack , VAL ( Position . Column , LONGINT ) ) 
+        ; PutBwdP2 ( WppRdBack , VAL ( Position . Line , LONGINT ) ) 
+        ; PutBwdP2 ( WppRdBack , VAL ( LDeclNo , LONGINT ) ) 
+        ; PutBwdP2 ( WppRdBack , VAL ( Itk . ItkDeclNo , LONGINT ) )
 (* FIXME: Put a token for the Id. *) 
         ; RETURN LDeclNo
         END (*WITH*) 
@@ -2088,16 +2201,16 @@ MODULE FM3ParsePass
         THEN (* Decl'd in this scope.  Replace Id with DeclNo. *) 
           LDeclNo := LookupId ( WScope , IdentRefAtom , Position )
         ; <*ASSERT LDeclNo # FM3Base . DeclNoNull *>
-          PutBwd ( WppRdBack , VAL ( Position . Column , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( Position . Line , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( LDeclNo , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( Itk . ItkIdRefDeclNo , LONGINT ) )  
+          PutBwdP2 ( WppRdBack , VAL ( Position . Column , LONGINT ) ) 
+        ; PutBwdP2 ( WppRdBack , VAL ( Position . Line , LONGINT ) ) 
+        ; PutBwdP2 ( WppRdBack , VAL ( LDeclNo , LONGINT ) ) 
+        ; PutBwdP2 ( WppRdBack , VAL ( Itk . ItkIdRefDeclNo , LONGINT ) )  
         ; RETURN LDeclNo
         ELSE (* Leave as-is, for later resolution. *)
-          PutBwd ( WppRdBack , VAL ( Position . Column , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( Position . Line , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( IdentRefAtom , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( Itk . ItkIdRefAtom , LONGINT ) )  
+          PutBwdP2 ( WppRdBack , VAL ( Position . Column , LONGINT ) ) 
+        ; PutBwdP2 ( WppRdBack , VAL ( Position . Line , LONGINT ) ) 
+        ; PutBwdP2 ( WppRdBack , VAL ( IdentRefAtom , LONGINT ) ) 
+        ; PutBwdP2 ( WppRdBack , VAL ( Itk . ItkIdRefAtom , LONGINT ) )  
         ; RETURN FM3Base . DeclNoNull 
         END (*IF*)
       END (*WITH*) 
@@ -2124,26 +2237,26 @@ MODULE FM3ParsePass
         THEN (* Left Id Atom Decl'd in this scope.  Replace it with DeclNo. *) 
           LookupId ( WScope , IdentRefAtom , (*OUT*) LDeclNo )
         ; <*ASSERT LDeclNo # FM3Base . DeclNoNull *>
-          PutBwd ( WppRdBack , VAL ( LPosRt . Column , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( LPosRt . Line , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( LPosLt . Column , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( LPosLt . Line , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( LAtomRt , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( LDeclNo , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( Itk . ItkQualIdDeclNoAtom , LONGINT ) )  
+          PutBwdP2 ( WppRdBack , VAL ( LPosRt . Column , LONGINT ) ) 
+        ; PutBwdP2 ( WppRdBack , VAL ( LPosRt . Line , LONGINT ) ) 
+        ; PutBwdP2 ( WppRdBack , VAL ( LPosLt . Column , LONGINT ) ) 
+        ; PutBwdP2 ( WppRdBack , VAL ( LPosLt . Line , LONGINT ) ) 
+        ; PutBwdP2 ( WppRdBack , VAL ( LAtomRt , LONGINT ) ) 
+        ; PutBwdP2 ( WppRdBack , VAL ( LDeclNo , LONGINT ) ) 
+        ; PutBwdP2 ( WppRdBack , VAL ( Itk . ItkQualIdDeclNoAtom , LONGINT ) )  
         ; RETURN LDeclNo
         ELSE (* Leave as-is. *)
 
 
-        ; PutBwd 
-            ( WunRdBack
+        ; PutBwdP2 
+            ( WppRdBack
             , VAL ( StkLtIdAttribute . Scan . Position . Column , LONGINT )
             )
-        ; PutBwd 
-            ( WunRdBack
+        ; PutBwdP2 
+            ( WppRdBack
             , VAL ( StkLtIdAttribute . Scan . Position . Line , LONGINT )
             )
-        ; PutBwd ( WunRdBack , VAL ( Itk . ItkInvalidRef , LONGINT ) )
+        ; PutBwdP2 ( WppRdBack , VAL ( Itk . ItkInvalidRef , LONGINT ) )
         ; RETURN FM3Base . DeclNoNull 
         END (*IF*)
       END (*WITH*) 
@@ -2170,17 +2283,17 @@ MODULE FM3ParsePass
       ; LDeclNo := LookupBlockRef ( LAtomLt , LPosLt )
       ; IF LDeclNo = FM3Base . DeclNoNull  
         THEN (* Undeclared.  Convert to invalid ref. *) 
-          PutBwd ( WppRdBack , VAL ( LPosLt . Column , LONGINT ) )
-        ; PutBwd ( WppRdBack , VAL ( LPosLt . Line , LONGINT ) )
-        ; PutBwd ( WppRdBack , VAL ( Itk . ItkInvalidRef , LONGINT ) )
+          PutBwdP2 ( WppRdBack , VAL ( LPosLt . Column , LONGINT ) )
+        ; PutBwdP2 ( WppRdBack , VAL ( LPosLt . Line , LONGINT ) )
+        ; PutBwdP2 ( WppRdBack , VAL ( Itk . ItkInvalidRef , LONGINT ) )
         ELSE (* Left Id Atom resolved in this scope.  Replace it with DeclNo. *)
-          PutBwd ( WppRdBack , VAL ( LPosRt . Column , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( LPosRt . Line , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( LPosLt . Column , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( LPosLt . Line , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( LAtomRt , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( LDeclNo , LONGINT ) ) 
-        ; PutBwd ( WppRdBack , VAL ( Itk . ItkQualIdDeclNoAtom , LONGINT ) )  
+          PutBwdP2 ( WppRdBack , VAL ( LPosRt . Column , LONGINT ) ) 
+        ; PutBwdP2 ( WppRdBack , VAL ( LPosRt . Line , LONGINT ) ) 
+        ; PutBwdP2 ( WppRdBack , VAL ( LPosLt . Column , LONGINT ) ) 
+        ; PutBwdP2 ( WppRdBack , VAL ( LPosLt . Line , LONGINT ) ) 
+        ; PutBwdP2 ( WppRdBack , VAL ( LAtomRt , LONGINT ) ) 
+        ; PutBwdP2 ( WppRdBack , VAL ( LDeclNo , LONGINT ) ) 
+        ; PutBwdP2 ( WppRdBack , VAL ( Itk . ItkQualIdDeclNoAtom , LONGINT ) )  
         ; RETURN LDeclNo
         END (*IF*)
       ; RETURN FM3Base . DeclNoNull 

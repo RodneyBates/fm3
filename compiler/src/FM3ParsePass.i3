@@ -50,9 +50,13 @@ INTERFACE FM3ParsePass
 ; VAR SkipDepth : INTEGER := 0
   (* Zero means we are not skipping *) 
 
-; PROCEDURE StartSkipping ( ) : CARDINAL (* depth after. *)
+; PROCEDURE StartSkipping0 ( ) : CARDINAL (* depth after. *)
 
-; PROCEDURE StopSkipping ( ) : CARDINAL (* depth before. *)
+; PROCEDURE StopSkipping0 ( ) : CARDINAL (* depth before. *)
+
+; PROCEDURE StartSkipping ( PairNo := FIRST (  INTEGER ) ) 
+
+; PROCEDURE StopSkipping ( PairNo := FIRST (  INTEGER ) ) 
 
 (* ---------------------------- Unnest stack ------------------------ *)
 

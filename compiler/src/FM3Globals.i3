@@ -1,14 +1,17 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023,       Rodney M. Bates.                                    *)
+(* Copyright 2023..2024  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
 INTERFACE FM3Globals
 
-; IMPORT TextIntTbl 
+; IMPORT TextIntTbl
+
+; IMPORT RdBackFile
+; IMPORT IntIntVarArray 
 
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars
@@ -23,6 +26,18 @@ INTERFACE FM3Globals
       (* ^Relative to where the current unit's source file lives. *)
 ; VAR CopyFileSuffix := "Copy" (* W/O  '.'. so can use Pathname.Join. *) 
 ; VAR DisAsmFileSuffix := "DisAsm" (* W/O  '.'. so can use Pathname.Join. *) 
+
+(* These are cached copies of Unt* fields of the current Unit, for faster
+   access via static addressing.
+*) 
+; VAR P1RdBack : RdBackFile . T := NIL 
+; VAR PatchRdBack : RdBackFile . T := NIL
+; VAR P2RdBack : RdBackFile . T := NIL
+
+(* One set of skip numbering should suffice for all units. *) 
+; VAR InitSkipStackCt := 64 (* Seems liberal. *) 
+; VAR SkipNoStack : IntIntVarArray . T 
+; VAR NextSkipNo : INTEGER := 1 
 
 ; VAR M3RwDict : FM3Dict_OAChars_Int . GrowableTyp  
 ; VAR PgRwDict : FM3Dict_OAChars_Int . GrowableTyp 
@@ -41,10 +56,11 @@ INTERFACE FM3Globals
 ; VAR ResourcePathName : TEXT := "."
   (* ^Push this from a CLI option. *)
 
-
 ; PROCEDURE Init ( ) 
 
 ; END FM3Globals
 .
+
+
 
 

@@ -72,7 +72,7 @@ INTERFACE FM3Units
       ; UntScanResult : INTEGER 
       ; UntParseResult : INTEGER 
       ; UntParsePassResult : INTEGER
-      ; UntNextDeclNo : INTEGER 
+      ; UntNextDeclNo : INTEGER := 1 
       ; UntKind : UnitKindTyp 
         
       END (*UnitTyp*)
