@@ -180,6 +180,23 @@ ItkFormalsList (* Position is "(" *) .
 ItkVALUEFormalIdList (* Position is VALUE or LM ident, if no mode. *). 
 ItkVARFormalIdList (* Position is VAR. *) . 
 ItkROFormalIdList (* Position is READONLY. *). 
+
+(* NOTE: As of 2024-01030, FM3 is not numbering the ItkBlockDeclSep
+         tokens separators in a flattened way, when decls are in
+         2-level nested lists.  This affects only the separators.
+         Totals in left and right tokens are correct.
+         
+         Doing the separators via parsing semantic attributes could be
+         done, but it is very fragile.  It involves propagating info
+         left-to-right and knowing the left context of a RHS being
+         reduced.  Without formal analysis, this is very error-prone.
+   `
+         It could more safely be coded via a field in a block object,
+         but that's some work, and it's unclear whether this would
+         ever be needed anyway.
+
+         So it's left undone for now.
+*) 
 ItkBlockDeclList . 
 
 (* Statements *)

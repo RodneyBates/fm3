@@ -605,6 +605,22 @@ ItkROFormalId    IDENT POS .
 
 ; CONST ItkROFormalIdListElem           (*ArgCt: 3*) =   451 (*16_c3 03 *)
 
+(* NOTE: As of 2024-01030, FM3 is not numbering the ItkBlockDeclSep
+         tokens separators in a flattened way, when decls are in
+         2-level nested lists.  This affects only the separators.
+         Totals in left and right tokens are correct.
+         
+         Doing the separators via parsing semantic attributes could be
+         done, but it is very fragile.  It involves propagating info
+         left-to-right and knowing the left context of a RHS being
+         reduced.  Without formal analysis, this is very error-prone.
+   `
+         It could more safely be coded via a field in a block object,
+         but that's some work, and it's unclear whether this would
+         ever be needed anyway.
+
+         So it's left undone for now.
+*)
 (* LIST ItkBlockDeclList: *)
 ; CONST ItkBlockDeclListLt              (*ArgCt: 3*) =   452 (*16_c4 03 *)
 ; CONST ItkBlockDeclListLtTemp          (*ArgCt: 3*) =   453 (*16_c5 03 *)
