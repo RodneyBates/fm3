@@ -2218,7 +2218,7 @@ MODULE FM3ParsePass
       END (*WITH*) 
     END IdentRefR2L
 
-(* Old vesion:
+(* Old version:
 ; PROCEDURE QualIdentR2L
     ( UnnestRdBack : RdBackFile . T ) : FM3Base . DeclNoTyp 
 

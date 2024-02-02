@@ -85,7 +85,8 @@ LOCAL
 
 /* Parser module initialization. */ 
 BEGIN
-  { } 
+  { }
+  
 /* Parser module final cleanup. */ 
 CLOSE { }
 
@@ -225,11 +226,9 @@ TOKEN
 (* END of copied-in token decls from FM3SrcToks.i3. *)
 
 (* Reserved identifiers needn't be known to lalr for parsing, so embedded
-   semantic actions can refer to them as FM3SrtcToks . Rid*, and no copying
+   semantic actions can refer to them as FM3SrcToks . Rid*, and no copying
    into here is necessary.
 *) 
-
-(* ------------------------------- Productions. ---------------------------- *)
 
 (* NOTE: Modula-3's idea that semicolons can optionally be separators
    or terminators fails to apply to imports, exports, or declarations,
@@ -248,6 +247,7 @@ TOKEN
    leftmost token.
 *) 
 
+(* ------------------------------- Productions. ---------------------------- *)
 
 RULE
 
@@ -380,7 +380,7 @@ RULE
             , FM3Decls . TopDeclInfo ( ) . DiKind
             , IdAttribute := $3
             )
-       (* ^No seprators here.  It would be kinda silly. *) 
+       (* ^No Itk separators here.  It would be kinda silly. *) 
        THEN (* Use this ident. *) $$ . PaInt := $1 . PaInt + 1 ;  
        ELSE $$ . PaInt := $1 . PaInt (* Valid Id count, no increase. *) ; 
        END (*IF*) ;
@@ -642,7 +642,7 @@ RULE
      } .
  
    TypeDeclId : StkIdent
-     { $$ . PaInt (* Ident is OK. *) 
+     { $$ . PaInt (* Ident count, 0 or 1. *) 
          := ORD ( FM3ParsePass . DeclIdL2R
                     ( Itk . ItkDeclId , Dkt . DkType , $1 )
                 ) 
@@ -701,7 +701,7 @@ RULE
          , $2 . PaUnnestCoord 
          , $1 . PaInt
          , $2 . Scan . Position
-         ) ; 
+         ) ;
      } .
 
    Revelation : TypeId RevelationRelation Type  
@@ -738,8 +738,8 @@ RULE
          := FM3Decls . PushDeclInfo
               ( FM3Decls . DeclInfoTyp
                   { DiDeclTok := Itk . ItkVarDeclLt
-                  , DiIdListTok := Itk . ItkVarDeclIdListLt 
-                  , DiIdTok := Itk . ItkVarDeclIdListLt + Itk . LtToListElem
+                  , DiIdListTok := Itk . ItkVarDeclIdListLt
+                  , DiIdTok := Itk . ItkDeclId
                   , DiIdSepTok := Itk . ItkVarDeclIdListLt + Itk . LtToListSep
                   , DiKind := Dkt . DkVar
                   }
@@ -753,14 +753,14 @@ RULE
       } . 
 
    VarDeclList : /*Empty*/ 
-      { $$ . PaInt := 0 ;
+      { $$ . PaInt := 0 (* Decl count. *) ;
         (*Push_LIP_rip
           ( Itk . ItkVarDeclListLt , 0 , FM3Scanner . Attribute . Position ) ;
         *)
       } .
 
    VarDeclList : VarDeclPlus  
-     { $$ . PaInt := $1 . PaInt ; 
+     { $$ . PaInt := $1 . PaInt (* Decl count. *) ; 
        (*FM3ParsePass . MakeListPos
          ( $$
          , Itk . ItkVarDeclListLt
@@ -786,55 +786,46 @@ RULE
 (* Used for variable and field declarations. *)
 
    VarDecl : VarDeclIds OptDeclType OptDeclValue 
-     { VAR LOk := FM3ParsePass . RequireTypeAndOrValue
-                    ( $1 . Scan . Position , $2 . PaBool , $3 . PaBool ) ;
+     { IF FM3ParsePass . RequireTypeAndOrValue
+             ( $1 . Scan . Position , $2 . PaBool , $3 . PaBool ) 
        (* ^Check this even if there are no valid ids. *)
-       BEGIN 
-         IF $1 . PaInt < 0 (* Skipping this decl?  *) 
-         THEN (* VarDeclIds calls for skipping the declaration. *)
-           $$ . PaInt := 0 (* Contribution to BlockDeclCt. *) ; 
-           <* ASSERT FM3ParsePass . StopSkipping0 ( ) = - $1 . PaInt *> 
-         ELSIF FM3ParsePass . SkipDepth > 0
-               (* Skipping some containing construct? *)
-         THEN (* No output. *) 
-         ELSIF NOT LOk 
-         THEN (* Everything was empty anyway.  No output. *) 
-         ELSE
-           $$ . PaInt := $1 . PaInt (* Valid id count. *) ;
-           WITH WDeclInfo = FM3Decls . TopDeclInfo ( )
-           DO 
-             Push_LCP_eCP_zCP_rP (* The declaration itself. *) 
-               ( WDeclInfo . DiDeclTok 
-               , $1 . PaUnnestCoord
-               , $1 . Scan . Position
-               , $2 . PaUnnestCoord
-               , $2 . Scan . Position
-               , $3 . PaUnnestCoord
-               , $3 . Scan . Position 
-               , $1 . Scan . Position 
-              ) ;
-           END (*WITH*) 
-         END (*IF*)
-       END (*Block*) 
+          AND $1 . PaInt > 0 
+       THEN 
+         $$ . PaInt := $1 . PaInt (* Valid id count. *) ;
+         WITH WDeclInfo = FM3Decls . TopDeclInfo ( )
+         DO 
+           Push_LCP_eCP_zCP_rP (* The declaration itself. *) 
+             ( WDeclInfo . DiDeclTok 
+             , $1 . PaUnnestCoord
+             , $1 . Scan . Position
+             , $2 . PaUnnestCoord
+             , $2 . Scan . Position
+             , $3 . PaUnnestCoord
+             , $3 . Scan . Position 
+             , $1 . Scan . Position 
+            ) ;
+         END (*WITH*)
+       ELSE (* Skip the decl. *) 
+         Push_LCIri
+           ( Itk . ItkSkipLt
+           , $1 . PaUnnestCoord
+           , FM3Globals . NextSkipNo
+           ) ;
+         INC ( FM3Globals . NextSkipNo ) ;
+         $$ . PaInt := 0 (* Contribution to BlockDeclCt. *) ; 
+       END (*IF*)
      } . 
 
-   (* VarDeclIds.PaInt > 0 is ident count.  < 0 is -skipdepth. *) 
    VarDeclIds : DeclIdListElems 
      { $$ . Scan . Position := $1 . Scan . Position ;
-
-       IF $1 . PaInt = 0 (* No usable idents. *)
-       THEN (* Start skipping this decl. *) 
-         $$ . PaInt  := - FM3ParsePass . StartSkipping0 ( ) ;
-           (* ^Negative Skipping depth. *)
-       ELSE
-         $$ . PaInt := $1 . PaInt (* Valid id count. *) ;
-         MakeListPos (* The identifier list. *) 
-           ( $$
-           , FM3Decls . TopDeclInfo ( ) . DiIdListTok
-           , $1 . Scan . Position
-           , ElemsAttr := $1
-           ) ; 
-       END (*IF*) ;
+       $$ . PaInt := $1 . PaInt (* Valid id count. *) ;
+       MakeListPos (* The identifier list. *) 
+         ( $$
+         , FM3Decls . TopDeclInfo ( ) . DiIdListTok
+(* CHECK: Do we still want different decl id tokens? *) 
+         , $1 . Scan . Position
+         , ElemsAttr := $1
+         ) ; 
      } .
 
    OptDeclType : StkColon Type 
@@ -909,7 +900,7 @@ RULE
               ( FM3Decls . DeclInfoTyp
                   { DiDeclTok := Itk . ItkFieldDeclLt
                   , DiIdListTok := Itk . ItkFieldDeclIdListLt
-                  , DiIdTok := Itk . ItkFieldDeclIdListLt + Itk . LtToListElem
+                  , DiIdTok := Itk . ItkDeclId
                   , DiIdSepTok := Itk . ItkFieldDeclIdListLt + Itk . LtToListSep
                   , DiKind := Dkt . DkRecField 
                   }
@@ -995,7 +986,7 @@ RULE
               ( FM3Decls . DeclInfoTyp
                   { DiDeclTok := Itk . ItkVALUEFormalLt
                   , DiIdListTok := Itk . ItkVALUEFormalIdListLt 
-                  , DiIdTok := Itk . ItkVALUEFormalIdListLt + Itk . LtToListElem
+                  , DiIdTok := Itk . ItkDeclId
                   , DiIdSepTok
                       := Itk . ItkVALUEFormalIdListLt + Itk . LtToListSep
                   , DiKind := Dkt . DkVALUEFormal
@@ -1010,7 +1001,7 @@ RULE
               ( FM3Decls . DeclInfoTyp
                   { DiDeclTok := Itk . ItkVALUEFormalLt
                   , DiIdListTok := Itk . ItkVALUEFormalIdListLt 
-                  , DiIdTok := Itk . ItkVALUEFormalIdListLt + Itk . LtToListElem
+                  , DiIdTok := Itk . ItkDeclId
                   , DiIdSepTok
                       := Itk . ItkVALUEFormalIdListLt + Itk . LtToListSep
                   , DiKind := Dkt . DkVALUEFormal
@@ -1026,7 +1017,7 @@ RULE
               ( FM3Decls . DeclInfoTyp
                   { DiDeclTok := Itk . ItkVARFormalLt
                   , DiIdListTok := Itk . ItkVARFormalIdListLt 
-                  , DiIdTok := Itk . ItkVARFormalIdListLt + Itk . LtToListElem
+                  , DiIdTok := Itk . ItkDeclId
                   , DiIdSepTok := Itk . ItkVARFormalIdListLt + Itk . LtToListSep
                   , DiKind := Dkt . DkVALUEFormal
                   }
@@ -1040,7 +1031,7 @@ RULE
               ( FM3Decls . DeclInfoTyp
                   { DiDeclTok := Itk . ItkROFormalLt
                   , DiIdListTok := Itk . ItkROFormalIdListLt 
-                  , DiIdTok := Itk . ItkROFormalIdListLt + Itk . LtToListElem
+                  , DiIdTok := Itk . ItkDeclId
                   , DiIdSepTok := Itk . ItkROFormalIdListLt + Itk . LtToListSep
                   , DiKind := Dkt . DkROFormal
                   }
