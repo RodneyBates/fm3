@@ -6,6 +6,8 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
+(* Test variable declarations, some with CT errors. *) 
+
 MODULE Main
 
 ; TYPE T = INTEGER
