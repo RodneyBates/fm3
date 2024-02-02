@@ -775,12 +775,15 @@ RULE
 
    VarDeclPlus : VarDeclPlus VarDecl StkSemicolon 
      { $$ . PaInt (* Decl count. *):= $1 . PaInt + $2 . PaInt ;
-       Push_ECIP
-         ( Itk . ItkBlockDeclListLt
-         , $2 . PaUnnestCoord 
-         , $1 . PaInt
-         , $2 . Scan . Position
-         ) ; 
+       IF $2 . PaInt > 0
+       THEN (* Insert a separator. *) 
+         Push_ECIP
+           ( Itk . ItkBlockDeclListLt
+           , $2 . PaUnnestCoord 
+           , $1 . PaInt
+           , $2 . Scan . Position
+           ) ;
+       END (*IF*) ; 
      } . 
 
 (* Used for variable and field declarations. *)
