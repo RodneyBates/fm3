@@ -6,7 +6,7 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-(* Test variable declarations, some with CT errors. *) 
+(* Test type declarations, some with CT errors. *) 
 
 MODULE Main
 
