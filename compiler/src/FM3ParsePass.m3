@@ -182,7 +182,10 @@ MODULE FM3ParsePass
 
 ; PROCEDURE OpenUnit ( SrcFileName : TEXT ) : FM3Units . UnitRefTyp
 
-  = VAR LFullFileName : TEXT 
+  = VAR LFullFileName : TEXT
+  ; VAR LFullUnnestStackName : TEXT 
+  ; VAR LFullPatchStackName : TEXT 
+  ; VAR LFullParsePassName : TEXT 
   ; VAR LSimpleSrcFileName : TEXT 
   ; VAR LSrcFilePath : TEXT 
   ; VAR LUniRd : UniRd . T
@@ -225,7 +228,7 @@ MODULE FM3ParsePass
     (* Create build files for the unit. *) 
     ; LUnitRef ^ . UntBuildDirPath
         := LSrcFilePath & "/" & FM3Globals . BuildDirRelPath
-(* TODO: Use Pathname to construct paths so works in Windows too. *) 
+(* TODO: Use Pathname to construct paths, so this works in Windows too. *) 
     ; LUnitRef ^ . UntPatchStackName
         := SrcFileName & FM3Globals . PatchStackSuffix   
     ; LUnitRef ^ . UntUnnestStackName
@@ -234,32 +237,35 @@ MODULE FM3ParsePass
         := SrcFileName & FM3Globals . ParsePassSuffix   
     ; TRY (*EXCEPT*)
         (* Heh, heh.  Code the exception handler only once for all files. *) 
-        LFullFileName
+        LFullUnnestStackName
           := Pathname . Join
                ( LUnitRef ^ . UntBuildDirPath 
                , LUnitRef ^ . UntUnnestStackName
                , NIL
                )
+      ; LFullFileName :=  LFullUnnestStackName 
       ; LUnitRef ^ . UntUnnestStackRdBack
-          := RdBackFile . Create ( LFullFileName , Truncate := TRUE )
+          := RdBackFile . Create ( LFullUnnestStackName , Truncate := TRUE )
           
-      ; LFullFileName
+      ; LFullPatchStackName
           := Pathname . Join
                ( LUnitRef ^ . UntBuildDirPath 
                , LUnitRef ^ . UntPatchStackName
                , NIL
                ) 
+      ; LFullFileName :=  LFullPatchStackName 
       ; LUnitRef ^ . UntPatchStackRdBack
-          := RdBackFile . Create ( LFullFileName , Truncate := TRUE )
+          := RdBackFile . Create ( LFullPatchStackName , Truncate := TRUE )
       
-      ; LFullFileName
+      ; LFullParsePassName
           := Pathname . Join
                ( LUnitRef ^ . UntBuildDirPath 
                , LUnitRef ^ . UntParsePassName
                , NIL
                )
+      ; LFullFileName :=  LFullParsePassName 
       ; LUnitRef ^ . UntParsePassRdBack
-          := RdBackFile . Create ( LFullFileName , Truncate := TRUE )
+          := RdBackFile . Create ( LFullParsePassName , Truncate := TRUE )
       EXCEPT
       | OSError . E ( EMsg ) 
       => FatalArr
@@ -380,6 +386,7 @@ MODULE FM3ParsePass
   ; VAR LUnnDepthL , LPpDepthL : LONGINT
   ; VAR LLengthL : LONGINT
   ; VAR LUnnestFullFileName , LUnnestFullCopyName : TEXT 
+  ; VAR LPatchFullFileName : TEXT 
   ; VAR LParsePassFullFileName , LParsePassFullCopyName : TEXT 
   ; VAR LUnnestFailed , LParsePassFailed : BOOLEAN
 
@@ -529,7 +536,7 @@ MODULE FM3ParsePass
               , LUnitRef ^ . UntPatchStackName
               , " peak size = "
               , FM3Base . Int64Image  ( LUnitRef ^ . UntMaxPatchStackDepth )
-              , "."
+              , " bytes."
             } 
         ) 
     ; IF NOT RdBackFile . LengthL ( LUnitRef ^ . UntPatchStackRdBack )
@@ -556,8 +563,14 @@ MODULE FM3ParsePass
       END (*IF*)
     ; RdBackFile . Close (  LUnitRef ^ . UntPatchStackRdBack , 0L )
       (* No point in keeping the patch stack.  It has pogo-sticked and 
-         now is empty. *) 
-    ; TRY FS . DeleteFile ( LUnitRef ^ . UntPatchStackName )
+         now is empty. *)
+    ; LPatchFullFileName
+        := Pathname . Join
+             ( LUnitRef ^ . UntBuildDirPath 
+             , LUnitRef ^ . UntPatchStackName
+             , NIL
+             )
+    ; TRY FS . DeleteFile ( LPatchFullFileName )
       EXCEPT OSError . E => (* It didn't exist. *) 
       END (*EXCEPT*) 
 
@@ -570,7 +583,7 @@ MODULE FM3ParsePass
             , LUnitRef ^ . UntUnnestStackName
             , " peak size = "
             , FM3Base . Int64Image  ( LUnitRef ^ . UntMaxUnnestStackDepth )
-            , "."
+            , " bytes."
             } 
         )
     ; LLengthL := RdBackFile . LengthL ( LUnitRef ^ . UntUnnestStackRdBack )
@@ -585,6 +598,7 @@ MODULE FM3ParsePass
               , LUnitRef ^ . UntUnnestStackName
               , " final size = "
               , FM3Base . Int64Image ( LLengthL )
+              , " bytes."
               } 
           )
       ; IF NOT FM3CLArgs . DoDisAsmUnnest
