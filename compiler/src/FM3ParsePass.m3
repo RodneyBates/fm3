@@ -23,6 +23,7 @@ MODULE FM3ParsePass
       into the token stream.
 *)
 
+; IMPORT Atom 
 ; FROM File IMPORT Byte  
 ; IMPORT FileWr
 ; IMPORT Fmt 
@@ -60,7 +61,7 @@ MODULE FM3ParsePass
 ; FROM FM3StreamUtils
     IMPORT GetBwdInt , GetBwdAtom , GetBwdDeclKind , GetBwdPos , GetBwdScopeNo 
 ; IMPORT FM3Messages 
-; FROM FM3Messages IMPORT FatalArr , ErrorArr , LogArr
+; FROM FM3Messages IMPORT FatalArr , ErrorArr , FM3LogArr
 ; IMPORT FM3Parser
 ; IMPORT FM3Predefined
 ; IMPORT FM3Scanner
@@ -202,7 +203,46 @@ MODULE FM3ParsePass
     ; LUnitRef := FM3Units . NewUnitRef ( )
     ; LUnitRef ^ . UntSrcFileName := LSimpleSrcFileName 
     ; LUnitRef ^ . UntSrcFilePath := LSrcFilePath
-    
+
+    (* Create the build directory: *)
+(* FIXME: FM3CLArgs wants a build directory to put a log file in, even before
+          we get here.  Is this the right place for it?
+*) 
+    ; LUnitRef ^ . UntBuildDirPath
+        := LSrcFilePath & "/" & FM3Globals . BuildDirRelPath
+    ; TRY
+        FS . CreateDirectory ( LUnitRef ^ . UntBuildDirPath )
+      EXCEPT
+      | OSError . E ( EAtoms ) 
+      => IF EAtoms . tail = NIL
+            AND EAtoms . head # NIL
+            AND Atom . ToText ( EAtoms . head ) # NIL
+            AND Text . Equal ( Atom . ToText ( EAtoms . head ) , "errno=17" )
+(* TODO: There has to be a more graceful way to detect this, but it looks
+         like libm3 is letting us down here.
+*) 
+         THEN (* We expect this.  The directory already exists. *)
+           EVAL EAtoms 
+         ELSE 
+           <*FATAL Thread . Alerted , Wr . Failure *>
+           BEGIN
+             Wr . PutText
+               ( Stdio . stderr , "Unable to create build directory " ) 
+           ; Wr . PutText ( Stdio . stderr , LUnitRef ^ . UntBuildDirPath ) 
+           ; Wr . PutText ( Stdio . stderr , ": " ) 
+           ; Wr . PutText
+               ( Stdio . stderr , FM3Messages . AtomListToOSError ( EAtoms ) ) 
+           ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
+           ; Wr . PutText
+               ( Stdio . stderr , "Forging ahead, assuming it already exists." ) 
+           ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
+           ; Wr . Flush ( Stdio . stderr )
+           END (*Block.*)
+         END (*IF*) 
+      END (*EXCEPT*) 
+(* TODO: Use Pathname to construct paths, so this works in Windows too. *)  
+(* CHECK^ Or would it be better to use FS.GetAbsolutePathname? *)  
+
     (* Create the log output file. A pure text file. *) 
     ; LUnitRef ^ . UntLogName := SrcFileName & UnitLogSuffix
 
@@ -224,11 +264,9 @@ MODULE FM3ParsePass
          END (*Block.*) 
       ; LUnitRef ^ . UntLogWrT := NIL 
       END (*EXCEPT*)
+    ; FM3Messages . StartUnit ( SrcFileName , LUnitRef ^ . UntLogWrT ) 
 
     (* Create build files for the unit. *) 
-    ; LUnitRef ^ . UntBuildDirPath
-        := LSrcFilePath & "/" & FM3Globals . BuildDirRelPath
-(* TODO: Use Pathname to construct paths, so this works in Windows too. *) 
     ; LUnitRef ^ . UntPatchStackName
         := SrcFileName & FM3Globals . PatchStackSuffix   
     ; LUnitRef ^ . UntUnnestStackName
@@ -396,7 +434,7 @@ MODULE FM3ParsePass
     ; FM3Units . PushUnit ( LUnitRef ) 
     ; FM3Units . UnitStackTopRef := LUnitRef
 (* TODO ^ Replace uses of this by FM3Units . UnitStackTopRef. *) 
-    ; LogArr
+    ; FM3LogArr
         ( ARRAY OF REFANY
             { "Compiling " , LUnitRef ^ . UntSrcFilePath , SrcFileName , "..." }
         )
@@ -530,7 +568,7 @@ MODULE FM3ParsePass
     (* Finish with patch stack. *) 
     ; LUnitRef ^ . UntMaxPatchStackDepth
         := RdBackFile . MaxLengthL ( LUnitRef ^ . UntPatchStackRdBack ) 
-    ; LogArr
+    ; FM3LogArr
         ( ARRAY OF REFANY
             { "Patch stack "
               , LUnitRef ^ . UntPatchStackName
@@ -543,7 +581,7 @@ MODULE FM3ParsePass
              <= LUnitRef ^ . UntPatchStackEmptyCoord 
       THEN
         LUnitRef . UntParsePassResult := FM3CLArgs . CcPatchStackNotEmpty  
-      ; LogArr
+      ; FM3LogArr
           ( ARRAY OF REFANY
               { "Patch stack " 
               , LUnitRef ^ . UntPatchStackName
@@ -577,7 +615,7 @@ MODULE FM3ParsePass
     (* Finish with unnest stack. *) 
     ; LUnitRef ^ . UntMaxUnnestStackDepth
         := RdBackFile . MaxLengthL ( LUnitRef ^ . UntUnnestStackRdBack )
-    ; LogArr
+    ; FM3LogArr
         ( ARRAY OF REFANY
             { "Unnest stack "
             , LUnitRef ^ . UntUnnestStackName
@@ -592,7 +630,7 @@ MODULE FM3ParsePass
     ; IF LLengthL # LUnitRef ^ . UntUnnestStackEmptyCoord 
       THEN
         LUnitRef . UntParsePassResult := FM3CLArgs . CcUnnestStackNotEmpty  
-      ; LogArr
+      ; FM3LogArr
           ( ARRAY OF REFANY
               { "Unnest stack "
               , LUnitRef ^ . UntUnnestStackName
@@ -632,7 +670,7 @@ MODULE FM3ParsePass
       END (*IF*)
 
     (* Finish with parse pass RdBack, the output of this pass. *) 
-    ; LogArr
+    ; FM3LogArr
         ( ARRAY OF REFANY 
             { "Parse pass output file "
             , LUnitRef ^ . UntParsePassName 
@@ -657,13 +695,14 @@ MODULE FM3ParsePass
 
 (* TODO: display code point counts. *)
 
-    ; LogArr
+    ; FM3LogArr
         ( ARRAY OF REFANY
             { "Finished compiling " , SrcFileName , "." }
         )
     ; LPoppedUnitRef := FM3Units . PopUnit ( )
     ; <* ASSERT LPoppedUnitRef = LUnitRef *> 
-      FM3Units . UnitStackTopRef := LUnitRef
+      FM3Messages . EndUnit ( SrcFileName ) 
+    ; FM3Units . UnitStackTopRef := LUnitRef
     END CompileUnit
     
 (*EXPORTED*)

@@ -56,7 +56,7 @@ MODULE FM3Messages
   (* Or, resort to compiler log, if can't do that. *)
 
   = BEGIN
-      IF DoCompLog
+      IF DoUnitLog
          AND GUnitLogWrT # NIL 
          AND NOT Wr . Closed ( GUnitLogWrT ) 
       THEN
@@ -65,24 +65,24 @@ MODULE FM3Messages
         ; Wr . PutText ( GUnitLogWrT , Wr . EOL )
         EXCEPT Wr . Failure =>
         END (*EXCEPT*)
-      ELSE PutLog ( Msg ) 
+      ELSE PutFM3Log ( Msg ) 
       END (*IF*) 
     END PutUnitLog
 
-; PROCEDURE PutLog ( Msg : TEXT ) RAISES { Thread . Alerted } 
+; PROCEDURE PutFM3Log ( Msg : TEXT ) RAISES { Thread . Alerted } 
 
   = BEGIN
-      IF DoLog 
-         AND LogFileWrT # NIL 
-         AND NOT Wr . Closed ( LogFileWrT ) 
+      IF DoFM3Log 
+         AND FM3LogFileWrT # NIL 
+         AND NOT Wr . Closed ( FM3LogFileWrT ) 
       THEN
         TRY (*EXCEPT*) 
-          Wr . PutText ( LogFileWrT , Msg )
-        ; Wr . PutText ( LogFileWrT , Wr . EOL )
+          Wr . PutText ( FM3LogFileWrT , Msg )
+        ; Wr . PutText ( FM3LogFileWrT , Wr . EOL )
         EXCEPT Wr . Failure =>
         END (*EXCEPT*)
       END (*IF*) 
-    END PutLog 
+    END PutFM3Log 
 
 ; VAR GFM3LabelT := 
         FM3TextColors . FGDkGreen & "FM3: " & FM3TextColors . Reset 
@@ -102,7 +102,7 @@ MODULE FM3Messages
              ( GFM3FatalLabelT , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 )
     ; TRY (*EXCEPT*)
         PutStdErr ( LMsg ) 
-      ; PutLog ( LMsg ) 
+      ; PutFM3Log ( LMsg ) 
       ; RAISE FM3SharedUtils . Terminate ( LMsg ) 
       EXCEPT Thread . Alerted => END (*EXCEPT*) 
     END Fatal  
@@ -119,13 +119,13 @@ MODULE FM3Messages
       LMsg := FM3SharedUtils . CatArrT ( Frags , GFM3FatalLabelT ) 
     ; TRY (*EXCEPT*)
         PutStdErr ( LMsg ) 
-      ; PutLog ( LMsg ) 
+      ; PutFM3Log ( LMsg ) 
       ; RAISE FM3SharedUtils . Terminate ( LMsg ) 
       EXCEPT Thread . Alerted => END (*EXCEPT*) 
     END FatalArr  
 
 (*EXPORTED*)
-; PROCEDURE Log
+; PROCEDURE FM3Log
     ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL )
   RAISES { Thread . Alerted }
 
@@ -138,11 +138,11 @@ MODULE FM3Messages
              , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8
              ) 
     ; PutStdErr ( LMsg ) 
-    ; PutLog ( LMsg ) 
-    END Log
+    ; PutFM3Log ( LMsg ) 
+    END FM3Log
 
 (*EXPORTED*)
-; PROCEDURE LogArr
+; PROCEDURE FM3LogArr
     ( READONLY Frags : ARRAY OF REFANY ; Pos := FM3Base . PositionNull )
   RAISES { FM3SharedUtils . Terminate }
 
@@ -152,9 +152,9 @@ MODULE FM3Messages
       LMsg := FM3SharedUtils . CatArrT ( Frags , GFM3LabelT ) 
     ; TRY (*EXCEPT*)
         PutStdErr ( LMsg ) 
-      ; PutLog ( LMsg ) 
+      ; PutFM3Log ( LMsg ) 
       EXCEPT Thread . Alerted => END (*EXCEPT*) 
-    END LogArr
+    END FM3LogArr
     
 (* -------------- Messages about code being compiled. --------------- *)
 
@@ -359,7 +359,7 @@ MODULE FM3Messages
       GUnitLogWrT := UnitLogWrT 
     ; LMsg := FM3SharedUtils . CatStrings ( "Start unit " , UnitName ) 
     ; PutStdErr ( LMsg ) 
-    ; PutLog ( LMsg ) 
+    ; PutFM3Log ( LMsg ) 
     END StartUnit 
 
 (*EXPORTED*)
@@ -370,8 +370,9 @@ MODULE FM3Messages
   ; BEGIN
       LMsg := FM3SharedUtils . CatStrings ( "End unit " , UnitName ) 
     ; PutStdErr ( LMsg ) 
-    ; PutLog ( LMsg ) 
-    ; GUnitLogWrT := UnitLogWrT 
+    ; PutFM3Log ( LMsg ) 
+    ; Wr . Close ( GUnitLogWrT ) 
+    ; GUnitLogWrT := NIL 
     END EndUnit 
 
 (*EXPORTED*)
