@@ -1,4 +1,3 @@
-
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2023..2024 Rodney M. Bates.                                     *)
@@ -619,25 +618,39 @@ RULE
      { $$ . Scan . Position := $1 . Scan . Position; } .
 
    TypeDeclGroup : TypeDeclGroupLt TypeDeclList
-      { $$ . PaInt (* Decl count. *) := $2 . PaInt ; } . 
+      { $$ . PaInt (* Decl count. *) := $2 . PaInt ;
+        $$ . PaPos (* Rt semicolon. *) := $2 . PaPos ; 
+      } . 
 
-   TypeDeclList : /*Empty*/ { $$ . PaInt := 0 ; } .
+   TypeDeclList : /*Empty*/
+     { $$ . PaInt := 0 ;
+       $$ . PaPos (* No trailing semicolon exists *)
+         := FM3Scanner . Attribute . Position ; 
+     } .
 
-   TypeDeclList : TypeDeclPlus { $$ . PaInt := $1 . PaInt ; } . 
+   TypeDeclList : TypeDeclPlus
+     { $$ . PaInt := $1 . PaInt ;
+       $$ . PaPos (* Rt semicolon.*) := $1 . PaPos ; 
+     } . 
    
    TypeDeclPlus : TypeDecl StkSemicolon  
-     { $$ . PaInt (* Decl count. *) := $1 . PaInt ; } .
+     { $$ . PaInt (* Decl count. *) := $1 . PaInt ;
+       $$ . PaPos (* Rt semicolon.*) := $2 . Scan . Position ; 
+     } .
 
    TypeDeclPlus : TypeDeclPlus TypeDecl StkSemicolon
      { $$ . PaInt (* Decl count. *):= $1 . PaInt + $2 . PaInt ;
        IF $2 . PaInt > 0
        THEN (* Insert a separator. *) 
+         $$ . PaPos (* Rt semicolon.*) := $3 . Scan . Position ;
          Push_ECIP
            ( Itk . ItkBlockDeclListLt
            , $2 . PaUnnestCoord 
            , $1 . PaInt
-           , $2 . Scan . Position
+           , $1 . PaPos (* Rt semicolon of $1 *) 
            ) ;
+       ELSE 
+         $$ . PaPos (* Rt semicolon.*) := $1 . PaPos ; 
        END (*IF*) ;  
      } .
  
@@ -649,7 +662,7 @@ RULE
      } .
 
    TypeDecl : TypeDeclId TypeRelation Type  
-     { $$ . PaInt := $1 . PaInt (* Contribution to BlockDecl count. *) ; 
+     { $$ . PaInt := $1 . PaInt (* Contribution to BlockDecl count. *) ;
        IF $$ . PaInt > 0 
        THEN 
          Push_LCP_eCP_rP
@@ -1291,7 +1304,10 @@ RULE
 (* ------------------------ Block declarations ------------------------- *)
 
    BlockDecl : ConstDeclGroup { $$ . PaInt := $1 . PaInt ; } .
-   BlockDecl : TypeDeclGroup { $$ . PaInt := $1 . PaInt ; } . 
+   BlockDecl : TypeDeclGroup
+     { $$ . PaInt := $1 . PaInt ;
+       $$ . PaPos (* Rt semicolon. *) := $1 . PaPos ; 
+     } . 
    BlockDecl : ExceptDeclGroup { $$ . PaInt := $1 . PaInt ; } . 
    BlockDecl : VarDeclGroup { $$ . PaInt := $1 . PaInt ; } . 
    BlockDecl : ProcDecl { $$ . PaInt := 1 ; } .
@@ -1315,18 +1331,24 @@ RULE
      } .
      
    BlockDeclPlus : BlockDecl 
-     { $$ . PaInt := $1 . PaInt (* Decl count. *) ; } .
+     { $$ . PaInt := $1 . PaInt (* Decl count. *) ;
+       $$ . PaPos (* Rt semicolon. *) (* should not be used. *) := $1 . PaPos ; 
+     } .
 
    BlockDeclPlus : BlockDeclPlus BlockDecl  
      { $$ . PaInt := $1 . PaInt + $2 . PaInt (* Decl count. *) ;
+
        IF $2 . PaInt > 0
        THEN
-         Push_ECIP (* Internal separator. *)
+         $$ . PaPos (* Rt semicolon. *) := $2 . PaPos ; 
+         Push_ECIP (* Insert a separator. *)
            ( Itk . ItkBlockDeclListLt
            , $2 . PaUnnestCoord
            , $1 . PaInt
-           , $2 . Scan . Position
+           , $1 . PaPos 
            ) ;
+       ELSE 
+         $$ . PaPos (* Rt semicolon. *) := $1 . PaPos ; 
        END (*IF*) ; 
      } .
 

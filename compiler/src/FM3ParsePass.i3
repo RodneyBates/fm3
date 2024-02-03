@@ -21,10 +21,11 @@ INTERFACE FM3ParsePass
     = RECORD
         Scan : FM3Scanner . tScanAttribute
       ; PaUnnestCoord : LONGINT  
-      ; PaLong : LONGINT 
+      ; PaLong : LONGINT
       ; PaConstructNo : INTEGER
       ; PaListItemNo : INTEGER
       ; PaInt : INTEGER
+      ; PaPos : FM3Base . tPosition 
       ; PaTok1 : FM3Base . TokTyp 
       ; PaTok2 : FM3Base . TokTyp 
       ; PaByte : [ 0 .. 16_FF ] 
@@ -39,6 +40,7 @@ INTERFACE FM3ParsePass
         , PaConstructNo := FIRST ( INTEGER ) 
         , PaListItemNo := FIRST ( INTEGER )
         , PaInt := FIRST ( INTEGER )
+        , PaPos := FM3Base . PositionNull 
         , PaTok1 := FM3Base . TokNull
         , PaTok2 := FM3Base . TokNull
         , PaByte := 16_FF 
