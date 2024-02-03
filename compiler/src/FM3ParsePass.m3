@@ -389,7 +389,10 @@ MODULE FM3ParsePass
     ; FM3Units . PushUnit ( LUnitRef ) 
     ; FM3Units . UnitStackTopRef := LUnitRef
 (* TODO ^ Replace uses of this by FM3Units . UnitStackTopRef. *) 
-    ; LogArr ( ARRAY OF REFANY { "Compiling " , SrcFileName , "..." } )
+    ; LogArr
+        ( ARRAY OF REFANY
+            { "Compiling " , LUnitRef ^ . UntSrcFilePath , SrcFileName , "..." }
+        )
     ; TRY 
         LUnitRef ^ . UntParseResult := FM3Parser . FM3Parser ( )
 (* TODO:           ^Something with this? *)

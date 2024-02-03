@@ -175,9 +175,11 @@ MODULE FM3Messages
     ; LUnitRef := FM3Units . UnitStackTopRef 
     ; IF LUnitRef # NIL
       THEN
+      (* I think we don't really want the whole path:  
         Wr . PutText ( LWrT , LUnitRef . UntSrcFilePath )
       ; Wr . PutChar ( LWrT , ' ' ) 
-      ; Wr . PutText ( LWrT , LUnitRef . UntSrcFileName )
+      ; *)
+        Wr . PutText ( LWrT , LUnitRef . UntSrcFileName )
       ; LBlankNeeded := TRUE 
       END (*IF*)
 
