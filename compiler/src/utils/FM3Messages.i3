@@ -42,12 +42,12 @@ INTERFACE FM3Messages
       (* DoFM3Log => Client code has set this Non-NIL and opened it. *) 
 
 ; PROCEDURE Fatal ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL )
-  RAISES { FM3SharedUtils . Terminate }
+  RAISES { FM3SharedUtils . FatalError } 
   (* Also terminates the program. *) 
 
 ; PROCEDURE FatalArr
     ( READONLY Frags : ARRAY OF REFANY ; Pos := FM3Base . PositionNull )
-  RAISES { FM3SharedUtils . Terminate }
+   RAISES { FM3SharedUtils . FatalError }
   (* Also terminates the program. *) 
 
 ; PROCEDURE FM3Log

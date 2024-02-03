@@ -92,6 +92,7 @@ MODULE FM3Messages
 
 (*EXPORTED*)
 ; PROCEDURE Fatal ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL ) 
+  RAISES { FM3SharedUtils . FatalError }
   (* Also terminates the program. *)
 
   = VAR LMsg : TEXT 
@@ -103,14 +104,14 @@ MODULE FM3Messages
     ; TRY (*EXCEPT*)
         PutStdErr ( LMsg ) 
       ; PutFM3Log ( LMsg ) 
-      ; RAISE FM3SharedUtils . Terminate ( LMsg ) 
+      ; RAISE FM3SharedUtils . FatalError ( "" ) 
       EXCEPT Thread . Alerted => END (*EXCEPT*) 
     END Fatal  
 
 (*EXPORTED*)
 ; PROCEDURE FatalArr
     ( READONLY Frags : ARRAY OF REFANY ; Pos := FM3Base . PositionNull )
-  RAISES { FM3SharedUtils . Terminate }
+  RAISES { FM3SharedUtils . FatalError }
   (* Also terminates the program. *) 
 
   = VAR LMsg : TEXT 
@@ -120,7 +121,7 @@ MODULE FM3Messages
     ; TRY (*EXCEPT*)
         PutStdErr ( LMsg ) 
       ; PutFM3Log ( LMsg ) 
-      ; RAISE FM3SharedUtils . Terminate ( LMsg ) 
+      ; RAISE FM3SharedUtils . FatalError ( "" ) 
       EXCEPT Thread . Alerted => END (*EXCEPT*) 
     END FatalArr  
 
@@ -144,7 +145,6 @@ MODULE FM3Messages
 (*EXPORTED*)
 ; PROCEDURE FM3LogArr
     ( READONLY Frags : ARRAY OF REFANY ; Pos := FM3Base . PositionNull )
-  RAISES { FM3SharedUtils . Terminate }
 
   = VAR LMsg : TEXT 
 
