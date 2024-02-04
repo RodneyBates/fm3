@@ -641,9 +641,9 @@ RULE
    TypeDeclPlus : TypeDeclPlus TypeDecl StkSemicolon
      { $$ . PaInt (* Decl count. *):= $1 . PaInt + $2 . PaInt ;
        IF $2 . PaInt > 0
-       THEN (* Insert a separator. *) 
+       THEN  
          $$ . PaPos (* Rt semicolon.*) := $3 . Scan . Position ;
-         Push_ECIP
+         Push_ECIP (* Insert a separator. *)
            ( Itk . ItkBlockDeclListLt
            , $2 . PaUnnestCoord 
            , $1 . PaInt
@@ -762,18 +762,23 @@ RULE
 
    VarDeclGroup : VarDeclGroupLt VarDeclList 
       { $$ . PaInt (* Decl count. *) := $2 . PaInt ;
+        $$ . PaPos (* Rt Semicolon. *) := $2 . PaPos ;  
         <* ASSERT FM3Decls . PopDeclInfo ( ) = $1 . PaInt *>
       } . 
 
    VarDeclList : /*Empty*/ 
       { $$ . PaInt := 0 (* Decl count. *) ;
+        $$ . PaPos (* No trailing semicolon exists. *)
+          := FM3Scanner.Attribute . Position ; 
         (*Push_LIP_rip
           ( Itk . ItkVarDeclListLt , 0 , FM3Scanner . Attribute . Position ) ;
         *)
       } .
 
    VarDeclList : VarDeclPlus  
-     { $$ . PaInt := $1 . PaInt (* Decl count. *) ; 
+     { $$ . PaInt := $1 . PaInt (* Decl count. *) ;
+       $$ . PaPos (* Rt Semicolon. *) := $1 . PaPos ;  
+
        (*FM3ParsePass . MakeListPos
          ( $$
          , Itk . ItkVarDeclListLt
@@ -784,18 +789,23 @@ RULE
      } . 
    
    VarDeclPlus : VarDecl StkSemicolon  
-     { $$ . PaInt (* Decl count. *) := $1 . PaInt ; } .
+     { $$ . PaInt (* Decl count. *) := $1 . PaInt ;
+       $$ . PaPos (* Rt Semicolon. *) := $2 . Scan . Position ;  
+     } .
 
    VarDeclPlus : VarDeclPlus VarDecl StkSemicolon 
      { $$ . PaInt (* Decl count. *):= $1 . PaInt + $2 . PaInt ;
        IF $2 . PaInt > 0
-       THEN (* Insert a separator. *) 
-         Push_ECIP
+       THEN 
+         $$ . PaPos (* Rt Semicolon. *) := $3 . Scan . Position ;  
+         Push_ECIP (* Insert a separator. *) 
            ( Itk . ItkBlockDeclListLt
            , $2 . PaUnnestCoord 
            , $1 . PaInt
-           , $2 . Scan . Position
+           , $1 . PaPos 
            ) ;
+       ELSE
+         $$ . PaPos (* Rt Semicolon. *) := $1 . PaPos ;  
        END (*IF*) ; 
      } . 
 
@@ -823,11 +833,8 @@ RULE
          END (*WITH*)
        ELSE (* Skip the decl. *) 
          Push_LCIri
-           ( Itk . ItkSkipLt
-           , $1 . PaUnnestCoord
-           , FM3Globals . NextSkipNo
-           ) ;
-         INC ( FM3Globals . NextSkipNo ) ;
+           ( Itk . ItkSkipLt , $1 . PaUnnestCoord , FM3Globals . NextSkipNo ) ;
+         INC ( FM3Globals . NextSkipNo ) ; 
          $$ . PaInt := 0 (* Contribution to BlockDeclCt. *) ; 
        END (*IF*)
      } . 
@@ -1309,7 +1316,10 @@ RULE
        $$ . PaPos (* Rt semicolon. *) := $1 . PaPos ; 
      } . 
    BlockDecl : ExceptDeclGroup { $$ . PaInt := $1 . PaInt ; } . 
-   BlockDecl : VarDeclGroup { $$ . PaInt := $1 . PaInt ; } . 
+   BlockDecl : VarDeclGroup
+     { $$ . PaInt := $1 . PaInt ;
+       $$ . PaPos (* Rt semicolon. *) := $1 . PaPos ; 
+     } . 
    BlockDecl : ProcDecl { $$ . PaInt := 1 ; } .
    BlockDecl : RevelationGroup { $$ . PaInt := $1 . PaInt ; } . 
  
@@ -1332,7 +1342,7 @@ RULE
      
    BlockDeclPlus : BlockDecl 
      { $$ . PaInt := $1 . PaInt (* Decl count. *) ;
-       $$ . PaPos (* Rt semicolon. *) (* should not be used. *) := $1 . PaPos ; 
+       $$ . PaPos (* Rt semicolon. *) := $1 . PaPos ; 
      } .
 
    BlockDeclPlus : BlockDeclPlus BlockDecl  
