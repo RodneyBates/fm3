@@ -199,6 +199,6 @@ ABS 5
       the following Rid atoms.
    *)
    
-   RidROOT             "ROOT" .
-   RidUNTRACEDROOT     "UNTRACED_ROOT" .
+   RidROOT             "<ROOT>" .
+   RidUNTRACEDROOT     "<UNTRACED_ROOT>" .
 

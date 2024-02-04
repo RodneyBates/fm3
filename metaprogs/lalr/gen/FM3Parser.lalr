@@ -698,41 +698,56 @@ RULE
      {  $$. Scan . Position := $1 . Scan . Position  } .
 
    RevelationGroup : RevelationGroupLt RevelationList
-      { $$ . PaInt (* Decl count. *) := $2 . PaInt ; } . 
+      { $$ . PaInt (* Decl count. *) := $2 . PaInt ;
+        $$ . PaPos (* Rt semicolon. *) := $2 . PaPos ; 
+      } . 
 
-   RevelationList : /*Empty*/ { $$ . PaInt := 0 ; } .
+   RevelationList : /*Empty*/
+     { $$ . PaInt := 0 ;
+       $$ . PaPos (* No trailing semicolon exists. *)
+         := FM3Scanner . Attribute . Position ; 
+     } .
 
-   RevelationList : RevelationPlus { $$ . PaInt := $1 . PaInt ; } . 
+   RevelationList : RevelationPlus
+     { $$ . PaInt := $1 . PaInt ;
+       $$ . PaPos (* Rt semicolon. *) := $1 . PaPos ; 
+     } . 
    
    RevelationPlus : Revelation StkSemicolon  
-     { $$ . PaInt (* Decl count. *) := $1 . PaInt ; } .
+     { $$ . PaInt (* Decl count. *) := $1 . PaInt ;
+       $$ . PaPos (* Rt semicolon. *) := $2 . Scan . Position ; 
+     } .
 
    RevelationPlus : RevelationPlus Revelation StkSemicolon
      { $$ . PaInt (* Decl count. *):= $1 . PaInt + $2 . PaInt ;
-       Push_ECIP
-         ( Itk . ItkBlockDeclListLt
-         , $2 . PaUnnestCoord 
-         , $1 . PaInt
-         , $2 . Scan . Position
-         ) ;
+       IF $2 . PaInt > 0
+       THEN 
+         $$ . PaPos (* Rt semicolon. *) := $3 . Scan . Position ; 
+         Push_ECIP (* Insert a separator. *) 
+           ( Itk . ItkBlockDeclListLt
+           , $2 . PaUnnestCoord 
+           , $1 . PaInt
+           , $1 . PaPos 
+           ) ;
+       ELSE
+         $$ . PaPos (* Rt semicolon. *) := $1 . PaPos ; 
+       END (*IF*) ; 
      } .
 
    Revelation : TypeId RevelationRelation Type  
      { $$ . PaInt := 1 (* BlockDecl count. *) ;
 (* CHECK^ Do we really want to count this as a block decl?  It occupies a 
-          space in the Blockdecl list, but does not introduce a new identifier.
+          space in the Blockdecl list, but does not introduce a new identifier,
+          but adds decl info about the identifier.
 *) 
-       IF FM3ParsePass . SkipDepth = 0 
-       THEN 
-         Push_LCP_eCP_rP
-           ( $2 . PaTok1 
-           , $1 . PaUnnestCoord
-           , $1 . Scan . Position
-           , $2 . PaUnnestCoord
-           , $2 . Scan . Position
-           , $1 . Scan . Position 
-           ) ;
-       END (*IF*) 
+       Push_LCP_eCP_rP
+         ( $2 . PaTok1 
+         , $1 . PaUnnestCoord
+         , $1 . Scan . Position
+         , $2 . PaUnnestCoord
+         , $2 . Scan . Position
+         , $1 . Scan . Position 
+         ) ;
      } . 
 
 (* ------------------------- Variable Declarations -------------------- . *) 
@@ -878,7 +893,9 @@ RULE
          , $1 . PaUnnestCoord
          , $1 . Scan . Position 
          ) ;
-     } . 
+     } .
+
+   Type : StkRwOBJECT StkRwEND .  
 
 (* -----------------------------Field decl lists ---------------------------- *)
 
@@ -1310,18 +1327,30 @@ RULE
      
 (* ------------------------ Block declarations ------------------------- *)
 
-   BlockDecl : ConstDeclGroup { $$ . PaInt := $1 . PaInt ; } .
+   BlockDecl : ConstDeclGroup
+     { $$ . PaInt := $1 . PaInt ;
+       $$ . PaPos (* Rt semicolon. *) := $1 . PaPos ; 
+     } .
    BlockDecl : TypeDeclGroup
      { $$ . PaInt := $1 . PaInt ;
        $$ . PaPos (* Rt semicolon. *) := $1 . PaPos ; 
      } . 
-   BlockDecl : ExceptDeclGroup { $$ . PaInt := $1 . PaInt ; } . 
+   BlockDecl : ExceptDeclGroup
+     { $$ . PaInt := $1 . PaInt ;
+       $$ . PaPos (* Rt semicolon. *) := $1 . PaPos ; 
+     } . 
    BlockDecl : VarDeclGroup
      { $$ . PaInt := $1 . PaInt ;
        $$ . PaPos (* Rt semicolon. *) := $1 . PaPos ; 
      } . 
-   BlockDecl : ProcDecl { $$ . PaInt := 1 ; } .
-   BlockDecl : RevelationGroup { $$ . PaInt := $1 . PaInt ; } . 
+   BlockDecl : ProcDecl
+     { $$ . PaInt := 1 ;
+       $$ . PaPos (* Rt semicolon. *) := $1 . PaPos ; 
+     } .
+   BlockDecl : RevelationGroup
+     { $$ . PaInt := $1 . PaInt ;
+       $$ . PaPos (* Rt semicolon. *) := $1 . PaPos ; 
+     } . 
  
    (* A block declaration always includes a terminating semicolon in the
       source syntax, but we emit only Itk *separators*. *)

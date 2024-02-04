@@ -170,8 +170,8 @@ MODULE FM3SrcToks
       | 152 => RETURN "TYPECODE"
       | 153 => RETURN "VAL"
       | 154 => RETURN "WIDECHAR"
-      | 155 => RETURN "ROOT"
-      | 156 => RETURN "UNTRACED_ROOT"
+      | 155 => RETURN "<ROOT>"
+      | 156 => RETURN "<UNTRACED_ROOT>"
       ELSE RETURN "<Undef>"
       END (*CASE*) 
     END Image
