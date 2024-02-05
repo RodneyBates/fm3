@@ -73,7 +73,7 @@ MODULE FM3Scopes
       ELSE ScopeRef . ScpStackDepth := LBeneathScopeRef . ScpStackDepth + 1
       END (*IF*) 
     ; ScopeRef ^ . ScpStackLink := LBeneathScopeRef  
-    ; ScopeStackTopRef := ScopeRef
+    ; BlockScopeTopRef := ScopeRef
     END PushBlockScope
 
 (*EXPORTED.*)
@@ -82,7 +82,7 @@ MODULE FM3Scopes
   = VAR LPoppedScopeRef : ScopeRefTyp
 
   ; BEGIN (*PopBlockScope*)
-      LPoppedScopeRef := ScopeStackTopRef 
+      LPoppedScopeRef := BlockScopeTopRef 
     ; <* ASSERT LPoppedScopeRef # NIL *>
       ScopeStackTopRef := LPoppedScopeRef . ScpStackLink
     ; IF ScopeStackTopRef = NIL

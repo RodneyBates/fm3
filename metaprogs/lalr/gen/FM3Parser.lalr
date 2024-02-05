@@ -896,6 +896,7 @@ RULE
      } .
 
    Type : StkRwOBJECT StkRwEND .  
+   Type : StkRwUNTRACED StkRwOBJECT StkRwEND .  
 
 (* -----------------------------Field decl lists ---------------------------- *)
 

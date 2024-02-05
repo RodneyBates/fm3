@@ -1897,7 +1897,7 @@ MODULE FM3ParsePass
   ; VAR LResult : BOOLEAN
 
   ; BEGIN (*DeclIdL2R*)
-      WITH WScope = FM3Scopes . ScopeStackTopRef ^
+      WITH WScope = FM3Scopes . BlockScopeTopRef ^
            , WunRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack 
       DO
         IF IdAttribute . Scan . SaIsReservedId 
@@ -1977,7 +1977,7 @@ MODULE FM3ParsePass
       DO IF WScan . SaIsReservedId
         THEN LTokToPut := Itk . ItkReservedId 
         ELSE
-          WITH WIdentRefSet = FM3Scopes . ScopeStackTopRef ^ . ScpRefIdSet
+          WITH WIdentRefSet = FM3Scopes . BlockScopeTopRef ^ . ScpRefIdSet
           DO WIdentRefSet
                := IntSets . Include
                     ( WIdentRefSet , StkIdAttribute . Scan . SaAtom )
@@ -2021,7 +2021,7 @@ MODULE FM3ParsePass
         IF CheckQualNotReserved ( StkLtIdAttribute )
            AND CheckQualNotReserved ( StkRtIdAttribute )
         THEN (* All OK. *) 
-          WITH WIdentRefSet = FM3Scopes . ScopeStackTopRef ^ . ScpRefIdSet
+          WITH WIdentRefSet = FM3Scopes . BlockScopeTopRef ^ . ScpRefIdSet
           DO WIdentRefSet
                := IntSets . Include
                     ( WIdentRefSet , StkLtIdAttribute . Scan . SaAtom )
@@ -2071,7 +2071,7 @@ MODULE FM3ParsePass
   = VAR SrtDeclNo : INTEGER 
 
   ; BEGIN (*ScopeRtL2R*)
-      WITH WScope = FM3Scopes . ScopeStackTopRef ^
+      WITH WScope = FM3Scopes . BlockScopeTopRef ^
       DO (* Block*) 
         VAR LDeclCt : INTEGER
       ; VAR LExpectedToDeclNo : INTEGER 
@@ -2151,10 +2151,10 @@ MODULE FM3ParsePass
     ; BEGIN
         LOldDeclRef := DeclRefany (* Implied NARROW. *) 
       ; LNewDeclRef
-          := FM3Decls . NewDeclRef ( FM3Scopes . ScopeStackTopRef , DeclNoI )
+          := FM3Decls . NewDeclRef ( FM3Scopes . BlockScopeTopRef , DeclNoI )
      (* ^This will have, as a side-effect, made DeclRefany = LNewDeclRef *)
       ; LNewDeclRef . DclLink := LOldDeclRef 
-      ; LNewDeclRef . DclSelfScopeRef := FM3Scopes . ScopeStackTopRef (* Why not? *)
+      ; LNewDeclRef . DclSelfScopeRef := FM3Scopes . BlockScopeTopRef (* Why not? *)
       ; LNewDeclRef . DclIdAtom := DeclIdAtom 
       ; LNewDeclRef . DclDeclNo := DeclNoI 
       ; LNewDeclRef . DclPos := Position 
@@ -2165,7 +2165,7 @@ MODULE FM3ParsePass
       VAR LDeclNo : FM3Base . DeclNoTyp
     ; BEGIN (* Block. *)
         LDeclNo
-          := LookupId ( FM3Scopes . ScopeStackTopRef ^ , DeclIdAtom , Position )
+          := LookupId ( FM3Scopes . BlockScopeTopRef ^ , DeclIdAtom , Position )
       ; <*ASSERT LDeclNo # FM3Base . DeclNoNull *>
         VarArray_Int_Refany . CallbackWithElem
           ( FM3Units . UnitStackTopRef ^ . UntDeclMap , LDeclNo , Visit )
@@ -2190,7 +2190,7 @@ MODULE FM3ParsePass
 
     ; BEGIN (* VisitDecl *)
         LDeclRef := DeclRefany (* Implied NARROW. *)
-      ; LParentScopeRef := FM3Scopes . ScopeStackTopRef 
+      ; LParentScopeRef := FM3Scopes . BlockScopeTopRef 
       ; IF LDeclRef # NIL (* Some duplicate decls of DeclNoI also exist? *) 
         THEN (* Dispense with them with error messages. *) 
           LIdentText := FM3Units . TextOfIdAtom ( DeclIdAtom ) 
@@ -2212,7 +2212,7 @@ MODULE FM3ParsePass
 
       (* Now handle the original/only declaration. *) 
       ; LDeclRef
-          := FM3Decls . NewDeclRef ( FM3Scopes . ScopeStackTopRef , DeclNoI )
+          := FM3Decls . NewDeclRef ( FM3Scopes . BlockScopeTopRef , DeclNoI )
       ; LDeclRef . DclLink := NIL 
       ; LDeclRef . DclSelfScopeRef := NIL
 (* TODO: ^ Get this from parser.  Also set the reverse link ScpOwningDeclNo. *) 
@@ -2230,7 +2230,7 @@ MODULE FM3ParsePass
         DO 
           LDeclNo
             := LookupId
-                 ( FM3Scopes . ScopeStackTopRef ^ , DeclIdAtom , Position ) 
+                 ( FM3Scopes . BlockScopeTopRef ^ , DeclIdAtom , Position ) 
         ; <*ASSERT LDeclNo # FM3Base . DeclNoNull *>
           VarArray_Int_Refany . CallbackWithElem 
             ( FM3Units . UnitStackTopRef ^ . UntDeclMap , LDeclNo , VisitDecl )
@@ -2251,7 +2251,7 @@ MODULE FM3ParsePass
   = VAR LDeclNo : FM3Base . DeclNoTyp
   
   ; BEGIN (*IdentRefR2L*)
-      WITH WScope = FM3Scopes . ScopeStackTopRef ^  
+      WITH WScope = FM3Scopes . BlockScopeTopRef ^  
            , WppRdBack
              = FM3Units . UnitStackTopRef ^ . UntParsePassRdBack 
       DO
@@ -2283,7 +2283,7 @@ MODULE FM3ParsePass
   ; VAR LDeclNo : FM3Base . DeclNoTyp
   
   ; BEGIN (*QualIdentL2R*)
-      WITH WScope = FM3Scopes . ScopeStackTopRef ^  
+      WITH WScope = FM3Scopes . BlockScopeTopRef ^  
            , WppRdBack
              = FM3Units . UnitStackTopRef ^ . UntParsePassRdBack 
       DO
@@ -2329,7 +2329,7 @@ MODULE FM3ParsePass
   ; VAR LDeclNo : FM3Base . DeclNoTyp
   
   ; BEGIN (*QualIdentL2R*)
-      WITH WScope = FM3Scopes . ScopeStackTopRef ^  
+      WITH WScope = FM3Scopes . BlockScopeTopRef ^  
            , WppRdBack
              = FM3Units . UnitStackTopRef ^ . UntParsePassRdBack 
       DO
