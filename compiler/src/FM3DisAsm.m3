@@ -58,15 +58,18 @@ MODULE FM3DisAsm
   ; BEGIN
       LLengthL := RdBackFile . LengthL ( RBT ) 
     ; LValueL := FM3Compress . GetBwd ( RBT )
-    ; Wr . PutText ( WrT , Fmt . Pad ( Fmt . LongInt ( LLengthL ) , 6 ) )
-    ; Wr . PutText ( WrT , " 16_" ) 
-    ; Wr . PutText
-        ( WrT
-        , Fmt . Pad
-            ( Fmt . LongUnsigned ( LValueL , 16 ) , 16 , padChar := '0' )
-        )
-    ; Wr . PutText ( WrT , " " ) 
-    ; Wr . PutText ( WrT , Fmt . Pad ( Fmt . LongInt ( LValueL ) , 21 ) )
+    ; IF Verbose
+      THEN
+        Wr . PutText ( WrT , Fmt . Pad ( Fmt . LongInt ( LLengthL ) , 6 ) )
+      ; Wr . PutText ( WrT , " 16_" ) 
+      ; Wr . PutText
+          ( WrT
+          , Fmt . Pad
+              ( Fmt . LongUnsigned ( LValueL , 16 ) , 16 , padChar := '0' )
+          )
+      ; Wr . PutText ( WrT , " " ) 
+      ; Wr . PutText ( WrT , Fmt . Pad ( Fmt . LongInt ( LValueL ) , 21 ) )
+      END (*IF*) 
     ; RETURN LValueL 
     END PutPrefix
 

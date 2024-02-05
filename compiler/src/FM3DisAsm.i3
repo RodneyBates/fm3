@@ -10,7 +10,9 @@ INTERFACE FM3DisAsm
 
 ; IMPORT Wr 
 
-; IMPORT RdBackFile 
+; IMPORT RdBackFile
+
+; VAR Verbose : BOOLEAN := FALSE 
 
 ; PROCEDURE DumpNumericBwd ( RBT : RdBackFile . T ; WrT : Wr . T )
 
