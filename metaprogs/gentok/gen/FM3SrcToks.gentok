@@ -137,7 +137,6 @@ ABS 5
    StkCharLit . 
    StkWideCharLit .
    StkLexErrChars .
-   StkReservedId . (* Any reserved ident, but with the Rid as its atom. *) 
    StkPragmaId . (* Not a known pragma ident, but found where one is expected. *)  
 
    (* Reserved identifiers: *)

@@ -1113,6 +1113,44 @@ MODULE FM3ParsePass
     END Push_LCP_eCP_zCP_rP 
 
 (*EXPORTED:*)
+; PROCEDURE Push_LCP_eCPB_zCP_rP
+   ( L : Itk . TokTyp
+   ; CL : LONGINT
+   ; READONLY PL : tPosition
+   ; Ce : LONGINT
+   ; READONLY Pe : tPosition
+   ; Be : BOOLEAN 
+   ; Cz : LONGINT
+   ; READONLY Pz : tPosition
+   ; READONLY Pr : tPosition
+   )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( Pr . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Pr . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( L + LtToRt , LONGINT ) )
+
+      ; PutBwd ( WRdBack , VAL ( Pz . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Pz. Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , Cz ) 
+      ; PutBwd ( WRdBack , VAL ( L + LtToTwoPatch , LONGINT ) ) 
+
+      ; PutBwd ( WRdBack , VAL ( ORD ( Be ) , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Pe . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Pe. Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , Ce ) 
+      ; PutBwd ( WRdBack , VAL ( L + LtToOnePatch , LONGINT ) )
+      
+      ; PutBwd ( WRdBack , VAL ( PL . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( PL . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , CL ) 
+      ; PutBwd ( WRdBack , VAL ( L + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END Push_LCP_eCPB_zCP_rP 
+
+(*EXPORTED:*)
 ; PROCEDURE Push_LCPeCprp
    ( T : Itk . TokTyp
    ; CLt : LONGINT
@@ -1900,7 +1938,7 @@ MODULE FM3ParsePass
       WITH WScope = FM3Scopes . BlockScopeTopRef ^
            , WunRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack 
       DO
-        IF IdAttribute . Scan . SaIsReservedId 
+        IF IdAttribute . Scan . SaIsReservedId
         THEN
           ErrorArr
             ( ARRAY OF REFANY
@@ -1928,7 +1966,8 @@ MODULE FM3ParsePass
             ; PutBwd ( WunRdBack , VAL ( SepTok , LONGINT ) )
             END (*IF*) 
           (* Id is valid. Plan to push Ident token: *)
-          ; LTokToPut := DeclIdTok 
+          ; LTokToPut := DeclIdTok
+(*FIXME ^ This should always be passed in as ItkDeclId, so use it. *) 
           ; LResult := TRUE (* Caller, Use this decl id. *)
           ELSE (* A Duplicate declaration of SaAtom in current scope. *)
             WScope . ScpDuplDeclIdSet
@@ -1967,14 +2006,15 @@ MODULE FM3ParsePass
     END DeclIdL2R
 
 (*EXPORTED.*)
-; PROCEDURE IdentRefL2R ( READONLY StkIdAttribute : tParsAttribute ) 
+; PROCEDURE IdentRefL2R ( READONLY StkIdAttribute : tParsAttribute )
+  (* Including a reserved Id. *) 
 
   = VAR LTokToPut : Itk . TokTyp
 
   ; BEGIN (*IdentRefL2R*)
       WITH WScan = StkIdAttribute . Scan
            , WunRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack 
-      DO IF WScan . SaIsReservedId
+      DO IF WScan . SaIsReservedId 
         THEN LTokToPut := Itk . ItkReservedId 
         ELSE
           WITH WIdentRefSet = FM3Scopes . BlockScopeTopRef ^ . ScpRefIdSet
@@ -1995,7 +2035,7 @@ MODULE FM3ParsePass
   : BOOLEAN (* It's OK. *) 
 
   = BEGIN
-      IF StkIdAttribute . Scan . SaIsReservedId
+      IF StkIdAttribute . Scan . SaIsReservedId 
       THEN
         ErrorArr
           ( ARRAY OF REFANY
@@ -2013,7 +2053,8 @@ MODULE FM3ParsePass
 
 (*EXPORTED.*)
 ; PROCEDURE QualIdentL2R
-    (  READONLY StkLtIdAttribute , StkRtIdAttribute : tParsAttribute ) 
+    (  READONLY StkLtIdAttribute , StkRtIdAttribute : tParsAttribute )
+  (* Handles either/both idents reserved (error msg). *) 
 
   = BEGIN (*QualIdentL2R*)
       WITH WunRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack

@@ -84,12 +84,18 @@ ItkBlock INT POS 3 (* Construct no., Position of LM declaration. *)
 
 (* Type decls. *)
 
+(* All replaced by ItkDeclId:  
 LONE
 ItkTypeDeclId IDENT POS 3 .
 ItkRevealId IDENT POS 3 . 
-
+ItkConstId IDENT POS 3 . 
+*) 
 
 FIXED
+ItkConstDecl POS
+  Colon POS BOOL 
+  Equals POS . 
+ 
 ItkTypeDecl POS 2 (* Position of ident. *)
   Equals POS 2 . 
 ItkSubtypeDecl POS 2 (* Position of ident (Lt). *)

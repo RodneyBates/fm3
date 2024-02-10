@@ -220,21 +220,19 @@ TOKEN
     StkCharLit                                   =   105 (*16_e9 00 *)
     StkWideCharLit                               =   106 (*16_ea 00 *)
     StkLexErrChars                               =   107 (*16_eb 00 *)
-    StkReservedId                                =   108 (*16_ec 00 *)
 
 (* END of copied-in token decls from FM3SrcToks.i3. *)
 
 (* Reserved identifiers needn't be known to lalr for parsing, so embedded
-   semantic actions can refer to them as FM3SrcToks . Rid*, and no copying
-   into here is necessary.
+   semantic actions can refer to them directly as FM3SrcToks . Rid*, and
+   no copying into here is necessary.
 *) 
 
 (* NOTE: Modula-3's idea that semicolons can optionally be separators
    or terminators fails to apply to imports, exports, or declarations,
    where they can only be terminators.  But commas are always separators.
-   Regardless of the source syntax, in the internal token streams, an
-   empty list of any kind has a unique empty-list token, while a nonempty
-   list has a left token, separator tokens, and a right token.   
+   Regardless of the source syntax, in the internal token streams, a list
+   always has separator tokens, never element terminators.   
 *) 
 
 (* NOTE: regarding the parser's default setting of the PaUnnestCoord field:
@@ -406,7 +404,7 @@ RULE
    TypeId : QualId.
 
    (* Make ROOT and UNTRACED ROOT look like reserved idents, even though
-      they are reserved words in source syntax.
+      they are reserved words in source syntax:
    *) 
 
    TypeId : StkRwROOT
@@ -591,14 +589,90 @@ RULE
 
 (* ------------------------- Constant Declarations -------------------- . *) 
 
-   ConstDeclGroup : StkRwCONST ConstDecls .
-   ConstDecls : ConstDecl . 
-   ConstDecls : ConstDecls ConstDecl . 
-   ConstDecl : StkIdent OptConstType StkEqual Expr StkSemicolon .
    OptConstType : StkColon Type
      { $$ . PaBool (* Present. *) := TRUE ; } . 
    OptConstType : /*Empty*/
      { $$ . PaBool (* Present. *) := FALSE (* Absent. *) ; } . 
+
+   (* ConstDeclGroup is a list of type declarations all following
+      a single occurrence of "CONST".  The parsing removes this grouping
+      from the internal token stream, as if every semicolon-terminated
+      declaration had its own occurrence of "TYPE".  
+   *)
+   
+   ConstDeclGroupLt : StkRwCONST 
+     { $$ . Scan . Position := $1 . Scan . Position; } .
+
+   ConstDeclGroup : ConstDeclGroupLt ConstDeclList
+      { $$ . PaInt (* Decl count. *) := $2 . PaInt ;
+        $$ . PaPos (* Rt semicolon. *) := $2 . PaPos ; 
+      } . 
+
+   ConstDeclList : /*Empty*/
+     { $$ . PaInt := 0 ;
+       $$ . PaPos (* No trailing semicolon exists *)
+         := FM3Scanner . Attribute . Position ; 
+     } .
+
+   ConstDeclList : ConstDeclPlus
+     { $$ . PaInt := $1 . PaInt ;
+       $$ . PaPos (* Rt semicolon.*) := $1 . PaPos ; 
+     } . 
+   
+   ConstDeclPlus : ConstDecl StkSemicolon  
+     { $$ . PaInt (* Decl count. *) := $1 . PaInt ;
+       $$ . PaPos (* Rt semicolon.*) := $2 . Scan . Position ; 
+     } .
+
+   ConstDeclPlus : ConstDeclPlus ConstDecl StkSemicolon
+     { $$ . PaInt (* Decl count. *):= $1 . PaInt + $2 . PaInt ;
+       IF $2 . PaInt > 0
+       THEN  
+         $$ . PaPos (* Rt semicolon.*) := $3 . Scan . Position ;
+         Push_ECIP (* Insert a separator. *)
+           ( Itk . ItkBlockDeclListLt
+           , $2 . PaUnnestCoord 
+           , $1 . PaInt
+           , $1 . PaPos (* Rt semicolon of $1 *) 
+           ) ;
+       ELSE 
+         $$ . PaPos (* Rt semicolon.*) := $1 . PaPos ; 
+       END (*IF*) ;  
+     } .
+
+(* TODO:Maybe combine this with TypeDeclId and others, which differ
+         only in Dkt. *) 
+   ConstDeclId : StkIdent
+     { $$ . PaInt (* Ident count, 0 or 1. *) 
+         := ORD ( FM3ParsePass . DeclIdL2R
+                    ( Itk . ItkDeclId , Dkt . DkConst , $1 )
+                ) 
+     } .
+
+   ConstDecl : ConstDeclId OptDeclType StkEqual Expr   
+     { $$ . PaInt := $1 . PaInt (* Contribution to BlockDecl count. *) ;
+       IF $$ . PaInt > 0 
+       THEN 
+         FM3ParsePass . Push_LCP_eCPB_zCP_rP
+           ( Itk . ItkConstDeclLt 
+           , $1 . PaUnnestCoord
+           , $1 . Scan . Position
+           
+           , $2 . PaUnnestCoord
+           , $2 . Scan . Position
+           , $2 . PaBool (* Is present. *) 
+           
+           , $4 . PaUnnestCoord
+           , $3 . Scan . Position
+           
+           , $1 . Scan . Position 
+           ) ;
+       ELSE (* Skip the decl. *) 
+         Push_LCIri
+           ( Itk . ItkSkipLt , $1 . PaUnnestCoord , FM3Globals . NextSkipNo ) ;
+         INC ( FM3Globals . NextSkipNo ) ;
+       END (*IF*) ;
+     } . 
 
 (* -------------------------- Type Declarations. --------------------- . *)
 
@@ -894,6 +968,23 @@ RULE
          , $1 . Scan . Position 
          ) ;
      } .
+
+   Type : StkRidADDRESS . 
+   Type : StkRidBOOLEAN . 
+   Type : StkRidCARDINAL . 
+   Type : StkRidCHAR . 
+   Type : StkRidEXTENDED . 
+   Type : StkRidINTEGER . 
+   Type : StkRidLONGCARD . 
+   Type : StkRidLONGINT . 
+   Type : StkRiDLONGREAL . 
+   Type : StkRidMUTEX . 
+   Type : StkRidNULL . 
+   Type : StkRidREAL . 
+   Type : StkRidREFANY . 
+   Type : StkRidTEXT . 
+   Type : StkRidTYPECODE . 
+   Type : StkRidWIDECHAR .
 
    Type : StkRwOBJECT StkRwEND .  
    Type : StkRwUNTRACED StkRwOBJECT StkRwEND .  
@@ -1295,9 +1386,18 @@ RULE
 
 (* ---------------------------- Expressions ---------------------------- *)
 
-   Expr: IdentRef . 
-
-   Expr: StkIntLit .
+   Expr : QualId. 
+   Expr : StkIntLit .
+   Expr : StkLongIntLit .
+   Expr : StkBasedLit .
+   Expr : StkLongBasedLit .
+   Expr : StkRealLit . 
+   Expr : StkLongRealLit . 
+   Expr : StkExtendedLit . 
+   Expr : StkTextLit . 
+   Expr : StkWideTextLit .  
+   Expr : StkCharLit . 
+   Expr : StkWideCharLit .
 
    Expr : Expr StkDeref . 
 

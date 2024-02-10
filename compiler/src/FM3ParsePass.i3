@@ -183,6 +183,18 @@ INTERFACE FM3ParsePass
    ; READONLY Pr : tPosition
    )
 
+; PROCEDURE Push_LCP_eCPB_zCP_rP
+   ( L : Itk . TokTyp
+   ; CL : LONGINT
+   ; READONLY PL : tPosition
+   ; Ce : LONGINT
+   ; READONLY Pe : tPosition
+   ; Be : BOOLEAN 
+   ; Cz : LONGINT
+   ; READONLY Pz : tPosition
+   ; READONLY Pr : tPosition
+   )
+
 ; PROCEDURE Push_LCPeCprp
    ( T : Itk . TokTyp
    ; CLt : LONGINT
@@ -281,9 +293,12 @@ INTERFACE FM3ParsePass
   (* PRE: IdAttribute is for an identifier in a declaration context. *) 
 
 ; PROCEDURE IdentRefL2R ( READONLY StkIdAttribute : tParsAttribute )
+  (* Including a reserved Id. *) 
 
 ; PROCEDURE QualIdentL2R
-    ( READONLY StkLtAttribute , StkRtAttribute : tParsAttribute ) 
+    ( READONLY StkLtAttribute , StkRtAttribute : tParsAttribute )
+  (* Handles either/both idents reserved (error msg). *) 
+    
 
 ; PROCEDURE ScopeRtL2R ( ScopeNo : FM3Scopes . ScopeNoTyp )
   (* Create an identifier-to-declNo dictionary for the scope, of

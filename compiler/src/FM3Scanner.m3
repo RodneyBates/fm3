@@ -446,12 +446,13 @@ MODULE FM3Scanner
           ; Attribute . SaTok 
               := GCurRwValue (* A recognized reserved pragma name. *) 
           END (*CASE*) 
+
         ELSE (* Looking for a reserved word or reserved identifier. *) 
           CASE GCurRwValue 
           OF FM3SrcToks . RidABS .. FM3SrcToks . RidWIDECHAR 
           => (* Reserved identifier. *) 
              (* To reduce the parser size, these are all mapped to single token
-                StkIdent, with the specific ident's token as its atom. *) 
+                StkIdent, with the specific ident's code as its atom. *) 
               Attribute . SaIsReservedId := TRUE 
             ; Attribute . SaAtom := GCurRwValue 
             ; Attribute . SaTok := FM3SrcToks . StkIdent
