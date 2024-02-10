@@ -1,0 +1,4 @@
+[31mERROR: [0mMain.m3 (14,8) Identifier "INTEGER" is predefined and cannot be redeclared (2.8.2).
+[31mERROR: [0mMain.m3 (21,4) Identifier "INTEGER" is predefined and cannot be redeclared (2.8.2).
+[31mERROR: [0mMain.m3 (23,4) Duplicate declaration of "T1", ignored, original at (20,4).
+[31mERROR: [0mMain.m3 (16,8) Duplicate declaration of "T", ignored, original at (13,8).
