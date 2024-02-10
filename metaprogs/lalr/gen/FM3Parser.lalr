@@ -1,3 +1,4 @@
+
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2023..2024 Rodney M. Bates.                                     *)
@@ -50,6 +51,7 @@ GLOBAL
     IMPORT FM3IntToks AS Itk;
     IMPORT FM3SrcToks AS Stk;
     IMPORT FM3ParsePass;
+    IMPORT FM3Extern; 
     FROM FM3ParsePass IMPORT UnnestCoord;
     FROM FM3ParsePass IMPORT tParsAttribute;
     FROM FM3ParsePass IMPORT ParsAttrNull;
@@ -230,7 +232,7 @@ TOKEN
 
 (* NOTE: Modula-3's idea that semicolons can optionally be separators
    or terminators fails to apply to imports, exports, or declarations,
-   where they can only be terminators.  But commas are always separators.
+   where they can only be terminators.  And commas are always separators.
    Regardless of the source syntax, in the internal token streams, a list
    always has separator tokens, never element terminators.   
 *) 
@@ -260,32 +262,25 @@ RULE
    UnitId : StkIdent
      { $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
        $$ . Scan . Position := $1 . Scan . Position ;
-
-(* IF FM3ParsePass . DeclIdL2R ( Itk . ItkUnitId , $1 )
-       THEN $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
-       ELSE $$ . Scan . SaAtom := FM3Base . AtomNull ;
-       END (*IF*) ;
-*)
        FM3Units . UnitStackTopRef ^ . UntUnitIdAtom := $$ . Scan . SaAtom ;
      } . 
        
    UnitIdImpliedEXPORTS : UnitId 
      { $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
-       (* Synthesize EXPORTS <self>. *) 
-       Push_LIP ( Itk . ItkExportIdListLt , 1 , $1 . Scan . Position )  ; 
-       Push_LIP
-         ( Itk . ItkExportIdListLt + Itk . LtToListElem
-         , $1 . Scan . SaAtom 
-         , $1 . Scan . Position
-         ) ;
-       Push_LIP ( Itk . ItkExportIdListRt , 1 , $1 . Scan . Position ) ;
+       $$ . Scan . Position := $1 . Scan . Position ;
+       EVAL FM3Extern . GetExternInterface
+              ( $1 . Scan . SaAtom , IsImport := FALSE ) ; 
      } .
 
-   UnitIdAndExports : UnitId Exports 
-     { $$ . Scan . SaAtom := $1 . Scan . SaAtom ; } .
-
    UnitIdAndExports : UnitIdImpliedEXPORTS
-     { $$ . Scan . SaAtom := $1 . Scan . SaAtom ; } . 
+     { $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
+       $$ . Scan . Position := $1 . Scan . Position ;
+     } . 
+
+   UnitIdAndExports : UnitId Exports 
+     { $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
+       $$ . Scan . Position := $1 . Scan . Position ;
+     } .
 
    InterfaceKind : /*Empty*/ 
        { FM3Units . UnitStackTopRef ^ . UntKind := Uk . UkInterface ; } .
@@ -531,46 +526,18 @@ RULE
 *)
 (* ------------------------------- Exports ------------------------- . *)
 
-(* Exports.  Possibly absent, in which case construct "EXPORTS Main".
-   Otherwise contains at least one ident. Bracket with ItkExportIdList*.
-*) 
+(* Exports are handled directly, without writing internal tokens. *)
 
-   ExportsLt : StkRwEXPORTS
-     { $$ . Scan . Position := $1 . Scan . Position ;
-       (* Although an export list is not exactly a scope, we use the scope
-          and DeclInfo mechanisms to check reserved and duplicated idents.
-          ScopeRtL2R will handle the legal ones specially.
-       *)
-       $$ . PaConstructNo 
-         := FM3ParsePass . ScopeLtL2R
-              ( Sk . SkExports , $1 . Scan . Position ) ;
-       $$ . PaUnnestCoord := UnnestCoord ( ) ;
-    (* ^Because ScopeLtL2R Pushes a token, thus changing UnnestCoord. *) 
-       $$ . PaInt (* DeclInfoDepth *) 
-         := FM3Decls . PushDeclInfo
-              ( FM3Decls . DeclInfoTyp
-                  { DiDeclTok := Itk . ItkNull
-                  , DiIdListTok := Itk . ItkExportIdListLt 
-                  , DiIdTok := Itk . ItkExportIdListLt + Itk . LtToListElem
-                  , DiIdSepTok := Itk . ItkExportIdListLt + Itk . LtToListSep
-                  , DiKind := Dkt . DkExports 
-                  }
-              ) ;
-     
-     } . 
+   Exports : StkRwEXPORTS ExportPlus .
 
-   Exports : ExportsLt DeclIdListElems  
-     { IF $2 . PaInt > 0 (* Some valid idents. *)
-       THEN 
-         MakeListPos (* The identifier list. *) 
-           ( $$
-           , Itk . ItkExportIdListLt
-           , $1 . Scan . Position
-           , ElemsAttr := $2
-           ) ; 
-       END (*IF*) ;
-       <* ASSERT FM3Decls . PopDeclInfo ( ) = $1 . PaInt (* Scope No. *) *>
-       FM3ParsePass . ScopeRtL2R ( $1 . PaConstructNo ) ; 
+   ExportPlus : StkIdent
+     { EVAL FM3Extern . GetExternInterface
+              ( $1 . Scan . SaAtom , IsImport := FALSE ) ;
+     } .
+
+   ExportPlus : ExportPlus StkComma StkIdent
+     { EVAL FM3Extern . GetExternInterface
+              ( $3 . Scan . SaAtom , IsImport := FALSE ) ;
      } .
 
 (* ------------------------ Generic parameters ---------------------- . *)
@@ -1510,7 +1477,7 @@ RULE
 
    StmtPlus : Stmt { $$ . PaInt := $1 . PaInt (* Stmt count. *) ; } .
      
-   StmtPlusList : StmtPlusList StkSemicolon Stmt  
+   StmtPlus : StmtPlus StkSemicolon Stmt  
      { $$ . PaInt := $1 . PaInt + 1 (* Stmt count. *) ;
        Push_ECIP (* Internal separator. *)
          ( Itk . ItkStmtListLt
