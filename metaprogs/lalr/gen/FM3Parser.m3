@@ -1477,7 +1477,7 @@ yyNonterminal := 132;
                  yySynAttribute . PaInt (* Valid Id count. *)
                          := ORD
                               ( FM3ParsePass . DeclIdL2R
-                                  ( FM3Decls . TopDeclInfo ( ) . DiIdTok 
+                                  ( Itk . ItkDeclId 
                                   , FM3Decls . TopDeclInfo ( ) . DiKind
                                   , IdAttribute := yyAttributeStack^[yyStackPtr+1]
                                   )
@@ -1487,7 +1487,7 @@ yyNonterminal := 132;
                 DEC (yyStackPtr, 3); yyNonterminal := 135;
                 (* line 370 of "FM3Parser.lalr" *)
                  IF FM3ParsePass . DeclIdL2R
-                            ( FM3Decls . TopDeclInfo ( ) . DiIdTok
+                            ( Itk . ItkDeclId 
                             , FM3Decls . TopDeclInfo ( ) . DiKind
                             , IdAttribute := yyAttributeStack^[yyStackPtr+3]
                             )
