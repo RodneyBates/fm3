@@ -1,8 +1,5 @@
  ItkEOF()
  ItkLeftEnd()
- ItkExportIdListLt(L1(16_1),[11,7])
- ItkExportIdListElem(Id1"Main",[11,7])
- ItkExportIdListRt(L1(16_1),[11,7])
  ItkBlockLt(L1(16_1),[13,2])
  ItkBlockDeclListLt(L12(16_c),[13,2])
  ItkTypeDeclLt([13,7])
