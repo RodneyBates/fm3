@@ -1,15 +1,17 @@
  
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023,       Rodney M. Bates.                                    *)
+(* Copyright 2023..2024  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
 INTERFACE FM3Utils
 
-; IMPORT AtomList
+(*& CM3 library: *)
+; IMPORT Wr 
 
+(* FM3: *) 
 ; IMPORT FM3Base 
 
 ; IMPORT IntCharVarArray AS VarArr_Char 
@@ -17,6 +19,8 @@ INTERFACE FM3Utils
 
 ; TYPE HashTyp = FM3Base . HashTyp
 ; CONST HashNull = FM3Base . HashNull 
+
+; PROCEDURE PutHex ( WrT : Wr . T ; Value : INTEGER )
 
 ; PROCEDURE GroundHash ( ) : HashTyp  
 

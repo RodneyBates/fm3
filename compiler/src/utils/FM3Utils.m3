@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023,       Rodney M. Bates.                                    *)
+(* Copyright 2023..2024  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -35,6 +35,21 @@ MODULE FM3Utils
 ; VAR ShiftFactor := 7 
   (* Don't be changing this while hash computations and their uses
      are going on! *)
+
+(* EXPORTED: *) 
+; PROCEDURE PutHex ( WrT : Wr . T ; Value : INTEGER )
+
+  = BEGIN 
+      Wr.PutText
+        ( WrT
+        , Fmt . Pad
+            ( Fmt . Unsigned ( Value , base := 16 )
+            , length := 2 * BYTESIZE ( INTEGER )
+            , padChar := '0'
+            , align := Fmt . Align . Right 
+            )
+        )
+    END PutHex 
 
 (*EXPORTED:*)
 ; PROCEDURE GroundHash ( ) : HashTyp
