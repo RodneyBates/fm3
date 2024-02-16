@@ -1062,7 +1062,7 @@ RULE
          := FM3ParsePass . ScopeLtL2R
               ( Sk . SkFormals , $1 . Scan . Position ) ;
        $$ . PaUnnestCoord := UnnestCoord ( ) ;
-    (* ^ScopeLtL2R Pushes a token and changes UnnestCoord. *) 
+    (* ^Because ScopeLtL2R Pushes a token and changes UnnestCoord. *) 
      } . 
    FormalPlus : FormalPlus StkSemicolon Formal 
      { $$ . PaInt := $1 . PaInt + $3 . PaInt ;
@@ -1348,7 +1348,7 @@ RULE
          := FM3ParsePass . ScopeLtL2R
               ( Sk . SkProcBody , FM3Scanner . Attribute . Position ) ;
        $$ . PaUnnestCoord := UnnestCoord ( ) ;
-    (* ^ScopeLtL2R Pushes a token and changes UnnestCoord. *) 
+    (* ^Because ScopeLtL2R Pushes a token and changes UnnestCoord. *) 
      } .
 
 (* ---------------------------- Expressions ---------------------------- *)

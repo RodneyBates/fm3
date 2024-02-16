@@ -67,7 +67,7 @@ MODULE FM3Scopes
   ; BEGIN (*PushBlockScope*)
       IF ScopeRef = NIL THEN RETURN END (*IF*) 
     ; <* ASSERT ScopeRef . ScpStackDepth = 0 *> (* Not already on stack. *)
-      LBeneathScopeRef := ScopeStackTopRef  
+      LBeneathScopeRef := BlockScopeTopRef  
     ; IF LBeneathScopeRef = NIL
       THEN ScopeRef . ScpStackDepth := 1
       ELSE ScopeRef . ScpStackDepth := LBeneathScopeRef . ScpStackDepth + 1
@@ -84,12 +84,12 @@ MODULE FM3Scopes
   ; BEGIN (*PopBlockScope*)
       LPoppedScopeRef := BlockScopeTopRef 
     ; <* ASSERT LPoppedScopeRef # NIL *>
-      ScopeStackTopRef := LPoppedScopeRef . ScpStackLink
-    ; IF ScopeStackTopRef = NIL
+      BlockScopeTopRef := LPoppedScopeRef . ScpStackLink
+    ; IF BlockScopeTopRef = NIL
       THEN <* ASSERT LPoppedScopeRef . ScpStackDepth = 1 *>
       ELSE
         <* ASSERT
-             ScopeStackTopRef . ScpStackDepth
+             BlockScopeTopRef . ScpStackDepth
              = LPoppedScopeRef . ScpStackDepth - 1
         *>
       END (*IF*)
