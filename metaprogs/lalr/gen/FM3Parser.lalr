@@ -1181,7 +1181,10 @@ RULE
            THEN (* No output. *) 
              $$ . PaInt := 0 ;
            ELSIF NOT LOk 
-           THEN (* Everything was empty anyway.  No output. *) 
+           THEN (* Everything was empty anyway.  No output. *)
+             Push_LCIri
+               ( Itk . ItkSkipLt , $1 . PaUnnestCoord , FM3Globals . NextSkipNo ) ;
+             INC ( FM3Globals . NextSkipNo ) ;
              $$ . PaInt := 0 ;
            ELSE 
              $$ .PaInt := $2 . PaInt (* Valid Id count. *) ;  
