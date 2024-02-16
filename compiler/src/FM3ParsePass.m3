@@ -23,7 +23,8 @@ MODULE FM3ParsePass
       into the token stream.
 *)
 
-; IMPORT Atom 
+; IMPORT Atom
+; IMPORT Compiler 
 ; FROM File IMPORT Byte  
 ; IMPORT FileWr
 ; IMPORT Fmt 
@@ -51,7 +52,8 @@ MODULE FM3ParsePass
 ; FROM FM3Compress IMPORT GetBwd
 ; IMPORT FM3Decls
 ; IMPORT FM3Dict_Int_Int
-; IMPORT FM3DisAsm 
+; IMPORT FM3DisAsm
+; IMPORT FM3RTFailures 
 ; IMPORT FM3Files
 ; IMPORT FM3Globals
 ; IMPORT FM3IntToks AS Itk
@@ -427,6 +429,7 @@ MODULE FM3ParsePass
   ; VAR LPatchFullFileName : TEXT 
   ; VAR LParsePassFullFileName , LParsePassFullCopyName : TEXT 
   ; VAR LUnnestFailed , LParsePassFailed : BOOLEAN
+  ; VAR LExceptionName , LExceptionLoc : TEXT 
 
   ; BEGIN (*CompileUnit*) 
       IF SkipDepth > 0 THEN RETURN END (*IF*) 
@@ -452,6 +455,7 @@ MODULE FM3ParsePass
           , VAL ( Itk . ItkEOF , LONGINT )
           )
       ; LUnnDepthL := RdBackFile . LengthL ( LUnitRef ^ . UntUnnestStackRdBack )
+      ; LExceptionName := NIL (* Succeeded. *) 
       ; LUnnestFailed := FALSE 
       ; FM3Parser . CloseFM3Parser ( )
 (*TODO ^ Do this sometime later. *) 
@@ -465,6 +469,12 @@ MODULE FM3ParsePass
           ( LUnitRef ^ . UntUnnestStackRdBack
           , VAL ( Itk . ItkRightEndIncomplete , LONGINT )
           )
+
+      ; LExceptionName
+          := FM3RTFailures . ExcNameFromAddr ( Compiler . ThisException ( ) )  
+      ; LExceptionLoc 
+          := FM3RTFailures . ActivationLocationFromAddr
+               ( Compiler . ThisException ( ) )  
       ; LUnnestFailed := TRUE 
       END (*EXCEPT *)
       
@@ -479,19 +489,27 @@ MODULE FM3ParsePass
              ( NIL , LUnnestFullFileName , FM3Globals . CopyFileSuffix ) 
     ; RdBackFile . Copy 
         ( LUnitRef ^ . UntUnnestStackRdBack , LUnnestFullCopyName , - 1L )
-    ; IF LUnnestFailed OR FM3CLArgs . DoDisAsmUnnest
+    ; IF LExceptionName # NIL OR FM3CLArgs . DoDisAsmUnnest
       THEN (* Disassemble it now. *) 
         DisAsm ( LUnitRef , LUnnestFullFileName )
       ; TRY FS . DeleteFile ( LUnnestFullCopyName )
         EXCEPT OSError . E => (* It didn't exist. *) 
         END (*EXCEPT*) 
       END (*IF*)
-    ; IF LUnnestFailed 
+    ; IF LExceptionName # NIL
       THEN 
         FM3Messages . FatalArr
            ( ARRAY OF REFANY
                { "Failure pushing unnest stack at depth "
-               , Fmt . LongInt ( LUnnDepthL ) 
+               , Fmt . LongInt ( LUnnDepthL )
+               , FM3Messages . NLIndent 
+               , "Exception "
+               , LExceptionName
+               , ","
+               , FM3Messages . NLIndent 
+               , "raised at "
+               , LExceptionLoc
+               , "."
                }
            )
 (*TODO: Get exception name, etc. and put in these FatalError messages. *) 
@@ -522,7 +540,7 @@ MODULE FM3ParsePass
           , VAL ( Itk . ItkLeftEndIncomplete , LONGINT )
           )
       ; LParsePassFailed := TRUE 
-      ; IF NOT LUnnestFailed AND NOT FM3CLArgs . DoDisAsmUnnest  
+      ; IF LExceptionName = NIL AND NOT FM3CLArgs . DoDisAsmUnnest  
         THEN (* Didn't already disassemble unnest stack.  Do it now. *) 
           DisAsm ( LUnitRef , LUnnestFullFileName )
         ; TRY FS . DeleteFile ( LUnnestFullCopyName )

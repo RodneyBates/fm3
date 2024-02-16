@@ -9,7 +9,7 @@
 interface("FM3TextColors")
 
 module("FM3Compress")
-module("FM3Failures")
+module("FM3RTFailures")
 module("FM3Files")
 module("FM3Messages")
 module("FM3Primes")

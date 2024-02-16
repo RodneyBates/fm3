@@ -6,7 +6,7 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-UNSAFE MODULE FM3Failures 
+UNSAFE MODULE FM3RTFailures 
 
 (* UNSAFE stuff needed for snagging runtime errors from the RTS and
    querying the user about what to do with them. *)
@@ -215,8 +215,18 @@ UNSAFE MODULE FM3Failures
       IF WasBlocked THEN RETURN "Blocked"
       ELSE RETURN "Uncaught"
       END (* IF *) 
-    END StoppedReason 
+    END StoppedReason
 
+(* EXPORTED *) 
+; PROCEDURE ExcNameFromAddr ( ActPtr : ADDRESS ) : TEXT 
+  (* Call this from inside an exception handler, passing
+     Compiler . ThisException ( )  as parameter.
+  *) 
+
+  = BEGIN
+      RETURN ExcName ( LOOPHOLE ( ActPtr , RT0 . ActivationPtr ) ^ )  
+    END ExcNameFromAddr
+    
 (* EXPORTED *) 
 ; PROCEDURE ExcName
     ( READONLY Act : RT0 . RaiseActivation ; Secondary := FALSE )
@@ -287,6 +297,16 @@ UNSAFE MODULE FM3Failures
       END (* IF *) 
     END ExcNameInternal
 
+(* EXPORTED *) 
+; PROCEDURE ActivationLocationFromAddr ( ActPtr : ADDRESS ) : TEXT 
+  (* Call this from inside an exception handler, passing
+     Compiler . ThisException ( )  as parameter.
+  *) 
+
+  = BEGIN
+      RETURN ActivationLocation ( LOOPHOLE ( ActPtr , RT0 . ActivationPtr ) ^ )
+    END ActivationLocationFromAddr
+    
 (* EXPORTED *) 
 ; PROCEDURE ActivationLocation ( READONLY Act : RT0 . RaiseActivation ) : TEXT
     (* Code location where the raise denoted by Apt occurred. *) 
@@ -449,7 +469,7 @@ UNSAFE MODULE FM3Failures
         RTIO . PutText ( Wr . EOL )
       ; RTIO . PutText ( "##### " )
       ; RTIO . PutText ( StoppedReason ( wasBlocked ) )  
-      ; RTIO . PutText ( " exception FM3Failures.Terminate. #####" )
+      ; RTIO . PutText ( " exception FM3RTFailures.Terminate. #####" )
       ; RTIO . PutText ( Wr . EOL )
       ; RTIO . Flush ( ) 
       ; TerminateBluntly ( RcBadTerminate ) <* NORETURN *>
@@ -463,7 +483,7 @@ UNSAFE MODULE FM3Failures
         RTIO . PutText ( Wr . EOL )
       ; RTIO . PutText ( "##### " )
       ; RTIO . PutText ( StoppedReason ( wasBlocked ) )  
-      ; RTIO . PutText ( " exception FM3Failures.Backout. #####" )
+      ; RTIO . PutText ( " exception FM3RTFailures.Backout. #####" )
       ; RTIO . PutText ( Wr . EOL )
       ; RTIO . Flush ( ) 
       ; TerminateBluntly ( RcBadBackout ) <* NORETURN *>
@@ -473,7 +493,7 @@ UNSAFE MODULE FM3Failures
         RTIO . PutText ( Wr . EOL )
       ; RTIO . PutText ( "##### " )
       ; RTIO . PutText ( StoppedReason ( wasBlocked ) )  
-      ; RTIO . PutText ( " exception FM3Failures.Ignore. #####" )
+      ; RTIO . PutText ( " exception FM3RTFailures.Ignore. #####" )
       ; RTIO . PutText ( Wr . EOL )
       ; RTIO . Flush ( ) 
       ; TerminateBluntly ( RcBadIgnore ) <* NORETURN *>
@@ -550,7 +570,7 @@ UNSAFE MODULE FM3Failures
           ; LThreadInfoRef ^ . QueryingActPtr := NIL  
           ; CASE LAction 
             OF FailureActionTyp . FaBackout 
-              => (* Change to FM3Failures.Backout, which client code
+              => (* Change to FM3RTFailures.Backout, which client code
                     can catch to recover from the original exception. *)
                 Act . exception := GBackoutRef
               ; Act . arg := LOOPHOLE ( ActivationLocation ( Act ) , ADDRESS )
@@ -562,7 +582,7 @@ UNSAFE MODULE FM3Failures
               ; RTException . Raise ( Act )
 
             | FailureActionTyp . FaIgnore 
-              => (* Change to FM3Failures.Ignore, which client code can
+              => (* Change to FM3RTFailures.Ignore, which client code can
                     catch to forge ahead in spite of the failure.
                     Ignoring an exception will likely work only when there
                     is somethng in the call chain that can catch Ignore
@@ -700,7 +720,7 @@ UNSAFE MODULE FM3Failures
 
 ; VAR GRuntimeErrorRef : RT0 . ExceptionPtr := NIL  
 
-; BEGIN (* FM3Failures *)
+; BEGIN (* FM3RTFailures *)
     (* It is essential to initialize these exception pointers before
        execution gets into Backstop, because they raise exceptions
        that would torpedo Backstop.
@@ -714,5 +734,5 @@ UNSAFE MODULE FM3Failures
   ; GFailureSync := NEW ( FailureSyncTyp )
   ; GFailureSync . Depth := 0 
   ; GFailureSync . BackstopIdle := NEW ( Thread . Condition ) 
-  END FM3Failures 
+  END FM3RTFailures 
 . 

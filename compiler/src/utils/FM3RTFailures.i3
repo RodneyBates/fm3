@@ -6,7 +6,7 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-INTERFACE FM3Failures
+INTERFACE FM3RTFailures
 
 (* NOTE: This is adapted from Failure.[im]3 from Schutz, which is an
          interactive program with abilities to recover from RT errors.
@@ -87,6 +87,11 @@ INTERFACE FM3Failures
 
 ; TYPE ThreadInfoRefTyp <: REFANY 
 
+; PROCEDURE ExcNameFromAddr ( ActPtr : ADDRESS ) : TEXT 
+  (* Call this from inside an exception handler, passing
+     Compiler . ThisException ( )  as parameter.
+  *) 
+
 ; PROCEDURE ExcName
     ( READONLY Act : RT0 . RaiseActivation ; Secondary := FALSE ) : TEXT
   (* Name of exception raised by Act. 
@@ -94,9 +99,14 @@ INTERFACE FM3Failures
      original exception, if such exists.
   *) 
 
-; PROCEDURE ActivationLocation ( READONLY Act : RT0 . RaiseActivation ) : TEXT
-    (* Code location where the raise denoted by Apt. *) 
+; PROCEDURE ActivationLocationFromAddr ( ActPtr : ADDRESS ) : TEXT 
+  (* Call this from inside an exception handler, passing
+     Compiler . ThisException ( )  as parameter.
+  *) 
 
-; END FM3Failures
+; PROCEDURE ActivationLocation ( READONLY Act : RT0 . RaiseActivation ) : TEXT
+    (* Code location of the raise denoted by Act. *)
+
+; END FM3RTFailures
 .
 
