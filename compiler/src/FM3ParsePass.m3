@@ -428,7 +428,6 @@ MODULE FM3ParsePass
   ; VAR LUnnestFullFileName , LUnnestFullCopyName : TEXT 
   ; VAR LPatchFullFileName : TEXT 
   ; VAR LParsePassFullFileName , LParsePassFullCopyName : TEXT 
-  ; VAR LUnnestFailed , LParsePassFailed : BOOLEAN
   ; VAR LExceptionName , LExceptionLoc : TEXT 
 
   ; BEGIN (*CompileUnit*) 
@@ -456,14 +455,14 @@ MODULE FM3ParsePass
           )
       ; LUnnDepthL := RdBackFile . LengthL ( LUnitRef ^ . UntUnnestStackRdBack )
       ; LExceptionName := NIL (* Succeeded. *) 
-      ; LUnnestFailed := FALSE 
       ; FM3Parser . CloseFM3Parser ( )
 (*TODO ^ Do this sometime later. *) 
       EXCEPT
       | FM3SharedUtils . Terminate ( Arg )
       => (*Re-*) RAISE FM3SharedUtils . Terminate ( Arg ) 
+      | FM3SharedUtils . FatalError ( Arg )
+      => (*Re-*) RAISE FM3SharedUtils . FatalError ( Arg )  
       ELSE
-(*TODO: get the exception name here and put into the messages later. *) 
         LUnnDepthL := RdBackFile . LengthL ( LUnitRef ^ . UntUnnestStackRdBack )
       ; PutBwd
           ( LUnitRef ^ . UntUnnestStackRdBack
@@ -475,7 +474,6 @@ MODULE FM3ParsePass
       ; LExceptionLoc 
           := FM3RTFailures . ActivationLocationFromAddr
                ( Compiler . ThisException ( ) )  
-      ; LUnnestFailed := TRUE 
       END (*EXCEPT *)
       
     ; LUnnestFullFileName
@@ -512,7 +510,6 @@ MODULE FM3ParsePass
                , "."
                }
            )
-(*TODO: Get exception name, etc. and put in these FatalError messages. *) 
       ; RAISE FM3SharedUtils . FatalError ( "Failure pushing unnest stack." )
       END (*IF*) 
 
@@ -528,18 +525,23 @@ MODULE FM3ParsePass
           , VAL ( Itk . ItkEOF , LONGINT )
           )
       ; LPpDepthL := RdBackFile . LengthL ( LUnitRef ^ . UntParsePassRdBack )
-      ; LParsePassFailed := FALSE 
+      ; LExceptionName := NIL (* Succeeded. *) 
       EXCEPT
       | FM3SharedUtils . Terminate ( Arg )
       => (*Re-*) RAISE FM3SharedUtils . Terminate ( Arg ) 
-      ELSE 
-(*TODO: get the exception name here and put into the messages later. *) 
+      | FM3SharedUtils . FatalError ( Arg )
+      => (*Re-*) RAISE FM3SharedUtils . FatalError ( Arg )  
+     ELSE 
         LPpDepthL := RdBackFile . LengthL ( LUnitRef ^ . UntParsePassRdBack )
       ; PutBwdP2
           ( LUnitRef ^ . UntParsePassRdBack
           , VAL ( Itk . ItkLeftEndIncomplete , LONGINT )
           )
-      ; LParsePassFailed := TRUE 
+      ; LExceptionName
+          := FM3RTFailures . ExcNameFromAddr ( Compiler . ThisException ( ) )  
+      ; LExceptionLoc 
+          := FM3RTFailures . ActivationLocationFromAddr
+               ( Compiler . ThisException ( ) )  
       ; IF LExceptionName = NIL AND NOT FM3CLArgs . DoDisAsmUnnest  
         THEN (* Didn't already disassemble unnest stack.  Do it now. *) 
           DisAsm ( LUnitRef , LUnnestFullFileName )
@@ -560,22 +562,29 @@ MODULE FM3ParsePass
     ; RdBackFile . Copy 
         ( LUnitRef ^ . UntParsePassRdBack , LParsePassFullCopyName , - 1L )
 
-    ; IF LParsePassFailed OR FM3CLArgs . DoDisAsmParsePass
+    ; IF LExceptionName # NIL OR FM3CLArgs . DoDisAsmParsePass
       THEN (* Disassemble it now. *) 
         DisAsm ( LUnitRef , LParsePassFullFileName )
       ; TRY FS . DeleteFile ( LParsePassFullCopyName )
         EXCEPT OSError . E => (* It didn't exist. *) 
         END (*EXCEPT*) 
       END (*IF*)
-    ; IF LParsePassFailed 
+    ; IF LExceptionName # NIL
       THEN 
         FM3Messages . FatalArr
            ( ARRAY OF REFANY
-               { "Failure writing parse pass at depth "
-               , Fmt . LongInt ( LPpDepthL ) 
+               { "Failure pushing writing parse pass at depth "
+               , Fmt . LongInt ( LPpDepthL )
+               , FM3Messages . NLIndent 
+               , "Exception "
+               , LExceptionName
+               , ","
+               , FM3Messages . NLIndent 
+               , "raised at "
+               , LExceptionLoc
+               , "."
                }
            )
-      ; RAISE FM3SharedUtils . FatalError ( "Failure writing parse pass." )
       END (*IF*)
 
     (* Close first pass. *) 
@@ -1831,7 +1840,7 @@ MODULE FM3ParsePass
       ; IF LFound
         THEN
           RETURN LDeclNoInt (* Implied NARROW. *) 
-        ELSE LMsg := ", not found."
+        ELSE LMsg := "not found"
         END (*IF*) 
       EXCEPT FM3Dict_Int_Int . Error ( EMsg )
         => LFound := FALSE
