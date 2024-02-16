@@ -1,0 +1,55 @@
+Stream compilers, tree compilers.  
+
+When I started playing with compilers and dinosaurs roamed the earth,
+RAM sizes were much smaller than today.  The amount of compiler data
+structure that could be built was pretty much limited to what we once
+called symbol tables and descriptions of user-defined types.  The rest
+was in the form of various sequential files that were transformed one
+to another, sometimes in a single pass, sometimes many.  I call such
+compilers _stream compilers_.
+
+It required a lot of thought to figure out how to do things when the
+streams were at the needed point, rather than when it seemed
+algorithmically convenient.  I used to long for the day when one could
+build the whole being-compiled code into in-memory data structure,
+then traverse it in whatever directions necessary for what was being
+done.
+
+That day came long ago, and for decades, all of the compilers I have
+had any internal familiarity with, work by building in-memory data
+structure, typically some kind of abstract syntax tree, with a lot of
+cross links and decoration.  This for all of the code being compiled.
+I call such a compiler a _tree compiler_.
+
+But for many years,. I have felt a vague but nagging disillusionment.
+The amount of back and forth, around and around traversal required, to
+access every simple property of anything, seems excessive. This both
+as measured by the amount of code to be written and the amount to be
+executed.  And of course, jumping around lkike this this likely leads
+to large workng sets too.  I kept wondering how a modern tree compiler
+would compare to an old fashioned stream compiler.
+
+Today, I am on a quest to find out.  I have begun a mostly
+from-scratch compiler for Modula3, for multiple reasons.  One of those
+is to see how extensively I can use streams as far as at all
+reasonable. I am so far building heap-allocated objects for
+dictionaries, compilation units, scopes, declarations and types.  In
+particular, statements and expressions remain in stream form.
+
+Streams are fully-delimited by prefix, infix, and postfix tokens, so
+subsequent passes don't need to do context-free parsing.  All scalar
+items in a stream are uniformly compressed by a scheme that favors
+values low in their ranges.  There is so far, one reverse pass, which
+greatly helps with forward references.  (This idea, to my knowledge
+goes back at least as far as Simula-67.)  While streams are kept on
+external files, I expect that a modern operating system will actually
+keep much of their contents in memory.
+
+So far, small examples have resulted in streams comparable in b yte
+size to source code.  This is far smaller that typical data stuctures,
+which in my experience, run 5X to 10X over source code.
+
+Coding has sometimes been difficult, but this seems related more to
+handling semantic attributes of LALR-reduced productions than to the
+limitations of sequential streams.  I has not seemed clearly any more
+difficult than in a tree compiler.
