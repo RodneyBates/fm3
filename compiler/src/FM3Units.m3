@@ -96,7 +96,8 @@ MODULE FM3Units
     ; LUnitRef . UntMaxUnnestStackDepth := 0L 
     ; LUnitRef . UntParsePassName := NIL
     ; LUnitRef . UntParsePassRdBack := NIL
-    ; LUnitRef . UntIdentAtomDict
+    ; LUnitRef . UntUnsafe := FALSE 
+    ; LUnitRef . UntIdentAtomDict 
         := FM3Atom_OAChars . New
              ( FM3Globals . IdentAtomInitSize
              , FM3Base . AtomFirstReal

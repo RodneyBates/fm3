@@ -20,6 +20,7 @@ INTERFACE FM3ParsePass
 ; TYPE tParsAttribute
     = RECORD
         Scan : FM3Scanner . tScanAttribute
+      ; PaRefany : REFANY 
       ; PaUnnestCoord : LONGINT  
       ; PaLong : LONGINT
       ; PaConstructNo : INTEGER
@@ -35,6 +36,7 @@ INTERFACE FM3ParsePass
 ; CONST ParsAttrNull
     = tParsAttribute
         { Scan := FM3Scanner . ScanAttrNull
+        , PaRefAny := NIL 
         , PaUnnestCoord := FIRST ( LONGINT ) 
         , PaLong := FIRST ( LONGINT )
         , PaConstructNo := FIRST ( INTEGER ) 
@@ -87,19 +89,20 @@ INTERFACE FM3ParsePass
 (* Here is the naming code, of namings of these Push_<x> procedures:
 
    Each of the Push_<x> procedures pushes a list of things on the unnest stack.
-   The letters after the "_" encode what that is.  The letters in the code and
-   the parameters are in left-to-right order, for ease of thought, but the actual
-   pushing is temporarily in the reverse order, because this stuff needs to be
-   popped backwards.
+   The letters after the "_" encode what that is.  The letters in the naming
+   code and the parameters are in left-to-right order, for ease of thought,
+   but the actual pushing is in the reverse order, because this stuff needs
+   to be popped backwards.
 
    A capital letter denotes a value that is passed to the Push_<x> procedure as
    a parameter.  The parameters are in the same order as the capital letters.
    A lower case letter denotes a value derived from the previous case-
    homonym of itself.
 
-   For a capital-letter token, the token parameter is always the left token
-   of a group of related tokens.  For a lower-case-letter token, the procedure
-   uses the previously passed in token as a base, converting as for a capital.
+   For a capital-letter token, the token parameter is always the left token of
+   a (possibly singleton) group of related tokens.  For a lower-case-letter
+   token, the Push_* procedure  uses the previously passed in token as a base,
+   converting as for a capital.
 
    The specific letter denotes which member of the token group, as follows: 
 
@@ -127,6 +130,10 @@ INTERFACE FM3ParsePass
 ; PROCEDURE Push_L ( T : Itk . TokTyp )
 
 ; PROCEDURE Push_LP ( T : Itk . TokTyp ; READONLY Position : tPosition )
+
+; PROCEDURE Push_RP ( T : Itk . TokTyp ; READONLY Position : tPosition )
+
+; PROCEDURE Push_LI ( T : Itk . TokTyp ; I : INTEGER )
 
 ; PROCEDURE Push_LIP
     ( T : Itk . TokTyp ; I : INTEGER ; READONLY Position : tPosition )
@@ -275,10 +282,6 @@ INTERFACE FM3ParsePass
 
 ; PROCEDURE ScopeEmpty ( ScopeKind : FM3Scopes . ScopeKindTyp )
 
-; PROCEDURE ScopeLtL2R
-    ( ScopeKind : FM3Scopes . ScopeKindTyp ; READONLY Position : tPosition )
-  : FM3Base . ScopeNoTyp (* Scope no. that was created. *) 
-
 ; PROCEDURE DeclIdL2R 
     ( DeclIdTok : Itk . TokTyp
     ; DeclKind : FM3Decls . DeclKindTyp  
@@ -305,7 +308,9 @@ INTERFACE FM3ParsePass
      exactly the needed size, and load it up with DeclIdAtom to
      DeclNo mappings, using the idents declared in the scope and
      a contiguously-numbered range of DeclNos.
-  *) 
+  *)
+
+; PROCEDURE PushUnitScopeForDecls ( )
 
 (* Not exported: 
 ; PROCEDURE ScopeRtR2L ( ScopeNo : FM3Base . ScopeNoTyp )

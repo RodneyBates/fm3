@@ -37,7 +37,8 @@ INTERFACE FM3Units
       ; UntSrcFilePath : TEXT := NIL (* I.e, directory wherein UntSrcFileName lives. *) 
       ; UntLogName : TEXT := NIL 
       ; UntLogWrT : Wr . T := NIL
-      ; UntUnitIdAtom : FM3Base . AtomTyp := FM3Base . AtomNull 
+      ; UntUnitIdAtom : FM3Base . AtomTyp := FM3Base . AtomNull
+      ; UntScopeRef : FM3Scopes . ScopeRefTyp := NIL 
       ; UntBuildDirPath : TEXT := NIL 
       (* ^Same for unnest stack, patch stack, and parse pass output file. *)  
       ; UntPatchStackName : TEXT := NIL
@@ -73,7 +74,8 @@ INTERFACE FM3Units
       ; UntParseResult : INTEGER 
       ; UntParsePassResult : INTEGER
       ; UntNextDeclNo : INTEGER := 1 
-      ; UntKind : UnitKindTyp 
+      ; UntKind : UnitKindTyp
+      ; UntUnsafe : BOOLEAN := FALSE 
         
       END (*UnitTyp*)
 

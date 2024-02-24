@@ -31,7 +31,12 @@ MODULE FM3Scopes
     END NewScopeMap
 
 (*EXPORTED*) 
-; PROCEDURE NewScopeRef ( OwningUnitRef : FM3Units . UnitRefTyp ) : ScopeRefTyp
+; PROCEDURE NewScopeRef
+    ( OwningUnitRef : FM3Units . UnitRefTyp
+    ; ScopeKind : FM3Scopes . ScopeKindTyp
+    ; READONLY Position : tPosition
+    )
+  : ScopeRefTyp
   (* Allocate and connect a ScopeNo and ScopeRef Owned by OwningUnitRef. *) 
 
   = VAR LUnitScopeMap : FM3Base . MapTyp
@@ -47,93 +52,74 @@ MODULE FM3Scopes
       ELSE LScopeNo := LRange . Hi + 1
       END (* IF *) 
     ; LScopeRef := NEW ( ScopeRefTyp )
-    ; LScopeRef . ScpScopeNo := LScopeNo  
-    ; LScopeRef . ScpRefIdSet := IntSets . Empty ( )  
-    ; LScopeRef . ScpDuplDeclIdSet := IntSets . Empty ( )
-    ; LScopeRef . ScpMinDeclNo := FM3Base . DeclNoMax 
-    ; LScopeRef . ScpDeclCt := 0
-    ; LScopeRef . ScpOwningUnitNo := FM3Base . UnitNoNull
-    ; LScopeRef . ScpOwningDeclNo := FM3Base . DeclNoNull
-    ; LScopeRef . ScpStackDepth := 0
+    ; LScopeRef ^ . ScpScopeNo := LScopeNo
+    ; LScopeRef ^ . ScpKind := ScopeKind
+    ; LScopeRef ^ . ScpPosition := Position
+    ; LScopeRef ^ . ScpDeclStackDepth := 0
+    ; LScopeRef ^ . ScpLookupStackDepth := 0
+    ; LScopeRef ^ .  ScpOnStackCt := 0
+
+    ; LScopeRef ^ . ScpRefIdSet := IntSets . Empty ( )  
+    ; LScopeRef ^ . ScpDuplDeclIdSet := IntSets . Empty ( )
+    ; LScopeRef ^ . ScpMinDeclNo := FM3Base . DeclNoMax 
+    ; LScopeRef ^ . ScpDeclCt := 0
+    ; LScopeRef ^ . ScpOwningUnitRef := OwniongUnitRef 
+    ; LScopeRef ^ . ScpOwningDeclNo := FM3Base . DeclNoNull
     ; VarArray_Int_Refany . Assign ( LUnitScopeMap , LScopeNo , LScopeRef )
     ; RETURN LScopeRef 
     END NewScopeRef 
 
 (*EXPORTED.*)
-; PROCEDURE PushBlockScope ( ScopeRef : ScopeRefTyp ) 
+; PROCEDURE PushDeclScopeRef ( ScopeRef : ScopeRefTyp ) 
 
-  = VAR LBeneathScopeRef : ScopeRefTyp
-
-  ; BEGIN (*PushBlockScope*)
-      IF ScopeRef = NIL THEN RETURN END (*IF*) 
-    ; <* ASSERT ScopeRef . ScpStackDepth = 0 *> (* Not already on stack. *)
-      LBeneathScopeRef := BlockScopeTopRef  
-    ; IF LBeneathScopeRef = NIL
-      THEN ScopeRef . ScpStackDepth := 1
-      ELSE ScopeRef . ScpStackDepth := LBeneathScopeRef . ScpStackDepth + 1
-      END (*IF*) 
-    ; ScopeRef ^ . ScpStackLink := LBeneathScopeRef  
-    ; BlockScopeTopRef := ScopeRef
-    END PushBlockScope
+  = BEGIN (*PushDeclScopeRef*)
+      IF ScopeRef = NIL THEN RETURN END (*IF*)
+    ; ScopeRef ^ . ScpStackLink := DeclScopeTopRef
+    ; DeclScopeTopRef := ScopeRef
+    ; INC ( ScopeRef ^ . ScpOnStackCt ) 
+    ; INC ( DeclScopeStackTopCt ) 
+    END PushDeclScopeRef
 
 (*EXPORTED.*)
-; PROCEDURE PopBlockScope ( ) : ScopeRefTyp  
+; PROCEDURE PushLookupScopeRef ( ScopeRef : ScopeRefTyp ) 
+
+  = BEGIN (*PushLookupScopeRef*)
+      IF ScopeRef = NIL THEN RETURN END (*IF*)
+    ; ScopeRef ^ . ScpStackLink := LookupScopeTopRef
+    ; LookupScopeTopRef := ScopeRef
+    ; INC ( DeclScopeStackTopCt ) 
+    ; INC ( LookupScopeStackTopCt ) 
+    END PushLookupScopeRef
+
+(*EXPORTED.*)
+; PROCEDURE PopDeclScope ( ) : ScopeRefTyp  
 
   = VAR LPoppedScopeRef : ScopeRefTyp
 
-  ; BEGIN (*PopBlockScope*)
-      LPoppedScopeRef := BlockScopeTopRef 
-    ; <* ASSERT LPoppedScopeRef # NIL *>
-      BlockScopeTopRef := LPoppedScopeRef . ScpStackLink
-    ; IF BlockScopeTopRef = NIL
-      THEN <* ASSERT LPoppedScopeRef . ScpStackDepth = 1 *>
-      ELSE
-        <* ASSERT
-             BlockScopeTopRef . ScpStackDepth
-             = LPoppedScopeRef . ScpStackDepth - 1
-        *>
-      END (*IF*)
-    ; LPoppedScopeRef . ScpStackDepth := 0  (* Note not on stack. *)
-    ; RETURN LPoppedScopeRef
-    END PopBlockScope 
+  ; BEGIN (*PopDeclScope*)
+      LPoppedScopeRef := DeclScopeStackTopRef 
+    ; DeclScopeStackTopRef := LPoppedScopeRef . ScpStackLink
+    ; DEC ( DeclScopeStackCt ) 
+    ; DEC ( LPoppedScopeRef ^ . ScpOnStackCt )
+    ; <* ASSERT ( DeclScopeStackTopRef = NIL ) = ( DeclScopeStackCt = 0 ) *> 
+      <* ASSERT LPoppedScopeRef ^ . ScpOnStackCt <= DeclScopeStackCt *> 
+     RETURN LPoppedScopeRef
+    END PopDeclScope 
 
 (*EXPORTED.*)
-; PROCEDURE PushQualScope ( ScopeRef : ScopeRefTyp ) 
-
-  = VAR LBeneathScopeRef : ScopeRefTyp
-
-  ; BEGIN (*PushQualScope*)
-      IF ScopeRef = NIL THEN RETURN END (*IF*) 
-    ; <* ASSERT ScopeRef . ScpStackDepth = 0 *> (* Not already on stack. *)
-      LBeneathScopeRef := ScopeStackTopRef  
-    ; IF LBeneathScopeRef = NIL
-      THEN ScopeRef . ScpStackDepth := 1
-      ELSE ScopeRef . ScpStackDepth := LBeneathScopeRef . ScpStackDepth + 1
-      END (*IF*) 
-    ; ScopeRef ^ . ScpStackLink := LBeneathScopeRef  
-    ; ScopeStackTopRef := ScopeRef
-    END PushQualScope
-
-(*EXPORTED.*)
-; PROCEDURE PopQualScope ( ) : ScopeRefTyp  
+; PROCEDURE PopLookupScope ( ) : ScopeRefTyp  
 
   = VAR LPoppedScopeRef : ScopeRefTyp
 
-  ; BEGIN (*PopQualScope*)
-      LPoppedScopeRef := ScopeStackTopRef 
-    ; <* ASSERT LPoppedScopeRef # NIL *>
-      ScopeStackTopRef := LPoppedScopeRef . ScpStackLink
-    ; IF ScopeStackTopRef = NIL
-      THEN <* ASSERT LPoppedScopeRef . ScpStackDepth = 1 *>
-      ELSE
-        <* ASSERT
-             ScopeStackTopRef . ScpStackDepth
-             = LPoppedScopeRef . ScpStackDepth - 1
-        *>
-      END (*IF*)
-    ; LPoppedScopeRef . ScpStackDepth := 0  (* Note not on stack. *)
-    ; RETURN LPoppedScopeRef
-    END PopQualScope 
+  ; BEGIN (*PopLookupScope*)
+      LPoppedScopeRef := LookupScopeStackTopRef 
+    ; LookupScopeStackTopRef := LPoppedScopeRef . ScpStackLink
+    ; DEC ( LookupScopeStackCt ) 
+    ; DEC ( LPoppedScopeRef ^ . ScpOnStackCt )
+    ; <* ASSERT ( LookupScopeStackTopRef = NIL ) = ( LookupScopeStackCt = 0 ) *>
+      <* ASSERT LPoppedScopeRef ^ . ScpOnStackCt <= LookupScopeStackCt *> 
+     RETURN LPoppedScopeRef
+    END PopLookupScope 
 
 ; BEGIN
     ScopeStackTopRef := NIL 

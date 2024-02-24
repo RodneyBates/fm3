@@ -259,6 +259,7 @@ RULE
    Compilation : InstInterface . 
    Compilation : InstModule .
 
+(* Old: 
    UnitId : StkIdent
      { $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
        $$ . Scan . Position := $1 . Scan . Position ;
@@ -281,6 +282,50 @@ RULE
      { $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
        $$ . Scan . Position := $1 . Scan . Position ;
      } .
+END old. *)
+
+
+   UnitId : StkIdent
+     { $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
+       $$ . Scan . Position := $1 . Scan . Position ;
+       FM3Units . PushUnitNo ( $$ . PaConstructNo ) ; 
+       FM3Units . UnitStackTopRef ^ . UntUnitIdAtom := $$ . Scan . SaAtom ;
+       $$ . PaConstructNo (* 2nd meaning: ScopeNo *) 
+              := FM3Scopes . NewScopeRef
+                   ( FM3Units . UnitStackTopRef
+                   , Skt . SkModule
+                   , FM3Scanner . Attribute . Position
+                   ) ;
+       FM3ParsePass . Push_LI ( Itk . ItkScopeLt , $$ . PaConstructNo ) ;
+       (* ^Scope not pushed until after Imports. *)
+     } . 
+       
+   UnitIdImpliedEXPORTS : UnitId 
+     { $$ . Scan . Position := FM3Scanner . Attribute . Position;
+       EVAL FM3Extern . GetExternInterface
+              ( $1 . Scan . SaAtom , IsImport := FALSE ) ; 
+     } .
+
+   UnitIdAndExports : UnitIdImpliedEXPORTS
+     { $$ . Scan . SaAtom (* Unit ident. *) := $1 . Scan . SaAtom ;
+       $$ . Scan . Position (* Of unit ident. *) := $1 . Scan . Position ;
+       $$ . PaConstructNo (* ScopeNo *) 
+              := FM3Scopes . NewScopeRef
+                   ( FM3Units . UnitStackTopRef
+                   , Skt . SkModule
+                   , FM3Scanner . Attribute . Position
+                   ) ;
+       FM3ParsePass . Push_LI ( Itk . ItkScopeLt , $$ . PaConstructNo ) ;
+       (* ^Scope not pushed until after Imports. *)
+(* FIXME: Scope needs to be pushed between unit id and exports. *) 
+     } . 
+
+   UnitIdAndExports : UnitId Exports 
+     { $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
+       $$ . Scan . Position := $1 . Scan . Position ;
+     } .
+
+
 
    InterfaceKind : /*Empty*/ 
        { FM3Units . UnitStackTopRef ^ . UntKind := Uk . UkInterface ; } .
@@ -300,29 +345,122 @@ RULE
    InstModuleKind : /*Empty*/ 
        { FM3Units . UnitStackTopRef ^ . UntKind := Uk . UkInstModule ; } . 
 
+   InterfaceLt : OptUnsafe StkRwINTERFACE UnitId 
+     { $$ . PaBool := $1 . PsBool ;
+       $$ . PaByte := ORD ( Ukt . UkInterface ; 
+       $$ . PaConstructNo (* ScopeNo *) 
+         := FM3Scopes . NewScopeRef
+              ( FM3Units . UnitStackTopRef
+              , Skt . SkIterface
+              , FM3Scanner . Attribute . Position
+              ) ;
+     } . 
+
    Interface : 
-       OptUnsafe StkRwINTERFACE UnitId InterfaceKind StkSemicolon
-       Imports BlockDeclList StkRwEND StkIdent StkDot .
+       InterfaceLt InterfaceKind StkSemicolon
+       Imports BlockDeclList StkRwEND StkIdent StkDot
+     { FM3ParsePass . Push_LI ( Itk . ItkScopeLt , $1 . PaConstructNo ) ;
+     } .
+
+   ModuleLt : OptUnsafe StkRwMODULE UnitId 
+     { VAR LUnitRef : FM3Units . UnitRefTyp
+       VAR LScopeRef : FM3Scopes . ScopeRefTyp 
+       BEGIN
+         LUnitRef := FM3Units . UnitStackTopRef ;
+         LUnitRef ^ . UntUnsafe := $1 . PaBool ; 
+         LUnitRef ^ . UntKind := Uk . UkModule (* Could change. *) ; 
+         FM3ParsePass . CheckModuleId ( LUnitRef , $3 . Scan . SaAtom ) ;
+         LScopeRef 
+           := FM3Scopes . NewScopeRef 
+                ( LUnitRef , Skt . SkModule , $1 . Scan . Position ) ;
+         LUnitRef ^ . UntScopeRef := LScopeRef ; 
+         FM3ParsePass . PushDeclScopeRef ( LScopeRef ) ; 
+         Push_LI ( Itk . ItkDeclScopeLt , LScopeRef . ScpScopeNo ) ; 
+         $$ . PaRefany := LScopeRef ;   
+       END ; 
+     } .
+
+   ModuleMiddle : ModuleLt OptExports StkSemicolon Imports 
+     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
+       BEGIN
+         $$ . PaRefany (* ScopeRef *) := $1 . PaRefAny ;
+         LScopeRef := NARROW ( $1 . PaRefAny , FM3Scopes . ScopeRefTyp ) ; 
+         FM3ParsePass . PushLookupScopeRef ( LScopeRef ) ;
+         Push_LI ( Itk . ItkLookupScopeLt , LScopeRef ^ . ScpScopeNo ) ;
+       END ; 
+     } . 
 
    Module :
-       OptUnsafe StkRwMODULE UnitIdAndExports ModuleKind StkSemicolon
-       Imports Block StkIdent StkDot .
+       ModuleMiddle Block StkIdent StkDot
+     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
+       BEGIN
+         LScopeRef := NAROW ( $1 . PaRefAny , FM3Scopes . ScopeRefTyp ) ; 
+         FM3ParsePass . ScopeRtL2R ( LScopeRef ) ;
+         FM3ParsePass . Push_LI
+           ( Itk . ItkLookupScopeRt , LScopeRef ^ . ScpScopeNo )
+         FM3ParsePass . Push_LI
+           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpScopeNo )
+         FM3ParsePsss . CheckUnitFinalId
+           ( FM3Units . UnitStackTopRef , $2 . Scan . SaAtom )
+       END ; 
+     } .
+
+   GenInterfaceLt : StkRwGENERIC StkRwINTERFACE UnitId 
+     { $$ . PaBool := $1 . PsBool ;
+       $$ . PaaByte := ORD ( Ukt . UkInterface ; 
+       $$ . PaConstructNo (* ScopeNo *) 
+         := FM3Scopes . NewScopeRef
+              ( FM3Units . UnitStackTopRef , Skt . SkInterface , FM3Scanner . Attribute . Position ) ;
+     } .  
 
    GenInterface :
-       StkRwGENERIC StkRwINTERFACE UnitId GenInterfaceKind GenFormalList
-       StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot . 
+       GenInterfaceLt GenInterfaceKind GenFormalList
+       StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
+     { FM3ParsePass . Push_LI ( Itk . ItkScopeLt , $1 . PaConstructNo ) ;
+     } .
+
+   GenModuleLt : StkRwGENERIC StkRwMODULE UnitId 
+     { $$ . PaBool := $1 . PsBool ;
+       $$ . PaaByte := ORD ( Ukt . UkInterface ; 
+       $$ . PaConstructNo (* ScopeNo *) 
+         := FM3Scopes . NewScopeRef
+              ( FM3Units . UnitStackTopRef , Skt . SkModule , FM3Scanner . Attribute . Position ) ;
+     } . 
 
    GenModule :
-       StkRwGENERIC StkRwMODULE UnitId GenModuleKind GenFormalList
-       StkSemicolon Imports Block StkIdent StkDot . 
+       GenModuleLt GenModuleKind GenFormalList
+       StkSemicolon Imports Block StkIdent StkDot 
+     { FM3ParsePass . Push_LI ( Itk . ItkScopeLt , $1 . PaConstructNo ) ;
+     } .
+
+
+   InstInterfaceLt : OptUnsafe StkRwINTERFACE UnitId 
+     { $$ . PaBool := $1 . PsBool ;
+       $$ . PaaByte := ORD ( Ukt . UkInterface ; 
+       $$ . PaConstructNo (* ScopeNo *) 
+         := FM3Scopes . NewScopeRef
+              ( FM3Units . UnitStackTopRef , Skt . SkInterface , FM3Scanner . Attribute . Position ) ;
+     } . 
 
    InstInterface :
-       OptUnsafe StkRwINTERFACE UnitId InstInterfaceKind StkEqual
-       StkIdent GenActualList StkRwEND StkIdent StkDot . 
+       InstInterfaceLt InstInterfaceKind StkEqual
+       StkIdent GenActualList StkRwEND StkIdent StkDot 
+     { FM3ParsePass . Push_LI ( Itk . ItkScopeLt , $1 . PaConstructNo ) ;
+     } . 
+
+   InstModuleLt : OptUnsafe StkRwMODULE UnitId 
+     { $$ . PaBool := $1 . PsBool ;
+       $$ . PaaByte := ORD ( Ukt . UkInterface ; 
+       $$ . PaConstructNo (* ScopeNo *) 
+         := FM3Scopes . NewScopeRef
+              ( FM3Units . UnitStackTopRef , Skt . SkModule , FM3Scanner . Attribute . Position ) ;
+     } . 
 
    InstModule :
-       OptUnsafe StkRwMODULE UnitIdAndExports InstModuleKind StkEqual
-       StkIdent GenActualList StkRwEND StkIdent StkDot . 
+       InstModuleLt Exports InstModuleKind StkEqual
+       StkIdent GenActualList StkRwEND StkIdent StkDot 
+     { FM3ParsePass . Push_LI ( Itk . ItkScopeLt , $1 . PaConstructNo ) ;
+     } . 
 
    OptUnsafe : StkRwUNSAFE { $$ . PaBool (* Unsafe.*) := TRUE ; } .
    OptUnsafe : { $$ . PaBool (* Unsafe.*) := FALSE (* Safe. *) ; }.
@@ -991,8 +1129,8 @@ RULE
 
    RecTypeLt : StkRwRECORD  
      { $$ . PaConstructNo  
-         := FM3ParsePass . ScopeLtL2R
-              ( Sk . SkRec , $1 . Scan . Position ) ;
+         := FM3Scopes . NewScopeRef
+              ( FM3Units . UnitStackTopRef , Sk . SkRec , $1 . Scan . Position ) ;
        $$ . PaUnnestCoord := UnnestCoord ( ) ;
        $$ . PaInt (* DeclInfoDepth *) 
          := FM3Decls . PushDeclInfo
@@ -1048,22 +1186,25 @@ RULE
        FM3ParsePass . ScopeEmpty ( Sk . SkFormals ) ; 
        PushUnnest ( Itk . ItkFormalsListEmpty )
      } .
+     
+   FormalsLt : StkOpenParen 
+     { $$ . Scan . Position := $1 . Scan . Position ;
+       $$ . PaConstructNo 
+         := FM3Scopes . NewScopeRef
+              ( FM3Units . UnitStackTopRef , Sk . SkFormals , $1 . Scan . Position ) ;
+       FM3ParsePass . Push_LI ( Itk . ItkScopeLt , $$ . PaConstructNo ) ; 
+     } .
+     
    Formals : FormalsLt FormalPlus OptSemicolon StkCloseParen
      { $$ . Scan . Position := $1 . Scan . Position ;
        $$ . PaInt := $2 . PaInt ; 
        FM3ParsePass . ScopeRtL2R ( $1 . PaConstructNo ) ;
+       FM3ParsePass . Push_LI ( Itk . ItkScopeRt , $1 . PaConstructNo ) ; 
        MakeListPos
          ( $$ , Itk . ItkFormalsListLt , $1 . Scan . Position , $2 ) ;
 (* FIXME^ different tokens for different formal modes. *) 
      } .
-   FormalsLt : StkOpenParen 
-     { $$ . Scan . Position := $1 . Scan . Position ;
-       $$ . PaConstructNo 
-         := FM3ParsePass . ScopeLtL2R
-              ( Sk . SkFormals , $1 . Scan . Position ) ;
-       $$ . PaUnnestCoord := UnnestCoord ( ) ;
-    (* ^Because ScopeLtL2R Pushes a token and changes UnnestCoord. *) 
-     } . 
+     
    FormalPlus : FormalPlus StkSemicolon Formal 
      { $$ . PaInt := $1 . PaInt + $3 . PaInt ;
        Push_ECIP
@@ -1072,7 +1213,8 @@ RULE
          , $1 . PaInt 
          , $2 . Scan . Position
          ) ; 
-     } .  
+     } .
+     
    FormalPlus : Formal 
      { $$ . PaInt := $1 . PaInt ; } .
 
@@ -1118,7 +1260,7 @@ RULE
                   , DiIdListTok := Itk . ItkVARFormalIdListLt 
                   , DiIdTok := Itk . ItkDeclId
                   , DiIdSepTok := Itk . ItkVARFormalIdListLt + Itk . LtToListSep
-                  , DiKind := Dkt . DkVALUEFormal
+                  , DiKind := Dkt . DkVARFormal
                   }
               ) ;
      } .
@@ -1141,85 +1283,71 @@ RULE
 
    Formal : FormalLt FormalIds FormalType FormalExpr
      { $$ . Scan . Position := $1 . Scan . Position ; 
-       WITH WDeclInfo = FM3Decls . TopDeclInfo ( )
-       DO (* Do these checks  even if no valid ids. *)
-         VAR LOk := TRUE ; 
-         BEGIN 
-           IF VAL ( $1 . PaByte , Dkt ) = Dkt . DkVARFormal   
+       VAR LOk := TRUE ; 
+       BEGIN (* Do these checks even if no valid ids. *) 
+         IF VAL ( $1 . PaByte , Dkt ) = Dkt . DkVARFormal   
+         THEN
+           IF NOT $3 . PaBool (* Formal type is present (absent?). *)
            THEN
-             IF NOT $3 . PaBool (* Formal type is present (absent?). *)
-             THEN
-               FM3Messages . ErrorArr
-                 ( ARRAY OF REFANY 
-                     { " VAR formal must have a type (2.2.8)." } 
-                 , $2 . Scan . Position
-                 ) ;
-               LOk := FALSE ; 
-(* FIXME: Arrange to skip the FormalExpr, if any. *) 
-             END (*IF*) ; 
-             IF $4 . PaBool (* Formal expression is present? *) 
-             THEN
-               FM3Messages . ErrorArr
-                 ( ARRAY OF REFANY 
-                     { " VAR formal cannot have a default expression (2.2.8)." }
-                 , $4 . Scan . Position
-                 ) ;
-               LOk := FALSE ; 
-(* FIXME: Arrange to skip the FormalExpr, if any. *) 
-             END (*IF*) ;
-           ELSE (* VALUE or READONLY *)  
-             LOk := FM3ParsePass . RequireTypeAndOrValue
-                      ( $2 . Scan . Position , $3 . PaBool , $4 . PaBool )
-           END (*IF*) ;
-
-           IF $2 . PaInt < 0 (* FormalIds calls for skipping the decl? *)
-           THEN 
-             $$ . PaInt := 0 ;
-             <* ASSERT FM3ParsePass . StopSkipping0 ( ) = - $2 . PaInt *>
-           ELSIF FM3ParsePass . SkipDepth > 0
-                 (* Skipping some containing construct? *)
-           THEN (* No output. *) 
-             $$ . PaInt := 0 ;
-           ELSIF NOT LOk 
-           THEN (* Everything was empty anyway.  No output. *)
-             Push_LCIri
-               ( Itk . ItkSkipLt , $1 . PaUnnestCoord , FM3Globals . NextSkipNo ) ;
-             INC ( FM3Globals . NextSkipNo ) ;
-             $$ . PaInt := 0 ;
-           ELSE 
-             $$ .PaInt := $2 . PaInt (* Valid Id count. *) ;  
-             Push_LCP_eCP_zCP_rP 
-               ( WDeclInfo . DiDeclTok 
-               , $1 . PaUnnestCoord
+             FM3Messages . ErrorArr
+               ( ARRAY OF REFANY 
+                   { " VAR formal must have a type (2.2.8)." } 
                , $2 . Scan . Position
-               , $3 . PaUnnestCoord
-               , $3 . Scan . Position
-               , $4 . PaUnnestCoord
-               , $4 . Scan . Position 
-               , $1 . Scan . Position 
                ) ;
-           END (*WITH*) 
+             LOk := FALSE ; 
+           END (*IF*) ; 
+           IF $4 . PaBool (* Formal expression is present? *) 
+           THEN
+             FM3Messages . ErrorArr
+               ( ARRAY OF REFANY 
+                   { " VAR formal cannot have a default expression (2.2.8)." }
+               , $4 . Scan . Position
+               ) ;
+             LOk := FALSE ; 
+           END (*IF*) ;
+         ELSE (* VALUE or READONLY *)  
+           LOk := FM3ParsePass . RequireTypeAndOrValue
+                    ( $2 . Scan . Position , $3 . PaBool , $4 . PaBool )
+         END (*IF*) ;
+
+         LOk := LOk AND $2 . PaInt > 0 ;
+         
+         IF NOT LOk 
+         THEN (* Skip the whole decl, including possibly multiple idents. *)
+           $$ . PaInt := 0 ;
+           Push_LCIri
+             ( Itk . ItkSkipLt
+             , $1 . PaUnnestCoord
+             , FM3Globals . NextSkipNo
+             ) ;
+           INC ( FM3Globals . NextSkipNo ) ;
+         ELSE 
+           $$ .PaInt := $2 . PaInt (* Valid Id count. *) ;  
+           Push_LCP_eCP_zCP_rP 
+             ( FM3Decls . TopDeclInfo ( ) . DiDeclTok 
+             , $1 . PaUnnestCoord
+             , $2 . Scan . Position
+             , $3 . PaUnnestCoord
+             , $3 . Scan . Position
+             , $4 . PaUnnestCoord
+             , $4 . Scan . Position 
+             , $1 . Scan . Position 
+             ) ;
          END (*IF*) ;
          <* ASSERT FM3Decls . PopDeclInfo ( ) = $1 . PaInt *>
        END (*Block*) 
      } .
 
-   (* FormalIds.PaInt > 0 is ident count.  < 0 is -skipdepth. *) 
+   (* FormalIds.PaInt > 0 is ident count. *) 
    FormalIds : DeclIdListElems 
      { $$ . Scan . Position  := $1 . Scan . Position ; 
-       IF $1 . PaInt = 0 (* No valid ids. *)
-       THEN (* Start skipping this formal. *) 
-         $$ . PaInt (* Negative Skipping depth. *) 
-           := - FM3ParsePass . StartSkipping0 ( ) ;
-       ELSE
-         $$ .PaInt := $1 . PaInt (* Valid Id Ct. *) ; 
-         MakeListPos
-           ( $$
-           , FM3Decls . TopDeclInfo ( ) . DiIdListTok
-           , $1 . Scan . Position
-           , ElemsAttr := $1
-           ) ; 
-       END (*IF*) ;
+       $$ .PaInt := $1 . PaInt (* Valid Id Ct. *) ; 
+       MakeListPos
+         ( $$
+         , FM3Decls . TopDeclInfo ( ) . DiIdListTok
+         , $1 . Scan . Position
+         , ElemsAttr := $1
+         ) ; 
      } .
 
 (* Formal parameter type. *) 
@@ -1337,23 +1465,29 @@ RULE
        $$ . PaConstructNo := FM3Base . AtomNull ; 
        $$ . Scan . Position := $1 . Scan . Position; 
        Push_LP ( Itk . ItkProcBodyAbsent , $1 . Scan . Position ); 
-     } . 
-   OptBody : StkEqual ProcBodyScopeLt Block StkIdent StkSemicolon 
-     { $$ . PaBool (* Procedure has a body. *) := TRUE ; 
-       $$ . PaConstructNo := $4 . Scan . SaAtom ;
-       $$ . Scan . Position := $1 . Scan . Position; 
-       Push_LCP_rp
-         ( Itk . ItkProcBodyLt,  $1 . PaUnnestCoord , $1 . Scan . Position );
-       FM3ParsePass . ScopeRtL2R ( $2 . PaConstructNo ) ; 
      } .
-   ProcBodyScopeLt : /* Empty */
-     { $$ . PaConstructNo
-         := FM3ParsePass . ScopeLtL2R
-              ( Sk . SkProcBody , FM3Scanner . Attribute . Position ) ;
-       $$ . PaUnnestCoord := UnnestCoord ( ) ;
-    (* ^Because ScopeLtL2R Pushes a token and changes UnnestCoord. *) 
+     
+   ProcBodyScopeLt : StkEqual 
+     { $$ . Scan . Position := $1 . Scan . Position ;
+       FM3ParsePass . Push_LP
+         ( Itk . ItkProcBodyLt , $1 . Scan . SaPosition ) ;
+       $$ . PaConstructNo
+         := FM3Scopes . NewScopeRef
+              ( FM3Units . UnitStackTopRef , Sk . SkProcBody , $1 . Scan . SaPosition ) ;
+       FM3ParsePass . Push_LI ( Itk . ItkScopeLt , $$ . PaConstructNo ) ;
      } .
 
+   OptBody : ProcBodyScopeLt Block StkIdent StkSemicolon 
+     { $$ . PaBool (* Procedure has a body. *) := TRUE ; 
+       $$ . PaConstructNo (* Procedure Id *) := $3 . Scan . SaAtom ;
+       $$ . Scan . Position := $1 . Scan . Position;
+       FM3ParsePass . ScopeRtL2R ( $1 . PaConstructNo ) ;
+       FM3ParsePass . Push_LI
+         ( Itk . ItkScopeRt , $1 . PaConstructNo )
+       Push_LP
+         ( Itk . ItkProcBodyRt , $1 . Scan . Position );
+     } .
+     
 (* ---------------------------- Expressions ---------------------------- *)
 
    Expr : QualId. 
@@ -1376,8 +1510,8 @@ RULE
 
    BlockLt : /*EMPTY*/
      { $$ . PaConstructNo
-         := FM3ParsePass . ScopeLtL2R
-              ( Sk . SkBlock , FM3Scanner . Attribute . Position ) ;
+         := FM3Scopes . NewScopeRef
+              ( FM3Units . UnitStackTopRef , Sk . SkBlock , FM3Scanner . Attribute . Position ) ;
        Push_LIP
          ( Itk . ItkBlockLt
          , $$ . PaConstructNo
@@ -1386,8 +1520,7 @@ RULE
      } .
 
    Block : BlockLt BlockDeclList StkRwBEGIN StmtList StkRwEND
-     { FM3ParsePass . ScopeRtL2R ( $1 . PaConstructNo ) ; 
-       Push_ECIP_riP
+     { Push_ECIP_riP
          ( Itk . ItkBlockLt
          , $3 . PaUnnestCoord
          , $1 . PaConstructNo 

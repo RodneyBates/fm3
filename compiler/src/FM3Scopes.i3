@@ -21,8 +21,8 @@ INTERFACE FM3Scopes
 ; TYPE ScopeKindTyp
     = { SkNull
       , SkUniverse (* {Predefined, interfaces? *)
-      , SkInterface
-      , SkModule
+      , SkInterface (* Including generic and instantiation. *) 
+      , SkModule (* Including generic and instantiation. *)
       , SkFormals
       , SkProcBody 
       , SkBlock
@@ -52,32 +52,42 @@ INTERFACE FM3Scopes
       ; ScpDeclCt : FM3Base . DeclNoTyp := 0
       ; ScpMinDeclNo := FM3Base . DeclNoNull
       ; ScpScopeNo : FM3Base . ScopeNoTyp (* A self-reference. *)
-      ; ScpOwningUnitNo : FM3Base . UnitNoTyp 
+      ; ScpOwningUnitRef : ScopeRefTyp := NIL 
       ; ScpOwningDeclNo : FM3Base . DeclNoTyp
-      ; ScpStackDepth : INTEGER 
+      ; ScpOnStackCt : INTEGER := 0
+        (* ^Number of times it's on either scope stack. *)
       ; ScpPosition : FM3Base . tPosition 
       ; ScpKind : ScopeKindTyp 
       END (*ScopeTyp*)
       
-; PROCEDURE NewScopeRef ( OwningUnitRef : FM3Units . UnitRefTyp ) : ScopeRefTyp
-  (* Allocate and connect a ScopeNo and ScopeRef, owned by OwningUnitRef. *) 
+; PROCEDURE NewScopeRef
+    ( OwningUnitRef : FM3Units . UnitRefTyp
+    ; ScopeKind : FM3Scopes . ScopeKindTyp
+    ; READONLY Position : tPosition
+    )
+  : ScopeRefTyp
+  (* Allocate and connect a ScopeNo and ScopeRef Owned by OwningUnitRef. *) 
 
 ; TYPE ScopeMapTyp = FM3Base . MapTyp
   (* Map ScopeNoTyp to ScopeRefTyp. One of these per unit. *) 
 
 ; PROCEDURE NewScopeMap ( ScopeCt : FM3Base . ScopeNoTyp ) : ScopeMapTyp
 
-; VAR ScopeStackTopRef : ScopeRefTyp := NIL
-      (* A single, global, linked stack with scopes from multiple units. *) 
+; VAR DeclScopeStackTopRef : ScopeRefTyp := NIL
+      (* A global, linked stack containing scopes from multiple units.
+         The top one is where declarations are being handled. *)
+; VAR DeclScopeStackCt : INTEGER := 0 
       
-; VAR BlockScopeTopRef : ScopeRefTyp := NIL
-      (* Like ScopeStackTopRef, but only the top block scope.  All of
-         these are deeper than non-block scopes.
-      *) 
+; VAR LookupScopeStackTopRef : ScopeRefTyp := NIL
+      (* Another global, linked stack containing scopes from multiple units.
+         Unqualified ident references are searched top-to-bottom. *) 
+; VAR LookupScopeStackCt : INTEGER := 0 
       
-; PROCEDURE PushBlockScope ( ScopeRef : ScopeRefTyp )  
+; PROCEDURE PushDeclScopeRef ( ScopeRef : ScopeRefTyp ) 
+; PROCEDURE PushLookupScopeRef ( ScopeRef : ScopeRefTyp ) 
 
-; PROCEDURE PopBlockScope ( ) : ScopeRefTyp  
+; PROCEDURE PopDeclScope ( ) : ScopeRefTyp  
+; PROCEDURE PopLookupScope ( ) : ScopeRefTyp  
 
 ; END FM3Scopes
 .

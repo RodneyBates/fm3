@@ -1,3 +1,4 @@
+
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2023..2024  Rodney M. Bates.                                    *)
@@ -935,6 +936,30 @@ MODULE FM3ParsePass
     END Push_LP
 
 (*EXPORTED:*)
+; PROCEDURE Push_RP
+    ( T : Itk . TokTyp ; READONLY Position : tPosition )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + Itk . LtToRt , LONGINT ) ) 
+      END (*WITH*) 
+    END Push_RP
+
+(*EXPORTED:*)
+; PROCEDURE Push_LI ( T : Itk . TokTyp ; I : INTEGER )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T , LONGINT ) ) 
+      END (*WITH*) 
+    END Push_LI
+
+(*EXPORTED:*)
 ; PROCEDURE Push_LIP
     ( T : Itk . TokTyp ; I : INTEGER ; READONLY Position : tPosition )
 
@@ -1645,7 +1670,7 @@ MODULE FM3ParsePass
   ; VAR LDeclKind : FM3Decls . DeclKindTyp
   ; VAR LSkipNo : INTEGER
 
-  ; BEGIN
+  ; BEGIN (* Unnest *) 
       LUnitRef := FM3Units . UnitStackTopRef
     (* For now, let's assume the skip mechanism is only used during pass 2.*)
     ; LUnnestRdBack := LUnitRef . UntUnnestStackRdBack 
@@ -1751,8 +1776,10 @@ MODULE FM3ParsePass
                 END (*WITH*) 
             
             | Itk . ItkScopeRt 
+            , Itk . ItkScopeLt 
             => LScopeNo := GetBwdScopeNo ( LUnnestRdBack ) 
-              ; ScopeRtR2L ( LScopeNo )
+              ; <* ASSERT FALSE *>
+                ScopeRtR2L ( LScopeNo )
 
 (* CONSISTIFY: For some of these, get the operands inside the called proc. *) 
             | Itk . ItkDuplDeclId
@@ -1790,7 +1817,6 @@ MODULE FM3ParsePass
               ; PutBwdP2 ( LParsePassRdBack , VAL ( Itk . ItkBlockRt , LONGINT ) )
 
             | Itk . ItkBlockLt 
-            , Itk . ItkScopeLt 
             => CopyOperands
                  ( FM3Utils . TokenOpndCt ( LToken ) 
                  , LUnnestRdBack
@@ -1922,27 +1948,6 @@ MODULE FM3ParsePass
     END ScopeEmpty
 
 (* Left-to-right scope handling.  These are called by the parser. *)
-
-(*EXPORTED.*)
-; PROCEDURE ScopeLtL2R
-    ( ScopeKind : FM3Scopes . ScopeKindTyp ; READONLY Position : tPosition )
-  : FM3Base . ScopeNoTyp (* ScopeNo that was created. *) 
-
-  = VAR LUnitRef : FM3Units . UnitRefTyp
-  ; VAR LNewScopeRef : FM3Scopes . ScopeRefTyp
-
-  ; BEGIN
-      LUnitRef := FM3Units . UnitStackTopRef 
-    ; WITH WunRdBack = LUnitRef ^ . UntUnnestStackRdBack
-      DO 
-        LNewScopeRef := FM3Scopes . NewScopeRef ( LUnitRef ) 
-      ; LNewScopeRef ^ . ScpOwningUnitNo := LUnitRef ^ . UntUnitNo 
-      ; LNewScopeRef ^ . ScpKind := ScopeKind
-      ; LNewScopeRef ^ . ScpPosition := Position
-      ; FM3Scopes . PushBlockScope ( LNewScopeRef ) 
-      ; RETURN LNewScopeRef . ScpScopeNo
-      END (*WITH*) 
-    END ScopeLtL2R
 
 (*EXPORTED.*)
 ; PROCEDURE DeclIdL2R 
@@ -2201,6 +2206,16 @@ MODULE FM3ParsePass
     ; FM3Scopes . PushBlockScope ( LScopeRef ) 
     END ScopeRtR2L
 
+(*EXPORTED*)
+; PROCEDURE PushUnitScopeForDecls ( )
+
+  = VAR LUnitRef : FM3Units . UnitRefTyp
+
+  ; BEGIN
+      LUnitRef := FM3Units . UnitStackTopRef ( ) 
+    ; FM3Scopes . PushDeclScopeDecl ( UnitRef ^ . UntSfopeRef 
+    END ScopeRtR2L
+
 ; PROCEDURE DuplDeclIdR2L
     ( DeclIdAtom : FM3Base . AtomTyp ; READONLY Position : tPosition )
   : FM3Base . DeclNoTyp
@@ -2292,7 +2307,10 @@ MODULE FM3ParsePass
       END VisitDecl
 
   ; BEGIN (*DeclIdR2L*) 
-      VAR LDeclNo : FM3Base . DeclNoTyp
+      IF IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
+      THEN RETURN FM3Base . DeclNoNull 
+      END (*IF*) 
+    ; VAR LDeclNo : FM3Base . DeclNoTyp
     ; BEGIN (* Block *)
         WITH WppRdBack = FM3Units . UnitStackTopRef ^ . UntParsePassRdBack
         DO 
@@ -2319,7 +2337,10 @@ MODULE FM3ParsePass
   = VAR LDeclNo : FM3Base . DeclNoTyp
   
   ; BEGIN (*IdentRefR2L*)
-      WITH WScope = FM3Scopes . BlockScopeTopRef ^  
+      IF IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
+      THEN RETURN FM3Base . DeclNoNull 
+      END (*IF*) 
+    ; WITH WScope = FM3Scopes . BlockScopeTopRef ^  
            , WppRdBack
              = FM3Units . UnitStackTopRef ^ . UntParsePassRdBack 
       DO
@@ -2351,7 +2372,10 @@ MODULE FM3ParsePass
   ; VAR LDeclNo : FM3Base . DeclNoTyp
   
   ; BEGIN (*QualIdentL2R*)
-      WITH WScope = FM3Scopes . BlockScopeTopRef ^  
+      IF IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
+      THEN RETURN
+      END (*IF*) 
+    ; WITH WScope = FM3Scopes . BlockScopeTopRef ^  
            , WppRdBack
              = FM3Units . UnitStackTopRef ^ . UntParsePassRdBack 
       DO

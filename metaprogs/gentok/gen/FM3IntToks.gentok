@@ -48,8 +48,10 @@ ItkProcBodyAbsent POS 2 (* Position. *).
 
 (* Scopes and declarations within. *) 
 LONE
-ItkScopeLt INT (* ScopeNo. *) .
-ItkScopeRt INT (* ScopeNo. *) . 
+ItkDeclScopeLt INT (* ScopeNo. *) .
+ItkDeclScopeRt INT (* ScopeNo. *) . 
+ItkLookupScopeLt INT (* ScopeNo. *) .
+ItkLookupScopeRt INT (* ScopeNo. *) . 
 ItkReservedId IDENT POS 3 (* Rid*, Position. *). 
 ItkDuplDeclId IDENT POS 3 (* IdAtom, position *) . 
 ItkDeclId INT IDENT POS 4 (* DeclKind, IdAtom, position *) .
