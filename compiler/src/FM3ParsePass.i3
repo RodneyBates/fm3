@@ -64,6 +64,12 @@ INTERFACE FM3ParsePass
 
 (* ---------------------------- Unnest stack ------------------------ *)
 
+; PROCEDURE InterfaceId
+    ( UnitRef : FM3Units . UnitRefTyp
+    ; IdAtom : FM3Base . AtomTyp
+    ; Position : FM3Base .tPosition 
+    )
+
 ; PROCEDURE ModuleId
     ( UnitRef : FM3Units . UnitRefTyp
     ; IdAtom : FM3Base . AtomTyp

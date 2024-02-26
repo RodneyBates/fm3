@@ -74,7 +74,7 @@ MODULE FM3Decls
     ; RETURN LDeclRef 
     END NewDeclRef 
 
-(* A stack of about a declaration, with possibly multiple identifiers. *)
+(* A stack of info about a declaration, with possibly multiple identifiers. *)
 (* Let's make it a linked stack.  Simpler to implement, and will never
    be very deep.
 *) 

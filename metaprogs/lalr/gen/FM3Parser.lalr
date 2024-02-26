@@ -348,54 +348,42 @@ END old. *)
    InstModuleKind : /*Empty*/ 
        { FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstModule ; } . 
 
-   InterfaceLt : OptUnsafe StkRwINTERFACE UnitId 
-     { $$ . PaBool := $1 . PaBool ;
-       $$ . PaByte := ORD ( Ukt . UkInterface ) ; 
-       $$ . PaRefany (* ScopeNo *) 
-         := FM3Scopes . NewScopeRef
-              ( FM3Units . UnitStackTopRef
-              , Skt . SkInterface
-              , FM3Scanner . Attribute . Position
-              ) ;
-     } . 
-
-   Interface : 
-       InterfaceLt InterfaceKind StkSemicolon
-       Imports BlockDeclList StkRwEND StkIdent StkDot
-     { (* Scope ref:
-          FM3ParsePass . Push_LI ( Itk . ItkDeclScopeLt , $1 . PaConstructNo ) ;
-       *) 
-     } .
-
-   ModuleLt : OptUnsafe StkRwMODULE UnitId 
+   InterfaceLt : OptUnsafe StkRwINTERFACE StkIdent 
      { VAR LUnitRef : FM3Units . UnitRefTyp ; 
        VAR LScopeRef : FM3Scopes . ScopeRefTyp ;  
        BEGIN
          LUnitRef := FM3Units . UnitStackTopRef ;
+           (* ^Already pushed when source file was opened. *) 
          LUnitRef ^ . UntUnsafe := $1 . PaBool ; 
-         LUnitRef ^ . UntKind := Ukt . UkModule (* Could change. *) ; 
-         FM3ParsePass . ModuleId
+         FM3ParsePass . InterfaceId
            ( LUnitRef , $3 . Scan . SaAtom , $3 . Scan . Position ) ;
          LScopeRef 
            := FM3Scopes . NewScopeRef 
-                ( LUnitRef , Skt . SkModule , $1 . Scan . Position ) ;
+                ( LUnitRef , Skt . SkInterface , $1 . Scan . Position ) ;
          FM3Scopes . PushDeclScopeRef ( LScopeRef ) ; 
-         FM3ParsePass . Push_LI ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo ) ; 
+         FM3ParsePass . Push_LI
+           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo ) ; 
          $$ . PaRefany := LScopeRef ;   
        END ; 
      } .
 
-   ModuleMiddle : ModuleLt Exports StkSemicolon Imports 
+   InstInterface :
+     InterfaceLt StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot 
+     { FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstInterface ; } . 
+
+   InterfaceMiddle : InterfaceLt Exports StkSemicolon Imports 
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN
+         FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInterface ; 
          $$ . PaRefany (* ScopeRef *) := $1 . PaRefany ;
          LScopeRef := NARROW ( $1 . PaRefany , FM3Scopes . ScopeRefTyp ) ; 
          FM3Scopes . PushLookupScopeRef ( LScopeRef ) ;
-         FM3ParsePass . Push_LI ( Itk . ItkLookupScopeLt , LScopeRef ^ . ScpScopeNo ) ;
+         FM3ParsePass . Push_LI
+           ( Itk . ItkLookupScopeLt , LScopeRef ^ . ScpScopeNo ) ;
        END ; 
      } . 
 
-   Module : ModuleMiddle Block StkIdent StkDot
+   Interface : InterfaceMiddle BlockDeclList StkRwEND StkIdent StkDot
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN
          LScopeRef := NARROW ( $1 . PaRefany , FM3Scopes . ScopeRefTyp ) ; 
@@ -408,7 +396,63 @@ END old. *)
            ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpScopeNo ) ; 
          FM3ParsePass . CheckUnitFinalId
            ( FM3Units . UnitStackTopRef
-           , $2 . Scan . SaAtom
+           , $4 . Scan . SaAtom
+           , Ukt . UkInterface
+           ) ; 
+       END ; 
+     } .
+
+   ModuleLt : OptUnsafe StkRwMODULE StkIdent 
+     { VAR LUnitRef : FM3Units . UnitRefTyp ; 
+       VAR LScopeRef : FM3Scopes . ScopeRefTyp ;  
+       BEGIN
+         LUnitRef := FM3Units . UnitStackTopRef ;
+           (* ^Already pushed when source file was opened. *) 
+         LUnitRef ^ . UntUnsafe := $1 . PaBool ; 
+         LUnitRef ^ . UntKind := Ukt . UkModule
+           (* ^Could change, if it turns out to be an instantiation. *) ; 
+         FM3ParsePass . ModuleId
+           ( LUnitRef , $3 . Scan . SaAtom , $3 . Scan . Position ) ;
+         LScopeRef 
+           := FM3Scopes . NewScopeRef 
+                ( LUnitRef , Skt . SkModule , $1 . Scan . Position ) ;
+         FM3Scopes . PushDeclScopeRef ( LScopeRef ) ; 
+         FM3ParsePass . Push_LI
+           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo ) ; 
+         $$ . PaRefany := LScopeRef ;   
+       END ; 
+     } .
+
+   InstModule :
+     ModuleLt StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot 
+     { FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstModule ; } . 
+
+   ModuleMiddle : ModuleLt Exports StkSemicolon Imports 
+     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
+       BEGIN
+         $$ . PaRefany (* ScopeRef *) := $1 . PaRefany ;
+         LScopeRef := NARROW ( $1 . PaRefany , FM3Scopes . ScopeRefTyp ) ; 
+         FM3Scopes . PushLookupScopeRef ( LScopeRef ) ;
+         FM3ParsePass . Push_LI
+           ( Itk . ItkLookupScopeLt , LScopeRef ^ . ScpScopeNo ) ;
+       END ; 
+     } . 
+
+   Module : ModuleMiddle BlockDeclList
+            StkRwBEGIN StmtList StkRwEND StkIdent StkDot
+     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
+       BEGIN
+         LScopeRef := NARROW ( $1 . PaRefany , FM3Scopes . ScopeRefTyp ) ; 
+         FM3ParsePass . DeclScopeRtL2R ( LScopeRef ) ;
+         <* ASSERT FM3Scopes . PopLookupScope ( ) = LScopeRef *>
+         FM3ParsePass . Push_LI
+           ( Itk . ItkLookupScopeRt , LScopeRef ^ . ScpScopeNo ) ; 
+         <* ASSERT FM3Scopes . PopDeclScope ( ) = LScopeRef *>
+         FM3ParsePass . Push_LI
+           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpScopeNo ) ; 
+         FM3ParsePass . CheckUnitFinalId
+           ( FM3Units . UnitStackTopRef
+           , $6 . Scan . SaAtom
            , Ukt . UkModule
            ) ; 
        END ; 
@@ -419,7 +463,10 @@ END old. *)
        $$ . PaByte := ORD ( Ukt . UkInterface ) ; 
        $$ . PaRefany (* ScopeNo *) 
          := FM3Scopes . NewScopeRef
-              ( FM3Units . UnitStackTopRef , Skt . SkInterface , FM3Scanner . Attribute . Position ) ;
+              ( FM3Units . UnitStackTopRef
+              , Skt . SkInterface
+              , FM3Scanner . Attribute . Position
+              ) ;
      } .  
 
    GenInterface :
@@ -436,8 +483,10 @@ END old. *)
 
        $$ . PaRefany 
          := FM3Scopes . NewScopeRef
-              ( FM3Units . UnitStackTopRef , Skt . SkModule , FM3Scanner . Attribute . Position ) ;
-
+              ( FM3Units . UnitStackTopRef
+              , Skt . SkModule
+              , FM3Scanner . Attribute . Position
+              ) ;
      } . 
 
    GenModule :
@@ -448,42 +497,6 @@ END old. *)
        *) 
      } .
 
-
-   InstInterfaceLt : OptUnsafe StkRwINTERFACE UnitId 
-     { $$ . PaBool := $1 . PaBool ;
-       $$ . PaByte := ORD ( Ukt . UkInterface ) ; 
-       $$ . PaRefany (* ScopeNo *) 
-         := FM3Scopes . NewScopeRef
-              ( FM3Units . UnitStackTopRef
-              , Skt . SkInterface
-              , FM3Scanner . Attribute . Position
-              ) ;
-     } . 
-
-   InstInterface :
-       InstInterfaceLt InstInterfaceKind StkEqual
-       StkIdent GenActualList StkRwEND StkIdent StkDot 
-     { (* Scope ref
-          FM3ParsePass . Push_LI ( Itk . ItkDeclScopeLt , $1 . PaConstructNo ) ;
-       *) 
-     } . 
-
-   InstModuleLt : OptUnsafe StkRwMODULE UnitId 
-     { $$ . PaBool := $1 . PaBool ;
-       $$ . PaByte := ORD ( Ukt . UkInterface ) ; 
-       $$ . PaRefany (* ScopeNo *) 
-         := FM3Scopes . NewScopeRef
-              ( FM3Units . UnitStackTopRef , Skt . SkModule , FM3Scanner . Attribute . Position ) ;
-     } . 
-
-   InstModule :
-       InstModuleLt /* Exports creates red-red conflict with module. */
-                    InstModuleKind StkEqual
-       StkIdent GenActualList StkRwEND StkIdent StkDot 
-     { (* scope ref
-          FM3ParsePass . Push_LI ( Itk . ItkDeclScopeLt , $1 . PaConstructNo ) ;
-       *) 
-     } . 
 
    OptUnsafe : StkRwUNSAFE { $$ . PaBool (* Unsafe.*) := TRUE ; } .
    OptUnsafe : { $$ . PaBool (* Unsafe.*) := FALSE (* Safe. *) ; }.
@@ -711,8 +724,10 @@ END old. *)
 
 (* GenActualList.  Zero or more idents. Bracket list with ItkGenActualList*. *) 
    GenActualList : StkOpenParen IdStarList StkCloseParen 
-     { MakeListPos
-         ( $$ , Itk. ItkGenActualIdListLt , $1 . Scan . Position , $2 ) ;
+     { (* Handle this in pass 1.
+          MakeListPos
+            ( $$ , Itk. ItkGenActualIdListLt , $1 . Scan . Position , $2 ) ;
+       *) 
      } .
 
 (* ------------------------- Constant Declarations -------------------- . *) 

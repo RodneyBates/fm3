@@ -744,6 +744,57 @@ MODULE FM3ParsePass
     ; CompileUnit ( LSrcFileName ) 
     END Run
 
+; PROCEDURE UnitId 
+    ( UnitRef : FM3Units . UnitRefTyp
+    ; IdAtom : FM3Base . AtomTyp
+    ; Position : FM3Base .tPosition
+    ; VAR (*OUT*) IdText : TEXT
+    ; VAR (*OUT*) NameFromFileName : TEXT 
+    )
+
+  = BEGIN (* UnitId *) 
+      IF UnitRef = NIL THEN RETURN END (*IF*)
+    ; IF IdAtom = FM3Base . AtomNull THEN RETURN END (*IF*)
+    ; IF UnitRef ^ . UntSrcFileName = NIL THEN RETURN END (*IF*) 
+    ; IdText := FM3Units . TextOfIdAtom ( IdAtom )
+    ; UnitRef ^ . UntUnitIdentAtom := IdAtom 
+    ; UnitRef ^ . UntUnitIdentPos := Position 
+    ; NameFromFileName
+        := Pathname . ReplaceExt ( UnitRef ^ . UntSrcFileName , "" )
+    END UnitId 
+
+(*EXPORTED:*)
+; PROCEDURE InterfaceId
+    ( UnitRef : FM3Units . UnitRefTyp
+    ; IdAtom : FM3Base . AtomTyp
+    ; Position : FM3Base .tPosition 
+    )
+
+  = VAR LIdText : TEXT
+  ; VAR LNameFromFileName : TEXT
+
+  ; BEGIN (* InterfaceId *)
+      UnitId
+        ( UnitRef , IdAtom , Position
+        , (*OUT*) LIdText , (*OUT*) LNameFromFileName
+        ) 
+    ; IF NOT Text . Equal ( LIdText , LNameFromFileName)
+      THEN
+        FM3Messages . ErrorArr
+          ( ARRAY OF REFANY
+              { "Interface name "
+              , LIdText
+              , "does not match file name "
+              , UnitRef ^ . UntSrcFileName
+              , "." 
+              }
+          )
+(* TODO: Decide how to recover from this. Change the interface name
+         to match the file?  I think the only way to access the interface
+         is via the file name. *) 
+      END (*IF*)
+    END InterfaceId 
+
 (*EXPORTED:*)
 ; PROCEDURE ModuleId
     ( UnitRef : FM3Units . UnitRefTyp
@@ -752,18 +803,14 @@ MODULE FM3ParsePass
     )
 
   = VAR LIdText : TEXT
-  ; VAR LNameFromFilename : TEXT
+  ; VAR LNameFromFileName : TEXT
 
   ; BEGIN (* ModuleId *) 
-      IF UnitRef = NIL THEN RETURN END (*IF*)
-    ; IF IdAtom = FM3Base . AtomNull THEN RETURN END (*IF*)
-    ; IF UnitRef ^ . UntSrcFileName = NIL THEN RETURN END (*IF*) 
-    ; LIdText := FM3Units . TextOfIdAtom ( IdAtom )
-    ; UnitRef ^ . UntUnitIdentAtom := IdAtom 
-    ; UnitRef ^ . UntUnitIdentPos := Position 
-    ; LNameFromFilename
-        := Pathname . ReplaceExt ( UnitRef ^ . UntSrcFileName , "" )  
-    ; IF NOT Text . Equal ( LIdText , LNameFromFilename)
+      UnitId
+        ( UnitRef , IdAtom , Position
+        , (*OUT*) LIdText , (*OUT*) LNameFromFileName
+        ) 
+    ; IF NOT Text . Equal ( LIdText , LNameFromFileName)
       THEN
         FM3Messages . InfoArr
           ( ARRAY OF REFANY
@@ -2253,10 +2300,14 @@ MODULE FM3ParsePass
     ; BEGIN
         LOldDeclRef := DeclRefany (* Implied NARROW. *) 
       ; LNewDeclRef
-          := FM3Decls . NewDeclRef ( FM3Scopes . DeclScopeStackTopRef , DeclNoI )
-     (* ^This will have, as a side-effect, made DeclRefany = LNewDeclRef *)
+          := FM3Decls . NewDeclRef
+               ( FM3Scopes . DeclScopeStackTopRef , DeclNoI )
+     (* ^This will have, as a subtle side-effect, made DeclRefany
+         = LNewDeclRef. Can we code this less opaquely, while respecting
+         that the signature of Visit is constrained by CallbackWithElem? *)
       ; LNewDeclRef . DclLink := LOldDeclRef 
-      ; LNewDeclRef . DclSelfScopeRef := FM3Scopes . DeclScopeStackTopRef (* Why not? *)
+      ; LNewDeclRef . DclSelfScopeRef
+          := FM3Scopes . DeclScopeStackTopRef (* Why not? *)
       ; LNewDeclRef . DclIdAtom := DeclIdAtom 
       ; LNewDeclRef . DclDeclNo := DeclNoI 
       ; LNewDeclRef . DclPos := Position 
@@ -2267,7 +2318,8 @@ MODULE FM3ParsePass
       VAR LDeclNo : FM3Base . DeclNoTyp
     ; BEGIN (* Block. *)
         LDeclNo
-          := LookupId ( FM3Scopes . DeclScopeStackTopRef ^ , DeclIdAtom , Position )
+          := LookupId
+               ( FM3Scopes . DeclScopeStackTopRef ^ , DeclIdAtom , Position )
       ; <*ASSERT LDeclNo # FM3Base . DeclNoNull *>
         VarArray_Int_Refany . CallbackWithElem
           ( FM3Units . UnitStackTopRef ^ . UntDeclMap , LDeclNo , Visit )
