@@ -9,7 +9,6 @@
 INTERFACE FM3Scopes
 
 ; IMPORT IntSets
-; IMPORT VarArray_Int_Refany 
 
 ; IMPORT FM3Base
 ; IMPORT FM3Dict_Int_Int
@@ -49,10 +48,10 @@ INTERFACE FM3Scopes
 (* CHECK ^ Is there any need for this? *) 
       ; ScpRefIdSet : IntSets . T (* IdentAtoms referenced within. *) 
       ; ScpDeclDict : FM3Dict_Int_Int . FixedTyp (* IdentNo to Decl no. *)
-      ; ScpDeclCt : FM3Base . DeclNoTyp := 0
+      ; ScpDeclCt : FM3Base . DeclNoTyp := FM3Base . DeclNoNull 
       ; ScpMinDeclNo := FM3Base . DeclNoNull
       ; ScpScopeNo : FM3Base . ScopeNoTyp (* A self-reference. *)
-      ; ScpOwningUnitRef : ScopeRefTyp := NIL 
+      ; ScpOwningUnitRef : FM3Units . UnitRefTyp := NIL 
       ; ScpOwningDeclNo : FM3Base . DeclNoTyp
       ; ScpOnStackCt : INTEGER := 0
         (* ^Number of times it's on either scope stack. *)
@@ -62,8 +61,8 @@ INTERFACE FM3Scopes
       
 ; PROCEDURE NewScopeRef
     ( OwningUnitRef : FM3Units . UnitRefTyp
-    ; ScopeKind : FM3Scopes . ScopeKindTyp
-    ; READONLY Position : tPosition
+    ; ScopeKind : ScopeKindTyp
+    ; READONLY Position : FM3Base . tPosition
     )
   : ScopeRefTyp
   (* Allocate and connect a ScopeNo and ScopeRef Owned by OwningUnitRef. *) 

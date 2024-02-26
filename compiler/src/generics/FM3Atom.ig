@@ -54,7 +54,9 @@ GENERIC INTERFACE FM3Atom ( DictGenformal )
   : FM3Base . AtomTyp 
   (* If Key is absent from Dict, assign a new atom value and 
      add a Key-to-atom entry to Dict.  Either way, return the 
-     atom now associated with Key.  MakeAtom  will not return FM3Base.
+     atom now associated with Key.  MakeAtom  will not return
+     FM3Base.AtomNull.  If NOT DoReverseMap, procedure Key will
+     always return FALSE. 
    *)
 
 

@@ -83,53 +83,55 @@ MODULE FM3Units
     ; LUnitNo := NextUnitNo
     ; INC ( NextUnitNo )
 
-    ; LUnitRef . UntStackLink := NIL 
-    ; LUnitRef . UntUnitNo := LUnitNo
-    ; LUnitRef . UntSrcFileName := NIL 
-    ; LUnitRef . UntSrcFilePath := NIL
-    ; LUnitRef . UntBuildDirPath := NIL
-    ; LUnitRef . UntPatchStackName := NIL
-    ; LUnitRef . UntPatchStackRdBack := NIL
-    ; LUnitRef . UntMaxPatchStackDepth := 0L 
-    ; LUnitRef . UntUnnestStackName := NIL
-    ; LUnitRef . UntUnnestStackRdBack := NIL
-    ; LUnitRef . UntMaxUnnestStackDepth := 0L 
-    ; LUnitRef . UntParsePassName := NIL
-    ; LUnitRef . UntParsePassRdBack := NIL
-    ; LUnitRef . UntUnsafe := FALSE 
-    ; LUnitRef . UntIdentAtomDict 
+    ; LUnitRef ^ . UntStackLink := NIL 
+    ; LUnitRef ^ . UntUnitNo := LUnitNo
+    ; LUnitRef ^ . UntSrcFileName := NIL 
+    ; LUnitRef ^ . UntSrcFilePath := NIL
+    ; LUnitRef ^ . UntBuildDirPath := NIL
+    ; LUnitRef ^ . UntPatchStackName := NIL
+    ; LUnitRef ^ . UntPatchStackRdBack := NIL
+    ; LUnitRef ^ . UntMaxPatchStackDepth := 0L 
+    ; LUnitRef ^ . UntUnnestStackName := NIL
+    ; LUnitRef ^ . UntUnnestStackRdBack := NIL
+    ; LUnitRef ^ . UntMaxUnnestStackDepth := 0L 
+    ; LUnitRef ^ . UntParsePassName := NIL
+    ; LUnitRef ^ . UntParsePassRdBack := NIL
+    ; LUnitRef ^ . UntUnitIdentAtom := FM3Base . AtomNull
+    ; LUnitRef ^ . UntUnitIdentPos := FM3Base . PositionNull 
+    ; LUnitRef ^ . UntUnsafe := FALSE 
+    ; LUnitRef ^ . UntIdentAtomDict 
         := FM3Atom_OAChars . New
              ( FM3Globals . IdentAtomInitSize
              , FM3Base . AtomFirstReal
              , HashFunc := NIL
              , DoReverseMap := TRUE
              )
-    ; LUnitRef . UntNumberAtomDict 
+    ; LUnitRef ^ . UntNumberAtomDict 
         := FM3Atom_OAChars . New
              ( FM3Globals . NumberAtomInitSize
              , FM3Base . AtomFirstReal
              , HashFunc := NIL
              , DoReverseMap := TRUE
              )
-    ; LUnitRef . UntCharsAtomDict 
+    ; LUnitRef ^ . UntCharsAtomDict 
         := FM3Atom_OAChars . New
              ( FM3Globals . CharsAtomInitSize
              , FM3Base . AtomFirstReal
              , HashFunc := NIL
              , DoReverseMap := TRUE
              )
-    ; LUnitRef . UntWCharsAtomDict 
+    ; LUnitRef ^ . UntWCharsAtomDict 
         := FM3Atom_OAWideChars . New
              ( FM3Globals . WideCharsAtomInitSize
              , FM3Base . AtomFirstReal
              , HashFunc := NIL
              , DoReverseMap := TRUE
              )
-    ; LUnitRef . UntScopeMap
+    ; LUnitRef ^ . UntScopeMap
         := FM3Scopes . NewScopeMap ( FM3Globals . InitScopeCtPerUnit ) 
-    ; LUnitRef . UntDeclMap 
+    ; LUnitRef ^ . UntDeclMap 
         := FM3Decls . NewDeclMap ( FM3Globals . InitDeclCtPerUnit ) 
-    ; LUnitRef . UntNextDeclNo := 1
+    ; LUnitRef ^ . UntNextDeclNo := 1
 
     ; VarArray_Int_Refany . Assign ( UnitMap , LUnitNo , LUnitRef )
     ; RETURN LUnitRef 

@@ -436,7 +436,7 @@ MODULE FM3ParsePass
     ; LUnitRef := OpenUnit ( SrcFileName ) 
     ; FM3Units . PushUnit ( LUnitRef ) 
     ; FM3Units . UnitStackTopRef := LUnitRef
-(* TODO ^ Replace uses of this by FM3Units . UnitStackTopRef. *) 
+      (* ^Cached, for faster access. *) 
     ; FM3LogArr
         ( ARRAY OF REFANY
             { "Compiling " , LUnitRef ^ . UntSrcFilePath , SrcFileName , "..." }
@@ -744,40 +744,68 @@ MODULE FM3ParsePass
     ; CompileUnit ( LSrcFileName ) 
     END Run
 
+(*EXPORTED:*)
+; PROCEDURE ModuleId
+    ( UnitRef : FM3Units . UnitRefTyp
+    ; IdAtom : FM3Base . AtomTyp
+    ; Position : FM3Base .tPosition 
+    )
 
-(* ---------------------------- Unnest stack ------------------------ *) 
+  = VAR LIdText : TEXT
+  ; VAR LNameFromFilename : TEXT
+
+  ; BEGIN (* ModuleId *) 
+      IF UnitRef = NIL THEN RETURN END (*IF*)
+    ; IF IdAtom = FM3Base . AtomNull THEN RETURN END (*IF*)
+    ; IF UnitRef ^ . UntSrcFileName = NIL THEN RETURN END (*IF*) 
+    ; LIdText := FM3Units . TextOfIdAtom ( IdAtom )
+    ; UnitRef ^ . UntUnitIdentAtom := IdAtom 
+    ; UnitRef ^ . UntUnitIdentPos := Position 
+    ; LNameFromFilename
+        := Pathname . ReplaceExt ( UnitRef ^ . UntSrcFileName , "" )  
+    ; IF NOT Text . Equal ( LIdText , LNameFromFilename)
+      THEN
+        FM3Messages . InfoArr
+          ( ARRAY OF REFANY
+              { "Module name "
+              , LIdText
+              , "does not match file name "
+              , UnitRef ^ . UntSrcFileName
+              , "." 
+              }
+          ) 
+      END (*IF*)
+    END ModuleId 
 
 (*EXPORTED:*)
-; PROCEDURE CheckUnitEndId
-    ( READONLY StartAttr : tParsAttribute 
-    ; VAR EndAttr : tParsAttribute 
+; PROCEDURE CheckUnitFinalId
+    ( UnitRef : FM3Units . UnitRefTyp
+    ; EndIdAtom : FM3Base . AtomTyp 
     ; UnitKind : FM3Units . UnitKindTyp
     )
-  = BEGIN 
-      IF StartAttr . Scan . SaAtom # FM3Base . AtomNull
-         AND EndAttr . Scan . SaAtom # FM3Base . AtomNull
-         AND EndAttr . Scan . SaAtom # StartAttr . Scan . SaAtom 
+    
+  = BEGIN (* CheckUnitFinalId *)
+      IF UnitRef ^ . UntUnitIdentAtom # FM3Base . AtomNull
+         AND EndIdAtom # FM3Base . AtomNull
+         AND EndIdAtom # UnitRef ^ . UntUnitIdentAtom  
       THEN
         FM3Messages . ErrorArr
           ( ARRAY OF REFANY 
               { "Identifier at end of "
               , FM3Units . UnitKindImage ( UnitKind )
               , " "
-              , FM3Units . TextOfIdAtom ( StartAttr . Scan . SaAtom )
+              , FM3Units . TextOfIdAtom ( UnitRef ^ . UntUnitIdentAtom )
               , ", at " 
-              , PosImage ( StartAttr . Scan . Position ) 
+              , PosImage ( UnitRef ^ . UntUnitIdentPos )  
               , " must repeat its name ("
               , FM3Units . UnitKindSectionNo ( UnitKind )
               , ")." 
               } 
           )
-      (* Just in case it's used from the right end. *) 
-      ; EndAttr . Scan . SaAtom := StartAttr . Scan . SaAtom 
-      ; EndAttr . Scan . SaArgValue := StartAttr . Scan . SaArgValue 
-      ; EndAttr . Scan . SaHash := StartAttr . Scan . SaHash 
-      ; EndAttr . Scan . SaChars := StartAttr . Scan . SaChars 
       END (*IF*) 
-    END CheckUnitEndId
+    END CheckUnitFinalId
+
+(* ---------------------------- Unnest stack ------------------------ *) 
 
 (*EXPORTED:*)
 ; PROCEDURE UnnestCoord ( ) : LONGINT
@@ -1775,8 +1803,10 @@ MODULE FM3ParsePass
                 (* Discard this token. *)
                 END (*WITH*) 
             
-            | Itk . ItkScopeRt 
-            , Itk . ItkScopeLt 
+            | Itk . ItkDeclScopeRt 
+            , Itk . ItkDeclScopeLt 
+            , Itk . ItkLookupScopeRt 
+            , Itk . ItkLookupScopeLt 
             => LScopeNo := GetBwdScopeNo ( LUnnestRdBack ) 
               ; <* ASSERT FALSE *>
                 ScopeRtR2L ( LScopeNo )
@@ -1824,7 +1854,7 @@ MODULE FM3ParsePass
                  , MaybeSkip := TRUE 
                  )
               ; PutBwdP2 ( LParsePassRdBack , LTokenL )
-              ; EVAL FM3Scopes . PopBlockScope ( ) 
+              ; EVAL FM3Scopes . PopDeclScope ( ) 
 
             ELSE (* Move directly, unnest to the output.*)
               CopyOperands
@@ -1899,7 +1929,7 @@ MODULE FM3ParsePass
   ; VAR LFound : BOOLEAN 
 
   ; BEGIN (*LookupBlockRef*)
-      LBlockScopeRef := FM3Scopes . BlockScopeTopRef
+      LBlockScopeRef := FM3Scopes . DeclScopeStackTopRef
     ; LOOP
         IF LBlockScopeRef = NIL (* Undeclared? *) 
         THEN 
@@ -1967,7 +1997,7 @@ MODULE FM3ParsePass
   ; VAR LResult : BOOLEAN
 
   ; BEGIN (*DeclIdL2R*)
-      WITH WScope = FM3Scopes . BlockScopeTopRef ^
+      WITH WScope = FM3Scopes . DeclScopeStackTopRef ^
            , WunRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack 
       DO
         IF IdAttribute . Scan . SaIsReservedId
@@ -2049,7 +2079,7 @@ MODULE FM3ParsePass
       DO IF WScan . SaIsReservedId 
         THEN LTokToPut := Itk . ItkReservedId 
         ELSE
-          WITH WIdentRefSet = FM3Scopes . BlockScopeTopRef ^ . ScpRefIdSet
+          WITH WIdentRefSet = FM3Scopes . DeclScopeStackTopRef ^ . ScpRefIdSet
           DO WIdentRefSet
                := IntSets . Include
                     ( WIdentRefSet , StkIdAttribute . Scan . SaAtom )
@@ -2094,7 +2124,7 @@ MODULE FM3ParsePass
         IF CheckQualNotReserved ( StkLtIdAttribute )
            AND CheckQualNotReserved ( StkRtIdAttribute )
         THEN (* All OK. *) 
-          WITH WIdentRefSet = FM3Scopes . BlockScopeTopRef ^ . ScpRefIdSet
+          WITH WIdentRefSet = FM3Scopes . DeclScopeStackTopRef ^ . ScpRefIdSet
           DO WIdentRefSet
                := IntSets . Include
                     ( WIdentRefSet , StkLtIdAttribute . Scan . SaAtom )
@@ -2135,7 +2165,7 @@ MODULE FM3ParsePass
     END QualIdentL2R
 
 (*EXPORTED.*)
-; PROCEDURE ScopeRtL2R ( ScopeNo : FM3Scopes . ScopeNoTyp )
+; PROCEDURE DeclScopeRtL2R ( ScopeRef : FM3Scopes . ScopeRefTyp )
   (* Create an IdAtom-to-declNo, fixed-size dictionary for the scope, of
      exactly the needed size, and load it up with mappings of the idents
      declared in the scope, using a contiguously-numbered range of DeclNos.
@@ -2143,8 +2173,8 @@ MODULE FM3ParsePass
 
   = VAR SrtDeclNo : INTEGER 
 
-  ; BEGIN (*ScopeRtL2R*)
-      WITH WScope = FM3Scopes . BlockScopeTopRef ^
+  ; BEGIN (*DeclScopeRtL2R*)
+      WITH WScope = FM3Scopes . DeclScopeStackTopRef ^
       DO (* Block*) 
         VAR LDeclCt : INTEGER
       ; VAR LExpectedToDeclNo : INTEGER 
@@ -2153,7 +2183,7 @@ MODULE FM3ParsePass
         (* PRE: DeclIdAtomI IN FM3Base . AtomTyp. *)
         = BEGIN
             FM3Dict_Int_Int . InsertFixed
-              ( WScope . ScpDeclDict
+              ( ScopeRef ^ . ScpDeclDict
               , DeclIdAtomI
               , FM3Base . HashNull
               , SrtDeclNo
@@ -2162,26 +2192,26 @@ MODULE FM3ParsePass
           END SrtVisit
           
       ; BEGIN (* Block. *)
-          <* ASSERT WScope . ScpScopeNo = ScopeNo *> 
-          IF WScope . ScpKind = FM3Scopes . ScopeKindTyp . SkExports
+          <* ASSERT ScopeRef = FM3Scopes . DeclScopeStackTopRef *> 
+          IF ScopeRef ^ . ScpKind = FM3Scopes . ScopeKindTyp . SkExports
           THEN
 (*COMPLETEME: Handle getting exported interfaces here. *) 
           END (*IF*)
-        ; LDeclCt := IntSets . Card ( WScope . ScpDeclIdSet )
+        ; LDeclCt := IntSets . Card ( ScopeRef ^ . ScpDeclIdSet )
         (* LDeclCt is exactly the needed dictionary size. *)
-        ; WScope . ScpDeclDict 
+        ; ScopeRef ^ . ScpDeclDict 
             := FM3Dict_Int_Int . NewFixed 
                  ( LDeclCt , FM3SharedUtils . IntHash )
         ; SrtDeclNo := FM3Units . AllocateDeclNos ( LDeclCt )
         ; LExpectedToDeclNo := SrtDeclNo + LDeclCt 
-        ; IntSets . ForAllDo ( WScope . ScpDeclIdSet , SrtVisit )
+        ; IntSets . ForAllDo ( ScopeRef ^ . ScpDeclIdSet , SrtVisit )
         ; <*ASSERT SrtDeclNo = LExpectedToDeclNo *> 
-          TRY FM3Dict_Int_Int . FinalizeFixed ( WScope . ScpDeclDict )
+          TRY FM3Dict_Int_Int . FinalizeFixed ( ScopeRef ^ . ScpDeclDict )
           EXCEPT FM3Dict_Int_Int . Error ( EMsg )
           => FatalArr
                ( ARRAY OF REFANY
                  { "Finalizing Scope at "
-                 , PosImage ( WScope . ScpPosition )
+                 , PosImage ( ScopeRef ^ . ScpPosition )
                  , EMsg
                  , "." 
                  }
@@ -2189,8 +2219,7 @@ MODULE FM3ParsePass
           END (*EXCEPT*)
         END (*Block*)
       END (*WITH*) 
-    ; EVAL FM3Scopes . PopBlockScope ( )   
-    END ScopeRtL2R
+    END DeclScopeRtL2R
 
 (* Right-to-left scope handling.  These are called during unnesting. *)
 (* Call sites read the Itk and its args, and pass in the args. *) 
@@ -2203,17 +2232,7 @@ MODULE FM3ParsePass
   ; BEGIN
       LScopeMap := FM3Units . UnitStackTopRef ^ . UntScopeMap 
     ; LScopeRef := VarArray_Int_Refany . Fetch ( LScopeMap , ScopeNo )
-    ; FM3Scopes . PushBlockScope ( LScopeRef ) 
-    END ScopeRtR2L
-
-(*EXPORTED*)
-; PROCEDURE PushUnitScopeForDecls ( )
-
-  = VAR LUnitRef : FM3Units . UnitRefTyp
-
-  ; BEGIN
-      LUnitRef := FM3Units . UnitStackTopRef ( ) 
-    ; FM3Scopes . PushDeclScopeDecl ( UnitRef ^ . UntSfopeRef 
+    ; FM3Scopes . PushDeclScopeRef ( LScopeRef ) 
     END ScopeRtR2L
 
 ; PROCEDURE DuplDeclIdR2L
@@ -2234,10 +2253,10 @@ MODULE FM3ParsePass
     ; BEGIN
         LOldDeclRef := DeclRefany (* Implied NARROW. *) 
       ; LNewDeclRef
-          := FM3Decls . NewDeclRef ( FM3Scopes . BlockScopeTopRef , DeclNoI )
+          := FM3Decls . NewDeclRef ( FM3Scopes . DeclScopeStackTopRef , DeclNoI )
      (* ^This will have, as a side-effect, made DeclRefany = LNewDeclRef *)
       ; LNewDeclRef . DclLink := LOldDeclRef 
-      ; LNewDeclRef . DclSelfScopeRef := FM3Scopes . BlockScopeTopRef (* Why not? *)
+      ; LNewDeclRef . DclSelfScopeRef := FM3Scopes . DeclScopeStackTopRef (* Why not? *)
       ; LNewDeclRef . DclIdAtom := DeclIdAtom 
       ; LNewDeclRef . DclDeclNo := DeclNoI 
       ; LNewDeclRef . DclPos := Position 
@@ -2248,7 +2267,7 @@ MODULE FM3ParsePass
       VAR LDeclNo : FM3Base . DeclNoTyp
     ; BEGIN (* Block. *)
         LDeclNo
-          := LookupId ( FM3Scopes . BlockScopeTopRef ^ , DeclIdAtom , Position )
+          := LookupId ( FM3Scopes . DeclScopeStackTopRef ^ , DeclIdAtom , Position )
       ; <*ASSERT LDeclNo # FM3Base . DeclNoNull *>
         VarArray_Int_Refany . CallbackWithElem
           ( FM3Units . UnitStackTopRef ^ . UntDeclMap , LDeclNo , Visit )
@@ -2273,7 +2292,7 @@ MODULE FM3ParsePass
 
     ; BEGIN (* VisitDecl *)
         LDeclRef := DeclRefany (* Implied NARROW. *)
-      ; LParentScopeRef := FM3Scopes . BlockScopeTopRef 
+      ; LParentScopeRef := FM3Scopes . DeclScopeStackTopRef 
       ; IF LDeclRef # NIL (* Some duplicate decls of DeclNoI also exist? *) 
         THEN (* Dispense with them with error messages. *) 
           LIdentText := FM3Units . TextOfIdAtom ( DeclIdAtom ) 
@@ -2295,7 +2314,7 @@ MODULE FM3ParsePass
 
       (* Now handle the original/only declaration. *) 
       ; LDeclRef
-          := FM3Decls . NewDeclRef ( FM3Scopes . BlockScopeTopRef , DeclNoI )
+          := FM3Decls . NewDeclRef ( FM3Scopes . DeclScopeStackTopRef , DeclNoI )
       ; LDeclRef . DclLink := NIL 
       ; LDeclRef . DclSelfScopeRef := NIL
 (* TODO: ^ Get this from parser.  Also set the reverse link ScpOwningDeclNo. *) 
@@ -2316,7 +2335,7 @@ MODULE FM3ParsePass
         DO 
           LDeclNo
             := LookupId
-                 ( FM3Scopes . BlockScopeTopRef ^ , DeclIdAtom , Position ) 
+                 ( FM3Scopes . DeclScopeStackTopRef ^ , DeclIdAtom , Position ) 
         ; <*ASSERT LDeclNo # FM3Base . DeclNoNull *>
           VarArray_Int_Refany . CallbackWithElem 
             ( FM3Units . UnitStackTopRef ^ . UntDeclMap , LDeclNo , VisitDecl )
@@ -2340,7 +2359,7 @@ MODULE FM3ParsePass
       IF IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
       THEN RETURN FM3Base . DeclNoNull 
       END (*IF*) 
-    ; WITH WScope = FM3Scopes . BlockScopeTopRef ^  
+    ; WITH WScope = FM3Scopes . DeclScopeStackTopRef ^  
            , WppRdBack
              = FM3Units . UnitStackTopRef ^ . UntParsePassRdBack 
       DO
@@ -2375,7 +2394,7 @@ MODULE FM3ParsePass
       IF IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
       THEN RETURN
       END (*IF*) 
-    ; WITH WScope = FM3Scopes . BlockScopeTopRef ^  
+    ; WITH WScope = FM3Scopes . DeclScopeStackTopRef ^  
            , WppRdBack
              = FM3Units . UnitStackTopRef ^ . UntParsePassRdBack 
       DO
@@ -2421,9 +2440,7 @@ MODULE FM3ParsePass
   ; VAR LDeclNo : FM3Base . DeclNoTyp
   
   ; BEGIN (*QualIdentL2R*)
-      WITH WScope = FM3Scopes . BlockScopeTopRef ^  
-           , WppRdBack
-             = FM3Units . UnitStackTopRef ^ . UntParsePassRdBack 
+      WITH WppRdBack = FM3Units . UnitStackTopRef ^ . UntParsePassRdBack 
       DO
         LAtomLt := GetBwdAtom ( UnnestRdBack ) 
       ; LAtomRt := GetBwdAtom ( UnnestRdBack ) 

@@ -36,7 +36,7 @@ INTERFACE FM3ParsePass
 ; CONST ParsAttrNull
     = tParsAttribute
         { Scan := FM3Scanner . ScanAttrNull
-        , PaRefAny := NIL 
+        , PaRefany := NIL 
         , PaUnnestCoord := FIRST ( LONGINT ) 
         , PaLong := FIRST ( LONGINT )
         , PaConstructNo := FIRST ( INTEGER ) 
@@ -64,12 +64,17 @@ INTERFACE FM3ParsePass
 
 (* ---------------------------- Unnest stack ------------------------ *)
 
-; PROCEDURE CheckUnitEndId
-    ( READONLY StartAttr : tParsAttribute 
-    ; VAR EndAttr : tParsAttribute 
-    ; UnitKind : FM3Units . UnitKindTyp
+; PROCEDURE ModuleId
+    ( UnitRef : FM3Units . UnitRefTyp
+    ; IdAtom : FM3Base . AtomTyp
+    ; Position : FM3Base .tPosition 
     )
 
+; PROCEDURE CheckUnitFinalId
+    ( UnitRef : FM3Units . UnitRefTyp
+    ; EndIdAtom : FM3Base . AtomTyp 
+    ; UnitKind : FM3Units . UnitKindTyp
+    )
 ; PROCEDURE UnnestCoord ( ) : LONGINT
   (* Of the current unit. *)
   
@@ -302,15 +307,11 @@ INTERFACE FM3ParsePass
     ( READONLY StkLtAttribute , StkRtAttribute : tParsAttribute )
   (* Handles either/both idents reserved (error msg). *) 
     
-
-; PROCEDURE ScopeRtL2R ( ScopeNo : FM3Scopes . ScopeNoTyp )
-  (* Create an identifier-to-declNo dictionary for the scope, of
-     exactly the needed size, and load it up with DeclIdAtom to
-     DeclNo mappings, using the idents declared in the scope and
-     a contiguously-numbered range of DeclNos.
-  *)
-
-; PROCEDURE PushUnitScopeForDecls ( )
+; PROCEDURE DeclScopeRtL2R ( ScopeRef : FM3Scopes . ScopeRefTyp )
+  (* Create an IdAtom-to-declNo, fixed-size dictionary for the scope, of
+     exactly the needed size, and load it up with mappings of the idents
+     declared in the scope, using a contiguously-numbered range of DeclNos.
+  *) 
 
 (* Not exported: 
 ; PROCEDURE ScopeRtR2L ( ScopeNo : FM3Base . ScopeNoTyp )

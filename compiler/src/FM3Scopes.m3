@@ -33,8 +33,8 @@ MODULE FM3Scopes
 (*EXPORTED*) 
 ; PROCEDURE NewScopeRef
     ( OwningUnitRef : FM3Units . UnitRefTyp
-    ; ScopeKind : FM3Scopes . ScopeKindTyp
-    ; READONLY Position : tPosition
+    ; ScopeKind : ScopeKindTyp
+    ; READONLY Position : FM3Base . tPosition
     )
   : ScopeRefTyp
   (* Allocate and connect a ScopeNo and ScopeRef Owned by OwningUnitRef. *) 
@@ -55,15 +55,13 @@ MODULE FM3Scopes
     ; LScopeRef ^ . ScpScopeNo := LScopeNo
     ; LScopeRef ^ . ScpKind := ScopeKind
     ; LScopeRef ^ . ScpPosition := Position
-    ; LScopeRef ^ . ScpDeclStackDepth := 0
-    ; LScopeRef ^ . ScpLookupStackDepth := 0
-    ; LScopeRef ^ .  ScpOnStackCt := 0
+    ; LScopeRef ^ . ScpOnStackCt := 0
 
     ; LScopeRef ^ . ScpRefIdSet := IntSets . Empty ( )  
     ; LScopeRef ^ . ScpDuplDeclIdSet := IntSets . Empty ( )
     ; LScopeRef ^ . ScpMinDeclNo := FM3Base . DeclNoMax 
-    ; LScopeRef ^ . ScpDeclCt := 0
-    ; LScopeRef ^ . ScpOwningUnitRef := OwniongUnitRef 
+    ; LScopeRef ^ . ScpDeclCt := FM3Base . DeclNoNull  
+    ; LScopeRef ^ . ScpOwningUnitRef := OwningUnitRef 
     ; LScopeRef ^ . ScpOwningDeclNo := FM3Base . DeclNoNull
     ; VarArray_Int_Refany . Assign ( LUnitScopeMap , LScopeNo , LScopeRef )
     ; RETURN LScopeRef 
@@ -74,10 +72,10 @@ MODULE FM3Scopes
 
   = BEGIN (*PushDeclScopeRef*)
       IF ScopeRef = NIL THEN RETURN END (*IF*)
-    ; ScopeRef ^ . ScpStackLink := DeclScopeTopRef
-    ; DeclScopeTopRef := ScopeRef
+    ; ScopeRef ^ . ScpStackLink := DeclScopeStackTopRef
+    ; DeclScopeStackTopRef := ScopeRef
     ; INC ( ScopeRef ^ . ScpOnStackCt ) 
-    ; INC ( DeclScopeStackTopCt ) 
+    ; INC ( DeclScopeStackCt ) 
     END PushDeclScopeRef
 
 (*EXPORTED.*)
@@ -85,10 +83,10 @@ MODULE FM3Scopes
 
   = BEGIN (*PushLookupScopeRef*)
       IF ScopeRef = NIL THEN RETURN END (*IF*)
-    ; ScopeRef ^ . ScpStackLink := LookupScopeTopRef
-    ; LookupScopeTopRef := ScopeRef
-    ; INC ( DeclScopeStackTopCt ) 
-    ; INC ( LookupScopeStackTopCt ) 
+    ; ScopeRef ^ . ScpStackLink := LookupScopeStackTopRef
+    ; LookupScopeStackTopRef := ScopeRef
+    ; INC ( DeclScopeStackCt ) 
+    ; INC ( LookupScopeStackCt ) 
     END PushLookupScopeRef
 
 (*EXPORTED.*)
@@ -122,7 +120,10 @@ MODULE FM3Scopes
     END PopLookupScope 
 
 ; BEGIN
-    ScopeStackTopRef := NIL 
+    DeclScopeStackTopRef := NIL
+  ; DeclScopeStackCt := 0 
+  ; LookupScopeStackTopRef := NIL
+  ; LookupScopeStackCt := 0 
   END FM3Scopes
 .
 
