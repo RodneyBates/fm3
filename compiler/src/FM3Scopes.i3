@@ -67,6 +67,10 @@ INTERFACE FM3Scopes
   : ScopeRefTyp
   (* Allocate and connect a ScopeNo and ScopeRef Owned by OwningUnitRef. *) 
 
+; PROCEDURE ScopeRefOfScopeNo ( ScopeNo : FM3Base . ScopeNoTyp )
+  : FM3Scopes . ScopeRefTyp 
+  (* In the current unit. *) 
+
 ; TYPE ScopeMapTyp = FM3Base . MapTyp
   (* Map ScopeNoTyp to ScopeRefTyp. One of these per unit. *) 
 

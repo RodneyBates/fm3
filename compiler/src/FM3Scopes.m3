@@ -65,7 +65,22 @@ MODULE FM3Scopes
     ; LScopeRef ^ . ScpOwningDeclNo := FM3Base . DeclNoNull
     ; VarArray_Int_Refany . Assign ( LUnitScopeMap , LScopeNo , LScopeRef )
     ; RETURN LScopeRef 
-    END NewScopeRef 
+    END NewScopeRef
+
+(*EXPORTED.*)
+; PROCEDURE ScopeRefOfScopeNo ( ScopeNo : FM3Base . ScopeNoTyp )
+  : FM3Scopes . ScopeRefTyp
+  (* In the current unit. *) 
+
+  = VAR LScopeMap : FM3Scopes . ScopeMapTyp 
+  ; VAR LScopeRef : FM3Scopes . ScopeRefTyp
+
+  ; BEGIN
+      LScopeMap := FM3Units . UnitStackTopRef ^ . UntScopeMap
+    ; IF LScopeMap = NIL TEN RETURN NIL END 
+    ; LScopeRef := VarArray_Int_Refany . Fetch ( LScopeMap , ScopeNo )
+    ; RETURN LScopeRef  
+    END ScopeRefOfScopeNo 
 
 (*EXPORTED.*)
 ; PROCEDURE PushDeclScopeRef ( ScopeRef : ScopeRefTyp ) 

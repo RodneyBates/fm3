@@ -756,6 +756,7 @@ MODULE FM3ParsePass
       IF UnitRef = NIL THEN RETURN END (*IF*)
     ; IF IdAtom = FM3Base . AtomNull THEN RETURN END (*IF*)
     ; IF UnitRef ^ . UntSrcFileName = NIL THEN RETURN END (*IF*) 
+    ; UnitRef ^ . UntUnitIdAtom := IdAtom 
     ; IdText := FM3Units . TextOfIdAtom ( IdAtom )
     ; UnitRef ^ . UntUnitIdentAtom := IdAtom 
     ; UnitRef ^ . UntUnitIdentPos := Position 
@@ -782,16 +783,17 @@ MODULE FM3ParsePass
       THEN
         FM3Messages . ErrorArr
           ( ARRAY OF REFANY
-              { "Interface name "
+              { "Interface name \""
               , LIdText
-              , "does not match file name "
+              , "\" does not match file name \""
               , UnitRef ^ . UntSrcFileName
-              , "." 
+              , FM3Messages . NLIndent
+              , "Changing interface name to \""
+              , NameFromFileName 
+              , "\"." 
               }
           )
-(* TODO: Decide how to recover from this. Change the interface name
-         to match the file?  I think the only way to access the interface
-         is via the file name. *) 
+      ; UnitRef ^ , UntSrcFileName := LNameFromFileName 
       END (*IF*)
     END InterfaceId 
 
@@ -1848,17 +1850,29 @@ MODULE FM3ParsePass
                     , LSkipNo
                     )
                 (* Discard this token. *)
-                END (*WITH*) 
-            
-            | Itk . ItkDeclScopeRt 
-            , Itk . ItkDeclScopeLt 
-            , Itk . ItkLookupScopeRt 
-            , Itk . ItkLookupScopeLt 
-            => LScopeNo := GetBwdScopeNo ( LUnnestRdBack ) 
-              ; <* ASSERT FALSE *>
-                ScopeRtR2L ( LScopeNo )
+                END (*WITH*)
 
-(* CONSISTIFY: For some of these, get the operands inside the called proc. *) 
+            | Itk . ItkDeclScopeRt 
+            =>  LScopeNo := GetBwdScopeNo ( LUnnestRdBack )
+              ; FM3Scopes . PushDeclScopeRef
+                  ( FM3Scopes . ScopeRefOfScopeNo ( ScopeNo ) )
+
+            | Itk . ItkDeclScopeLt 
+            =>  LScopeNo := GetBwdScopeNo ( LUnnestRdBack ) 
+              ; <* ASSERT FM3Scopes . PopDeclScopeRef ( )
+                          = FM3Scopes . ScopeRefOfScopeNo ( ScopeNo ) *>
+
+            | Itk . ItkLookupScopeRt 
+            =>  LScopeNo := GetBwdScopeNo ( LUnnestRdBack ) 
+              ; FM3Scopes . PushLookupScopeRef
+                  ( FM3Scopes . ScopeRefOfScopeNo ( ScopeNo ) )
+
+            | Itk . ItkLookupScopeLt 
+            =>  LScopeNo := GetBwdScopeNo ( LUnnestRdBack ) 
+              ; <* ASSERT FM3Scopes . PopLookupScopeRef ( )
+                          = FM3Scopes . ScopeRefOfScopeNo ( ScopeNo ) *> 
+
+(* CONSISTIFY: For some of these, fetch the operands inside the called proc. *) 
             | Itk . ItkDuplDeclId
             => LAtom := GetBwdAtom ( LUnnestRdBack )
               ; LPosition := GetBwdPos ( LUnnestRdBack )
@@ -2270,17 +2284,6 @@ MODULE FM3ParsePass
 
 (* Right-to-left scope handling.  These are called during unnesting. *)
 (* Call sites read the Itk and its args, and pass in the args. *) 
-
-; PROCEDURE ScopeRtR2L ( ScopeNo : FM3Base . ScopeNoTyp )
-
-  = VAR LScopeMap : FM3Scopes . ScopeMapTyp 
-  ; VAR LScopeRef : FM3Scopes . ScopeRefTyp
-
-  ; BEGIN
-      LScopeMap := FM3Units . UnitStackTopRef ^ . UntScopeMap 
-    ; LScopeRef := VarArray_Int_Refany . Fetch ( LScopeMap , ScopeNo )
-    ; FM3Scopes . PushDeclScopeRef ( LScopeRef ) 
-    END ScopeRtR2L
 
 ; PROCEDURE DuplDeclIdR2L
     ( DeclIdAtom : FM3Base . AtomTyp ; READONLY Position : tPosition )
