@@ -11,11 +11,10 @@ INTERFACE FM3Scopes
 ; IMPORT IntSets
 
 ; IMPORT FM3Base
+; FROM FM3Base IMPORT ScopeNoTyp 
+; FROM FM3Base IMPORT ScopeNoNull 
 ; IMPORT FM3Dict_Int_Int
 ; IMPORT FM3Units 
-
-; CONST ScopeNoNull = FM3Base . AtomNull 
-; TYPE ScopeNoTyp = FM3Base . AtomTyp
 
 ; TYPE ScopeKindTyp
     = { SkNull

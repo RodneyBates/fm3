@@ -295,6 +295,8 @@ END old. *)
                    , Skt . SkModule
                    , FM3Scanner . Attribute . Position
                    ) ;
+       FM3Units . UnitStackTopRef ^ . UntScopeNo := LScopeRef . ScpScopeNo ; 
+                   
 (* Scope ref
        FM3ParsePass . Push_LI ( Itk . ItkDeclScopeLt , $$ . PaConstructNo ) ;
        (* ^Scope not pushed until after Imports. *)
@@ -316,6 +318,7 @@ END old. *)
                    , Skt . SkModule
                    , FM3Scanner . Attribute . Position
                    ) ;
+       FM3Units . UnitStackTopRef ^ . UntScopeNo := LScopeRef . ScpScopeNo ; 
 (* Scope ref
        FM3ParsePass . Push_LI ( Itk . ItkDeclScopeLt , $$ . PaConstructNo ) ;
        (* ^Scope not pushed until after Imports. *)
@@ -360,6 +363,7 @@ END old. *)
          LScopeRef 
            := FM3Scopes . NewScopeRef 
                 ( LUnitRef , Skt . SkInterface , $1 . Scan . Position ) ;
+         LUnitRef ^ . UntScopeNo := LScopeRef . ScpScopeNo ; 
          FM3Scopes . PushDeclScopeRef ( LScopeRef ) ; 
          FM3ParsePass . Push_LI
            ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo ) ; 
@@ -416,6 +420,7 @@ END old. *)
          LScopeRef 
            := FM3Scopes . NewScopeRef 
                 ( LUnitRef , Skt . SkModule , $1 . Scan . Position ) ;
+         LUnitRef ^ . UntScopeNo := LScopeRef . ScpScopeNo ; 
          FM3Scopes . PushDeclScopeRef ( LScopeRef ) ; 
          FM3ParsePass . Push_LI
            ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo ) ; 
@@ -467,6 +472,7 @@ END old. *)
               , Skt . SkInterface
               , FM3Scanner . Attribute . Position
               ) ;
+       FM3Units . UnitStackTopRef ^ . UntScopeNo := LScopeRef . ScpScopeNo ; 
      } .  
 
    GenInterface :
@@ -487,6 +493,7 @@ END old. *)
               , Skt . SkModule
               , FM3Scanner . Attribute . Position
               ) ;
+       FM3Units . UnitStackTopRef ^ . UntScopeNo := LScopeRef . ScpScopeNo ; 
      } . 
 
    GenModule :
@@ -1185,6 +1192,7 @@ END old. *)
                 , Skt . SkRec
                 , $1 . Scan . Position
                 ) ;
+(* TODO: Store scope ref in record. *) 
          FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
          FM3ParsePass . Push_LI
            ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo  ) ;
@@ -1236,7 +1244,9 @@ END old. *)
    Formals : StkOpenParen StkCloseParen /* Empty formals list. */
      { $$ . Scan . Position := $1 . Scan . Position ;
        $$ . PaInt := 0 ; 
-       FM3ParsePass . ScopeEmpty ( Skt . SkFormals ) ; 
+       EVAL FM3ParsePass . ScopeEmpty
+              ( Skt . SkFormals , $1 . Scan . Position ) ;
+(* TODO: Store formals scope ref somewhare. *) 
        PushUnnest ( Itk . ItkFormalsListEmpty )
      } .
      
@@ -1250,6 +1260,7 @@ END old. *)
                 , Skt . SkFormals
                 , $1 . Scan . Position
                 ) ;
+(* TODO: Store formals scope ref somewhare. *) 
          FM3Scopes . PushDeclScopeRef ( LScopeRef ) ; 
          FM3ParsePass . Push_LI
            ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo  ) ;
@@ -1545,6 +1556,8 @@ END old. *)
                 , Skt . SkProcBody 
                 , $1 . Scan . Position
                 ) ;
+(* TODO: Store scope ref in proc type?. *) 
+
 (* TODO: check duplicates between signature scope and body scope. *) 
          FM3Scopes . PushDeclScopeRef ( LScopeRef ) ; 
          FM3ParsePass . Push_LI
@@ -1603,6 +1616,7 @@ END old. *)
               , Skt . SkBlock
               , FM3Scanner . Attribute . Position
               ) ;
+(* TODO: Store scope ref somewhere. *) 
        FM3ParsePass . Push_LIP
          ( Itk . ItkBlockLt
          , $$ . PaRefany ^ . 

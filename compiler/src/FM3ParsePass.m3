@@ -2033,9 +2033,12 @@ MODULE FM3ParsePass
 (* These are called by the parser: *) 
 
 (*EXPORTED.*)
-; PROCEDURE ScopeEmpty ( ScopeKind : FM3Scopes . ScopeKindTyp )
+; PROCEDURE ScopeEmpty
+    ( ScopeKind : FM3Scopes . ScopeKindTyp ; Position : FM3Base . tPosition )
 
   = BEGIN (*ScopeEmpty*)
+      FM3Scopes . NewScopeRef
+         ( FM3Units . UnitStackTopRef , ScopeKind , Position ) 
     END ScopeEmpty
 
 (* Left-to-right scope handling.  These are called by the parser. *)

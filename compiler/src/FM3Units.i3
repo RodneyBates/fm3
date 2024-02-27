@@ -68,6 +68,7 @@ INTERFACE FM3Units
           (* ^Wide TEXT literals. *)
       ; UntDeclMap : FM3Base . MapTyp := NIL
       ; UntScopeMap : FM3Base . MapTyp := NIL 
+      ; UntScopeNo : FM3Base . ScopeNoTyp := FM3Base . ScopeNoNull 
       ; UntUnitNo : FM3Base . UnitNoTyp := FM3Base . UnitNoNull
       ; UntStackDepth : INTEGER 
       ; UntScanResult : INTEGER 
