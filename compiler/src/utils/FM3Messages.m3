@@ -265,7 +265,7 @@ MODULE FM3Messages
   = VAR LMsg : TEXT 
 
   ; BEGIN
-      LMsg := CodeMsgText ( Pos , GErrorLabel , Frags ) 
+      LMsg := CodeMsgText ( Pos , GWarningLabel , Frags ) 
     ; PutStdOut ( LMsg ) 
     ; PutUnitLog ( LMsg ) 
     END WarningArr

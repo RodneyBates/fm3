@@ -67,20 +67,21 @@ INTERFACE FM3ParsePass
 ; PROCEDURE InterfaceId
     ( UnitRef : FM3Units . UnitRefTyp
     ; IdAtom : FM3Base . AtomTyp
-    ; Position : FM3Base .tPosition 
+    ; Position : FM3Base . tPosition 
     )
 
 ; PROCEDURE ModuleId
     ( UnitRef : FM3Units . UnitRefTyp
     ; IdAtom : FM3Base . AtomTyp
-    ; Position : FM3Base .tPosition 
+    ; Position : FM3Base . tPosition 
     )
 
 ; PROCEDURE CheckUnitFinalId
     ( UnitRef : FM3Units . UnitRefTyp
     ; EndIdAtom : FM3Base . AtomTyp 
     ; UnitKind : FM3Units . UnitKindTyp
-    )
+    ; Position : FM3Base . tPosition 
+    ) 
 ; PROCEDURE UnnestCoord ( ) : LONGINT
   (* Of the current unit. *)
   
@@ -94,7 +95,7 @@ INTERFACE FM3ParsePass
     ( ListTokLt : Itk . TokTyp
     ; C : LONGINT
     ; ElemNo : INTEGER
-    ; READONLY Position : tPosition
+    ; READONLY Position : FM3Base . tPosition
     )
 
 (* Here is the naming code, of namings of these Push_<x> procedures:
@@ -135,6 +136,8 @@ INTERFACE FM3ParsePass
    and column-number.  The procedure pushes it as two separate numbers on the
    unnest stack, column number deeper.
 
+   pl means reuse the first position passed in.
+
    'I' or 'i' is an integer value.  'B' or 'b' is a boolean value.
 *) 
 
@@ -174,6 +177,16 @@ INTERFACE FM3ParsePass
     ; READONLY Position : tPosition 
     )
 
+; PROCEDURE Push_LCIP_eCiP_riP
+    ( T : Itk . TokTyp 
+    ; LC : LONGINT 
+    ; I : INTEGER 
+    ; READONLY LPos : tPosition
+    ; EC : LONGINT 
+    ; READONLY EPos : tPosition
+    ; READONLY RPos : tPosition
+    )
+    
 ; PROCEDURE Push_LCPI_rpi
     ( T : Itk . TokTyp 
     ; C : LONGINT 
@@ -291,7 +304,9 @@ INTERFACE FM3ParsePass
 
 ; PROCEDURE EndBlock ( )
 
-; PROCEDURE ScopeEmpty ( ScopeKind : FM3Scopes . ScopeKindTyp )
+; PROCEDURE ScopeEmpty
+    ( ScopeKind : FM3Scopes . ScopeKindTyp ; Position : FM3Base . tPosition )
+  : FM3Scopes . ScopeRefTyp 
 
 ; PROCEDURE DeclIdL2R 
     ( DeclIdTok : Itk . TokTyp

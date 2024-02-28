@@ -31,7 +31,15 @@ LONE
      ItkLeftEndIncomplete . 
      ItkRightEndIncomplete .
 
-FIXED ItkSkip INT (* Unique Pair number. *) . 
+FIXED ItkSkip INT (* Unique Pair number. *) .
+
+FIXED
+ItkInterface INT POS 3 (* UnitNo, Position. *) . 
+
+ItkModule INT POS 3 (* UnitNo, Position. *)
+        Begin INT POS 
+. 
+
 
 LONE
 ItkUnitId IDENT POS 3 (* IdAtom, Line, Column. *) . 
@@ -48,6 +56,7 @@ ItkProcBodyAbsent POS 2 (* Position. *).
 
 (* Scopes and declarations within. *) 
 LONE
+ItkScopeEmpty INT (* ScopeNo. *) .
 ItkDeclScopeLt INT (* ScopeNo. *) .
 ItkDeclScopeRt INT (* ScopeNo. *) . 
 ItkLookupScopeLt INT (* ScopeNo. *) .
@@ -215,8 +224,8 @@ FIXED ItkBecomes POS 2 Infix POS 2 (* Position of infix token, x3. *) .
 
 (*
 
-FIXED ItkModule IDENT INT 2 (* IdAtom , UnitNo. *)
-        Begin
+FIXED ItkModule INT POS 3 (* UnitNo, Position. *)
+        Begin INT POS 
 . 
 
 LIST ItkExportsList

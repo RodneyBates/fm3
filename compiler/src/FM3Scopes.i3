@@ -52,8 +52,10 @@ INTERFACE FM3Scopes
       ; ScpScopeNo : FM3Base . ScopeNoTyp (* A self-reference. *)
       ; ScpOwningUnitRef : FM3Units . UnitRefTyp := NIL 
       ; ScpOwningDeclNo : FM3Base . DeclNoTyp
-      ; ScpOnStackCt : INTEGER := 0
+      ; ScpOnDeclStackCt : INTEGER := 0
+      ; ScpOnLookupStackCt : INTEGER := 0
         (* ^Number of times it's on either scope stack. *)
+(* CHECK ^Do we really need this? *) 
       ; ScpPosition : FM3Base . tPosition 
       ; ScpKind : ScopeKindTyp 
       END (*ScopeTyp*)
@@ -66,8 +68,7 @@ INTERFACE FM3Scopes
   : ScopeRefTyp
   (* Allocate and connect a ScopeNo and ScopeRef Owned by OwningUnitRef. *) 
 
-; PROCEDURE ScopeRefOfScopeNo ( ScopeNo : FM3Base . ScopeNoTyp )
-  : FM3Scopes . ScopeRefTyp 
+; PROCEDURE ScopeRefOfScopeNo ( ScopeNo : FM3Base . ScopeNoTyp ) : ScopeRefTyp 
   (* In the current unit. *) 
 
 ; TYPE ScopeMapTyp = FM3Base . MapTyp

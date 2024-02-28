@@ -439,7 +439,12 @@ MODULE FM3ParsePass
       (* ^Cached, for faster access. *) 
     ; FM3LogArr
         ( ARRAY OF REFANY
-            { "Compiling " , LUnitRef ^ . UntSrcFilePath , SrcFileName , "..." }
+            { "Compiling "
+            , LUnitRef ^ . UntSrcFilePath
+            , "/"
+            , SrcFileName
+            , "..."
+            }
         )
     ; TRY 
         LUnitRef ^ . UntParseResult := FM3Parser . FM3Parser ( )
@@ -747,7 +752,7 @@ MODULE FM3ParsePass
 ; PROCEDURE UnitId 
     ( UnitRef : FM3Units . UnitRefTyp
     ; IdAtom : FM3Base . AtomTyp
-    ; Position : FM3Base .tPosition
+    ; Position : FM3Base . tPosition
     ; VAR (*OUT*) IdText : TEXT
     ; VAR (*OUT*) NameFromFileName : TEXT 
     )
@@ -756,19 +761,19 @@ MODULE FM3ParsePass
       IF UnitRef = NIL THEN RETURN END (*IF*)
     ; IF IdAtom = FM3Base . AtomNull THEN RETURN END (*IF*)
     ; IF UnitRef ^ . UntSrcFileName = NIL THEN RETURN END (*IF*) 
-    ; UnitRef ^ . UntUnitIdAtom := IdAtom 
+    ; UnitRef ^ . UntUnitIdentAtom := IdAtom 
     ; IdText := FM3Units . TextOfIdAtom ( IdAtom )
     ; UnitRef ^ . UntUnitIdentAtom := IdAtom 
     ; UnitRef ^ . UntUnitIdentPos := Position 
     ; NameFromFileName
-        := Pathname . ReplaceExt ( UnitRef ^ . UntSrcFileName , "" )
+        := FM3Files . RemoveSuffix ( UnitRef ^ . UntSrcFileName ) 
     END UnitId 
 
 (*EXPORTED:*)
 ; PROCEDURE InterfaceId
     ( UnitRef : FM3Units . UnitRefTyp
     ; IdAtom : FM3Base . AtomTyp
-    ; Position : FM3Base .tPosition 
+    ; Position : FM3Base . tPosition 
     )
 
   = VAR LIdText : TEXT
@@ -787,13 +792,15 @@ MODULE FM3ParsePass
               , LIdText
               , "\" does not match file name \""
               , UnitRef ^ . UntSrcFileName
+              , "\"" 
               , FM3Messages . NLIndent
               , "Changing interface name to \""
-              , NameFromFileName 
+              , LNameFromFileName 
               , "\"." 
               }
+          , Position
           )
-      ; UnitRef ^ , UntSrcFileName := LNameFromFileName 
+      ; UnitRef ^ . UntSrcFileName := LNameFromFileName 
       END (*IF*)
     END InterfaceId 
 
@@ -801,7 +808,7 @@ MODULE FM3ParsePass
 ; PROCEDURE ModuleId
     ( UnitRef : FM3Units . UnitRefTyp
     ; IdAtom : FM3Base . AtomTyp
-    ; Position : FM3Base .tPosition 
+    ; Position : FM3Base . tPosition 
     )
 
   = VAR LIdText : TEXT
@@ -816,13 +823,14 @@ MODULE FM3ParsePass
       THEN
         FM3Messages . InfoArr
           ( ARRAY OF REFANY
-              { "Module name "
+              { "Module name \""
               , LIdText
-              , "does not match file name "
+              , "\" does not match file name \""
               , UnitRef ^ . UntSrcFileName
-              , "." 
+              , "\"." 
               }
-          ) 
+         , Position 
+         ) 
       END (*IF*)
     END ModuleId 
 
@@ -831,6 +839,7 @@ MODULE FM3ParsePass
     ( UnitRef : FM3Units . UnitRefTyp
     ; EndIdAtom : FM3Base . AtomTyp 
     ; UnitKind : FM3Units . UnitKindTyp
+    ; Position : FM3Base . tPosition 
     )
     
   = BEGIN (* CheckUnitFinalId *)
@@ -842,14 +851,15 @@ MODULE FM3ParsePass
           ( ARRAY OF REFANY 
               { "Identifier at end of "
               , FM3Units . UnitKindImage ( UnitKind )
-              , " "
+              , " \""
               , FM3Units . TextOfIdAtom ( UnitRef ^ . UntUnitIdentAtom )
-              , ", at " 
+              , "\", at " 
               , PosImage ( UnitRef ^ . UntUnitIdentPos )  
               , " must repeat its name ("
               , FM3Units . UnitKindSectionNo ( UnitKind )
               , ")." 
               } 
+          , Position
           )
       END (*IF*) 
     END CheckUnitFinalId
@@ -974,7 +984,7 @@ MODULE FM3ParsePass
     ( ListTokLt : Itk . TokTyp
     ; C : LONGINT
     ; ElemNo : INTEGER
-    ; READONLY Position : tPosition
+    ; READONLY Position : FM3Base . tPosition
     )
 
   = BEGIN
@@ -1177,6 +1187,39 @@ MODULE FM3ParsePass
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
       END (*WITH*) 
     END Push_LCIP_rip
+
+(*EXPORTED:*)
+; PROCEDURE Push_LCIP_eCiP_riP
+    ( T : Itk . TokTyp 
+    ; LC : LONGINT 
+    ; I : INTEGER 
+    ; READONLY LPos : tPosition
+    ; EC : LONGINT 
+    ; READONLY EPos : tPosition
+    ; READONLY RPos : tPosition
+    )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( RPos . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( RPos . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) )
+
+      ; PutBwd ( WRdBack , VAL ( EPos . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( EPos . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , EC ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToOnePatch , LONGINT ) )
+      
+      ; PutBwd ( WRdBack , VAL ( LPos . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( LPos . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , LC ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END Push_LCIP_eCiP_riP
 
 (*EXPORTED:*)
 ; PROCEDURE Push_LCP_eCP_rP
@@ -1757,7 +1800,7 @@ MODULE FM3ParsePass
     ; EVAL GetBwd ( LUnitRef ^ . UntUnnestStackRdBack ) 
     ; EVAL GetBwd ( LUnitRef ^ . UntUnnestStackRdBack ) 
 
-    ; LOOP
+    ; LOOP (* One of three possible actions. *) 
         LUnnestCoord := RdBackFile . LengthL ( LUnnestRdBack )
       ; IF LUnnestCoord <= LMUnnestDepth
            (* ^Nothing more to pop off Unnest strack. *) 
@@ -1766,6 +1809,7 @@ MODULE FM3ParsePass
            (* ^ Nothing more to pop off Patch stack. *) 
         THEN EXIT
         END (*IF*)
+        
       (* Check first for a patch. *) 
       ; IF LUnnestCoord <= LUnitRef . UntPatchStackTopCoord
         THEN
@@ -1811,6 +1855,7 @@ MODULE FM3ParsePass
             := FM3Compress . GetBwd ( LPatchRdBack )
           
         (* Now loop, possibly for more patches. *)
+        
         ELSE (* Look at the top token on the Unnest stack. *) 
           LTokenL := FM3Compress . GetBwd ( LUnnestRdBack )
         ; LToken := VAL ( LTokenL , Itk . TokTyp ) 
@@ -1834,10 +1879,14 @@ MODULE FM3ParsePass
               , MaybeSkip := FALSE  
               ) 
           ; PutBwd ( LPatchRdBack , LTokenL )
-            (* ^Push the token code deeper than its patch coordinate. *) 
-          ELSE (* Move this token to the ParsePass stack. *) 
-            CASE LToken OF (* Specially handled tokens. *)
+            (* ^Push the token code deeper than its patch coordinate. *)
+            
+          ELSE
 
+            (* Move this token to the ParsePass stack. *) 
+            CASE LToken OF
+
+            (* Specially handled tokens. *)
             | Itk . ItkSkipLt
             => SkipLt ( GetBwdInt ( FM3Globals . P1RdBack ) ) 
  
@@ -1852,25 +1901,29 @@ MODULE FM3ParsePass
                 (* Discard this token. *)
                 END (*WITH*)
 
+            | Itk . ItkScopeEmpty 
+            =>  LScopeNo := GetBwdScopeNo ( LUnnestRdBack )
+(* TODO: Anything here? *) 
+
             | Itk . ItkDeclScopeRt 
             =>  LScopeNo := GetBwdScopeNo ( LUnnestRdBack )
               ; FM3Scopes . PushDeclScopeRef
-                  ( FM3Scopes . ScopeRefOfScopeNo ( ScopeNo ) )
+                  ( FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) )
 
             | Itk . ItkDeclScopeLt 
             =>  LScopeNo := GetBwdScopeNo ( LUnnestRdBack ) 
-              ; <* ASSERT FM3Scopes . PopDeclScopeRef ( )
-                          = FM3Scopes . ScopeRefOfScopeNo ( ScopeNo ) *>
+              ; <* ASSERT FM3Scopes . PopDeclScope ( )
+                          = FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) *>
 
             | Itk . ItkLookupScopeRt 
             =>  LScopeNo := GetBwdScopeNo ( LUnnestRdBack ) 
               ; FM3Scopes . PushLookupScopeRef
-                  ( FM3Scopes . ScopeRefOfScopeNo ( ScopeNo ) )
+                  ( FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) )
 
             | Itk . ItkLookupScopeLt 
             =>  LScopeNo := GetBwdScopeNo ( LUnnestRdBack ) 
-              ; <* ASSERT FM3Scopes . PopLookupScopeRef ( )
-                          = FM3Scopes . ScopeRefOfScopeNo ( ScopeNo ) *> 
+              ; <* ASSERT FM3Scopes . PopLookupScope ( )
+                          = FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) *> 
 
 (* CONSISTIFY: For some of these, fetch the operands inside the called proc. *) 
             | Itk . ItkDuplDeclId
@@ -1897,7 +1950,9 @@ MODULE FM3ParsePass
 
             | Itk . ItkBlockRt
             => LScopeNo := GetBwdScopeNo ( LUnnestRdBack ) 
+           (* Doesn't exist, probably ItkiBlock[LR]t will disappear.
               ; ScopeRtR2L ( LScopeNo  )
+           *) 
               ; CopyOperands
                  ( 2 (*Position*)
                  , LUnnestRdBack
@@ -1990,7 +2045,7 @@ MODULE FM3ParsePass
   ; VAR LFound : BOOLEAN 
 
   ; BEGIN (*LookupBlockRef*)
-      LBlockScopeRef := FM3Scopes . DeclScopeStackTopRef
+      LBlockScopeRef := FM3Scopes . LookupScopeStackTopRef
     ; LOOP
         IF LBlockScopeRef = NIL (* Undeclared? *) 
         THEN 
@@ -2035,10 +2090,11 @@ MODULE FM3ParsePass
 (*EXPORTED.*)
 ; PROCEDURE ScopeEmpty
     ( ScopeKind : FM3Scopes . ScopeKindTyp ; Position : FM3Base . tPosition )
+  : FM3Scopes . ScopeRefTyp 
 
   = BEGIN (*ScopeEmpty*)
-      FM3Scopes . NewScopeRef
-         ( FM3Units . UnitStackTopRef , ScopeKind , Position ) 
+      EVAL FM3Scopes . NewScopeRef
+             ( FM3Units . UnitStackTopRef , ScopeKind , Position ) 
     END ScopeEmpty
 
 (* Left-to-right scope handling.  These are called by the parser. *)
@@ -2143,7 +2199,7 @@ MODULE FM3ParsePass
       DO IF WScan . SaIsReservedId 
         THEN LTokToPut := Itk . ItkReservedId 
         ELSE
-          WITH WIdentRefSet = FM3Scopes . DeclScopeStackTopRef ^ . ScpRefIdSet
+          WITH WIdentRefSet = FM3Scopes . LookupScopeStackTopRef ^ . ScpRefIdSet
           DO WIdentRefSet
                := IntSets . Include
                     ( WIdentRefSet , StkIdAttribute . Scan . SaAtom )
@@ -2184,9 +2240,8 @@ MODULE FM3ParsePass
 
   = BEGIN (*QualIdentL2R*)
       WITH WunRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
-      DO
-        IF CheckQualNotReserved ( StkLtIdAttribute )
-           AND CheckQualNotReserved ( StkRtIdAttribute )
+      DO IF CheckQualNotReserved ( StkLtIdAttribute )
+            AND CheckQualNotReserved ( StkRtIdAttribute )
         THEN (* All OK. *) 
           WITH WIdentRefSet = FM3Scopes . DeclScopeStackTopRef ^ . ScpRefIdSet
           DO WIdentRefSet
@@ -2215,6 +2270,7 @@ MODULE FM3ParsePass
             ( WunRdBack , VAL ( StkLtIdAttribute . Scan . SaAtom , LONGINT ) ) 
         ; PutBwd ( WunRdBack , VAL ( Itk . ItkQualIdAtoms , LONGINT ) )
         ELSE 
+(* TODO: Error message here? *) 
           PutBwd 
             ( WunRdBack
             , VAL ( StkLtIdAttribute . Scan . Position . Column , LONGINT )
@@ -2238,51 +2294,48 @@ MODULE FM3ParsePass
   = VAR SrtDeclNo : INTEGER 
 
   ; BEGIN (*DeclScopeRtL2R*)
-      WITH WScope = FM3Scopes . DeclScopeStackTopRef ^
-      DO (* Block*) 
-        VAR LDeclCt : INTEGER
-      ; VAR LExpectedToDeclNo : INTEGER 
-    
-      ; PROCEDURE SrtVisit ( DeclIdAtomI : INTEGER )
-        (* PRE: DeclIdAtomI IN FM3Base . AtomTyp. *)
-        = BEGIN
-            FM3Dict_Int_Int . InsertFixed
-              ( ScopeRef ^ . ScpDeclDict
-              , DeclIdAtomI
-              , FM3Base . HashNull
-              , SrtDeclNo
-              )
-          ; INC ( SrtDeclNo ) 
-          END SrtVisit
-          
-      ; BEGIN (* Block. *)
-          <* ASSERT ScopeRef = FM3Scopes . DeclScopeStackTopRef *> 
-          IF ScopeRef ^ . ScpKind = FM3Scopes . ScopeKindTyp . SkExports
-          THEN
+      VAR LDeclCt : INTEGER
+    ; VAR LExpectedToDeclNo : INTEGER 
+
+    ; PROCEDURE SrtVisit ( DeclIdAtomI : INTEGER )
+      (* PRE: DeclIdAtomI IN FM3Base . AtomTyp. *)
+      = BEGIN
+          FM3Dict_Int_Int . InsertFixed
+            ( ScopeRef ^ . ScpDeclDict
+            , DeclIdAtomI
+            , FM3Base . HashNull
+            , SrtDeclNo
+            )
+        ; INC ( SrtDeclNo ) 
+        END SrtVisit
+
+    ; BEGIN (* Block. *)
+        <* ASSERT ScopeRef = FM3Scopes . DeclScopeStackTopRef *> 
+        IF ScopeRef ^ . ScpKind = FM3Scopes . ScopeKindTyp . SkExports
+        THEN
 (*COMPLETEME: Handle getting exported interfaces here. *) 
-          END (*IF*)
-        ; LDeclCt := IntSets . Card ( ScopeRef ^ . ScpDeclIdSet )
-        (* LDeclCt is exactly the needed dictionary size. *)
-        ; ScopeRef ^ . ScpDeclDict 
-            := FM3Dict_Int_Int . NewFixed 
-                 ( LDeclCt , FM3SharedUtils . IntHash )
-        ; SrtDeclNo := FM3Units . AllocateDeclNos ( LDeclCt )
-        ; LExpectedToDeclNo := SrtDeclNo + LDeclCt 
-        ; IntSets . ForAllDo ( ScopeRef ^ . ScpDeclIdSet , SrtVisit )
-        ; <*ASSERT SrtDeclNo = LExpectedToDeclNo *> 
-          TRY FM3Dict_Int_Int . FinalizeFixed ( ScopeRef ^ . ScpDeclDict )
-          EXCEPT FM3Dict_Int_Int . Error ( EMsg )
-          => FatalArr
-               ( ARRAY OF REFANY
-                 { "Finalizing Scope at "
-                 , PosImage ( ScopeRef ^ . ScpPosition )
-                 , EMsg
-                 , "." 
-                 }
-               ) 
-          END (*EXCEPT*)
-        END (*Block*)
-      END (*WITH*) 
+        END (*IF*)
+      ; LDeclCt := IntSets . Card ( ScopeRef ^ . ScpDeclIdSet )
+      (* LDeclCt is exactly the needed dictionary size. *)
+      ; ScopeRef ^ . ScpDeclDict 
+          := FM3Dict_Int_Int . NewFixed 
+               ( LDeclCt , FM3SharedUtils . IntHash )
+      ; SrtDeclNo := FM3Units . AllocateDeclNos ( LDeclCt )
+      ; LExpectedToDeclNo := SrtDeclNo + LDeclCt 
+      ; IntSets . ForAllDo ( ScopeRef ^ . ScpDeclIdSet , SrtVisit )
+      ; <*ASSERT SrtDeclNo = LExpectedToDeclNo *> 
+        TRY FM3Dict_Int_Int . FinalizeFixed ( ScopeRef ^ . ScpDeclDict )
+        EXCEPT FM3Dict_Int_Int . Error ( EMsg )
+        => FatalArr
+             ( ARRAY OF REFANY
+               { "Finalizing Scope at "
+               , PosImage ( ScopeRef ^ . ScpPosition )
+               , EMsg
+               , "." 
+               }
+             ) 
+        END (*EXCEPT*)
+      END (*Block*)
     END DeclScopeRtL2R
 
 (* Right-to-left scope handling.  These are called during unnesting. *)
@@ -2417,7 +2470,7 @@ MODULE FM3ParsePass
       IF IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
       THEN RETURN FM3Base . DeclNoNull 
       END (*IF*) 
-    ; WITH WScope = FM3Scopes . DeclScopeStackTopRef ^  
+    ; WITH WScope = FM3Scopes . LookupScopeStackTopRef ^  
            , WppRdBack
              = FM3Units . UnitStackTopRef ^ . UntParsePassRdBack 
       DO
@@ -2473,9 +2526,7 @@ MODULE FM3ParsePass
         ; PutBwdP2 ( WppRdBack , VAL ( Itk . ItkQualIdDeclNoAtom , LONGINT ) )  
         ; RETURN LDeclNo
         ELSE (* Leave as-is. *)
-
-
-        ; PutBwdP2 
+          PutBwdP2 
             ( WppRdBack
             , VAL ( StkLtIdAttribute . Scan . Position . Column , LONGINT )
             )
@@ -2507,7 +2558,7 @@ MODULE FM3ParsePass
       
       ; LDeclNo := LookupBlockRef ( LAtomLt , LPosLt )
       ; IF LDeclNo = FM3Base . DeclNoNull  
-        THEN (* Undeclared.  Convert to invalid ref. *) 
+        THEN (* Undeclared.  Convert to invalid ref. *)
           PutBwdP2 ( WppRdBack , VAL ( LPosLt . Column , LONGINT ) )
         ; PutBwdP2 ( WppRdBack , VAL ( LPosLt . Line , LONGINT ) )
         ; PutBwdP2 ( WppRdBack , VAL ( Itk . ItkInvalidRef , LONGINT ) )
