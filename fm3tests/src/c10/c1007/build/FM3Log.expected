@@ -1,9 +1,0 @@
-[32mFM3: [0mCompiling /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1007/srcMain.m3...
-[31mERROR: [0mMain.m3 (14,7) Identifier "INTEGER" is predefined and cannot be redeclared (2.8.2).
-[31mERROR: [0mMain.m3 (21,4) Identifier "INTEGER" is predefined and cannot be redeclared (2.8.2).
-[31mERROR: [0mMain.m3 (23,4) Duplicate declaration of "T1", ignored, original at (20,4).
-[31mERROR: [0mMain.m3 (16,7) Duplicate declaration of "T", ignored, original at (13,7).
-[32mFM3: [0mPatch stack Main.m3.Patch peak size = 35 bytes.
-[32mFM3: [0mUnnest stack Main.m3.Unnest peak size = 323 bytes.
-[32mFM3: [0mParse pass output file Main.m3.ParsePass has 221 bytes.
-[32mFM3: [0mFinished compiling Main.m3.
