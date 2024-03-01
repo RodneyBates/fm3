@@ -1,0 +1,7 @@
+Start unit Main.m3
+[32mFM3: [0mCompiling /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1006/src/Main.m3...
+[32mFM3: [0mPatch stack Main.m3.Patch peak size = 79 bytes.
+[32mFM3: [0mUnnest stack Main.m3.Unnest peak size = 330 bytes.
+[32mFM3: [0mParse pass output file Main.m3.ParsePass has 261 bytes.
+[32mFM3: [0mFinished compiling Main.m3.
+End unit Main.m3
