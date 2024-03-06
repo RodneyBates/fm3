@@ -217,6 +217,13 @@ MODULE FM3Units
     ; RETURN LPoppedUnitRef
     END PopUnit
 
+(*EXPORTED.*)
+; PROCEDURE CurrentlyInModule ( ) : BOOLEAN
+
+  = BEGIN 
+      RETURN UnitStackTopRef ^ . UntKind IN UnitKindSetModule  
+    END CurrentlyInModule
+
 ; BEGIN
     UnitMap := NewUnitMap ( FM3Globals . InitUnitCt - 1 ) 
 

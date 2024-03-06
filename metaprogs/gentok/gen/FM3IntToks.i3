@@ -245,7 +245,7 @@ INTERFACE FM3IntToks
 ; CONST ItkProcBodyLtPatch              (*ArgCt: 2*) =   242 (*16_f2 01 *)
 ; CONST ItkProcBodyRt                   (*ArgCt: 2*) =   243 (*16_f3 01 *)
 
-(* Position of "(". *)
+(* Position of "PROCEDURE". *)
 (* FIXED ItkProcType: *)
 ; CONST ItkProcTypeLt                   (*ArgCt: 2*) =   244 (*16_f4 01 *)
 ; CONST ItkProcTypeLtTemp               (*ArgCt: 2*) =   245 (*16_f5 01 *)

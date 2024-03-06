@@ -49,6 +49,16 @@ INTERFACE FM3ParsePass
         , PaBool := FALSE
         }
 
+(* --------------------------- Signature kinds ---------------------- *)
+
+; TYPE SigKindType
+    = { SgkTypeDef
+      , SgkMethodDef
+      , SgkInteaceProcDecl
+      , SgkModuleProcDecl 
+      } 
+
+
 (* ------------------------ Skipping erroneous code ----------------- *)
 
 ; VAR SkipDepth : INTEGER := 0
@@ -250,7 +260,7 @@ INTERFACE FM3ParsePass
 
 ; PROCEDURE Push_LCBr ( T : Itk . TokTyp ; C : LONGINT ; B : BOOLEAN )
 
-; PROCEDURE Push_LCIri ( T : Itk . TokTyp ; C : LONGINT ; I : INTEGER )
+; PROCEDURE Push_LCI_ri ( T : Itk . TokTyp ; C : LONGINT ; I : INTEGER )
 
 ; PROCEDURE Push_LI3 ( T : Itk . TokTyp ; I0 , I1 , I2 : INTEGER )
 

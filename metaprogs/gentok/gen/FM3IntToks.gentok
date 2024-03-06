@@ -84,10 +84,10 @@ ItkFormalType POS 2 (* Position of colon. *) .
 ItkFormalExpr POS 2 (* Position of ":=" *).
 ItkResultType POS 2 (* Position of colon. *).
 ItkRaisesSet POS 2 (* Position of RAISES. *). 
-ItkProcNoBody 1 (* Atom of signature. *) .
-ItkProcWBody 1 (* Atom of signature. *) .
+ItkProcNoBody IDENT 1 (* Atom of signature. *) .
+ItkProcWBody IDENT 1 (* Atom of signature. *) .
 ItkProcBody POS 2 (* Position of equal sign. *) .
-ItkProcType POS 2 (* Position of "(". *) .
+ItkProcType POS 2 (* Position of "PROCEDURE". *) .
 
 FIXED
 ItkBlock INT POS 3 (* Construct no., Position of LM declaration. *)

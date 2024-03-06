@@ -22,7 +22,7 @@ INTERFACE FM3Scopes
       , SkInterface (* Including generic and instantiation. *) 
       , SkModule (* Including generic and instantiation. *)
       , SkFormals
-      , SkProcBody 
+      , SkFormalsAndBody 
       , SkBlock
       , SkCompEnv (* Compiled, IMPORTed, EXPORTed. *) 
       , SkExports 
@@ -41,8 +41,10 @@ INTERFACE FM3Scopes
 ; TYPE ScopeRefTyp = REF ScopeTyp
 ; TYPE ScopeTyp
     = RECORD
-        ScpStackLink : ScopeRefTyp
+        ScpDeclStackLink : ScopeRefTyp
+      ; ScpLookupStackLink : ScopeRefTyp
       ; ScpDeclIdSet : IntSets . T (* IdentAtoms declared within. *) 
+      ; ScpFormalIdSet : IntSets . T (* IdentAtoms declared within. *) 
       ; ScpDuplDeclIdSet : IntSets . T (* IdentAtoms with > 1 declaration. *) 
 (* CHECK ^ Is there any need for this? *) 
       ; ScpRefIdSet : IntSets . T (* IdentAtoms referenced within. *) 
@@ -89,8 +91,8 @@ INTERFACE FM3Scopes
 ; PROCEDURE PushDeclScopeRef ( ScopeRef : ScopeRefTyp ) 
 ; PROCEDURE PushLookupScopeRef ( ScopeRef : ScopeRefTyp ) 
 
-; PROCEDURE PopDeclScope ( ) : ScopeRefTyp  
-; PROCEDURE PopLookupScope ( ) : ScopeRefTyp  
+; PROCEDURE PopDeclScopeRef ( ) : ScopeRefTyp  
+; PROCEDURE PopLookupScopeRef ( ) : ScopeRefTyp  
 
 ; END FM3Scopes
 .

@@ -162,26 +162,6 @@ MODULE FM3ParsePass
       END (*EXCEPT*) 
     END PutBwdP2
 
-(* 
-; PROCEDURE FindFilePrefix ( FileName : TEXT ; Why : TEXT ) : TEXT
-
-  = VAR LResult : TEXT
-  
-  ; BEGIN
-      TRY
-        LResult := Pathname . Prefix  ( FileName )
-      EXCEPT OSError . E ( EMsg )
-      => FatalArr
-           ( ARRAY OF REFANY
-               { "Unable to get absolute path for "
-               , FileName , ", " , Why , ": " , ALOSE ( EMsg ) , "."  
-               }
-           ) 
-      END (*EXCEPT*) 
-    ; RETURN LResult 
-    END FindFilePrefix
-*)
-
 ; CONST UnitLogSuffix = ".log" 
 
 ; PROCEDURE OpenUnit ( SrcFileName : TEXT ) : FM3Units . UnitRefTyp
@@ -224,7 +204,7 @@ MODULE FM3ParsePass
 (* TODO: There has to be a more graceful way to detect this, but it looks
          like libm3 is letting us down here.
 *) 
-         THEN (* We expect this.  The directory already exists. *)
+         THEN (* We expect this soometimes.  The directory already exists. *)
            EVAL EAtoms 
          ELSE 
            <*FATAL Thread . Alerted , Wr . Failure *>
@@ -1411,7 +1391,7 @@ MODULE FM3ParsePass
     END Push_LCBr
 
 (*EXPORTED:*)
-; PROCEDURE Push_LCIri ( T : Itk . TokTyp ; C : LONGINT ; I : INTEGER )
+; PROCEDURE Push_LCI_ri ( T : Itk . TokTyp ; C : LONGINT ; I : INTEGER )
 
   = BEGIN
       WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
@@ -1423,7 +1403,7 @@ MODULE FM3ParsePass
       ; PutBwd ( WRdBack , C ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
       END (*WITH*) 
-    END Push_LCIri
+    END Push_LCI_ri
 
 (*EXPORTED:*)
 ; PROCEDURE Push_LI3 ( T : Itk . TokTyp ; I0 , I1 , I2 : INTEGER )
@@ -1829,10 +1809,10 @@ MODULE FM3ParsePass
             SkipLt ( GetBwdInt ( FM3Globals . PatchRdBack ) )  
           ELSE 
             LPatchedToken := LPatchToken - Itk . LtToPatch
-  (* FIXME: The patch operation can apply to any non-Rt token.  I think
-            the necessary bias is always the same as LtToPatch, but check
-            this and then use a better name for it.
-  *) 
+(* FIXME: The patch operation can apply to any non-Rt token.  I think
+          the necessary bias is always the same as LtToPatch, but check
+          this and then use a better name for it.
+*) 
 
          (* Copy the operands, reversing them to counteract the reversal
             accomplished by stack operations. *)
@@ -1912,7 +1892,7 @@ MODULE FM3ParsePass
 
             | Itk . ItkDeclScopeLt 
             =>  LScopeNo := GetBwdScopeNo ( LUnnestRdBack ) 
-              ; <* ASSERT FM3Scopes . PopDeclScope ( )
+              ; <* ASSERT FM3Scopes . PopDeclScopeRef ( )
                           = FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) *>
 
             | Itk . ItkLookupScopeRt 
@@ -1922,7 +1902,7 @@ MODULE FM3ParsePass
 
             | Itk . ItkLookupScopeLt 
             =>  LScopeNo := GetBwdScopeNo ( LUnnestRdBack ) 
-              ; <* ASSERT FM3Scopes . PopLookupScope ( )
+              ; <* ASSERT FM3Scopes . PopLookupScopeRef ( )
                           = FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) *> 
 
 (* CONSISTIFY: For some of these, fetch the operands inside the called proc. *) 
@@ -1938,7 +1918,7 @@ MODULE FM3ParsePass
               ; EVAL DeclIdR2L ( LDeclKind , LAtom , LPosition )
 
 (* FIXME: We now use different tokens for different declkinds, eg.
-          ItkVALUEFormalIdListElem.  But is that neecessary? *) 
+          ItkVALUEFormalIdListElem.  But is that necessary? *) 
               
             | Itk . ItkIdRefAtom 
             => LAtom := GetBwdAtom ( LUnnestRdBack )
@@ -1950,8 +1930,8 @@ MODULE FM3ParsePass
 
             | Itk . ItkBlockRt
             => LScopeNo := GetBwdScopeNo ( LUnnestRdBack ) 
-           (* Doesn't exist, probably ItkiBlock[LR]t will disappear.
-              ; ScopeRtR2L ( LScopeNo  )
+           (* Doesn't exist, probably ItkBlock[LR]t will disappear.
+
            *) 
               ; CopyOperands
                  ( 2 (*Position*)
@@ -1970,7 +1950,7 @@ MODULE FM3ParsePass
                  , MaybeSkip := TRUE 
                  )
               ; PutBwdP2 ( LParsePassRdBack , LTokenL )
-              ; EVAL FM3Scopes . PopDeclScope ( ) 
+              ; EVAL FM3Scopes . PopDeclScopeRef ( ) 
 
             ELSE (* Move directly, unnest to the output.*)
               CopyOperands
@@ -2060,10 +2040,10 @@ MODULE FM3ParsePass
         ; RETURN FM3Base . DeclNoNull
         ELSIF NOT LBlockScopeRef ^ . ScpKind IN FM3Scopes . ScopeKindSetBlock
            (* ^Can this happen? *) 
-        THEN LBlockScopeRef := LBlockScopeRef ^ . ScpStackLink
+        THEN LBlockScopeRef := LBlockScopeRef ^ . ScpLookupStackLink
         ELSIF NOT IntSets . IsElement
                     ( IdAtom , LBlockScopeRef ^ . ScpDeclIdSet )   
-        THEN LBlockScopeRef := LBlockScopeRef ^ . ScpStackLink
+        THEN LBlockScopeRef := LBlockScopeRef ^ . ScpLookupStackLink
         ELSE TRY 
             LFound := FM3Dict_Int_Int . LookupFixed
                         ( LBlockScopeRef . ScpDeclDict
@@ -2077,7 +2057,7 @@ MODULE FM3ParsePass
           END (*EXCEPT*)
         ; IF LFound
           THEN RETURN LDeclNoInt (* Implied NARROW. *)
-          ELSE LBlockScopeRef := LBlockScopeRef ^ . ScpStackLink 
+          ELSE LBlockScopeRef := LBlockScopeRef ^ . ScpLookupStackLink 
           END (*IF*) 
         END (*IF*) 
       END (*LOOP*) 
@@ -2155,7 +2135,7 @@ MODULE FM3ParsePass
             WScope . ScpDuplDeclIdSet
               := IntSets . Include
                    ( WScope . ScpDuplDeclIdSet , IdAttribute . Scan . SaAtom )
-(* CHECK^ Do we need ScpDuplDeclIdSet? *)                                                                                
+(* CHECK^ Do we need ScpDuplDeclIdSet? *) 
           (* Plan to push duplicate Ident token.  The only effect will be to
              emit an error later, during R2L, when the position of the original
              declaring occurence is known. *) 
@@ -2492,54 +2472,6 @@ MODULE FM3ParsePass
         END (*IF*)
       END (*WITH*) 
     END IdentRefR2L
-
-(* Old version:
-; PROCEDURE QualIdentR2L
-    ( UnnestRdBack : RdBackFile . T ) : FM3Base . DeclNoTyp 
-
-  = VAR LAtomLt , LAtomRt : FM3Base . AtomTyp
-  ; VAR LPosLt , LPosRt : tPosition
-  ; VAR LDeclNo : FM3Base . DeclNoTyp
-  
-  ; BEGIN (*QualIdentL2R*)
-      IF IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
-      THEN RETURN
-      END (*IF*) 
-    ; WITH WScope = FM3Scopes . DeclScopeStackTopRef ^  
-           , WppRdBack
-             = FM3Units . UnitStackTopRef ^ . UntParsePassRdBack 
-      DO
-        LAtomLt := GetBwdAtom ( UnnestRdBack ) 
-      ; LAtomRt := GetBwdAtom ( UnnestRdBack ) 
-      ; LPosLt := GetBwdPos ( UnnestRdBack ) 
-      ; LPosRt := GetBwdPos ( UnnestRdBack ) 
-      ; IF IntSets . IsElement ( LAtomLt , WScope . ScpDeclIdSet )
-        THEN (* Left Id Atom Decl'd in this scope.  Replace it with DeclNo. *) 
-          LookupId ( WScope , IdentRefAtom , (*OUT*) LDeclNo )
-        ; <*ASSERT LDeclNo # FM3Base . DeclNoNull *>
-          PutBwdP2 ( WppRdBack , VAL ( LPosRt . Column , LONGINT ) ) 
-        ; PutBwdP2 ( WppRdBack , VAL ( LPosRt . Line , LONGINT ) ) 
-        ; PutBwdP2 ( WppRdBack , VAL ( LPosLt . Column , LONGINT ) ) 
-        ; PutBwdP2 ( WppRdBack , VAL ( LPosLt . Line , LONGINT ) ) 
-        ; PutBwdP2 ( WppRdBack , VAL ( LAtomRt , LONGINT ) ) 
-        ; PutBwdP2 ( WppRdBack , VAL ( LDeclNo , LONGINT ) ) 
-        ; PutBwdP2 ( WppRdBack , VAL ( Itk . ItkQualIdDeclNoAtom , LONGINT ) )  
-        ; RETURN LDeclNo
-        ELSE (* Leave as-is. *)
-          PutBwdP2 
-            ( WppRdBack
-            , VAL ( StkLtIdAttribute . Scan . Position . Column , LONGINT )
-            )
-        ; PutBwdP2 
-            ( WppRdBack
-            , VAL ( StkLtIdAttribute . Scan . Position . Line , LONGINT )
-            )
-        ; PutBwdP2 ( WppRdBack , VAL ( Itk . ItkInvalidRef , LONGINT ) )
-        ; RETURN FM3Base . DeclNoNull 
-        END (*IF*)
-      END (*WITH*) 
-    END QualIdentR2L
-*)
 
 ; PROCEDURE QualIdentR2L
     ( UnnestRdBack : RdBackFile . T ) : FM3Base . DeclNoTyp 

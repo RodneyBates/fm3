@@ -23,7 +23,21 @@ INTERFACE FM3Units
            , UkModule
            , UkGenModule
            , UkInstModule
-           } 
+           }
+
+; CONST UnitKindSetInterface
+    = SET OF UnitKindTyp
+        { UnitKindTyp . UkInterface 
+        , UnitKindTyp . UkGenInterface 
+        , UnitKindTyp . UkInstInterface
+        } 
+
+; CONST UnitKindSetModule
+    = SET OF UnitKindTyp
+        { UnitKindTyp . UkModule 
+        , UnitKindTyp . UkGenModule 
+        , UnitKindTyp . UkInstModule
+        } 
 
 ; PROCEDURE UnitKindImage ( Kind : UnitKindTyp ) : TEXT
 
@@ -102,7 +116,9 @@ INTERFACE FM3Units
 
 ; PROCEDURE PushUnit ( UnitRef : UnitRefTyp ) 
 
-; PROCEDURE PopUnit ( ) : UnitRefTyp  
+; PROCEDURE PopUnit ( ) : UnitRefTyp
+
+; PROCEDURE CurrentlyInModule ( ) : BOOLEAN 
 
 ; END FM3Units
 

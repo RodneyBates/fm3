@@ -58,6 +58,9 @@ MODULE FM3Scopes
     ; LScopeRef ^ . ScpOnDeclStackCt := 0
     ; LScopeRef ^ . ScpOnLookupStackCt := 0
  
+    ; LScopeRef ^ . ScpDeclIdSet := IntSets . Empty ( )
+                    (* ^For a procedure w/ body, includes formals. *) 
+    ; LScopeRef ^ . ScpFormalIdSet := IntSets . Empty ( )  
     ; LScopeRef ^ . ScpRefIdSet := IntSets . Empty ( )  
     ; LScopeRef ^ . ScpDuplDeclIdSet := IntSets . Empty ( )
     ; LScopeRef ^ . ScpMinDeclNo := FM3Base . DeclNoMax 
@@ -87,50 +90,50 @@ MODULE FM3Scopes
 
   = BEGIN (*PushDeclScopeRef*)
       IF ScopeRef = NIL THEN RETURN END (*IF*)
-    ; ScopeRef ^ . ScpStackLink := DeclScopeStackTopRef
+    ; ScopeRef ^ . ScpDeclStackLink := DeclScopeStackTopRef
     ; DeclScopeStackTopRef := ScopeRef
     ; INC ( ScopeRef ^ . ScpOnDeclStackCt ) 
     ; INC ( DeclScopeStackCt ) 
     END PushDeclScopeRef
 
 (*EXPORTED.*)
+; PROCEDURE PopDeclScopeRef ( ) : ScopeRefTyp  
+
+  = VAR LPoppedScopeRef : ScopeRefTyp
+
+  ; BEGIN (*PopDeclScope*)
+      LPoppedScopeRef := DeclScopeStackTopRef 
+    ; DeclScopeStackTopRef := LPoppedScopeRef . ScpDeclStackLink
+    ; DEC ( DeclScopeStackCt ) 
+    ; DEC ( LPoppedScopeRef ^ . ScpOnDeclStackCt )
+    ; <* ASSERT ( DeclScopeStackTopRef = NIL ) = ( DeclScopeStackCt = 0 ) *> 
+      RETURN LPoppedScopeRef
+    END PopDeclScopeRef 
+
+(*EXPORTED.*)
 ; PROCEDURE PushLookupScopeRef ( ScopeRef : ScopeRefTyp ) 
 
   = BEGIN (*PushLookupScopeRef*)
       IF ScopeRef = NIL THEN RETURN END (*IF*)
-    ; ScopeRef ^ . ScpStackLink := LookupScopeStackTopRef
+    ; ScopeRef ^ . ScpLookupStackLink := LookupScopeStackTopRef
     ; LookupScopeStackTopRef := ScopeRef
     ; INC ( ScopeRef ^ . ScpOnLookupStackCt ) 
     ; INC ( LookupScopeStackCt ) 
     END PushLookupScopeRef
 
 (*EXPORTED.*)
-; PROCEDURE PopDeclScope ( ) : ScopeRefTyp  
-
-  = VAR LPoppedScopeRef : ScopeRefTyp
-
-  ; BEGIN (*PopDeclScope*)
-      LPoppedScopeRef := DeclScopeStackTopRef 
-    ; DeclScopeStackTopRef := LPoppedScopeRef . ScpStackLink
-    ; DEC ( DeclScopeStackCt ) 
-    ; DEC ( LPoppedScopeRef ^ . ScpOnDeclStackCt )
-    ; <* ASSERT ( DeclScopeStackTopRef = NIL ) = ( DeclScopeStackCt = 0 ) *> 
-      RETURN LPoppedScopeRef
-    END PopDeclScope 
-
-(*EXPORTED.*)
-; PROCEDURE PopLookupScope ( ) : ScopeRefTyp  
+; PROCEDURE PopLookupScopeRef ( ) : ScopeRefTyp  
 
   = VAR LPoppedScopeRef : ScopeRefTyp
 
   ; BEGIN (*PopLookupScope*)
       LPoppedScopeRef := LookupScopeStackTopRef 
-    ; LookupScopeStackTopRef := LPoppedScopeRef . ScpStackLink
+    ; LookupScopeStackTopRef := LPoppedScopeRef . ScpLookupStackLink
     ; DEC ( LookupScopeStackCt ) 
     ; DEC ( LPoppedScopeRef ^ . ScpOnLookupStackCt )
     ; <* ASSERT ( LookupScopeStackTopRef = NIL ) = ( LookupScopeStackCt = 0 ) *>
       RETURN LPoppedScopeRef
-    END PopLookupScope 
+    END PopLookupScopeRef 
 
 ; BEGIN
     DeclScopeStackTopRef := NIL
