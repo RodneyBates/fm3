@@ -279,7 +279,6 @@ RULE
                 , FM3Scanner . Attribute . Position
                 ) ;
          FM3Units . UnitStackTopRef ^ . UntScopeNo := LScopeRef . ScpScopeNo ;
-         $$ . PaRefany := LScopeRef ;  
        END ; 
      } .
        
@@ -301,7 +300,6 @@ RULE
                 , FM3Scanner . Attribute . Position
                 ) ;
          FM3Units . UnitStackTopRef ^ . UntScopeNo := LScopeRef . ScpScopeNo ;
-         $$ . PaRefany := LScopeRef ;  
        END ;  
      } . 
 
@@ -346,7 +344,6 @@ RULE
          FM3Scopes . PushDeclScopeRef ( LScopeRef ) ; 
          FM3ParsePass . Push_LI
            ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo ) ; 
-         $$ . PaRefany := LScopeRef ;   
        END ; 
      } .
 
@@ -358,7 +355,6 @@ RULE
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN
          FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInterface ; 
-         $$ . PaRefany (* ScopeRef *) := $1 . PaRefany ;
          LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
          FM3Scopes . PushLookupScopeRef ( LScopeRef ) ;
          FM3ParsePass . Push_LI
@@ -390,7 +386,6 @@ RULE
            , FM3Units . UnitStackTopRef ^ . UntUnitNo 
            , $1 . Scan . Position
            ) ; 
-         $$ . PaRefany := LScopeRef ;   
        END ; 
      } .
 
@@ -412,7 +407,6 @@ RULE
          FM3Scopes . PushDeclScopeRef ( LScopeRef ) ; 
          FM3ParsePass . Push_LI
            ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo ) ; 
-         $$ . PaRefany := LScopeRef ;   
        END ; 
      } .
 
@@ -423,7 +417,6 @@ RULE
    ModuleMiddle : ModuleLt Exports StkSemicolon Imports 
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN
-         $$ . PaRefany (* ScopeRef *) := $1 . PaRefany ;
          LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
          FM3Scopes . PushLookupScopeRef ( LScopeRef ) ;
          FM3ParsePass . Push_LI
@@ -461,7 +454,6 @@ RULE
            , $3 . Scan . Position
            , $1 . Scan . Position 
            ) ; 
-         $$ . PaRefany := LScopeRef ;   
        END ; 
      } .
 
@@ -477,7 +469,6 @@ RULE
                 , FM3Scanner . Attribute . Position
                 ) ;
          FM3Units . UnitStackTopRef ^ . UntScopeNo := LScopeRef . ScpScopeNo ;
-         $$ . PaRefany := LScopeRef ;   
        END ; 
      } .  
 
@@ -501,7 +492,6 @@ RULE
                 , FM3Scanner . Attribute . Position
                 ) ;
          FM3Units . UnitStackTopRef ^ . UntScopeNo := LScopeRef . ScpScopeNo ;
-         $$ . PaRefany := LScopeRef ;   
        END ; 
      } . 
 
@@ -1213,7 +1203,6 @@ RULE
 (* TODO: Store LScopeRef or its ScopeNo in the record type. *) 
          FM3ParsePass . Push_LI
            ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo  ) ;
-         $$ . PaRefany := LScopeRef ;  
        END; 
      } . 
  
@@ -1284,7 +1273,6 @@ RULE
            := FM3ParsePass . ScopeEmpty
                 ( Skt . SkFormals , $1 . Scan . Position ) ;
 (* REVIEW: What happens here? esp. this scope? *) 
-         $$ . PaRefany := LScopeRef ; 
          FM3ParsePass . Push_LI
            ( Itk . ItkScopeEmpty , LScopeRef ^ . ScpScopeNo  ) ;
          PushUnnest ( Itk . ItkFormalsListEmpty ) ;
