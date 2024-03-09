@@ -237,6 +237,10 @@ TOKEN
    always has separator tokens, never element terminators.   
 *) 
 
+(* ------------------------------- Productions. ---------------------------- *)
+
+RULE
+
 (* NOTE: regarding the parser's default setting of the PaUnnestCoord field:
    A shift, including an error repair insertion, copies the current unnest
    stack pointer into .PaUnnestCoord.  For a reduce, and if the semantic
@@ -244,13 +248,8 @@ TOKEN
    If the RHS is empty, this is the current unnest stack pointer.  If the
    reduce is nonempty, this is a copy from the attribute of the RHS's
    leftmost token.
-*) 
 
-(* ------------------------------- Productions. ---------------------------- *)
-
-RULE
-
-(* Field Scan . Position of reduced-to nonterminals is set by lalr-generated
+   Field Scan . Position of reduced-to nonterminals is set by lalr-generated
    parsing code.  If PaUnnestCoord is not set by semantic actions, it too
    is set by the generated parser.  Both are copied from the leftmost
    token of the production RHS, if it exists.  Otherwise, they are for
@@ -565,10 +564,14 @@ RULE
      { $$ . PaInt := 0 ; } . 
 
 (* List of zero or more comma-separated qualified Idents. *)
-   QualIdStarList : QualIdStarList StkComma QualId
-     { $$ . PaInt := $1 . PaInt + 1 ; } .
    QualIdStarList : /*Empty*/
-     { $$ . PaInt := 0 ; } . 
+     { $$ . PaInt := 0 ; } .
+   QualIdStarList : QualIdPlusList
+     { $$ . PaInt := $1 . PaInt ; } .
+   QualIdPlusList : QualId
+     { $$ . PaInt := 1 } . 
+   QualIdPlusList : QualIdPlusList StkComma QualId
+     { $$ . PaInt := $1 . PaInt + 1 ; } .
      
 (* (Possibly) Qualified ident. *)   
    QualId : StkIdent { FM3ParsePass . IdentRefL2R ( $1 ) ; } .
@@ -1016,9 +1019,6 @@ RULE
       { $$ . PaInt := 0 (* Decl count. *) ;
         $$ . PaPos (* No trailing semicolon exists. *)
           := FM3Scanner.Attribute . Position ; 
-        (*Push_LIP_rip
-          ( Itk . ItkVarDeclListLt , 0 , FM3Scanner . Attribute . Position ) ;
-        *)
       } .
 
    VarDeclList : VarDeclPlus  
@@ -1103,7 +1103,8 @@ RULE
      } . 
    OptDeclType : /*Empty*/
      { $$ . PaBool (* Present. *) := FALSE (* Absent. *) ;
-       $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
+       $$ . Scan . Position := FM3Scanner . Attribute . Position ;
+       FM3ParsePass . Push_L ( Itk . ItkDeclTypeAbsent ) ; 
      } . 
    OptDeclValue : StkBecomes Expr 
      { $$ . PaBool (* Present. *) := TRUE ;
@@ -1112,6 +1113,7 @@ RULE
    OptDeclValue : /*Empty*/
      { $$ . PaBool (* Present. *) := FALSE (* Absent. *) ;
        $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
+       FM3ParsePass . Push_L ( Itk . ItkDeclValAbsent ) ; 
      } . 
 
 (* --------------------------------- Types ----------------------------- *)
@@ -1143,16 +1145,16 @@ RULE
    Type : StkRidTYPECODE . 
    Type : StkRidWIDECHAR .
 
-   Type : StkRwOBJECT StkRwEND .  
-   Type : StkRwUNTRACED StkRwOBJECT StkRwEND .  
-
 (* -----------------------------Field decl lists ---------------------------- *)
 
 (* Used in both record types and object types. *) 
 
    FieldDeclList : /*Empty*/
-      { FM3ParsePass . Push_LIP_rip
-          ( Itk . ItkFieldDeclListLt , 0 , FM3Scanner . Attribute . Position ) ; 
+      { FM3ParsePass . MakeListEmpty
+          ( $$
+          , Itk . ItkFieldDeclListLt
+          ,  FM3Scanner . Attribute . Position
+          ) ;
       } .
 
    FieldDeclList : FieldDeclPlus OptSemicolon 
@@ -1189,7 +1191,8 @@ RULE
                     { DiDeclTok := Itk . ItkFieldDeclLt
                     , DiIdListTok := Itk . ItkFieldDeclIdListLt
                     , DiIdTok := Itk . ItkDeclId
-                    , DiIdSepTok := Itk . ItkFieldDeclIdListLt + Itk . LtToListSep
+                    , DiIdSepTok
+                        := Itk . ItkFieldDeclIdListLt + Itk . LtToListSep
                     , DiKind := Dkt . DkRecField 
                     }
                 ) ;
@@ -1226,6 +1229,249 @@ RULE
        END; 
      } .
 
+(* ------------------------------- Method Lists ----------------------------- *)
+
+   MethodDeclList : /*Empty*/
+      { FM3ParsePass . MakeListEmpty 
+          ( $$
+          , Itk . ItkMethodDeclListLt
+          , FM3Scanner . Attribute . Position
+          ) ; 
+      } .
+
+   MethodDeclList : StkRwMETHODS 
+      { FM3ParsePass . Push_LIP_rip
+          ( Itk . ItkMethodDeclListLt , 0 , $1 . Scan . Position ) ; 
+      } .
+
+   MethodDeclList : StkRwMETHODS MethodDeclPlus OptSemicolon 
+     { FM3ParsePass . MakeListPos
+         ( $$
+         , Itk . ItkMethodDeclListLt
+         , $1 . Scan . Position
+         , $2 (* For element count & Left patch coord. *) 
+         ) ;
+     } . 
+   
+   MethodDeclPlus : MethodDecl  
+     { $$ . PaInt (* Decl count. *) := $1 . PaInt ; } .
+
+   MethodDeclPlus : MethodDeclPlus StkSemicolon MethodDecl
+     { $$ . PaInt (* Decl count. *):= $1 . PaInt + $3 . PaInt ;
+       FM3ParsePass . Push_ECIP
+         ( Itk . ItkMethodDeclListLt
+         , $2 . PaUnnestCoord 
+         , $1 . PaInt
+         , $2 . Scan . Position
+         ) ; 
+     } . 
+
+(* ----------------------------- Method Signatures -------------------------- *)
+
+   MethodDeclLt : StkIdent 
+     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
+       BEGIN
+         $$ . Scan . SaAtom := $1 . Scan . SaAtom ; 
+         $$ . PaInt (* Ident count, 0 or 1. *) 
+           := ORD ( FM3ParsePass . DeclIdL2R
+                      ( Itk . ItkDeclId , Dkt . DkMethod , $1 )
+                  ) ;
+         IF $$ . PaInt > 0
+         THEN 
+           LScopeRef
+             := FM3Scopes . NewScopeRef
+                  ( FM3Units . UnitStackTopRef
+                  , Skt . SkFormals  
+                  , FM3Scanner . Attribute . Position
+                  ) ;
+           FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
+           FM3ParsePass . Push_LI
+             ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo  ) ;
+         END (*IF*) 
+       END (*Block*) 
+     } . 
+
+   MethodDecl : MethodDeclLt Signature 
+     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
+       BEGIN
+         $$ . PaInt (* Valid method count. *) := $1 . PaInt ; 
+         IF $$ . PaInt > 0
+         THEN
+(* Reduction to Formals, within Signature, will have  already popped
+   the formals' scope. 
+           LScopeRef := FM3Scopes . DeclScopeStackTopRef ;
+           FM3ParsePass . DeclScopeRtL2R ( LScopeRef ) ;
+           FM3ParsePass . Push_LI
+             ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpScopeNo  ) ;
+           <* ASSERT FM3Scopes . PopDeclScopeRef ( ) = LScopeRef *>
+*) 
+           FM3ParsePass . Push_LCIP_rip
+             ( Itk . ItkMethodDeclLt
+             , $1 . PaUnnestCoord
+             , $1 . Scan . SaAtom
+             , $1 . Scan . Position 
+             ) ;
+         ELSE (* Method Id was invalid. *) 
+           FM3ParsePass . Push_LCI_ri
+             ( Itk . ItkSkipLt
+             , $1 . PaUnnestCoord
+             , FM3Globals . NextSkipNo
+             ) ;
+           INC ( FM3Globals . NextSkipNo ) ;
+         END (*IF*) 
+       END (*Block*) 
+     } . 
+
+(* ------------------------------ Override Lists ---------------------------- *)
+
+   OverrideList : /*Empty*/
+      { FM3ParsePass . MakeListEmpty 
+          ( $$
+          , Itk . ItkOverrideListLt
+          , FM3Scanner . Attribute . Position
+          ) ; 
+      } .
+
+   OverrideList : StkRwOVERRIDES 
+      { FM3ParsePass . Push_LIP_rip
+          ( Itk . ItkOverrideListLt , 0 , $1 . Scan . Position ) ; 
+      } .
+
+   OverrideList : StkRwOVERRIDES OverridePlus OptSemicolon 
+     { FM3ParsePass . MakeListPos
+         ( $$
+         , Itk . ItkOverrideListLt
+         , $1 . Scan . Position
+         , $2 (* For element count & Left patch coord. *) 
+         ) ;
+     } . 
+   
+   OverridePlus : Override  
+     { $$ . PaInt (* Override count. *) := $1 . PaInt ; } .
+
+   OverridePlus : OverridePlus StkSemicolon VarDecl
+     { $$ . PaInt (* Override count. *):= $1 . PaInt + $3 . PaInt ;
+       FM3ParsePass . Push_ECIP
+         ( Itk . ItkOverrideListLt
+         , $2 . PaUnnestCoord 
+         , $1 . PaInt
+         , $2 . Scan . Position
+         ) ; 
+     } . 
+
+(* -------------------------------- Overrides ------------------------------- *)
+
+   OverrideLt : StkIdent 
+     { $$ . PaInt (* override count, 0 or 1. *) 
+         := ORD ( FM3ParsePass . OverrideIdentRefL2R ( $1 ) ) ;
+       (* ^Full legality requires looking through supertypes -- do it later. *) 
+     } . 
+
+   Override : OverrideLt StkEqual Expr 
+     { $$ . PaInt (* Override count. *) := $1 . PaInt ;
+       FM3ParsePass . Push_LCP_eCp_rp
+         ( Itk . ItkOverrideLt
+         , $1 . PaUnnestCoord
+         , $1 . Scan . Position
+         , $2 . PaUnnestCoord
+         ) ;
+     } . 
+
+(* --------------------------------- Brands --------------------------------- *)
+
+   Brand : /*Empty*/
+     { FM3ParsePass . Push_LP
+         ( Itk . ItkAbsentBrand , FM3Scanner . Attribute . Position ) ;
+     } . 
+
+   Brand : StkRwBRANDED
+     { FM3ParsePass . Push_LP 
+         ( Itk . ItkBrandAnon , $1 . Scan . Position ) ;
+     } . 
+
+   Brand : StkRwBRANDED Expr
+     { FM3ParsePass . Push_LP_rp 
+         ( Itk . ItkBrandLt , $1 . Scan . Position ) ;
+     } . 
+
+(* ------------------------------ Object Types ------------------------------ *)
+
+   Supertype : /*Empty*/ 
+     { $$ . Scan . Position := FM3Scanner . Attribute . Position ;
+       FM3ParsePass . Push_LP
+         ( Itk . ItkAbsentSupertype , FM3Scanner . Attribute . Position ) ;
+     } . 
+
+   Supertype : TypeId 
+     { $$ . Scan . Position := $1 . Scan . Position ;
+       FM3ParsePass . Push_LCP_rp
+         ( Itk . ItkSupertypeLt
+         , $1 . PaUnnestCoord 
+         , $1 . Scan . Position
+         ) ;
+     } .
+
+   Supertype : ObjType 
+     { $$ . Scan . Position := $1 . Scan . Position ;
+       (* ^The supertype will be nested within this object tyhpe. *) 
+       FM3ParsePass . Push_LCP_rp
+         ( Itk . ItkSupertypeLt
+         , $1 . PaUnnestCoord 
+         , $1 . Scan . Position
+         ) ;
+     } .
+
+
+   ObjTypeLt : Supertype Brand StkRwOBJECT
+     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
+       BEGIN 
+         $$ . Scan . Position := $1 . Scan . Position ;
+         $$ . PaInt (* DeclInfoDepth *) 
+           := FM3Decls . PushDeclInfo
+                ( FM3Decls . DeclInfoTyp
+                    { DiDeclTok := Itk . ItkFieldDeclLt
+                    , DiIdListTok := Itk . ItkFieldDeclIdListLt
+                    , DiIdTok := Itk . ItkDeclId
+                    , DiIdSepTok
+                        := Itk . ItkFieldDeclIdListLt + Itk . LtToListSep
+                    , DiKind := Dkt . DkObjField 
+                    }
+                ) ;
+         LScopeRef 
+           := FM3Scopes . NewScopeRef
+                ( FM3Units . UnitStackTopRef
+                , Skt . SkObj
+                , $3 . Scan . Position
+                ) ;
+         FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
+(* TODO: Store LScopeRef or its ScopeNo in the object type. *) 
+         FM3ParsePass . Push_LI
+           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo  ) ;
+       END; 
+     } .
+
+   ObjType : ObjTypeLt FieldDeclList MethodDeclList OverrideList StkRwEND
+     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
+       BEGIN
+         $$ . Scan . Position := $1 . Scan . Position ;
+         LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
+         FM3ParsePass . DeclScopeRtL2R ( LScopeRef ) ;
+         FM3ParsePass . Push_LI
+           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpScopeNo  ) ;
+         <* ASSERT FM3Scopes . PopDeclScopeRef ( ) = LScopeRef *>  
+         FM3ParsePass . Push_LCP_rp
+           ( Itk . ItkObjDefLt
+           , $1 . PaUnnestCoord
+           , $1 . Scan . Position
+           ) ;
+         <* ASSERT FM3Decls . PopDeclInfo ( )
+                   = $1 . PaInt (* DeclInfoDepth. *)
+         *> 
+       END; 
+     } .
+
+   Type : ObjType . 
+
 (* ------------------ Procedure Types and Signatures ------------------- *)
 
    ProcTypeLt : StkRwPROCEDURE 
@@ -1252,11 +1498,18 @@ RULE
    Works for procedure decl, procedure definition, type decl, method decl. *)  
 
    Signature : Formals ResultType Raises
-     { FM3ParsePass . Push_LCP_rp
-         ( Itk . ItkProcSignatureLt
-         , $1 . PaUnnestCoord 
-         , $1 . Scan . Position
-         ) ; 
+     { VAR LToken : Itk . TokTyp ;
+       BEGIN
+         IF $2 . PaBool (* Is present. *) 
+         THEN LToken := Itk . ItkSignatureFuncLt
+         ELSE LToken := Itk . ItkSignatureProperLt 
+         END (*IF*) ; 
+         FM3ParsePass . Push_LCP_rp
+           ( LToken 
+           , $1 . PaUnnestCoord 
+           , $1 . Scan . Position
+           ) ;
+       END (*Block*) 
      } . 
 
 (* List of formal decls. *)
@@ -1272,10 +1525,15 @@ RULE
          LScopeRef
            := FM3ParsePass . ScopeEmpty
                 ( Skt . SkFormals , $1 . Scan . Position ) ;
-(* REVIEW: What happens here? esp. this scope? *) 
-         FM3ParsePass . Push_LI
+(* REVIEW: What happens here? esp. this scope?
+           And is this just a special case of general formals list? *) 
+         FM3ParsePass . Push_LI 
            ( Itk . ItkScopeEmpty , LScopeRef ^ . ScpScopeNo  ) ;
-         PushUnnest ( Itk . ItkFormalsListEmpty ) ;
+         FM3ParsePass . MakeListEmpty 
+           ( $$
+           , Itk . ItkFormalsListLt
+           , $1 . Scan . Position 
+           ) ;
        END ; 
      } .
      
@@ -1480,38 +1738,39 @@ RULE
 (* Result type of signature. *) 
    ResultType : StkColon Type 
      { $$ . PaBool (* Result type is present. *) := TRUE;
-       $$ . Scan . Position := $1 . Scan . Position; 
+       $$ . Scan . Position := $1 . Scan . Position;
+       $$ . PaTok1 := Itk . ItkSignatureFuncLt ; 
        FM3ParsePass . Push_LCP_rp
          (Itk . ItkResultTypeLt,  $1 . PaUnnestCoord , $1 . Scan . Position); 
      } .
    ResultType : /*Empty*/
      { $$ . PaBool (* Result type is present. *) := FALSE (* Absent. *) ;
        $$ . Scan . Position := FM3Scanner . Attribute . Position; 
+       $$ . PaTok1 := Itk . ItkSignatureProperLt ; 
        FM3ParsePass . Push_LP
          ( Itk . ItkResultTypeAbsent , FM3Scanner . Attribute . Position ) ;
        $$ . PaUnnestCoord := UnnestCoord ( ) ; 
      } .
 
 (* RAISES of signature. *) 
+   Raises : /*Empty*/
+     { $$ . PaBool (* Raises set is present. *) := FALSE (* Absent. *) ;
+       FM3ParsePass . MakeListEmpty
+         ( $$ , Itk . ItkRaisesSetLt , FM3Scanner . Attribute . Position ) ; 
+     } .
+
    Raises : StkRwRAISES StkRwANY
-     { $$ . PaBool (* Raises set is present. *) := TRUE;
-       $$ . Scan . Position := $1 . Scan . Position; 
-       FM3ParsePass . Push_LCP_rp
-         ( Itk . ItkRaisesANY ,  $1 . PaUnnestCoord , $1 . Scan . Position); 
+     { $$ . PaBool (* Raises set is present. *) := TRUE ;
+       $$ . Scan . Position := $1 . Scan . Position ; 
+       FM3ParsePass . Push_LP_rp
+         ( Itk . ItkRaisesANY , $1 . Scan . Position) ; 
      } . 
    Raises
      : StkRwRAISES StkOpenBrace QualIdStarList StkCloseBrace 
-     { $$ . PaBool (* Raises set is present. *) := TRUE;
-       $$ . Scan . Position := $1 . Scan . Position; 
-       MakeListPos ( $$ , Itk . ItkRaisesSetLt , $1 . Scan . Position , $2 ) ;
+     { $$ . PaBool (* Raises set is present. *) := TRUE ;
+       $$ . Scan . Position := $1 . Scan . Position ; 
+       MakeListPos ( $$ , Itk . ItkRaisesSetLt , $1 . Scan . Position , $3 ) ;
      } . 
-   Raises : /*Empty*/
-     { $$ . PaBool (* Raises set is present. *) := FALSE (* Absent. *);
-       $$ . Scan . Position := FM3Scanner . Attribute . Position; 
-       FM3ParsePass . Push_LP
-         ( Itk . ItkRaisesSetAbsent , FM3Scanner . Attribute . Position ); 
-     } .
-
 (* ------------------------------ Procedures ------------------------------ *)
 
    ProcDeclLt : StkRwPROCEDURE StkIdent 
@@ -1677,8 +1936,11 @@ RULE
       source syntax, but we emit only Itk *separators*. *)
 
    BlockDeclList : /*Empty*/
-     { FM3ParsePass . Push_LIP_rip
-         ( Itk . ItkBlockDeclListLt , 0 , FM3Scanner . Attribute . Position ) ; 
+     { FM3ParsePass . MakeListEmpty 
+         ( $$
+         , Itk . ItkBlockDeclListLt
+         , FM3Scanner . Attribute . Position
+         ) ; 
      } .
      
    BlockDeclList : BlockDeclPlus 
@@ -1715,8 +1977,11 @@ RULE
 (* ---------------------------- Statements ----------------------------- *)
 
    StmtList : /*Empty*/
-     { FM3ParsePass . Push_LIP_rip
-         ( Itk . ItkStmtListLt , 0 , FM3Scanner . Attribute . Position ) ; 
+     { FM3ParsePass . MakeListEmpty 
+         ( $$
+         , Itk . ItkStmtListLt
+         , FM3Scanner . Attribute . Position
+         ) ; 
      } .
 
    StmtList : StmtPlus OptSemicolon 

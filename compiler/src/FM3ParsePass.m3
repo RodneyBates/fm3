@@ -954,9 +954,7 @@ MODULE FM3ParsePass
   
   = BEGIN
       PutBwd
-        ( FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
-        , Value
-        )
+        ( FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack , Value )
     END PushUnnestLong
 
 (*EXPORTED:*)
@@ -1001,6 +999,23 @@ MODULE FM3ParsePass
       ; PutBwd ( WRdBack , VAL ( T , LONGINT ) ) 
       END (*WITH*) 
     END Push_LP
+
+(*EXPORTED:*)
+; PROCEDURE Push_LP_rp
+    ( T : Itk . TokTyp ; READONLY Position : tPosition )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + Itk . LtToRt, LONGINT ) )
+      
+      ; PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T , LONGINT ) ) 
+      END (*WITH*) 
+    END Push_LP_rp
 
 (*EXPORTED:*)
 ; PROCEDURE Push_RP
@@ -1119,6 +1134,33 @@ MODULE FM3ParsePass
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
       END (*WITH*) 
     END Push_LCP_rp
+
+(*EXPORTED:*)
+; PROCEDURE Push_LCP_eCp_rp
+   ( T : Itk . TokTyp
+   ; C1 : LONGINT
+   ; READONLY Position : tPosition
+   ; C2 : LONGINT
+   )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) )
+
+      ; PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , C2 ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToOnePatch , LONGINT ) ) 
+
+      ; PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , C1 ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END Push_LCP_eCp_rp
 
 (*EXPORTED:*)
 ; PROCEDURE Push_LCPI_rpi
@@ -1587,6 +1629,27 @@ MODULE FM3ParsePass
     END MakeElem
 
 (*EXPORTED:*)
+; PROCEDURE MakeListEmpty
+    ( VAR LHSAttr : tParsAttribute
+    ; TokLt : Itk . TokTyp
+    ; READONLY Position : tPosition
+    )
+
+  = BEGIN
+      LHSAttr . PaInt := 0 (* Valid element count. *) 
+    ; PushUnnest ( Position . Column ) 
+    ; PushUnnest ( Position . Line ) 
+    ; PushUnnestLong ( 0L )
+    ; PushUnnest ( TokLt  )
+
+    ; PushUnnest ( Position . Column ) 
+    ; PushUnnest ( Position . Line ) 
+    ; PushUnnestLong ( 0L )
+    ; PushUnnest ( TokLt + Itk . LtToRt )
+    
+    END MakeListEmpty 
+
+(*EXPORTED:*)
 ; PROCEDURE MakeListPos
     ( VAR LHSAttr : tParsAttribute
     ; TokLt : Itk . TokTyp
@@ -1595,21 +1658,17 @@ MODULE FM3ParsePass
     )
 
   = BEGIN
-      LHSAttr . PaInt := ElemsAttr . PaInt (* Valid Id count. *) 
+      LHSAttr . PaInt := ElemsAttr . PaInt (* Valid element count. *) 
     ; LHSAttr . PaUnnestCoord := ElemsAttr . PaUnnestCoord (* Redundant? used? *)
-    ; IF TRUE OR ElemsAttr . PaInt > 0
-(* REVIEW: bracket the list even if empty.  Do we really want this? *) 
-      THEN 
-        PushUnnest ( Position . Column ) 
-      ; PushUnnest ( Position . Line ) 
-      ; PushUnnest ( ElemsAttr . PaInt ) (* Elem Ct. *)
-      ; PushUnnest ( TokLt + Itk . LtToRt )
-      ; PushUnnest ( Position . Column ) 
-      ; PushUnnest ( Position . Line ) 
-      ; PushUnnest ( ElemsAttr . PaInt )
-      ; PushUnnestLong ( ElemsAttr . PaUnnestCoord ) 
-      ; PushUnnest ( TokLt + Itk . LtToPatch )
-      END (*IF*)
+    ; PushUnnest ( Position . Column ) 
+    ; PushUnnest ( Position . Line ) 
+    ; PushUnnest ( ElemsAttr . PaInt ) (* Elem Ct. *)
+    ; PushUnnest ( TokLt + Itk . LtToRt )
+    ; PushUnnest ( Position . Column ) 
+    ; PushUnnest ( Position . Line ) 
+    ; PushUnnest ( ElemsAttr . PaInt )
+    ; PushUnnestLong ( ElemsAttr . PaUnnestCoord ) 
+    ; PushUnnest ( TokLt + Itk . LtToPatch )
     END MakeListPos 
 
 (*EXPORTED:*)
@@ -2073,8 +2132,9 @@ MODULE FM3ParsePass
   : FM3Scopes . ScopeRefTyp 
 
   = BEGIN (*ScopeEmpty*)
-      EVAL FM3Scopes . NewScopeRef
-             ( FM3Units . UnitStackTopRef , ScopeKind , Position ) 
+      RETURN
+        FM3Scopes . NewScopeRef
+          ( FM3Units . UnitStackTopRef , ScopeKind , Position ) 
     END ScopeEmpty
 
 (* Left-to-right scope handling.  These are called by the parser. *)
@@ -2192,6 +2252,26 @@ MODULE FM3ParsePass
       ; PutBwd ( WunRdBack , VAL ( LTokToPut , LONGINT ) ) 
       END (*WITH*) 
     END IdentRefL2R
+
+(*EXPORTED.*)
+; PROCEDURE OverrideIdentRefL2R ( READONLY StkIdAttribute : tParsAttribute )
+  : BOOLEAN (* It's OK so far. *) 
+  (* Disallows reserved Id. *) 
+
+  = BEGIN (*OverrideIdentRefL2R*)
+      WITH WScan = StkIdAttribute . Scan
+           , WunRdBack = FM3Units . UnitStackTopRef ^ . UntUnnestStackRdBack 
+      DO IF WScan . SaIsReservedId 
+        THEN RETURN FALSE 
+        ELSE
+          PutBwd ( WunRdBack , VAL ( WScan . Position . Column , LONGINT ) ) 
+        ; PutBwd ( WunRdBack , VAL ( WScan . Position . Line , LONGINT ) ) 
+        ; PutBwd ( WunRdBack , VAL ( WScan . SaAtom , LONGINT ) ) 
+        ; PutBwd ( WunRdBack , VAL ( Itk . ItkIdRefAtom , LONGINT ) )
+        ; RETURN TRUE 
+        END (*IF*) 
+      END (*WITH*) 
+    END OverrideIdentRefL2R
 
 ; PROCEDURE CheckQualNotReserved ( READONLY StkIdAttribute : tParsAttribute )
   : BOOLEAN (* It's OK. *) 

@@ -68,18 +68,18 @@ CONST
    yyFirstTerminal          = 0;
    yyLastTerminal           = 107;
    yyFirstSymbol            = 0;
-   yyLastSymbol             = 225;
-   yyTableMax               = 415;
-   yyNTableMax              = 573;
+   yyLastSymbol             = 238;
+   yyTableMax               = 480;
+   yyNTableMax              = 627;
    yyFirstReadState         = 1;
-   yyLastReadState          = 143;
-   yyFirstReadTermState             = 144;
-   yyLastReadTermState              = 215;
-   yyLastReadNontermState           = 281;
-   yyFirstReduceState               = 282;
-   yyLastReduceState                = 471;
+   yyLastReadState          = 161;
+   yyFirstReadTermState             = 162;
+   yyLastReadTermState              = 235;
+   yyLastReadNontermState           = 308;
+   yyFirstReduceState               = 309;
+   yyLastReduceState                = 521;
    yyStartState             = 1;
-   yyStopState              = 282;
+   yyStopState              = 309;
 
                     (*  End of lalr-generated constants: *) 
 (* -------------------------------------------------------------------------- *)
@@ -168,59 +168,68 @@ VAR
          , (*  32*) ADR (yyTComb [  10]) , (*  33*) ADR (yyTComb [   8])
          , (*  34*) ADR (yyTComb [  67]) , (*  35*) ADR (yyTComb [  68])
          , (*  36*) ADR (yyTComb [  12]) , (*  37*) ADR (yyTComb [  12])
-         , (*  38*) ADR (yyTComb [   0]) , (*  39*) ADR (yyTComb [   3])
-         , (*  40*) ADR (yyTComb [   0]) , (*  41*) ADR (yyTComb [   1])
-         , (*  42*) ADR (yyTComb [   4]) , (*  43*) ADR (yyTComb [  69])
-         , (*  44*) ADR (yyTComb [  11]) , (*  45*) ADR (yyTComb [   5])
-         , (*  46*) ADR (yyTComb [  41]) , (*  47*) ADR (yyTComb [  13])
-         , (*  48*) ADR (yyTComb [  72]) , (*  49*) ADR (yyTComb [  43])
-         , (*  50*) ADR (yyTComb [   0]) , (*  51*) ADR (yyTComb [  23])
-         , (*  52*) ADR (yyTComb [   6]) , (*  53*) ADR (yyTComb [  17])
-         , (*  54*) ADR (yyTComb [   7]) , (*  55*) ADR (yyTComb [   0])
-         , (*  56*) ADR (yyTComb [  20]) , (*  57*) ADR (yyTComb [  50])
-         , (*  58*) ADR (yyTComb [  86]) , (*  59*) ADR (yyTComb [  26])
-         , (*  60*) ADR (yyTComb [  81]) , (*  61*) ADR (yyTComb [  88])
-         , (*  62*) ADR (yyTComb [   0]) , (*  63*) ADR (yyTComb [  98])
-         , (*  64*) ADR (yyTComb [   0]) , (*  65*) ADR (yyTComb [  56])
-         , (*  66*) ADR (yyTComb [  22]) , (*  67*) ADR (yyTComb [ 114])
-         , (*  68*) ADR (yyTComb [   0]) , (*  69*) ADR (yyTComb [ 131])
-         , (*  70*) ADR (yyTComb [  48]) , (*  71*) ADR (yyTComb [  58])
-         , (*  72*) ADR (yyTComb [  94]) , (*  73*) ADR (yyTComb [  32])
-         , (*  74*) ADR (yyTComb [  25]) , (*  75*) ADR (yyTComb [   0])
-         , (*  76*) ADR (yyTComb [  75]) , (*  77*) ADR (yyTComb [  28])
-         , (*  78*) ADR (yyTComb [ 160]) , (*  79*) ADR (yyTComb [ 164])
-         , (*  80*) ADR (yyTComb [  62]) , (*  81*) ADR (yyTComb [  98])
-         , (*  82*) ADR (yyTComb [   0]) , (*  83*) ADR (yyTComb [  91])
-         , (*  84*) ADR (yyTComb [ 181]) , (*  85*) ADR (yyTComb [   1])
-         , (*  86*) ADR (yyTComb [ 119]) , (*  87*) ADR (yyTComb [ 187])
-         , (*  88*) ADR (yyTComb [ 199]) , (*  89*) ADR (yyTComb [ 109])
-         , (*  90*) ADR (yyTComb [ 111]) , (*  91*) ADR (yyTComb [ 222])
-         , (*  92*) ADR (yyTComb [ 238]) , (*  93*) ADR (yyTComb [ 119])
-         , (*  94*) ADR (yyTComb [ 123]) , (*  95*) ADR (yyTComb [ 122])
-         , (*  96*) ADR (yyTComb [ 128]) , (*  97*) ADR (yyTComb [   0])
-         , (*  98*) ADR (yyTComb [  98]) , (*  99*) ADR (yyTComb [ 132])
-         , (* 100*) ADR (yyTComb [   0]) , (* 101*) ADR (yyTComb [   1])
-         , (* 102*) ADR (yyTComb [   0]) , (* 103*) ADR (yyTComb [  10])
-         , (* 104*) ADR (yyTComb [ 128]) , (* 105*) ADR (yyTComb [ 206])
-         , (* 106*) ADR (yyTComb [ 187]) , (* 107*) ADR (yyTComb [ 195])
-         , (* 108*) ADR (yyTComb [  25]) , (* 109*) ADR (yyTComb [  36])
-         , (* 110*) ADR (yyTComb [ 198]) , (* 111*) ADR (yyTComb [ 109])
-         , (* 112*) ADR (yyTComb [ 162]) , (* 113*) ADR (yyTComb [ 114])
-         , (* 114*) ADR (yyTComb [ 115]) , (* 115*) ADR (yyTComb [ 143])
-         , (* 116*) ADR (yyTComb [  27]) , (* 117*) ADR (yyTComb [ 121])
-         , (* 118*) ADR (yyTComb [ 152]) , (* 119*) ADR (yyTComb [ 159])
-         , (* 120*) ADR (yyTComb [   0]) , (* 121*) ADR (yyTComb [ 231])
-         , (* 122*) ADR (yyTComb [   2]) , (* 123*) ADR (yyTComb [  28])
-         , (* 124*) ADR (yyTComb [  29]) , (* 125*) ADR (yyTComb [ 134])
-         , (* 126*) ADR (yyTComb [ 170]) , (* 127*) ADR (yyTComb [ 174])
-         , (* 128*) ADR (yyTComb [   0]) , (* 129*) ADR (yyTComb [ 184])
-         , (* 130*) ADR (yyTComb [ 197]) , (* 131*) ADR (yyTComb [ 180])
-         , (* 132*) ADR (yyTComb [ 299]) , (* 133*) ADR (yyTComb [ 273])
-         , (* 134*) ADR (yyTComb [  31]) , (* 135*) ADR (yyTComb [ 154])
-         , (* 136*) ADR (yyTComb [ 191]) , (* 137*) ADR (yyTComb [ 194])
-         , (* 138*) ADR (yyTComb [ 200]) , (* 139*) ADR (yyTComb [ 204])
-         , (* 140*) ADR (yyTComb [ 308]) , (* 141*) ADR (yyTComb [ 277])
-         , (* 142*) ADR (yyTComb [ 176]) , (* 143*) ADR (yyTComb [ 205])
+         , (*  38*) ADR (yyTComb [   0]) , (*  39*) ADR (yyTComb [   0])
+         , (*  40*) ADR (yyTComb [   1]) , (*  41*) ADR (yyTComb [  98])
+         , (*  42*) ADR (yyTComb [  11]) , (*  43*) ADR (yyTComb [ 109])
+         , (*  44*) ADR (yyTComb [   3]) , (*  45*) ADR (yyTComb [ 110])
+         , (*  46*) ADR (yyTComb [  12]) , (*  47*) ADR (yyTComb [ 120])
+         , (*  48*) ADR (yyTComb [ 138]) , (*  49*) ADR (yyTComb [   0])
+         , (*  50*) ADR (yyTComb [ 166]) , (*  51*) ADR (yyTComb [   4])
+         , (*  52*) ADR (yyTComb [  23]) , (*  53*) ADR (yyTComb [   5])
+         , (*  54*) ADR (yyTComb [   5]) , (*  55*) ADR (yyTComb [   3])
+         , (*  56*) ADR (yyTComb [  16]) , (*  57*) ADR (yyTComb [   6])
+         , (*  58*) ADR (yyTComb [ 176]) , (*  59*) ADR (yyTComb [  19])
+         , (*  60*) ADR (yyTComb [ 107]) , (*  61*) ADR (yyTComb [   6])
+         , (*  62*) ADR (yyTComb [  22]) , (*  63*) ADR (yyTComb [  18])
+         , (*  64*) ADR (yyTComb [   0]) , (*  65*) ADR (yyTComb [  13])
+         , (*  66*) ADR (yyTComb [  24]) , (*  67*) ADR (yyTComb [ 143])
+         , (*  68*) ADR (yyTComb [  17]) , (*  69*) ADR (yyTComb [ 153])
+         , (*  70*) ADR (yyTComb [ 156]) , (*  71*) ADR (yyTComb [   0])
+         , (*  72*) ADR (yyTComb [   0]) , (*  73*) ADR (yyTComb [ 198])
+         , (*  74*) ADR (yyTComb [   0]) , (*  75*) ADR (yyTComb [ 210])
+         , (*  76*) ADR (yyTComb [  18]) , (*  77*) ADR (yyTComb [  15])
+         , (*  78*) ADR (yyTComb [  16]) , (*  79*) ADR (yyTComb [  45])
+         , (*  80*) ADR (yyTComb [  19]) , (*  81*) ADR (yyTComb [ 133])
+         , (*  82*) ADR (yyTComb [   0]) , (*  83*) ADR (yyTComb [  57])
+         , (*  84*) ADR (yyTComb [  45]) , (*  85*) ADR (yyTComb [ 116])
+         , (*  86*) ADR (yyTComb [  27]) , (*  87*) ADR (yyTComb [  66])
+         , (*  88*) ADR (yyTComb [   7]) , (*  89*) ADR (yyTComb [  66])
+         , (*  90*) ADR (yyTComb [   0]) , (*  91*) ADR (yyTComb [ 122])
+         , (*  92*) ADR (yyTComb [  10]) , (*  93*) ADR (yyTComb [  68])
+         , (*  94*) ADR (yyTComb [   0]) , (*  95*) ADR (yyTComb [ 101])
+         , (*  96*) ADR (yyTComb [  72]) , (*  97*) ADR (yyTComb [ 222])
+         , (*  98*) ADR (yyTComb [ 239]) , (*  99*) ADR (yyTComb [  80])
+         , (* 100*) ADR (yyTComb [  88]) , (* 101*) ADR (yyTComb [   0])
+         , (* 102*) ADR (yyTComb [  81]) , (* 103*) ADR (yyTComb [ 240])
+         , (* 104*) ADR (yyTComb [ 123]) , (* 105*) ADR (yyTComb [ 266])
+         , (* 106*) ADR (yyTComb [ 279]) , (* 107*) ADR (yyTComb [  84])
+         , (* 108*) ADR (yyTComb [  87]) , (* 109*) ADR (yyTComb [ 292])
+         , (* 110*) ADR (yyTComb [ 301]) , (* 111*) ADR (yyTComb [  93])
+         , (* 112*) ADR (yyTComb [  94]) , (* 113*) ADR (yyTComb [ 101])
+         , (* 114*) ADR (yyTComb [ 132]) , (* 115*) ADR (yyTComb [   0])
+         , (* 116*) ADR (yyTComb [  83]) , (* 117*) ADR (yyTComb [ 131])
+         , (* 118*) ADR (yyTComb [   0]) , (* 119*) ADR (yyTComb [   1])
+         , (* 120*) ADR (yyTComb [   0]) , (* 121*) ADR (yyTComb [  31])
+         , (* 122*) ADR (yyTComb [ 128]) , (* 123*) ADR (yyTComb [ 269])
+         , (* 124*) ADR (yyTComb [ 190]) , (* 125*) ADR (yyTComb [ 191])
+         , (* 126*) ADR (yyTComb [  37]) , (* 127*) ADR (yyTComb [ 228])
+         , (* 128*) ADR (yyTComb [ 251]) , (* 129*) ADR (yyTComb [ 119])
+         , (* 130*) ADR (yyTComb [ 168]) , (* 131*) ADR (yyTComb [ 121])
+         , (* 132*) ADR (yyTComb [ 140]) , (* 133*) ADR (yyTComb [ 182])
+         , (* 134*) ADR (yyTComb [  43]) , (* 135*) ADR (yyTComb [ 165])
+         , (* 136*) ADR (yyTComb [ 194]) , (* 137*) ADR (yyTComb [ 196])
+         , (* 138*) ADR (yyTComb [   0]) , (* 139*) ADR (yyTComb [ 290])
+         , (* 140*) ADR (yyTComb [   2]) , (* 141*) ADR (yyTComb [ 244])
+         , (* 142*) ADR (yyTComb [ 248]) , (* 143*) ADR (yyTComb [ 174])
+         , (* 144*) ADR (yyTComb [ 204]) , (* 145*) ADR (yyTComb [ 205])
+         , (* 146*) ADR (yyTComb [   0]) , (* 147*) ADR (yyTComb [ 216])
+         , (* 148*) ADR (yyTComb [ 224]) , (* 149*) ADR (yyTComb [ 215])
+         , (* 150*) ADR (yyTComb [ 362]) , (* 151*) ADR (yyTComb [ 337])
+         , (* 152*) ADR (yyTComb [ 270]) , (* 153*) ADR (yyTComb [ 197])
+         , (* 154*) ADR (yyTComb [ 233]) , (* 155*) ADR (yyTComb [ 238])
+         , (* 156*) ADR (yyTComb [ 239]) , (* 157*) ADR (yyTComb [ 246])
+         , (* 158*) ADR (yyTComb [ 369]) , (* 159*) ADR (yyTComb [ 373])
+         , (* 160*) ADR (yyTComb [ 221]) , (* 161*) ADR (yyTComb [ 254])
          };
          
    yyNBasePtr
@@ -249,59 +258,68 @@ VAR
          , (*  32*) ADR (yyNComb [ 108]) , (*  33*) ADR (yyNComb [ 108])
          , (*  34*) ADR (yyNComb [ 108]) , (*  35*) ADR (yyNComb [ 110])
          , (*  36*) ADR (yyNComb [ 108]) , (*  37*) ADR (yyNComb [ 110])
-         , (*  38*) ADR (yyNComb [ 108]) , (*  39*) ADR (yyNComb [ 108])
-         , (*  40*) ADR (yyNComb [ 163]) , (*  41*) ADR (yyNComb [ 108])
+         , (*  38*) ADR (yyNComb [ 108]) , (*  39*) ADR (yyNComb [ 163])
+         , (*  40*) ADR (yyNComb [ 108]) , (*  41*) ADR (yyNComb [ 108])
          , (*  42*) ADR (yyNComb [ 108]) , (*  43*) ADR (yyNComb [ 108])
-         , (*  44*) ADR (yyNComb [ 108]) , (*  45*) ADR (yyNComb [ 132])
-         , (*  46*) ADR (yyNComb [ 108]) , (*  47*) ADR (yyNComb [ 108])
-         , (*  48*) ADR (yyNComb [ 114]) , (*  49*) ADR (yyNComb [ 108])
-         , (*  50*) ADR (yyNComb [ 116]) , (*  51*) ADR (yyNComb [ 108])
-         , (*  52*) ADR (yyNComb [ 108]) , (*  53*) ADR (yyNComb [ 108])
-         , (*  54*) ADR (yyNComb [ 139]) , (*  55*) ADR (yyNComb [ 111])
-         , (*  56*) ADR (yyNComb [ 126]) , (*  57*) ADR (yyNComb [ 113])
-         , (*  58*) ADR (yyNComb [ 109]) , (*  59*) ADR (yyNComb [ 135])
-         , (*  60*) ADR (yyNComb [ 108]) , (*  61*) ADR (yyNComb [ 111])
-         , (*  62*) ADR (yyNComb [ 185]) , (*  63*) ADR (yyNComb [ 112])
-         , (*  64*) ADR (yyNComb [ 181]) , (*  65*) ADR (yyNComb [ 108])
-         , (*  66*) ADR (yyNComb [ 108]) , (*  67*) ADR (yyNComb [ 131])
-         , (*  68*) ADR (yyNComb [ 240]) , (*  69*) ADR (yyNComb [ 131])
-         , (*  70*) ADR (yyNComb [ 108]) , (*  71*) ADR (yyNComb [ 119])
-         , (*  72*) ADR (yyNComb [ 108]) , (*  73*) ADR (yyNComb [ 133])
-         , (*  74*) ADR (yyNComb [ 108]) , (*  75*) ADR (yyNComb [ 200])
-         , (*  76*) ADR (yyNComb [ 108]) , (*  77*) ADR (yyNComb [ 108])
-         , (*  78*) ADR (yyNComb [ 120]) , (*  79*) ADR (yyNComb [ 114])
-         , (*  80*) ADR (yyNComb [ 108]) , (*  81*) ADR (yyNComb [ 148])
-         , (*  82*) ADR (yyNComb [ 260]) , (*  83*) ADR (yyNComb [ 108])
-         , (*  84*) ADR (yyNComb [ 222]) , (*  85*) ADR (yyNComb [ 108])
-         , (*  86*) ADR (yyNComb [ 169]) , (*  87*) ADR (yyNComb [ 315])
-         , (*  88*) ADR (yyNComb [ 244]) , (*  89*) ADR (yyNComb [ 108])
-         , (*  90*) ADR (yyNComb [ 108]) , (*  91*) ADR (yyNComb [ 222])
-         , (*  92*) ADR (yyNComb [ 259]) , (*  93*) ADR (yyNComb [ 108])
-         , (*  94*) ADR (yyNComb [ 108]) , (*  95*) ADR (yyNComb [ 137])
-         , (*  96*) ADR (yyNComb [ 176]) , (*  97*) ADR (yyNComb [ 255])
-         , (*  98*) ADR (yyNComb [ 108]) , (*  99*) ADR (yyNComb [ 108])
-         , (* 100*) ADR (yyNComb [ 363]) , (* 101*) ADR (yyNComb [ 108])
-         , (* 102*) ADR (yyNComb [ 331]) , (* 103*) ADR (yyNComb [ 108])
-         , (* 104*) ADR (yyNComb [ 108]) , (* 105*) ADR (yyNComb [ 254])
-         , (* 106*) ADR (yyNComb [ 108]) , (* 107*) ADR (yyNComb [ 204])
-         , (* 108*) ADR (yyNComb [ 320]) , (* 109*) ADR (yyNComb [ 391])
-         , (* 110*) ADR (yyNComb [ 108]) , (* 111*) ADR (yyNComb [ 243])
-         , (* 112*) ADR (yyNComb [ 108]) , (* 113*) ADR (yyNComb [ 108])
-         , (* 114*) ADR (yyNComb [ 108]) , (* 115*) ADR (yyNComb [ 114])
+         , (*  44*) ADR (yyNComb [ 137]) , (*  45*) ADR (yyNComb [ 108])
+         , (*  46*) ADR (yyNComb [ 108]) , (*  47*) ADR (yyNComb [ 112])
+         , (*  48*) ADR (yyNComb [ 108]) , (*  49*) ADR (yyNComb [ 116])
+         , (*  50*) ADR (yyNComb [ 108]) , (*  51*) ADR (yyNComb [ 108])
+         , (*  52*) ADR (yyNComb [ 108]) , (*  53*) ADR (yyNComb [ 145])
+         , (*  54*) ADR (yyNComb [ 108]) , (*  55*) ADR (yyNComb [ 118])
+         , (*  56*) ADR (yyNComb [ 108]) , (*  57*) ADR (yyNComb [ 108])
+         , (*  58*) ADR (yyNComb [ 108]) , (*  59*) ADR (yyNComb [ 187])
+         , (*  60*) ADR (yyNComb [ 108]) , (*  61*) ADR (yyNComb [ 108])
+         , (*  62*) ADR (yyNComb [ 113]) , (*  63*) ADR (yyNComb [ 110])
+         , (*  64*) ADR (yyNComb [ 118]) , (*  65*) ADR (yyNComb [ 109])
+         , (*  66*) ADR (yyNComb [ 114]) , (*  67*) ADR (yyNComb [ 111])
+         , (*  68*) ADR (yyNComb [ 143]) , (*  69*) ADR (yyNComb [ 108])
+         , (*  70*) ADR (yyNComb [ 118]) , (*  71*) ADR (yyNComb [ 218])
+         , (*  72*) ADR (yyNComb [ 163]) , (*  73*) ADR (yyNComb [ 125])
+         , (*  74*) ADR (yyNComb [ 273]) , (*  75*) ADR (yyNComb [ 125])
+         , (*  76*) ADR (yyNComb [ 108]) , (*  77*) ADR (yyNComb [ 145])
+         , (*  78*) ADR (yyNComb [ 108]) , (*  79*) ADR (yyNComb [ 108])
+         , (*  80*) ADR (yyNComb [ 131]) , (*  81*) ADR (yyNComb [ 120])
+         , (*  82*) ADR (yyNComb [ 222]) , (*  83*) ADR (yyNComb [ 108])
+         , (*  84*) ADR (yyNComb [ 108]) , (*  85*) ADR (yyNComb [ 138])
+         , (*  86*) ADR (yyNComb [ 164]) , (*  87*) ADR (yyNComb [ 139])
+         , (*  88*) ADR (yyNComb [ 240]) , (*  89*) ADR (yyNComb [ 108])
+         , (*  90*) ADR (yyNComb [ 226]) , (*  91*) ADR (yyNComb [ 108])
+         , (*  92*) ADR (yyNComb [ 108]) , (*  93*) ADR (yyNComb [ 108])
+         , (*  94*) ADR (yyNComb [ 237]) , (*  95*) ADR (yyNComb [ 108])
+         , (*  96*) ADR (yyNComb [ 108]) , (*  97*) ADR (yyNComb [ 224])
+         , (*  98*) ADR (yyNComb [ 214]) , (*  99*) ADR (yyNComb [ 108])
+         , (* 100*) ADR (yyNComb [ 119]) , (* 101*) ADR (yyNComb [ 328])
+         , (* 102*) ADR (yyNComb [ 108]) , (* 103*) ADR (yyNComb [ 250])
+         , (* 104*) ADR (yyNComb [ 215]) , (* 105*) ADR (yyNComb [ 383])
+         , (* 106*) ADR (yyNComb [ 252]) , (* 107*) ADR (yyNComb [ 108])
+         , (* 108*) ADR (yyNComb [ 108]) , (* 109*) ADR (yyNComb [ 258])
+         , (* 110*) ADR (yyNComb [ 260]) , (* 111*) ADR (yyNComb [ 108])
+         , (* 112*) ADR (yyNComb [ 108]) , (* 113*) ADR (yyNComb [ 228])
+         , (* 114*) ADR (yyNComb [ 217]) , (* 115*) ADR (yyNComb [ 255])
          , (* 116*) ADR (yyNComb [ 108]) , (* 117*) ADR (yyNComb [ 108])
-         , (* 118*) ADR (yyNComb [ 108]) , (* 119*) ADR (yyNComb [ 108])
-         , (* 120*) ADR (yyNComb [ 338]) , (* 121*) ADR (yyNComb [ 420])
-         , (* 122*) ADR (yyNComb [ 108]) , (* 123*) ADR (yyNComb [ 394])
-         , (* 124*) ADR (yyNComb [ 108]) , (* 125*) ADR (yyNComb [ 108])
-         , (* 126*) ADR (yyNComb [ 108]) , (* 127*) ADR (yyNComb [ 108])
-         , (* 128*) ADR (yyNComb [ 108]) , (* 129*) ADR (yyNComb [ 264])
+         , (* 118*) ADR (yyNComb [ 325]) , (* 119*) ADR (yyNComb [ 108])
+         , (* 120*) ADR (yyNComb [ 400]) , (* 121*) ADR (yyNComb [ 108])
+         , (* 122*) ADR (yyNComb [ 108]) , (* 123*) ADR (yyNComb [ 284])
+         , (* 124*) ADR (yyNComb [ 108]) , (* 125*) ADR (yyNComb [ 286])
+         , (* 126*) ADR (yyNComb [ 348]) , (* 127*) ADR (yyNComb [ 435])
+         , (* 128*) ADR (yyNComb [ 108]) , (* 129*) ADR (yyNComb [ 277])
          , (* 130*) ADR (yyNComb [ 108]) , (* 131*) ADR (yyNComb [ 108])
-         , (* 132*) ADR (yyNComb [ 339]) , (* 133*) ADR (yyNComb [ 456])
+         , (* 132*) ADR (yyNComb [ 108]) , (* 133*) ADR (yyNComb [ 114])
          , (* 134*) ADR (yyNComb [ 108]) , (* 135*) ADR (yyNComb [ 108])
          , (* 136*) ADR (yyNComb [ 108]) , (* 137*) ADR (yyNComb [ 108])
-         , (* 138*) ADR (yyNComb [ 110]) , (* 139*) ADR (yyNComb [ 108])
-         , (* 140*) ADR (yyNComb [ 340]) , (* 141*) ADR (yyNComb [ 271])
+         , (* 138*) ADR (yyNComb [ 329]) , (* 139*) ADR (yyNComb [ 465])
+         , (* 140*) ADR (yyNComb [ 108]) , (* 141*) ADR (yyNComb [ 483])
          , (* 142*) ADR (yyNComb [ 108]) , (* 143*) ADR (yyNComb [ 108])
+         , (* 144*) ADR (yyNComb [ 108]) , (* 145*) ADR (yyNComb [ 108])
+         , (* 146*) ADR (yyNComb [ 108]) , (* 147*) ADR (yyNComb [ 295])
+         , (* 148*) ADR (yyNComb [ 108]) , (* 149*) ADR (yyNComb [ 108])
+         , (* 150*) ADR (yyNComb [ 351]) , (* 151*) ADR (yyNComb [ 497])
+         , (* 152*) ADR (yyNComb [ 108]) , (* 153*) ADR (yyNComb [ 108])
+         , (* 154*) ADR (yyNComb [ 108]) , (* 155*) ADR (yyNComb [ 108])
+         , (* 156*) ADR (yyNComb [ 110]) , (* 157*) ADR (yyNComb [ 108])
+         , (* 158*) ADR (yyNComb [ 353]) , (* 159*) ADR (yyNComb [ 316])
+         , (* 160*) ADR (yyNComb [ 108]) , (* 161*) ADR (yyNComb [ 108])
          };
          
    yyDefault
@@ -309,253 +327,291 @@ VAR
          {
            (*   0*)    0 , (*   1*)    0 , (*   2*)    0 , (*   3*)    4
          , (*   4*)    0 , (*   5*)    0 , (*   6*)    0 , (*   7*)    0
-         , (*   8*)    0 , (*   9*)    0 , (*  10*)  132 , (*  11*)    0
+         , (*   8*)    0 , (*   9*)    0 , (*  10*)  150 , (*  11*)    0
          , (*  12*)    0 , (*  13*)   25 , (*  14*)    0 , (*  15*)    0
          , (*  16*)    0 , (*  17*)    0 , (*  18*)    0 , (*  19*)    0
-         , (*  20*)   25 , (*  21*)    0 , (*  22*)  115 , (*  23*)  129
-         , (*  24*)  130 , (*  25*)    0 , (*  26*)    0 , (*  27*)    0
-         , (*  28*)    0 , (*  29*)  133 , (*  30*)    0 , (*  31*)    0
+         , (*  20*)   25 , (*  21*)    0 , (*  22*)  133 , (*  23*)  147
+         , (*  24*)  148 , (*  25*)    0 , (*  26*)    0 , (*  27*)    0
+         , (*  28*)    0 , (*  29*)  151 , (*  30*)    0 , (*  31*)    0
          , (*  32*)    0 , (*  33*)    0 , (*  34*)   35 , (*  35*)    0
-         , (*  36*)    0 , (*  37*)    0 , (*  38*)   87 , (*  39*)    0
-         , (*  40*)   87 , (*  41*)   85 , (*  42*)    0 , (*  43*)    0
-         , (*  44*)    0 , (*  45*)   59 , (*  46*)    0 , (*  47*)    0
-         , (*  48*)    0 , (*  49*)    0 , (*  50*)  105 , (*  51*)   76
-         , (*  52*)    0 , (*  53*)  107 , (*  54*)   59 , (*  55*)   95
-         , (*  56*)   58 , (*  57*)    0 , (*  58*)    0 , (*  59*)    0
-         , (*  60*)    0 , (*  61*)    0 , (*  62*)   87 , (*  63*)    0
-         , (*  64*)  105 , (*  65*)   76 , (*  66*)    0 , (*  67*)    0
-         , (*  68*)   87 , (*  69*)    0 , (*  70*)    0 , (*  71*)    0
-         , (*  72*)    0 , (*  73*)    0 , (*  74*)    0 , (*  75*)  105
-         , (*  76*)    0 , (*  77*)    0 , (*  78*)   79 , (*  79*)    0
-         , (*  80*)    0 , (*  81*)    0 , (*  82*)   87 , (*  83*)    0
-         , (*  84*)   88 , (*  85*)    0 , (*  86*)    0 , (*  87*)   73
-         , (*  88*)   73 , (*  89*)    0 , (*  90*)    0 , (*  91*)   59
-         , (*  92*)   59 , (*  93*)    0 , (*  94*)    0 , (*  95*)    0
-         , (*  96*)    0 , (*  97*)  141 , (*  98*)    0 , (*  99*)    0
-         , (* 100*)  121 , (* 101*)    0 , (* 102*)  123 , (* 103*)    0
-         , (* 104*)    0 , (* 105*)   73 , (* 106*)   76 , (* 107*)    0
-         , (* 108*)  105 , (* 109*)  133 , (* 110*)    0 , (* 111*)    0
-         , (* 112*)    0 , (* 113*)    0 , (* 114*)    0 , (* 115*)    0
-         , (* 116*)    0 , (* 117*)    0 , (* 118*)    0 , (* 119*)    0
-         , (* 120*)  140 , (* 121*)    0 , (* 122*)    0 , (* 123*)  105
-         , (* 124*)    0 , (* 125*)    0 , (* 126*)    0 , (* 127*)    0
-         , (* 128*)  138 , (* 129*)    0 , (* 130*)    0 , (* 131*)    0
+         , (*  36*)    0 , (*  37*)    0 , (*  38*)  105 , (*  39*)  105
+         , (*  40*)    0 , (*  41*)    0 , (*  42*)    0 , (*  43*)    0
+         , (*  44*)   68 , (*  45*)    0 , (*  46*)    0 , (*  47*)    0
+         , (*  48*)    0 , (*  49*)  123 , (*  50*)   95 , (*  51*)    0
+         , (*  52*)   62 , (*  53*)   88 , (*  54*)    0 , (*  55*)  123
+         , (*  56*)    0 , (*  57*)    0 , (*  58*)    0 , (*  59*)   44
+         , (*  60*)    0 , (*  61*)   63 , (*  62*)  125 , (*  63*)   88
+         , (*  64*)  113 , (*  65*)   67 , (*  66*)    0 , (*  67*)    0
+         , (*  68*)    0 , (*  69*)    0 , (*  70*)    0 , (*  71*)  105
+         , (*  72*)  113 , (*  73*)    0 , (*  74*)  105 , (*  75*)    0
+         , (*  76*)    0 , (*  77*)   80 , (*  78*)    0 , (*  79*)    0
+         , (*  80*)    0 , (*  81*)    0 , (*  82*)  123 , (*  83*)   95
+         , (*  84*)    0 , (*  85*)    0 , (*  86*)    0 , (*  87*)  125
+         , (*  88*)   68 , (*  89*)    0 , (*  90*)  123 , (*  91*)   95
+         , (*  92*)    0 , (*  93*)    0 , (*  94*)  123 , (*  95*)    0
+         , (*  96*)    0 , (*  97*)   98 , (*  98*)    0 , (*  99*)    0
+         , (* 100*)    0 , (* 101*)  105 , (* 102*)    0 , (* 103*)  106
+         , (* 104*)    0 , (* 105*)   80 , (* 106*)   80 , (* 107*)    0
+         , (* 108*)    0 , (* 109*)   68 , (* 110*)   68 , (* 111*)    0
+         , (* 112*)    0 , (* 113*)    0 , (* 114*)    0 , (* 115*)  159
+         , (* 116*)    0 , (* 117*)    0 , (* 118*)  139 , (* 119*)    0
+         , (* 120*)  141 , (* 121*)    0 , (* 122*)    0 , (* 123*)   80
+         , (* 124*)   95 , (* 125*)    0 , (* 126*)  123 , (* 127*)  151
+         , (* 128*)    0 , (* 129*)    0 , (* 130*)    0 , (* 131*)    0
          , (* 132*)    0 , (* 133*)    0 , (* 134*)    0 , (* 135*)    0
-         , (* 136*)    0 , (* 137*)    0 , (* 138*)    0 , (* 139*)    0
-         , (* 140*)    0 , (* 141*)    0 , (* 142*)    0 , (* 143*)    0
+         , (* 136*)    0 , (* 137*)    0 , (* 138*)  158 , (* 139*)    0
+         , (* 140*)    0 , (* 141*)  123 , (* 142*)    0 , (* 143*)    0
+         , (* 144*)    0 , (* 145*)    0 , (* 146*)  156 , (* 147*)    0
+         , (* 148*)    0 , (* 149*)    0 , (* 150*)    0 , (* 151*)    0
+         , (* 152*)    0 , (* 153*)    0 , (* 154*)    0 , (* 155*)    0
+         , (* 156*)    0 , (* 157*)    0 , (* 158*)    0 , (* 159*)    0
+         , (* 160*)    0 , (* 161*)    0
          };
          
    yyTComb
      := ARRAY yyTCombRangePacked OF yyTCombType
          {
-           (*   0*) yyTCombType {   5,  282} , (*   1*) yyTCombType {   0,    0}
+           (*   0*) yyTCombType {   5,  309} , (*   1*) yyTCombType {   0,    0}
          , (*   2*) yyTCombType {   0,    0} , (*   3*) yyTCombType {   0,    0}
          , (*   4*) yyTCombType {   0,    0} , (*   5*) yyTCombType {   0,    0}
          , (*   6*) yyTCombType {   0,    0} , (*   7*) yyTCombType {   0,    0}
-         , (*   8*) yyTCombType {   0,    0} , (*   9*) yyTCombType {  11,  334}
-         , (*  10*) yyTCombType { 101,  102} , (*  11*) yyTCombType { 122,  123}
+         , (*   8*) yyTCombType {   0,    0} , (*   9*) yyTCombType {  11,  363}
+         , (*  10*) yyTCombType { 119,  120} , (*  11*) yyTCombType { 140,  141}
          , (*  12*) yyTCombType {   0,    0} , (*  13*) yyTCombType {   0,    0}
-         , (*  14*) yyTCombType {  11,  334} , (*  15*) yyTCombType {   0,    0}
-         , (*  16*) yyTCombType {   0,    0} , (*  17*) yyTCombType {   0,    0}
-         , (*  18*) yyTCombType {   0,    0} , (*  19*) yyTCombType {  11,  334}
+         , (*  14*) yyTCombType {  11,  363} , (*  15*) yyTCombType {   0,    0}
+         , (*  16*) yyTCombType {  54,   55} , (*  17*) yyTCombType {   0,    0}
+         , (*  18*) yyTCombType {   0,    0} , (*  19*) yyTCombType {  11,  363}
          , (*  20*) yyTCombType {  26,   27} , (*  21*) yyTCombType {  31,   32}
-         , (*  22*) yyTCombType {  39,  164} , (*  23*) yyTCombType {  42,  168}
-         , (*  24*) yyTCombType {  45,  408} , (*  25*) yyTCombType {  52,  185}
-         , (*  26*) yyTCombType {  54,  314} , (*  27*) yyTCombType {  11,  334}
-         , (*  28*) yyTCombType {   1,    2} , (*  29*) yyTCombType { 103,  208}
-         , (*  30*) yyTCombType {  11,  334} , (*  31*) yyTCombType {  12,  332}
-         , (*  32*) yyTCombType {   1,  312} , (*  33*) yyTCombType {   2,    3}
+         , (*  22*) yyTCombType {  44,  435} , (*  23*) yyTCombType {  51,  201}
+         , (*  24*) yyTCombType {  76,  208} , (*  25*) yyTCombType {  61,  442}
+         , (*  26*) yyTCombType {  88,  341} , (*  27*) yyTCombType {  11,  363}
+         , (*  28*) yyTCombType {   1,    2} , (*  29*) yyTCombType {  92,  212}
+         , (*  30*) yyTCombType {  11,  363} , (*  31*) yyTCombType {  12,  361}
+         , (*  32*) yyTCombType {   1,  339} , (*  33*) yyTCombType {   2,    3}
          , (*  34*) yyTCombType {   6,    7} , (*  35*) yyTCombType {  14,   15}
-         , (*  36*) yyTCombType {  12,  332} , (*  37*) yyTCombType {   1,  312}
+         , (*  36*) yyTCombType {  12,  361} , (*  37*) yyTCombType {   1,  339}
          , (*  38*) yyTCombType {   2,    4} , (*  39*) yyTCombType {   6,    8}
-         , (*  40*) yyTCombType {  41,   42} , (*  41*) yyTCombType {  12,  332}
-         , (*  42*) yyTCombType {  51,  386} , (*  43*) yyTCombType {  11,  334}
-         , (*  44*) yyTCombType { 108,  314} , (*  45*) yyTCombType { 109,  463}
-         , (*  46*) yyTCombType { 116,  117} , (*  47*) yyTCombType { 123,  466}
-         , (*  48*) yyTCombType { 124,  125} , (*  49*) yyTCombType {  12,   13}
-         , (*  50*) yyTCombType { 134,  135} , (*  51*) yyTCombType {  11,  334}
-         , (*  52*) yyTCombType {  12,   16} , (*  53*) yyTCombType {  85,  169}
-         , (*  54*) yyTCombType {  70,  191} , (*  55*) yyTCombType { 109,  463}
-         , (*  56*) yyTCombType {   0,    0} , (*  57*) yyTCombType {  11,  334}
-         , (*  58*) yyTCombType {   0,    0} , (*  59*) yyTCombType {   1,  145}
-         , (*  60*) yyTCombType {  46,  383} , (*  61*) yyTCombType {   0,    0}
-         , (*  62*) yyTCombType {  49,  387} , (*  63*) yyTCombType {  11,  334}
-         , (*  64*) yyTCombType {   0,    0} , (*  65*) yyTCombType {  12,  332}
-         , (*  66*) yyTCombType {   9,   10} , (*  67*) yyTCombType {  17,  151}
-         , (*  68*) yyTCombType {   9,   21} , (*  69*) yyTCombType {  19,  153}
-         , (*  70*) yyTCombType {  24,  154} , (*  71*) yyTCombType {  28,  155}
-         , (*  72*) yyTCombType {  17,   18} , (*  73*) yyTCombType {  12,  332}
-         , (*  74*) yyTCombType {  19,   20} , (*  75*) yyTCombType {  33,  161}
-         , (*  76*) yyTCombType {  34,  351} , (*  77*) yyTCombType {  35,  352}
-         , (*  78*) yyTCombType {  36,  163} , (*  79*) yyTCombType {  12,  332}
-         , (*  80*) yyTCombType {  37,  385} , (*  81*) yyTCombType {  34,  351}
-         , (*  82*) yyTCombType {  35,  352} , (*  83*) yyTCombType {  53,   54}
-         , (*  84*) yyTCombType {  37,   38} , (*  85*) yyTCombType {  12,  332}
-         , (*  86*) yyTCombType {  34,  351} , (*  87*) yyTCombType {  35,  352}
-         , (*  88*) yyTCombType {  43,  325} , (*  89*) yyTCombType {  51,  386}
-         , (*  90*) yyTCombType {  56,  189} , (*  91*) yyTCombType {  48,  385}
-         , (*  92*) yyTCombType {  66,  190} , (*  93*) yyTCombType {  74,   75}
-         , (*  94*) yyTCombType {  77,  193} , (*  95*) yyTCombType {   4,  144}
-         , (*  96*) yyTCombType {   7,  146} , (*  97*) yyTCombType {   8,  147}
-         , (*  98*) yyTCombType {  15,  149} , (*  99*) yyTCombType {  16,  150}
-         , (* 100*) yyTCombType {  18,  152} , (* 101*) yyTCombType {  21,   22}
-         , (* 102*) yyTCombType {  25,  148} , (* 103*) yyTCombType {  27,   28}
-         , (* 104*) yyTCombType {  30,  157} , (* 105*) yyTCombType {  32,   33}
-         , (* 106*) yyTCombType {  44,  170} , (* 107*) yyTCombType {  46,  383}
-         , (* 108*) yyTCombType {  47,  172} , (* 109*) yyTCombType {  49,  387}
-         , (* 110*) yyTCombType {  34,  351} , (* 111*) yyTCombType {  35,  352}
-         , (* 112*) yyTCombType {  46,   47} , (* 113*) yyTCombType {  46,  383}
-         , (* 114*) yyTCombType {  43,  325} , (* 115*) yyTCombType {  46,  383}
-         , (* 116*) yyTCombType {  57,   58} , (* 117*) yyTCombType {  49,   50}
-         , (* 118*) yyTCombType {  34,  351} , (* 119*) yyTCombType {  35,  352}
-         , (* 120*) yyTCombType {  57,  315} , (* 121*) yyTCombType {  59,  171}
-         , (* 122*) yyTCombType {  65,  429} , (* 123*) yyTCombType {  70,   71}
-         , (* 124*) yyTCombType {  34,  351} , (* 125*) yyTCombType {  35,  352}
-         , (* 126*) yyTCombType {  65,  429} , (* 127*) yyTCombType {  73,   43}
-         , (* 128*) yyTCombType {  80,  195} , (* 129*) yyTCombType {  71,  324}
-         , (* 130*) yyTCombType {  34,  351} , (* 131*) yyTCombType {  35,  352}
-         , (* 132*) yyTCombType {  58,  186} , (* 133*) yyTCombType {  67,  432}
-         , (* 134*) yyTCombType {  71,  324} , (* 135*) yyTCombType {  43,  325}
-         , (* 136*) yyTCombType {  43,   44} , (* 137*) yyTCombType {  43,  325}
-         , (* 138*) yyTCombType {  48,  385} , (* 139*) yyTCombType {  43,  325}
-         , (* 140*) yyTCombType {  43,  325} , (* 141*) yyTCombType {  76,  356}
-         , (* 142*) yyTCombType {  43,  325} , (* 143*) yyTCombType {  43,  325}
-         , (* 144*) yyTCombType {  48,   38} , (* 145*) yyTCombType {  43,  325}
-         , (* 146*) yyTCombType {  48,  385} , (* 147*) yyTCombType {  60,  426}
-         , (* 148*) yyTCombType {  58,  187} , (* 149*) yyTCombType {  58,  188}
-         , (* 150*) yyTCombType {  69,  435} , (* 151*) yyTCombType {  60,  426}
-         , (* 152*) yyTCombType {  60,   47} , (* 153*) yyTCombType {  60,  426}
-         , (* 154*) yyTCombType {  61,  428} , (* 155*) yyTCombType {  60,  426}
-         , (* 156*) yyTCombType {  58,  314} , (* 157*) yyTCombType {  83,  198}
-         , (* 158*) yyTCombType {  61,  428} , (* 159*) yyTCombType {  67,  432}
-         , (* 160*) yyTCombType {  61,   62} , (* 161*) yyTCombType {  43,  325}
-         , (* 162*) yyTCombType {  61,  428} , (* 163*) yyTCombType {  35,  162}
-         , (* 164*) yyTCombType {  63,  430} , (* 165*) yyTCombType {  72,   73}
-         , (* 166*) yyTCombType {  81,  196} , (* 167*) yyTCombType {  76,  184}
-         , (* 168*) yyTCombType {  63,  430} , (* 169*) yyTCombType {  78,  361}
-         , (* 170*) yyTCombType {  72,  192} , (* 171*) yyTCombType {  81,  197}
-         , (* 172*) yyTCombType {  63,   64} , (* 173*) yyTCombType {  79,  362}
-         , (* 174*) yyTCombType {  78,  361} , (* 175*) yyTCombType {  89,  201}
-         , (* 176*) yyTCombType {  69,   70} , (* 177*) yyTCombType {  90,  202}
-         , (* 178*) yyTCombType {  79,  362} , (* 179*) yyTCombType {  78,  361}
-         , (* 180*) yyTCombType {  67,  432} , (* 181*) yyTCombType {  58,  421}
-         , (* 182*) yyTCombType {  67,  432} , (* 183*) yyTCombType {  79,  362}
-         , (* 184*) yyTCombType {  67,  432} , (* 185*) yyTCombType {  93,  203}
-         , (* 186*) yyTCombType {  67,   68} , (* 187*) yyTCombType {  86,  199}
-         , (* 188*) yyTCombType {  67,  432} , (* 189*) yyTCombType {  94,  204}
-         , (* 190*) yyTCombType {  84,  371} , (* 191*) yyTCombType {  95,   56}
-         , (* 192*) yyTCombType {  86,  200} , (* 193*) yyTCombType {  98,   99}
-         , (* 194*) yyTCombType {  96,  205} , (* 195*) yyTCombType {  84,  371}
-         , (* 196*) yyTCombType {  96,  206} , (* 197*) yyTCombType {  69,  435}
-         , (* 198*) yyTCombType {  99,  207} , (* 199*) yyTCombType {  69,  435}
-         , (* 200*) yyTCombType {  84,  371} , (* 201*) yyTCombType {  69,  435}
-         , (* 202*) yyTCombType { 104,  105} , (* 203*) yyTCombType {  78,  361}
-         , (* 204*) yyTCombType { 111,  209} , (* 205*) yyTCombType {  69,  435}
-         , (* 206*) yyTCombType { 106,  471} , (* 207*) yyTCombType {  79,  362}
-         , (* 208*) yyTCombType {  88,  372} , (* 209*) yyTCombType { 113,  210}
-         , (* 210*) yyTCombType { 114,  115} , (* 211*) yyTCombType {  78,  361}
-         , (* 212*) yyTCombType { 115,   23} , (* 213*) yyTCombType {  88,  372}
-         , (* 214*) yyTCombType { 107,  315} , (* 215*) yyTCombType {  79,  362}
-         , (* 216*) yyTCombType { 117,  118} , (* 217*) yyTCombType {  78,  361}
-         , (* 218*) yyTCombType {  88,  372} , (* 219*) yyTCombType { 118,  211}
-         , (* 220*) yyTCombType { 104,  184} , (* 221*) yyTCombType {  79,  362}
-         , (* 222*) yyTCombType { 110,  111} , (* 223*) yyTCombType {  78,  361}
-         , (* 224*) yyTCombType {  84,  371} , (* 225*) yyTCombType { 119,  120}
-         , (* 226*) yyTCombType {  87,   39} , (* 227*) yyTCombType {  79,  362}
-         , (* 228*) yyTCombType { 112,  342} , (* 229*) yyTCombType { 125,  126}
-         , (* 230*) yyTCombType {  87,  165} , (* 231*) yyTCombType {  91,  378}
-         , (* 232*) yyTCombType {  84,  371} , (* 233*) yyTCombType { 112,  113}
-         , (* 234*) yyTCombType {  87,  166} , (* 235*) yyTCombType {  87,   40}
-         , (* 236*) yyTCombType {  91,  378} , (* 237*) yyTCombType { 126,  212}
-         , (* 238*) yyTCombType {  84,  371} , (* 239*) yyTCombType {  87,  167}
-         , (* 240*) yyTCombType { 121,  462} , (* 241*) yyTCombType {  91,  378}
-         , (* 242*) yyTCombType {  88,  372} , (* 243*) yyTCombType { 127,  295}
-         , (* 244*) yyTCombType {  84,  371} , (* 245*) yyTCombType { 121,  156}
-         , (* 246*) yyTCombType { 131,  132} , (* 247*) yyTCombType {  92,  379}
-         , (* 248*) yyTCombType {  87,   41} , (* 249*) yyTCombType { 135,  136}
-         , (* 250*) yyTCombType {  88,  372} , (* 251*) yyTCombType {  88,  167}
-         , (* 252*) yyTCombType {  92,  379} , (* 253*) yyTCombType { 106,  471}
-         , (* 254*) yyTCombType { 129,  322} , (* 255*) yyTCombType { 129,  322}
-         , (* 256*) yyTCombType {  88,  372} , (* 257*) yyTCombType {  92,  379}
-         , (* 258*) yyTCombType { 136,  214} , (* 259*) yyTCombType {  79,  194}
-         , (* 260*) yyTCombType {  88,   85} , (* 261*) yyTCombType { 107,  108}
-         , (* 262*) yyTCombType {  88,  372} , (* 263*) yyTCombType { 137,  296}
-         , (* 264*) yyTCombType { 110,  341} , (* 265*) yyTCombType {  91,  378}
-         , (* 266*) yyTCombType { 110,  114} , (* 267*) yyTCombType { 130,  213}
-         , (* 268*) yyTCombType { 130,   25} , (* 269*) yyTCombType { 138,  129}
-         , (* 270*) yyTCombType { 139,  140} , (* 271*) yyTCombType { 142,  143}
-         , (* 272*) yyTCombType { 143,  215} , (* 273*) yyTCombType {  91,  378}
-         , (* 274*) yyTCombType { 121,   30} , (* 275*) yyTCombType {   0,    0}
-         , (* 276*) yyTCombType {   0,    0} , (* 277*) yyTCombType {   0,    0}
-         , (* 278*) yyTCombType {   0,    0} , (* 279*) yyTCombType {  91,  378}
-         , (* 280*) yyTCombType {   0,    0} , (* 281*) yyTCombType {  92,  379}
-         , (* 282*) yyTCombType { 121,  158} , (* 283*) yyTCombType {   0,    0}
-         , (* 284*) yyTCombType {   0,    0} , (* 285*) yyTCombType {  91,  378}
-         , (* 286*) yyTCombType { 141,  454} , (* 287*) yyTCombType { 133,  156}
-         , (* 288*) yyTCombType { 121,  159} , (* 289*) yyTCombType {  92,  379}
-         , (* 290*) yyTCombType {   0,    0} , (* 291*) yyTCombType { 141,  454}
-         , (* 292*) yyTCombType { 133,  462} , (* 293*) yyTCombType {   0,    0}
-         , (* 294*) yyTCombType { 121,  160} , (* 295*) yyTCombType {  92,  379}
-         , (* 296*) yyTCombType {   0,    0} , (* 297*) yyTCombType {   0,    0}
-         , (* 298*) yyTCombType {   0,    0} , (* 299*) yyTCombType {   0,    0}
-         , (* 300*) yyTCombType {   0,    0} , (* 301*) yyTCombType {  92,  379}
-         , (* 302*) yyTCombType { 105,  173} , (* 303*) yyTCombType { 105,  174}
-         , (* 304*) yyTCombType { 105,  175} , (* 305*) yyTCombType { 105,  176}
-         , (* 306*) yyTCombType { 105,  177} , (* 307*) yyTCombType { 105,  178}
-         , (* 308*) yyTCombType { 105,  179} , (* 309*) yyTCombType { 105,  180}
-         , (* 310*) yyTCombType { 105,  181} , (* 311*) yyTCombType { 105,  182}
-         , (* 312*) yyTCombType { 105,  183} , (* 313*) yyTCombType { 132,  331}
-         , (* 314*) yyTCombType {   0,    0} , (* 315*) yyTCombType {   0,    0}
-         , (* 316*) yyTCombType { 133,   30} , (* 317*) yyTCombType { 140,  331}
-         , (* 318*) yyTCombType { 132,  331} , (* 319*) yyTCombType {   0,    0}
-         , (* 320*) yyTCombType { 141,  454} , (* 321*) yyTCombType {   0,    0}
-         , (* 322*) yyTCombType { 140,  331} , (* 323*) yyTCombType {   0,    0}
-         , (* 324*) yyTCombType { 133,  158} , (* 325*) yyTCombType {   0,    0}
-         , (* 326*) yyTCombType { 132,  331} , (* 327*) yyTCombType {   0,    0}
-         , (* 328*) yyTCombType { 141,  454} , (* 329*) yyTCombType { 132,  331}
-         , (* 330*) yyTCombType { 133,  159} , (* 331*) yyTCombType {   0,    0}
-         , (* 332*) yyTCombType {   0,    0} , (* 333*) yyTCombType {   0,    0}
-         , (* 334*) yyTCombType { 141,  454} , (* 335*) yyTCombType { 140,  331}
-         , (* 336*) yyTCombType { 133,  160} , (* 337*) yyTCombType {   0,    0}
-         , (* 338*) yyTCombType { 140,  331} , (* 339*) yyTCombType {   0,    0}
-         , (* 340*) yyTCombType { 141,  454} , (* 341*) yyTCombType {   0,    0}
-         , (* 342*) yyTCombType { 132,  331} , (* 343*) yyTCombType {   0,    0}
-         , (* 344*) yyTCombType {   0,    0} , (* 345*) yyTCombType {   0,    0}
-         , (* 346*) yyTCombType {   0,    0} , (* 347*) yyTCombType {   0,    0}
-         , (* 348*) yyTCombType {   0,    0} , (* 349*) yyTCombType {   0,    0}
-         , (* 350*) yyTCombType { 132,  331} , (* 351*) yyTCombType { 140,  331}
-         , (* 352*) yyTCombType {   0,    0} , (* 353*) yyTCombType {   0,    0}
-         , (* 354*) yyTCombType {   0,    0} , (* 355*) yyTCombType {   0,    0}
-         , (* 356*) yyTCombType { 132,  331} , (* 357*) yyTCombType {   0,    0}
-         , (* 358*) yyTCombType {   0,    0} , (* 359*) yyTCombType { 140,  331}
+         , (*  40*) yyTCombType {  53,  341} , (*  41*) yyTCombType {  12,  361}
+         , (*  42*) yyTCombType {  55,  456} , (*  43*) yyTCombType {  11,  363}
+         , (*  44*) yyTCombType {  54,  455} , (*  45*) yyTCombType {  57,  202}
+         , (*  46*) yyTCombType {  86,  449} , (*  47*) yyTCombType {  53,  341}
+         , (*  48*) yyTCombType {  61,  442} , (*  49*) yyTCombType {  12,   13}
+         , (*  50*) yyTCombType { 121,  228} , (*  51*) yyTCombType {  11,  363}
+         , (*  52*) yyTCombType {  12,   16} , (*  53*) yyTCombType {  40,  185}
+         , (*  54*) yyTCombType {  59,  435} , (*  55*) yyTCombType {  56,  457}
+         , (*  56*) yyTCombType { 126,  341} , (*  57*) yyTCombType {  11,  363}
+         , (*  58*) yyTCombType {  52,  342} , (*  59*) yyTCombType {   1,  163}
+         , (*  60*) yyTCombType {  63,  341} , (*  61*) yyTCombType {  59,  435}
+         , (*  62*) yyTCombType { 134,  135} , (*  63*) yyTCombType {  11,  363}
+         , (*  64*) yyTCombType {  62,  342} , (*  65*) yyTCombType {  12,  361}
+         , (*  66*) yyTCombType {   9,   10} , (*  67*) yyTCombType {  17,  169}
+         , (*  68*) yyTCombType {   9,   21} , (*  69*) yyTCombType {  19,  171}
+         , (*  70*) yyTCombType {  24,  172} , (*  71*) yyTCombType {  28,  173}
+         , (*  72*) yyTCombType {  17,   18} , (*  73*) yyTCombType {  12,  361}
+         , (*  74*) yyTCombType {  19,   20} , (*  75*) yyTCombType {  33,  179}
+         , (*  76*) yyTCombType {  34,  380} , (*  77*) yyTCombType {  35,  381}
+         , (*  78*) yyTCombType {  36,  181} , (*  79*) yyTCombType {  12,  361}
+         , (*  80*) yyTCombType {  37,  414} , (*  81*) yyTCombType {  34,  380}
+         , (*  82*) yyTCombType {  35,  381} , (*  83*) yyTCombType {  65,  207}
+         , (*  84*) yyTCombType {  37,   38} , (*  85*) yyTCombType {  12,  361}
+         , (*  86*) yyTCombType {  34,  380} , (*  87*) yyTCombType {  35,  381}
+         , (*  88*) yyTCombType {  62,   63} , (*  89*) yyTCombType {  52,   53}
+         , (*  90*) yyTCombType {  66,   67} , (*  91*) yyTCombType {  77,  350}
+         , (*  92*) yyTCombType {  78,  209} , (*  93*) yyTCombType {  76,   77}
+         , (*  94*) yyTCombType {  66,  342} , (*  95*) yyTCombType {   4,  162}
+         , (*  96*) yyTCombType {   7,  164} , (*  97*) yyTCombType {   8,  165}
+         , (*  98*) yyTCombType {  15,  167} , (*  99*) yyTCombType {  16,  168}
+         , (* 100*) yyTCombType {  18,  170} , (* 101*) yyTCombType {  21,   22}
+         , (* 102*) yyTCombType {  25,  166} , (* 103*) yyTCombType {  27,   28}
+         , (* 104*) yyTCombType {  30,  175} , (* 105*) yyTCombType {  32,   33}
+         , (* 106*) yyTCombType {  42,  186} , (* 107*) yyTCombType {  46,  188}
+         , (* 108*) yyTCombType {  56,  200} , (* 109*) yyTCombType {  41,  354}
+         , (* 110*) yyTCombType {  34,  380} , (* 111*) yyTCombType {  35,  381}
+         , (* 112*) yyTCombType {  68,  187} , (* 113*) yyTCombType {  63,  203}
+         , (* 114*) yyTCombType {  80,   41} , (* 115*) yyTCombType {  84,  210}
+         , (* 116*) yyTCombType {  79,   80} , (* 117*) yyTCombType {  41,  354}
+         , (* 118*) yyTCombType {  34,  380} , (* 119*) yyTCombType {  35,  381}
+         , (* 120*) yyTCombType {  43,  459} , (* 121*) yyTCombType {  79,  351}
+         , (* 122*) yyTCombType {  86,  211} , (* 123*) yyTCombType {  83,  479}
+         , (* 124*) yyTCombType {  34,  380} , (* 125*) yyTCombType {  35,  381}
+         , (* 126*) yyTCombType {  60,  441} , (* 127*) yyTCombType {  83,  479}
+         , (* 128*) yyTCombType {  43,  417} , (* 129*) yyTCombType {  45,  412}
+         , (* 130*) yyTCombType {  34,  380} , (* 131*) yyTCombType {  35,  381}
+         , (* 132*) yyTCombType {  87,   88} , (* 133*) yyTCombType {  41,  354}
+         , (* 134*) yyTCombType {  89,   90} , (* 135*) yyTCombType {  85,  448}
+         , (* 136*) yyTCombType {  93,   94} , (* 137*) yyTCombType {  41,  354}
+         , (* 138*) yyTCombType {  96,  213} , (* 139*) yyTCombType {  47,  414}
+         , (* 140*) yyTCombType {  41,  354} , (* 141*) yyTCombType {  91,  454}
+         , (* 142*) yyTCombType {  60,   61} , (* 143*) yyTCombType {  41,  354}
+         , (* 144*) yyTCombType {  43,  417} , (* 145*) yyTCombType {  45,  412}
+         , (* 146*) yyTCombType {  99,  215} , (* 147*) yyTCombType { 102,  218}
+         , (* 148*) yyTCombType {  43,  459} , (* 149*) yyTCombType {  60,  441}
+         , (* 150*) yyTCombType { 107,  221} , (* 151*) yyTCombType {  43,  417}
+         , (* 152*) yyTCombType {  45,  412} , (* 153*) yyTCombType { 108,  222}
+         , (* 154*) yyTCombType {  43,  417} , (* 155*) yyTCombType {  47,  414}
+         , (* 156*) yyTCombType { 100,  216} , (* 157*) yyTCombType {  48,  416}
+         , (* 158*) yyTCombType {  85,   86} , (* 159*) yyTCombType { 111,  223}
+         , (* 160*) yyTCombType { 112,  224} , (* 161*) yyTCombType { 100,  217}
+         , (* 162*) yyTCombType {  47,  414} , (* 163*) yyTCombType {  35,  180}
+         , (* 164*) yyTCombType {  41,  354} , (* 165*) yyTCombType {  41,   42}
+         , (* 166*) yyTCombType {  41,  354} , (* 167*) yyTCombType {  95,  385}
+         , (* 168*) yyTCombType {  41,  354} , (* 169*) yyTCombType {  41,  354}
+         , (* 170*) yyTCombType { 113,   65} , (* 171*) yyTCombType {  41,  354}
+         , (* 172*) yyTCombType {  41,  354} , (* 173*) yyTCombType {  48,  416}
+         , (* 174*) yyTCombType {  41,  354} , (* 175*) yyTCombType {  43,  417}
+         , (* 176*) yyTCombType {  45,  412} , (* 177*) yyTCombType {  43,  417}
+         , (* 178*) yyTCombType { 116,  117} , (* 179*) yyTCombType {  43,  417}
+         , (* 180*) yyTCombType {  48,  416} , (* 181*) yyTCombType {  45,   46}
+         , (* 182*) yyTCombType {  45,  412} , (* 183*) yyTCombType {  43,  417}
+         , (* 184*) yyTCombType {  45,  412} , (* 185*) yyTCombType {  50,  415}
+         , (* 186*) yyTCombType {  47,  414} , (* 187*) yyTCombType {  58,  460}
+         , (* 188*) yyTCombType {  91,  454} , (* 189*) yyTCombType {  67,  204}
+         , (* 190*) yyTCombType {  41,  354} , (* 191*) yyTCombType { 104,  219}
+         , (* 192*) yyTCombType {  47,   38} , (* 193*) yyTCombType {  95,  200}
+         , (* 194*) yyTCombType {  47,  414} , (* 195*) yyTCombType {  58,  463}
+         , (* 196*) yyTCombType { 104,  220} , (* 197*) yyTCombType { 117,  227}
+         , (* 198*) yyTCombType { 114,  225} , (* 199*) yyTCombType {  81,  480}
+         , (* 200*) yyTCombType { 114,  226} , (* 201*) yyTCombType {  50,  415}
+         , (* 202*) yyTCombType { 122,  123} , (* 203*) yyTCombType {  81,  480}
+         , (* 204*) yyTCombType {  48,  416} , (* 205*) yyTCombType {  67,  205}
+         , (* 206*) yyTCombType {  67,  206} , (* 207*) yyTCombType {  81,   82}
+         , (* 208*) yyTCombType {  50,  415} , (* 209*) yyTCombType { 124,  521}
+         , (* 210*) yyTCombType { 125,  342} , (* 211*) yyTCombType {  58,  463}
+         , (* 212*) yyTCombType {  48,   49} , (* 213*) yyTCombType {  67,  341}
+         , (* 214*) yyTCombType { 129,  229} , (* 215*) yyTCombType {  58,  460}
+         , (* 216*) yyTCombType { 131,  230} , (* 217*) yyTCombType {  73,  482}
+         , (* 218*) yyTCombType {  58,  463} , (* 219*) yyTCombType {  69,  476}
+         , (* 220*) yyTCombType { 122,  200} , (* 221*) yyTCombType {  58,  463}
+         , (* 222*) yyTCombType {  70,  478} , (* 223*) yyTCombType {  69,  476}
+         , (* 224*) yyTCombType {  69,   46} , (* 225*) yyTCombType {  69,  476}
+         , (* 226*) yyTCombType {  70,  478} , (* 227*) yyTCombType {  69,  476}
+         , (* 228*) yyTCombType {  70,   71} , (* 229*) yyTCombType {  75,  483}
+         , (* 230*) yyTCombType {  70,  478} , (* 231*) yyTCombType {  97,  390}
+         , (* 232*) yyTCombType {  50,  415} , (* 233*) yyTCombType {  73,  482}
+         , (* 234*) yyTCombType { 130,  371} , (* 235*) yyTCombType { 132,  133}
+         , (* 236*) yyTCombType {  97,  390} , (* 237*) yyTCombType { 127,  513}
+         , (* 238*) yyTCombType {  67,  471} , (* 239*) yyTCombType { 130,  131}
+         , (* 240*) yyTCombType {  73,  482} , (* 241*) yyTCombType {  97,  390}
+         , (* 242*) yyTCombType {  58,  463} , (* 243*) yyTCombType {  73,  482}
+         , (* 244*) yyTCombType {  58,  463} , (* 245*) yyTCombType {  75,  483}
+         , (* 246*) yyTCombType {  58,  463} , (* 247*) yyTCombType { 127,  513}
+         , (* 248*) yyTCombType {  98,  391} , (* 249*) yyTCombType { 103,  400}
+         , (* 250*) yyTCombType {  58,  463} , (* 251*) yyTCombType { 133,   23}
+         , (* 252*) yyTCombType {  75,  483} , (* 253*) yyTCombType {  98,  391}
+         , (* 254*) yyTCombType { 103,  400} , (* 255*) yyTCombType {  75,   76}
+         , (* 256*) yyTCombType { 124,  521} , (* 257*) yyTCombType { 125,  126}
+         , (* 258*) yyTCombType {  98,  391} , (* 259*) yyTCombType { 103,  400}
+         , (* 260*) yyTCombType { 135,  136} , (* 261*) yyTCombType { 136,  231}
+         , (* 262*) yyTCombType { 137,  138} , (* 263*) yyTCombType { 141,  516}
+         , (* 264*) yyTCombType {  73,  482} , (* 265*) yyTCombType {  97,  390}
+         , (* 266*) yyTCombType {  73,  482} , (* 267*) yyTCombType { 142,  143}
+         , (* 268*) yyTCombType {  73,  482} , (* 269*) yyTCombType { 143,  144}
+         , (* 270*) yyTCombType {  73,   74} , (* 271*) yyTCombType { 144,  232}
+         , (* 272*) yyTCombType {  73,  482} , (* 273*) yyTCombType {  97,  390}
+         , (* 274*) yyTCombType { 145,  322} , (* 275*) yyTCombType { 128,  129}
+         , (* 276*) yyTCombType {  75,  483} , (* 277*) yyTCombType { 105,  458}
+         , (* 278*) yyTCombType {  75,  483} , (* 279*) yyTCombType {  97,  390}
+         , (* 280*) yyTCombType {  75,  483} , (* 281*) yyTCombType { 149,  150}
+         , (* 282*) yyTCombType {  98,  391} , (* 283*) yyTCombType { 103,  400}
+         , (* 284*) yyTCombType {  75,  483} , (* 285*) yyTCombType {  97,  390}
+         , (* 286*) yyTCombType { 147,  349} , (* 287*) yyTCombType { 147,  349}
+         , (* 288*) yyTCombType { 106,  401} , (* 289*) yyTCombType { 152,  153}
+         , (* 290*) yyTCombType {  98,  391} , (* 291*) yyTCombType { 103,  400}
+         , (* 292*) yyTCombType { 153,  154} , (* 293*) yyTCombType { 106,  401}
+         , (* 294*) yyTCombType { 148,  233} , (* 295*) yyTCombType { 148,   25}
+         , (* 296*) yyTCombType {  98,  391} , (* 297*) yyTCombType { 103,  400}
+         , (* 298*) yyTCombType { 106,  401} , (* 299*) yyTCombType { 139,  512}
+         , (* 300*) yyTCombType { 154,  234} , (* 301*) yyTCombType { 109,  407}
+         , (* 302*) yyTCombType {  98,  391} , (* 303*) yyTCombType { 103,  400}
+         , (* 304*) yyTCombType { 139,  174} , (* 305*) yyTCombType { 105,  458}
+         , (* 306*) yyTCombType { 109,  407} , (* 307*) yyTCombType { 155,  323}
+         , (* 308*) yyTCombType { 156,  147} , (* 309*) yyTCombType { 105,  182}
+         , (* 310*) yyTCombType { 110,  408} , (* 311*) yyTCombType { 109,  407}
+         , (* 312*) yyTCombType { 157,  158} , (* 313*) yyTCombType { 105,  183}
+         , (* 314*) yyTCombType { 105,   39} , (* 315*) yyTCombType { 110,  408}
+         , (* 316*) yyTCombType { 160,  161} , (* 317*) yyTCombType { 128,  370}
+         , (* 318*) yyTCombType { 105,  184} , (* 319*) yyTCombType { 128,  132}
+         , (* 320*) yyTCombType { 110,  408} , (* 321*) yyTCombType { 161,  235}
+         , (* 322*) yyTCombType { 106,  401} , (* 323*) yyTCombType {   0,    0}
+         , (* 324*) yyTCombType {   0,    0} , (* 325*) yyTCombType {   0,    0}
+         , (* 326*) yyTCombType {   0,    0} , (* 327*) yyTCombType { 105,   40}
+         , (* 328*) yyTCombType {   0,    0} , (* 329*) yyTCombType {   0,    0}
+         , (* 330*) yyTCombType { 106,  401} , (* 331*) yyTCombType { 106,  184}
+         , (* 332*) yyTCombType {   0,    0} , (* 333*) yyTCombType { 139,   30}
+         , (* 334*) yyTCombType {  98,  214} , (* 335*) yyTCombType { 109,  407}
+         , (* 336*) yyTCombType { 106,  401} , (* 337*) yyTCombType {   0,    0}
+         , (* 338*) yyTCombType {   0,    0} , (* 339*) yyTCombType {   0,    0}
+         , (* 340*) yyTCombType { 106,   40} , (* 341*) yyTCombType { 139,  176}
+         , (* 342*) yyTCombType { 106,  401} , (* 343*) yyTCombType { 109,  407}
+         , (* 344*) yyTCombType { 110,  408} , (* 345*) yyTCombType {   0,    0}
+         , (* 346*) yyTCombType {   0,    0} , (* 347*) yyTCombType { 139,  177}
+         , (* 348*) yyTCombType {   0,    0} , (* 349*) yyTCombType { 109,  407}
+         , (* 350*) yyTCombType {   0,    0} , (* 351*) yyTCombType { 151,  174}
+         , (* 352*) yyTCombType { 110,  408} , (* 353*) yyTCombType { 139,  178}
+         , (* 354*) yyTCombType {   0,    0} , (* 355*) yyTCombType { 109,  407}
+         , (* 356*) yyTCombType { 151,  512} , (* 357*) yyTCombType {   0,    0}
+         , (* 358*) yyTCombType { 110,  408} , (* 359*) yyTCombType {   0,    0}
          , (* 360*) yyTCombType {   0,    0} , (* 361*) yyTCombType {   0,    0}
-         , (* 362*) yyTCombType { 132,  331} , (* 363*) yyTCombType {   0,    0}
-         , (* 364*) yyTCombType {   0,    0} , (* 365*) yyTCombType { 140,  331}
-         , (* 366*) yyTCombType {   0,    0} , (* 367*) yyTCombType {   0,    0}
-         , (* 368*) yyTCombType {   0,    0} , (* 369*) yyTCombType {   0,    0}
-         , (* 370*) yyTCombType {   0,    0} , (* 371*) yyTCombType { 140,  331}
-         , (* 372*) yyTCombType {   0,    0} , (* 373*) yyTCombType {   0,    0}
-         , (* 374*) yyTCombType {   0,    0} , (* 375*) yyTCombType {   0,    0}
-         , (* 376*) yyTCombType {   0,    0} , (* 377*) yyTCombType {   0,    0}
-         , (* 378*) yyTCombType {   0,    0} , (* 379*) yyTCombType {   0,    0}
-         , (* 380*) yyTCombType {   0,    0} , (* 381*) yyTCombType {   0,    0}
-         , (* 382*) yyTCombType {   0,    0} , (* 383*) yyTCombType {   0,    0}
+         , (* 362*) yyTCombType {   0,    0} , (* 363*) yyTCombType {   0,    0}
+         , (* 364*) yyTCombType { 110,  408} , (* 365*) yyTCombType { 123,  189}
+         , (* 366*) yyTCombType { 123,  190} , (* 367*) yyTCombType { 123,  191}
+         , (* 368*) yyTCombType { 123,  192} , (* 369*) yyTCombType { 123,  193}
+         , (* 370*) yyTCombType { 123,  194} , (* 371*) yyTCombType { 123,  195}
+         , (* 372*) yyTCombType { 123,  196} , (* 373*) yyTCombType { 123,  197}
+         , (* 374*) yyTCombType { 123,  198} , (* 375*) yyTCombType { 123,  199}
+         , (* 376*) yyTCombType { 150,  360} , (* 377*) yyTCombType {   0,    0}
+         , (* 378*) yyTCombType { 158,  360} , (* 379*) yyTCombType {   0,    0}
+         , (* 380*) yyTCombType { 151,   30} , (* 381*) yyTCombType { 150,  360}
+         , (* 382*) yyTCombType { 159,  504} , (* 383*) yyTCombType { 158,  360}
          , (* 384*) yyTCombType {   0,    0} , (* 385*) yyTCombType {   0,    0}
-         , (* 386*) yyTCombType {   0,    0} , (* 387*) yyTCombType {   0,    0}
-         , (* 388*) yyTCombType {   0,    0} , (* 389*) yyTCombType {   0,    0}
+         , (* 386*) yyTCombType {   0,    0} , (* 387*) yyTCombType { 159,  504}
+         , (* 388*) yyTCombType { 151,  176} , (* 389*) yyTCombType { 150,  360}
          , (* 390*) yyTCombType {   0,    0} , (* 391*) yyTCombType {   0,    0}
-         , (* 392*) yyTCombType {   0,    0} , (* 393*) yyTCombType {   0,    0}
-         , (* 394*) yyTCombType {   0,    0} , (* 395*) yyTCombType {   0,    0}
-         , (* 396*) yyTCombType {   0,    0} , (* 397*) yyTCombType {   0,    0}
-         , (* 398*) yyTCombType {   0,    0} , (* 399*) yyTCombType {   0,    0}
-         , (* 400*) yyTCombType {   0,    0} , (* 401*) yyTCombType {   0,    0}
+         , (* 392*) yyTCombType { 150,  360} , (* 393*) yyTCombType {   0,    0}
+         , (* 394*) yyTCombType { 151,  177} , (* 395*) yyTCombType {   0,    0}
+         , (* 396*) yyTCombType { 158,  360} , (* 397*) yyTCombType {   0,    0}
+         , (* 398*) yyTCombType {   0,    0} , (* 399*) yyTCombType { 158,  360}
+         , (* 400*) yyTCombType { 151,  178} , (* 401*) yyTCombType {   0,    0}
          , (* 402*) yyTCombType {   0,    0} , (* 403*) yyTCombType {   0,    0}
-         , (* 404*) yyTCombType {   0,    0} , (* 405*) yyTCombType {   0,    0}
+         , (* 404*) yyTCombType {   0,    0} , (* 405*) yyTCombType { 150,  360}
          , (* 406*) yyTCombType {   0,    0} , (* 407*) yyTCombType {   0,    0}
          , (* 408*) yyTCombType {   0,    0} , (* 409*) yyTCombType {   0,    0}
          , (* 410*) yyTCombType {   0,    0} , (* 411*) yyTCombType {   0,    0}
-         , (* 412*) yyTCombType {   0,    0} , (* 413*) yyTCombType {   0,    0}
+         , (* 412*) yyTCombType { 158,  360} , (* 413*) yyTCombType { 150,  360}
          , (* 414*) yyTCombType {   0,    0} , (* 415*) yyTCombType {   0,    0}
+         , (* 416*) yyTCombType { 159,  504} , (* 417*) yyTCombType {   0,    0}
+         , (* 418*) yyTCombType {   0,    0} , (* 419*) yyTCombType { 150,  360}
+         , (* 420*) yyTCombType { 158,  360} , (* 421*) yyTCombType {   0,    0}
+         , (* 422*) yyTCombType {   0,    0} , (* 423*) yyTCombType {   0,    0}
+         , (* 424*) yyTCombType { 159,  504} , (* 425*) yyTCombType { 150,  360}
+         , (* 426*) yyTCombType { 158,  360} , (* 427*) yyTCombType {   0,    0}
+         , (* 428*) yyTCombType {   0,    0} , (* 429*) yyTCombType {   0,    0}
+         , (* 430*) yyTCombType { 159,  504} , (* 431*) yyTCombType {   0,    0}
+         , (* 432*) yyTCombType { 158,  360} , (* 433*) yyTCombType {   0,    0}
+         , (* 434*) yyTCombType {   0,    0} , (* 435*) yyTCombType {   0,    0}
+         , (* 436*) yyTCombType { 159,  504} , (* 437*) yyTCombType {   0,    0}
+         , (* 438*) yyTCombType {   0,    0} , (* 439*) yyTCombType {   0,    0}
+         , (* 440*) yyTCombType {   0,    0} , (* 441*) yyTCombType {   0,    0}
+         , (* 442*) yyTCombType {   0,    0} , (* 443*) yyTCombType {   0,    0}
+         , (* 444*) yyTCombType {   0,    0} , (* 445*) yyTCombType {   0,    0}
+         , (* 446*) yyTCombType {   0,    0} , (* 447*) yyTCombType {   0,    0}
+         , (* 448*) yyTCombType {   0,    0} , (* 449*) yyTCombType {   0,    0}
+         , (* 450*) yyTCombType {   0,    0} , (* 451*) yyTCombType {   0,    0}
+         , (* 452*) yyTCombType {   0,    0} , (* 453*) yyTCombType {   0,    0}
+         , (* 454*) yyTCombType {   0,    0} , (* 455*) yyTCombType {   0,    0}
+         , (* 456*) yyTCombType {   0,    0} , (* 457*) yyTCombType {   0,    0}
+         , (* 458*) yyTCombType {   0,    0} , (* 459*) yyTCombType {   0,    0}
+         , (* 460*) yyTCombType {   0,    0} , (* 461*) yyTCombType {   0,    0}
+         , (* 462*) yyTCombType {   0,    0} , (* 463*) yyTCombType {   0,    0}
+         , (* 464*) yyTCombType {   0,    0} , (* 465*) yyTCombType {   0,    0}
+         , (* 466*) yyTCombType {   0,    0} , (* 467*) yyTCombType {   0,    0}
+         , (* 468*) yyTCombType {   0,    0} , (* 469*) yyTCombType {   0,    0}
+         , (* 470*) yyTCombType {   0,    0} , (* 471*) yyTCombType {   0,    0}
+         , (* 472*) yyTCombType {   0,    0} , (* 473*) yyTCombType {   0,    0}
+         , (* 474*) yyTCombType {   0,    0} , (* 475*) yyTCombType {   0,    0}
+         , (* 476*) yyTCombType {   0,    0} , (* 477*) yyTCombType {   0,    0}
+         , (* 478*) yyTCombType {   0,    0} , (* 479*) yyTCombType {   0,    0}
+         , (* 480*) yyTCombType {   0,    0}
          };
          
    yyNComb 
@@ -569,123 +625,136 @@ VAR
      *) 
      := ARRAY yyNCombRangePacked OF yyNCombType
          {
-           (* 108*)  218 , (* 109*)    5 , (* 110*)  219 , (* 111*)  220
-         , (* 112*)  221 , (* 113*)  222 , (* 114*)  223 , (* 115*)  216
-         , (* 116*)  217 , (* 117*)    0 , (* 118*)  119 , (* 119*)    0
-         , (* 120*)    0 , (* 121*)  128 , (* 122*)  138 , (* 123*)    0
+           (* 108*)  238 , (* 109*)    5 , (* 110*)  239 , (* 111*)  240
+         , (* 112*)  241 , (* 113*)  242 , (* 114*)  243 , (* 115*)  236
+         , (* 116*)  237 , (* 117*)    0 , (* 118*)  137 , (* 119*)    0
+         , (* 120*)    0 , (* 121*)  146 , (* 122*)  156 , (* 123*)    0
          , (* 124*)    0 , (* 125*)    6 , (* 126*)    9 , (* 127*)   26
-         , (* 128*)  224 , (* 129*)   29 , (* 130*)   31 , (* 131*)  110
-         , (* 132*)  121 , (* 133*)  116 , (* 134*)  127 , (* 135*)  131
-         , (* 136*)  137 , (* 137*)  139 , (* 138*)    0 , (* 139*)  253
-         , (* 140*)   14 , (* 141*)  227 , (* 142*)  228 , (* 143*)   24
-         , (* 144*)   66 , (* 145*)  230 , (* 146*)  231 , (* 147*)   11
-         , (* 148*)   12 , (* 149*)  225 , (* 150*)  226 , (* 151*)   17
-         , (* 152*)   19 , (* 153*)  250 , (* 154*)  262 , (* 155*)   72
-         , (* 156*)   34 , (* 157*)  229 , (* 158*)  263 , (* 159*)   35
-         , (* 160*)   77 , (* 161*)   37 , (* 162*)   36 , (* 163*)   37
-         , (* 164*)   74 , (* 165*)   78 , (* 166*)   46 , (* 167*)  266
-         , (* 168*)   49 , (* 169*)   60 , (* 170*)  260 , (* 171*)   51
-         , (* 172*)   84 , (* 173*)   46 , (* 174*)  269 , (* 175*)   80
-         , (* 176*)   81 , (* 177*)   91 , (* 178*)  264 , (* 179*)  271
-         , (* 180*)   79 , (* 181*)   83 , (* 182*)   81 , (* 183*)  251
-         , (* 184*)  233 , (* 185*)  234 , (* 186*)  235 , (* 187*)  236
-         , (* 188*)  237 , (* 189*)  238 , (* 190*)  239 , (* 191*)  240
-         , (* 192*)  241 , (* 193*)  242 , (* 194*)  243 , (* 195*)  244
-         , (* 196*)  245 , (* 197*)  246 , (* 198*)  247 , (* 199*)  248
-         , (* 200*)  230 , (* 201*)  231 , (* 202*)   45 , (* 203*)   55
-         , (* 204*)   82 , (* 205*)  249 , (* 206*)   48 , (* 207*)  258
-         , (* 208*)   67 , (* 209*)  232 , (* 210*)  254 , (* 211*)   59
-         , (* 212*)  252 , (* 213*)   48 , (* 214*)   95 , (* 215*)   63
-         , (* 216*)  277 , (* 217*)  256 , (* 218*)  250 , (* 219*)  278
-         , (* 220*)  279 , (* 221*)  109 , (* 222*)  230 , (* 223*)  231
-         , (* 224*)   52 , (* 225*)   53 , (* 226*)   57 , (* 227*)  257
-         , (* 228*)   59 , (* 229*)   69 , (* 230*)  261 , (* 231*)  255
-         , (* 232*)   87 , (* 233*)   96 , (* 234*)   67 , (* 235*)  275
-         , (* 236*)   65 , (* 237*)  250 , (* 238*)   61 , (* 239*)  233
-         , (* 240*)  234 , (* 241*)  235 , (* 242*)  236 , (* 243*)  237
-         , (* 244*)  238 , (* 245*)  239 , (* 246*)  240 , (* 247*)  241
-         , (* 248*)  242 , (* 249*)  243 , (* 250*)  244 , (* 251*)  245
-         , (* 252*)  246 , (* 253*)  247 , (* 254*)  248 , (* 255*)   76
-         , (* 256*)   46 , (* 257*)   45 , (* 258*)   55 , (* 259*)  230
-         , (* 260*)   86 , (* 261*)  233 , (* 262*)  234 , (* 263*)  235
-         , (* 264*)  236 , (* 265*)  237 , (* 266*)  238 , (* 267*)  239
-         , (* 268*)  240 , (* 269*)  241 , (* 270*)  242 , (* 271*)  243
-         , (* 272*)  244 , (* 273*)  245 , (* 274*)  246 , (* 275*)  247
-         , (* 276*)  248 , (* 277*)  230 , (* 278*)  231 , (* 279*)   45
-         , (* 280*)   55 , (* 281*)  230 , (* 282*)   86 , (* 283*)  272
-         , (* 284*)   98 , (* 285*)   97 , (* 286*)  259 , (* 287*)  268
-         , (* 288*)  112 , (* 289*)   88 , (* 290*)   90 , (* 291*)  250
-         , (* 292*)  270 , (* 293*)   46 , (* 294*)   92 , (* 295*)   94
-         , (* 296*)   48 , (* 297*)  230 , (* 298*)  231 , (* 299*)  130
-         , (* 300*)  142 , (* 301*)    0 , (* 302*)    0 , (* 303*)    0
-         , (* 304*)    0 , (* 305*)    0 , (* 306*)  265 , (* 307*)    0
-         , (* 308*)    0 , (* 309*)  106 , (* 310*)    0 , (* 311*)    0
-         , (* 312*)   89 , (* 313*)    0 , (* 314*)    0 , (* 315*)    0
-         , (* 316*)  233 , (* 317*)  234 , (* 318*)  235 , (* 319*)  236
-         , (* 320*)  237 , (* 321*)  238 , (* 322*)  239 , (* 323*)  240
-         , (* 324*)  241 , (* 325*)  242 , (* 326*)  243 , (* 327*)  244
-         , (* 328*)  245 , (* 329*)  246 , (* 330*)  247 , (* 331*)  248
-         , (* 332*)   93 , (* 333*)   48 , (* 334*)   45 , (* 335*)   55
-         , (* 336*)  233 , (* 337*)  234 , (* 338*)  235 , (* 339*)  236
-         , (* 340*)  237 , (* 341*)  238 , (* 342*)  239 , (* 343*)  240
-         , (* 344*)  241 , (* 345*)  242 , (* 346*)  243 , (* 347*)  244
-         , (* 348*)  245 , (* 349*)  246 , (* 350*)  247 , (* 351*)  248
-         , (* 352*)  230 , (* 353*)  231 , (* 354*)   45 , (* 355*)   55
-         , (* 356*)  103 , (* 357*)  250 , (* 358*)  281 , (* 359*)  133
-         , (* 360*)  141 , (* 361*)  267 , (* 362*)    0 , (* 363*)    0
-         , (* 364*)    0 , (* 365*)  100 , (* 366*)    0 , (* 367*)    0
-         , (* 368*)  250 , (* 369*)    0 , (* 370*)    0 , (* 371*)    0
-         , (* 372*)    0 , (* 373*)    0 , (* 374*)    0 , (* 375*)  104
-         , (* 376*)    0 , (* 377*)   11 , (* 378*)   11 , (* 379*)   11
-         , (* 380*)    0 , (* 381*)  100 , (* 382*)    0 , (* 383*)    0
-         , (* 384*)    0 , (* 385*)  101 , (* 386*)  104 , (* 387*)    0
-         , (* 388*)    0 , (* 389*)    0 , (* 390*)    0 , (* 391*)  233
-         , (* 392*)  234 , (* 393*)  235 , (* 394*)  236 , (* 395*)  237
-         , (* 396*)  238 , (* 397*)  239 , (* 398*)  240 , (* 399*)  241
-         , (* 400*)  242 , (* 401*)  243 , (* 402*)  244 , (* 403*)  245
-         , (* 404*)  246 , (* 405*)  247 , (* 406*)  248 , (* 407*)    0
-         , (* 408*)    0 , (* 409*)   45 , (* 410*)   55 , (* 411*)   34
-         , (* 412*)    0 , (* 413*)  263 , (* 414*)    0 , (* 415*)    0
-         , (* 416*)    0 , (* 417*)    0 , (* 418*)    0 , (* 419*)  124
-         , (* 420*)   78 , (* 421*)    0 , (* 422*)  266 , (* 423*)    0
-         , (* 424*)    0 , (* 425*)    0 , (* 426*)    0 , (* 427*)   84
-         , (* 428*)    0 , (* 429*)  269 , (* 430*)    0 , (* 431*)  250
-         , (* 432*)   91 , (* 433*)    0 , (* 434*)  271 , (* 435*)  273
-         , (* 436*)  274 , (* 437*)    0 , (* 438*)    0 , (* 439*)   34
-         , (* 440*)    0 , (* 441*)  263 , (* 442*)  122 , (* 443*)    0
-         , (* 444*)    0 , (* 445*)  107 , (* 446*)  276 , (* 447*)  274
-         , (* 448*)   78 , (* 449*)  104 , (* 450*)  266 , (* 451*)    0
-         , (* 452*)    0 , (* 453*)    0 , (* 454*)    0 , (* 455*)   84
-         , (* 456*)    0 , (* 457*)  269 , (* 458*)    0 , (* 459*)    0
-         , (* 460*)   91 , (* 461*)    0 , (* 462*)  271 , (* 463*)    0
-         , (* 464*)    0 , (* 465*)    0 , (* 466*)    0 , (* 467*)    0
-         , (* 468*)   34 , (* 469*)   95 , (* 470*)  263 , (* 471*)  277
-         , (* 472*)    0 , (* 473*)    0 , (* 474*)  278 , (* 475*)  279
-         , (* 476*)  109 , (* 477*)   78 , (* 478*)  134 , (* 479*)  266
+         , (* 128*)  244 , (* 129*)   29 , (* 130*)   31 , (* 131*)  128
+         , (* 132*)  139 , (* 133*)  134 , (* 134*)  145 , (* 135*)  149
+         , (* 136*)  155 , (* 137*)  157 , (* 138*)    0 , (* 139*)  272
+         , (* 140*)   14 , (* 141*)  247 , (* 142*)  248 , (* 143*)   24
+         , (* 144*)  284 , (* 145*)   84 , (* 146*)  250 , (* 147*)   43
+         , (* 148*)   11 , (* 149*)   12 , (* 150*)  245 , (* 151*)  246
+         , (* 152*)   17 , (* 153*)   19 , (* 154*)  269 , (* 155*)  289
+         , (* 156*)  269 , (* 157*)   34 , (* 158*)  249 , (* 159*)  290
+         , (* 160*)   35 , (* 161*)   96 , (* 162*)   37 , (* 163*)   36
+         , (* 164*)   37 , (* 165*)   93 , (* 166*)   97 , (* 167*)   48
+         , (* 168*)  293 , (* 169*)  278 , (* 170*)  287 , (* 171*)   45
+         , (* 172*)   50 , (* 173*)  103 , (* 174*)   56 , (* 175*)  296
+         , (* 176*)  101 , (* 177*)   69 , (* 178*)  109 , (* 179*)   45
+         , (* 180*)  298 , (* 181*)   78 , (* 182*)   79 , (* 183*)  279
+         , (* 184*)  270 , (* 185*)  252 , (* 186*)  253 , (* 187*)  254
+         , (* 188*)  255 , (* 189*)  256 , (* 190*)  257 , (* 191*)  258
+         , (* 192*)  259 , (* 193*)  260 , (* 194*)  261 , (* 195*)  262
+         , (* 196*)  263 , (* 197*)  264 , (* 198*)  265 , (* 199*)  266
+         , (* 200*)  267 , (* 201*)  250 , (* 202*)   43 , (* 203*)   44
+         , (* 204*)   85 , (* 205*)   62 , (* 206*)  285 , (* 207*)   64
+         , (* 208*)  273 , (* 209*)   64 , (* 210*)  251 , (* 211*)  268
+         , (* 212*)   47 , (* 213*)   57 , (* 214*)   54 , (* 215*)   58
+         , (* 216*)   59 , (* 217*)   72 , (* 218*)  283 , (* 219*)  271
+         , (* 220*)   47 , (* 221*)   45 , (* 222*)   66 , (* 223*)  282
+         , (* 224*)   68 , (* 225*)  274 , (* 226*)   68 , (* 227*)  113
+         , (* 228*)   73 , (* 229*)  304 , (* 230*)   51 , (* 231*)   52
+         , (* 232*)  305 , (* 233*)  306 , (* 234*)  127 , (* 235*)   81
+         , (* 236*)   75 , (* 237*)  280 , (* 238*)  281 , (* 239*)   92
+         , (* 240*)  252 , (* 241*)  253 , (* 242*)  254 , (* 243*)  255
+         , (* 244*)  256 , (* 245*)  257 , (* 246*)  258 , (* 247*)  259
+         , (* 248*)  260 , (* 249*)  261 , (* 250*)  262 , (* 251*)  263
+         , (* 252*)  264 , (* 253*)  265 , (* 254*)  266 , (* 255*)  267
+         , (* 256*)  250 , (* 257*)   43 , (* 258*)   44 , (* 259*)   70
+         , (* 260*)  269 , (* 261*)  268 , (* 262*)   47 , (* 263*)  276
+         , (* 264*)  269 , (* 265*)  275 , (* 266*)   87 , (* 267*)  288
+         , (* 268*)   89 , (* 269*)   54 , (* 270*)   58 , (* 271*)   59
+         , (* 272*)   72 , (* 273*)   73 , (* 274*)   45 , (* 275*)  269
+         , (* 276*)   99 , (* 277*)  100 , (* 278*)   83 , (* 279*)  105
+         , (* 280*)   60 , (* 281*)   52 , (* 282*)   91 , (* 283*)  291
+         , (* 284*)  116 , (* 285*)   98 , (* 286*)  102 , (* 287*)  100
+         , (* 288*)  250 , (* 289*)  104 , (* 290*)  250 , (* 291*)  104
+         , (* 292*)   45 , (* 293*)   95 , (* 294*)   45 , (* 295*)  252
+         , (* 296*)  253 , (* 297*)  254 , (* 298*)  255 , (* 299*)  256
+         , (* 300*)  257 , (* 301*)  258 , (* 302*)  259 , (* 303*)  260
+         , (* 304*)  261 , (* 305*)  262 , (* 306*)  263 , (* 307*)  264
+         , (* 308*)  265 , (* 309*)  266 , (* 310*)  267 , (* 311*)  250
+         , (* 312*)   43 , (* 313*)   44 , (* 314*)  286 , (* 315*)   47
+         , (* 316*)  295 , (* 317*)  302 , (* 318*)  106 , (* 319*)  108
+         , (* 320*)  277 , (* 321*)  107 , (* 322*)  269 , (* 323*)  130
+         , (* 324*)   54 , (* 325*)   58 , (* 326*)   59 , (* 327*)   72
+         , (* 328*)  114 , (* 329*)  297 , (* 330*)  148 , (* 331*)  110
+         , (* 332*)  112 , (* 333*)   47 , (* 334*)  111 , (* 335*)   47
+         , (* 336*)    0 , (* 337*)  299 , (* 338*)   73 , (* 339*)  115
+         , (* 340*)  124 , (* 341*)    0 , (* 342*)    0 , (* 343*)    0
+         , (* 344*)    0 , (* 345*)  160 , (* 346*)    0 , (* 347*)  119
+         , (* 348*)    0 , (* 349*)  308 , (* 350*)  252 , (* 351*)  253
+         , (* 352*)  254 , (* 353*)  255 , (* 354*)  256 , (* 355*)  257
+         , (* 356*)  258 , (* 357*)  259 , (* 358*)  260 , (* 359*)  261
+         , (* 360*)  262 , (* 361*)  263 , (* 362*)  264 , (* 363*)  265
+         , (* 364*)  266 , (* 365*)  267 , (* 366*)  250 , (* 367*)   43
+         , (* 368*)   44 , (* 369*)   11 , (* 370*)    0 , (* 371*)  151
+         , (* 372*)    0 , (* 373*)  159 , (* 374*)   34 , (* 375*)  292
+         , (* 376*)  290 , (* 377*)    0 , (* 378*)  118 , (* 379*)   54
+         , (* 380*)   58 , (* 381*)   59 , (* 382*)   72 , (* 383*)   97
+         , (* 384*)    0 , (* 385*)  293 , (* 386*)  269 , (* 387*)    0
+         , (* 388*)    0 , (* 389*)    0 , (* 390*)  103 , (* 391*)   11
+         , (* 392*)  296 , (* 393*)   11 , (* 394*)    0 , (* 395*)  109
+         , (* 396*)    0 , (* 397*)  298 , (* 398*)    0 , (* 399*)    0
+         , (* 400*)    0 , (* 401*)    0 , (* 402*)    0 , (* 403*)    0
+         , (* 404*)  122 , (* 405*)  252 , (* 406*)  253 , (* 407*)  254
+         , (* 408*)  255 , (* 409*)  256 , (* 410*)  257 , (* 411*)  258
+         , (* 412*)  259 , (* 413*)  260 , (* 414*)  261 , (* 415*)  262
+         , (* 416*)  263 , (* 417*)  264 , (* 418*)  265 , (* 419*)  266
+         , (* 420*)  267 , (* 421*)  250 , (* 422*)   43 , (* 423*)   44
+         , (* 424*)    0 , (* 425*)  121 , (* 426*)    0 , (* 427*)    0
+         , (* 428*)    0 , (* 429*)    0 , (* 430*)  294 , (* 431*)    0
+         , (* 432*)    0 , (* 433*)    0 , (* 434*)   54 , (* 435*)   58
+         , (* 436*)   59 , (* 437*)   72 , (* 438*)  269 , (* 439*)  118
+         , (* 440*)    0 , (* 441*)    0 , (* 442*)    0 , (* 443*)    0
+         , (* 444*)  113 , (* 445*)    0 , (* 446*)  304 , (* 447*)    0
+         , (* 448*)    0 , (* 449*)  305 , (* 450*)  306 , (* 451*)  127
+         , (* 452*)    0 , (* 453*)    0 , (* 454*)    0 , (* 455*)    0
+         , (* 456*)  122 , (* 457*)    0 , (* 458*)    0 , (* 459*)    0
+         , (* 460*)  252 , (* 461*)  253 , (* 462*)  254 , (* 463*)  255
+         , (* 464*)  256 , (* 465*)  257 , (* 466*)  258 , (* 467*)  259
+         , (* 468*)  260 , (* 469*)  261 , (* 470*)  262 , (* 471*)  263
+         , (* 472*)  264 , (* 473*)  265 , (* 474*)  266 , (* 475*)  267
+         , (* 476*)  300 , (* 477*)  301 , (* 478*)   44 , (* 479*)    0
          , (* 480*)    0 , (* 481*)    0 , (* 482*)    0 , (* 483*)    0
-         , (* 484*)   84 , (* 485*)    0 , (* 486*)  269 , (* 487*)    0
-         , (* 488*)    0 , (* 489*)   91 , (* 490*)    0 , (* 491*)  271
-         , (* 492*)    0 , (* 493*)    0 , (* 494*)    0 , (* 495*)    0
-         , (* 496*)    0 , (* 497*)   95 , (* 498*)    0 , (* 499*)  277
-         , (* 500*)    0 , (* 501*)    0 , (* 502*)  280 , (* 503*)  279
-         , (* 504*)   34 , (* 505*)    0 , (* 506*)  263 , (* 507*)    0
-         , (* 508*)  107 , (* 509*)  276 , (* 510*)  274 , (* 511*)    0
-         , (* 512*)    0 , (* 513*)   78 , (* 514*)    0 , (* 515*)  266
-         , (* 516*)    0 , (* 517*)    0 , (* 518*)    0 , (* 519*)    0
-         , (* 520*)   84 , (* 521*)    0 , (* 522*)  269 , (* 523*)    0
-         , (* 524*)    0 , (* 525*)   91 , (* 526*)   95 , (* 527*)  271
-         , (* 528*)  277 , (* 529*)    0 , (* 530*)    0 , (* 531*)  278
-         , (* 532*)  279 , (* 533*)  109 , (* 534*)    0 , (* 535*)    0
-         , (* 536*)    0 , (* 537*)    0 , (* 538*)    0 , (* 539*)    0
+         , (* 484*)   34 , (* 485*)    0 , (* 486*)  290 , (* 487*)  140
+         , (* 488*)    0 , (* 489*)   54 , (* 490*)   58 , (* 491*)   59
+         , (* 492*)   72 , (* 493*)   97 , (* 494*)    0 , (* 495*)  293
+         , (* 496*)    0 , (* 497*)    0 , (* 498*)    0 , (* 499*)    0
+         , (* 500*)  103 , (* 501*)    0 , (* 502*)  296 , (* 503*)    0
+         , (* 504*)    0 , (* 505*)  109 , (* 506*)    0 , (* 507*)  298
+         , (* 508*)  142 , (* 509*)    0 , (* 510*)    0 , (* 511*)    0
+         , (* 512*)    0 , (* 513*)    0 , (* 514*)   34 , (* 515*)    0
+         , (* 516*)  290 , (* 517*)    0 , (* 518*)    0 , (* 519*)  152
+         , (* 520*)    0 , (* 521*)  269 , (* 522*)    0 , (* 523*)   97
+         , (* 524*)    0 , (* 525*)  293 , (* 526*)    0 , (* 527*)  125
+         , (* 528*)  303 , (* 529*)  301 , (* 530*)  103 , (* 531*)    0
+         , (* 532*)  296 , (* 533*)    0 , (* 534*)    0 , (* 535*)  109
+         , (* 536*)    0 , (* 537*)  298 , (* 538*)    0 , (* 539*)  122
          , (* 540*)    0 , (* 541*)    0 , (* 542*)    0 , (* 543*)    0
-         , (* 544*)    0 , (* 545*)    0 , (* 546*)    0 , (* 547*)    0
-         , (* 548*)    0 , (* 549*)    0 , (* 550*)    0 , (* 551*)    0
-         , (* 552*)    0 , (* 553*)    0 , (* 554*)    0 , (* 555*)    0
-         , (* 556*)    0 , (* 557*)    0 , (* 558*)    0 , (* 559*)    0
-         , (* 560*)    0 , (* 561*)    0 , (* 562*)   95 , (* 563*)    0
-         , (* 564*)  277 , (* 565*)    0 , (* 566*)    0 , (* 567*)  278
-         , (* 568*)  279 , (* 569*)  109 , (* 570*)    0 , (* 571*)    0
-         , (* 572*)    0 , (* 573*)    0
+         , (* 544*)    0 , (* 545*)    0 , (* 546*)   34 , (* 547*)    0
+         , (* 548*)  290 , (* 549*)    0 , (* 550*)    0 , (* 551*)    0
+         , (* 552*)    0 , (* 553*)    0 , (* 554*)  113 , (* 555*)   97
+         , (* 556*)  304 , (* 557*)  293 , (* 558*)    0 , (* 559*)  307
+         , (* 560*)  306 , (* 561*)    0 , (* 562*)  103 , (* 563*)    0
+         , (* 564*)  296 , (* 565*)    0 , (* 566*)    0 , (* 567*)  109
+         , (* 568*)    0 , (* 569*)  298 , (* 570*)    0 , (* 571*)    0
+         , (* 572*)    0 , (* 573*)    0 , (* 574*)    0 , (* 575*)    0
+         , (* 576*)    0 , (* 577*)    0 , (* 578*)    0 , (* 579*)    0
+         , (* 580*)    0 , (* 581*)    0 , (* 582*)    0 , (* 583*)    0
+         , (* 584*)  113 , (* 585*)    0 , (* 586*)  304 , (* 587*)    0
+         , (* 588*)    0 , (* 589*)  305 , (* 590*)  306 , (* 591*)  127
+         , (* 592*)    0 , (* 593*)    0 , (* 594*)    0 , (* 595*)    0
+         , (* 596*)    0 , (* 597*)    0 , (* 598*)    0 , (* 599*)    0
+         , (* 600*)    0 , (* 601*)    0 , (* 602*)    0 , (* 603*)    0
+         , (* 604*)    0 , (* 605*)    0 , (* 606*)    0 , (* 607*)    0
+         , (* 608*)    0 , (* 609*)    0 , (* 610*)  125 , (* 611*)  303
+         , (* 612*)  301 , (* 613*)    0 , (* 614*)    0 , (* 615*)    0
+         , (* 616*)  113 , (* 617*)    0 , (* 618*)  304 , (* 619*)    0
+         , (* 620*)    0 , (* 621*)  305 , (* 622*)  306 , (* 623*)  127
+         , (* 624*)    0 , (* 625*)    0 , (* 626*)    0 , (* 627*)    0
          };
          
    yyLength
@@ -695,70 +764,77 @@ VAR
      *)
      := ARRAY yyReduceRangePacked OF yyTableElmt
          {
-           (*A 282(P   1)*)    2 , (*A 283(P   2)*)    1 , (*A 284(P   3)*)    1
-         , (*A 285(P   4)*)    1 , (*A 286(P   5)*)    1 , (*A 287(P   6)*)    1
-         , (*A 288(P   7)*)    1 , (*A 289(P   8)*)    1 , (*A 290(P   9)*)    1
-         , (*A 291(P  10)*)    1 , (*A 292(P  11)*)    2 , (*A 293(P  12)*)    0
-         , (*A 294(P  13)*)    0 , (*A 295(P  14)*)    0 , (*A 296(P  15)*)    0
-         , (*A 297(P  16)*)    0 , (*A 298(P  17)*)    0 , (*A 299(P  18)*)    3
-         , (*A 300(P  19)*)    7 , (*A 301(P  20)*)    3 , (*A 302(P  21)*)    5
-         , (*A 303(P  22)*)    3 , (*A 304(P  23)*)    7 , (*A 305(P  24)*)    4
-         , (*A 306(P  25)*)    7 , (*A 307(P  26)*)    3 , (*A 308(P  27)*)    9
-         , (*A 309(P  28)*)    3 , (*A 310(P  29)*)    8 , (*A 311(P  30)*)    1
-         , (*A 312(P  31)*)    0 , (*A 313(P  32)*)    0 , (*A 314(P  33)*)    1
-         , (*A 315(P  34)*)    0 , (*A 316(P  35)*)    1 , (*A 317(P  36)*)    1
-         , (*A 318(P  37)*)    3 , (*A 319(P  38)*)    1 , (*A 320(P  39)*)    3
-         , (*A 321(P  40)*)    3 , (*A 322(P  41)*)    0 , (*A 323(P  42)*)    3
-         , (*A 324(P  43)*)    0 , (*A 325(P  44)*)    1 , (*A 326(P  45)*)    3
-         , (*A 327(P  46)*)    1 , (*A 328(P  47)*)    1 , (*A 329(P  48)*)    2
-         , (*A 330(P  49)*)    3 , (*A 331(P  50)*)    0 , (*A 332(P  51)*)    0
-         , (*A 333(P  52)*)    2 , (*A 334(P  53)*)    0 , (*A 335(P  54)*)    3
-         , (*A 336(P  55)*)    1 , (*A 337(P  56)*)    3 , (*A 338(P  57)*)    2
-         , (*A 339(P  58)*)    4 , (*A 340(P  59)*)    3 , (*A 341(P  60)*)    0
-         , (*A 342(P  61)*)    2 , (*A 343(P  62)*)    1 , (*A 344(P  63)*)    3
-         , (*A 345(P  64)*)    3 , (*A 346(P  65)*)    3 , (*A 347(P  66)*)    2
-         , (*A 348(P  67)*)    0 , (*A 349(P  68)*)    1 , (*A 350(P  69)*)    2
-         , (*A 351(P  70)*)    0 , (*A 352(P  71)*)    1 , (*A 353(P  72)*)    2
-         , (*A 354(P  73)*)    3 , (*A 355(P  74)*)    1 , (*A 356(P  75)*)    4
-         , (*A 357(P  76)*)    1 , (*A 358(P  77)*)    1 , (*A 359(P  78)*)    1
-         , (*A 360(P  79)*)    2 , (*A 361(P  80)*)    0 , (*A 362(P  81)*)    1
-         , (*A 363(P  82)*)    2 , (*A 364(P  83)*)    3 , (*A 365(P  84)*)    1
-         , (*A 366(P  85)*)    3 , (*A 367(P  86)*)    1 , (*A 368(P  87)*)    1
-         , (*A 369(P  88)*)    1 , (*A 370(P  89)*)    2 , (*A 371(P  90)*)    0
-         , (*A 372(P  91)*)    1 , (*A 373(P  92)*)    2 , (*A 374(P  93)*)    3
-         , (*A 375(P  94)*)    3 , (*A 376(P  95)*)    1 , (*A 377(P  96)*)    2
-         , (*A 378(P  97)*)    0 , (*A 379(P  98)*)    1 , (*A 380(P  99)*)    2
-         , (*A 381(P 100)*)    3 , (*A 382(P 101)*)    3 , (*A 383(P 102)*)    1
-         , (*A 384(P 103)*)    2 , (*A 385(P 104)*)    0 , (*A 386(P 105)*)    2
-         , (*A 387(P 106)*)    0 , (*A 388(P 107)*)    1 , (*A 389(P 108)*)    2
-         , (*A 390(P 109)*)    1 , (*A 391(P 110)*)    1 , (*A 392(P 111)*)    1
-         , (*A 393(P 112)*)    1 , (*A 394(P 113)*)    1 , (*A 395(P 114)*)    1
-         , (*A 396(P 115)*)    1 , (*A 397(P 116)*)    1 , (*A 398(P 117)*)    1
-         , (*A 399(P 118)*)    1 , (*A 400(P 119)*)    1 , (*A 401(P 120)*)    1
-         , (*A 402(P 121)*)    1 , (*A 403(P 122)*)    1 , (*A 404(P 123)*)    1
-         , (*A 405(P 124)*)    1 , (*A 406(P 125)*)    2 , (*A 407(P 126)*)    3
-         , (*A 408(P 127)*)    0 , (*A 409(P 128)*)    2 , (*A 410(P 129)*)    1
-         , (*A 411(P 130)*)    3 , (*A 412(P 131)*)    1 , (*A 413(P 132)*)    3
-         , (*A 414(P 133)*)    1 , (*A 415(P 134)*)    2 , (*A 416(P 135)*)    3
-         , (*A 417(P 136)*)    2 , (*A 418(P 137)*)    4 , (*A 419(P 138)*)    3
-         , (*A 420(P 139)*)    1 , (*A 421(P 140)*)    0 , (*A 422(P 141)*)    1
-         , (*A 423(P 142)*)    1 , (*A 424(P 143)*)    1 , (*A 425(P 144)*)    4
-         , (*A 426(P 145)*)    1 , (*A 427(P 146)*)    2 , (*A 428(P 147)*)    0
-         , (*A 429(P 148)*)    2 , (*A 430(P 149)*)    0 , (*A 431(P 150)*)    2
-         , (*A 432(P 151)*)    0 , (*A 433(P 152)*)    2 , (*A 434(P 153)*)    4
-         , (*A 435(P 154)*)    0 , (*A 436(P 155)*)    2 , (*A 437(P 156)*)    3
-         , (*A 438(P 157)*)    1 , (*A 439(P 158)*)    1 , (*A 440(P 159)*)    4
-         , (*A 441(P 160)*)    1 , (*A 442(P 161)*)    1 , (*A 443(P 162)*)    1
-         , (*A 444(P 163)*)    1 , (*A 445(P 164)*)    1 , (*A 446(P 165)*)    1
-         , (*A 447(P 166)*)    1 , (*A 448(P 167)*)    1 , (*A 449(P 168)*)    1
-         , (*A 450(P 169)*)    1 , (*A 451(P 170)*)    1 , (*A 452(P 171)*)    1
-         , (*A 453(P 172)*)    2 , (*A 454(P 173)*)    0 , (*A 455(P 174)*)    5
-         , (*A 456(P 175)*)    1 , (*A 457(P 176)*)    1 , (*A 458(P 177)*)    1
-         , (*A 459(P 178)*)    1 , (*A 460(P 179)*)    1 , (*A 461(P 180)*)    1
-         , (*A 462(P 181)*)    0 , (*A 463(P 182)*)    1 , (*A 464(P 183)*)    1
-         , (*A 465(P 184)*)    2 , (*A 466(P 185)*)    0 , (*A 467(P 186)*)    2
-         , (*A 468(P 187)*)    1 , (*A 469(P 188)*)    3 , (*A 470(P 189)*)    1
-         , (*A 471(P 190)*)    3
+           (*A 309(P   1)*)    2 , (*A 310(P   2)*)    1 , (*A 311(P   3)*)    1
+         , (*A 312(P   4)*)    1 , (*A 313(P   5)*)    1 , (*A 314(P   6)*)    1
+         , (*A 315(P   7)*)    1 , (*A 316(P   8)*)    1 , (*A 317(P   9)*)    1
+         , (*A 318(P  10)*)    1 , (*A 319(P  11)*)    2 , (*A 320(P  12)*)    0
+         , (*A 321(P  13)*)    0 , (*A 322(P  14)*)    0 , (*A 323(P  15)*)    0
+         , (*A 324(P  16)*)    0 , (*A 325(P  17)*)    0 , (*A 326(P  18)*)    3
+         , (*A 327(P  19)*)    7 , (*A 328(P  20)*)    3 , (*A 329(P  21)*)    5
+         , (*A 330(P  22)*)    3 , (*A 331(P  23)*)    7 , (*A 332(P  24)*)    4
+         , (*A 333(P  25)*)    7 , (*A 334(P  26)*)    3 , (*A 335(P  27)*)    9
+         , (*A 336(P  28)*)    3 , (*A 337(P  29)*)    8 , (*A 338(P  30)*)    1
+         , (*A 339(P  31)*)    0 , (*A 340(P  32)*)    0 , (*A 341(P  33)*)    1
+         , (*A 342(P  34)*)    0 , (*A 343(P  35)*)    1 , (*A 344(P  36)*)    1
+         , (*A 345(P  37)*)    3 , (*A 346(P  38)*)    1 , (*A 347(P  39)*)    3
+         , (*A 348(P  40)*)    3 , (*A 349(P  41)*)    0 , (*A 350(P  42)*)    0
+         , (*A 351(P  43)*)    1 , (*A 352(P  44)*)    1 , (*A 353(P  45)*)    3
+         , (*A 354(P  46)*)    1 , (*A 355(P  47)*)    3 , (*A 356(P  48)*)    1
+         , (*A 357(P  49)*)    1 , (*A 358(P  50)*)    2 , (*A 359(P  51)*)    3
+         , (*A 360(P  52)*)    0 , (*A 361(P  53)*)    0 , (*A 362(P  54)*)    2
+         , (*A 363(P  55)*)    0 , (*A 364(P  56)*)    3 , (*A 365(P  57)*)    1
+         , (*A 366(P  58)*)    3 , (*A 367(P  59)*)    2 , (*A 368(P  60)*)    4
+         , (*A 369(P  61)*)    3 , (*A 370(P  62)*)    0 , (*A 371(P  63)*)    2
+         , (*A 372(P  64)*)    1 , (*A 373(P  65)*)    3 , (*A 374(P  66)*)    3
+         , (*A 375(P  67)*)    3 , (*A 376(P  68)*)    2 , (*A 377(P  69)*)    0
+         , (*A 378(P  70)*)    1 , (*A 379(P  71)*)    2 , (*A 380(P  72)*)    0
+         , (*A 381(P  73)*)    1 , (*A 382(P  74)*)    2 , (*A 383(P  75)*)    3
+         , (*A 384(P  76)*)    1 , (*A 385(P  77)*)    4 , (*A 386(P  78)*)    1
+         , (*A 387(P  79)*)    1 , (*A 388(P  80)*)    1 , (*A 389(P  81)*)    2
+         , (*A 390(P  82)*)    0 , (*A 391(P  83)*)    1 , (*A 392(P  84)*)    2
+         , (*A 393(P  85)*)    3 , (*A 394(P  86)*)    1 , (*A 395(P  87)*)    3
+         , (*A 396(P  88)*)    1 , (*A 397(P  89)*)    1 , (*A 398(P  90)*)    1
+         , (*A 399(P  91)*)    2 , (*A 400(P  92)*)    0 , (*A 401(P  93)*)    1
+         , (*A 402(P  94)*)    2 , (*A 403(P  95)*)    3 , (*A 404(P  96)*)    3
+         , (*A 405(P  97)*)    1 , (*A 406(P  98)*)    2 , (*A 407(P  99)*)    0
+         , (*A 408(P 100)*)    1 , (*A 409(P 101)*)    2 , (*A 410(P 102)*)    3
+         , (*A 411(P 103)*)    3 , (*A 412(P 104)*)    1 , (*A 413(P 105)*)    2
+         , (*A 414(P 106)*)    0 , (*A 415(P 107)*)    2 , (*A 416(P 108)*)    0
+         , (*A 417(P 109)*)    1 , (*A 418(P 110)*)    2 , (*A 419(P 111)*)    1
+         , (*A 420(P 112)*)    1 , (*A 421(P 113)*)    1 , (*A 422(P 114)*)    1
+         , (*A 423(P 115)*)    1 , (*A 424(P 116)*)    1 , (*A 425(P 117)*)    1
+         , (*A 426(P 118)*)    1 , (*A 427(P 119)*)    1 , (*A 428(P 120)*)    1
+         , (*A 429(P 121)*)    1 , (*A 430(P 122)*)    1 , (*A 431(P 123)*)    1
+         , (*A 432(P 124)*)    1 , (*A 433(P 125)*)    1 , (*A 434(P 126)*)    1
+         , (*A 435(P 127)*)    0 , (*A 436(P 128)*)    2 , (*A 437(P 129)*)    1
+         , (*A 438(P 130)*)    3 , (*A 439(P 131)*)    1 , (*A 440(P 132)*)    3
+         , (*A 441(P 133)*)    0 , (*A 442(P 134)*)    1 , (*A 443(P 135)*)    3
+         , (*A 444(P 136)*)    1 , (*A 445(P 137)*)    3 , (*A 446(P 138)*)    1
+         , (*A 447(P 139)*)    2 , (*A 448(P 140)*)    0 , (*A 449(P 141)*)    1
+         , (*A 450(P 142)*)    3 , (*A 451(P 143)*)    1 , (*A 452(P 144)*)    3
+         , (*A 453(P 145)*)    1 , (*A 454(P 146)*)    3 , (*A 455(P 147)*)    0
+         , (*A 456(P 148)*)    1 , (*A 457(P 149)*)    2 , (*A 458(P 150)*)    0
+         , (*A 459(P 151)*)    1 , (*A 460(P 152)*)    1 , (*A 461(P 153)*)    3
+         , (*A 462(P 154)*)    5 , (*A 463(P 155)*)    1 , (*A 464(P 156)*)    1
+         , (*A 465(P 157)*)    2 , (*A 466(P 158)*)    3 , (*A 467(P 159)*)    2
+         , (*A 468(P 160)*)    4 , (*A 469(P 161)*)    3 , (*A 470(P 162)*)    1
+         , (*A 471(P 163)*)    0 , (*A 472(P 164)*)    1 , (*A 473(P 165)*)    1
+         , (*A 474(P 166)*)    1 , (*A 475(P 167)*)    4 , (*A 476(P 168)*)    1
+         , (*A 477(P 169)*)    2 , (*A 478(P 170)*)    0 , (*A 479(P 171)*)    2
+         , (*A 480(P 172)*)    0 , (*A 481(P 173)*)    2 , (*A 482(P 174)*)    0
+         , (*A 483(P 175)*)    0 , (*A 484(P 176)*)    2 , (*A 485(P 177)*)    4
+         , (*A 486(P 178)*)    2 , (*A 487(P 179)*)    3 , (*A 488(P 180)*)    1
+         , (*A 489(P 181)*)    1 , (*A 490(P 182)*)    4 , (*A 491(P 183)*)    1
+         , (*A 492(P 184)*)    1 , (*A 493(P 185)*)    1 , (*A 494(P 186)*)    1
+         , (*A 495(P 187)*)    1 , (*A 496(P 188)*)    1 , (*A 497(P 189)*)    1
+         , (*A 498(P 190)*)    1 , (*A 499(P 191)*)    1 , (*A 500(P 192)*)    1
+         , (*A 501(P 193)*)    1 , (*A 502(P 194)*)    1 , (*A 503(P 195)*)    2
+         , (*A 504(P 196)*)    0 , (*A 505(P 197)*)    5 , (*A 506(P 198)*)    1
+         , (*A 507(P 199)*)    1 , (*A 508(P 200)*)    1 , (*A 509(P 201)*)    1
+         , (*A 510(P 202)*)    1 , (*A 511(P 203)*)    1 , (*A 512(P 204)*)    0
+         , (*A 513(P 205)*)    1 , (*A 514(P 206)*)    1 , (*A 515(P 207)*)    2
+         , (*A 516(P 208)*)    0 , (*A 517(P 209)*)    2 , (*A 518(P 210)*)    1
+         , (*A 519(P 211)*)    3 , (*A 520(P 212)*)    1 , (*A 521(P 213)*)    3
          };
          
    yyLeftHandSide
@@ -768,70 +844,77 @@ VAR
      *)
      := ARRAY yyReduceRangePacked OF yySymbolRangePacked
          {
-           (*A 282(P   1)*)  225 , (*A 283(P   2)*)  109 , (*A 284(P   3)*)  109
-         , (*A 285(P   4)*)  109 , (*A 286(P   5)*)  109 , (*A 287(P   6)*)  109
-         , (*A 288(P   7)*)  109 , (*A 289(P   8)*)  115 , (*A 290(P   9)*)  116
-         , (*A 291(P  10)*)  117 , (*A 292(P  11)*)  117 , (*A 293(P  12)*)  119
-         , (*A 294(P  13)*)  120 , (*A 295(P  14)*)  121 , (*A 296(P  15)*)  122
-         , (*A 297(P  16)*)  123 , (*A 298(P  17)*)  124 , (*A 299(P  18)*)  126
-         , (*A 300(P  19)*)  113 , (*A 301(P  20)*)  129 , (*A 302(P  21)*)  108
-         , (*A 303(P  22)*)  131 , (*A 304(P  23)*)  114 , (*A 305(P  24)*)  132
-         , (*A 306(P  25)*)  110 , (*A 307(P  26)*)  134 , (*A 308(P  27)*)  111
-         , (*A 309(P  28)*)  136 , (*A 310(P  29)*)  112 , (*A 311(P  30)*)  125
-         , (*A 312(P  31)*)  125 , (*A 313(P  32)*)  138 , (*A 314(P  33)*)  139
-         , (*A 315(P  34)*)  139 , (*A 316(P  35)*)  140 , (*A 317(P  36)*)  141
-         , (*A 318(P  37)*)  141 , (*A 319(P  38)*)  142 , (*A 320(P  39)*)  142
-         , (*A 321(P  40)*)  143 , (*A 322(P  41)*)  143 , (*A 323(P  42)*)  144
-         , (*A 324(P  43)*)  144 , (*A 325(P  44)*)  145 , (*A 326(P  45)*)  145
-         , (*A 327(P  46)*)  146 , (*A 328(P  47)*)  146 , (*A 329(P  48)*)  146
-         , (*A 330(P  49)*)  128 , (*A 331(P  50)*)  147 , (*A 332(P  51)*)  149
-         , (*A 333(P  52)*)  148 , (*A 334(P  53)*)  148 , (*A 335(P  54)*)  150
-         , (*A 336(P  55)*)  151 , (*A 337(P  56)*)  151 , (*A 338(P  57)*)  150
-         , (*A 339(P  58)*)  152 , (*A 340(P  59)*)  152 , (*A 341(P  60)*)  118
-         , (*A 342(P  61)*)  118 , (*A 343(P  62)*)  153 , (*A 344(P  63)*)  153
-         , (*A 345(P  64)*)  135 , (*A 346(P  65)*)  127 , (*A 347(P  66)*)  155
-         , (*A 348(P  67)*)  155 , (*A 349(P  68)*)  156 , (*A 350(P  69)*)  158
-         , (*A 351(P  70)*)  157 , (*A 352(P  71)*)  157 , (*A 353(P  72)*)  159
-         , (*A 354(P  73)*)  159 , (*A 355(P  74)*)  161 , (*A 356(P  75)*)  160
-         , (*A 357(P  76)*)  164 , (*A 358(P  77)*)  164 , (*A 359(P  78)*)  165
-         , (*A 360(P  79)*)  167 , (*A 361(P  80)*)  166 , (*A 362(P  81)*)  166
-         , (*A 363(P  82)*)  168 , (*A 364(P  83)*)  168 , (*A 365(P  84)*)  170
-         , (*A 366(P  85)*)  169 , (*A 367(P  86)*)  171 , (*A 368(P  87)*)  171
-         , (*A 369(P  88)*)  172 , (*A 370(P  89)*)  174 , (*A 371(P  90)*)  173
-         , (*A 372(P  91)*)  173 , (*A 373(P  92)*)  175 , (*A 374(P  93)*)  175
-         , (*A 375(P  94)*)  176 , (*A 376(P  95)*)  177 , (*A 377(P  96)*)  179
-         , (*A 378(P  97)*)  178 , (*A 379(P  98)*)  178 , (*A 380(P  99)*)  180
-         , (*A 381(P 100)*)  180 , (*A 382(P 101)*)  181 , (*A 383(P 102)*)  182
-         , (*A 384(P 103)*)  162 , (*A 385(P 104)*)  162 , (*A 386(P 105)*)  183
-         , (*A 387(P 106)*)  183 , (*A 388(P 107)*)  154 , (*A 389(P 108)*)  154
-         , (*A 390(P 109)*)  154 , (*A 391(P 110)*)  154 , (*A 392(P 111)*)  154
-         , (*A 393(P 112)*)  154 , (*A 394(P 113)*)  154 , (*A 395(P 114)*)  154
-         , (*A 396(P 115)*)  154 , (*A 397(P 116)*)  154 , (*A 398(P 117)*)  154
-         , (*A 399(P 118)*)  154 , (*A 400(P 119)*)  154 , (*A 401(P 120)*)  154
-         , (*A 402(P 121)*)  154 , (*A 403(P 122)*)  154 , (*A 404(P 123)*)  154
-         , (*A 405(P 124)*)  154 , (*A 406(P 125)*)  154 , (*A 407(P 126)*)  154
-         , (*A 408(P 127)*)  200 , (*A 409(P 128)*)  200 , (*A 410(P 129)*)  201
-         , (*A 411(P 130)*)  201 , (*A 412(P 131)*)  202 , (*A 413(P 132)*)  154
-         , (*A 414(P 133)*)  203 , (*A 415(P 134)*)  154 , (*A 416(P 135)*)  204
-         , (*A 417(P 136)*)  205 , (*A 418(P 137)*)  205 , (*A 419(P 138)*)  208
-         , (*A 420(P 139)*)  208 , (*A 421(P 140)*)  210 , (*A 422(P 141)*)  210
-         , (*A 423(P 142)*)  210 , (*A 424(P 143)*)  210 , (*A 425(P 144)*)  209
-         , (*A 426(P 145)*)  211 , (*A 427(P 146)*)  212 , (*A 428(P 147)*)  212
-         , (*A 429(P 148)*)  213 , (*A 430(P 149)*)  213 , (*A 431(P 150)*)  206
-         , (*A 432(P 151)*)  206 , (*A 433(P 152)*)  207 , (*A 434(P 153)*)  207
-         , (*A 435(P 154)*)  207 , (*A 436(P 155)*)  214 , (*A 437(P 156)*)  216
-         , (*A 438(P 157)*)  215 , (*A 439(P 158)*)  217 , (*A 440(P 159)*)  215
-         , (*A 441(P 160)*)  163 , (*A 442(P 161)*)  163 , (*A 443(P 162)*)  163
-         , (*A 444(P 163)*)  163 , (*A 445(P 164)*)  163 , (*A 446(P 165)*)  163
-         , (*A 447(P 166)*)  163 , (*A 448(P 167)*)  163 , (*A 449(P 168)*)  163
-         , (*A 450(P 169)*)  163 , (*A 451(P 170)*)  163 , (*A 452(P 171)*)  163
-         , (*A 453(P 172)*)  163 , (*A 454(P 173)*)  218 , (*A 455(P 174)*)  137
-         , (*A 456(P 175)*)  219 , (*A 457(P 176)*)  219 , (*A 458(P 177)*)  219
-         , (*A 459(P 178)*)  219 , (*A 460(P 179)*)  219 , (*A 461(P 180)*)  219
-         , (*A 462(P 181)*)  130 , (*A 463(P 182)*)  130 , (*A 464(P 183)*)  221
-         , (*A 465(P 184)*)  221 , (*A 466(P 185)*)  133 , (*A 467(P 186)*)  133
-         , (*A 468(P 187)*)  222 , (*A 469(P 188)*)  222 , (*A 470(P 189)*)  223
-         , (*A 471(P 190)*)  224
+           (*A 309(P   1)*)  238 , (*A 310(P   2)*)  109 , (*A 311(P   3)*)  109
+         , (*A 312(P   4)*)  109 , (*A 313(P   5)*)  109 , (*A 314(P   6)*)  109
+         , (*A 315(P   7)*)  109 , (*A 316(P   8)*)  115 , (*A 317(P   9)*)  116
+         , (*A 318(P  10)*)  117 , (*A 319(P  11)*)  117 , (*A 320(P  12)*)  119
+         , (*A 321(P  13)*)  120 , (*A 322(P  14)*)  121 , (*A 323(P  15)*)  122
+         , (*A 324(P  16)*)  123 , (*A 325(P  17)*)  124 , (*A 326(P  18)*)  126
+         , (*A 327(P  19)*)  113 , (*A 328(P  20)*)  129 , (*A 329(P  21)*)  108
+         , (*A 330(P  22)*)  131 , (*A 331(P  23)*)  114 , (*A 332(P  24)*)  132
+         , (*A 333(P  25)*)  110 , (*A 334(P  26)*)  134 , (*A 335(P  27)*)  111
+         , (*A 336(P  28)*)  136 , (*A 337(P  29)*)  112 , (*A 338(P  30)*)  125
+         , (*A 339(P  31)*)  125 , (*A 340(P  32)*)  138 , (*A 341(P  33)*)  139
+         , (*A 342(P  34)*)  139 , (*A 343(P  35)*)  140 , (*A 344(P  36)*)  141
+         , (*A 345(P  37)*)  141 , (*A 346(P  38)*)  142 , (*A 347(P  39)*)  142
+         , (*A 348(P  40)*)  143 , (*A 349(P  41)*)  143 , (*A 350(P  42)*)  144
+         , (*A 351(P  43)*)  144 , (*A 352(P  44)*)  145 , (*A 353(P  45)*)  145
+         , (*A 354(P  46)*)  146 , (*A 355(P  47)*)  146 , (*A 356(P  48)*)  147
+         , (*A 357(P  49)*)  147 , (*A 358(P  50)*)  147 , (*A 359(P  51)*)  128
+         , (*A 360(P  52)*)  148 , (*A 361(P  53)*)  150 , (*A 362(P  54)*)  149
+         , (*A 363(P  55)*)  149 , (*A 364(P  56)*)  151 , (*A 365(P  57)*)  152
+         , (*A 366(P  58)*)  152 , (*A 367(P  59)*)  151 , (*A 368(P  60)*)  153
+         , (*A 369(P  61)*)  153 , (*A 370(P  62)*)  118 , (*A 371(P  63)*)  118
+         , (*A 372(P  64)*)  154 , (*A 373(P  65)*)  154 , (*A 374(P  66)*)  135
+         , (*A 375(P  67)*)  127 , (*A 376(P  68)*)  156 , (*A 377(P  69)*)  156
+         , (*A 378(P  70)*)  157 , (*A 379(P  71)*)  159 , (*A 380(P  72)*)  158
+         , (*A 381(P  73)*)  158 , (*A 382(P  74)*)  160 , (*A 383(P  75)*)  160
+         , (*A 384(P  76)*)  162 , (*A 385(P  77)*)  161 , (*A 386(P  78)*)  165
+         , (*A 387(P  79)*)  165 , (*A 388(P  80)*)  166 , (*A 389(P  81)*)  168
+         , (*A 390(P  82)*)  167 , (*A 391(P  83)*)  167 , (*A 392(P  84)*)  169
+         , (*A 393(P  85)*)  169 , (*A 394(P  86)*)  171 , (*A 395(P  87)*)  170
+         , (*A 396(P  88)*)  172 , (*A 397(P  89)*)  172 , (*A 398(P  90)*)  173
+         , (*A 399(P  91)*)  175 , (*A 400(P  92)*)  174 , (*A 401(P  93)*)  174
+         , (*A 402(P  94)*)  176 , (*A 403(P  95)*)  176 , (*A 404(P  96)*)  177
+         , (*A 405(P  97)*)  178 , (*A 406(P  98)*)  180 , (*A 407(P  99)*)  179
+         , (*A 408(P 100)*)  179 , (*A 409(P 101)*)  181 , (*A 410(P 102)*)  181
+         , (*A 411(P 103)*)  182 , (*A 412(P 104)*)  183 , (*A 413(P 105)*)  163
+         , (*A 414(P 106)*)  163 , (*A 415(P 107)*)  184 , (*A 416(P 108)*)  184
+         , (*A 417(P 109)*)  155 , (*A 418(P 110)*)  155 , (*A 419(P 111)*)  155
+         , (*A 420(P 112)*)  155 , (*A 421(P 113)*)  155 , (*A 422(P 114)*)  155
+         , (*A 423(P 115)*)  155 , (*A 424(P 116)*)  155 , (*A 425(P 117)*)  155
+         , (*A 426(P 118)*)  155 , (*A 427(P 119)*)  155 , (*A 428(P 120)*)  155
+         , (*A 429(P 121)*)  155 , (*A 430(P 122)*)  155 , (*A 431(P 123)*)  155
+         , (*A 432(P 124)*)  155 , (*A 433(P 125)*)  155 , (*A 434(P 126)*)  155
+         , (*A 435(P 127)*)  201 , (*A 436(P 128)*)  201 , (*A 437(P 129)*)  202
+         , (*A 438(P 130)*)  202 , (*A 439(P 131)*)  203 , (*A 440(P 132)*)  155
+         , (*A 441(P 133)*)  204 , (*A 442(P 134)*)  204 , (*A 443(P 135)*)  204
+         , (*A 444(P 136)*)  205 , (*A 445(P 137)*)  205 , (*A 446(P 138)*)  207
+         , (*A 447(P 139)*)  206 , (*A 448(P 140)*)  209 , (*A 449(P 141)*)  209
+         , (*A 450(P 142)*)  209 , (*A 451(P 143)*)  210 , (*A 452(P 144)*)  210
+         , (*A 453(P 145)*)  212 , (*A 454(P 146)*)  211 , (*A 455(P 147)*)  213
+         , (*A 456(P 148)*)  213 , (*A 457(P 149)*)  213 , (*A 458(P 150)*)  214
+         , (*A 459(P 151)*)  214 , (*A 460(P 152)*)  214 , (*A 461(P 153)*)  216
+         , (*A 462(P 154)*)  215 , (*A 463(P 155)*)  155 , (*A 464(P 156)*)  217
+         , (*A 465(P 157)*)  155 , (*A 466(P 158)*)  208 , (*A 467(P 159)*)  218
+         , (*A 468(P 160)*)  218 , (*A 469(P 161)*)  221 , (*A 470(P 162)*)  221
+         , (*A 471(P 163)*)  223 , (*A 472(P 164)*)  223 , (*A 473(P 165)*)  223
+         , (*A 474(P 166)*)  223 , (*A 475(P 167)*)  222 , (*A 476(P 168)*)  224
+         , (*A 477(P 169)*)  225 , (*A 478(P 170)*)  225 , (*A 479(P 171)*)  226
+         , (*A 480(P 172)*)  226 , (*A 481(P 173)*)  219 , (*A 482(P 174)*)  219
+         , (*A 483(P 175)*)  220 , (*A 484(P 176)*)  220 , (*A 485(P 177)*)  220
+         , (*A 486(P 178)*)  227 , (*A 487(P 179)*)  229 , (*A 488(P 180)*)  228
+         , (*A 489(P 181)*)  230 , (*A 490(P 182)*)  228 , (*A 491(P 183)*)  164
+         , (*A 492(P 184)*)  164 , (*A 493(P 185)*)  164 , (*A 494(P 186)*)  164
+         , (*A 495(P 187)*)  164 , (*A 496(P 188)*)  164 , (*A 497(P 189)*)  164
+         , (*A 498(P 190)*)  164 , (*A 499(P 191)*)  164 , (*A 500(P 192)*)  164
+         , (*A 501(P 193)*)  164 , (*A 502(P 194)*)  164 , (*A 503(P 195)*)  164
+         , (*A 504(P 196)*)  231 , (*A 505(P 197)*)  137 , (*A 506(P 198)*)  232
+         , (*A 507(P 199)*)  232 , (*A 508(P 200)*)  232 , (*A 509(P 201)*)  232
+         , (*A 510(P 202)*)  232 , (*A 511(P 203)*)  232 , (*A 512(P 204)*)  130
+         , (*A 513(P 205)*)  130 , (*A 514(P 206)*)  234 , (*A 515(P 207)*)  234
+         , (*A 516(P 208)*)  133 , (*A 517(P 209)*)  133 , (*A 518(P 210)*)  235
+         , (*A 519(P 211)*)  235 , (*A 520(P 212)*)  236 , (*A 521(P 213)*)  237
          };
          
    yyContinuation
@@ -850,41 +933,47 @@ VAR
          , (*:  30*)   95 , (*:  31*)   19 , (*:  32*)   95
          , (*:  33*)   67 , (*:  34*)    9 , (*:  35*)    9
          , (*:  36*)   66 , (*:  37*)   68 , (*:  38*)   95
-         , (*:  39*)   19 , (*:  40*)   95 , (*:  41*)   52
-         , (*:  42*)   19 , (*:  43*)   19 , (*:  44*)   95
-         , (*:  45*)   19 , (*:  46*)   19 , (*:  47*)   95
-         , (*:  48*)   19 , (*:  49*)   19 , (*:  50*)   95
+         , (*:  39*)   95 , (*:  40*)   52 , (*:  41*)   11
+         , (*:  42*)   95 , (*:  43*)   19 , (*:  44*)   19
+         , (*:  45*)   19 , (*:  46*)   95 , (*:  47*)   19
+         , (*:  48*)   19 , (*:  49*)   95 , (*:  50*)   19
          , (*:  51*)   19 , (*:  52*)   19 , (*:  53*)   19
-         , (*:  54*)   19 , (*:  55*)   69 , (*:  56*)   70
-         , (*:  57*)   70 , (*:  58*)   70 , (*:  59*)   95
-         , (*:  60*)   66 , (*:  61*)   66 , (*:  62*)   95
-         , (*:  63*)   66 , (*:  64*)   95 , (*:  65*)   66
-         , (*:  66*)   70 , (*:  67*)   19 , (*:  68*)   95
-         , (*:  69*)   19 , (*:  70*)    6 , (*:  71*)   71
-         , (*:  72*)   76 , (*:  73*)   95 , (*:  74*)   68
-         , (*:  75*)   95 , (*:  76*)   66 , (*:  77*)   66
-         , (*:  78*)    9 , (*:  79*)    9 , (*:  80*)   66
-         , (*:  81*)   68 , (*:  82*)   95 , (*:  83*)   66
-         , (*:  84*)    9 , (*:  85*)   52 , (*:  86*)   68
-         , (*:  87*)   95 , (*:  88*)    9 , (*:  89*)   66
-         , (*:  90*)   66 , (*:  91*)    9 , (*:  92*)    9
-         , (*:  93*)   66 , (*:  94*)   66 , (*:  95*)   69
-         , (*:  96*)   66 , (*:  97*)    9 , (*:  98*)   95
-         , (*:  99*)   66 , (*: 100*)    9 , (*: 101*)    9
-         , (*: 102*)   19 , (*: 103*)   19 , (*: 104*)   74
-         , (*: 105*)   95 , (*: 106*)   19 , (*: 107*)   19
-         , (*: 108*)   19 , (*: 109*)    9 , (*: 110*)   66
-         , (*: 111*)   95 , (*: 112*)   66 , (*: 113*)   95
-         , (*: 114*)   95 , (*: 115*)   69 , (*: 116*)   19
-         , (*: 117*)   95 , (*: 118*)   67 , (*: 119*)   66
-         , (*: 120*)    9 , (*: 121*)    9 , (*: 122*)    9
-         , (*: 123*)   19 , (*: 124*)   19 , (*: 125*)   95
-         , (*: 126*)   67 , (*: 127*)   69 , (*: 128*)   69
-         , (*: 129*)   70 , (*: 130*)   70 , (*: 131*)   66
-         , (*: 132*)   14 , (*: 133*)   19 , (*: 134*)   19
-         , (*: 135*)   95 , (*: 136*)   67 , (*: 137*)   69
-         , (*: 138*)   69 , (*: 139*)   66 , (*: 140*)    9
-         , (*: 141*)    9 , (*: 142*)   95 , (*: 143*)   67
+         , (*:  54*)   39 , (*:  55*)   39 , (*:  56*)   39
+         , (*:  57*)   39 , (*:  58*)   19 , (*:  59*)   19
+         , (*:  60*)   19 , (*:  61*)   19 , (*:  62*)   19
+         , (*:  63*)   19 , (*:  64*)   69 , (*:  65*)   70
+         , (*:  66*)   70 , (*:  67*)   70 , (*:  68*)   95
+         , (*:  69*)   66 , (*:  70*)   66 , (*:  71*)   95
+         , (*:  72*)   69 , (*:  73*)   19 , (*:  74*)   95
+         , (*:  75*)   19 , (*:  76*)    6 , (*:  77*)   76
+         , (*:  78*)   76 , (*:  79*)   76 , (*:  80*)   95
+         , (*:  81*)   66 , (*:  82*)   95 , (*:  83*)   66
+         , (*:  84*)   70 , (*:  85*)   19 , (*:  86*)   19
+         , (*:  87*)   19 , (*:  88*)   19 , (*:  89*)   68
+         , (*:  90*)   95 , (*:  91*)   19 , (*:  92*)   19
+         , (*:  93*)   68 , (*:  94*)   95 , (*:  95*)   66
+         , (*:  96*)   66 , (*:  97*)    9 , (*:  98*)    9
+         , (*:  99*)   66 , (*: 100*)   68 , (*: 101*)   95
+         , (*: 102*)   66 , (*: 103*)    9 , (*: 104*)   68
+         , (*: 105*)   95 , (*: 106*)    9 , (*: 107*)   66
+         , (*: 108*)   66 , (*: 109*)    9 , (*: 110*)    9
+         , (*: 111*)   66 , (*: 112*)   66 , (*: 113*)   69
+         , (*: 114*)   66 , (*: 115*)    9 , (*: 116*)   95
+         , (*: 117*)   66 , (*: 118*)    9 , (*: 119*)    9
+         , (*: 120*)   19 , (*: 121*)   19 , (*: 122*)   74
+         , (*: 123*)   95 , (*: 124*)   19 , (*: 125*)   19
+         , (*: 126*)   19 , (*: 127*)    9 , (*: 128*)   66
+         , (*: 129*)   95 , (*: 130*)   66 , (*: 131*)   95
+         , (*: 132*)   95 , (*: 133*)   69 , (*: 134*)   19
+         , (*: 135*)   95 , (*: 136*)   67 , (*: 137*)   66
+         , (*: 138*)    9 , (*: 139*)    9 , (*: 140*)    9
+         , (*: 141*)   19 , (*: 142*)   19 , (*: 143*)   95
+         , (*: 144*)   67 , (*: 145*)   69 , (*: 146*)   69
+         , (*: 147*)   70 , (*: 148*)   70 , (*: 149*)   66
+         , (*: 150*)   14 , (*: 151*)   19 , (*: 152*)   19
+         , (*: 153*)   95 , (*: 154*)   67 , (*: 155*)   69
+         , (*: 156*)   69 , (*: 157*)   66 , (*: 158*)    9
+         , (*: 159*)    9 , (*: 160*)   95 , (*: 161*)   67
          };
          
    yyFinalToProd
@@ -893,75 +982,80 @@ VAR
      *) 
      := ARRAY yyReadReduceRangePacked OF yyReduceRangePacked
          {
-           (*RR: 144)*)  289 (*P7*) , (*RR: 145)*)  311 (*P29*)
-         , (*RR: 146)*)  299 (*P17*) , (*RR: 147)*)  303 (*P21*)
-         , (*RR: 148)*)  316 (*P34*) , (*RR: 149)*)  339 (*P57*)
-         , (*RR: 150)*)  336 (*P54*) , (*RR: 151)*)  335 (*P53*)
-         , (*RR: 152)*)  337 (*P55*) , (*RR: 153)*)  338 (*P56*)
-         , (*RR: 154)*)  346 (*P64*) , (*RR: 155)*)  300 (*P18*)
-         , (*RR: 156)*)  349 (*P67*) , (*RR: 157)*)  436 (*P154*)
-         , (*RR: 158)*)  369 (*P87*) , (*RR: 159)*)  359 (*P77*)
-         , (*RR: 160)*)  376 (*P94*) , (*RR: 161)*)  302 (*P20*)
-         , (*RR: 162)*)  355 (*P73*) , (*RR: 163)*)  354 (*P72*)
-         , (*RR: 164)*)  406 (*P124*) , (*RR: 165)*)  414 (*P132*)
-         , (*RR: 166)*)  412 (*P130*) , (*RR: 167)*)  328 (*P46*)
-         , (*RR: 168)*)  407 (*P125*) , (*RR: 169)*)  329 (*P47*)
-         , (*RR: 170)*)  326 (*P44*) , (*RR: 171)*)  319 (*P37*)
-         , (*RR: 172)*)  320 (*P38*) , (*RR: 173)*)  442 (*P160*)
-         , (*RR: 174)*)  443 (*P161*) , (*RR: 175)*)  444 (*P162*)
-         , (*RR: 176)*)  445 (*P163*) , (*RR: 177)*)  446 (*P164*)
-         , (*RR: 178)*)  447 (*P165*) , (*RR: 179)*)  448 (*P166*)
-         , (*RR: 180)*)  449 (*P167*) , (*RR: 181)*)  450 (*P168*)
-         , (*RR: 182)*)  451 (*P169*) , (*RR: 183)*)  452 (*P170*)
-         , (*RR: 184)*)  453 (*P171*) , (*RR: 185)*)  413 (*P131*)
-         , (*RR: 186)*)  424 (*P142*) , (*RR: 187)*)  422 (*P140*)
-         , (*RR: 188)*)  423 (*P141*) , (*RR: 189)*)  417 (*P135*)
-         , (*RR: 190)*)  418 (*P136*) , (*RR: 191)*)  433 (*P151*)
-         , (*RR: 192)*)  434 (*P152*) , (*RR: 193)*)  353 (*P71*)
-         , (*RR: 194)*)  365 (*P83*) , (*RR: 195)*)  364 (*P82*)
-         , (*RR: 196)*)  357 (*P75*) , (*RR: 197)*)  358 (*P76*)
-         , (*RR: 198)*)  363 (*P81*) , (*RR: 199)*)  367 (*P85*)
-         , (*RR: 200)*)  368 (*P86*) , (*RR: 201)*)  374 (*P92*)
-         , (*RR: 202)*)  373 (*P91*) , (*RR: 203)*)  381 (*P99*)
-         , (*RR: 204)*)  380 (*P98*) , (*RR: 205)*)  438 (*P156*)
-         , (*RR: 206)*)  439 (*P157*) , (*RR: 207)*)  440 (*P158*)
-         , (*RR: 208)*)  455 (*P173*) , (*RR: 209)*)  343 (*P61*)
-         , (*RR: 210)*)  344 (*P62*) , (*RR: 211)*)  304 (*P22*)
-         , (*RR: 212)*)  306 (*P24*) , (*RR: 213)*)  345 (*P63*)
-         , (*RR: 214)*)  308 (*P26*) , (*RR: 215)*)  310 (*P28*)
-         , (*RR: 216)*)  307 (*P25*) , (*RR: 217)*)  309 (*P27*)
-         , (*RR: 218)*)  283 (*P1*) , (*RR: 219)*)  284 (*P2*)
-         , (*RR: 220)*)  285 (*P3*) , (*RR: 221)*)  286 (*P4*)
-         , (*RR: 222)*)  287 (*P5*) , (*RR: 223)*)  288 (*P6*)
-         , (*RR: 224)*)  301 (*P19*) , (*RR: 225)*)  330 (*P48*)
-         , (*RR: 226)*)  333 (*P51*) , (*RR: 227)*)  340 (*P58*)
-         , (*RR: 228)*)  321 (*P39*) , (*RR: 229)*)  350 (*P68*)
-         , (*RR: 230)*)  327 (*P45*) , (*RR: 231)*)  388 (*P106*)
-         , (*RR: 232)*)  389 (*P107*) , (*RR: 233)*)  390 (*P108*)
-         , (*RR: 234)*)  391 (*P109*) , (*RR: 235)*)  392 (*P110*)
-         , (*RR: 236)*)  393 (*P111*) , (*RR: 237)*)  394 (*P112*)
-         , (*RR: 238)*)  395 (*P113*) , (*RR: 239)*)  396 (*P114*)
-         , (*RR: 240)*)  397 (*P115*) , (*RR: 241)*)  398 (*P116*)
-         , (*RR: 242)*)  399 (*P117*) , (*RR: 243)*)  400 (*P118*)
-         , (*RR: 244)*)  401 (*P119*) , (*RR: 245)*)  402 (*P120*)
-         , (*RR: 246)*)  403 (*P121*) , (*RR: 247)*)  404 (*P122*)
-         , (*RR: 248)*)  405 (*P123*) , (*RR: 249)*)  410 (*P128*)
-         , (*RR: 250)*)  441 (*P159*) , (*RR: 251)*)  382 (*P100*)
-         , (*RR: 252)*)  411 (*P129*) , (*RR: 253)*)  409 (*P127*)
-         , (*RR: 254)*)  419 (*P137*) , (*RR: 255)*)  427 (*P145*)
-         , (*RR: 256)*)  425 (*P143*) , (*RR: 257)*)  420 (*P138*)
-         , (*RR: 258)*)  415 (*P133*) , (*RR: 259)*)  431 (*P149*)
-         , (*RR: 260)*)  323 (*P41*) , (*RR: 261)*)  416 (*P134*)
-         , (*RR: 262)*)  384 (*P102*) , (*RR: 263)*)  456 (*P174*)
-         , (*RR: 264)*)  360 (*P78*) , (*RR: 265)*)  366 (*P84*)
-         , (*RR: 266)*)  457 (*P175*) , (*RR: 267)*)  375 (*P93*)
-         , (*RR: 268)*)  370 (*P88*) , (*RR: 269)*)  461 (*P179*)
-         , (*RR: 270)*)  377 (*P95*) , (*RR: 271)*)  459 (*P177*)
-         , (*RR: 272)*)  437 (*P155*) , (*RR: 273)*)  469 (*P187*)
-         , (*RR: 274)*)  470 (*P188*) , (*RR: 275)*)  467 (*P185*)
-         , (*RR: 276)*)  468 (*P186*) , (*RR: 277)*)  460 (*P178*)
-         , (*RR: 278)*)  464 (*P182*) , (*RR: 279)*)  458 (*P176*)
-         , (*RR: 280)*)  465 (*P183*) , (*RR: 281)*)  305 (*P23*)
+           (*RR: 162)*)  316 (*P7*) , (*RR: 163)*)  338 (*P29*)
+         , (*RR: 164)*)  326 (*P17*) , (*RR: 165)*)  330 (*P21*)
+         , (*RR: 166)*)  343 (*P34*) , (*RR: 167)*)  368 (*P59*)
+         , (*RR: 168)*)  365 (*P56*) , (*RR: 169)*)  364 (*P55*)
+         , (*RR: 170)*)  366 (*P57*) , (*RR: 171)*)  367 (*P58*)
+         , (*RR: 172)*)  375 (*P66*) , (*RR: 173)*)  327 (*P18*)
+         , (*RR: 174)*)  378 (*P69*) , (*RR: 175)*)  486 (*P177*)
+         , (*RR: 176)*)  398 (*P89*) , (*RR: 177)*)  388 (*P79*)
+         , (*RR: 178)*)  405 (*P96*) , (*RR: 179)*)  329 (*P20*)
+         , (*RR: 180)*)  384 (*P75*) , (*RR: 181)*)  383 (*P74*)
+         , (*RR: 182)*)  464 (*P155*) , (*RR: 183)*)  439 (*P130*)
+         , (*RR: 184)*)  357 (*P48*) , (*RR: 185)*)  358 (*P49*)
+         , (*RR: 186)*)  355 (*P46*) , (*RR: 187)*)  346 (*P37*)
+         , (*RR: 188)*)  347 (*P38*) , (*RR: 189)*)  492 (*P183*)
+         , (*RR: 190)*)  493 (*P184*) , (*RR: 191)*)  494 (*P185*)
+         , (*RR: 192)*)  495 (*P186*) , (*RR: 193)*)  496 (*P187*)
+         , (*RR: 194)*)  497 (*P188*) , (*RR: 195)*)  498 (*P189*)
+         , (*RR: 196)*)  499 (*P190*) , (*RR: 197)*)  500 (*P191*)
+         , (*RR: 198)*)  501 (*P192*) , (*RR: 199)*)  502 (*P193*)
+         , (*RR: 200)*)  503 (*P194*) , (*RR: 201)*)  440 (*P131*)
+         , (*RR: 202)*)  461 (*P152*) , (*RR: 203)*)  446 (*P137*)
+         , (*RR: 204)*)  474 (*P165*) , (*RR: 205)*)  472 (*P163*)
+         , (*RR: 206)*)  473 (*P164*) , (*RR: 207)*)  467 (*P158*)
+         , (*RR: 208)*)  484 (*P175*) , (*RR: 209)*)  485 (*P176*)
+         , (*RR: 210)*)  468 (*P159*) , (*RR: 211)*)  453 (*P144*)
+         , (*RR: 212)*)  462 (*P153*) , (*RR: 213)*)  382 (*P73*)
+         , (*RR: 214)*)  394 (*P85*) , (*RR: 215)*)  393 (*P84*)
+         , (*RR: 216)*)  386 (*P77*) , (*RR: 217)*)  387 (*P78*)
+         , (*RR: 218)*)  392 (*P83*) , (*RR: 219)*)  396 (*P87*)
+         , (*RR: 220)*)  397 (*P88*) , (*RR: 221)*)  403 (*P94*)
+         , (*RR: 222)*)  402 (*P93*) , (*RR: 223)*)  410 (*P101*)
+         , (*RR: 224)*)  409 (*P100*) , (*RR: 225)*)  488 (*P179*)
+         , (*RR: 226)*)  489 (*P180*) , (*RR: 227)*)  490 (*P181*)
+         , (*RR: 228)*)  505 (*P196*) , (*RR: 229)*)  372 (*P63*)
+         , (*RR: 230)*)  373 (*P64*) , (*RR: 231)*)  331 (*P22*)
+         , (*RR: 232)*)  333 (*P24*) , (*RR: 233)*)  374 (*P65*)
+         , (*RR: 234)*)  335 (*P26*) , (*RR: 235)*)  337 (*P28*)
+         , (*RR: 236)*)  334 (*P25*) , (*RR: 237)*)  336 (*P27*)
+         , (*RR: 238)*)  310 (*P1*) , (*RR: 239)*)  311 (*P2*)
+         , (*RR: 240)*)  312 (*P3*) , (*RR: 241)*)  313 (*P4*)
+         , (*RR: 242)*)  314 (*P5*) , (*RR: 243)*)  315 (*P6*)
+         , (*RR: 244)*)  328 (*P19*) , (*RR: 245)*)  359 (*P50*)
+         , (*RR: 246)*)  362 (*P53*) , (*RR: 247)*)  369 (*P60*)
+         , (*RR: 248)*)  348 (*P39*) , (*RR: 249)*)  379 (*P70*)
+         , (*RR: 250)*)  356 (*P47*) , (*RR: 251)*)  418 (*P109*)
+         , (*RR: 252)*)  419 (*P110*) , (*RR: 253)*)  420 (*P111*)
+         , (*RR: 254)*)  421 (*P112*) , (*RR: 255)*)  422 (*P113*)
+         , (*RR: 256)*)  423 (*P114*) , (*RR: 257)*)  424 (*P115*)
+         , (*RR: 258)*)  425 (*P116*) , (*RR: 259)*)  426 (*P117*)
+         , (*RR: 260)*)  427 (*P118*) , (*RR: 261)*)  428 (*P119*)
+         , (*RR: 262)*)  429 (*P120*) , (*RR: 263)*)  430 (*P121*)
+         , (*RR: 264)*)  431 (*P122*) , (*RR: 265)*)  432 (*P123*)
+         , (*RR: 266)*)  433 (*P124*) , (*RR: 267)*)  434 (*P125*)
+         , (*RR: 268)*)  437 (*P128*) , (*RR: 269)*)  491 (*P182*)
+         , (*RR: 270)*)  411 (*P102*) , (*RR: 271)*)  438 (*P129*)
+         , (*RR: 272)*)  436 (*P127*) , (*RR: 273)*)  445 (*P136*)
+         , (*RR: 274)*)  469 (*P160*) , (*RR: 275)*)  477 (*P168*)
+         , (*RR: 276)*)  465 (*P156*) , (*RR: 277)*)  481 (*P172*)
+         , (*RR: 278)*)  353 (*P44*) , (*RR: 279)*)  352 (*P43*)
+         , (*RR: 280)*)  466 (*P157*) , (*RR: 281)*)  475 (*P166*)
+         , (*RR: 282)*)  470 (*P161*) , (*RR: 283)*)  447 (*P138*)
+         , (*RR: 284)*)  443 (*P134*) , (*RR: 285)*)  444 (*P135*)
+         , (*RR: 286)*)  452 (*P143*) , (*RR: 287)*)  450 (*P141*)
+         , (*RR: 288)*)  451 (*P142*) , (*RR: 289)*)  413 (*P104*)
+         , (*RR: 290)*)  506 (*P197*) , (*RR: 291)*)  389 (*P80*)
+         , (*RR: 292)*)  395 (*P86*) , (*RR: 293)*)  507 (*P198*)
+         , (*RR: 294)*)  404 (*P95*) , (*RR: 295)*)  399 (*P90*)
+         , (*RR: 296)*)  511 (*P202*) , (*RR: 297)*)  406 (*P97*)
+         , (*RR: 298)*)  509 (*P200*) , (*RR: 299)*)  487 (*P178*)
+         , (*RR: 300)*)  519 (*P210*) , (*RR: 301)*)  520 (*P211*)
+         , (*RR: 302)*)  517 (*P208*) , (*RR: 303)*)  518 (*P209*)
+         , (*RR: 304)*)  510 (*P201*) , (*RR: 305)*)  514 (*P205*)
+         , (*RR: 306)*)  508 (*P199*) , (*RR: 307)*)  515 (*P206*)
+         , (*RR: 308)*)  332 (*P23*)
          }; 
 
 VAR
@@ -1340,32 +1434,32 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
              (* Inserted semantic action code from the .lalr file: *)
              
               CASE yyState OF
-              | 282 => (* P1 _0000_ (225): Compilation _EndOfFile .*)
+              | 309 => (* P1 _0000_ (238): Compilation _EndOfFile .*)
                 yyStateStack := NIL;
                 yyAttributeStack := NIL;
                 RETURN yyErrorCount;
 
-              | 283,218 => (* P2 Compilation (109): Interface .*)
+              | 310,238 => (* P2 Compilation (109): Interface .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 109;
 
-              | 284,219 => (* P3 Compilation (109): Module .*)
+              | 311,239 => (* P3 Compilation (109): Module .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 109;
 
-              | 285,220 => (* P4 Compilation (109): GenInterface .*)
+              | 312,240 => (* P4 Compilation (109): GenInterface .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 109;
 
-              | 286,221 => (* P5 Compilation (109): GenModule .*)
+              | 313,241 => (* P5 Compilation (109): GenModule .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 109;
 
-              | 287,222 => (* P6 Compilation (109): InstInterface .*)
+              | 314,242 => (* P6 Compilation (109): InstInterface .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 109;
 
-              | 288,223 => (* P7 Compilation (109): InstModule .*)
+              | 315,243 => (* P7 Compilation (109): InstModule .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 109;
 
-              | 289,144 => (* P8 UnitId (115): StkIdent .*)
+              | 316,162 => (* P8 UnitId (115): StkIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 115;
-                (* line 270 of "FM3Parser.lalr" *)
+                (* line 269 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
                        BEGIN
                          yySynAttribute . Scan . SaAtom := yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom ;
@@ -1380,16 +1474,16 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
                          FM3Units . UnitStackTopRef ^ . UntScopeNo := LScopeRef . ScpScopeNo ;
                        END ; 
                      
-              | 290 => (* P9 UnitIdImpliedEXPORTS (116): UnitId .*)
+              | 317 => (* P9 UnitIdImpliedEXPORTS (116): UnitId .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 116;
-                (* line 286 of "FM3Parser.lalr" *)
+                (* line 285 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . Position := FM3Scanner . Attribute . Position;
                        EVAL FM3Extern . GetExternInterface
                               ( yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom , IsImport := FALSE ) ; 
                      
-              | 291 => (* P10 UnitIdAndExports (117): UnitIdImpliedEXPORTS .*)
+              | 318 => (* P10 UnitIdAndExports (117): UnitIdImpliedEXPORTS .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 117;
-                (* line 292 of "FM3Parser.lalr" *)
+                (* line 291 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN 
                          yySynAttribute . Scan . SaAtom (* Unit ident. *) := yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom ;
@@ -1403,51 +1497,51 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
                          FM3Units . UnitStackTopRef ^ . UntScopeNo := LScopeRef . ScpScopeNo ;
                        END ;  
                      
-              | 292 => (* P11 UnitIdAndExports (117): UnitId Exports .*)
+              | 319 => (* P11 UnitIdAndExports (117): UnitId Exports .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 117;
-                (* line 307 of "FM3Parser.lalr" *)
+                (* line 306 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . SaAtom := yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom ;
                        yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ;
                      
-              | 293 => (* P12 InterfaceKind (119): .*)
+              | 320 => (* P12 InterfaceKind (119): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 119;
-                (* line 314 of "FM3Parser.lalr" *)
+                (* line 313 of "FM3Parser.lalr" *)
                  FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInterface ; 
-              | 294 => (* P13 ModuleKind (120): .*)
+              | 321 => (* P13 ModuleKind (120): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 120;
-                (* line 317 of "FM3Parser.lalr" *)
+                (* line 316 of "FM3Parser.lalr" *)
                  FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkModule ; 
-              | 295 => (* P14 GenInterfaceKind (121): .*)
+              | 322 => (* P14 GenInterfaceKind (121): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 121;
-                (* line 320 of "FM3Parser.lalr" *)
+                (* line 319 of "FM3Parser.lalr" *)
                  FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkGenInterface ; 
-              | 296 => (* P15 GenModuleKind (122): .*)
+              | 323 => (* P15 GenModuleKind (122): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 122;
-                (* line 323 of "FM3Parser.lalr" *)
+                (* line 322 of "FM3Parser.lalr" *)
                  FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkGenModule ; 
-              | 297 => (* P16 InstInterfaceKind (123): .*)
+              | 324 => (* P16 InstInterfaceKind (123): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 123;
-                (* line 326 of "FM3Parser.lalr" *)
+                (* line 325 of "FM3Parser.lalr" *)
                  FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstInterface ; 
-              | 298 => (* P17 InstModuleKind (124): .*)
+              | 325 => (* P17 InstModuleKind (124): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 124;
-                (* line 329 of "FM3Parser.lalr" *)
+                (* line 328 of "FM3Parser.lalr" *)
                  FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstModule ; 
-              | 299,146 => (* P18 InterfaceLt (126): OptUnsafe StkRwINTERFACE StkIdent .*)
+              | 326,164 => (* P18 InterfaceLt (126): OptUnsafe StkRwINTERFACE StkIdent .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 126;
-                (* line 332 of "FM3Parser.lalr" *)
+                (* line 331 of "FM3Parser.lalr" *)
                  VAR LUnitRef : FM3Units . UnitRefTyp ; 
                        VAR LScopeRef : FM3Scopes . ScopeRefTyp ;  
                        BEGIN
@@ -1465,13 +1559,13 @@ yyNonterminal := 124;
                            ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo ) ; 
                        END ; 
                      
-              | 300,155 => (* P19 InstInterface (113): InterfaceLt StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot .*)
+              | 327,173 => (* P19 InstInterface (113): InterfaceLt StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot .*)
                 DEC (yyStackPtr, 7); yyNonterminal := 113;
-                (* line 352 of "FM3Parser.lalr" *)
+                (* line 351 of "FM3Parser.lalr" *)
                  FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstInterface ; 
-              | 301,224 => (* P20 InterfaceMiddle (129): InterfaceLt StkSemicolon Imports .*)
+              | 328,244 => (* P20 InterfaceMiddle (129): InterfaceLt StkSemicolon Imports .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 129;
-                (* line 355 of "FM3Parser.lalr" *)
+                (* line 354 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
                        BEGIN
                          FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInterface ; 
@@ -1481,9 +1575,9 @@ yyNonterminal := 124;
                            ( Itk . ItkLookupScopeLt , LScopeRef ^ . ScpScopeNo ) ;
                        END ; 
                      
-              | 302,161 => (* P21 Interface (108): InterfaceMiddle BlockDeclList StkRwEND StkIdent StkDot .*)
+              | 329,179 => (* P21 Interface (108): InterfaceMiddle BlockDeclList StkRwEND StkIdent StkDot .*)
                 DEC (yyStackPtr, 5); yyNonterminal := 108;
-                (* line 366 of "FM3Parser.lalr" *)
+                (* line 365 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
                        BEGIN
                          LScopeRef := FM3Scopes . LookupScopeStackTopRef ;
@@ -1509,9 +1603,9 @@ yyNonterminal := 124;
                            ) ; 
                        END ; 
                      
-              | 303,147 => (* P22 ModuleLt (131): OptUnsafe StkRwMODULE StkIdent .*)
+              | 330,165 => (* P22 ModuleLt (131): OptUnsafe StkRwMODULE StkIdent .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 131;
-                (* line 393 of "FM3Parser.lalr" *)
+                (* line 392 of "FM3Parser.lalr" *)
                  VAR LUnitRef : FM3Units . UnitRefTyp ; 
                        VAR LScopeRef : FM3Scopes . ScopeRefTyp ;  
                        BEGIN
@@ -1531,13 +1625,13 @@ yyNonterminal := 124;
                            ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo ) ; 
                        END ; 
                      
-              | 304,211 => (* P23 InstModule (114): ModuleLt StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot .*)
+              | 331,231 => (* P23 InstModule (114): ModuleLt StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot .*)
                 DEC (yyStackPtr, 7); yyNonterminal := 114;
-                (* line 415 of "FM3Parser.lalr" *)
+                (* line 414 of "FM3Parser.lalr" *)
                  FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstModule ; 
-              | 305,281 => (* P24 ModuleMiddle (132): ModuleLt Exports StkSemicolon Imports .*)
+              | 332,308 => (* P24 ModuleMiddle (132): ModuleLt Exports StkSemicolon Imports .*)
                 DEC (yyStackPtr, 4); yyNonterminal := 132;
-                (* line 418 of "FM3Parser.lalr" *)
+                (* line 417 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
                        BEGIN
                          LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
@@ -1546,9 +1640,9 @@ yyNonterminal := 124;
                            ( Itk . ItkLookupScopeLt , LScopeRef ^ . ScpScopeNo ) ;
                        END ; 
                      
-              | 306,212 => (* P25 Module (110): ModuleMiddle BlockDeclList StkRwBEGIN StmtList StkRwEND StkIdent StkDot .*)
+              | 333,232 => (* P25 Module (110): ModuleMiddle BlockDeclList StkRwBEGIN StmtList StkRwEND StkIdent StkDot .*)
                 DEC (yyStackPtr, 7); yyNonterminal := 110;
-                (* line 429 of "FM3Parser.lalr" *)
+                (* line 428 of "FM3Parser.lalr" *)
                  VAR LUnitRef : FM3Units . UnitRefTyp ;
                        VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
                        BEGIN
@@ -1579,9 +1673,9 @@ yyNonterminal := 124;
                            ) ; 
                        END ; 
                      
-              | 307,216 => (* P26 GenInterfaceLt (134): StkRwGENERIC StkRwINTERFACE UnitId .*)
+              | 334,236 => (* P26 GenInterfaceLt (134): StkRwGENERIC StkRwINTERFACE UnitId .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 134;
-                (* line 461 of "FM3Parser.lalr" *)
+                (* line 460 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN 
                          yySynAttribute . PaBool := yyAttributeStack^[yyStackPtr+1] . PaBool ;
@@ -1595,16 +1689,16 @@ yyNonterminal := 124;
                          FM3Units . UnitStackTopRef ^ . UntScopeNo := LScopeRef . ScpScopeNo ;
                        END ; 
                      
-              | 308,214 => (* P27 GenInterface (111): GenInterfaceLt GenInterfaceKind GenFormalList StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot .*)
+              | 335,234 => (* P27 GenInterface (111): GenInterfaceLt GenInterfaceKind GenFormalList StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot .*)
                 DEC (yyStackPtr, 9); yyNonterminal := 111;
-                (* line 478 of "FM3Parser.lalr" *)
+                (* line 477 of "FM3Parser.lalr" *)
                  (* Scope ref:
                         FM3ParsePass . Push_LI ( Itk . ItkDeclScopeLt , yyAttributeStack^[yyStackPtr+1] . PaConstructNo ) ;
                        *) 
                      
-              | 309,217 => (* P28 GenModuleLt (136): StkRwGENERIC StkRwMODULE UnitId .*)
+              | 336,237 => (* P28 GenModuleLt (136): StkRwGENERIC StkRwMODULE UnitId .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 136;
-                (* line 484 of "FM3Parser.lalr" *)
+                (* line 483 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN 
                          yySynAttribute . PaBool := yyAttributeStack^[yyStackPtr+1] . PaBool ;
@@ -1618,56 +1712,56 @@ yyNonterminal := 124;
                          FM3Units . UnitStackTopRef ^ . UntScopeNo := LScopeRef . ScpScopeNo ;
                        END ; 
                      
-              | 310,215 => (* P29 GenModule (112): GenModuleLt GenModuleKind GenFormalList StkSemicolon Imports Block StkIdent StkDot .*)
+              | 337,235 => (* P29 GenModule (112): GenModuleLt GenModuleKind GenFormalList StkSemicolon Imports Block StkIdent StkDot .*)
                 DEC (yyStackPtr, 8); yyNonterminal := 112;
-                (* line 501 of "FM3Parser.lalr" *)
+                (* line 500 of "FM3Parser.lalr" *)
                  (* scope ref
                           FM3ParsePass . Push_LI ( Itk . ItkDeclScopeLt , yyAttributeStack^[yyStackPtr+1] . PaConstructNo ) ;
                        *) 
                      
-              | 311,145 => (* P30 OptUnsafe (125): StkRwUNSAFE .*)
+              | 338,163 => (* P30 OptUnsafe (125): StkRwUNSAFE .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 125;
-                (* line 507 of "FM3Parser.lalr" *)
+                (* line 506 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Unsafe.*) := TRUE ; 
-              | 312 => (* P31 OptUnsafe (125): .*)
+              | 339 => (* P31 OptUnsafe (125): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 125;
-                (* line 508 of "FM3Parser.lalr" *)
+                (* line 507 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Unsafe.*) := FALSE (* Safe. *) ; 
-              | 313 => (* P32 CaptureCoord (138): .*)
+              | 340 => (* P32 CaptureCoord (138): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 138;
-                (* line 511 of "FM3Parser.lalr" *)
+                (* line 510 of "FM3Parser.lalr" *)
                  yySynAttribute . PaUnnestCoord := UnnestCoord ( ) ; 
-              | 314 => (* P33 OptSemicolon (139): StkSemicolon .*)
+              | 341 => (* P33 OptSemicolon (139): StkSemicolon .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 139;
 
-              | 315 => (* P34 OptSemicolon (139): .*)
+              | 342 => (* P34 OptSemicolon (139): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 139;
 
-              | 316,148 => (* P35 IdentRef (140): StkIdent .*)
+              | 343,166 => (* P35 IdentRef (140): StkIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 140;
-                (* line 519 of "FM3Parser.lalr" *)
+                (* line 518 of "FM3Parser.lalr" *)
                  FM3ParsePass . IdentRefL2R ( yyAttributeStack^[yyStackPtr+1] ) ; 
-              | 317 => (* P36 IdPlusList (141): IdentRef .*)
+              | 344 => (* P36 IdPlusList (141): IdentRef .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 141;
-                (* line 523 of "FM3Parser.lalr" *)
+                (* line 522 of "FM3Parser.lalr" *)
                  (* PaUnnestCoord copied from yyAttributeStack^[yyStackPtr+1] by parser. *) 
                        yySynAttribute . PaInt := 1 ;
                      
-              | 318 => (* P37 IdPlusList (141): IdPlusList StkComma IdentRef .*)
+              | 345 => (* P37 IdPlusList (141): IdPlusList StkComma IdentRef .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 141;
-                (* line 527 of "FM3Parser.lalr" *)
+                (* line 526 of "FM3Parser.lalr" *)
                  (* PaUnnestCoord copied from yyAttributeStack^[yyStackPtr+1] by parser. *) 
                        yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt + 1 ;
                      
-              | 319,171 => (* P38 DeclIdListElems (142): StkIdent .*)
+              | 346,187 => (* P38 DeclIdListElems (142): StkIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 142;
-                (* line 539 of "FM3Parser.lalr" *)
+                (* line 538 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Valid Id count. *)
                          := ORD
                               ( FM3ParsePass . DeclIdL2R
@@ -1677,9 +1771,9 @@ yyNonterminal := 139;
                                   )
                               ) ;
                      
-              | 320,172 => (* P39 DeclIdListElems (142): DeclIdListElems StkComma StkIdent .*)
+              | 347,188 => (* P39 DeclIdListElems (142): DeclIdListElems StkComma StkIdent .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 142;
-                (* line 550 of "FM3Parser.lalr" *)
+                (* line 549 of "FM3Parser.lalr" *)
                  IF FM3ParsePass . DeclIdL2R
                             ( Itk . ItkDeclId 
                             , FM3Decls . TopDeclInfo ( ) . DiKind
@@ -1690,90 +1784,98 @@ yyNonterminal := 139;
                        ELSE yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt (* Valid Id count, no increase. *) ; 
                        END (*IF*) ;
                      
-              | 321,228 => (* P40 IdStarList (143): IdStarList StkComma IdentRef .*)
+              | 348,248 => (* P40 IdStarList (143): IdStarList StkComma IdentRef .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 143;
-                (* line 563 of "FM3Parser.lalr" *)
+                (* line 562 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt + 1 ; 
-              | 322 => (* P41 IdStarList (143): .*)
+              | 349 => (* P41 IdStarList (143): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 143;
-                (* line 565 of "FM3Parser.lalr" *)
+                (* line 564 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := 0 ; 
-              | 323,260 => (* P42 QualIdStarList (144): QualIdStarList StkComma QualId .*)
-                DEC (yyStackPtr, 3); yyNonterminal := 144;
-                (* line 569 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt + 1 ; 
-              | 324 => (* P43 QualIdStarList (144): .*)
+              | 350 => (* P42 QualIdStarList (144): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 144;
-                (* line 571 of "FM3Parser.lalr" *)
+                (* line 568 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := 0 ; 
-              | 325 => (* P44 QualId (145): StkIdent .*)
+              | 351 => (* P43 QualIdStarList (144): QualIdPlusList .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 144;
+                (* line 570 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt ; 
+              | 352,279 => (* P44 QualIdPlusList (145): QualId .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 145;
-                (* line 574 of "FM3Parser.lalr" *)
-                 FM3ParsePass . IdentRefL2R ( yyAttributeStack^[yyStackPtr+1] ) ; 
-              | 326,170 => (* P45 QualId (145): StkIdent StkDot StkIdent .*)
+                (* line 572 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaInt := 1 
+              | 353,278 => (* P45 QualIdPlusList (145): QualIdPlusList StkComma QualId .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 145;
+                (* line 574 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt + 1 ; 
+              | 354 => (* P46 QualId (146): StkIdent .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 146;
                 (* line 577 of "FM3Parser.lalr" *)
+                 FM3ParsePass . IdentRefL2R ( yyAttributeStack^[yyStackPtr+1] ) ; 
+              | 355,186 => (* P47 QualId (146): StkIdent StkDot StkIdent .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 146;
+                (* line 580 of "FM3Parser.lalr" *)
                  FM3ParsePass . QualIdentL2R ( yyAttributeStack^[yyStackPtr+1] , yyAttributeStack^[yyStackPtr+3] ) ; 
-              | 327,230 => (* P46 TypeId (146): QualId .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 146;
+              | 356,250 => (* P48 TypeId (147): QualId .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 147;
 
-              | 328,167 => (* P47 TypeId (146): StkRwROOT .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 146;
-                (* line 586 of "FM3Parser.lalr" *)
+              | 357,184 => (* P49 TypeId (147): StkRwROOT .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 147;
+                (* line 589 of "FM3Parser.lalr" *)
                  FM3ParsePass . Push_LIP
                          ( Itk . ItkReservedId , Stk . RidROOT , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ; 
                      
-              | 329,169 => (* P48 TypeId (146): StkRwUNTRACED StkRwROOT .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 146;
-                (* line 591 of "FM3Parser.lalr" *)
+              | 358,185 => (* P50 TypeId (147): StkRwUNTRACED StkRwROOT .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 147;
+                (* line 594 of "FM3Parser.lalr" *)
                  FM3ParsePass . Push_LIP
                          ( Itk . ItkReservedId , Stk . RidUNTRACEDROOT , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ; 
                      
-              | 330,225 => (* P49 Imports (128): ImportsLt ImportsRecurse ImportsRt .*)
+              | 359,245 => (* P51 Imports (128): ImportsLt ImportsRecurse ImportsRt .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 128;
-                (* line 598 of "FM3Parser.lalr" *)
+                (* line 601 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+2] . PaInt (* Imported interface Count. *) ;
                        yySynAttribute . PaLong := yyAttributeStack^[yyStackPtr+2] . PaLong (* Imported unqualified Ident Count. *) ;
                      
-              | 331 => (* P50 ImportsLt (147): .*)
-                yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
-    := FM3Scanner . Attribute . Position; 
-yyNonterminal := 147;
-                (* line 601 of "FM3Parser.lalr" *)
-                 FM3ParsePass . ImportsLt ( ) ; 
-              | 332 => (* P51 ImportsRt (149): .*)
-                yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
-    := FM3Scanner . Attribute . Position; 
-yyNonterminal := 149;
-                (* line 602 of "FM3Parser.lalr" *)
-                 FM3ParsePass . ImportsRt ( ) ; 
-              | 333,226 => (* P52 ImportsRecurse (148): ImportsRecurse ImportItem .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 148;
-                (* line 604 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt + yyAttributeStack^[yyStackPtr+2] . PaInt ;
-                       yySynAttribute . PaLong := yyAttributeStack^[yyStackPtr+1] . PaLong + yyAttributeStack^[yyStackPtr+2] . PaLong ;
-                     
-              | 334 => (* P53 ImportsRecurse (148): .*)
+              | 360 => (* P52 ImportsLt (148): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 148;
-                (* line 608 of "FM3Parser.lalr" *)
+                (* line 604 of "FM3Parser.lalr" *)
+                 FM3ParsePass . ImportsLt ( ) ; 
+              | 361 => (* P53 ImportsRt (150): .*)
+                yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
+    := FM3Scanner . Attribute . Position; 
+yyNonterminal := 150;
+                (* line 605 of "FM3Parser.lalr" *)
+                 FM3ParsePass . ImportsRt ( ) ; 
+              | 362,246 => (* P54 ImportsRecurse (149): ImportsRecurse ImportItem .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 149;
+                (* line 607 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt + yyAttributeStack^[yyStackPtr+2] . PaInt ;
+                       yySynAttribute . PaLong := yyAttributeStack^[yyStackPtr+1] . PaLong + yyAttributeStack^[yyStackPtr+2] . PaLong ;
+                     
+              | 363 => (* P55 ImportsRecurse (149): .*)
+                yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
+    := FM3Scanner . Attribute . Position; 
+yyNonterminal := 149;
+                (* line 611 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := 0; 
                        yySynAttribute . PaLong := 0L; 
                      
-              | 335,151 => (* P54 ImportItem (150): StkRwIMPORT ImportIntfPlusList StkSemicolon .*)
-                DEC (yyStackPtr, 3); yyNonterminal := 150;
-                (* line 614 of "FM3Parser.lalr" *)
+              | 364,169 => (* P56 ImportItem (151): StkRwIMPORT ImportIntfPlusList StkSemicolon .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 151;
+                (* line 617 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+2] . PaInt ;
                        yySynAttribute . PaLong := 0L ; 
                      
-              | 336,150 => (* P55 ImportIntfPlusList (151): StkIdent .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 151;
-                (* line 618 of "FM3Parser.lalr" *)
+              | 365,168 => (* P57 ImportIntfPlusList (152): StkIdent .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 152;
+                (* line 621 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := 1 ;
                        FM3ParsePass . Import
                          ( yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ; 
@@ -1785,9 +1887,9 @@ yyNonterminal := 148;
                          , yyAttributeStack^[yyStackPtr+1] . Scan . Position . Column
                          ) ;
                      
-              | 337,152 => (* P56 ImportIntfPlusList (151): ImportIntfPlusList StkComma StkIdent .*)
-                DEC (yyStackPtr, 3); yyNonterminal := 151;
-                (* line 630 of "FM3Parser.lalr" *)
+              | 366,170 => (* P58 ImportIntfPlusList (152): ImportIntfPlusList StkComma StkIdent .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 152;
+                (* line 633 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt + 1 ;
                        Pop4 ( ) (* Replace the Ident with an ItkImport. *) ; 
                        FM3ParsePass . Import
@@ -1799,15 +1901,15 @@ yyNonterminal := 148;
                          , yyAttributeStack^[yyStackPtr+3] . Scan . Position . Column
                          ) ;
                      
-              | 338,153 => (* P57 ImportItem (150): FromImportPlusList StkSemicolon .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 150;
-                (* line 644 of "FM3Parser.lalr" *)
+              | 367,171 => (* P59 ImportItem (151): FromImportPlusList StkSemicolon .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 151;
+                (* line 647 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaLong := yyAttributeStack^[yyStackPtr+1] . PaLong ; 
                      
-              | 339,149 => (* P58 FromImportPlusList (152): StkRwFROM IdentRef StkRwIMPORT StkIdent .*)
-                DEC (yyStackPtr, 4); yyNonterminal := 152;
-                (* line 648 of "FM3Parser.lalr" *)
+              | 368,167 => (* P60 FromImportPlusList (153): StkRwFROM IdentRef StkRwIMPORT StkIdent .*)
+                DEC (yyStackPtr, 4); yyNonterminal := 153;
+                (* line 651 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := 1 (* InterfaceCt. *) ;
                        yySynAttribute . PaLong := 1L ;
                        yySynAttribute . Scan . SaAtom := yyAttributeStack^[yyStackPtr+2] . Scan . SaAtom ; 
@@ -1830,9 +1932,9 @@ yyNonterminal := 148;
                          , yyAttributeStack^[yyStackPtr+4] . Scan . Position . Column
                          ) ;
                      
-              | 340,227 => (* P59 FromImportPlusList (152): FromImportPlusList StkComma IdentRef .*)
-                DEC (yyStackPtr, 3); yyNonterminal := 152;
-                (* line 671 of "FM3Parser.lalr" *)
+              | 369,247 => (* P61 FromImportPlusList (153): FromImportPlusList StkComma IdentRef .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 153;
+                (* line 674 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := 1 ;
                        yySynAttribute . PaLong := yyAttributeStack^[yyStackPtr+1] . PaLong + 1L ;
                        yySynAttribute . Scan . SaAtom := yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom ; 
@@ -1855,90 +1957,90 @@ yyNonterminal := 148;
                          , yyAttributeStack^[yyStackPtr+3] . Scan . Position . Column
                          ) ;
                      
-              | 341 => (* P60 Exports (118): .*)
+              | 370 => (* P62 Exports (118): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 118;
-                (* line 712 of "FM3Parser.lalr" *)
+                (* line 715 of "FM3Parser.lalr" *)
                 
                 
                        (* FM3Extern . GetExternInterface
                             ( 1 . Scan . SaAtom , IsImport := FALSE ) ;
                        *) 
                      
-              | 342 => (* P61 Exports (118): StkRwEXPORTS ExportPlus .*)
+              | 371 => (* P63 Exports (118): StkRwEXPORTS ExportPlus .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 118;
 
-              | 343,209 => (* P62 ExportPlus (153): StkIdent .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 153;
-                (* line 722 of "FM3Parser.lalr" *)
+              | 372,229 => (* P64 ExportPlus (154): StkIdent .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 154;
+                (* line 725 of "FM3Parser.lalr" *)
                  EVAL FM3Extern . GetExternInterface
                               ( yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom , IsImport := FALSE ) ;
                      
-              | 344,210 => (* P63 ExportPlus (153): ExportPlus StkComma StkIdent .*)
-                DEC (yyStackPtr, 3); yyNonterminal := 153;
-                (* line 727 of "FM3Parser.lalr" *)
+              | 373,230 => (* P65 ExportPlus (154): ExportPlus StkComma StkIdent .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 154;
+                (* line 730 of "FM3Parser.lalr" *)
                  EVAL FM3Extern . GetExternInterface
                               ( yyAttributeStack^[yyStackPtr+3] . Scan . SaAtom , IsImport := FALSE ) ;
                      
-              | 345,213 => (* P64 GenFormalList (135): StkOpenParen IdStarList StkCloseParen .*)
+              | 374,233 => (* P66 GenFormalList (135): StkOpenParen IdStarList StkCloseParen .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 135;
-                (* line 735 of "FM3Parser.lalr" *)
+                (* line 738 of "FM3Parser.lalr" *)
                  MakeListPos 
                          ( yySynAttribute , Itk. ItkGenFormalIdListLt , yyAttributeStack^[yyStackPtr+1] . Scan . Position , yyAttributeStack^[yyStackPtr+2] ) ;
                      
-              | 346,154 => (* P65 GenActualList (127): StkOpenParen IdStarList StkCloseParen .*)
+              | 375,172 => (* P67 GenActualList (127): StkOpenParen IdStarList StkCloseParen .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 127;
-                (* line 741 of "FM3Parser.lalr" *)
+                (* line 744 of "FM3Parser.lalr" *)
                  (* Handle this in pass 1.
                           MakeListPos
                             ( yySynAttribute , Itk. ItkGenActualIdListLt , yyAttributeStack^[yyStackPtr+1] . Scan . Position , yyAttributeStack^[yyStackPtr+2] ) ;
                        *) 
                      
-              | 347 => (* P66 OptConstType (155): StkColon Type .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 155;
-                (* line 750 of "FM3Parser.lalr" *)
+              | 376 => (* P68 OptConstType (156): StkColon Type .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 156;
+                (* line 753 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Present. *) := TRUE ; 
-              | 348 => (* P67 OptConstType (155): .*)
+              | 377 => (* P69 OptConstType (156): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
-yyNonterminal := 155;
-                (* line 752 of "FM3Parser.lalr" *)
+yyNonterminal := 156;
+                (* line 755 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Present. *) := FALSE (* Absent. *) ; 
-              | 349,156 => (* P68 ConstDeclGroupLt (156): StkRwCONST .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 156;
-                (* line 761 of "FM3Parser.lalr" *)
-                 yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position; 
-              | 350,229 => (* P69 ConstDeclGroup (158): ConstDeclGroupLt ConstDeclList .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 158;
+              | 378,174 => (* P70 ConstDeclGroupLt (157): StkRwCONST .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 157;
                 (* line 764 of "FM3Parser.lalr" *)
+                 yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position; 
+              | 379,249 => (* P71 ConstDeclGroup (159): ConstDeclGroupLt ConstDeclList .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 159;
+                (* line 767 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *) := yyAttributeStack^[yyStackPtr+2] . PaInt ;
                         yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+2] . PaPos ; 
                       
-              | 351 => (* P70 ConstDeclList (157): .*)
+              | 380 => (* P72 ConstDeclList (158): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
-yyNonterminal := 157;
-                (* line 769 of "FM3Parser.lalr" *)
+yyNonterminal := 158;
+                (* line 772 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := 0 ;
                        yySynAttribute . PaPos (* No trailing semicolon exists *)
                          := FM3Scanner . Attribute . Position ; 
                      
-              | 352 => (* P71 ConstDeclList (157): ConstDeclPlus .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 157;
-                (* line 775 of "FM3Parser.lalr" *)
+              | 381 => (* P73 ConstDeclList (158): ConstDeclPlus .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 158;
+                (* line 778 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon.*) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                      
-              | 353,193 => (* P72 ConstDeclPlus (159): ConstDecl StkSemicolon .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 159;
-                (* line 780 of "FM3Parser.lalr" *)
+              | 382,213 => (* P74 ConstDeclPlus (160): ConstDecl StkSemicolon .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 160;
+                (* line 783 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *) := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon.*) := yyAttributeStack^[yyStackPtr+2] . Scan . Position ; 
                      
-              | 354,163 => (* P73 ConstDeclPlus (159): ConstDeclPlus ConstDecl StkSemicolon .*)
-                DEC (yyStackPtr, 3); yyNonterminal := 159;
-                (* line 785 of "FM3Parser.lalr" *)
+              | 383,181 => (* P75 ConstDeclPlus (160): ConstDeclPlus ConstDecl StkSemicolon .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 160;
+                (* line 788 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *):= yyAttributeStack^[yyStackPtr+1] . PaInt + yyAttributeStack^[yyStackPtr+2] . PaInt ;
                        IF yyAttributeStack^[yyStackPtr+2] . PaInt > 0
                        THEN  
@@ -1953,17 +2055,17 @@ yyNonterminal := 157;
                          yySynAttribute . PaPos (* Rt semicolon.*) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                        END (*IF*) ;  
                      
-              | 355,162 => (* P74 ConstDeclId (161): StkIdent .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 161;
-                (* line 803 of "FM3Parser.lalr" *)
+              | 384,180 => (* P76 ConstDeclId (162): StkIdent .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 162;
+                (* line 806 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Ident count, 0 or 1. *) 
                          := ORD ( FM3ParsePass . DeclIdL2R
                                     ( Itk . ItkDeclId , Dkt . DkConst , yyAttributeStack^[yyStackPtr+1] )
                                 ) 
                      
-              | 356 => (* P75 ConstDecl (160): ConstDeclId OptDeclType StkEqual Expr .*)
-                DEC (yyStackPtr, 4); yyNonterminal := 160;
-                (* line 810 of "FM3Parser.lalr" *)
+              | 385 => (* P77 ConstDecl (161): ConstDeclId OptDeclType StkEqual Expr .*)
+                DEC (yyStackPtr, 4); yyNonterminal := 161;
+                (* line 813 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt (* Contribution to BlockDecl count. *) ;
                        IF yySynAttribute . PaInt > 0 
                        THEN 
@@ -1987,48 +2089,48 @@ yyNonterminal := 157;
                          INC ( FM3Globals . NextSkipNo ) ;
                        END (*IF*) ;
                      
-              | 357,196 => (* P76 TypeRelation (164): StkEqual .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 164;
-                (* line 836 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaTok1 := Itk . ItkTypeDeclLt ; 
-              | 358,197 => (* P77 TypeRelation (164): StkSubtype .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 164;
-                (* line 838 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaTok1 := Itk . ItkSubtypeDeclLt ; 
-              | 359,159 => (* P78 TypeDeclGroupLt (165): StkRwTYPE .*)
+              | 386,216 => (* P78 TypeRelation (165): StkEqual .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 165;
-                (* line 849 of "FM3Parser.lalr" *)
-                 yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position; 
-              | 360,264 => (* P79 TypeDeclGroup (167): TypeDeclGroupLt TypeDeclList .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 167;
+                (* line 839 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaTok1 := Itk . ItkTypeDeclLt ; 
+              | 387,217 => (* P79 TypeRelation (165): StkSubtype .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 165;
+                (* line 841 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaTok1 := Itk . ItkSubtypeDeclLt ; 
+              | 388,177 => (* P80 TypeDeclGroupLt (166): StkRwTYPE .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 166;
                 (* line 852 of "FM3Parser.lalr" *)
+                 yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position; 
+              | 389,291 => (* P81 TypeDeclGroup (168): TypeDeclGroupLt TypeDeclList .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 168;
+                (* line 855 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *) := yyAttributeStack^[yyStackPtr+2] . PaInt ;
                         yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+2] . PaPos ; 
                       
-              | 361 => (* P80 TypeDeclList (166): .*)
+              | 390 => (* P82 TypeDeclList (167): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
-yyNonterminal := 166;
-                (* line 857 of "FM3Parser.lalr" *)
+yyNonterminal := 167;
+                (* line 860 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := 0 ;
                        yySynAttribute . PaPos (* No trailing semicolon exists *)
                          := FM3Scanner . Attribute . Position ; 
                      
-              | 362 => (* P81 TypeDeclList (166): TypeDeclPlus .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 166;
-                (* line 863 of "FM3Parser.lalr" *)
+              | 391 => (* P83 TypeDeclList (167): TypeDeclPlus .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 167;
+                (* line 866 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon.*) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                      
-              | 363,198 => (* P82 TypeDeclPlus (168): TypeDecl StkSemicolon .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 168;
-                (* line 868 of "FM3Parser.lalr" *)
+              | 392,218 => (* P84 TypeDeclPlus (169): TypeDecl StkSemicolon .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 169;
+                (* line 871 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *) := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon.*) := yyAttributeStack^[yyStackPtr+2] . Scan . Position ; 
                      
-              | 364,195 => (* P83 TypeDeclPlus (168): TypeDeclPlus TypeDecl StkSemicolon .*)
-                DEC (yyStackPtr, 3); yyNonterminal := 168;
-                (* line 873 of "FM3Parser.lalr" *)
+              | 393,215 => (* P85 TypeDeclPlus (169): TypeDeclPlus TypeDecl StkSemicolon .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 169;
+                (* line 876 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *):= yyAttributeStack^[yyStackPtr+1] . PaInt + yyAttributeStack^[yyStackPtr+2] . PaInt ;
                        IF yyAttributeStack^[yyStackPtr+2] . PaInt > 0
                        THEN  
@@ -2043,17 +2145,17 @@ yyNonterminal := 166;
                          yySynAttribute . PaPos (* Rt semicolon.*) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                        END (*IF*) ;  
                      
-              | 365,194 => (* P84 TypeDeclId (170): StkIdent .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 170;
-                (* line 889 of "FM3Parser.lalr" *)
+              | 394,214 => (* P86 TypeDeclId (171): StkIdent .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 171;
+                (* line 892 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Ident count, 0 or 1. *) 
                          := ORD ( FM3ParsePass . DeclIdL2R
                                     ( Itk . ItkDeclId , Dkt . DkType , yyAttributeStack^[yyStackPtr+1] )
                                 ) 
                      
-              | 366,265 => (* P85 TypeDecl (169): TypeDeclId TypeRelation Type .*)
-                DEC (yyStackPtr, 3); yyNonterminal := 169;
-                (* line 896 of "FM3Parser.lalr" *)
+              | 395,292 => (* P87 TypeDecl (170): TypeDeclId TypeRelation Type .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 170;
+                (* line 899 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt (* Contribution to BlockDecl count. *) ;
                        IF yySynAttribute . PaInt > 0 
                        THEN 
@@ -2071,48 +2173,48 @@ yyNonterminal := 166;
                          INC ( FM3Globals . NextSkipNo ) ;
                        END (*IF*) ;
                      
-              | 367,199 => (* P86 RevelationRelation (171): StkEqual .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 171;
-                (* line 916 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaTok1 := Itk . ItkFullRevealLt ; 
-              | 368,200 => (* P87 RevelationRelation (171): StkSubtype .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 171;
-                (* line 918 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaTok1 := Itk . ItkPartialRevealLt ; 
-              | 369,158 => (* P88 RevelationGroupLt (172): StkRwREVEAL .*)
+              | 396,219 => (* P88 RevelationRelation (172): StkEqual .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 172;
-                (* line 929 of "FM3Parser.lalr" *)
-                  yySynAttribute. Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position  
-              | 370,268 => (* P89 RevelationGroup (174): RevelationGroupLt RevelationList .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 174;
+                (* line 919 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaTok1 := Itk . ItkFullRevealLt ; 
+              | 397,220 => (* P89 RevelationRelation (172): StkSubtype .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 172;
+                (* line 921 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaTok1 := Itk . ItkPartialRevealLt ; 
+              | 398,176 => (* P90 RevelationGroupLt (173): StkRwREVEAL .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 173;
                 (* line 932 of "FM3Parser.lalr" *)
+                  yySynAttribute. Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position  
+              | 399,295 => (* P91 RevelationGroup (175): RevelationGroupLt RevelationList .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 175;
+                (* line 935 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *) := yyAttributeStack^[yyStackPtr+2] . PaInt ;
                         yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+2] . PaPos ; 
                       
-              | 371 => (* P90 RevelationList (173): .*)
+              | 400 => (* P92 RevelationList (174): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
-yyNonterminal := 173;
-                (* line 937 of "FM3Parser.lalr" *)
+yyNonterminal := 174;
+                (* line 940 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := 0 ;
                        yySynAttribute . PaPos (* No trailing semicolon exists. *)
                          := FM3Scanner . Attribute . Position ; 
                      
-              | 372 => (* P91 RevelationList (173): RevelationPlus .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 173;
-                (* line 943 of "FM3Parser.lalr" *)
+              | 401 => (* P93 RevelationList (174): RevelationPlus .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 174;
+                (* line 946 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                      
-              | 373,202 => (* P92 RevelationPlus (175): Revelation StkSemicolon .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 175;
-                (* line 948 of "FM3Parser.lalr" *)
+              | 402,222 => (* P94 RevelationPlus (176): Revelation StkSemicolon .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 176;
+                (* line 951 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *) := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+2] . Scan . Position ; 
                      
-              | 374,201 => (* P93 RevelationPlus (175): RevelationPlus Revelation StkSemicolon .*)
-                DEC (yyStackPtr, 3); yyNonterminal := 175;
-                (* line 953 of "FM3Parser.lalr" *)
+              | 403,221 => (* P95 RevelationPlus (176): RevelationPlus Revelation StkSemicolon .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 176;
+                (* line 956 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *):= yyAttributeStack^[yyStackPtr+1] . PaInt + yyAttributeStack^[yyStackPtr+2] . PaInt ;
                        IF yyAttributeStack^[yyStackPtr+2] . PaInt > 0
                        THEN 
@@ -2127,9 +2229,9 @@ yyNonterminal := 173;
                          yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                        END (*IF*) ; 
                      
-              | 375,267 => (* P94 Revelation (176): TypeId RevelationRelation Type .*)
-                DEC (yyStackPtr, 3); yyNonterminal := 176;
-                (* line 969 of "FM3Parser.lalr" *)
+              | 404,294 => (* P96 Revelation (177): TypeId RevelationRelation Type .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 177;
+                (* line 972 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := 1 (* BlockDecl count. *) ;
                 (* CHECK^ Do we really want to count this as a block decl?  It occupies a 
                           space in the Blockdecl list, but does not introduce a new identifier,
@@ -2144,9 +2246,9 @@ yyNonterminal := 173;
                          , yyAttributeStack^[yyStackPtr+1] . Scan . Position 
                          ) ;
                      
-              | 376,160 => (* P95 VarDeclGroupLt (177): StkRwVAR .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 177;
-                (* line 996 of "FM3Parser.lalr" *)
+              | 405,178 => (* P97 VarDeclGroupLt (178): StkRwVAR .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 178;
+                (* line 999 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* DeclInfoDepth *) 
                          := FM3Decls . PushDeclInfo
                               ( FM3Decls . DeclInfoTyp
@@ -2159,27 +2261,24 @@ yyNonterminal := 173;
                               ) ;
                        yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position;
                      
-              | 377,270 => (* P96 VarDeclGroup (179): VarDeclGroupLt VarDeclList .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 179;
-                (* line 1010 of "FM3Parser.lalr" *)
+              | 406,297 => (* P98 VarDeclGroup (180): VarDeclGroupLt VarDeclList .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 180;
+                (* line 1013 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *) := yyAttributeStack^[yyStackPtr+2] . PaInt ;
                         yySynAttribute . PaPos (* Rt Semicolon. *) := yyAttributeStack^[yyStackPtr+2] . PaPos ;  
                         <* ASSERT FM3Decls . PopDeclInfo ( ) = yyAttributeStack^[yyStackPtr+1] . PaInt *>
                       
-              | 378 => (* P97 VarDeclList (178): .*)
+              | 407 => (* P99 VarDeclList (179): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
-yyNonterminal := 178;
-                (* line 1016 of "FM3Parser.lalr" *)
+yyNonterminal := 179;
+                (* line 1019 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := 0 (* Decl count. *) ;
                         yySynAttribute . PaPos (* No trailing semicolon exists. *)
                           := FM3Scanner.Attribute . Position ; 
-                        (*Push_LIP_rip
-                          ( Itk . ItkVarDeclListLt , 0 , FM3Scanner . Attribute . Position ) ;
-                        *)
                       
-              | 379 => (* P98 VarDeclList (178): VarDeclPlus .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 178;
+              | 408 => (* P100 VarDeclList (179): VarDeclPlus .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 179;
                 (* line 1025 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt (* Decl count. *) ;
                        yySynAttribute . PaPos (* Rt Semicolon. *) := yyAttributeStack^[yyStackPtr+1] . PaPos ;  
@@ -2192,14 +2291,14 @@ yyNonterminal := 178;
                          ) ;
                        *) 
                      
-              | 380,204 => (* P99 VarDeclPlus (180): VarDecl StkSemicolon .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 180;
+              | 409,224 => (* P101 VarDeclPlus (181): VarDecl StkSemicolon .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 181;
                 (* line 1038 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *) := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt Semicolon. *) := yyAttributeStack^[yyStackPtr+2] . Scan . Position ;  
                      
-              | 381,203 => (* P100 VarDeclPlus (180): VarDeclPlus VarDecl StkSemicolon .*)
-                DEC (yyStackPtr, 3); yyNonterminal := 180;
+              | 410,223 => (* P102 VarDeclPlus (181): VarDeclPlus VarDecl StkSemicolon .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 181;
                 (* line 1043 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *):= yyAttributeStack^[yyStackPtr+1] . PaInt + yyAttributeStack^[yyStackPtr+2] . PaInt ;
                        IF yyAttributeStack^[yyStackPtr+2] . PaInt > 0
@@ -2215,8 +2314,8 @@ yyNonterminal := 178;
                          yySynAttribute . PaPos (* Rt Semicolon. *) := yyAttributeStack^[yyStackPtr+1] . PaPos ;  
                        END (*IF*) ; 
                      
-              | 382,251 => (* P101 VarDecl (181): VarDeclIds OptDeclType OptDeclValue .*)
-                DEC (yyStackPtr, 3); yyNonterminal := 181;
+              | 411,270 => (* P103 VarDecl (182): VarDeclIds OptDeclType OptDeclValue .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 182;
                 (* line 1061 of "FM3Parser.lalr" *)
                  IF FM3ParsePass . RequireTypeAndOrValue
                              ( yyAttributeStack^[yyStackPtr+1] . Scan . Position , yyAttributeStack^[yyStackPtr+2] . PaBool , yyAttributeStack^[yyStackPtr+3] . PaBool ) 
@@ -2244,8 +2343,8 @@ yyNonterminal := 178;
                          yySynAttribute . PaInt := 0 (* Contribution to BlockDeclCt. *) ; 
                        END (*IF*)
                      
-              | 383 => (* P102 VarDeclIds (182): DeclIdListElems .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 182;
+              | 412 => (* P104 VarDeclIds (183): DeclIdListElems .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 183;
                 (* line 1089 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ;
                        yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt (* Valid id count. *) ;
@@ -2257,111 +2356,110 @@ yyNonterminal := 178;
                          , ElemsAttr := yyAttributeStack^[yyStackPtr+1]
                          ) ; 
                      
-              | 384,262 => (* P103 OptDeclType (162): StkColon Type .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 162;
+              | 413,289 => (* P105 OptDeclType (163): StkColon Type .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 163;
                 (* line 1101 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Present. *) := TRUE ;
                        yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ; 
                      
-              | 385 => (* P104 OptDeclType (162): .*)
+              | 414 => (* P106 OptDeclType (163): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
-yyNonterminal := 162;
+yyNonterminal := 163;
                 (* line 1105 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Present. *) := FALSE (* Absent. *) ;
-                       yySynAttribute . Scan . Position := FM3Scanner . Attribute . Position ; 
+                       yySynAttribute . Scan . Position := FM3Scanner . Attribute . Position ;
+                       FM3ParsePass . Push_L ( Itk . ItkDeclTypeAbsent ) ; 
                      
-              | 386 => (* P105 OptDeclValue (183): StkBecomes Expr .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 183;
-                (* line 1109 of "FM3Parser.lalr" *)
+              | 415 => (* P107 OptDeclValue (184): StkBecomes Expr .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 184;
+                (* line 1110 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Present. *) := TRUE ;
                        yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ; 
                      
-              | 387 => (* P106 OptDeclValue (183): .*)
+              | 416 => (* P108 OptDeclValue (184): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
-yyNonterminal := 183;
-                (* line 1113 of "FM3Parser.lalr" *)
+yyNonterminal := 184;
+                (* line 1114 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Present. *) := FALSE (* Absent. *) ;
                        yySynAttribute . Scan . Position := FM3Scanner . Attribute . Position ; 
+                       FM3ParsePass . Push_L ( Itk . ItkDeclValAbsent ) ; 
                      
-              | 388,231 => (* P107 Type (154): TypeId .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 154;
+              | 417 => (* P109 Type (155): TypeId .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 155;
 
-              | 389,232 => (* P108 Type (154): StkRwREF Type .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 154;
-                (* line 1122 of "FM3Parser.lalr" *)
+              | 418,251 => (* P110 Type (155): StkRwREF Type .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 155;
+                (* line 1124 of "FM3Parser.lalr" *)
                  FM3ParsePass . Push_LCP_rp
                          ( Itk . ItkREFDefLt
                          , yyAttributeStack^[yyStackPtr+1] . PaUnnestCoord
                          , yyAttributeStack^[yyStackPtr+1] . Scan . Position 
                          ) ;
                      
-              | 390,233 => (* P109 Type (154): StkRidADDRESS .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 154;
+              | 419,252 => (* P111 Type (155): StkRidADDRESS .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 155;
 
-              | 391,234 => (* P110 Type (154): StkRidBOOLEAN .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 154;
+              | 420,253 => (* P112 Type (155): StkRidBOOLEAN .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 155;
 
-              | 392,235 => (* P111 Type (154): StkRidCARDINAL .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 154;
+              | 421,254 => (* P113 Type (155): StkRidCARDINAL .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 155;
 
-              | 393,236 => (* P112 Type (154): StkRidCHAR .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 154;
+              | 422,255 => (* P114 Type (155): StkRidCHAR .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 155;
 
-              | 394,237 => (* P113 Type (154): StkRidEXTENDED .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 154;
+              | 423,256 => (* P115 Type (155): StkRidEXTENDED .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 155;
 
-              | 395,238 => (* P114 Type (154): StkRidINTEGER .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 154;
+              | 424,257 => (* P116 Type (155): StkRidINTEGER .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 155;
 
-              | 396,239 => (* P115 Type (154): StkRidLONGCARD .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 154;
+              | 425,258 => (* P117 Type (155): StkRidLONGCARD .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 155;
 
-              | 397,240 => (* P116 Type (154): StkRidLONGINT .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 154;
+              | 426,259 => (* P118 Type (155): StkRidLONGINT .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 155;
 
-              | 398,241 => (* P117 Type (154): StkRiDLONGREAL .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 154;
+              | 427,260 => (* P119 Type (155): StkRiDLONGREAL .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 155;
 
-              | 399,242 => (* P118 Type (154): StkRidMUTEX .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 154;
+              | 428,261 => (* P120 Type (155): StkRidMUTEX .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 155;
 
-              | 400,243 => (* P119 Type (154): StkRidNULL .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 154;
+              | 429,262 => (* P121 Type (155): StkRidNULL .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 155;
 
-              | 401,244 => (* P120 Type (154): StkRidREAL .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 154;
+              | 430,263 => (* P122 Type (155): StkRidREAL .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 155;
 
-              | 402,245 => (* P121 Type (154): StkRidREFANY .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 154;
+              | 431,264 => (* P123 Type (155): StkRidREFANY .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 155;
 
-              | 403,246 => (* P122 Type (154): StkRidTEXT .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 154;
+              | 432,265 => (* P124 Type (155): StkRidTEXT .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 155;
 
-              | 404,247 => (* P123 Type (154): StkRidTYPECODE .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 154;
+              | 433,266 => (* P125 Type (155): StkRidTYPECODE .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 155;
 
-              | 405,248 => (* P124 Type (154): StkRidWIDECHAR .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 154;
+              | 434,267 => (* P126 Type (155): StkRidWIDECHAR .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 155;
 
-              | 406,164 => (* P125 Type (154): StkRwOBJECT StkRwEND .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 154;
-
-              | 407,168 => (* P126 Type (154): StkRwUNTRACED StkRwOBJECT StkRwEND .*)
-                DEC (yyStackPtr, 3); yyNonterminal := 154;
-
-              | 408 => (* P127 FieldDeclList (200): .*)
+              | 435 => (* P127 FieldDeclList (201): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
-yyNonterminal := 200;
-                (* line 1154 of "FM3Parser.lalr" *)
-                 FM3ParsePass . Push_LIP_rip
-                          ( Itk . ItkFieldDeclListLt , 0 , FM3Scanner . Attribute . Position ) ; 
+yyNonterminal := 201;
+                (* line 1153 of "FM3Parser.lalr" *)
+                 FM3ParsePass . MakeListEmpty
+                          ( yySynAttribute
+                          , Itk . ItkFieldDeclListLt
+                          ,  FM3Scanner . Attribute . Position
+                          ) ;
                       
-              | 409,253 => (* P128 FieldDeclList (200): FieldDeclPlus OptSemicolon .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 200;
-                (* line 1159 of "FM3Parser.lalr" *)
+              | 436,272 => (* P128 FieldDeclList (201): FieldDeclPlus OptSemicolon .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 201;
+                (* line 1161 of "FM3Parser.lalr" *)
                  FM3ParsePass . MakeListPos
                          ( yySynAttribute
                          , Itk . ItkFieldDeclListLt
@@ -2369,13 +2467,13 @@ yyNonterminal := 200;
                          , yyAttributeStack^[yyStackPtr+1] (* For element count & Left patch coord. *) 
                          ) ;
                      
-              | 410,249 => (* P129 FieldDeclPlus (201): VarDecl .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 201;
-                (* line 1168 of "FM3Parser.lalr" *)
+              | 437,268 => (* P129 FieldDeclPlus (202): VarDecl .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 202;
+                (* line 1170 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *) := yyAttributeStack^[yyStackPtr+1] . PaInt ; 
-              | 411,252 => (* P130 FieldDeclPlus (201): FieldDeclPlus StkSemicolon VarDecl .*)
-                DEC (yyStackPtr, 3); yyNonterminal := 201;
-                (* line 1171 of "FM3Parser.lalr" *)
+              | 438,271 => (* P130 FieldDeclPlus (202): FieldDeclPlus StkSemicolon VarDecl .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 202;
+                (* line 1173 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *):= yyAttributeStack^[yyStackPtr+1] . PaInt + yyAttributeStack^[yyStackPtr+3] . PaInt ;
                        FM3ParsePass . Push_ECIP
                          ( Itk . ItkFieldDeclListLt
@@ -2384,9 +2482,9 @@ yyNonterminal := 200;
                          , yyAttributeStack^[yyStackPtr+2] . Scan . Position
                          ) ; 
                      
-              | 412,166 => (* P131 RecTypeLt (202): StkRwRECORD .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 202;
-                (* line 1183 of "FM3Parser.lalr" *)
+              | 439,183 => (* P131 RecTypeLt (203): StkRwRECORD .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 203;
+                (* line 1185 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN 
                          yySynAttribute . PaUnnestCoord := UnnestCoord ( ) ;
@@ -2396,7 +2494,8 @@ yyNonterminal := 200;
                                     { DiDeclTok := Itk . ItkFieldDeclLt
                                     , DiIdListTok := Itk . ItkFieldDeclIdListLt
                                     , DiIdTok := Itk . ItkDeclId
-                                    , DiIdSepTok := Itk . ItkFieldDeclIdListLt + Itk . LtToListSep
+                                    , DiIdSepTok
+                                        := Itk . ItkFieldDeclIdListLt + Itk . LtToListSep
                                     , DiKind := Dkt . DkRecField 
                                     }
                                 ) ;
@@ -2412,9 +2511,9 @@ yyNonterminal := 200;
                            ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo  ) ;
                        END; 
                      
-              | 413,185 => (* P132 Type (154): RecTypeLt FieldDeclList StkRwEND .*)
-                DEC (yyStackPtr, 3); yyNonterminal := 154;
-                (* line 1210 of "FM3Parser.lalr" *)
+              | 440,201 => (* P132 Type (155): RecTypeLt FieldDeclList StkRwEND .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 155;
+                (* line 1213 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN
                          LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
@@ -2433,9 +2532,270 @@ yyNonterminal := 200;
                          *> 
                        END; 
                      
-              | 414,165 => (* P133 ProcTypeLt (203): StkRwPROCEDURE .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 203;
-                (* line 1232 of "FM3Parser.lalr" *)
+              | 441 => (* P133 MethodDeclList (204): .*)
+                yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
+    := FM3Scanner . Attribute . Position; 
+yyNonterminal := 204;
+                (* line 1235 of "FM3Parser.lalr" *)
+                 FM3ParsePass . MakeListEmpty 
+                          ( yySynAttribute
+                          , Itk . ItkMethodDeclListLt
+                          , FM3Scanner . Attribute . Position
+                          ) ; 
+                      
+              | 442 => (* P134 MethodDeclList (204): StkRwMETHODS .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 204;
+                (* line 1243 of "FM3Parser.lalr" *)
+                 FM3ParsePass . Push_LIP_rip
+                          ( Itk . ItkMethodDeclListLt , 0 , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ; 
+                      
+              | 443,284 => (* P135 MethodDeclList (204): StkRwMETHODS MethodDeclPlus OptSemicolon .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 204;
+                (* line 1248 of "FM3Parser.lalr" *)
+                 FM3ParsePass . MakeListPos
+                         ( yySynAttribute
+                         , Itk . ItkMethodDeclListLt
+                         , yyAttributeStack^[yyStackPtr+1] . Scan . Position
+                         , yyAttributeStack^[yyStackPtr+2] (* For element count & Left patch coord. *) 
+                         ) ;
+                     
+              | 444,285 => (* P136 MethodDeclPlus (205): MethodDecl .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 205;
+                (* line 1257 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaInt (* Decl count. *) := yyAttributeStack^[yyStackPtr+1] . PaInt ; 
+              | 445,273 => (* P137 MethodDeclPlus (205): MethodDeclPlus StkSemicolon MethodDecl .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 205;
+                (* line 1260 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaInt (* Decl count. *):= yyAttributeStack^[yyStackPtr+1] . PaInt + yyAttributeStack^[yyStackPtr+3] . PaInt ;
+                       FM3ParsePass . Push_ECIP
+                         ( Itk . ItkMethodDeclListLt
+                         , yyAttributeStack^[yyStackPtr+2] . PaUnnestCoord 
+                         , yyAttributeStack^[yyStackPtr+1] . PaInt
+                         , yyAttributeStack^[yyStackPtr+2] . Scan . Position
+                         ) ; 
+                     
+              | 446,203 => (* P138 MethodDeclLt (207): StkIdent .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 207;
+                (* line 1272 of "FM3Parser.lalr" *)
+                 VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
+                       BEGIN
+                         yySynAttribute . Scan . SaAtom := yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom ; 
+                         yySynAttribute . PaInt (* Ident count, 0 or 1. *) 
+                           := ORD ( FM3ParsePass . DeclIdL2R
+                                      ( Itk . ItkDeclId , Dkt . DkMethod , yyAttributeStack^[yyStackPtr+1] )
+                                  ) ;
+                         IF yySynAttribute . PaInt > 0
+                         THEN 
+                           LScopeRef
+                             := FM3Scopes . NewScopeRef
+                                  ( FM3Units . UnitStackTopRef
+                                  , Skt . SkFormals  
+                                  , FM3Scanner . Attribute . Position
+                                  ) ;
+                           FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
+                           FM3ParsePass . Push_LI
+                             ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo  ) ;
+                         END (*IF*) 
+                       END (*Block*) 
+                     
+              | 447,283 => (* P139 MethodDecl (206): MethodDeclLt Signature .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 206;
+                (* line 1295 of "FM3Parser.lalr" *)
+                 VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
+                       BEGIN
+                         yySynAttribute . PaInt (* Valid method count. *) := yyAttributeStack^[yyStackPtr+1] . PaInt ; 
+                         IF yySynAttribute . PaInt > 0
+                         THEN
+                (* Reduction to Formals, within Signature, will have  already popped
+                   the formals' scope. 
+                           LScopeRef := FM3Scopes . DeclScopeStackTopRef ;
+                           FM3ParsePass . DeclScopeRtL2R ( LScopeRef ) ;
+                           FM3ParsePass . Push_LI
+                             ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpScopeNo  ) ;
+                           <* ASSERT FM3Scopes . PopDeclScopeRef ( ) = LScopeRef *>
+                *) 
+                           FM3ParsePass . Push_LCIP_rip
+                             ( Itk . ItkMethodDeclLt
+                             , yyAttributeStack^[yyStackPtr+1] . PaUnnestCoord
+                             , yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom
+                             , yyAttributeStack^[yyStackPtr+1] . Scan . Position 
+                             ) ;
+                         ELSE (* Method Id was invalid. *) 
+                           FM3ParsePass . Push_LCI_ri
+                             ( Itk . ItkSkipLt
+                             , yyAttributeStack^[yyStackPtr+1] . PaUnnestCoord
+                             , FM3Globals . NextSkipNo
+                             ) ;
+                           INC ( FM3Globals . NextSkipNo ) ;
+                         END (*IF*) 
+                       END (*Block*) 
+                     
+              | 448 => (* P140 OverrideList (209): .*)
+                yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
+    := FM3Scanner . Attribute . Position; 
+yyNonterminal := 209;
+                (* line 1328 of "FM3Parser.lalr" *)
+                 FM3ParsePass . MakeListEmpty 
+                          ( yySynAttribute
+                          , Itk . ItkOverrideListLt
+                          , FM3Scanner . Attribute . Position
+                          ) ; 
+                      
+              | 449 => (* P141 OverrideList (209): StkRwOVERRIDES .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 209;
+                (* line 1336 of "FM3Parser.lalr" *)
+                 FM3ParsePass . Push_LIP_rip
+                          ( Itk . ItkOverrideListLt , 0 , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ; 
+                      
+              | 450,287 => (* P142 OverrideList (209): StkRwOVERRIDES OverridePlus OptSemicolon .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 209;
+                (* line 1341 of "FM3Parser.lalr" *)
+                 FM3ParsePass . MakeListPos
+                         ( yySynAttribute
+                         , Itk . ItkOverrideListLt
+                         , yyAttributeStack^[yyStackPtr+1] . Scan . Position
+                         , yyAttributeStack^[yyStackPtr+2] (* For element count & Left patch coord. *) 
+                         ) ;
+                     
+              | 451,288 => (* P143 OverridePlus (210): Override .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 210;
+                (* line 1350 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaInt (* Override count. *) := yyAttributeStack^[yyStackPtr+1] . PaInt ; 
+              | 452,286 => (* P144 OverridePlus (210): OverridePlus StkSemicolon VarDecl .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 210;
+                (* line 1353 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaInt (* Override count. *):= yyAttributeStack^[yyStackPtr+1] . PaInt + yyAttributeStack^[yyStackPtr+3] . PaInt ;
+                       FM3ParsePass . Push_ECIP
+                         ( Itk . ItkOverrideListLt
+                         , yyAttributeStack^[yyStackPtr+2] . PaUnnestCoord 
+                         , yyAttributeStack^[yyStackPtr+1] . PaInt
+                         , yyAttributeStack^[yyStackPtr+2] . Scan . Position
+                         ) ; 
+                     
+              | 453,211 => (* P145 OverrideLt (212): StkIdent .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 212;
+                (* line 1365 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaInt (* override count, 0 or 1. *) 
+                         := ORD ( FM3ParsePass . OverrideIdentRefL2R ( yyAttributeStack^[yyStackPtr+1] ) ) ;
+                       (* ^Full legality requires looking through supertypes -- do it later. *) 
+                     
+              | 454 => (* P146 Override (211): OverrideLt StkEqual Expr .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 211;
+                (* line 1371 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaInt (* Override count. *) := yyAttributeStack^[yyStackPtr+1] . PaInt ;
+                       FM3ParsePass . Push_LCP_eCp_rp
+                         ( Itk . ItkOverrideLt
+                         , yyAttributeStack^[yyStackPtr+1] . PaUnnestCoord
+                         , yyAttributeStack^[yyStackPtr+1] . Scan . Position
+                         , yyAttributeStack^[yyStackPtr+2] . PaUnnestCoord
+                         ) ;
+                     
+              | 455 => (* P147 Brand (213): .*)
+                yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
+    := FM3Scanner . Attribute . Position; 
+yyNonterminal := 213;
+                (* line 1383 of "FM3Parser.lalr" *)
+                 FM3ParsePass . Push_LP
+                         ( Itk . ItkAbsentBrand , FM3Scanner . Attribute . Position ) ;
+                     
+              | 456 => (* P148 Brand (213): StkRwBRANDED .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 213;
+                (* line 1388 of "FM3Parser.lalr" *)
+                 FM3ParsePass . Push_LP 
+                         ( Itk . ItkBrandAnon , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ;
+                     
+              | 457 => (* P149 Brand (213): StkRwBRANDED Expr .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 213;
+                (* line 1393 of "FM3Parser.lalr" *)
+                 FM3ParsePass . Push_LP_rp 
+                         ( Itk . ItkBrandLt , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ;
+                     
+              | 458 => (* P150 Supertype (214): .*)
+                yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
+    := FM3Scanner . Attribute . Position; 
+yyNonterminal := 214;
+                (* line 1400 of "FM3Parser.lalr" *)
+                 yySynAttribute . Scan . Position := FM3Scanner . Attribute . Position ;
+                       FM3ParsePass . Push_LP
+                         ( Itk . ItkAbsentSupertype , FM3Scanner . Attribute . Position ) ;
+                     
+              | 459 => (* P151 Supertype (214): TypeId .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 214;
+                (* line 1406 of "FM3Parser.lalr" *)
+                 yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ;
+                       FM3ParsePass . Push_LCP_rp
+                         ( Itk . ItkSupertypeLt
+                         , yyAttributeStack^[yyStackPtr+1] . PaUnnestCoord 
+                         , yyAttributeStack^[yyStackPtr+1] . Scan . Position
+                         ) ;
+                     
+              | 460 => (* P152 Supertype (214): ObjType .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 214;
+                (* line 1415 of "FM3Parser.lalr" *)
+                 yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ;
+                       (* ^The supertype will be nested within this object tyhpe. *) 
+                       FM3ParsePass . Push_LCP_rp
+                         ( Itk . ItkSupertypeLt
+                         , yyAttributeStack^[yyStackPtr+1] . PaUnnestCoord 
+                         , yyAttributeStack^[yyStackPtr+1] . Scan . Position
+                         ) ;
+                     
+              | 461,202 => (* P153 ObjTypeLt (216): Supertype Brand StkRwOBJECT .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 216;
+                (* line 1426 of "FM3Parser.lalr" *)
+                 VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
+                       BEGIN 
+                         yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ;
+                         yySynAttribute . PaInt (* DeclInfoDepth *) 
+                           := FM3Decls . PushDeclInfo
+                                ( FM3Decls . DeclInfoTyp
+                                    { DiDeclTok := Itk . ItkFieldDeclLt
+                                    , DiIdListTok := Itk . ItkFieldDeclIdListLt
+                                    , DiIdTok := Itk . ItkDeclId
+                                    , DiIdSepTok
+                                        := Itk . ItkFieldDeclIdListLt + Itk . LtToListSep
+                                    , DiKind := Dkt . DkObjField 
+                                    }
+                                ) ;
+                         LScopeRef 
+                           := FM3Scopes . NewScopeRef
+                                ( FM3Units . UnitStackTopRef
+                                , Skt . SkObj
+                                , yyAttributeStack^[yyStackPtr+3] . Scan . Position
+                                ) ;
+                         FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
+                (* TODO: Store LScopeRef or its ScopeNo in the object type. *) 
+                         FM3ParsePass . Push_LI
+                           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo  ) ;
+                       END; 
+                     
+              | 462,212 => (* P154 ObjType (215): ObjTypeLt FieldDeclList MethodDeclList OverrideList StkRwEND .*)
+                DEC (yyStackPtr, 5); yyNonterminal := 215;
+                (* line 1454 of "FM3Parser.lalr" *)
+                 VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
+                       BEGIN
+                         yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ;
+                         LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
+                         FM3ParsePass . DeclScopeRtL2R ( LScopeRef ) ;
+                         FM3ParsePass . Push_LI
+                           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpScopeNo  ) ;
+                         <* ASSERT FM3Scopes . PopDeclScopeRef ( ) = LScopeRef *>  
+                         FM3ParsePass . Push_LCP_rp
+                           ( Itk . ItkObjDefLt
+                           , yyAttributeStack^[yyStackPtr+1] . PaUnnestCoord
+                           , yyAttributeStack^[yyStackPtr+1] . Scan . Position
+                           ) ;
+                         <* ASSERT FM3Decls . PopDeclInfo ( )
+                                   = yyAttributeStack^[yyStackPtr+1] . PaInt (* DeclInfoDepth. *)
+                         *> 
+                       END; 
+                     
+              | 463 => (* P155 Type (155): ObjType .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 155;
+
+              | 464,182 => (* P156 ProcTypeLt (217): StkRwPROCEDURE .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 217;
+                (* line 1478 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN
                          LScopeRef 
@@ -2449,24 +2809,31 @@ yyNonterminal := 200;
                            ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo ) ;
                        END (*Block*)
                      
-              | 415,258 => (* P134 Type (154): ProcTypeLt Signature .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 154;
-                (* line 1247 of "FM3Parser.lalr" *)
+              | 465,276 => (* P157 Type (155): ProcTypeLt Signature .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 155;
+                (* line 1493 of "FM3Parser.lalr" *)
                  FM3ParsePass . Push_LCP_rp
                          ( Itk . ItkProcTypeLt , yyAttributeStack^[yyStackPtr+1] . PaUnnestCoord , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ;
                      
-              | 416,261 => (* P135 Signature (204): Formals ResultType Raises .*)
-                DEC (yyStackPtr, 3); yyNonterminal := 204;
-                (* line 1255 of "FM3Parser.lalr" *)
-                 FM3ParsePass . Push_LCP_rp
-                         ( Itk . ItkProcSignatureLt
-                         , yyAttributeStack^[yyStackPtr+1] . PaUnnestCoord 
-                         , yyAttributeStack^[yyStackPtr+1] . Scan . Position
-                         ) ; 
+              | 466,280 => (* P158 Signature (208): Formals ResultType Raises .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 208;
+                (* line 1501 of "FM3Parser.lalr" *)
+                 VAR LToken : Itk . TokTyp ;
+                       BEGIN
+                         IF yyAttributeStack^[yyStackPtr+2] . PaBool (* Is present. *) 
+                         THEN LToken := Itk . ItkSignatureFuncLt
+                         ELSE LToken := Itk . ItkSignatureProperLt 
+                         END (*IF*) ; 
+                         FM3ParsePass . Push_LCP_rp
+                           ( LToken 
+                           , yyAttributeStack^[yyStackPtr+1] . PaUnnestCoord 
+                           , yyAttributeStack^[yyStackPtr+1] . Scan . Position
+                           ) ;
+                       END (*Block*) 
                      
-              | 417,189 => (* P136 Formals (205): StkOpenParen StkCloseParen .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 205;
-                (* line 1268 of "FM3Parser.lalr" *)
+              | 467,207 => (* P159 Formals (218): StkOpenParen StkCloseParen .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 218;
+                (* line 1521 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN
                          yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ;
@@ -2474,15 +2841,20 @@ yyNonterminal := 200;
                          LScopeRef
                            := FM3ParsePass . ScopeEmpty
                                 ( Skt . SkFormals , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ;
-                (* REVIEW: What happens here? esp. this scope? *) 
-                         FM3ParsePass . Push_LI
+                (* REVIEW: What happens here? esp. this scope?
+                           And is this just a special case of general formals list? *) 
+                         FM3ParsePass . Push_LI 
                            ( Itk . ItkScopeEmpty , LScopeRef ^ . ScpScopeNo  ) ;
-                         PushUnnest ( Itk . ItkFormalsListEmpty ) ;
+                         FM3ParsePass . MakeListEmpty 
+                           ( yySynAttribute
+                           , Itk . ItkFormalsListLt
+                           , yyAttributeStack^[yyStackPtr+1] . Scan . Position 
+                           ) ;
                        END ; 
                      
-              | 418,190 => (* P137 Formals (205): StkOpenParen FormalPlus OptSemicolon StkCloseParen .*)
-                DEC (yyStackPtr, 4); yyNonterminal := 205;
-                (* line 1283 of "FM3Parser.lalr" *)
+              | 468,210 => (* P160 Formals (218): StkOpenParen FormalPlus OptSemicolon StkCloseParen .*)
+                DEC (yyStackPtr, 4); yyNonterminal := 218;
+                (* line 1541 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
                        BEGIN
                          yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ;
@@ -2500,9 +2872,9 @@ yyNonterminal := 200;
                 (* FIXME^ different tokens for different formal modes? *)
                        END ;
                      
-              | 419,254 => (* P138 FormalPlus (208): FormalPlus StkSemicolon Formal .*)
-                DEC (yyStackPtr, 3); yyNonterminal := 208;
-                (* line 1302 of "FM3Parser.lalr" *)
+              | 469,274 => (* P161 FormalPlus (221): FormalPlus StkSemicolon Formal .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 221;
+                (* line 1560 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt + yyAttributeStack^[yyStackPtr+3] . PaInt ;
                        FM3ParsePass . Push_ECIP
                          ( Itk . ItkFormalsListLt 
@@ -2511,15 +2883,15 @@ yyNonterminal := 200;
                          , yyAttributeStack^[yyStackPtr+2] . Scan . Position
                          ) ; 
                      
-              | 420,257 => (* P139 FormalPlus (208): Formal .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 208;
-                (* line 1312 of "FM3Parser.lalr" *)
+              | 470,282 => (* P162 FormalPlus (221): Formal .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 221;
+                (* line 1570 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt ; 
-              | 421 => (* P140 FormalLt (210): .*)
+              | 471 => (* P163 FormalLt (223): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
-yyNonterminal := 210;
-                (* line 1316 of "FM3Parser.lalr" *)
+yyNonterminal := 223;
+                (* line 1574 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . Position := FM3Scanner . Attribute . Position ;
                        yySynAttribute . PaByte := ORD ( Dkt . DkVALUEFormal ) ;  
                        yySynAttribute . PaInt (* DeclInfoDepth after push. *) 
@@ -2534,9 +2906,9 @@ yyNonterminal := 210;
                                   }
                               ) ;
                      
-              | 422,187 => (* P141 FormalLt (210): StkRwVALUE .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 210;
-                (* line 1331 of "FM3Parser.lalr" *)
+              | 472,205 => (* P164 FormalLt (223): StkRwVALUE .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 223;
+                (* line 1589 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ;
                        yySynAttribute . PaByte := ORD ( Dkt . DkVALUEFormal ) ;
                        yySynAttribute . PaInt (* DeclInfoDepth after push. *) 
@@ -2551,9 +2923,9 @@ yyNonterminal := 210;
                                   }
                               ) ;
                      
-              | 423,188 => (* P142 FormalLt (210): StkRwVAR .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 210;
-                (* line 1347 of "FM3Parser.lalr" *)
+              | 473,206 => (* P165 FormalLt (223): StkRwVAR .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 223;
+                (* line 1605 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ; 
                        yySynAttribute . PaByte := ORD ( Dkt . DkVARFormal ) ;
                        yySynAttribute . PaInt (* DeclInfoDepth after push. *) 
@@ -2567,9 +2939,9 @@ yyNonterminal := 210;
                                   }
                               ) ;
                      
-              | 424,186 => (* P143 FormalLt (210): StkRwREADONLY .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 210;
-                (* line 1361 of "FM3Parser.lalr" *)
+              | 474,204 => (* P166 FormalLt (223): StkRwREADONLY .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 223;
+                (* line 1619 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ; 
                        yySynAttribute . PaByte := ORD ( Dkt . DkROFormal ) ;
                        yySynAttribute . PaInt (* DeclInfoDepth after push. *) 
@@ -2583,9 +2955,9 @@ yyNonterminal := 210;
                                   }
                               ) ;
                      
-              | 425,256 => (* P144 Formal (209): FormalLt FormalIds FormalType FormalExpr .*)
-                DEC (yyStackPtr, 4); yyNonterminal := 209;
-                (* line 1378 of "FM3Parser.lalr" *)
+              | 475,281 => (* P167 Formal (222): FormalLt FormalIds FormalType FormalExpr .*)
+                DEC (yyStackPtr, 4); yyNonterminal := 222;
+                (* line 1636 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ; 
                        VAR LOk := TRUE ; 
                        BEGIN (* Do these checks even if no valid ids. *) 
@@ -2641,9 +3013,9 @@ yyNonterminal := 210;
                          <* ASSERT FM3Decls . PopDeclInfo ( ) = yyAttributeStack^[yyStackPtr+1] . PaInt *>
                        END (*Block*) 
                      
-              | 426 => (* P145 FormalIds (211): DeclIdListElems .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 211;
-                (* line 1436 of "FM3Parser.lalr" *)
+              | 476 => (* P168 FormalIds (224): DeclIdListElems .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 224;
+                (* line 1694 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . Position  := yyAttributeStack^[yyStackPtr+1] . Scan . Position ; 
                        yySynAttribute .PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt (* Valid Id Ct. *) ; 
                        MakeListPos
@@ -2653,9 +3025,9 @@ yyNonterminal := 210;
                          , ElemsAttr := yyAttributeStack^[yyStackPtr+1]
                          ) ; 
                      
-              | 427,255 => (* P146 FormalType (212): StkColon Type .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 212;
-                (* line 1448 of "FM3Parser.lalr" *)
+              | 477,275 => (* P169 FormalType (225): StkColon Type .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 225;
+                (* line 1706 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Type is present. *) := TRUE;
                        yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position;
                 (* This looks redundant to Itk<mode>FormalType & Itk<mode>FormalVal,
@@ -2664,19 +3036,19 @@ yyNonterminal := 210;
                          ( Itk . ItkFormalTypeLt,  yyAttributeStack^[yyStackPtr+1] . PaUnnestCoord , yyAttributeStack^[yyStackPtr+1] . Scan . Position );
                 *) 
                      
-              | 428 => (* P147 FormalType (212): .*)
+              | 478 => (* P170 FormalType (225): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
-yyNonterminal := 212;
-                (* line 1457 of "FM3Parser.lalr" *)
+yyNonterminal := 225;
+                (* line 1715 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Type is present. *) := FALSE (* Absent. *) ;
                        yySynAttribute . Scan . Position := FM3Scanner . Attribute . Position; 
                        FM3ParsePass . Push_LP
                          ( Itk . ItkFormalTypeAbsent , FM3Scanner . Attribute . Position ) ;
                      
-              | 429 => (* P148 FormalExpr (213): StkBecomes Expr .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 213;
-                (* line 1465 of "FM3Parser.lalr" *)
+              | 479 => (* P171 FormalExpr (226): StkBecomes Expr .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 226;
+                (* line 1723 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Expr is present. *) := TRUE;
                        yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position; 
                 (* This looks redundant to Itk<mode>FormalVal & Itk<mode>FormalRt,
@@ -2685,63 +3057,64 @@ yyNonterminal := 212;
                          (  Itk . ItkFormalExprLt, yyAttributeStack^[yyStackPtr+1] . PaUnnestCoord , yyAttributeStack^[yyStackPtr+1] . Scan . Position );
                 *) 
                      
-              | 430 => (* P149 FormalExpr (213): .*)
+              | 480 => (* P172 FormalExpr (226): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
-yyNonterminal := 213;
-                (* line 1474 of "FM3Parser.lalr" *)
+yyNonterminal := 226;
+                (* line 1732 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Expr is present. *) := FALSE (* Absent. *) ;
                        yySynAttribute . Scan . Position := FM3Scanner . Attribute . Position; 
                        FM3ParsePass . Push_LP
                          ( Itk . ItkFormalExprAbsent , FM3Scanner . Attribute . Position ) ;
                      
-              | 431,259 => (* P150 ResultType (206): StkColon Type .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 206;
-                (* line 1482 of "FM3Parser.lalr" *)
+              | 481,277 => (* P173 ResultType (219): StkColon Type .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 219;
+                (* line 1740 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Result type is present. *) := TRUE;
-                       yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position; 
+                       yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position;
+                       yySynAttribute . PaTok1 := Itk . ItkSignatureFuncLt ; 
                        FM3ParsePass . Push_LCP_rp
                          (Itk . ItkResultTypeLt,  yyAttributeStack^[yyStackPtr+1] . PaUnnestCoord , yyAttributeStack^[yyStackPtr+1] . Scan . Position); 
                      
-              | 432 => (* P151 ResultType (206): .*)
+              | 482 => (* P174 ResultType (219): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
-yyNonterminal := 206;
-                (* line 1488 of "FM3Parser.lalr" *)
+yyNonterminal := 219;
+                (* line 1747 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Result type is present. *) := FALSE (* Absent. *) ;
                        yySynAttribute . Scan . Position := FM3Scanner . Attribute . Position; 
+                       yySynAttribute . PaTok1 := Itk . ItkSignatureProperLt ; 
                        FM3ParsePass . Push_LP
                          ( Itk . ItkResultTypeAbsent , FM3Scanner . Attribute . Position ) ;
                        yySynAttribute . PaUnnestCoord := UnnestCoord ( ) ; 
                      
-              | 433,191 => (* P152 Raises (207): StkRwRAISES StkRwANY .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 207;
-                (* line 1497 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaBool (* Raises set is present. *) := TRUE;
-                       yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position; 
-                       FM3ParsePass . Push_LCP_rp
-                         ( Itk . ItkRaisesANY ,  yyAttributeStack^[yyStackPtr+1] . PaUnnestCoord , yyAttributeStack^[yyStackPtr+1] . Scan . Position); 
-                     
-              | 434,192 => (* P153 Raises (207): StkRwRAISES StkOpenBrace QualIdStarList StkCloseBrace .*)
-                DEC (yyStackPtr, 4); yyNonterminal := 207;
-                (* line 1504 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaBool (* Raises set is present. *) := TRUE;
-                       yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position; 
-                       MakeListPos ( yySynAttribute , Itk . ItkRaisesSetLt , yyAttributeStack^[yyStackPtr+1] . Scan . Position , yyAttributeStack^[yyStackPtr+2] ) ;
-                     
-              | 435 => (* P154 Raises (207): .*)
+              | 483 => (* P175 Raises (220): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
-yyNonterminal := 207;
-                (* line 1509 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaBool (* Raises set is present. *) := FALSE (* Absent. *);
-                       yySynAttribute . Scan . Position := FM3Scanner . Attribute . Position; 
-                       FM3ParsePass . Push_LP
-                         ( Itk . ItkRaisesSetAbsent , FM3Scanner . Attribute . Position ); 
+yyNonterminal := 220;
+                (* line 1757 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaBool (* Raises set is present. *) := FALSE (* Absent. *) ;
+                       FM3ParsePass . MakeListEmpty
+                         ( yySynAttribute , Itk . ItkRaisesSetLt , FM3Scanner . Attribute . Position ) ; 
                      
-              | 436,157 => (* P155 ProcDeclLt (214): StkRwPROCEDURE StkIdent .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 214;
-                (* line 1518 of "FM3Parser.lalr" *)
+              | 484,208 => (* P176 Raises (220): StkRwRAISES StkRwANY .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 220;
+                (* line 1763 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaBool (* Raises set is present. *) := TRUE ;
+                       yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ; 
+                       FM3ParsePass . Push_LP_rp
+                         ( Itk . ItkRaisesANY , yyAttributeStack^[yyStackPtr+1] . Scan . Position) ; 
+                     
+              | 485,209 => (* P177 Raises (220): StkRwRAISES StkOpenBrace QualIdStarList StkCloseBrace .*)
+                DEC (yyStackPtr, 4); yyNonterminal := 220;
+                (* line 1770 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaBool (* Raises set is present. *) := TRUE ;
+                       yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ; 
+                       MakeListPos ( yySynAttribute , Itk . ItkRaisesSetLt , yyAttributeStack^[yyStackPtr+1] . Scan . Position , yyAttributeStack^[yyStackPtr+3] ) ;
+                     
+              | 486,175 => (* P178 ProcDeclLt (227): StkRwPROCEDURE StkIdent .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 227;
+                (* line 1777 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
                        VAR LScopeKind : Skt ;
                        BEGIN
@@ -2765,9 +3138,9 @@ yyNonterminal := 207;
                            ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo  ) ;
                        END (*Block*) 
                      
-              | 437,272 => (* P156 ProcDecl (216): ProcDeclLt Signature OptProcBody .*)
-                DEC (yyStackPtr, 3); yyNonterminal := 216;
-                (* line 1543 of "FM3Parser.lalr" *)
+              | 487,299 => (* P179 ProcDecl (229): ProcDeclLt Signature OptProcBody .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 229;
+                (* line 1802 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
                        VAR LProcTok : Itk . TokTyp ; 
                        BEGIN
@@ -2810,16 +3183,16 @@ yyNonterminal := 207;
                            ( LProcTok , yyAttributeStack^[yyStackPtr+1] . PaUnnestCoord , yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom ) ; 
                        END (*Block*) 
                      
-              | 438,205 => (* P157 OptProcBody (215): StkSemicolon .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 215;
-                (* line 1587 of "FM3Parser.lalr" *)
+              | 488,225 => (* P180 OptProcBody (228): StkSemicolon .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 228;
+                (* line 1846 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Procedure has a body. *) := FALSE (* Absent. *) ; 
                        FM3ParsePass . Push_LP
                          ( Itk . ItkProcBodyAbsent , yyAttributeStack^[yyStackPtr+1] . Scan . Position ); 
                      
-              | 439,206 => (* P158 ProcBodyLt (217): StkEqual .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 217;
-                (* line 1596 of "FM3Parser.lalr" *)
+              | 489,226 => (* P181 ProcBodyLt (230): StkEqual .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 230;
+                (* line 1855 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN
                          yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ;
@@ -2831,9 +3204,9 @@ yyNonterminal := 207;
                            ( Itk . ItkLookupScopeLt , LScopeRef ^ . ScpScopeNo ) ; 
                        END (*Block*) ; 
                      
-              | 440,207 => (* P159 OptProcBody (215): ProcBodyLt Block StkIdent StkSemicolon .*)
-                DEC (yyStackPtr, 4); yyNonterminal := 215;
-                (* line 1609 of "FM3Parser.lalr" *)
+              | 490,227 => (* P182 OptProcBody (228): ProcBodyLt Block StkIdent StkSemicolon .*)
+                DEC (yyStackPtr, 4); yyNonterminal := 228;
+                (* line 1868 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN
                          yySynAttribute . PaBool (* Procedure has a body. *) := TRUE ; 
@@ -2846,104 +3219,107 @@ yyNonterminal := 207;
                            ( Itk . ItkProcBodyRt , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ;
                        END;
                      
-              | 441,250 => (* P160 Expr (163): QualId .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 163;
+              | 491,269 => (* P183 Expr (164): QualId .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 164;
 
-              | 442,173 => (* P161 Expr (163): StkIntLit .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 163;
+              | 492,189 => (* P184 Expr (164): StkIntLit .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 164;
 
-              | 443,174 => (* P162 Expr (163): StkLongIntLit .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 163;
+              | 493,190 => (* P185 Expr (164): StkLongIntLit .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 164;
 
-              | 444,175 => (* P163 Expr (163): StkBasedLit .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 163;
+              | 494,191 => (* P186 Expr (164): StkBasedLit .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 164;
 
-              | 445,176 => (* P164 Expr (163): StkLongBasedLit .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 163;
+              | 495,192 => (* P187 Expr (164): StkLongBasedLit .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 164;
 
-              | 446,177 => (* P165 Expr (163): StkRealLit .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 163;
+              | 496,193 => (* P188 Expr (164): StkRealLit .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 164;
 
-              | 447,178 => (* P166 Expr (163): StkLongRealLit .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 163;
+              | 497,194 => (* P189 Expr (164): StkLongRealLit .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 164;
 
-              | 448,179 => (* P167 Expr (163): StkExtendedLit .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 163;
+              | 498,195 => (* P190 Expr (164): StkExtendedLit .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 164;
 
-              | 449,180 => (* P168 Expr (163): StkTextLit .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 163;
+              | 499,196 => (* P191 Expr (164): StkTextLit .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 164;
 
-              | 450,181 => (* P169 Expr (163): StkWideTextLit .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 163;
+              | 500,197 => (* P192 Expr (164): StkWideTextLit .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 164;
 
-              | 451,182 => (* P170 Expr (163): StkCharLit .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 163;
+              | 501,198 => (* P193 Expr (164): StkCharLit .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 164;
 
-              | 452,183 => (* P171 Expr (163): StkWideCharLit .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 163;
+              | 502,199 => (* P194 Expr (164): StkWideCharLit .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 164;
 
-              | 453,184 => (* P172 Expr (163): Expr StkDeref .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 163;
+              | 503,200 => (* P195 Expr (164): Expr StkDeref .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 164;
 
-              | 454 => (* P173 BlockLt (218): .*)
+              | 504 => (* P196 BlockLt (231): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
-yyNonterminal := 218;
-                (* line 1642 of "FM3Parser.lalr" *)
+yyNonterminal := 231;
+                (* line 1901 of "FM3Parser.lalr" *)
                 
                      
-              | 455,208 => (* P174 Block (137): BlockLt BlockDeclList StkRwBEGIN StmtList StkRwEND .*)
+              | 505,228 => (* P197 Block (137): BlockLt BlockDeclList StkRwBEGIN StmtList StkRwEND .*)
                 DEC (yyStackPtr, 5); yyNonterminal := 137;
-                (* line 1646 of "FM3Parser.lalr" *)
+                (* line 1905 of "FM3Parser.lalr" *)
                 
                      
-              | 456,263 => (* P175 BlockDecl (219): ConstDeclGroup .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 219;
-                (* line 1652 of "FM3Parser.lalr" *)
+              | 506,290 => (* P198 BlockDecl (232): ConstDeclGroup .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 232;
+                (* line 1911 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                      
-              | 457,266 => (* P176 BlockDecl (219): TypeDeclGroup .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 219;
-                (* line 1656 of "FM3Parser.lalr" *)
+              | 507,293 => (* P199 BlockDecl (232): TypeDeclGroup .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 232;
+                (* line 1915 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                      
-              | 458,279 => (* P177 BlockDecl (219): ExceptDeclGroup .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 219;
-                (* line 1660 of "FM3Parser.lalr" *)
+              | 508,306 => (* P200 BlockDecl (232): ExceptDeclGroup .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 232;
+                (* line 1919 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                      
-              | 459,271 => (* P178 BlockDecl (219): VarDeclGroup .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 219;
-                (* line 1664 of "FM3Parser.lalr" *)
+              | 509,298 => (* P201 BlockDecl (232): VarDeclGroup .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 232;
+                (* line 1923 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                      
-              | 460,277 => (* P179 BlockDecl (219): ProcDecl .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 219;
-                (* line 1668 of "FM3Parser.lalr" *)
+              | 510,304 => (* P202 BlockDecl (232): ProcDecl .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 232;
+                (* line 1927 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                      
-              | 461,269 => (* P180 BlockDecl (219): RevelationGroup .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 219;
-                (* line 1672 of "FM3Parser.lalr" *)
+              | 511,296 => (* P203 BlockDecl (232): RevelationGroup .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 232;
+                (* line 1931 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                      
-              | 462 => (* P181 BlockDeclList (130): .*)
+              | 512 => (* P204 BlockDeclList (130): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 130;
-                (* line 1680 of "FM3Parser.lalr" *)
-                 FM3ParsePass . Push_LIP_rip
-                         ( Itk . ItkBlockDeclListLt , 0 , FM3Scanner . Attribute . Position ) ; 
+                (* line 1939 of "FM3Parser.lalr" *)
+                 FM3ParsePass . MakeListEmpty 
+                         ( yySynAttribute
+                         , Itk . ItkBlockDeclListLt
+                         , FM3Scanner . Attribute . Position
+                         ) ; 
                      
-              | 463 => (* P182 BlockDeclList (130): BlockDeclPlus .*)
+              | 513 => (* P205 BlockDeclList (130): BlockDeclPlus .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 130;
-                (* line 1685 of "FM3Parser.lalr" *)
+                (* line 1947 of "FM3Parser.lalr" *)
                  MakeListPos
                          ( yySynAttribute
                          , Itk . ItkBlockDeclListLt
@@ -2951,15 +3327,15 @@ yyNonterminal := 130;
                          , yyAttributeStack^[yyStackPtr+1] (* Used for element count and left patch coordinate. *) 
                          ) ;
                      
-              | 464,278 => (* P183 BlockDeclPlus (221): BlockDecl .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 221;
-                (* line 1694 of "FM3Parser.lalr" *)
+              | 514,305 => (* P206 BlockDeclPlus (234): BlockDecl .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 234;
+                (* line 1956 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt (* Decl count. *) ;
                        yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                      
-              | 465,280 => (* P184 BlockDeclPlus (221): BlockDeclPlus BlockDecl .*)
-                DEC (yyStackPtr, 2); yyNonterminal := 221;
-                (* line 1699 of "FM3Parser.lalr" *)
+              | 515,307 => (* P207 BlockDeclPlus (234): BlockDeclPlus BlockDecl .*)
+                DEC (yyStackPtr, 2); yyNonterminal := 234;
+                (* line 1961 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt + yyAttributeStack^[yyStackPtr+2] . PaInt (* Decl count. *) ;
                 
                        IF yyAttributeStack^[yyStackPtr+2] . PaInt > 0
@@ -2975,17 +3351,20 @@ yyNonterminal := 130;
                          yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                        END (*IF*) ; 
                      
-              | 466 => (* P185 StmtList (133): .*)
+              | 516 => (* P208 StmtList (133): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 133;
-                (* line 1718 of "FM3Parser.lalr" *)
-                 FM3ParsePass . Push_LIP_rip
-                         ( Itk . ItkStmtListLt , 0 , FM3Scanner . Attribute . Position ) ; 
+                (* line 1980 of "FM3Parser.lalr" *)
+                 FM3ParsePass . MakeListEmpty 
+                         ( yySynAttribute
+                         , Itk . ItkStmtListLt
+                         , FM3Scanner . Attribute . Position
+                         ) ; 
                      
-              | 467,275 => (* P186 StmtList (133): StmtPlus OptSemicolon .*)
+              | 517,302 => (* P209 StmtList (133): StmtPlus OptSemicolon .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 133;
-                (* line 1723 of "FM3Parser.lalr" *)
+                (* line 1988 of "FM3Parser.lalr" *)
                  MakeListPos
                          ( yySynAttribute
                          , Itk . ItkStmtListLt
@@ -2993,13 +3372,13 @@ yyNonterminal := 133;
                          , yyAttributeStack^[yyStackPtr+1] (* Used for element count and left patch coordinate. *) 
                          ) ;
                      
-              | 468,276 => (* P187 StmtPlus (222): Stmt .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 222;
-                (* line 1731 of "FM3Parser.lalr" *)
+              | 518,303 => (* P210 StmtPlus (235): Stmt .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 235;
+                (* line 1996 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt (* Stmt count. *) ; 
-              | 469,273 => (* P188 StmtPlus (222): StmtPlus StkSemicolon Stmt .*)
-                DEC (yyStackPtr, 3); yyNonterminal := 222;
-                (* line 1734 of "FM3Parser.lalr" *)
+              | 519,300 => (* P211 StmtPlus (235): StmtPlus StkSemicolon Stmt .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 235;
+                (* line 1999 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt + 1 (* Stmt count. *) ;
                        FM3ParsePass . Push_ECIP (* Internal separator. *)
                          ( Itk . ItkStmtListLt
@@ -3008,12 +3387,12 @@ yyNonterminal := 133;
                          , yyAttributeStack^[yyStackPtr+2] . Scan . Position
                          ) ; 
                      
-              | 470,274 => (* P189 Stmt (223): AssignStmt .*)
-                DEC (yyStackPtr, 1); yyNonterminal := 223;
+              | 520,301 => (* P212 Stmt (236): AssignStmt .*)
+                DEC (yyStackPtr, 1); yyNonterminal := 236;
 
-              | 471 => (* P190 AssignStmt (224): Expr StkBecomes Expr .*)
-                DEC (yyStackPtr, 3); yyNonterminal := 224;
-                (* line 1748 of "FM3Parser.lalr" *)
+              | 521 => (* P213 AssignStmt (237): Expr StkBecomes Expr .*)
+                DEC (yyStackPtr, 3); yyNonterminal := 237;
+                (* line 2013 of "FM3Parser.lalr" *)
                  FM3ParsePass . Push_LCPeCprp
                          ( Itk . ItkBecomesLt
                          , yyAttributeStack^[yyStackPtr+1] . PaUnnestCoord

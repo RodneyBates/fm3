@@ -155,6 +155,9 @@ INTERFACE FM3ParsePass
 
 ; PROCEDURE Push_LP ( T : Itk . TokTyp ; READONLY Position : tPosition )
 
+; PROCEDURE Push_LP_rp
+    ( T : Itk . TokTyp ; READONLY Position : tPosition )
+
 ; PROCEDURE Push_RP ( T : Itk . TokTyp ; READONLY Position : tPosition )
 
 ; PROCEDURE Push_LI ( T : Itk . TokTyp ; I : INTEGER )
@@ -179,6 +182,13 @@ INTERFACE FM3ParsePass
 
 ; PROCEDURE Push_LCP_rp
    ( T : Itk . TokTyp ; C : LONGINT ; READONLY Position : tPosition )
+
+; PROCEDURE Push_LCP_eCp_rp
+   ( T : Itk . TokTyp
+   ; C1 : LONGINT
+   ; READONLY Position : tPosition
+   ; C2 : LONGINT
+   )
 
 ; PROCEDURE Push_LCIP_rip
     ( T : Itk . TokTyp 
@@ -287,6 +297,12 @@ INTERFACE FM3ParsePass
      Gets DeclKind from FM3Decls.TopDeclInfo. 
   *) 
 
+; PROCEDURE MakeListEmpty
+    ( VAR LHSAttr : tParsAttribute
+    ; TokLt : Itk . TokTyp
+    ; READONLY Position : tPosition
+    )
+
 ; PROCEDURE MakeListPos
     ( VAR LHSAttr : tParsAttribute
     ; TokLt : Itk . TokTyp
@@ -333,6 +349,10 @@ INTERFACE FM3ParsePass
 
 ; PROCEDURE IdentRefL2R ( READONLY StkIdAttribute : tParsAttribute )
   (* Including a reserved Id. *) 
+
+; PROCEDURE OverrideIdentRefL2R ( READONLY StkIdAttribute : tParsAttribute )
+  : BOOLEAN (* It's OK so far. *) 
+  (* Disallows reserved Id. *) 
 
 ; PROCEDURE QualIdentL2R
     ( READONLY StkLtAttribute , StkRtAttribute : tParsAttribute )
