@@ -1517,6 +1517,8 @@ RULE
 (* Formals, FormalPlus, Formal . PaInt
    is formals count. *)
 
+
+(* REMOVEME: 
    Formals : StkOpenParen StkCloseParen /* Empty formals list. */
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN
@@ -1525,8 +1527,6 @@ RULE
          LScopeRef
            := FM3ParsePass . ScopeEmpty
                 ( Skt . SkFormals , $1 . Scan . Position ) ;
-(* REVIEW: What happens here? esp. this scope?
-           And is this just a special case of general formals list? *) 
          FM3ParsePass . Push_LI 
            ( Itk . ItkScopeEmpty , LScopeRef ^ . ScpScopeNo  ) ;
          FM3ParsePass . MakeListEmpty 
@@ -1536,8 +1536,10 @@ RULE
            ) ;
        END ; 
      } .
+
+*) 
      
-   Formals : StkOpenParen FormalPlus OptSemicolon StkCloseParen
+   Formals : StkOpenParen FormalsList StkCloseParen
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN
          $$ . Scan . Position := $1 . Scan . Position ;
@@ -1555,6 +1557,11 @@ RULE
 (* FIXME^ different tokens for different formal modes? *)
        END ;
      } .
+
+   FormalsList : /* Empty formals list. */
+     { $$ . PaInt := 0 ; } .
+
+   FormalsList : FormalPlus OptSemicolon . 
      
    FormalPlus : FormalPlus StkSemicolon Formal 
      { $$ . PaInt := $1 . PaInt + $3 . PaInt ;
