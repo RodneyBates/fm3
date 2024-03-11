@@ -1517,28 +1517,6 @@ RULE
 (* Formals, FormalPlus, Formal . PaInt
    is formals count. *)
 
-
-(* REMOVEME: 
-   Formals : StkOpenParen StkCloseParen /* Empty formals list. */
-     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
-       BEGIN
-         $$ . Scan . Position := $1 . Scan . Position ;
-         $$ . PaInt := 0 ; 
-         LScopeRef
-           := FM3ParsePass . ScopeEmpty
-                ( Skt . SkFormals , $1 . Scan . Position ) ;
-         FM3ParsePass . Push_LI 
-           ( Itk . ItkScopeEmpty , LScopeRef ^ . ScpScopeNo  ) ;
-         FM3ParsePass . MakeListEmpty 
-           ( $$
-           , Itk . ItkFormalsListLt
-           , $1 . Scan . Position 
-           ) ;
-       END ; 
-     } .
-
-*) 
-     
    Formals : StkOpenParen FormalsList StkCloseParen
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN
