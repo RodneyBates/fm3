@@ -89,8 +89,8 @@ MODULE FM3CLArgs
         OF 'v' => RAISE HelpExc  ( FALSE )  
         | 'h' => RAISE HelpExc  ( TRUE )
         | 's' => SrcFileName := PaHyphenArgWMore ( )
-        | 'd' => DoDisAsmUnnest := TRUE
-        | 'e' => DoDisAsmParsePass := TRUE
+        | 'd' => DoDisAsmPass1 := TRUE
+        | 'e' => DoDisAsmPass2 := TRUE
         | 'k' => DoKeep := TRUE 
         | 'I'
           => LMore := PaHyphenArgWMore ( )
@@ -237,8 +237,8 @@ MODULE FM3CLArgs
         (* Keep intermediate files. *)
 
     (* Disassemble intermediate files. *)
-    ; DoDisAsmUnnest := TRUE (* Temporary, during development *) 
-    ; DoDisAsmParsePass := TRUE (* Temporary, during development *) 
+    ; DoDisAsmPass1 := TRUE (* Temporary, during development *) 
+    ; DoDisAsmPass2 := TRUE (* Temporary, during development *) 
 
     ; FM3Messages . DoStdErr := TRUE
         (* Write compilation process messages to stderr. *)
@@ -269,7 +269,7 @@ MODULE FM3CLArgs
 
   = BEGIN
 
-      DoKeep := DoKeep OR DoDisAsmUnnest OR DoDisAsmParsePass 
+      DoKeep := DoKeep OR DoDisAsmPass1 OR DoDisAsmPass2 
       
     ; IF FM3Messages . DoFM3Log
       THEN 

@@ -17,7 +17,7 @@ MODULE FM3 EXPORTS Main
 ; IMPORT FM3CLArgs
 ; IMPORT FM3Globals 
 ; IMPORT FM3Messages 
-; IMPORT FM3ParsePass 
+; IMPORT FM3Pass1 
 ; IMPORT FM3Scanner
 ; IMPORT FM3SharedUtils 
 
@@ -42,7 +42,7 @@ MODULE FM3 EXPORTS Main
         ; IntIntVarArray . Touch (* It needs a lower bound. *) 
             ( FM3Globals . SkipNoStack , IntRanges . RangeTyp { 0 , 0 } )   
         ; FM3Globals . NextSkipNo := 1 (* But don't use element 0. *) 
-        ; FM3ParsePass . Run ( )
+        ; FM3Pass1 . Run ( )
         ; <* ASSERT
                IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack )
                = IntRanges . RangeTyp { 0 , 0 } 

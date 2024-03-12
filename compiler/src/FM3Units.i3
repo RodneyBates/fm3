@@ -54,7 +54,7 @@ INTERFACE FM3Units
       ; UntUnitIdentAtom : FM3Base . AtomTyp := FM3Base . AtomNull
       ; UntUnitIdentPos : FM3Base . tPosition 
       ; UntBuildDirPath : TEXT := NIL 
-      (* ^Same for unnest stack, patch stack, and parse pass output file. *)  
+      (* ^Same for pass1 output, patch stack, and pass2 output files. *)  
       ; UntPatchStackName : TEXT := NIL
       ; UntPatchStackRdBack : RdBackFile . T := NIL
       ; UntMaxPatchStackDepth : LONGINT := 0L
@@ -68,13 +68,13 @@ INTERFACE FM3Units
            RdBackFile proper.  For deeper tokens, the coordinate is kept on top
            of the token, opposite of the usual order, on top of its other operands. 
         *) 
-      ; UntUnnestStackName : TEXT := NIL
-      ; UntUnnestStackRdBack : RdBackFile . T := NIL
-      ; UntMaxUnnestStackDepth : LONGINT := 0L 
-      ; UntUnnestStackEmptyCoord : LONGINT := 0L
-      ; UntParsePassName : TEXT := NIL (* Parse pass output file. *) 
-      ; UntParsePassRdBack : RdBackFile . T := NIL
-      ; UntParsePassEmptyCoord : LONGINT := 0L
+      ; UntPass1OutName : TEXT := NIL
+      ; UntPass1OutRdBack : RdBackFile . T := NIL
+      ; UntMaxPass1OutDepth : LONGINT := 0L 
+      ; UntPass1OutEmptyCoord : LONGINT := 0L
+      ; UntPass2Name : TEXT := NIL (* Parse pass output file. *) 
+      ; UntPass2RdBack : RdBackFile . T := NIL
+      ; UntPass2EmptyCoord : LONGINT := 0L
       ; UntIdentAtomDict : FM3Atom_OAChars . T := NIL (* Identifiers. *)   
       ; UntNumberAtomDict : FM3Atom_OAChars . T := NIL (* Numeric literals. *)  
       ; UntCharsAtomDict : FM3Atom_OAChars . T := NIL (* TEXT literals. *) 
@@ -87,7 +87,7 @@ INTERFACE FM3Units
       ; UntStackDepth : INTEGER 
       ; UntScanResult : INTEGER 
       ; UntParseResult : INTEGER 
-      ; UntParsePassResult : INTEGER
+      ; UntPass2Result : INTEGER
       ; UntNextDeclNo : INTEGER := 1 
       ; UntKind : UnitKindTyp
       ; UntUnsafe : BOOLEAN := FALSE 

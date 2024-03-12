@@ -19,7 +19,7 @@
 (* -----------------------------------------------------------------------2- *)
 
     IMPORT FM3IntToks;
-    IMPORT FM3ParsePass;
+    IMPORT FM3Pass1;
   
 
 VAR ParsTabName	: TEXT; 

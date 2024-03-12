@@ -21,8 +21,8 @@ INTERFACE FM3Globals
 (* File names of internal and generated  files: *) 
 ; VAR PatchStackSuffix := ".FM3Patch"
       (* The patch stack, used and emptied during parse pass 1. *) 
-; VAR UnnestStackSuffix := ".FM3Pass1" (* Output of pass 1. *) 
-; VAR ParsePassSuffix := ".FM3Pass2" (* Output of pass 2. *)
+; VAR Pass2Suffix := ".FM3Pass2" (* Output of pass 1. *) 
+; VAR Pass1OutSuffix := ".FM3Pass1" (* Output of pass 2. *)
 ; VAR BuildDirRelPath := "../build"
       (* ^Relative to where the current unit's source file lives. *)
 ; VAR CopyFileSuffix := "Copy" (* W/O  '.'. so can use Pathname.Join. *) 

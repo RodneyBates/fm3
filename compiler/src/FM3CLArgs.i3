@@ -17,8 +17,8 @@ INTERFACE FM3CLArgs
 ; VAR DoKeep : BOOLEAN := FALSE
       (* Keep intermediate files. *)
       
-; VAR DoDisAsmUnnest : BOOLEAN := FALSE
-; VAR DoDisAsmParsePass : BOOLEAN := FALSE
+; VAR DoDisAsmPass1 : BOOLEAN := FALSE
+; VAR DoDisAsmPass2 : BOOLEAN := FALSE
 
 (*
 ; VAR DoStdErr : BOOLEAN := TRUE
@@ -44,7 +44,7 @@ INTERFACE FM3CLArgs
 (* Compiler completion codes. *) 
 
 ; CONST CcPatchStackNotEmpty = 1 
-; CONST CcUnnestStackNotEmpty = 2 
+; CONST CcPass1OutNotEmpty = 2 
 
 ; END FM3CLArgs
 .
