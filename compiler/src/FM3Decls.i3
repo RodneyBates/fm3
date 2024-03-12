@@ -26,6 +26,7 @@ INTERFACE FM3Decls
       , DkVALUEFormal
       , DkVARFormal
       , DkROFormal
+      , DkEnumLit 
       , DkRecField
       , DkObjField
       , DkMethod

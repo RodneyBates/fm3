@@ -1145,7 +1145,73 @@ RULE
    Type : StkRidTYPECODE . 
    Type : StkRidWIDECHAR .
 
+(* --------------------------- Enumeration types ---------------------------- *)
+
+   EnumTypeLt : StkOpenBrace
+     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
+       BEGIN
+         LScopeRef 
+           := FM3Scopes . NewScopeRef
+                ( FM3Units . UnitStackTopRef
+                , Skt . SkEnum
+                , $1 . Scan . Position
+                ) ;
+         FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
+(* TODO: Store LScopeRef or its ScopeNo in the enum type. *) 
+         FM3ParsePass . Push_LI
+           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo  ) ;
+       END; 
+     } .
+
+   EnumType : EnumTypeLt EnumLitList StkCloseBrace
+     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
+       BEGIN
+         LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
+         FM3ParsePass . DeclScopeRtL2R ( LScopeRef ) ;
+         FM3ParsePass . Push_LI
+           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpScopeNo  ) ;
+         <* ASSERT FM3Scopes . PopDeclScopeRef ( ) = LScopeRef *>
+         FM3ParsePass . MakeListPos
+           ( LHSAttr := $$ 
+           , TokLt := Itk . ItkEnumLitListLt
+           , Position := $1 . Scan . Position
+           , ElemsAttr := $2 
+           ) ; 
+       END; 
+     } .
+
+   EnumLitList : /*Empty*/
+     { $$ . PaInt (* Decl count. *) := 0 ; } .
+
+   EnumLitList : EnumLitPlus
+     { $$ . PaInt (* Decl count. *) := $1 . PaInt ; } . 
+
+   EnumLitPlus : EnumLit  
+     { $$ . PaInt (* Decl count. *) := $1 . PaInt ; } .
+
+   EnumLitPlus : EnumLitPlus StkComma EnumLit
+     { $$ . PaInt (* Decl count. *):= $1 . PaInt + $3 . PaInt ; } .
+     
+   EnumLit : StkIdent
+     { $$ . PaInt (* Ident count, 0 or 1. *) 
+         := ORD ( FM3ParsePass . DeclIdL2R
+                    ( Itk . ItkDeclId
+                    , Dkt . DkEnumLit
+                    , $1
+                    , SepTok := Itk . ItkEnumLitListSep
+                    , SepPosition := $0 . Scan . Position
+                    , PriorIdCt := $-1 . PaInt 
+                    )
+                ) ;
+       IF $$ . PaInt > 0
+       THEN
+       END (*IF*) 
+     } . 
+
+   Type : EnumType . 
+
 (* -----------------------------Field decl lists ---------------------------- *)
+
 
 (* Used in both record types and object types. *) 
 

@@ -150,6 +150,7 @@ LONE
   ItkBrandAnon POS (* anonymous brand value. *) . 
 
 LIST
+ItkEnumLitList (* This suffices to delimit an enumeration type. *) . 
 ItkFieldDeclList .
 ItkVarDeclList .
 ItkTypeDeclList .
