@@ -6,7 +6,7 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
 
-INTERFACE FM3ParsePass
+INTERFACE FM3Pass1
 
 ; IMPORT FM3Base
 ; FROM FM3Base IMPORT tPosition 
@@ -21,7 +21,7 @@ INTERFACE FM3ParsePass
     = RECORD
         Scan : FM3Scanner . tScanAttribute
       ; PaRefany : REFANY 
-      ; PaUnnestCoord : LONGINT  
+      ; PaPass1Coord : LONGINT  
       ; PaLong : LONGINT
       ; PaConstructNo : INTEGER
       ; PaListItemNo : INTEGER
@@ -37,7 +37,7 @@ INTERFACE FM3ParsePass
     = tParsAttribute
         { Scan := FM3Scanner . ScanAttrNull
         , PaRefany := NIL 
-        , PaUnnestCoord := FIRST ( LONGINT ) 
+        , PaPass1Coord := FIRST ( LONGINT ) 
         , PaLong := FIRST ( LONGINT )
         , PaConstructNo := FIRST ( INTEGER ) 
         , PaListItemNo := FIRST ( INTEGER )
@@ -72,7 +72,7 @@ INTERFACE FM3ParsePass
 
 ; PROCEDURE StopSkipping ( PairNo := FIRST (  INTEGER ) ) 
 
-(* ---------------------------- Unnest stack ------------------------ *)
+(* ------------------------- Pass1 output file ---------------------- *)
 
 ; PROCEDURE InterfaceId
     ( UnitRef : FM3Units . UnitRefTyp
@@ -92,38 +92,38 @@ INTERFACE FM3ParsePass
     ; UnitKind : FM3Units . UnitKindTyp
     ; Position : FM3Base . tPosition 
     ) 
-; PROCEDURE UnnestCoord ( ) : LONGINT
+; PROCEDURE Coord ( ) : LONGINT
   (* Of the current unit. *)
   
-; PROCEDURE PushUnnestStk ( READONLY ParsAttr : tParsAttribute )
+; PROCEDURE PutBwd_Attribute ( READONLY ParsAttr : tParsAttribute )
   
-; PROCEDURE PushUnnest ( Value : INTEGER )
-; PROCEDURE PushUnnestLong ( Value : LONGINT )
+; PROCEDURE PutBwdInt ( Value : INTEGER )
+; PROCEDURE PutBwdLong ( Value : LONGINT )
   (* Zero args. *)
 
-; PROCEDURE Push_ListSepPatchPos
+; PROCEDURE PutBwd_ListSepPatchPos
     ( ListTokLt : Itk . TokTyp
     ; C : LONGINT
     ; ElemNo : INTEGER
     ; READONLY Position : FM3Base . tPosition
     )
 
-(* Here is the naming code, of namings of these Push_<x> procedures:
+(* Here is the naming code, of namings of these PutBwd_<x> procedures:
 
-   Each of the Push_<x> procedures pushes a list of things on the unnest stack.
+   Each of the PutBwd_<x> procedures pushes a list of things on the pass1 output file.
    The letters after the "_" encode what that is.  The letters in the naming
    code and the parameters are in left-to-right order, for ease of thought,
    but the actual pushing is in the reverse order, because this stuff needs
    to be popped backwards.
 
-   A capital letter denotes a value that is passed to the Push_<x> procedure as
+   A capital letter denotes a value that is passed to the PutBwd_<x> procedure as
    a parameter.  The parameters are in the same order as the capital letters.
    A lower case letter denotes a value derived from the previous case-
    homonym of itself.
 
    For a capital-letter token, the token parameter is always the left token of
    a (possibly singleton) group of related tokens.  For a lower-case-letter
-   token, the Push_* procedure  uses the previously passed in token as a base,
+   token, the PutBwd_* procedure  uses the previously passed in token as a base,
    converting as for a capital.
 
    The specific letter denotes which member of the token group, as follows: 
@@ -144,60 +144,60 @@ INTERFACE FM3ParsePass
    'P' or 'p' denotes a position in the source code.  When passed in, it
    is a single parameter, of type tPosition, a two-field record of line-number
    and column-number.  The procedure pushes it as two separate numbers on the
-   unnest stack, column number deeper.
+   pass1 output file, column number deeper.
 
    pl means reuse the first position passed in.
 
    'I' or 'i' is an integer value.  'B' or 'b' is a boolean value.
 *) 
 
-; PROCEDURE Push_L ( T : Itk . TokTyp )
+; PROCEDURE PutBwd_L ( T : Itk . TokTyp )
 
-; PROCEDURE Push_LP ( T : Itk . TokTyp ; READONLY Position : tPosition )
+; PROCEDURE PutBwd_LP ( T : Itk . TokTyp ; READONLY Position : tPosition )
 
-; PROCEDURE Push_LP_rp
+; PROCEDURE PutBwd_LP_rp
     ( T : Itk . TokTyp ; READONLY Position : tPosition )
 
-; PROCEDURE Push_RP ( T : Itk . TokTyp ; READONLY Position : tPosition )
+; PROCEDURE PutBwd_RP ( T : Itk . TokTyp ; READONLY Position : tPosition )
 
-; PROCEDURE Push_LI ( T : Itk . TokTyp ; I : INTEGER )
+; PROCEDURE PutBwd_LI ( T : Itk . TokTyp ; I : INTEGER )
 
-; PROCEDURE Push_LIP
+; PROCEDURE PutBwd_LIP
     ( T : Itk . TokTyp ; I : INTEGER ; READONLY Position : tPosition )
 
-; PROCEDURE Push_LIP_rip
+; PROCEDURE PutBwd_LIP_rip
     ( T : Itk . TokTyp ; I : INTEGER ; READONLY Position : tPosition )
 
-; PROCEDURE Push_EIP
+; PROCEDURE PutBwd_EIP
     ( T : Itk . TokTyp ; I : INTEGER ; READONLY Position : tPosition )
 
-; PROCEDURE Push_ECIP
+; PROCEDURE PutBwd_ECIP
     ( T : Itk . TokTyp
     ; Coord : LONGINT
     ; I : INTEGER
     ; READONLY Position : tPosition
     )
 
-; PROCEDURE Push_LCr ( T : Itk . TokTyp ; C : LONGINT )
+; PROCEDURE PutBwd_LCr ( T : Itk . TokTyp ; C : LONGINT )
 
-; PROCEDURE Push_LCP_rp
+; PROCEDURE PutBwd_LCP_rp
    ( T : Itk . TokTyp ; C : LONGINT ; READONLY Position : tPosition )
 
-; PROCEDURE Push_LCP_eCp_rp
+; PROCEDURE PutBwd_LCP_eCp_rp
    ( T : Itk . TokTyp
    ; C1 : LONGINT
    ; READONLY Position : tPosition
    ; C2 : LONGINT
    )
 
-; PROCEDURE Push_LCIP_rip
+; PROCEDURE PutBwd_LCIP_rip
     ( T : Itk . TokTyp 
     ; C : LONGINT 
     ; I : INTEGER 
     ; READONLY Position : tPosition 
     )
 
-; PROCEDURE Push_LCIP_eCiP_riP
+; PROCEDURE PutBwd_LCIP_eCiP_riP
     ( T : Itk . TokTyp 
     ; LC : LONGINT 
     ; I : INTEGER 
@@ -207,14 +207,14 @@ INTERFACE FM3ParsePass
     ; READONLY RPos : tPosition
     )
     
-; PROCEDURE Push_LCPI_rpi
+; PROCEDURE PutBwd_LCPI_rpi
     ( T : Itk . TokTyp 
     ; C : LONGINT 
     ; READONLY Position : tPosition 
     ; I : INTEGER 
     )
 
-; PROCEDURE Push_LCP_eCP_rP
+; PROCEDURE PutBwd_LCP_eCP_rP
    ( T : Itk . TokTyp
    ; CLt : LONGINT
    ; READONLY PositionLt : tPosition
@@ -223,7 +223,7 @@ INTERFACE FM3ParsePass
    ; READONLY PositionRt : tPosition
    )
 
-; PROCEDURE Push_LCP_eCP_zCP_rP
+; PROCEDURE PutBwd_LCP_eCP_zCP_rP
    ( L : Itk . TokTyp
    ; CL : LONGINT
    ; READONLY PL : tPosition
@@ -234,7 +234,7 @@ INTERFACE FM3ParsePass
    ; READONLY Pr : tPosition
    )
 
-; PROCEDURE Push_LCP_eCPB_zCP_rP
+; PROCEDURE PutBwd_LCP_eCPB_zCP_rP
    ( L : Itk . TokTyp
    ; CL : LONGINT
    ; READONLY PL : tPosition
@@ -246,14 +246,14 @@ INTERFACE FM3ParsePass
    ; READONLY Pr : tPosition
    )
 
-; PROCEDURE Push_LCPeCprp
+; PROCEDURE PutBwd_LCPeCprp
    ( T : Itk . TokTyp
    ; CLt : LONGINT
    ; CInfix : LONGINT 
    ; READONLY PositionInfix : tPosition
    )
 
-; PROCEDURE Push_ECIP_riP
+; PROCEDURE PutBwd_ECIP_riP
    ( T : Itk . TokTyp
    ; CLt : LONGINT
    ; I : INTEGER 
@@ -261,25 +261,25 @@ INTERFACE FM3ParsePass
    ; READONLY PositionRt : tPosition
    )
 
-; PROCEDURE Push_ECPrP
+; PROCEDURE PutBwd_ECPrP
    ( T : Itk . TokTyp
    ; CLt : LONGINT
    ; READONLY PositionOne : tPosition
    ; READONLY PositionRt : tPosition
    )
 
-; PROCEDURE Push_LCBr ( T : Itk . TokTyp ; C : LONGINT ; B : BOOLEAN )
+; PROCEDURE PutBwd_LCBr ( T : Itk . TokTyp ; C : LONGINT ; B : BOOLEAN )
 
-; PROCEDURE Push_LCI_ri ( T : Itk . TokTyp ; C : LONGINT ; I : INTEGER )
+; PROCEDURE PutBwd_LCI_ri ( T : Itk . TokTyp ; C : LONGINT ; I : INTEGER )
 
-; PROCEDURE Push_LI3 ( T : Itk . TokTyp ; I0 , I1 , I2 : INTEGER )
+; PROCEDURE PutBwd_LI3 ( T : Itk . TokTyp ; I0 , I1 , I2 : INTEGER )
 
-; PROCEDURE Push_LI6
+; PROCEDURE PutBwd_LI6
     ( T : Itk . TokTyp ; I0 , I1 , I2 , I3 , I4 , I5 : INTEGER )
 
-; PROCEDURE Push_LCeCr ( T : Itk . TokTyp ; Ct , Co : LONGINT )
+; PROCEDURE PutBwd_LCeCr ( T : Itk . TokTyp ; Ct , Co : LONGINT )
 
-; PROCEDURE Push_LCIeCri
+; PROCEDURE PutBwd_LCIeCri
     ( T : Itk . TokTyp ; Ct : LONGINT ; I : INTEGER ; Co : LONGINT )
 
 ; PROCEDURE Pop4 ( )
@@ -394,24 +394,8 @@ INTERFACE FM3ParsePass
 
 *) 
 
-(* These are not called. 
-; PROCEDURE PushUnnestTokPatch0 ( Token : LONGINT )
-  (* To be patched.  No additional args. *) 
-
-; PROCEDURE PushUnnestTok1 ( Token : LONGINT )
-  (* One arg. *) 
-
-; PROCEDURE PushUnnestTokPatch1 ( Token : LONGINT )
-  (* To be patched.  One additional arg. *) 
-
-; PROCEDURE PushTok ( Tok : Itk . TokTyp ; Arg0 : LONGINT )
-
-; PROCEDURE PushTokPatch ( Tok : Itk . TokTyp ; Arg0 , Arg1 : LONGINT )
-*) 
-
 ; PROCEDURE Run ( ) 
 
-; END FM3ParsePass
+; END FM3Pass1
 .
-
 

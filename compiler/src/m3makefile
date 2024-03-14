@@ -29,7 +29,6 @@ import("m3core")
 import("libm3")
 %import("reusem3") %Apparently nothing from here.
 import("frontm3")
-
 import("libunicode")
 import("libvararray")
 
@@ -43,8 +42,8 @@ module("FM3Scanner")
 module("FM3Errors")
 module("FM3Globals")
 module("FM3IntToks")
-%module("FM3ParsePass")
 module("FM3Pass1")
+module("FM3Pass2")
 module("FM3Parser")
 module("FM3ParseSem")
 module("FM3SrcToks")
