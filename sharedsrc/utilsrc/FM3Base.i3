@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023        Rodney M. Bates.                                    *)
+(* Copyright 2023..2024  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -115,6 +115,15 @@ INTERFACE FM3Base
       END (*tPosition*)
 
 ; CONST PositionNull = tPosition { LAST ( PosIntTyp ) , LAST ( PosIntTyp ) } 
+
+; CONST PassNoNull = 0  
+; CONST PassNo1 = 1 
+; CONST PassNo2 = 2
+; CONST PassNoMax = PassNo2
+
+; TYPE PassNoRangeTyp = [ PassNoNull .. PassNoMax ] 
+; TYPE PassNoSetTyp = SET OF PassNoRangeTyp
+; CONST PassNoSetEmpty = PassNoSetTyp { }  
 
 ; END FM3Base
 .

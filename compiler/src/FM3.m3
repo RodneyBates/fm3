@@ -11,20 +11,20 @@ MODULE FM3 EXPORTS Main
 ; IMPORT Stdio
 ; IMPORT Wr
 
-; IMPORT IntIntVarArray
-; IMPORT IntRanges 
-
 ; IMPORT FM3CLArgs
-; IMPORT FM3Globals 
 ; IMPORT FM3Messages 
 ; IMPORT FM3Pass1 
+; IMPORT FM3Pass2 
 ; IMPORT FM3Scanner
-; IMPORT FM3SharedUtils 
+; IMPORT FM3SharedUtils
+; IMPORT FM3Units 
 
 ; PROCEDURE Work ( )
   RAISES { FM3SharedUtils . FatalError , FM3SharedUtils . Terminate } 
 
-  = VAR LDebug : INTEGER := 5 (* For breakpoint *) 
+  = VAR LUnitRef : FM3Units . UnitRefTyp
+  ; VAR LPoppedUnitRef : FM3Units . UnitRefTyp
+  ; VAR LDebug : INTEGER := 5 (* For breakpoint *) 
   ; VAR LTerminate : INTEGER := 7 (* For breakpoint *)
 
   ; BEGIN
@@ -33,21 +33,15 @@ MODULE FM3 EXPORTS Main
           FM3CLArgs . Process ( )
         ; FM3SharedUtils . LoadSets ( ) 
         ; FM3Scanner . Init ( )
-        ; FM3Globals . SkipNoStack 
-            := IntIntVarArray . New
-                 ( FIRST ( INTEGER )
-                 , IntRanges . RangeTyp
-                     {  0 , FM3Globals . InitSkipStackCt - 1 }
-                 )
-        ; IntIntVarArray . Touch (* It needs a lower bound. *) 
-            ( FM3Globals . SkipNoStack , IntRanges . RangeTyp { 0 , 0 } )   
-        ; FM3Globals . NextSkipNo := 1 (* But don't use element 0. *) 
-        ; FM3Pass1 . Run ( )
-        ; <* ASSERT
-               IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack )
-               = IntRanges . RangeTyp { 0 , 0 } 
-          *> 
-          FM3Globals . SkipNoStack := NIL 
+        ; FM3Pass1 . RunPass1 ( FM3CLArgs . SrcFileName )
+          (* ^POST:  A UnitRef is pushed. *)
+        ; LUnitRef := FM3Units . UnitStackTopRef 
+        ; FM3Pass2 . RunPass2 ( LUnitRef )
+
+        ; LPoppedUnitRef := FM3Units . PopUnit ( )
+        ; <* ASSERT LPoppedUnitRef = LUnitRef *> 
+          FM3Messages . EndUnit ( LPoppedUnitRef ^ . UntSrcFileName ) 
+
         FINALLY FM3CLArgs . Cleanup ( ) 
         END (*FINALLY*)
       ; LDebug := 11 (* Ordinary completion.*)

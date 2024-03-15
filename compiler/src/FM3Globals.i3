@@ -15,6 +15,7 @@ INTERFACE FM3Globals
 
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars
+; IMPORT FM3Base 
 ; IMPORT FM3Dict_OAChars_Int
 ; IMPORT FM3Units
 
@@ -57,6 +58,9 @@ INTERFACE FM3Globals
 ; VAR ResourcePathName : TEXT := "."
   (* ^Push this from a CLI option. *)
 
+; VAR PassesToKeep : FM3Base . PassNoSetTyp := FM3Base . PassNoSetEmpty    
+; VAR PassesToDisAsm : FM3Base . PassNoSetTyp := FM3Base . PassNoSetEmpty   
+ 
 ; PROCEDURE Init ( ) 
 
 ; END FM3Globals

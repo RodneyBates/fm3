@@ -2,7 +2,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+(* Copyright 2024        Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -41,15 +41,14 @@ MODULE FM3Pass1
 ; IMPORT Wr
 
 ; IMPORT Ranges_Int
-; IMPORT RangeUtils 
 ; IMPORT IntIntVarArray 
-; IMPORT VarArray_Int_Refany 
 
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars
 ; IMPORT FM3Base 
 ; FROM FM3Base IMPORT tPosition 
 ; IMPORT FM3CLArgs
+; IMPORT FM3Compile
 ; IMPORT FM3Compress
 ; FROM FM3Compress IMPORT GetBwd
 ; IMPORT FM3Decls
@@ -62,25 +61,17 @@ MODULE FM3Pass1
 ; FROM FM3IntToks
     IMPORT LtToRt , LtToPatch , LtToOne , LtToOnePatch , LtToTwoPatch
            , LtToListSepPatch 
-; FROM FM3StreamUtils
-    IMPORT GetBwdInt , GetBwdAtom , GetBwdDeclKind , GetBwdPos , GetBwdScopeNo 
 ; IMPORT FM3Messages 
 ; FROM FM3Messages IMPORT FatalArr , ErrorArr , FM3LogArr
 ; IMPORT FM3Parser
-; IMPORT FM3Pass2
-; IMPORT FM3Predefined
 ; IMPORT FM3Scanner
 ; IMPORT FM3Scopes
 ; IMPORT FM3SharedGlobals 
 ; IMPORT FM3SharedUtils 
 ; IMPORT FM3SrcToks
-; IMPORT FM3SrcToks AS Stk
 ; IMPORT FM3Units 
 ; IMPORT FM3Utils 
 ; IMPORT RdBackFile
-
-
-; TYPE Skt = FM3Scopes . ScopeKindTyp 
 
 ; CONST PosImage = FM3Utils . PositionImage
 
@@ -93,29 +84,6 @@ MODULE FM3Pass1
 
 ; CONST ALOSE = FM3Messages . AtomListToOSError
 
-(*EXPORTED*)
-; PROCEDURE StartSkipping0 ( ) : CARDINAL (* depth after. *)
-
-  = BEGIN
-      INC ( SkipDepth )
-    ; RETURN SkipDepth 
-    END StartSkipping0
-
-(*EXPORTED*)
-; PROCEDURE StopSkipping0
-    ( ) : CARDINAL (* depth before. *)
-  (* Let's leave it to callers to check expected depth,
-     so a failure will be detected at the call site.
-  *)
-
-  = VAR LDepth : CARDINAL
-
-  ; BEGIN
-      LDepth := SkipDepth
-    ; IF LDepth > 0 THEN DEC ( SkipDepth ) END (*IF*)  
-    ; RETURN LDepth 
-    END StopSkipping0
-
 ; PROCEDURE PutBwd ( RdBack : RdBackFile . T ; ValueL : LONGINT )
   (* Wrap FM3Compress . PutBwd
      1. Catch OSError.E.
@@ -124,7 +92,7 @@ MODULE FM3Pass1
 
   = BEGIN
       <* ASSERT RdBack # FM3Globals . P2RdBack *> 
-      IF TRUE OR SkipDepth <= 0
+      IF TRUE 
       THEN
         TRY
           FM3Compress . PutBwd ( RdBack , ValueL ) 
@@ -140,15 +108,14 @@ MODULE FM3Pass1
       END (*IF*)
     END PutBwd
 
-; PROCEDURE RunPass1 ( SrcFileName : TEXT ) : FM3Units . UnitRefTyp 
+(*EXPORTED*) 
+; PROCEDURE RunPass1 ( SrcFileName : TEXT ) 
 
   =  VAR LUnitRef : FM3Units . UnitRefTyp
  
   ; BEGIN (*RunPass1*)
-    ; LUnitRef := OpenUnit ( SrcFileName ) 
+      LUnitRef := InitPass1 ( SrcFileName ) 
     ; FM3Units . PushUnit ( LUnitRef ) 
-    ; FM3Units . UnitStackTopRef := LUnitRef
-      (* ^Cached, for faster access. *) 
     ; FM3LogArr
         ( ARRAY OF REFANY
             { "Compiling "
@@ -158,9 +125,49 @@ MODULE FM3Pass1
             , "..."
             }
         )
-    ; SkipDepth := 0 
-
+    ; TranslatePass1 ( LUnitRef ) 
+    ; FinishPass1 ( LUnitRef ) 
     END RunPass1
+
+; PROCEDURE EnsureBuildDirectory
+    ( UnitRef : FM3Units . UnitRefTyp ; SrcFilePath : TEXT )
+
+  = BEGIN (*EnsureBuildDirectory*)
+      UnitRef ^ . UntBuildDirPath
+        := SrcFilePath & "/" & FM3Globals . BuildDirRelPath
+    ; TRY
+        FS . CreateDirectory ( UnitRef ^ . UntBuildDirPath )
+      EXCEPT
+      | OSError . E ( EAtoms ) 
+      => IF EAtoms . tail = NIL
+            AND EAtoms . head # NIL
+            AND Atom . ToText ( EAtoms . head ) # NIL
+            AND Text . Equal ( Atom . ToText ( EAtoms . head ) , "errno=17" )
+(* TODO: There has to be a more graceful way to detect this, but it looks
+         like libm3 is letting us down here.
+*) 
+         THEN (* The directory already exists. We expect this sometimes. *)
+           EVAL EAtoms 
+         ELSE 
+           <*FATAL Thread . Alerted , Wr . Failure *>
+           BEGIN
+             Wr . PutText
+               ( Stdio . stderr , "Unable to create build directory " ) 
+           ; Wr . PutText ( Stdio . stderr , UnitRef ^ . UntBuildDirPath ) 
+           ; Wr . PutText ( Stdio . stderr , ": " ) 
+           ; Wr . PutText
+               ( Stdio . stderr , FM3Messages . AtomListToOSError ( EAtoms ) ) 
+           ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
+           ; Wr . PutText
+               ( Stdio . stderr , "Forging ahead, assuming it already exists." ) 
+           ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
+           ; Wr . Flush ( Stdio . stderr )
+           END (*Block.*)
+         END (*IF*) 
+      END (*EXCEPT*) 
+(* TODO: Use Pathname to construct paths, so this works in Windows too. *)  
+(* CHECK^ Or would it be better to use FS.GetAbsolutePathname? *)  
+    END EnsureBuildDirectory
 
 ; CONST UnitLogSuffix = ".log" 
 
@@ -176,12 +183,6 @@ MODULE FM3Pass1
   ; VAR LUnitRef : FM3Units . UnitRefTyp 
 
   ; BEGIN (*InitPass1*)
-
-
-
-
-
-
     (* Open source file. *) 
       LSrcFilePath
         := Pathname . Prefix ( FM3Files . AbsFileName ( SrcFileName ) )
@@ -196,44 +197,11 @@ MODULE FM3Pass1
     (* Create the build directory: *)
 (* FIXME: FM3CLArgs wants a build directory to put a log file in, even before
           we get here.  Is this the right place for it?
-*) 
-    ; LUnitRef ^ . UntBuildDirPath
-        := LSrcFilePath & "/" & FM3Globals . BuildDirRelPath
-    ; TRY
-        FS . CreateDirectory ( LUnitRef ^ . UntBuildDirPath )
-      EXCEPT
-      | OSError . E ( EAtoms ) 
-      => IF EAtoms . tail = NIL
-            AND EAtoms . head # NIL
-            AND Atom . ToText ( EAtoms . head ) # NIL
-            AND Text . Equal ( Atom . ToText ( EAtoms . head ) , "errno=17" )
-(* TODO: There has to be a more graceful way to detect this, but it looks
-         like libm3 is letting us down here.
-*) 
-         THEN (* We expect this soometimes.  The directory already exists. *)
-           EVAL EAtoms 
-         ELSE 
-           <*FATAL Thread . Alerted , Wr . Failure *>
-           BEGIN
-             Wr . PutText
-               ( Stdio . stderr , "Unable to create build directory " ) 
-           ; Wr . PutText ( Stdio . stderr , LUnitRef ^ . UntBuildDirPath ) 
-           ; Wr . PutText ( Stdio . stderr , ": " ) 
-           ; Wr . PutText
-               ( Stdio . stderr , FM3Messages . AtomListToOSError ( EAtoms ) ) 
-           ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
-           ; Wr . PutText
-               ( Stdio . stderr , "Forging ahead, assuming it already exists." ) 
-           ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
-           ; Wr . Flush ( Stdio . stderr )
-           END (*Block.*)
-         END (*IF*) 
-      END (*EXCEPT*) 
-(* TODO: Use Pathname to construct paths, so this works in Windows too. *)  
-(* CHECK^ Or would it be better to use FS.GetAbsolutePathname? *)  
+*)
+    ; EnsureBuildDirectory ( LUnitRef , LSrcFilePath ) 
 
-    (* Create the log output file. A pure text file. *) 
-    ; LUnitRef ^ . UntLogName := SrcFileName & UnitLogSuffix
+    (* Create the unit log output file. A pure text file. *) 
+    ; LUnitRef ^ . UntLogName := LUnitRef ^ . UntSrcFileName & UnitLogSuffix
 
     ; TRY LUnitRef ^ . UntLogWrT
             := FileWr . Open ( LUnitRef ^ . UntLogName ) 
@@ -253,13 +221,14 @@ MODULE FM3Pass1
          END (*Block.*) 
       ; LUnitRef ^ . UntLogWrT := NIL 
       END (*EXCEPT*)
-    ; FM3Messages . StartUnit ( SrcFileName , LUnitRef ^ . UntLogWrT ) 
+    ; FM3Messages . StartUnit
+        ( LUnitRef ^ . UntSrcFileName , LUnitRef ^ . UntLogWrT ) 
 
     (* Create build files for the unit. *) 
     ; LUnitRef ^ . UntPatchStackName
-        := SrcFileName & FM3Globals . PatchStackSuffix   
+        := LUnitRef ^ . UntSrcFileName & FM3Globals . PatchStackSuffix   
     ; LUnitRef ^ . UntPass1OutName
-        := SrcFileName & FM3Globals . Pass1OutSuffix   
+        := LUnitRef ^ . UntSrcFileName & FM3Globals . Pass1OutSuffix   
     ; TRY (*EXCEPT*)
         (* Heh, heh.  Code the exception handler only once for all files. *) 
         LFullPass1OutName
@@ -282,15 +251,15 @@ MODULE FM3Pass1
       ; LUnitRef ^ . UntPatchStackRdBack
           := RdBackFile . Create ( LFullPatchStackName , Truncate := TRUE )
       
-      ; LFullPass2Name
+      ; LFullPass1OutName
           := Pathname . Join
                ( LUnitRef ^ . UntBuildDirPath 
                , LUnitRef ^ . UntPass2Name
                , NIL
                )
-      ; LFullFileName :=  LFullPass2Name 
+      ; LFullFileName :=  LFullPass1OutName 
       ; LUnitRef ^ . UntPass2RdBack
-          := RdBackFile . Create ( LFullPass2Name , Truncate := TRUE )
+          := RdBackFile . Create ( LFullPass1OutName , Truncate := TRUE )
       EXCEPT
       | OSError . E ( EMsg ) 
       => FatalArr
@@ -368,11 +337,21 @@ MODULE FM3Pass1
 
       (* Initialize Scanner for unit. *)
     ; FM3Scanner . PushState ( LUniRd , LUnitRef )
-(* CHECK: ? *) 
+(* CHECK: ? *)
+
+    ; FM3Globals . SkipNoStack 
+        := IntIntVarArray . New
+             ( FIRST ( INTEGER )
+             , Ranges_Int . RangeTyp
+                 {  0 , FM3Globals . InitSkipStackCt - 1 }
+             )
+    ; IntIntVarArray . Touch (* It needs a lower bound. *) 
+        ( FM3Globals . SkipNoStack , Ranges_Int . RangeTyp { 0 , 0 } )   
+    ; FM3Globals . NextSkipNo := 1 (* But don't use element 0. *) 
     ; RETURN LUnitRef 
     END InitPass1
 
-; PROCEDURE DisAsm
+; PROCEDURE DisAsmx
     ( UnitRef : FM3Units . UnitRefTyp ; RdBackFileName : TEXT )
   (*PRE: RdBackFile.Copy is closed. *) 
   (*POST: RdBackFile.Copy is reclosed. *) 
@@ -394,39 +373,31 @@ MODULE FM3Pass1
     ; FM3DisAsm . DisAsmWOperandsBwd ( LRdBack , LDisAsmWrT )
     ; RdBackFile . Close ( LRdBack , - 1L )      
     ; Wr . Close ( LDisAsmWrT ) 
-    END DisAsm
+    END DisAsmx
 
-(*EXPORTED.*)
-; PROCEDURE FinishPass1 ( SrcFileName : TEXT ) 
+; PROCEDURE TranslatePass1 ( UnitRef : FM3Units . UnitRefTyp )
 
-  = VAR LUnitRef , LPoppedUnitRef : FM3Units . UnitRefTyp
-
-(* TODO: Consistify "Depth" in identifiers with "Length" in RdBackFile. *)  
-  ; VAR LUnnDepthL , LPpDepthL : LONGINT
-  ; VAR LLengthL : LONGINT
-  ; VAR LPass1FullFileName , LPass1FullCopyName : TEXT 
-  ; VAR LPatchFullFileName : TEXT 
-  ; VAR LPass2FullFileName , LPass2FullCopyName : TEXT 
-  ; VAR LExceptionName , LExceptionLoc : TEXT 
-
-  ; BEGIN (*FinishPass1*) 
-      IF SkipDepth > 0 THEN RETURN END (*IF*) 
-    ; TRY
+  = VAR LPass1LengthL : LONGINT
+  ; VAR LExceptionName : TEXT 
+  ; VAR LExceptionLoc : TEXT 
+  
+  ; BEGIN (*TranslatePass1*)
+      TRY
 
       (* Run the translation part of pass 1. *) 
-        LUnitRef ^ . UntParseResult := FM3Parser . FM3Parser ( )
+        UnitRef ^ . UntParseResult := FM3Parser . FM3Parser ( )
 (* TODO:           ^Something with this? *)
 
       (* Finish Pass 1 output file before running Pass2. *) 
       ; PutBwd
-          ( LUnitRef ^ . UntPass1OutRdBack
+          ( UnitRef ^ . UntPass1OutRdBack
           , VAL ( Itk . ItkRightEnd , LONGINT )
           )
       ; PutBwd
-          ( LUnitRef ^ . UntPass1OutRdBack
+          ( UnitRef ^ . UntPass1OutRdBack
           , VAL ( Itk . ItkEOF , LONGINT )
           )
-      ; LUnnDepthL := RdBackFile . LengthL ( LUnitRef ^ . UntPass1OutRdBack )
+      ; LPass1LengthL := RdBackFile . LengthL ( UnitRef ^ . UntPass1OutRdBack )
       ; LExceptionName := NIL (* Succeeded. *) 
       ; FM3Parser . CloseFM3Parser ( )
 (*TODO ^ Do this sometime later. *) 
@@ -436,9 +407,9 @@ MODULE FM3Pass1
       | FM3SharedUtils . FatalError ( Arg )
       => (*Re-*) RAISE FM3SharedUtils . FatalError ( Arg )  
       ELSE
-        LUnnDepthL := RdBackFile . LengthL ( LUnitRef ^ . UntPass1OutRdBack )
+        LPass1LengthL := RdBackFile . LengthL ( UnitRef ^ . UntPass1OutRdBack )
       ; PutBwd
-          ( LUnitRef ^ . UntPass1OutRdBack
+          ( UnitRef ^ . UntPass1OutRdBack
           , VAL ( Itk . ItkRightEndIncomplete , LONGINT )
           )
 
@@ -448,21 +419,32 @@ MODULE FM3Pass1
           := FM3RTFailures . ActivationLocationFromAddr
                ( Compiler . ThisException ( ) )  
       END (*EXCEPT *)
-      
-    ; LPass1FullFileName
+    END TranslatePass1
+
+(*EXPORTED.*)
+; PROCEDURE FinishPass1 ( UnitRef : FM3Units . UnitRefTyp ) 
+
+(* TODO: Consistify "Depth" in identifiers with "Length" in RdBackFile. *)  
+  = VAR LPass1LengthL : LONGINT
+  ; VAR LLengthL : LONGINT
+  ; VAR LPass1FullFileName , LPass1FullCopyName : TEXT 
+  ; VAR LExceptionName , LExceptionLoc : TEXT 
+
+  ; BEGIN (*FinishPass1*) 
+      LPass1FullFileName
         := Pathname . Join
-             ( LUnitRef ^ . UntBuildDirPath 
-             , LUnitRef ^ . UntPass1OutName
+             ( UnitRef ^ . UntBuildDirPath 
+             , UnitRef ^ . UntPass1OutName
              , NIL
              )
     ; LPass1FullCopyName 
         := Pathname . Join
              ( NIL , LPass1FullFileName , FM3Globals . CopyFileSuffix ) 
     ; RdBackFile . Copy 
-        ( LUnitRef ^ . UntPass1OutRdBack , LPass1FullCopyName , - 1L )
+        ( UnitRef ^ . UntPass1OutRdBack , LPass1FullCopyName , - 1L )
     ; IF LExceptionName # NIL OR FM3CLArgs . DoDisAsmPass1
       THEN (* Disassemble pass 1 output now. *) 
-        DisAsm ( LUnitRef , LPass1FullFileName )
+        FM3Compile . DisAsm ( UnitRef , LPass1FullFileName )
       ; TRY FS . DeleteFile ( LPass1FullCopyName )
         EXCEPT OSError . E => (* It didn't exist. *) 
         END (*EXCEPT*) 
@@ -472,7 +454,8 @@ MODULE FM3Pass1
         FM3Messages . FatalArr
            ( ARRAY OF REFANY
                { "Failure writing pass 1 output file at depth "
-               , Fmt . LongInt ( LUnnDepthL )
+               , Fmt . LongInt
+                   ( RdBackFile . LengthL ( UnitRef ^ . UntPass1OutRdBack ) )
                , FM3Messages . NLIndent 
                , "Exception "
                , LExceptionName
@@ -483,31 +466,32 @@ MODULE FM3Pass1
                , "."
                }
            )
-      ; RAISE FM3SharedUtils . FatalError ( "Failure writing pass 1 output file." )
+      ; RAISE FM3SharedUtils . FatalError
+                ( "Failure writing pass 1 output file." )
       END (*IF*) 
 
     (* Finish with pass 1 output file. *) 
-    ; LUnitRef ^ . UntMaxPass1OutDepth
-        := RdBackFile . MaxLengthL ( LUnitRef ^ . UntPass1OutRdBack )
+    ; UnitRef ^ . UntMaxPass1OutDepth
+        := RdBackFile . MaxLengthL ( UnitRef ^ . UntPass1OutRdBack )
     ; FM3LogArr
         ( ARRAY OF REFANY
             { "Pass 1 output file "
-            , LUnitRef ^ . UntPass1OutName
+            , UnitRef ^ . UntPass1OutName
             , " has "
-            , FM3Base . Int64Image  ( LUnitRef ^ . UntMaxPass1OutDepth )
+            , FM3Base . Int64Image  ( UnitRef ^ . UntMaxPass1OutDepth )
             , " bytes."
             } 
         )
-    ; LLengthL := RdBackFile . LengthL ( LUnitRef ^ . UntPass1OutRdBack )
+    ; LLengthL := RdBackFile . LengthL ( UnitRef ^ . UntPass1OutRdBack )
     ; RdBackFile . Close 
-        (  LUnitRef ^ . UntPass1OutRdBack , - 1L (* Leave full length. *) )
-    ; IF LLengthL # LUnitRef ^ . UntPass1OutEmptyCoord 
+        (  UnitRef ^ . UntPass1OutRdBack , - 1L (* Leave full length. *) )
+    ; IF LLengthL # UnitRef ^ . UntPass1OutEmptyCoord 
       THEN
-        LUnitRef . UntPass2Result := FM3CLArgs . CcPass1OutNotEmpty  
+        UnitRef . UntPass2Result := FM3CLArgs . CcPass1OutNotEmpty  
       ; FM3LogArr
           ( ARRAY OF REFANY
               { "Pass 1 output file "
-              , LUnitRef ^ . UntPass1OutName
+              , UnitRef ^ . UntPass1OutName
               , " final size = "
               , FM3Base . Int64Image ( LLengthL )
               , " bytes."
@@ -515,7 +499,7 @@ MODULE FM3Pass1
           )
       ; IF NOT FM3CLArgs . DoDisAsmPass1
         THEN 
-          DisAsm ( LUnitRef , LPass1FullFileName )
+          FM3Compile . DisAsm ( UnitRef , LPass1FullFileName )
         ; TRY FS . DeleteFile ( LPass1FullCopyName )
           EXCEPT OSError . E => (* It didn't exist. *) 
           END (*EXCEPT*)
@@ -523,7 +507,7 @@ MODULE FM3Pass1
       ; FatalArr
           ( ARRAY OF REFANY
               { "Pass 1 output file is not sufficiently empty, should be "
-              , FM3Base . Int64Image ( LUnitRef ^ . UntPass1OutEmptyCoord )
+              , FM3Base . Int64Image ( UnitRef ^ . UntPass1OutEmptyCoord )
               , "."
               }
           )
@@ -538,7 +522,7 @@ MODULE FM3Pass1
       END (*IF*)
     ; IF NOT FM3CLArgs . DoKeep
       THEN 
-        TRY FS . DeleteFile ( LUnitRef ^ . UntPass1OutName )
+        TRY FS . DeleteFile ( UnitRef ^ . UntPass1OutName )
         EXCEPT OSError . E => (* It didn't exist. *) 
         END (*EXCEPT*) 
       END (*IF*)
@@ -550,25 +534,10 @@ MODULE FM3Pass1
 
     ; FM3LogArr
         ( ARRAY OF REFANY
-            { "Finished compiling " , SrcFileName , "." }
+            { "Finished compiling " , UnitRef ^ . UntSrcFileName , "." }
         )
-    ; LPoppedUnitRef := FM3Units . PopUnit ( )
-    ; <* ASSERT LPoppedUnitRef = LUnitRef *> 
-      FM3Messages . EndUnit ( SrcFileName ) 
-    ; FM3Units . UnitStackTopRef := LUnitRef
-
     END FinishPass1 
     
-(*EXPORTED*)
-; PROCEDURE Run ( )
-
-  = VAR LSrcFileName : TEXT
-
-  ; BEGIN
-      LSrcFileName := FM3CLArgs . SrcFileName
-    ; LUnitRef := InitPass1 ( LSrcFileName ) 
-    END Run
-
 ; PROCEDURE UnitId 
     ( UnitRef : FM3Units . UnitRefTyp
     ; IdAtom : FM3Base . AtomTyp
@@ -1554,21 +1523,6 @@ MODULE FM3Pass1
     END EndBlock
 
 (* Insert tok *) 
-
-(*EXPORTED*)
-; PROCEDURE StartSkipping ( PairNo := FIRST (  INTEGER ) ) 
-
-  = BEGIN
-
-    END StartSkipping
-
-(*EXPORTED*)
-; PROCEDURE StopSkipping ( PairNo := FIRST (  INTEGER ) ) 
-
-  = VAR LDepth : CARDINAL
-
-  ; BEGIN
-    END StopSkipping
 
 (* ----------------------------- Scopes ---------------------------- *)
 

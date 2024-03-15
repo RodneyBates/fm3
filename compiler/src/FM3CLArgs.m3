@@ -17,6 +17,7 @@ MODULE FM3CLArgs
 ; IMPORT Stdio
 ; IMPORT Text 
 
+; IMPORT FM3Base 
 ; IMPORT FM3Globals 
 ; IMPORT FM3Messages 
 ; IMPORT FM3SharedUtils 
@@ -90,8 +91,18 @@ MODULE FM3CLArgs
         | 'h' => RAISE HelpExc  ( TRUE )
         | 's' => SrcFileName := PaHyphenArgWMore ( )
         | 'd' => DoDisAsmPass1 := TRUE
+           ; FM3Globals . PassesToDisAsm
+               := FM3Globals . PassesToDisAsm
+                  + FM3Base . PassNoSetTyp { FM3Base . PassNo1 }  
         | 'e' => DoDisAsmPass2 := TRUE
-        | 'k' => DoKeep := TRUE 
+           ; FM3Globals . PassesToDisAsm
+               := FM3Globals . PassesToDisAsm
+                  + FM3Base . PassNoSetTyp { FM3Base . PassNo2 }  
+        | 'k' => DoKeep := TRUE
+           ; FM3Globals . PassesToKeep
+               := FM3Globals . PassesToKeep
+                  + FM3Base . PassNoSetTyp
+                      { FM3Base . PassNo1 , FM3Base . PassNo2 }  
         | 'I'
           => LMore := PaHyphenArgWMore ( )
           ; GSourceDirNames
@@ -255,9 +266,20 @@ MODULE FM3CLArgs
 
     ; LExeName := Params . Get ( 0 )
     ; FM3Globals . ResourcePathName
-        := FM3SharedUtils . SibDirectoryPath ( LExeName , "lib" ) 
+        := FM3SharedUtils . SibDirectoryPath ( LExeName , "lib" )
 
-    END SetDefaults
+    ; FM3Globals . PassesToKeep := FM3Base . PassNoSetEmpty 
+    ; FM3Globals . PassesToDisAsm := FM3Base . PassNoSetEmpty 
+
+(* TEMPORARY: during development: *) 
+    ; FM3Globals . PassesToKeep
+        := FM3Base . PassNoSetTyp
+             { FM3Base . PassNo1 , FM3Base . PassNo2 }
+    ; FM3Globals . PassesToDisAsm
+        := FM3Base . PassNoSetTyp
+             { FM3Base . PassNo1 , FM3Base . PassNo2 }
+             
+   END SetDefaults
 
 ; PROCEDURE HandleOptions ( ) 
 

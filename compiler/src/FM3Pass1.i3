@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+(* Copyright 2024        Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
@@ -57,20 +57,6 @@ INTERFACE FM3Pass1
       , SgkInteaceProcDecl
       , SgkModuleProcDecl 
       } 
-
-
-(* ------------------------ Skipping erroneous code ----------------- *)
-
-; VAR SkipDepth : INTEGER := 0
-  (* Zero means we are not skipping *) 
-
-; PROCEDURE StartSkipping0 ( ) : CARDINAL (* depth after. *)
-
-; PROCEDURE StopSkipping0 ( ) : CARDINAL (* depth before. *)
-
-; PROCEDURE StartSkipping ( PairNo := FIRST (  INTEGER ) ) 
-
-; PROCEDURE StopSkipping ( PairNo := FIRST (  INTEGER ) ) 
 
 (* ------------------------- Pass1 output file ---------------------- *)
 
@@ -394,7 +380,7 @@ INTERFACE FM3Pass1
 
 *) 
 
-; PROCEDURE Run ( ) 
+; PROCEDURE RunPass1 ( SrcFileName : TEXT ) 
 
 ; END FM3Pass1
 .
