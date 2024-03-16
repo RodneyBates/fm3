@@ -47,8 +47,8 @@ INTERFACE FM3Units
 ; TYPE UnitTyp
     = RECORD
         UntStackLink : UnitRefTyp := NIL 
-      ; UntSrcFileName : TEXT := NIL (* Simple name *) 
-      ; UntSrcFilePath : TEXT := NIL (* I.e, directory wherein UntSrcFileName lives. *) 
+      ; UntSrcFileSimpleName : TEXT := NIL (* Simple name *) 
+      ; UntSrcFilePath : TEXT := NIL (* I.e, directory wherein UntSimpleSrcFileName lives. *) 
       ; UntLogName : TEXT := NIL 
       ; UntLogWrT : Wr . T := NIL
       ; UntUnitIdentAtom : FM3Base . AtomTyp := FM3Base . AtomNull
@@ -68,13 +68,13 @@ INTERFACE FM3Units
            RdBackFile proper.  For deeper tokens, the coordinate is kept on top
            of the token, opposite of the usual order, on top of its other operands. 
         *) 
-      ; UntPass1OutName : TEXT := NIL
+      ; UntPass1OutSimpleName : TEXT := NIL
       ; UntPass1OutRdBack : RdBackFile . T := NIL
       ; UntMaxPass1OutDepth : LONGINT := 0L 
       ; UntPass1OutEmptyCoord : LONGINT := 0L
-      ; UntPass2Name : TEXT := NIL (* Parse pass output file. *) 
-      ; UntPass2RdBack : RdBackFile . T := NIL
-      ; UntPass2EmptyCoord : LONGINT := 0L
+      ; UntPass2OutSimpleName : TEXT := NIL (* Parse pass output file. *) 
+      ; UntPass2OutRdBack : RdBackFile . T := NIL
+      ; UntPass2OutEmptyCoord : LONGINT := 0L
       ; UntIdentAtomDict : FM3Atom_OAChars . T := NIL (* Identifiers. *)   
       ; UntNumberAtomDict : FM3Atom_OAChars . T := NIL (* Numeric literals. *)  
       ; UntCharsAtomDict : FM3Atom_OAChars . T := NIL (* TEXT literals. *) 
@@ -90,6 +90,7 @@ INTERFACE FM3Units
       ; UntPass2Result : INTEGER
       ; UntNextDeclNo : INTEGER := 1 
       ; UntKind : UnitKindTyp
+      ; UntPassNosDisAsmed : FM3Base . PassNoSetTyp 
       ; UntUnsafe : BOOLEAN := FALSE 
       END (*UnitTyp*)
 

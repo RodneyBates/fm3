@@ -85,17 +85,17 @@ MODULE FM3Units
 
     ; LUnitRef ^ . UntStackLink := NIL 
     ; LUnitRef ^ . UntUnitNo := LUnitNo
-    ; LUnitRef ^ . UntSrcFileName := NIL 
+    ; LUnitRef ^ . UntSrcFileSimpleName := NIL 
     ; LUnitRef ^ . UntSrcFilePath := NIL
     ; LUnitRef ^ . UntBuildDirPath := NIL
     ; LUnitRef ^ . UntPatchStackName := NIL
     ; LUnitRef ^ . UntPatchStackRdBack := NIL
     ; LUnitRef ^ . UntMaxPatchStackDepth := 0L 
-    ; LUnitRef ^ . UntPass1OutName := NIL
+    ; LUnitRef ^ . UntPass1OutSimpleName := NIL
     ; LUnitRef ^ . UntPass1OutRdBack := NIL
     ; LUnitRef ^ . UntMaxPass1OutDepth := 0L 
-    ; LUnitRef ^ . UntPass2Name := NIL
-    ; LUnitRef ^ . UntPass2RdBack := NIL
+    ; LUnitRef ^ . UntPass2OutSimpleName := NIL
+    ; LUnitRef ^ . UntPass2OutRdBack := NIL
     ; LUnitRef ^ . UntUnitIdentAtom := FM3Base . AtomNull
     ; LUnitRef ^ . UntUnitIdentPos := FM3Base . PositionNull 
     ; LUnitRef ^ . UntUnsafe := FALSE 
@@ -188,7 +188,7 @@ MODULE FM3Units
       END (*IF*)
     ; FM3Globals . P1RdBack := UnitRef . UntPass1OutRdBack 
     ; FM3Globals . PatchRdBack := UnitRef . UntPatchStackRdBack 
-    ; FM3Globals . P2RdBack := UnitRef . UntPass2RdBack 
+    ; FM3Globals . P2RdBack := UnitRef . UntPass2OutRdBack 
     ; UnitRef ^ . UntStackLink := LBeneathUnitRef  
     ; UnitStackTopRef := UnitRef
     END PushUnit

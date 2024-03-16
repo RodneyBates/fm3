@@ -179,7 +179,7 @@ MODULE FM3Messages
         Wr . PutText ( LWrT , LUnitRef . UntSrcFilePath )
       ; Wr . PutChar ( LWrT , ' ' ) 
       ; *)
-        Wr . PutText ( LWrT , LUnitRef . UntSrcFileName )
+        Wr . PutText ( LWrT , LUnitRef . UntSrcFileSimpleName )
       ; LBlankNeeded := TRUE 
       END (*IF*)
 

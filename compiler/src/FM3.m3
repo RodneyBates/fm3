@@ -40,7 +40,7 @@ MODULE FM3 EXPORTS Main
 
         ; LPoppedUnitRef := FM3Units . PopUnit ( )
         ; <* ASSERT LPoppedUnitRef = LUnitRef *> 
-          FM3Messages . EndUnit ( LPoppedUnitRef ^ . UntSrcFileName ) 
+          FM3Messages . EndUnit ( LPoppedUnitRef ^ . UntSrcFileSimpleName ) 
 
         FINALLY FM3CLArgs . Cleanup ( ) 
         END (*FINALLY*)

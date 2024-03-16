@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023        Rodney M. Bates.                                    *)
+(* Copyright 2023..2024  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -11,7 +11,7 @@ MODULE FM3Base
 ; IMPORT Fmt 
 ; IMPORT Text
 
-(* EXPORTED: *) 
+(*EXPORTED*) 
 ; PROCEDURE IntImage ( Value : INTEGER ) : TEXT
   (* Result never has blanks. *) 
 
@@ -27,7 +27,7 @@ MODULE FM3Base
       END (* IF *) 
     END IntImage 
 
-(* EXPORTED: *) 
+(*EXPORTED*) 
 ; PROCEDURE Int64Image ( Value : LONGINT ) : TEXT 
   (* Result never has blanks. *)
   
@@ -42,6 +42,20 @@ MODULE FM3Base
         RETURN LImage 
       END (* IF *) 
     END Int64Image 
+
+(*EXPORTED*) 
+; PROCEDURE PassNoSetUnion ( VAR Left : PassNoSetTyp ; Right : PassNoSetTyp )
+
+  = BEGIN (*PassNoSetUnion*)
+      Left := Left + Right
+    END PassNoSetUnion 
+
+(*EXPORTED*) 
+; PROCEDURE InclPassNo ( VAR Set : PassNoSetTyp ; No : PassNoRangeTyp )
+
+  = BEGIN (*InclPassNo*) 
+      Set := Set + PassNoSetTyp { No } 
+    END InclPassNo 
 
 ; BEGIN
   END FM3Base

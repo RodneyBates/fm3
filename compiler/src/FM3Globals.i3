@@ -19,15 +19,27 @@ INTERFACE FM3Globals
 ; IMPORT FM3Dict_OAChars_Int
 ; IMPORT FM3Units
 
-(* File names of internal and generated  files: *) 
-; VAR PatchStackSuffix := ".FM3Patch"
+(* File names of internal and generated files: *)
+
+(** Suffixes are W/O  '.', so can use Pathname.Join. *) 
+; CONST PatchStackSuffix = "FM3Patch"
       (* The patch stack, used and emptied during parse pass 1. *) 
-; VAR Pass2Suffix := ".FM3Pass2" (* Output of pass 1. *) 
-; VAR Pass1OutSuffix := ".FM3Pass1" (* Output of pass 2. *)
+; CONST Pass2OutSuffix = "FM3Pass2" (* Output of pass 1. *) 
+; CONST Pass1OutSuffix = "FM3Pass1" (* Output of pass 2. *)
+; CONST CopyFileSuffix = "Copy" 
+; CONST DisAsmFileSuffix = "DisAsm"
+
+; CONST PassNoSuffixes
+    = ARRAY FM3Base . PassNoRangeTyp OF TEXT
+        { "<PassNoNull>"
+        , Pass1OutSuffix 
+        , Pass2OutSuffix
+        , "<PassNoNull>"
+        , ..
+        } 
+
 ; VAR BuildDirRelPath := "../build"
       (* ^Relative to where the current unit's source file lives. *)
-; VAR CopyFileSuffix := "Copy" (* W/O  '.'. so can use Pathname.Join. *) 
-; VAR DisAsmFileSuffix := "DisAsm" (* W/O  '.'. so can use Pathname.Join. *) 
 
 (* These are cached copies of Unt* fields of the current Unit, for faster
    access via static addressing.
@@ -58,8 +70,8 @@ INTERFACE FM3Globals
 ; VAR ResourcePathName : TEXT := "."
   (* ^Push this from a CLI option. *)
 
-; VAR PassesToKeep : FM3Base . PassNoSetTyp := FM3Base . PassNoSetEmpty    
-; VAR PassesToDisAsm : FM3Base . PassNoSetTyp := FM3Base . PassNoSetEmpty   
+; VAR PassNosToKeep : FM3Base . PassNoSetTyp := FM3Base . PassNoSetEmpty    
+; VAR PassNosToDisAsm : FM3Base . PassNoSetTyp := FM3Base . PassNoSetEmpty   
  
 ; PROCEDURE Init ( ) 
 

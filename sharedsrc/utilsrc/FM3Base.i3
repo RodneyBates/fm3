@@ -119,11 +119,17 @@ INTERFACE FM3Base
 ; CONST PassNoNull = 0  
 ; CONST PassNo1 = 1 
 ; CONST PassNo2 = 2
-; CONST PassNoMax = PassNo2
+; CONST PassNoMax = PassNo2 + 1
+; TYPE PassNoRangeTyp = [ PassNoNull .. PassNoMax ]
 
-; TYPE PassNoRangeTyp = [ PassNoNull .. PassNoMax ] 
 ; TYPE PassNoSetTyp = SET OF PassNoRangeTyp
-; CONST PassNoSetEmpty = PassNoSetTyp { }  
+; CONST PassNoSetEmpty = PassNoSetTyp { }
+; CONST PassNoSetAll = PassNoSetTyp { PassNo1 .. PassNoMax }
+; CONST PassNoSetUniv = PassNoSetTyp { PassNoNull .. PassNoMax }
+
+; PROCEDURE PassNoSetUnion ( VAR Left : PassNoSetTyp ; Right : PassNoSetTyp )
+
+; PROCEDURE InclPassNo ( VAR Set : PassNoSetTyp ; No : PassNoRangeTyp )
 
 ; END FM3Base
 .

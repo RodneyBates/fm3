@@ -91,18 +91,14 @@ MODULE FM3CLArgs
         | 'h' => RAISE HelpExc  ( TRUE )
         | 's' => SrcFileName := PaHyphenArgWMore ( )
         | 'd' => DoDisAsmPass1 := TRUE
-           ; FM3Globals . PassesToDisAsm
-               := FM3Globals . PassesToDisAsm
-                  + FM3Base . PassNoSetTyp { FM3Base . PassNo1 }  
+           ; FM3Base . InclPassNo
+               ( FM3Globals . PassNosToDisAsm , FM3Base . PassNo1 )  
         | 'e' => DoDisAsmPass2 := TRUE
-           ; FM3Globals . PassesToDisAsm
-               := FM3Globals . PassesToDisAsm
-                  + FM3Base . PassNoSetTyp { FM3Base . PassNo2 }  
+           ; FM3Base . InclPassNo
+               ( FM3Globals . PassNosToDisAsm , FM3Base . PassNo2 )  
         | 'k' => DoKeep := TRUE
-           ; FM3Globals . PassesToKeep
-               := FM3Globals . PassesToKeep
-                  + FM3Base . PassNoSetTyp
-                      { FM3Base . PassNo1 , FM3Base . PassNo2 }  
+           ; FM3Base . InclPassNo
+               ( FM3Globals . PassNosToKeep , FM3Base . PassNo2 ) 
         | 'I'
           => LMore := PaHyphenArgWMore ( )
           ; GSourceDirNames
@@ -248,6 +244,10 @@ MODULE FM3CLArgs
         (* Keep intermediate files. *)
 
     (* Disassemble intermediate files. *)
+    (* TEMPORARY: during development: *)
+    ; FM3Base . InclPassNo ( FM3Globals . PassNosToDisAsm , FM3Base . PassNo2 )
+    ; FM3Base . PassNoSetUnion
+        ( FM3Globals . PassNosToKeep , FM3Base . PassNoSetAll ) 
     ; DoDisAsmPass1 := TRUE (* Temporary, during development *) 
     ; DoDisAsmPass2 := TRUE (* Temporary, during development *) 
 
@@ -268,17 +268,9 @@ MODULE FM3CLArgs
     ; FM3Globals . ResourcePathName
         := FM3SharedUtils . SibDirectoryPath ( LExeName , "lib" )
 
-    ; FM3Globals . PassesToKeep := FM3Base . PassNoSetEmpty 
-    ; FM3Globals . PassesToDisAsm := FM3Base . PassNoSetEmpty 
+    ; FM3Globals . PassNosToKeep := FM3Base . PassNoSetEmpty 
+    ; FM3Globals . PassNosToDisAsm := FM3Base . PassNoSetEmpty 
 
-(* TEMPORARY: during development: *) 
-    ; FM3Globals . PassesToKeep
-        := FM3Base . PassNoSetTyp
-             { FM3Base . PassNo1 , FM3Base . PassNo2 }
-    ; FM3Globals . PassesToDisAsm
-        := FM3Base . PassNoSetTyp
-             { FM3Base . PassNo1 , FM3Base . PassNo2 }
-             
    END SetDefaults
 
 ; PROCEDURE HandleOptions ( ) 

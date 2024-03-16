@@ -115,7 +115,8 @@ MODULE FM3Pass1
  
   ; BEGIN (*RunPass1*)
       LUnitRef := InitPass1 ( SrcFileName ) 
-    ; FM3Units . PushUnit ( LUnitRef ) 
+    ; FM3Units . PushUnit ( LUnitRef )
+    ; LUnitRef ^ . UntPassNosDisAsmed := FM3Base . PassNoSetEmpty 
     ; FM3LogArr
         ( ARRAY OF REFANY
             { "Compiling "
@@ -191,7 +192,7 @@ MODULE FM3Pass1
         := FM3Files . OpenUniRd
              ( LSimpleSrcFileName , LSrcFilePath , "source file " , NIL ) 
     ; LUnitRef := FM3Units . NewUnitRef ( )
-    ; LUnitRef ^ . UntSrcFileName := LSimpleSrcFileName 
+    ; LUnitRef ^ . UntSrcFileSimpleName := LSimpleSrcFileName 
     ; LUnitRef ^ . UntSrcFilePath := LSrcFilePath
 
     (* Create the build directory: *)
@@ -201,7 +202,7 @@ MODULE FM3Pass1
     ; EnsureBuildDirectory ( LUnitRef , LSrcFilePath ) 
 
     (* Create the unit log output file. A pure text file. *) 
-    ; LUnitRef ^ . UntLogName := LUnitRef ^ . UntSrcFileName & UnitLogSuffix
+    ; LUnitRef ^ . UntLogName := LUnitRef ^ . UntSrcFileSimpleName & UnitLogSuffix
 
     ; TRY LUnitRef ^ . UntLogWrT
             := FileWr . Open ( LUnitRef ^ . UntLogName ) 
@@ -222,19 +223,19 @@ MODULE FM3Pass1
       ; LUnitRef ^ . UntLogWrT := NIL 
       END (*EXCEPT*)
     ; FM3Messages . StartUnit
-        ( LUnitRef ^ . UntSrcFileName , LUnitRef ^ . UntLogWrT ) 
+        ( LUnitRef ^ . UntSrcFileSimpleName , LUnitRef ^ . UntLogWrT ) 
 
     (* Create build files for the unit. *) 
     ; LUnitRef ^ . UntPatchStackName
-        := LUnitRef ^ . UntSrcFileName & FM3Globals . PatchStackSuffix   
-    ; LUnitRef ^ . UntPass1OutName
-        := LUnitRef ^ . UntSrcFileName & FM3Globals . Pass1OutSuffix   
+        := LUnitRef ^ . UntSrcFileSimpleName & FM3Globals . PatchStackSuffix   
+    ; LUnitRef ^ . UntPass1OutSimpleName
+        := LUnitRef ^ . UntSrcFileSimpleName & FM3Globals . Pass1OutSuffix   
     ; TRY (*EXCEPT*)
         (* Heh, heh.  Code the exception handler only once for all files. *) 
         LFullPass1OutName
           := Pathname . Join
                ( LUnitRef ^ . UntBuildDirPath 
-               , LUnitRef ^ . UntPass1OutName
+               , LUnitRef ^ . UntPass1OutSimpleName
                , NIL
                )
       ; LFullFileName :=  LFullPass1OutName 
@@ -254,11 +255,11 @@ MODULE FM3Pass1
       ; LFullPass1OutName
           := Pathname . Join
                ( LUnitRef ^ . UntBuildDirPath 
-               , LUnitRef ^ . UntPass2Name
+               , LUnitRef ^ . UntPass1OutSimpleName
                , NIL
                )
       ; LFullFileName :=  LFullPass1OutName 
-      ; LUnitRef ^ . UntPass2RdBack
+      ; LUnitRef ^ . UntPass1OutRdBack
           := RdBackFile . Create ( LFullPass1OutName , Truncate := TRUE )
       EXCEPT
       | OSError . E ( EMsg ) 
@@ -434,7 +435,7 @@ MODULE FM3Pass1
       LPass1FullFileName
         := Pathname . Join
              ( UnitRef ^ . UntBuildDirPath 
-             , UnitRef ^ . UntPass1OutName
+             , UnitRef ^ . UntPass1OutSimpleName
              , NIL
              )
     ; LPass1FullCopyName 
@@ -444,7 +445,7 @@ MODULE FM3Pass1
         ( UnitRef ^ . UntPass1OutRdBack , LPass1FullCopyName , - 1L )
     ; IF LExceptionName # NIL OR FM3CLArgs . DoDisAsmPass1
       THEN (* Disassemble pass 1 output now. *) 
-        FM3Compile . DisAsm ( UnitRef , LPass1FullFileName )
+        FM3Compile . DisAsmPassFile ( UnitRef , LPass1FullFileName )
       ; TRY FS . DeleteFile ( LPass1FullCopyName )
         EXCEPT OSError . E => (* It didn't exist. *) 
         END (*EXCEPT*) 
@@ -476,7 +477,7 @@ MODULE FM3Pass1
     ; FM3LogArr
         ( ARRAY OF REFANY
             { "Pass 1 output file "
-            , UnitRef ^ . UntPass1OutName
+            , UnitRef ^ . UntPass1OutSimpleName
             , " has "
             , FM3Base . Int64Image  ( UnitRef ^ . UntMaxPass1OutDepth )
             , " bytes."
@@ -491,7 +492,7 @@ MODULE FM3Pass1
       ; FM3LogArr
           ( ARRAY OF REFANY
               { "Pass 1 output file "
-              , UnitRef ^ . UntPass1OutName
+              , UnitRef ^ . UntPass1OutSimpleName
               , " final size = "
               , FM3Base . Int64Image ( LLengthL )
               , " bytes."
@@ -499,7 +500,7 @@ MODULE FM3Pass1
           )
       ; IF NOT FM3CLArgs . DoDisAsmPass1
         THEN 
-          FM3Compile . DisAsm ( UnitRef , LPass1FullFileName )
+          FM3Compile . DisAsmPassFile ( UnitRef , LPass1FullFileName )
         ; TRY FS . DeleteFile ( LPass1FullCopyName )
           EXCEPT OSError . E => (* It didn't exist. *) 
           END (*EXCEPT*)
@@ -522,7 +523,7 @@ MODULE FM3Pass1
       END (*IF*)
     ; IF NOT FM3CLArgs . DoKeep
       THEN 
-        TRY FS . DeleteFile ( UnitRef ^ . UntPass1OutName )
+        TRY FS . DeleteFile ( UnitRef ^ . UntPass1OutSimpleName )
         EXCEPT OSError . E => (* It didn't exist. *) 
         END (*EXCEPT*) 
       END (*IF*)
@@ -534,7 +535,7 @@ MODULE FM3Pass1
 
     ; FM3LogArr
         ( ARRAY OF REFANY
-            { "Finished compiling " , UnitRef ^ . UntSrcFileName , "." }
+            { "Finished compiling " , UnitRef ^ . UntSrcFileSimpleName , "." }
         )
     END FinishPass1 
     
@@ -549,13 +550,13 @@ MODULE FM3Pass1
   = BEGIN (* UnitId *) 
       IF UnitRef = NIL THEN RETURN END (*IF*)
     ; IF IdAtom = FM3Base . AtomNull THEN RETURN END (*IF*)
-    ; IF UnitRef ^ . UntSrcFileName = NIL THEN RETURN END (*IF*) 
+    ; IF UnitRef ^ . UntSrcFileSimpleName = NIL THEN RETURN END (*IF*) 
     ; UnitRef ^ . UntUnitIdentAtom := IdAtom 
     ; IdText := FM3Units . TextOfIdAtom ( IdAtom )
     ; UnitRef ^ . UntUnitIdentAtom := IdAtom 
     ; UnitRef ^ . UntUnitIdentPos := Position 
     ; NameFromFileName
-        := FM3Files . RemoveSuffix ( UnitRef ^ . UntSrcFileName ) 
+        := FM3Files . RemoveSuffix ( UnitRef ^ . UntSrcFileSimpleName ) 
     END UnitId 
 
 (*EXPORTED:*)
@@ -580,7 +581,7 @@ MODULE FM3Pass1
               { "Interface name \""
               , LIdText
               , "\" does not match file name \""
-              , UnitRef ^ . UntSrcFileName
+              , UnitRef ^ . UntSrcFileSimpleName
               , "\"" 
               , FM3Messages . NLIndent
               , "Changing interface name to \""
@@ -589,7 +590,7 @@ MODULE FM3Pass1
               }
           , Position
           )
-      ; UnitRef ^ . UntSrcFileName := LNameFromFileName 
+      ; UnitRef ^ . UntSrcFileSimpleName := LNameFromFileName 
       END (*IF*)
     END InterfaceId 
 
@@ -615,7 +616,7 @@ MODULE FM3Pass1
               { "Module name \""
               , LIdText
               , "\" does not match file name \""
-              , UnitRef ^ . UntSrcFileName
+              , UnitRef ^ . UntSrcFileSimpleName
               , "\"." 
               }
          , Position 

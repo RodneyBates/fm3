@@ -51,6 +51,7 @@ MODULE FM3Pass2
 ; IMPORT FM3Messages 
 ; FROM FM3Messages IMPORT FatalArr , ErrorArr , FM3LogArr
 ; IMPORT FM3Parser
+; IMPORT FM3Pass1 
 ; IMPORT FM3Predefined
 ; IMPORT FM3Scanner
 ; IMPORT FM3Scopes
@@ -80,7 +81,7 @@ MODULE FM3Pass2
     ; TRY
         FM3Compress . PutBwd ( RdBack , ValueL ) 
       EXCEPT OSError . E ( EMsg )
-      => FatalArr
+      => FM3Messages . FatalArr
            ( ARRAY OF REFANY
                { "Unable to write to readback file: "
 (*TODO: Give RdBackFile a "Filename" function,, then insert it here. *) 
@@ -195,7 +196,7 @@ MODULE FM3Pass2
     (* For now, let's assume the skip mechanism is only used during pass 2.*)
     ; LPass1RdBack := LUnitRef . UntPass1OutRdBack 
     ; LPatchRdBack := LUnitRef . UntPatchStackRdBack 
-    ; LPass2RdBack := LUnitRef . UntPass2RdBack
+    ; LPass2RdBack := LUnitRef . UntPass2OutRdBack
     ; LMPass1Depth := MAX ( LMPass1Depth , LUnitRef . UntPass1OutEmptyCoord )
     ; EVAL GetBwd ( LUnitRef ^ . UntPass1OutRdBack ) 
     ; EVAL GetBwd ( LUnitRef ^ . UntPass1OutRdBack ) 
@@ -420,7 +421,7 @@ MODULE FM3Pass2
       END (*EXCEPT*)
     ; IF NOT LFound
       THEN 
-        FatalArr
+        FM3Messages . FatalArr
           ( ARRAY OF REFANY
               { "While looking up decl of \""
               , FM3Units . TextOfIdAtom ( IdAtom ) 
@@ -587,7 +588,7 @@ MODULE FM3Pass2
       END (*IF*) 
     ; VAR LDeclNo : FM3Base . DeclNoTyp
     ; BEGIN (* Block *)
-        WITH WppRdBack = FM3Units . UnitStackTopRef ^ . UntPass2RdBack
+        WITH WppRdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack
         DO 
           LDeclNo
             := LookupId
@@ -617,7 +618,7 @@ MODULE FM3Pass2
       END (*IF*) 
     ; WITH WScope = FM3Scopes . LookupScopeStackTopRef ^  
            , WppRdBack
-             = FM3Units . UnitStackTopRef ^ . UntPass2RdBack 
+             = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack 
       DO
         IF IntSets . IsElement ( IdentRefAtom , WScope . ScpDeclIdSet )
         THEN (* Decl'd in this scope.  Replace Id with DeclNo. *) 
@@ -646,7 +647,7 @@ MODULE FM3Pass2
   ; VAR LDeclNo : FM3Base . DeclNoTyp
   
   ; BEGIN (*QualIdentL2R*)
-      WITH WppRdBack = FM3Units . UnitStackTopRef ^ . UntPass2RdBack 
+      WITH WppRdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack 
       DO
         LAtomLt := GetBwdAtom ( Pass1RdBack ) 
       ; LAtomRt := GetBwdAtom ( Pass1RdBack ) 
@@ -682,91 +683,117 @@ MODULE FM3Pass2
     ; FinishPass2 ( UnitRef ) 
     END RunPass2
 
+(*EXPORTED*) 
+; PROCEDURE DisAsmPass2
+    ( UnitRef : FM3Units . UnitRefTyp ; DoEarlierPasses : BOOLEAN )
+
+  = BEGIN (*DisAsmPass2*)
+      IF NOT FM3Base . PassNo2 IN UnitRef ^ . UntPassNosDisAsmed 
+      THEN (* Disassembly file is not already written. *) 
+        FM3Compile . DisAsmPassFile ( UnitRef , FM3Globals . Pass2OutSuffix )
+      ; FM3Base . InclPassNo
+          ( UnitRef ^ . UntPassNosDisAsmed , FM3Base . PassNo2 ) 
+      END (*IF*) 
+    ; IF DoEarlierPasses
+      THEN
+(* This is unnecessary, as pass 1 has no earlier pass.  It is here to remind
+   to do this in passes later than pass 2.
+ 
+        FM3Pass1 . DisAsmPass1 ( DoEarlierPasses := TRUE )
+*) 
+      END (*IF*) 
+    END DisAsmPass2
+
 ; PROCEDURE InitPass2 ( UnitRef : FM3Units . UnitRefTyp )
 
-  = VAR LFullFileName : TEXT
-  ; VAR LFullPass2Name : TEXT
+  = VAR LPass2FileFullName : TEXT
   
   ; BEGIN (*InitPass2*)
       TRY (*EXCEPT*)
-        UnitRef ^ . UntPass2Name
-          := UnitRef ^ .UntSrcFileName & FM3Globals . Pass2Suffix   
-      ; LFullPass2Name
+        UnitRef ^ . UntPass2OutSimpleName
           := Pathname . Join
-               ( UnitRef ^ . UntBuildDirPath 
-               , UnitRef ^ . UntPass2Name
-               , NIL
+               ( NIL 
+               , UnitRef ^ . UntSrcFileSimpleName
+               , FM3Globals . Pass2OutSuffix
+               ) 
+      ; LPass2FileFullName
+          := Pathname . Join
+               ( UnitRef ^ . UntBuildDirPath
+               , UnitRef ^ . UntPass2OutSimpleName 
+               , NIL 
                )
-      ; LFullFileName :=  LFullPass2Name 
-      ; UnitRef ^ . UntPass2RdBack
-          := RdBackFile . Create ( LFullPass2Name , Truncate := TRUE )
+      ; UnitRef ^ . UntPass2OutRdBack
+          := RdBackFile . Create ( LPass2FileFullName , Truncate := TRUE )
       EXCEPT
       | OSError . E ( EMsg ) 
-      => FatalArr
+      => FM3Messages . FatalArr
            ( ARRAY OF REFANY
-               { "Unable to open pass 2 output file \""
-               , LFullFileName
+               { "Unable to create pass 2 output file \""
+               , LPass2FileFullName 
                , "\": "
                , ALOSE ( EMsg)
                , "."
                } 
            ) 
       END (*EXCEPT*)
+
     ; PutBwdP2
-        ( UnitRef ^ . UntPass2RdBack , VAL ( Itk . ItkBOF , LONGINT ) ) 
+        ( UnitRef ^ . UntPass2OutRdBack , VAL ( Itk . ItkBOF , LONGINT ) ) 
     ; PutBwdP2
-        ( UnitRef ^ . UntPass2RdBack , VAL ( Itk . ItkRightEnd , LONGINT ) )
-    ; UnitRef ^ . UntPass2EmptyCoord
-        := RdBackFile . LengthL ( UnitRef ^ . UntPass2RdBack )  
+        ( UnitRef ^ . UntPass2OutRdBack , VAL ( Itk . ItkRightEnd , LONGINT ) )
+    ; UnitRef ^ . UntPass2OutEmptyCoord
+        := RdBackFile . LengthL ( UnitRef ^ . UntPass2OutRdBack )  
     END InitPass2
 
 ; PROCEDURE TranslatePass2 ( UnitRef : FM3Units . UnitRefTyp )
 
-  = VAR LPass2LengthL : LONGINT
-  ; VAR LExceptionName : TEXT 
-  ; VAR LExceptionLoc : TEXT
-  ; VAR LPass2FullFileName : TEXT 
-  ; VAR LPass2FullCopyName : TEXT 
-
-  ; BEGIN (*TranslatePass2*)
-    (* Build the Pass2 RdBack. *) 
+  = BEGIN (*TranslatePass2*)
+    (* Write the Pass2 RdBack. *) 
       TRY 
-        Pass2 ( UnitRef ^ . UntPass2EmptyCoord )
+        Pass2 ( UnitRef ^ . UntPass2OutEmptyCoord )
 
-      (* Wrap up pass 2 output. *) 
+      (* Finish successful pass 2 output. *) 
       ; PutBwdP2
-          ( UnitRef ^ . UntPass2RdBack
-          , VAL ( Itk . ItkLeftEnd , LONGINT )
-          )
+          ( UnitRef ^ . UntPass2OutRdBack , VAL ( Itk . ItkLeftEnd , LONGINT ) )
       ; PutBwdP2
-          ( UnitRef ^ . UntPass2RdBack
-          , VAL ( Itk . ItkEOF , LONGINT )
-          )
-      ; LPass2LengthL := RdBackFile . LengthL ( UnitRef ^ . UntPass2RdBack )
-      ; LExceptionName := NIL (* Succeeded. *) 
+          ( UnitRef ^ . UntPass2OutRdBack , VAL ( Itk . ItkEOF , LONGINT ) )
+      ; FM3Compile . MakePassFileCopy
+          ( UnitRef , FM3Globals . Pass2OutSuffix , UnitRef ^ . UntPass2OutRdBack )
+        (*^ This copy may be used by disassembly called for by command-line
+            option, a later pass failure, or not at all. *) 
       EXCEPT
       | FM3SharedUtils . Terminate ( Arg )
       => (*Re-*) RAISE FM3SharedUtils . Terminate ( Arg ) 
       | FM3SharedUtils . FatalError ( Arg )
       => (*Re-*) RAISE FM3SharedUtils . FatalError ( Arg )  
-      ELSE 
-        LPass2LengthL := RdBackFile . LengthL ( UnitRef ^ . UntPass2RdBack )
-      ; PutBwdP2
-          ( UnitRef ^ . UntPass2RdBack
-          , VAL ( Itk . ItkLeftEndIncomplete , LONGINT )
+      ELSE (* Pass 2 failed. *) 
+        PutBwdP2
+          ( UnitRef ^ . UntPass2OutRdBack
+          , VAL ( Itk . ItkLeftEndIncomplete , LONGINT ) 
           )
-      ; LExceptionName
-          := FM3RTFailures . ExcNameFromAddr ( Compiler . ThisException ( ) )  
-      ; LExceptionLoc 
-          := FM3RTFailures . ActivationLocationFromAddr
-               ( Compiler . ThisException ( ) )  
-      ; IF LExceptionName = NIL AND NOT FM3CLArgs . DoDisAsmPass2  
-        THEN (* Didn't already disassemble pass 1 output file.  Do it now. *) 
-          FM3Compile . DisAsm ( UnitRef , LPass2FullFileName )
-        ; TRY FS . DeleteFile ( LPass2FullCopyName )
-          EXCEPT OSError . E => (* It didn't exist. *) 
-          END (*EXCEPT*) 
-        END (*IF*) 
+
+      ; FM3Compile . MakePassFileCopy
+          ( UnitRef , FM3Globals . Pass2OutSuffix , UnitRef ^ . UntPass2OutRdBack )
+        (* ^This copy will be used immediately to disassemble. *)
+      ; DisAsmPass2 ( UnitRef , DoEarlierPasses := TRUE )
+
+      ; FM3Messages . FatalArr
+           ( ARRAY OF REFANY
+               { "Failure writing pass 2 output at depth "
+               , Fmt . LongInt
+                   ( RdBackFile . LengthL ( UnitRef ^ . UntPass2OutRdBack ) )
+               , FM3Messages . NLIndent 
+               , "Exception "
+               , FM3RTFailures . ExcNameFromAddr
+                   ( Compiler . ThisException ( ) )
+               , ","
+               , FM3Messages . NLIndent 
+               , "raised at "
+               , FM3RTFailures . ActivationLocationFromAddr
+                   ( Compiler . ThisException ( ) )
+               , "."
+               }
+           )
       END (*EXCEPT *)
     END TranslatePass2
   
@@ -776,60 +803,16 @@ MODULE FM3Pass2
   ; VAR LPass2FullFileName : TEXT 
   ; VAR LPass2FullCopyName : TEXT
 
-  ; VAR LExceptionName : TEXT 
-  ; VAR LExceptionLoc : TEXT
-(*FIXME ^These are now uninitialized, values were originally falling
-         through from pass 1 code.  Use a different system for deciding
-         when to disAss. *)
-
   ; BEGIN (*FinishPass2*)
-      LPass2FullFileName
-        := Pathname . Join
-             ( UnitRef ^ . UntBuildDirPath 
-             , UnitRef ^ . UntPass2Name
-             , NIL
-             )
-    ; LPass2FullCopyName 
-        := Pathname . Join
-             ( NIL , LPass2FullFileName , FM3Globals . CopyFileSuffix ) 
-    ; RdBackFile . Copy 
-        ( UnitRef ^ . UntPass2RdBack , LPass2FullCopyName , - 1L )
-
-    ; IF LExceptionName # NIL OR FM3CLArgs . DoDisAsmPass2
-      THEN (* Disassemble it now. *) 
-        FM3Compile . DisAsm ( UnitRef , LPass2FullFileName )
-      ; TRY FS . DeleteFile ( LPass2FullCopyName )
-        EXCEPT OSError . E => (* It didn't exist. *) 
-        END (*EXCEPT*) 
-      END (*IF*)
-    ; IF LExceptionName # NIL
-      THEN 
-        FM3Messages . FatalArr
-           ( ARRAY OF REFANY
-               { "Failure writing pass 2 output at depth "
-               , Fmt . LongInt
-                   ( RdBackFile . LengthL ( UnitRef ^ . UntPass2RdBack ) )
-               , FM3Messages . NLIndent 
-               , "Exception "
-               , LExceptionName
-               , ","
-               , FM3Messages . NLIndent 
-               , "raised at "
-               , LExceptionLoc
-               , "."
-               }
-           )
-      END (*IF*)
-
     (* Close pass 2. *) 
-    ; UnitRef . UntPass2Result := 0 
+      UnitRef . UntPass2Result := 0 
     ; EVAL FM3Scanner . PopState ( )
 (* TODO^ Maybe do this elsewhere. *) 
 
     (* Finish with patch stack. *) 
     ; UnitRef ^ . UntMaxPatchStackDepth
         := RdBackFile . MaxLengthL ( UnitRef ^ . UntPatchStackRdBack ) 
-    ; FM3LogArr
+    ; FM3Messages . FM3LogArr
         ( ARRAY OF REFANY
             { "Patch stack "
               , UnitRef ^ . UntPatchStackName
@@ -842,7 +825,7 @@ MODULE FM3Pass2
              <= UnitRef ^ . UntPatchStackEmptyCoord 
       THEN
         UnitRef . UntPass2Result := FM3CLArgs . CcPatchStackNotEmpty  
-      ; FM3LogArr
+      ; FM3Messages . FM3LogArr
           ( ARRAY OF REFANY
               { "Patch stack " 
               , UnitRef ^ . UntPatchStackName
@@ -851,14 +834,13 @@ MODULE FM3Pass2
                   ( RdBackFile . LengthL ( UnitRef ^ . UntPatchStackRdBack ) )
               }
           ) 
-      ; FatalArr
+      ; FM3Messages . FatalArr
           ( ARRAY OF REFANY
               { "Patch stack is not sufficiently empty, should be "  
               , FM3Base . Int64Image ( UnitRef ^ . UntPatchStackEmptyCoord )
               , "." 
               } 
           )
-      ; RAISE FM3SharedUtils . FatalError ( "Nonempty patch stack." )
       END (*IF*)
     ; RdBackFile . Close (  UnitRef ^ . UntPatchStackRdBack , 0L )
       (* No point in keeping the patch stack.  It has pogo-sticked and 
@@ -877,25 +859,29 @@ MODULE FM3Pass2
     ; FM3LogArr
         ( ARRAY OF REFANY 
             { "Pass 2 output file "
-            , UnitRef ^ . UntPass2Name 
+            , UnitRef ^ . UntPass2OutSimpleName 
             , " has " 
             , FM3Base . Int64Image 
-                ( RdBackFile . LengthL ( UnitRef ^ . UntPass2RdBack ) ) 
+                ( RdBackFile . LengthL ( UnitRef ^ . UntPass2OutRdBack ) ) 
             , " bytes."
             } 
         )
     ; PutBwdP2
-        ( FM3Units . UnitStackTopRef ^ . UntPass2RdBack
+        ( FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack
         , VAL ( Itk . ItkLeftEnd , LONGINT ) 
         )
     ; PutBwdP2
-        ( FM3Units . UnitStackTopRef ^ . UntPass2RdBack
+        ( FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack
         , VAL ( Itk . ItkEOF , LONGINT ) 
         )
 
     ; RdBackFile . Close 
-        ( UnitRef ^ . UntPass2RdBack , - 1L (* Leave full length. *) )
-    (* ^When the next pass is implemented, don't do this. *) 
+        ( UnitRef ^ . UntPass2OutRdBack , - 1L (* Leave full length. *) )
+    (* ^When the next pass is implemented, don't do this. *)
+    
+    ; IF FM3Base . PassNo2 IN FM3Globals . PassNosToDisAsm 
+      THEN DisAsmPass2 ( UnitRef , DoEarlierPasses := FALSE )
+      END (*IF*) 
 
     ; <* ASSERT
            IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack )
