@@ -28,6 +28,7 @@ INTERFACE FM3Globals
 ; CONST Pass1OutSuffix = "FM3Pass1" (* Output of pass 2. *)
 ; CONST CopyFileSuffix = "Copy" 
 ; CONST DisAsmFileSuffix = "DisAsm"
+; CONST UnitLogSuffix = "Log" 
 
 ; CONST PassNoSuffixes
     = ARRAY FM3Base . PassNoRangeTyp OF TEXT

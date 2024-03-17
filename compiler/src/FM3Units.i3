@@ -8,7 +8,9 @@
 
 INTERFACE FM3Units
 
-; IMPORT Wr 
+; IMPORT Wr
+
+; IMPORT UniRd 
 
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars
@@ -48,14 +50,15 @@ INTERFACE FM3Units
     = RECORD
         UntStackLink : UnitRefTyp := NIL 
       ; UntSrcFileSimpleName : TEXT := NIL (* Simple name *) 
-      ; UntSrcFilePath : TEXT := NIL (* I.e, directory wherein UntSimpleSrcFileName lives. *) 
-      ; UntLogName : TEXT := NIL 
+      ; UntSrcFilePath : TEXT := NIL (* I.e, directory wherein UntSimpleSrcFileName lives. *)
+      ; UntSrcUniRd : UniRd . T 
+      ; UntLogSimpleName : TEXT := NIL 
       ; UntLogWrT : Wr . T := NIL
       ; UntUnitIdentAtom : FM3Base . AtomTyp := FM3Base . AtomNull
       ; UntUnitIdentPos : FM3Base . tPosition 
       ; UntBuildDirPath : TEXT := NIL 
       (* ^Same for pass1 output, patch stack, and pass2 output files. *)  
-      ; UntPatchStackName : TEXT := NIL
+      ; UntPatchStackSimpleName : TEXT := NIL
       ; UntPatchStackRdBack : RdBackFile . T := NIL
       ; UntMaxPatchStackDepth : LONGINT := 0L
       ; UntPatchStackEmptyCoord : LONGINT := 0L
@@ -70,10 +73,11 @@ INTERFACE FM3Units
         *) 
       ; UntPass1OutSimpleName : TEXT := NIL
       ; UntPass1OutRdBack : RdBackFile . T := NIL
-      ; UntMaxPass1OutDepth : LONGINT := 0L 
+      ; UntMaxPass1OutLength : LONGINT := 0L 
       ; UntPass1OutEmptyCoord : LONGINT := 0L
       ; UntPass2OutSimpleName : TEXT := NIL (* Parse pass output file. *) 
       ; UntPass2OutRdBack : RdBackFile . T := NIL
+      ; UntMaxPass2OutLength : LONGINT := 0L 
       ; UntPass2OutEmptyCoord : LONGINT := 0L
       ; UntIdentAtomDict : FM3Atom_OAChars . T := NIL (* Identifiers. *)   
       ; UntNumberAtomDict : FM3Atom_OAChars . T := NIL (* Numeric literals. *)  

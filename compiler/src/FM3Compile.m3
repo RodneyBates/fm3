@@ -14,9 +14,13 @@ MODULE  FM3Compile
 ; IMPORT FS 
 ; IMPORT Wr 
 
-; IMPORT FM3Base 
+; IMPORT FM3Base
+; IMPORT FM3CLArgs 
 ; IMPORT FM3DisAsm 
-; IMPORT FM3Globals 
+; IMPORT FM3Globals
+; IMPORT FM3Messages 
+; IMPORT FM3Pass1 
+; IMPORT FM3Pass2 
 ; IMPORT FM3Units
 ; IMPORT RdBackFile 
 
@@ -124,7 +128,34 @@ MODULE  FM3Compile
           END (*EXCEPT*)
         END (*IF*) 
       END (*FOR*) 
-    END CleanPassFileCopies  
+    END CleanPassFileCopies
+
+(*EXPORTED*)
+; PROCEDURE CompileSrcFile ( SrcFileName : TEXT )
+
+  = VAR LUnitRef : FM3Units . UnitRefTyp
+  ; VAR LPoppedUnitRef : FM3Units . UnitRefTyp
+
+  ; BEGIN (*CompileSrcFile*)
+      FM3Pass1 . RunPass1 ( FM3CLArgs . SrcFileName )
+      (* ^POST:  A UnitRef is pushed. *)
+    ; LUnitRef := FM3Units . UnitStackTopRef 
+    ; FM3Pass2 . RunPass2 ( LUnitRef )
+
+    ; RdBackFile . Close 
+        ( LUnitRef ^ . UntPass2OutRdBack , - 1L (* Leave full length. *) )
+      (* ^When the next pass is implemented, don't do this. *)
+
+    ; LPoppedUnitRef := FM3Units . PopUnit ( )
+    ; <* ASSERT LPoppedUnitRef = LUnitRef *> 
+
+      FM3Messages . FM3LogArr
+        ( ARRAY OF REFANY
+            { "Finished compiling " , LUnitRef ^ . UntSrcFileSimpleName , "." }
+        )
+    ; FM3Messages . EndUnit ( LPoppedUnitRef ^ . UntSrcFileSimpleName ) 
+
+    END CompileSrcFile 
 
 ; BEGIN (*FM3Compile*)
   END FM3Compile

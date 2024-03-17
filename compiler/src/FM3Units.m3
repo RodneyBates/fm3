@@ -88,12 +88,12 @@ MODULE FM3Units
     ; LUnitRef ^ . UntSrcFileSimpleName := NIL 
     ; LUnitRef ^ . UntSrcFilePath := NIL
     ; LUnitRef ^ . UntBuildDirPath := NIL
-    ; LUnitRef ^ . UntPatchStackName := NIL
+    ; LUnitRef ^ . UntPatchStackSimpleName := NIL
     ; LUnitRef ^ . UntPatchStackRdBack := NIL
     ; LUnitRef ^ . UntMaxPatchStackDepth := 0L 
     ; LUnitRef ^ . UntPass1OutSimpleName := NIL
     ; LUnitRef ^ . UntPass1OutRdBack := NIL
-    ; LUnitRef ^ . UntMaxPass1OutDepth := 0L 
+    ; LUnitRef ^ . UntMaxPass1OutLength := 0L 
     ; LUnitRef ^ . UntPass2OutSimpleName := NIL
     ; LUnitRef ^ . UntPass2OutRdBack := NIL
     ; LUnitRef ^ . UntUnitIdentAtom := FM3Base . AtomNull

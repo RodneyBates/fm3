@@ -380,6 +380,8 @@ INTERFACE FM3Pass1
 
 *) 
 
+; PROCEDURE DisAsmPass1 ( UnitRef : FM3Units . UnitRefTyp )
+
 ; PROCEDURE RunPass1 ( SrcFileName : TEXT ) 
 
 ; END FM3Pass1

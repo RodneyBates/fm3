@@ -8,10 +8,12 @@
 
 MODULE FM3 EXPORTS Main
 
+; IMPORT RTProcess 
 ; IMPORT Stdio
 ; IMPORT Wr
 
 ; IMPORT FM3CLArgs
+; IMPORT FM3Compile 
 ; IMPORT FM3Messages 
 ; IMPORT FM3Pass1 
 ; IMPORT FM3Pass2 
@@ -33,14 +35,8 @@ MODULE FM3 EXPORTS Main
           FM3CLArgs . Process ( )
         ; FM3SharedUtils . LoadSets ( ) 
         ; FM3Scanner . Init ( )
-        ; FM3Pass1 . RunPass1 ( FM3CLArgs . SrcFileName )
-          (* ^POST:  A UnitRef is pushed. *)
-        ; LUnitRef := FM3Units . UnitStackTopRef 
-        ; FM3Pass2 . RunPass2 ( LUnitRef )
 
-        ; LPoppedUnitRef := FM3Units . PopUnit ( )
-        ; <* ASSERT LPoppedUnitRef = LUnitRef *> 
-          FM3Messages . EndUnit ( LPoppedUnitRef ^ . UntSrcFileSimpleName ) 
+        ; FM3Compile . CompileSrcFile ( FM3CLArgs . SrcFileName ) 
 
         FINALLY FM3CLArgs . Cleanup ( ) 
         END (*FINALLY*)
@@ -52,6 +48,8 @@ MODULE FM3 EXPORTS Main
         ; Wr . PutText ( Stdio . stderr , Wr . EOL )
         ; Wr . Flush ( Stdio . stderr )
         ; LDebug := 13 (* Complete by exception FatalError. *)
+        ; RTProcess . Exit ( 13 ) 
+        
       | FM3SharedUtils . Terminate
       => LDebug := 17 (* Complete by exception Terminate. *) 
          

@@ -709,6 +709,9 @@ MODULE FM3Pass2
   = VAR LPass2FileFullName : TEXT
   
   ; BEGIN (*InitPass2*)
+
+(* Create the pass 2 output file. *)
+
       TRY (*EXCEPT*)
         UnitRef ^ . UntPass2OutSimpleName
           := Pathname . Join
@@ -737,6 +740,8 @@ MODULE FM3Pass2
            ) 
       END (*EXCEPT*)
 
+(* Write pass 2 output file initial tokens. *)
+
     ; PutBwdP2
         ( UnitRef ^ . UntPass2OutRdBack , VAL ( Itk . ItkBOF , LONGINT ) ) 
     ; PutBwdP2
@@ -748,17 +753,26 @@ MODULE FM3Pass2
 ; PROCEDURE TranslatePass2 ( UnitRef : FM3Units . UnitRefTyp )
 
   = BEGIN (*TranslatePass2*)
-    (* Write the Pass2 RdBack. *) 
+  
+(* Write the Pass2 RdBack. *)
+
       TRY 
         Pass2 ( UnitRef ^ . UntPass2OutEmptyCoord )
 
-      (* Finish successful pass 2 output. *) 
+(* Write final successful   pass 2 output tokens. *)
+      
       ; PutBwdP2
           ( UnitRef ^ . UntPass2OutRdBack , VAL ( Itk . ItkLeftEnd , LONGINT ) )
       ; PutBwdP2
           ( UnitRef ^ . UntPass2OutRdBack , VAL ( Itk . ItkEOF , LONGINT ) )
+
+(* Prepare for possible disassembly later. *) 
+
       ; FM3Compile . MakePassFileCopy
-          ( UnitRef , FM3Globals . Pass2OutSuffix , UnitRef ^ . UntPass2OutRdBack )
+          ( UnitRef
+          , FM3Globals . Pass2OutSuffix
+          , UnitRef ^ . UntPass2OutRdBack
+          )
         (*^ This copy may be used by disassembly called for by command-line
             option, a later pass failure, or not at all. *) 
       EXCEPT
@@ -767,14 +781,19 @@ MODULE FM3Pass2
       | FM3SharedUtils . FatalError ( Arg )
       => (*Re-*) RAISE FM3SharedUtils . FatalError ( Arg )  
       ELSE (* Pass 2 failed. *) 
+
+(* Disassemble what there is of the failed file. *)
+
         PutBwdP2
           ( UnitRef ^ . UntPass2OutRdBack
           , VAL ( Itk . ItkLeftEndIncomplete , LONGINT ) 
           )
-
+          
       ; FM3Compile . MakePassFileCopy
-          ( UnitRef , FM3Globals . Pass2OutSuffix , UnitRef ^ . UntPass2OutRdBack )
-        (* ^This copy will be used immediately to disassemble. *)
+          ( UnitRef
+          , FM3Globals . Pass2OutSuffix
+          , UnitRef ^ . UntPass2OutRdBack
+          )
       ; DisAsmPass2 ( UnitRef , DoEarlierPasses := TRUE )
 
       ; FM3Messages . FatalArr
@@ -802,6 +821,7 @@ MODULE FM3Pass2
   = VAR LPatchFullFileName : TEXT
   ; VAR LPass2FullFileName : TEXT 
   ; VAR LPass2FullCopyName : TEXT
+  ; VAR LLengthL : LONGINT 
 
   ; BEGIN (*FinishPass2*)
     (* Close pass 2. *) 
@@ -809,26 +829,42 @@ MODULE FM3Pass2
     ; EVAL FM3Scanner . PopState ( )
 (* TODO^ Maybe do this elsewhere. *) 
 
-    (* Finish with patch stack. *) 
+(* Finish with and close patch stack. *)
+
     ; UnitRef ^ . UntMaxPatchStackDepth
         := RdBackFile . MaxLengthL ( UnitRef ^ . UntPatchStackRdBack ) 
+    ; LLengthL := RdBackFile . LengthL ( UnitRef ^ . UntPatchStackRdBack )
+    ; RdBackFile . Close (  UnitRef ^ . UntPatchStackRdBack , 0L )
+      (* No point in keeping the patch stack.  It has pogo-sticked and 
+         now should be empty. *)
+    ; LPatchFullFileName
+        := Pathname . Join
+             ( UnitRef ^ . UntBuildDirPath 
+             , UnitRef ^ . UntPatchStackSimpleName
+             , NIL
+             )
+    ; TRY FS . DeleteFile ( LPatchFullFileName )
+      EXCEPT OSError . E => (* It didn't exist. *) 
+      END (*EXCEPT*)
+
     ; FM3Messages . FM3LogArr
         ( ARRAY OF REFANY
             { "Patch stack "
-              , UnitRef ^ . UntPatchStackName
+              , UnitRef ^ . UntPatchStackSimpleName
               , " peak size = "
               , FM3Base . Int64Image  ( UnitRef ^ . UntMaxPatchStackDepth )
               , " bytes."
             } 
         ) 
-    ; IF NOT RdBackFile . LengthL ( UnitRef ^ . UntPatchStackRdBack )
+    ; IF NOT LLengthL 
              <= UnitRef ^ . UntPatchStackEmptyCoord 
       THEN
         UnitRef . UntPass2Result := FM3CLArgs . CcPatchStackNotEmpty  
+      ; DisAsmPass2 ( UnitRef , DoEarlierPasses := TRUE )
       ; FM3Messages . FM3LogArr
           ( ARRAY OF REFANY
               { "Patch stack " 
-              , UnitRef ^ . UntPatchStackName
+              , UnitRef ^ . UntPatchStackSimpleName
               , " final size = "
               , FM3Base . Int64Image
                   ( RdBackFile . LengthL ( UnitRef ^ . UntPatchStackRdBack ) )
@@ -842,52 +878,82 @@ MODULE FM3Pass2
               } 
           )
       END (*IF*)
-    ; RdBackFile . Close (  UnitRef ^ . UntPatchStackRdBack , 0L )
-      (* No point in keeping the patch stack.  It has pogo-sticked and 
-         now is empty. *)
-    ; LPatchFullFileName
+      
+(* Finish with and close pass 1 output. *)
+
+    ; LLengthL := RdBackFile . LengthL ( UnitRef ^ . UntPass1OutRdBack )
+    ; RdBackFile . Close 
+        (  UnitRef ^ . UntPass1OutRdBack , - 1L (* Leave full length. *) )
+    ; IF LLengthL # UnitRef ^ . UntPass1OutEmptyCoord 
+      THEN
+        UnitRef . UntPass2Result := FM3CLArgs . CcPass1OutNotEmpty  
+      ; DisAsmPass2 ( UnitRef , DoEarlierPasses := TRUE )
+      ; FM3LogArr
+          ( ARRAY OF REFANY
+              { "Pass 1 output file "
+              , UnitRef ^ . UntPass1OutSimpleName
+              , " final size = "
+              , FM3Base . Int64Image ( LLengthL )
+              , " bytes."
+              } 
+          )
+      ; FatalArr
+          ( ARRAY OF REFANY
+              { "Pass 1 output file is not sufficiently empty, should be "
+              , FM3Base . Int64Image ( UnitRef ^ . UntPass1OutEmptyCoord )
+              , "."
+              }
+          )
+      END (*IF*)
+      
+    ; IF NOT FM3CLArgs . DoKeep
+      THEN 
+        TRY FS . DeleteFile
+              ( Pathname . Join
+                  ( UnitRef ^ . UntBuildDirPath 
+                  , UnitRef ^ . UntPass1OutSimpleName
+                  , NIL 
+                  )
+              ) 
+        EXCEPT OSError . E => (* It didn't exist. *) 
+        END (*EXCEPT*) 
+      END (*IF*)
+
+(* Report size and maybe disassemble pass 2 output file. *) 
+
+    ; LPass2FullFileName
         := Pathname . Join
              ( UnitRef ^ . UntBuildDirPath 
-             , UnitRef ^ . UntPatchStackName
+             , UnitRef ^ . UntPass2OutSimpleName
              , NIL
              )
-    ; TRY FS . DeleteFile ( LPatchFullFileName )
-      EXCEPT OSError . E => (* It didn't exist. *) 
-      END (*EXCEPT*)
-
-    (* Finish with pass 2 output. *) 
+    ; UnitRef ^ . UntMaxPass2OutLength
+        := RdBackFile . MaxLengthL ( UnitRef ^ . UntPass2OutRdBack )
     ; FM3LogArr
-        ( ARRAY OF REFANY 
+        ( ARRAY OF REFANY
             { "Pass 2 output file "
-            , UnitRef ^ . UntPass2OutSimpleName 
-            , " has " 
-            , FM3Base . Int64Image 
-                ( RdBackFile . LengthL ( UnitRef ^ . UntPass2OutRdBack ) ) 
+            , UnitRef ^ . UntPass2OutSimpleName
+            , " has "
+            , FM3Base . Int64Image  ( UnitRef ^ . UntMaxPass2OutLength )
             , " bytes."
             } 
         )
-    ; PutBwdP2
-        ( FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack
-        , VAL ( Itk . ItkLeftEnd , LONGINT ) 
-        )
-    ; PutBwdP2
-        ( FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack
-        , VAL ( Itk . ItkEOF , LONGINT ) 
-        )
-
-    ; RdBackFile . Close 
-        ( UnitRef ^ . UntPass2OutRdBack , - 1L (* Leave full length. *) )
-    (* ^When the next pass is implemented, don't do this. *)
-    
     ; IF FM3Base . PassNo2 IN FM3Globals . PassNosToDisAsm 
       THEN DisAsmPass2 ( UnitRef , DoEarlierPasses := FALSE )
-      END (*IF*) 
+      END (*IF*)
+
+(* Close the source file. *) 
+
+    ; UniRd . Close ( UnitRef ^ . UntSrcUniRd ) 
+
+(* Shut down the skip stack. *) 
 
     ; <* ASSERT
            IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack )
            = Ranges_Int . RangeTyp { 0 , 0 } 
       *> 
       FM3Globals . SkipNoStack := NIL
+      
     END FinishPass2
 
 ; BEGIN (*FM3Pass2*)

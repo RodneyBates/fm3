@@ -33,6 +33,8 @@ INTERFACE FM3Compile
      copies are still hanging around.  Delete them. 
   *) 
 
+; PROCEDURE CompileSrcFile ( SrcFileName : TEXT )
+
 ; END FM3Compile
 .
 
