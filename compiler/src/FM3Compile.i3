@@ -28,7 +28,7 @@ INTERFACE FM3Compile
   (* POST: The copy file has been removed. *) 
 
 
-; PROCEDURE CleanPassFileCopies ( UnitRef : FM3Units . UnitRefTyp )
+; PROCEDURE CleanPassFilesAndCopies ( UnitRef : FM3Units . UnitRefTyp )
   (* Only after all passes have been run do we know what pass file
      copies are still hanging around.  Delete them. 
   *) 

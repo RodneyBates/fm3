@@ -15,7 +15,7 @@ UNSAFE MODULE FM3Compress
 (* Compression scheme: 
    A variable length sequence of one to nine bytes, least significant to most
    significant.  The least significant 7 bits of each byte are data bits.
-   The most significant bit is 1 to denote that another, more significant
+   The most significant bit is 1 to denote that another, more significant,
    byte follows.  The 9th byte, if it occurs, has data in all 8 bits and
    never has a successor.  Nine bytes can hold any 64-bit value.  This
    compression scheme views the values as signed, but clients can view
@@ -74,15 +74,6 @@ UNSAFE MODULE FM3Compress
   = VAR LSignBitsL : LONGINT
 
   ; BEGIN
-
-
-IF ValueL = 16_8000000000000003L
-THEN LSignBitsL := 19L
-END
-;
-
-
-
       LSignBitsL := DivL ( ValueL , TwoTo6thL )
                  (* ^Shift right 6 bits, with sign extension. *) 
     ; IF LSignBitsL # 16_FFFFFFFFFFFFFFFFL AND LSignBitsL # 0L
@@ -283,11 +274,6 @@ END
 
   ; BEGIN
       LByteL := VAL ( GetRdBack ( File ) , LONGINT )  
-
-; IF LByteL = 16_83L
-THEN LResultL := 19L
-END
-
     ; LResultL := AndL ( LByteL , 16_7FL )
     ; IF AndL ( LByteL , 16_80L ) # 0L
       THEN (* Byte 1 follows. *)

@@ -199,13 +199,13 @@ MODULE FM3Pass1
   
 (* Open source file. *)
 
-      LSrcFilePath
+      LUnitRef := FM3Units . NewUnitRef ( )
+    ; LSrcFilePath
         := Pathname . Prefix ( FM3Files . AbsFileName ( SrcFileName ) )
     ; LSrcFileSimpleName := Pathname . Last ( SrcFileName )
     ; LUnitRef ^ . UntSrcUniRd 
         := FM3Files . OpenUniRd
              ( LSrcFileSimpleName , LSrcFilePath , "source file " , NIL ) 
-    ; LUnitRef := FM3Units . NewUnitRef ( )
     ; LUnitRef ^ . UntSrcFileSimpleName := LSrcFileSimpleName 
     ; LUnitRef ^ . UntSrcFilePath := LSrcFilePath
 
@@ -251,10 +251,14 @@ MODULE FM3Pass1
 
     ; LUnitRef ^ . UntPass1OutSimpleName
         := Pathname . Join
-             ( LUnitRef ^ . UntSrcFileSimpleName , FM3Globals . Pass1OutSuffix )
+             ( NIL
+             , LUnitRef ^ . UntSrcFileSimpleName
+             , FM3Globals . Pass1OutSuffix
+             )
     ; LUnitRef ^ . UntPatchStackSimpleName
         := Pathname . Join
-             ( LUnitRef ^ . UntSrcFileSimpleName
+             ( NIL
+             , LUnitRef ^ . UntSrcFileSimpleName
              , FM3Globals . PatchStackSuffix
              )
     ; TRY (*EXCEPT*)
@@ -267,8 +271,10 @@ MODULE FM3Pass1
                )
       ; LFullFileName :=  LFullPass1OutName 
       ; LUnitRef ^ . UntPass1OutRdBack
-          := RdBackFile . Create ( LFullPass1OutName , Truncate := TRUE )
-          
+          := RdBackFile . Create ( LFullPass1OutName , Truncate := TRUE ) 
+      ; FM3Globals . P1RdBack := LUnitRef ^ . UntPass1OutRdBack
+        (* ^Cache for faster access. *)
+
       ; LFullPatchStackName
           := Pathname . Join
                ( LUnitRef ^ . UntBuildDirPath 
@@ -278,6 +284,8 @@ MODULE FM3Pass1
       ; LFullFileName :=  LFullPatchStackName 
       ; LUnitRef ^ . UntPatchStackRdBack
           := RdBackFile . Create ( LFullPatchStackName , Truncate := TRUE )
+      ; FM3Globals . PatchRdBack := LUnitRef ^ . UntPatchStackRdBack 
+        (* ^Cache for faster access. *) 
       
       EXCEPT
       | OSError . E ( EMsg ) 

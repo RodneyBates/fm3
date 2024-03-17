@@ -42,7 +42,7 @@ MODULE  FM3Compile
   ; BEGIN
       LPassFileSimpleName
         := Pathname . Join
-             ( UnitRef ^ . UntSrcFileSimpleName , PassFileSuffix , NIL )
+             ( NIL , UnitRef ^ . UntSrcFileSimpleName , PassFileSuffix )
     ; LPassFileFullName
         := Pathname . Join
              ( UnitRef ^ . UntBuildDirPath , LPassFileSimpleName , NIL )
@@ -94,7 +94,7 @@ MODULE  FM3Compile
     END DisAsmPassFile
 
 (*EXPORTED*) 
-; PROCEDURE CleanPassFileCopies ( UnitRef : FM3Units . UnitRefTyp )
+; PROCEDURE CleanPassFilesAndCopies ( UnitRef : FM3Units . UnitRefTyp )
   (* Only after all passes have been run do we know what pass file
      copies are still hanging around.  Delete them.  Also, the existence
      of a copy file implies that no disassembly file was written during
@@ -105,7 +105,7 @@ MODULE  FM3Compile
   = VAR LPassFileFullName : TEXT
   ; VAR LCopyFileFullName : TEXT
 
-  ; BEGIN (*CleanPassFileCopies*)
+  ; BEGIN (*CleanPassFilesAndCopies*)
       FOR RPassNo := FIRST ( FM3Base . PassNoRangeTyp ) 
                   TO LAST ( FM3Base . PassNoRangeTyp )
       DO 
@@ -120,15 +120,18 @@ MODULE  FM3Compile
         ; LCopyFileFullName 
             := Pathname . Join
                  ( NIL , LPassFileFullName , FM3Globals . CopyFileSuffix ) 
-        ; TRY FS . DeleteFile ( LPassFileFullName )
-          EXCEPT OSError . E => (* It didn't exist.  Could happen. *) 
-          END (*EXCEPT*)
+        ; IF NOT RPassNo IN FM3Globals . PassNosToKeep  
+          THEN
+            TRY FS . DeleteFile ( LPassFileFullName )
+            EXCEPT OSError . E => (* It didn't exist.  Could happen. *) 
+            END (*EXCEPT*)
+          END (*IF*) 
         ; TRY FS . DeleteFile ( LCopyFileFullName )
           EXCEPT OSError . E => (* It didn't exist.  Shouldn't happen. *) 
           END (*EXCEPT*)
         END (*IF*) 
       END (*FOR*) 
-    END CleanPassFileCopies
+    END CleanPassFilesAndCopies
 
 (*EXPORTED*)
 ; PROCEDURE CompileSrcFile ( SrcFileName : TEXT )
@@ -146,6 +149,7 @@ MODULE  FM3Compile
         ( LUnitRef ^ . UntPass2OutRdBack , - 1L (* Leave full length. *) )
       (* ^When the next pass is implemented, don't do this. *)
 
+    ; CleanPassFilesAndCopies ( LUnitRef ) 
     ; LPoppedUnitRef := FM3Units . PopUnit ( )
     ; <* ASSERT LPoppedUnitRef = LUnitRef *> 
 

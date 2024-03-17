@@ -68,7 +68,7 @@ MODULE FM3Pass2
 ; CONST ALOSE = FM3Messages . AtomListToOSError 
 
 ; PROCEDURE PutBwdP2 ( RdBack : RdBackFile . T ; ValueL : LONGINT )
-  (* Wrap FM3Compress . PutBwd
+  (* Wrap FM3Compress . PutBwd for pass 2 output file. 
      1. Catch OSError.E.
      2. Conditionally do nothing when skipping. 
   *)
@@ -90,6 +90,26 @@ MODULE FM3Pass2
            ) 
       END (*EXCEPT*) 
     END PutBwdP2
+
+; PROCEDURE PutBwdPatch ( RdBack : RdBackFile . T ; ValueL : LONGINT )
+  (* Wrap FM3Compress . PutBwd for patch stack 
+     Catch OSError.E.
+  *)
+
+  = BEGIN (*PutBwdPatch*) 
+      <* ASSERT RdBack = FM3Globals . PatchRdBack *> 
+      TRY
+        FM3Compress . PutBwd ( RdBack , ValueL ) 
+      EXCEPT OSError . E ( EMsg )
+      => FM3Messages . FatalArr
+           ( ARRAY OF REFANY
+               { "Unable to write to patch file: "
+(*TODO: Give RdBackFile a "Filename" function,, then insert it here. *) 
+               , ALOSE ( EMsg ) , "."  
+               }
+           ) 
+      END (*EXCEPT*) 
+    END PutBwdPatch
 
 ; PROCEDURE SkipLt ( SkipNo : INTEGER )
 
@@ -264,7 +284,7 @@ MODULE FM3Pass2
           THEN 
 
           (* Move this token from the pass 1 output file to the patch stack. *)
-            PutBwdP2
+            PutBwdPatch
               ( LPatchRdBack
               , LUnitRef . UntPatchStackTopCoord
               ) (* Uncache the existing patch coordinate by pushing it on top
@@ -279,7 +299,7 @@ MODULE FM3Pass2
               , LPatchRdBack
               , MaybeSkip := FALSE  
               ) 
-          ; PutBwdP2 ( LPatchRdBack , LTokenL )
+          ; PutBwdPatch ( LPatchRdBack , LTokenL )
             (* ^Push the token code deeper than its patch coordinate. *)
             
           ELSE
@@ -727,6 +747,8 @@ MODULE FM3Pass2
                )
       ; UnitRef ^ . UntPass2OutRdBack
           := RdBackFile . Create ( LPass2FileFullName , Truncate := TRUE )
+      ; FM3Globals . P2RdBack := UnitRef ^ . UntPass2OutRdBack
+        (* ^Cache for faster access. *) 
       EXCEPT
       | OSError . E ( EMsg ) 
       => FM3Messages . FatalArr
@@ -905,8 +927,9 @@ MODULE FM3Pass2
               }
           )
       END (*IF*)
-      
-    ; IF NOT FM3CLArgs . DoKeep
+
+(* This is new deferred until compile cleanup: 
+    ; IF NOT FM3Base . PassNo1 IN FM3Globals . PassNosToKeep 
       THEN 
         TRY FS . DeleteFile
               ( Pathname . Join
@@ -918,6 +941,7 @@ MODULE FM3Pass2
         EXCEPT OSError . E => (* It didn't exist. *) 
         END (*EXCEPT*) 
       END (*IF*)
+*) 
 
 (* Report size and maybe disassemble pass 2 output file. *) 
 

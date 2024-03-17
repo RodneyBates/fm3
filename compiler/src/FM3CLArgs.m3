@@ -240,17 +240,6 @@ MODULE FM3CLArgs
     ; FM3Globals . BuildDirRelPath := "../build"
     ; SrcFileName := "Main.m3" (* Temporary default, during development *)
 
-    ; DoKeep := TRUE (* Temporary, during development *)
-        (* Keep intermediate files. *)
-
-    (* Disassemble intermediate files. *)
-    (* TEMPORARY: during development: *)
-    ; FM3Base . InclPassNo ( FM3Globals . PassNosToDisAsm , FM3Base . PassNo2 )
-    ; FM3Base . PassNoSetUnion
-        ( FM3Globals . PassNosToKeep , FM3Base . PassNoSetAll ) 
-    ; DoDisAsmPass1 := TRUE (* Temporary, during development *) 
-    ; DoDisAsmPass2 := TRUE (* Temporary, during development *) 
-
     ; FM3Messages . DoStdErr := TRUE
         (* Write compilation process messages to stderr. *)
 
@@ -271,7 +260,18 @@ MODULE FM3CLArgs
     ; FM3Globals . PassNosToKeep := FM3Base . PassNoSetEmpty 
     ; FM3Globals . PassNosToDisAsm := FM3Base . PassNoSetEmpty 
 
-   END SetDefaults
+    ; DoKeep := TRUE (* Temporary, during development *)
+        (* Keep intermediate files. *)
+
+    (* Disassemble intermediate files. *)
+    (* TEMPORARY: during development: *)
+    ; FM3Base . InclPassNo ( FM3Globals . PassNosToDisAsm , FM3Base . PassNo2 )
+    ; FM3Base . PassNoSetUnion
+        ( FM3Globals . PassNosToKeep , FM3Base . PassNoSetAll ) 
+    ; DoDisAsmPass1 := TRUE (* Temporary, during development *) 
+    ; DoDisAsmPass2 := TRUE (* Temporary, during development *) 
+
+    END SetDefaults
 
 ; PROCEDURE HandleOptions ( ) 
 
