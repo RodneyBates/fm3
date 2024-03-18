@@ -379,6 +379,11 @@ EXPORTS Main
         ( Stdio . stderr
         , "  -i Generate Image function (tokNo-to-string map)."
         ) 
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+    ; Wr . PutText
+        ( Stdio . stderr , "      (implies generate an INTERFACE and MODULE.)" )
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+    
     ; Wr . PutText
         ( Stdio . stderr
         , "  -n Generate Name function (tokNo-to-compilerid map)."
@@ -387,9 +392,8 @@ EXPORTS Main
     ; Wr . PutText
         ( Stdio . stderr , "      (implies generate an INTERFACE and MODULE.)" )
     ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
-
-    ; Wr . PutText
-        ( Stdio . stderr
+    
+    ; Wr . PutText ( Stdio . stderr
         , "  -o Generate Operands function " 
           & "(tokNo-to-operands-descriptor-string) map)."
         ) 
