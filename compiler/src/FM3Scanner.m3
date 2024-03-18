@@ -21,9 +21,10 @@ MODULE FM3Scanner
 ; IMPORT FM3Atom_OAWideChars 
 ; IMPORT FM3Base
 ; IMPORT FM3Dict_OAChars_Int
-; IMPORT FM3Messages 
+; IMPORT FM3Files
 ; IMPORT FM3Globals
 ; IMPORT FM3LexTable
+; IMPORT FM3Messages 
 ; IMPORT FM3SharedGlobals 
 ; IMPORT FM3SharedUtils 
 ; IMPORT FM3SrcToks 
@@ -1313,27 +1314,16 @@ MODULE FM3Scanner
 ; VAR GCurRwState : FM3LexTable . StateNoTyp
 ; VAR GCurRwValue : FM3LexTable . ValueTyp 
 
-; PROCEDURE ReadFsm ( NamePrefix : TEXT ; Kind : FM3SharedUtils . FileKindTyp )
-  : FM3LexTable . T
-  RAISES { Thread . Alerted } 
-
-  = VAR LFileName : TEXT
-  ; VAR LResult : FM3LexTable . T
-
-  ; BEGIN
-      LFileName := NamePrefix & "SrcFsm.pkl"
-    ; LResult := FM3SharedUtils . ReadFsm ( LFileName , Kind )
-    ; RETURN LResult 
-    END ReadFsm
-
 (* EXPORTED: *) 
 ; PROCEDURE Init ( )
 
   = BEGIN
       InitEscapeCharMap ( ) 
     ; InitDigitCharMap ( ) 
-    ; GM3RwLexTable := ReadFsm ( "M3" , FM3SharedGlobals . FM3FileKindM3RwPkl ) 
-(*  ; GPgRwLexTable := ReadFsm ( "Pg" , FM3SharedGlobals . FM3FileKindPgRwPkl ) *)
+    ; GM3RwLexTable
+        := FM3Files . ReadFsm ( "M3" , FM3SharedGlobals . FM3FileKindM3RwPkl ) 
+(*  ; GPgRwLexTable
+        := FM3Files . ReadFsm ( "Pg" , FM3SharedGlobals . FM3FileKindPgRwPkl ) *)
     END Init 
 
 ; BEGIN (* FM3Scanner *)

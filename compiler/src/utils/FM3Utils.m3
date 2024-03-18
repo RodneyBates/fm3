@@ -396,7 +396,6 @@ MODULE FM3Utils
       ELSE RETURN NIL 
       END (*IF*) 
     END CharsOfAtom
-      
 
 ; BEGIN
   END FM3Utils 

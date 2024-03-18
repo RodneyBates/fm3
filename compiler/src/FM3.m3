@@ -33,7 +33,7 @@ MODULE FM3 EXPORTS Main
       TRY (*EXCEPT*)
         TRY (*FINALLY*)
           FM3CLArgs . Process ( )
-        ; FM3SharedUtils . LoadSets ( ) 
+        ; FM3SharedUtils . LoadSets ( )  
         ; FM3Scanner . Init ( )
 
         ; FM3Compile . CompileSrcFile ( FM3CLArgs . SrcFileName ) 

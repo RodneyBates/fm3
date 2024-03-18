@@ -14,9 +14,11 @@ MODULE FM3Files
 ; IMPORT Pathname 
 ; IMPORT Rd
 ; IMPORT Text 
+; IMPORT Thread 
 ; IMPORT UniEncoding 
 ; IMPORT UniRd 
 
+; IMPORT FM3LexTable 
 ; IMPORT FM3Messages 
 ; IMPORT FM3SharedUtils 
 
@@ -108,6 +110,20 @@ MODULE FM3Files
     ; LResult := UniRd . New ( LRdT , SrcEnc )
     ; RETURN LResult 
     END OpenUniRd
+
+(*EXPORTED*) 
+; PROCEDURE ReadFsm ( NamePrefix : TEXT ; Kind : FM3SharedUtils . FileKindTyp )
+  : FM3LexTable . T
+  RAISES { Thread . Alerted } 
+
+  = VAR LFileName : TEXT
+  ; VAR LResult : FM3LexTable . T
+
+  ; BEGIN
+      LFileName := NamePrefix & "SrcFsm.pkl"
+    ; LResult := FM3SharedUtils . ReadFsm ( LFileName , Kind )
+    ; RETURN LResult 
+    END ReadFsm
 
 ; BEGIN
   END FM3Files 

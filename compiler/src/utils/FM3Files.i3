@@ -8,6 +8,10 @@
 
 INTERFACE FM3Files
 
+; IMPORT Thread 
+
+; IMPORT FM3LexTable
+; IMPORT FM3SharedUtils 
 ; IMPORT UniRd 
 
 ; TYPE SuffixTyp = { SfxNull , Sfxi3 , Sfxig , Sfxm3 , Sfxmg }
@@ -27,6 +31,10 @@ INTERFACE FM3Files
 
 ; PROCEDURE OpenUniRd
     ( FileName , PathHame , Note1 , Note2 : TEXT := "" ) : UniRd . T
+
+; PROCEDURE ReadFsm ( NamePrefix : TEXT ; Kind : FM3SharedUtils . FileKindTyp )
+  : FM3LexTable . T
+  RAISES { Thread . Alerted } 
 
 ; END FM3Files
 .
