@@ -1,0 +1,49 @@
+
+(* -----------------------------------------------------------------------1- *)
+(* This file is part of the FM3 Modula-3 compiler.                           *)
+(* Copyright 2024        Rodney M. Bates.                                    *)
+(* rodney.m.bates@acm.org                                                    *)
+(* Licensed under the MIT License.                                           *)
+(* -----------------------------------------------------------------------2- *)
+
+(* Input file FM3CLToks.gentok, to metaprogram GenTok. *)
+
+UNITNAME FM3CLToks
+
+(* Long-form option tags for command-line options.
+   These do not include prefixes "--" nor "no-",
+   which are handled by code in FM3CLArgs.
+*)
+
+SRC 
+
+ABS 0
+
+CltNull                  "<null>" . 
+
+CltVersion               "version" .
+CltHelp                  "help" . 
+      
+CltBuildDir              "build-dir" . 
+
+    
+CltKeep                  "keep" . 
+(* Keep intermediate files. *)
+      
+CltDisAsmPass1           "disasm-pass-1" . 
+CltDisAsmPass2           "disasm-pass-2" . 
+
+CltStdErr                "stderr" . 
+(* Write compilation process messages to stderr. *)
+      
+CltFM3Log                "log" . 
+(* Write compilation process messages to compiler log file. *)
+
+CltStdOut                "stdout" . 
+(* Write compiled code messages to stdout. *)
+
+CltUnitLog               "unit-log" . 
+(* Write compiled code messages to unit-specific log file. *)
+
+(* End of file FM3CLToks.gentok *)
+
