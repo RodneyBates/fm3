@@ -32,7 +32,6 @@ MODULE FM3DisAsm
 ; IMPORT RdBackFile
 ; IMPORT FM3Units 
 
-; VAR GResourceDirName : TEXT 
 ; VAR GIntFilePrefix : TEXT 
 ; VAR GSetsName : TEXT
 ; VAR GSetsFullName : TEXT

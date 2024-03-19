@@ -120,7 +120,7 @@ MODULE  FM3Compile
         ; LCopyFileFullName 
             := Pathname . Join
                  ( NIL , LPassFileFullName , FM3Globals . CopyFileSuffix ) 
-        ; IF NOT RPassNo IN FM3Globals . PassNosToKeep  
+        ; IF NOT RPassNo IN FM3CLArgs . PassNosToKeep  
           THEN
             TRY FS . DeleteFile ( LPassFileFullName )
             EXCEPT OSError . E => (* It didn't exist.  Could happen. *) 

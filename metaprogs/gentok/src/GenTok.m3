@@ -1875,6 +1875,14 @@ EXPORTS Main
       END (*FINALLY*)
     END EmitSetsPickle
 
+(* TODO: Add a command-line option to specify the FM3SharedGlobals
+         file kind to be put into a lex table pickle.  Then use
+         it to distinguish which lex table is generated and used.
+         Right now, it is hard coded to be  FM3FileKindM3RwPkl.
+         And FM3FileKindCloPkl is given the same value, so it can
+         be loaded.
+*) 
+
 ; PROCEDURE EmitFsmPickle
     ( FullName : TEXT
     ; FileKind : CHAR 

@@ -1,7 +1,7 @@
         
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023        Rodney M. Bates.                                    *)
+(* Copyright 2023..2024  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -57,6 +57,8 @@ INTERFACE FM3SharedGlobals
   (* Left end of FM3RdBackFile. *) 
 ; VAR FM3FileKindRdBackRt  := 'E' 
   (* Right end of FM3RdBackFile. *) 
+; VAR FM3FileKindCltPkl  := 'B'
+  (* Command line option strings. *) 
 
 ; END FM3SharedGlobals
 .

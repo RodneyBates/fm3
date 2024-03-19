@@ -71,9 +71,6 @@ INTERFACE FM3Globals
 ; VAR ResourcePathName : TEXT := "."
   (* ^Push this from a CLI option. *)
 
-; VAR PassNosToKeep : FM3Base . PassNoSetTyp := FM3Base . PassNoSetEmpty    
-; VAR PassNosToDisAsm : FM3Base . PassNoSetTyp := FM3Base . PassNoSetEmpty   
- 
 ; PROCEDURE Init ( ) 
 
 ; END FM3Globals

@@ -51,11 +51,25 @@ MODULE FM3Base
     END PassNoSetUnion 
 
 (*EXPORTED*) 
+; PROCEDURE PassNoSetDiff ( VAR Left : PassNoSetTyp ; Right : PassNoSetTyp )
+
+  = BEGIN (*PassNoSetDiff*)
+      Left := Left - Right
+    END PassNoSetDiff 
+
+(*EXPORTED*) 
 ; PROCEDURE InclPassNo ( VAR Set : PassNoSetTyp ; No : PassNoRangeTyp )
 
   = BEGIN (*InclPassNo*) 
       Set := Set + PassNoSetTyp { No } 
     END InclPassNo 
+
+(*EXPORTED*) 
+; PROCEDURE ExclPassNo ( VAR Set : PassNoSetTyp ; No : PassNoRangeTyp )
+
+  = BEGIN (*ExclPassNo*) 
+      Set := Set - PassNoSetTyp { No } 
+    END ExclPassNo 
 
 ; BEGIN
   END FM3Base

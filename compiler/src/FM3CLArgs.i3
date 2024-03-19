@@ -10,16 +10,23 @@ INTERFACE FM3CLArgs
 
 ; IMPORT Wr
 
-; IMPORT FM3SharedUtils 
+; IMPORT FM3Base
+; IMPORT FM3CLToks 
+; IMPORT FM3SharedUtils
 
-; VAR SrcFileName : TEXT := NIL 
+; TYPE OptionTokTyp = [ FM3CLToks . TkMinTok .. FM3CLToks . TkMinTok ] 
+; TYPE OptionTokSetTyp = SET OF OptionTokTyp
+; CONST OptionTokSetEmpty = OptionTokSetTyp { }   
+; VAR OptionTokSet : OptionTokSetTyp := OptionTokSetEmpty  
 
+; VAR SrcFileName : TEXT := NIL
+
+; VAR PassNosToKeep : FM3Base . PassNoSetTyp := FM3Base . PassNoSetEmpty    
+; VAR PassNosToDisAsm : FM3Base . PassNoSetTyp := FM3Base . PassNoSetEmpty   
+ 
 ; VAR DoKeep : BOOLEAN := FALSE
       (* Keep intermediate files. *)
       
-; VAR DoDisAsmPass1 : BOOLEAN := FALSE
-; VAR DoDisAsmPass2 : BOOLEAN := FALSE
-
 (*
 ; VAR DoStdErr : BOOLEAN := TRUE
       (* Write compilation process messages to stderr. *)

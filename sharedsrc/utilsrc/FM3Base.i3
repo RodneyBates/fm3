@@ -129,7 +129,11 @@ INTERFACE FM3Base
 
 ; PROCEDURE PassNoSetUnion ( VAR Left : PassNoSetTyp ; Right : PassNoSetTyp )
 
+; PROCEDURE PassNoSetDiff ( VAR Left : PassNoSetTyp ; Right : PassNoSetTyp )
+
 ; PROCEDURE InclPassNo ( VAR Set : PassNoSetTyp ; No : PassNoRangeTyp )
+
+; PROCEDURE ExclPassNo ( VAR Set : PassNoSetTyp ; No : PassNoRangeTyp )
 
 ; END FM3Base
 .

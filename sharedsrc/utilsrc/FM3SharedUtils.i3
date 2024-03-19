@@ -104,5 +104,8 @@ INTERFACE FM3SharedUtils
   (* ^Since this is a shared compiler/metaprogs interface, clients
      need to set it as desired. *)
 
+; PROCEDURE Blanks ( Length : INTEGER ) : TEXT 
+  (* A TEXT of length Length, all blanks. *) 
+
 ; END FM3SharedUtils 
 .

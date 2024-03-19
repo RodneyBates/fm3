@@ -1,5 +1,4 @@
 
-
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2024        Rodney M. Bates.                                    *)
@@ -489,7 +488,7 @@ MODULE FM3Pass1
             , " bytes."
             } 
         )
-    ; IF FM3Base . PassNo1 IN FM3Globals . PassNosToDisAsm 
+    ; IF FM3Base . PassNo1 IN FM3CLArgs . PassNosToDisAsm 
       THEN DisAsmPass1 ( UnitRef )
       END (*IF*)
 

@@ -929,7 +929,7 @@ MODULE FM3Pass2
       END (*IF*)
 
 (* This is new deferred until compile cleanup: 
-    ; IF NOT FM3Base . PassNo1 IN FM3Globals . PassNosToKeep 
+    ; IF NOT FM3Base . PassNo1 IN FM3CLArgs . PassNosToKeep 
       THEN 
         TRY FS . DeleteFile
               ( Pathname . Join
@@ -962,7 +962,7 @@ MODULE FM3Pass2
             , " bytes."
             } 
         )
-    ; IF FM3Base . PassNo2 IN FM3Globals . PassNosToDisAsm 
+    ; IF FM3Base . PassNo2 IN FM3CLArgs . PassNosToDisAsm 
       THEN DisAsmPass2 ( UnitRef , DoEarlierPasses := FALSE )
       END (*IF*)
 

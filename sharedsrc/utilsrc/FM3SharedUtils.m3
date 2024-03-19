@@ -515,6 +515,40 @@ MODULE FM3SharedUtils
       RETURN VAL ( Val * 13 , FM3Base . HashTyp ) 
     END IntHash
     
+; CONST FixedLength = 85 
+; CONST FixedBlanks = ARRAY [ 0 .. FixedLength - 1 ] OF CHAR { ' ' , .. } 
+
+; VAR FixedText : TEXT 
+
+(* EXPORTED: *) 
+; PROCEDURE Blanks ( Length : INTEGER ) : TEXT 
+  (* A TEXT of length Length, all blanks. *) 
+
+  = VAR LRemaining : INTEGER  
+  ; VAR LResult : TEXT 
+
+(* TODO: Make this keep an array or text around, expanding when needed,
+         and then available for the next time.
+*) 
+(* TODO: I think this is duplicated somewhere. *) 
+  ; BEGIN (* Blanks *)
+      IF Length <= 0 THEN RETURN "" END (* IF *) 
+    ; IF Length <= FixedLength 
+      THEN (* Fast path: *) 
+        RETURN Text . FromChars ( SUBARRAY ( FixedBlanks , 0 , Length ) ) 
+      ELSE 
+        LRemaining := Length - FixedLength 
+      ; LResult := FixedText 
+      ; WHILE LRemaining >= FixedLength 
+        DO LResult := LResult & FixedText 
+        ; DEC ( LRemaining , FixedLength ) 
+        END (* WHILE *) 
+      ; RETURN 
+          LResult 
+          & Text . FromChars ( SUBARRAY ( FixedBlanks , 0 , LRemaining ) ) 
+      END (* IF *) 
+    END Blanks 
+
 ; BEGIN
   END FM3SharedUtils 
 .
