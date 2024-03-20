@@ -17,6 +17,7 @@ MODULE  FM3Compile
 ; IMPORT FM3Base
 ; IMPORT FM3CLArgs 
 ; IMPORT FM3DisAsm 
+; IMPORT FM3CLOptions  
 ; IMPORT FM3Globals
 ; IMPORT FM3Messages 
 ; IMPORT FM3Pass1 
@@ -120,7 +121,7 @@ MODULE  FM3Compile
         ; LCopyFileFullName 
             := Pathname . Join
                  ( NIL , LPassFileFullName , FM3Globals . CopyFileSuffix ) 
-        ; IF NOT RPassNo IN FM3CLArgs . PassNosToKeep  
+        ; IF NOT RPassNo IN FM3CLOptions . PassNosToKeep  
           THEN
             TRY FS . DeleteFile ( LPassFileFullName )
             EXCEPT OSError . E => (* It didn't exist.  Could happen. *) 
@@ -140,7 +141,7 @@ MODULE  FM3Compile
   ; VAR LPoppedUnitRef : FM3Units . UnitRefTyp
 
   ; BEGIN (*CompileSrcFile*)
-      FM3Pass1 . RunPass1 ( FM3CLArgs . SrcFileName )
+      FM3Pass1 . RunPass1 ( FM3CLOptions . SrcFileName )
       (* ^POST:  A UnitRef is pushed. *)
     ; LUnitRef := FM3Units . UnitStackTopRef 
     ; FM3Pass2 . RunPass2 ( LUnitRef )

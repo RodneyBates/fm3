@@ -19,6 +19,7 @@ MODULE FM3CLArgs
 ; IMPORT Text 
 
 ; IMPORT FM3Base
+; IMPORT FM3CLOptions 
 ; IMPORT FM3CLToks AS Clt
 ; IMPORT FM3Files 
 ; IMPORT FM3Globals
@@ -28,8 +29,8 @@ MODULE FM3CLArgs
 ; IMPORT FM3SharedUtils 
 ; IMPORT FM3Version  
 
-; VAR GSourceDirNames : AtomList . T 
-; VAR GFileNames : AtomList . T 
+; VAR xGSourceDirNames : AtomList . T 
+; VAR xGFileNames : AtomList . T 
 
 ; EXCEPTION HelpExcept
     ( BOOLEAN (* Display help text, in addition to version. *) )
@@ -110,16 +111,16 @@ MODULE FM3CLArgs
         ELSE LNo := FALSE 
         END (*IF*)
       ; IF PaArgSs >= PaArgLen THEN RAISE HelpExcept  ( TRUE ) END (*IF*)
-      ; IF GOptionsLexTable = NIL
+      ; IF FM3CLOptions . OptionsLexTable = NIL
         THEN 
-          GOptionsLexTable
+          FM3CLOptions . OptionsLexTable
             := FM3Files . ReadFsm
                  ( "Clt" , FM3SharedGlobals . FM3FileKindCltPkl )
 (*TODO: ^Catch an exception and emit a helpful message if this fails to load. *)
         END (*IF*) 
       ; LOptTok
           := FM3LexTable . ValueFromText
-               ( GOptionsLexTable
+               ( FM3CLOptions . OptionsLexTable
                , Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs )
                )
       ; IF LOptTok = FM3LexTable . ValueNull
@@ -177,26 +178,28 @@ MODULE FM3CLArgs
           OF 'v' => RAISE HelpExcept  ( FALSE )  
           | 'h' => RAISE HelpExcept  ( TRUE )
           | 's'
-            => SrcFileName := PaHyphenArgWMore ( LArgChar )
+            => FM3CLOptions . SrcFileName := PaHyphenArgWMore ( LArgChar )
             ; EXIT 
           | 'd'
           => FM3Base . InclPassNo
-               ( PassNosToDisAsm , FM3Base . PassNo1 )
+               ( FM3CLOptions . PassNosToDisAsm , FM3Base . PassNo1 )
           
           | 'e'
            => FM3Base . InclPassNo
-                ( PassNosToDisAsm , FM3Base . PassNo2 )  
+                ( FM3CLOptions . PassNosToDisAsm , FM3Base . PassNo2 )  
           | 'k' => DoKeep := TRUE
              ; FM3Base . InclPassNo
-                 ( PassNosToKeep , FM3Base . PassNo2 ) 
+                 ( FM3CLOptions . PassNosToKeep , FM3Base . PassNo2 ) 
           | 'I'
             => LMore := PaHyphenArgWMore ( LArgChar )
-            ; GSourceDirNames
+            ; FM3CLOptions . SourceDirNames
                 := AtomList . Cons
-                     ( Atom . FromText ( LMore ) , GSourceDirNames )
+                     ( Atom . FromText ( LMore )
+                     , FM3CLOptions . SourceDirNames
+                     )
             ; EXIT 
           | 'B'
-            => FM3Globals . BuildDirRelPath := PaHyphenArgWMore ( LArgChar )
+            => FM3CLOptions . BuildDirRelPath := PaHyphenArgWMore ( LArgChar )
             ; EXIT 
           ELSE RAISE HelpExcept  ( TRUE )
           END (*CASE*)
@@ -221,9 +224,10 @@ MODULE FM3CLArgs
                 AND Text . Equal ( Text . Sub ( PaArgText , 0 , 1 ) , "-" ) 
           THEN PaHyphenArg ( PaArgText ) 
           ELSE (* No hyphens. *) 
-            GFileNames
-               := AtomList . Cons ( Atom . FromText ( PaArgText ) , GFileNames )
-          ; SrcFileName := PaArgText 
+            FM3CLOptions . FileNames
+               := AtomList . Cons
+                    ( Atom . FromText ( PaArgText ) , FM3CLOptions . FileNames )
+          ; FM3CLOptions . SrcFileName := PaArgText 
           END (*IF*) 
         ; INC ( PaArgNo )
         END (*WHILE*)
@@ -254,7 +258,7 @@ MODULE FM3CLArgs
     ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
     END DisplayVersion
 
-; VAR GOptionsLexTable : FM3LexTable . T
+; VAR xGOptionsLexTable : FM3LexTable . T
 
 ; CONST HelpTextSimpleName = "FM3HelpText" 
     
@@ -269,7 +273,7 @@ MODULE FM3CLArgs
         LHelpRdT
           := FM3SharedUtils . OpenRd
                ( HelpTextSimpleName
-               , FM3Globals . ResourcePathName
+               , FM3CLOptions . ResourcePathName
                , "help text"
                )
       EXCEPT
@@ -299,7 +303,7 @@ MODULE FM3CLArgs
     END DisplayHelp
 
 ; CONST OptionTokSetDefault 
-          = OptionTokSetTyp
+          = FM3CLOptions . OptionTokSetTyp
              { Clt . CltStdErr 
              , Clt . CltFM3Log 
              , Clt . CltStdErr 
@@ -321,43 +325,45 @@ MODULE FM3CLArgs
     = VAR LExeName : TEXT
     
     ; BEGIN
-      GSourceDirNames := NIL 
-    ; GFileNames := NIL
-    ; OptionTokSet := OptionTokSetEmpty
+      FM3CLOptions . SourceDirNames := NIL 
+    ; FM3CLOptions . FileNames := NIL
+    ; FM3CLOptions . OptionTokSet := FM3CLOptions . OptionTokSetEmpty
     ; LExeName := Params . Get ( 0 )
-    ; FM3Globals . ResourcePathName
+    ; FM3CLOptions . ResourcePathName
         := FM3SharedUtils . SibDirectoryPath ( LExeName , "lib" )
 
-    ; FM3Globals . BuildDirRelPath := "../build"
+    ; FM3CLOptions . BuildDirRelPath := "../build"
     
-    ; SrcFileName := "Main.m3" (* Temporary default, during development *)
+    ; FM3CLOptions . SrcFileName
+        := "Main.m3" (* Temporary default, during development *)
 
-    ; OptionTokSet := OptionTokSetDefault 
+    ; FM3CLOptions . OptionTokSet := OptionTokSetDefault 
              
-    ; FM3Messages . DoStdErr := TRUE
+    ; FM3CLOptions . DoStdErr := TRUE
         (* Write compilation process messages to stderr. *)
 
-    ; FM3Messages . DoStdOut := TRUE
+    ; FM3CLOptions . DoStdOut := TRUE
         (* Write compiled code messages to stdout. *)
 
-    ; FM3Messages . DoFM3Log := TRUE
+    ; FM3CLOptions . DoFM3Log := TRUE
         (* Write compilation process messages to compiler log file. *)
     ; FM3Messages . FM3LogFileName := "./FM3Log"
 
-    ; FM3Messages . DoUnitLog := TRUE
+    ; FM3CLOptions . DoUnitLog := TRUE
         (* Write compiled code messages to unit-specific log file. *)
 
-    ; PassNosToKeep := FM3Base . PassNoSetEmpty 
-    ; PassNosToDisAsm := FM3Base . PassNoSetEmpty 
+    ; FM3CLOptions . PassNosToKeep := FM3Base . PassNoSetEmpty 
+    ; FM3CLOptions . PassNosToDisAsm := FM3Base . PassNoSetEmpty 
 
-    ; DoKeep := TRUE (* Temporary, during development *)
+    ; FM3CLOptions . DoKeep := TRUE (* Temporary, during development *)
         (* Keep intermediate files. *)
 
     (* Disassemble intermediate files. *)
     (* TEMPORARY: during development: *)
-    ; FM3Base . InclPassNo ( PassNosToDisAsm , FM3Base . PassNo2 )
+    ; FM3Base . InclPassNo
+        ( FM3CLOptions . PassNosToDisAsm , FM3Base . PassNo2 )
     ; FM3Base . PassNoSetUnion
-        ( PassNosToKeep , FM3Base . PassNoSetAll ) 
+        ( FM3CLOptions . PassNosToKeep , FM3Base . PassNoSetAll ) 
 
     END SetDefaults
 
@@ -370,9 +376,10 @@ MODULE FM3CLArgs
 ; PROCEDURE ComputeDerivedInfo ( ) 
 
   = BEGIN
-      PassNosToKeep := PassNosToKeep + PassNosToDisAsm 
+      FM3CLOptions . PassNosToKeep
+        := FM3CLOptions . PassNosToKeep + FM3CLOptions . PassNosToDisAsm 
       
-    ; IF FM3Messages . DoFM3Log
+    ; IF FM3CLOptions . DoFM3Log
       THEN 
         TRY FM3Messages . FM3LogFileWrT
               := FileWr . Open ( FM3Messages . FM3LogFileName ) 
@@ -389,10 +396,10 @@ MODULE FM3CLArgs
                , "Will proceed without it." 
                }
              ) 
-        ; FM3Messages . DoFM3Log := FALSE  
+        ; FM3CLOptions . DoFM3Log := FALSE  
         END (*EXCEPT*)
       END (*IF*)
-    ; FM3SharedUtils . ResourcePathName := FM3Globals . ResourcePathName
+    ; FM3SharedUtils . xResourcePathName := FM3CLOptions . ResourcePathName
     END ComputeDerivedInfo
 
 (*EXPORTED*)

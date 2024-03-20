@@ -39,9 +39,6 @@ INTERFACE FM3Globals
         , ..
         } 
 
-; VAR BuildDirRelPath := "../build"
-      (* ^Relative to where the current unit's source file lives. *)
-
 (* These are cached copies of Unt* fields of the current Unit, for faster
    access via static addressing.
 *) 
@@ -67,9 +64,6 @@ INTERFACE FM3Globals
 ; VAR InitDeclCtPerUnit := 300 
 
 ; VAR FirstRealAtom := 1
-
-; VAR ResourcePathName : TEXT := "."
-  (* ^Push this from a CLI option. *)
 
 ; PROCEDURE Init ( ) 
 

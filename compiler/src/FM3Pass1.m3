@@ -47,6 +47,7 @@ MODULE FM3Pass1
 ; IMPORT FM3Base 
 ; FROM FM3Base IMPORT tPosition 
 ; IMPORT FM3CLArgs
+; IMPORT FM3CLOptions  
 ; IMPORT FM3Compile
 ; IMPORT FM3Compress
 ; FROM FM3Compress IMPORT GetBwd
@@ -134,7 +135,7 @@ MODULE FM3Pass1
 
   = BEGIN (*EnsureBuildDirectory*)
       UnitRef ^ . UntBuildDirPath
-        := SrcFilePath & "/" & FM3Globals . BuildDirRelPath
+        := SrcFilePath & "/" & FM3CLOptions . BuildDirRelPath
     ; TRY
         FS . CreateDirectory ( UnitRef ^ . UntBuildDirPath )
       EXCEPT
@@ -488,7 +489,7 @@ MODULE FM3Pass1
             , " bytes."
             } 
         )
-    ; IF FM3Base . PassNo1 IN FM3CLArgs . PassNosToDisAsm 
+    ; IF FM3Base . PassNo1 IN FM3CLOptions . PassNosToDisAsm 
       THEN DisAsmPass1 ( UnitRef )
       END (*IF*)
 

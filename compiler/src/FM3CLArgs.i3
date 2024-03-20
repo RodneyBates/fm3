@@ -14,16 +14,6 @@ INTERFACE FM3CLArgs
 ; IMPORT FM3CLToks 
 ; IMPORT FM3SharedUtils
 
-; TYPE OptionTokTyp = [ FM3CLToks . TkMinTok .. FM3CLToks . TkMinTok ] 
-; TYPE OptionTokSetTyp = SET OF OptionTokTyp
-; CONST OptionTokSetEmpty = OptionTokSetTyp { }   
-; VAR OptionTokSet : OptionTokSetTyp := OptionTokSetEmpty  
-
-; VAR SrcFileName : TEXT := NIL
-
-; VAR PassNosToKeep : FM3Base . PassNoSetTyp := FM3Base . PassNoSetEmpty    
-; VAR PassNosToDisAsm : FM3Base . PassNoSetTyp := FM3Base . PassNoSetEmpty   
- 
 ; VAR DoKeep : BOOLEAN := FALSE
       (* Keep intermediate files. *)
       

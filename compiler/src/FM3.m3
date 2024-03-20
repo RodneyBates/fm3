@@ -13,6 +13,7 @@ MODULE FM3 EXPORTS Main
 ; IMPORT Wr
 
 ; IMPORT FM3CLArgs
+; IMPORT FM3CLOptions  
 ; IMPORT FM3Compile 
 ; IMPORT FM3Messages 
 ; IMPORT FM3Pass1 
@@ -36,7 +37,7 @@ MODULE FM3 EXPORTS Main
         ; FM3SharedUtils . LoadSets ( )  
         ; FM3Scanner . Init ( )
 
-        ; FM3Compile . CompileSrcFile ( FM3CLArgs . SrcFileName ) 
+        ; FM3Compile . CompileSrcFile ( FM3CLOptions . SrcFileName ) 
 
         FINALLY FM3CLArgs . Cleanup ( ) 
         END (*FINALLY*)

@@ -33,6 +33,7 @@ MODULE FM3Pass2
 ; IMPORT FM3Base 
 ; FROM FM3Base IMPORT tPosition 
 ; IMPORT FM3CLArgs
+; IMPORT FM3CLOptions  
 ; IMPORT FM3Compile
 ; IMPORT FM3Compress
 ; FROM FM3Compress IMPORT GetBwd
@@ -962,7 +963,7 @@ MODULE FM3Pass2
             , " bytes."
             } 
         )
-    ; IF FM3Base . PassNo2 IN FM3CLArgs . PassNosToDisAsm 
+    ; IF FM3Base . PassNo2 IN FM3CLOptions . PassNosToDisAsm 
       THEN DisAsmPass2 ( UnitRef , DoEarlierPasses := FALSE )
       END (*IF*)
 
