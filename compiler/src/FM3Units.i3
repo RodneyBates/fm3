@@ -14,7 +14,8 @@ INTERFACE FM3Units
 
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars
-; IMPORT FM3Base 
+; IMPORT FM3Base
+; IMPORT FM3CLOptions 
 ; IMPORT RdBackFile
 
 ; TYPE UnitKindTyp
@@ -94,7 +95,7 @@ INTERFACE FM3Units
       ; UntPass2Result : INTEGER
       ; UntNextDeclNo : INTEGER := 1 
       ; UntKind : UnitKindTyp
-      ; UntPassNosDisAsmed : FM3Base . PassNoSetTyp 
+      ; UntPassNosDisAsmed : FM3CLOptions . PassNoSetTyp 
       ; UntUnsafe : BOOLEAN := FALSE 
       END (*UnitTyp*)
 

@@ -10,7 +10,6 @@ INTERFACE FM3CLOptions
 
 ; IMPORT AtomList
 
-; IMPORT FM3Base 
 ; IMPORT FM3CLToks 
 ; IMPORT FM3LexTable 
 
@@ -23,16 +22,51 @@ INTERFACE FM3CLOptions
 
 ; VAR ResourcePathName : TEXT := "."
 
+(* ------------------- Boolean options are kept in a set -------------------- *)
+
+; TYPE OptionTokTyp = [ FM3CLToks . TkMinTok .. FM3CLToks . TkMaxTok ] 
+; TYPE OptionTokSetTyp = SET OF OptionTokTyp
+; CONST OptionTokSetEmpty = OptionTokSetTyp { }
+; CONST OptionTokSetUniv
+    = OptionTokSetTyp { FIRST ( OptionTokTyp ) .. LAST ( OptionTokTyp ) }
+
 ; VAR OptionTokSet : OptionTokSetTyp := OptionTokSetEmpty  
 
-; TYPE OptionTokTyp = [ FM3CLToks . TkMinTok .. FM3CLToks . TkMinTok ] 
-; TYPE OptionTokSetTyp = SET OF OptionTokTyp
-; CONST OptionTokSetEmpty = OptionTokSetTyp { }   
+; PROCEDURE OptionTokSetUnion
+    ( VAR Left : OptionTokSetTyp ; Right : OptionTokSetTyp )
+
+; PROCEDURE OptionTokSetDiff
+   ( VAR Left : OptionTokSetTyp ; Right : OptionTokSetTyp )
+
+; PROCEDURE InclOptionTok ( VAR Set : OptionTokSetTyp ; No : OptionTokTyp )
+
+; PROCEDURE ExclOptionTok ( VAR Set : OptionTokSetTyp ; No : OptionTokTyp )
 
 ; VAR SrcFileName : TEXT := NIL
 
-; VAR PassNosToKeep : FM3Base . PassNoSetTyp := FM3Base . PassNoSetEmpty    
-; VAR PassNosToDisAsm : FM3Base . PassNoSetTyp := FM3Base . PassNoSetEmpty   
+(* --------------------- Pass numbers are kept in sets ---------------------- *)
+
+; CONST PassNoNull = 0  
+; CONST PassNo1 = 1 
+; CONST PassNo2 = 2
+; CONST PassNoMax = PassNo2 + 1
+; TYPE PassNoTyp = [ PassNoNull .. PassNoMax ]
+
+; TYPE PassNoSetTyp = SET OF PassNoTyp
+; CONST PassNoSetEmpty = PassNoSetTyp { }
+; CONST PassNoSetAll = PassNoSetTyp { PassNo1 .. PassNoMax }
+; CONST PassNoSetUniv = PassNoSetTyp { PassNoNull .. PassNoMax }
+
+; PROCEDURE PassNoSetUnion ( VAR Left : PassNoSetTyp ; Right : PassNoSetTyp )
+
+; PROCEDURE PassNoSetDiff ( VAR Left : PassNoSetTyp ; Right : PassNoSetTyp )
+
+; PROCEDURE InclPassNo ( VAR Set : PassNoSetTyp ; No : PassNoTyp )
+
+; PROCEDURE ExclPassNo ( VAR Set : PassNoSetTyp ; No : PassNoTyp )
+
+; VAR PassNosToKeep : PassNoSetTyp := PassNoSetEmpty    
+; VAR PassNosToDisAsm : PassNoSetTyp := PassNoSetEmpty
  
 ; END FM3CLOptions 
 .

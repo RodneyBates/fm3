@@ -30,15 +30,6 @@ INTERFACE FM3Globals
 ; CONST DisAsmFileSuffix = "DisAsm"
 ; CONST UnitLogSuffix = "Log" 
 
-; CONST PassNoSuffixes
-    = ARRAY FM3Base . PassNoRangeTyp OF TEXT
-        { "<PassNoNull>"
-        , Pass1OutSuffix 
-        , Pass2OutSuffix
-        , "<PassNoNull>"
-        , ..
-        } 
-
 (* These are cached copies of Unt* fields of the current Unit, for faster
    access via static addressing.
 *) 

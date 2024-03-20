@@ -30,12 +30,6 @@ INTERFACE FM3Messages
    and immediately to a log file (if DoFM3Log).
 *)
 
-; VAR DoStdErr : BOOLEAN := TRUE
-      (* Write compilation process messages to stderr. *)
-      
-; VAR DoFM3Log : BOOLEAN := TRUE
-      (* Write compilation process messages to compiler log file. *)
-
 ; VAR FM3LogFileName := "FM3Log" 
 
 ; VAR FM3LogFileWrT : Wr . T
@@ -64,12 +58,6 @@ INTERFACE FM3Messages
    are collected, sorted by line/column, and written to UnitLogWrT
    at the end by EndUnit.
 *)
-
-; VAR DoStdOut : BOOLEAN := TRUE
-      (* Write compiled code messages to stdout. *)
-
-; VAR DoUnitLog : BOOLEAN := TRUE
-      (* Write compiled code messages to unit-specific log file. *)
 
 ; PROCEDURE Info
     ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL ) 

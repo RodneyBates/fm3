@@ -15,7 +15,9 @@ MODULE FM3Messages
 ; IMPORT Thread 
 ; IMPORT Wr
 
-; IMPORT FM3Base 
+; IMPORT FM3Base
+; IMPORT FM3CLOptions 
+; IMPORT FM3CLToks AS Clt 
 ; IMPORT FM3SharedUtils
 ; IMPORT FM3TextColors
 ; IMPORT FM3Units
@@ -25,7 +27,7 @@ MODULE FM3Messages
 ; PROCEDURE PutStdErr ( Msg : TEXT ) RAISES { Thread . Alerted } 
 
   = BEGIN
-      IF DoStdErr
+      IF Clt . CltStdErr IN FM3CLOptions . OptionTokSet  
       THEN
         TRY (*EXCEPT*) 
           Wr . PutText ( Stdio . stderr , Msg )
@@ -39,7 +41,7 @@ MODULE FM3Messages
 ; PROCEDURE PutStdOut ( Msg : TEXT ) RAISES { Thread . Alerted }
 
   = BEGIN
-      IF DoStdOut
+      IF Clt . CltStdOut IN FM3CLOptions . OptionTokSet 
       THEN
         TRY (*EXCEPT*) 
           Wr . PutText ( Stdio . stdout , Msg )
@@ -56,7 +58,7 @@ MODULE FM3Messages
   (* Or, resort to compiler log, if can't do that. *)
 
   = BEGIN
-      IF DoUnitLog
+      IF Clt . CltUnitLog IN FM3CLOptions . OptionTokSet 
          AND GUnitLogWrT # NIL 
          AND NOT Wr . Closed ( GUnitLogWrT ) 
       THEN
@@ -71,8 +73,8 @@ MODULE FM3Messages
 
 ; PROCEDURE PutFM3Log ( Msg : TEXT ) RAISES { Thread . Alerted } 
 
-  = BEGIN
-      IF DoFM3Log 
+  = BEGIN 
+      IF Clt . CltFM3Log IN FM3CLOptions . OptionTokSet 
          AND FM3LogFileWrT # NIL 
          AND NOT Wr . Closed ( FM3LogFileWrT ) 
       THEN

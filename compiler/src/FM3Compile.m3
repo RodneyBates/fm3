@@ -94,6 +94,15 @@ MODULE  FM3Compile
 
     END DisAsmPassFile
 
+; CONST PassNoSuffixes
+    = ARRAY FM3CLOptions . PassNoTyp OF TEXT
+        { "<PassNoNull>"
+        , FM3Globals . Pass1OutSuffix 
+        , FM3Globals . Pass2OutSuffix
+        , "<PassNoNull>"
+        , ..
+        } 
+
 (*EXPORTED*) 
 ; PROCEDURE CleanPassFilesAndCopies ( UnitRef : FM3Units . UnitRefTyp )
   (* Only after all passes have been run do we know what pass file
@@ -107,16 +116,16 @@ MODULE  FM3Compile
   ; VAR LCopyFileFullName : TEXT
 
   ; BEGIN (*CleanPassFilesAndCopies*)
-      FOR RPassNo := FIRST ( FM3Base . PassNoRangeTyp ) 
-                  TO LAST ( FM3Base . PassNoRangeTyp )
+      FOR RPassNo := FIRST ( FM3CLOptions . PassNoTyp ) 
+                  TO LAST ( FM3CLOptions . PassNoTyp )
       DO 
-        IF FM3Base . PassNo2 IN UnitRef ^ . UntPassNosDisAsmed
+        IF FM3CLOptions . PassNo2 IN UnitRef ^ . UntPassNosDisAsmed
         THEN
           LPassFileFullName
             := Pathname . Join
                  ( UnitRef ^ . UntBuildDirPath
                  , UnitRef ^ . UntSrcFileSimpleName 
-                 , FM3Globals . PassNoSuffixes [ RPassNo ] 
+                 , PassNoSuffixes [ RPassNo ] 
                  )
         ; LCopyFileFullName 
             := Pathname . Join

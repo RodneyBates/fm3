@@ -56,7 +56,7 @@ MODULE FM3CLArgs
   ; CONST SingleDigits = SET OF CHAR { '1' .. '9' }
 
   ; PROCEDURE PaPassNoSet
-      ( VAR Set : FM3Base . PassNoSetTyp
+      ( VAR Set : FM3CLOptions . PassNoSetTyp
       ; Include : BOOLEAN (* Otherwise, exclude. *) 
       ) 
   
@@ -72,10 +72,10 @@ MODULE FM3CLArgs
           END (*IF*)
         ; LPassNo := ORD ( LChar ) - ORD ( '1' )
         ; CASE LPassNo OF
-          | FM3Base . PassNo1 .. FM3Base . PassNoMax - 1
+          | FM3CLOptions . PassNo1 .. FM3CLOptions . PassNoMax - 1
           => IF Include
-             THEN FM3Base . InclPassNo ( Set , LPassNo )
-             ELSE FM3Base . ExclPassNo ( Set , LPassNo )
+             THEN FM3CLOptions . InclPassNo ( Set , LPassNo )
+             ELSE FM3CLOptions . ExclPassNo ( Set , LPassNo )
              END (*IF*) 
           ELSE RAISE HelpExcept  ( TRUE )
           END (*CASE*)
@@ -84,15 +84,15 @@ MODULE FM3CLArgs
       END PaPassNoSet
 
   ; PROCEDURE PaAlterPassNos
-      ( VAR Set : FM3Base . PassNoSetTyp
-      ; Changes : FM3Base . PassNoSetTyp
+      ( VAR Set : FM3CLOptions . PassNoSetTyp
+      ; Changes : FM3CLOptions . PassNoSetTyp
       ; Include : BOOLEAN (* Otherwise, exclude. *) 
       )
 
     = BEGIN (*PaAlterPassNos*)
         IF Include
-        THEN FM3Base . PassNoSetUnion ( (*IN OUT*) Set , Changes ) 
-        ELSE FM3Base . PassNoSetDiff ( (*IN OUT*) Set , Changes ) 
+        THEN FM3CLOptions . PassNoSetUnion ( (*IN OUT*) Set , Changes ) 
+        ELSE FM3CLOptions . PassNoSetDiff ( (*IN OUT*) Set , Changes ) 
         END (*IF*) 
       END PaAlterPassNos 
 
@@ -181,15 +181,15 @@ MODULE FM3CLArgs
             => FM3CLOptions . SrcFileName := PaHyphenArgWMore ( LArgChar )
             ; EXIT 
           | 'd'
-          => FM3Base . InclPassNo
-               ( FM3CLOptions . PassNosToDisAsm , FM3Base . PassNo1 )
+          => FM3CLOptions . InclPassNo
+               ( FM3CLOptions . PassNosToDisAsm , FM3CLOptions . PassNo1 )
           
           | 'e'
-           => FM3Base . InclPassNo
-                ( FM3CLOptions . PassNosToDisAsm , FM3Base . PassNo2 )  
-          | 'k' => DoKeep := TRUE
-             ; FM3Base . InclPassNo
-                 ( FM3CLOptions . PassNosToKeep , FM3Base . PassNo2 ) 
+          => FM3CLOptions . InclPassNo
+                ( FM3CLOptions . PassNosToDisAsm , FM3CLOptions . PassNo2 )  
+          | 'k'
+           => FM3CLOptions . InclPassNo
+                 ( FM3CLOptions . PassNosToKeep , FM3CLOptions . PassNo2 ) 
           | 'I'
             => LMore := PaHyphenArgWMore ( LArgChar )
             ; FM3CLOptions . SourceDirNames
@@ -327,7 +327,7 @@ MODULE FM3CLArgs
     ; BEGIN
       FM3CLOptions . SourceDirNames := NIL 
     ; FM3CLOptions . FileNames := NIL
-    ; FM3CLOptions . OptionTokSet := FM3CLOptions . OptionTokSetEmpty
+    ; FM3CLOptions . OptionTokSet := OptionTokSetDefault 
     ; LExeName := Params . Get ( 0 )
     ; FM3CLOptions . ResourcePathName
         := FM3SharedUtils . SibDirectoryPath ( LExeName , "lib" )
@@ -339,31 +339,19 @@ MODULE FM3CLArgs
 
     ; FM3CLOptions . OptionTokSet := OptionTokSetDefault 
              
-    ; FM3CLOptions . DoStdErr := TRUE
-        (* Write compilation process messages to stderr. *)
+    ; FM3CLOptions . PassNosToKeep := FM3CLOptions . PassNoSetEmpty 
+    ; FM3CLOptions . PassNosToDisAsm := FM3CLOptions . PassNoSetEmpty 
 
-    ; FM3CLOptions . DoStdOut := TRUE
-        (* Write compiled code messages to stdout. *)
-
-    ; FM3CLOptions . DoFM3Log := TRUE
-        (* Write compilation process messages to compiler log file. *)
-    ; FM3Messages . FM3LogFileName := "./FM3Log"
-
-    ; FM3CLOptions . DoUnitLog := TRUE
-        (* Write compiled code messages to unit-specific log file. *)
-
-    ; FM3CLOptions . PassNosToKeep := FM3Base . PassNoSetEmpty 
-    ; FM3CLOptions . PassNosToDisAsm := FM3Base . PassNoSetEmpty 
-
-    ; FM3CLOptions . DoKeep := TRUE (* Temporary, during development *)
+    ; FM3CLOptions . InclOptionTok
+        ( FM3CLOptions . OptionTokSet , Clt . CltKeep  ) 
         (* Keep intermediate files. *)
 
     (* Disassemble intermediate files. *)
     (* TEMPORARY: during development: *)
-    ; FM3Base . InclPassNo
-        ( FM3CLOptions . PassNosToDisAsm , FM3Base . PassNo2 )
-    ; FM3Base . PassNoSetUnion
-        ( FM3CLOptions . PassNosToKeep , FM3Base . PassNoSetAll ) 
+    ; FM3CLOptions . InclPassNo
+        ( FM3CLOptions . PassNosToDisAsm , FM3CLOptions . PassNo2 )
+    ; FM3CLOptions . PassNoSetUnion
+        ( FM3CLOptions . PassNosToKeep , FM3CLOptions . PassNoSetAll ) 
 
     END SetDefaults
 
@@ -379,7 +367,7 @@ MODULE FM3CLArgs
       FM3CLOptions . PassNosToKeep
         := FM3CLOptions . PassNosToKeep + FM3CLOptions . PassNosToDisAsm 
       
-    ; IF FM3CLOptions . DoFM3Log
+    ; IF Clt . CltFM3Log IN FM3CLOptions . OptionTokSet 
       THEN 
         TRY FM3Messages . FM3LogFileWrT
               := FileWr . Open ( FM3Messages . FM3LogFileName ) 
@@ -396,10 +384,14 @@ MODULE FM3CLArgs
                , "Will proceed without it." 
                }
              ) 
-        ; FM3CLOptions . DoFM3Log := FALSE  
+        ; FM3CLOptions . ExclOptionTok
+            ( FM3CLOptions . OptionTokSet , Clt . CltFM3Log ) 
         END (*EXCEPT*)
       END (*IF*)
-    ; FM3SharedUtils . xResourcePathName := FM3CLOptions . ResourcePathName
+    ; FM3SharedUtils . ResourcePathName := FM3CLOptions . ResourcePathName
+      (* Push this out so FM3SharedUtils need not import FM3CLOptions and can
+         be used in other man programs that get their options other ways.
+      *) 
     END ComputeDerivedInfo
 
 (*EXPORTED*)

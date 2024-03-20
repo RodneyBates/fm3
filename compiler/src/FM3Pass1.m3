@@ -116,7 +116,7 @@ MODULE FM3Pass1
   ; BEGIN (*RunPass1*)
       LUnitRef := InitPass1 ( SrcFileName ) 
     ; FM3Units . PushUnit ( LUnitRef )
-    ; LUnitRef ^ . UntPassNosDisAsmed := FM3Base . PassNoSetEmpty 
+    ; LUnitRef ^ . UntPassNosDisAsmed := FM3CLOptions . PassNoSetEmpty 
     ; FM3LogArr
         ( ARRAY OF REFANY
             { "Compiling "
@@ -174,11 +174,11 @@ MODULE FM3Pass1
 ; PROCEDURE DisAsmPass1 ( UnitRef : FM3Units . UnitRefTyp )
 
   = BEGIN (*DisAsmPass1*)
-      IF NOT FM3Base . PassNo1 IN UnitRef ^ . UntPassNosDisAsmed 
+      IF NOT FM3CLOptions . PassNo1 IN UnitRef ^ . UntPassNosDisAsmed 
       THEN (* Disassembly file is not already written. *) 
         FM3Compile . DisAsmPassFile ( UnitRef , FM3Globals . Pass1OutSuffix )
-      ; FM3Base . InclPassNo
-          ( UnitRef ^ . UntPassNosDisAsmed , FM3Base . PassNo1 ) 
+      ; FM3CLOptions . InclPassNo
+          ( UnitRef ^ . UntPassNosDisAsmed , FM3CLOptions . PassNo1 ) 
       END (*IF*) 
     END DisAsmPass1
 
@@ -489,7 +489,7 @@ MODULE FM3Pass1
             , " bytes."
             } 
         )
-    ; IF FM3Base . PassNo1 IN FM3CLOptions . PassNosToDisAsm 
+    ; IF FM3CLOptions . PassNo1 IN FM3CLOptions . PassNosToDisAsm 
       THEN DisAsmPass1 ( UnitRef )
       END (*IF*)
 

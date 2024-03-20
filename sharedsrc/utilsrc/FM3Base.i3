@@ -114,7 +114,9 @@ INTERFACE FM3Base
       ; Column : PosIntTyp 
       END (*tPosition*)
 
-; CONST PositionNull = tPosition { LAST ( PosIntTyp ) , LAST ( PosIntTyp ) } 
+; CONST PositionNull = tPosition { LAST ( PosIntTyp ) , LAST ( PosIntTyp ) }
+
+(* 
 
 ; CONST PassNoNull = 0  
 ; CONST PassNo1 = 1 
@@ -134,6 +136,7 @@ INTERFACE FM3Base
 ; PROCEDURE InclPassNo ( VAR Set : PassNoSetTyp ; No : PassNoRangeTyp )
 
 ; PROCEDURE ExclPassNo ( VAR Set : PassNoSetTyp ; No : PassNoRangeTyp )
+*) 
 
 ; END FM3Base
 .

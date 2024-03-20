@@ -709,11 +709,11 @@ MODULE FM3Pass2
     ( UnitRef : FM3Units . UnitRefTyp ; DoEarlierPasses : BOOLEAN )
 
   = BEGIN (*DisAsmPass2*)
-      IF NOT FM3Base . PassNo2 IN UnitRef ^ . UntPassNosDisAsmed 
+      IF NOT FM3CLOptions . PassNo2 IN UnitRef ^ . UntPassNosDisAsmed 
       THEN (* Disassembly file is not already written. *) 
         FM3Compile . DisAsmPassFile ( UnitRef , FM3Globals . Pass2OutSuffix )
-      ; FM3Base . InclPassNo
-          ( UnitRef ^ . UntPassNosDisAsmed , FM3Base . PassNo2 ) 
+      ; FM3CLOptions . InclPassNo
+          ( UnitRef ^ . UntPassNosDisAsmed , FM3CLOptions . PassNo2 ) 
       END (*IF*) 
     ; IF DoEarlierPasses
       THEN
@@ -963,7 +963,7 @@ MODULE FM3Pass2
             , " bytes."
             } 
         )
-    ; IF FM3Base . PassNo2 IN FM3CLOptions . PassNosToDisAsm 
+    ; IF FM3CLOptions . PassNo2 IN FM3CLOptions . PassNosToDisAsm 
       THEN DisAsmPass2 ( UnitRef , DoEarlierPasses := FALSE )
       END (*IF*)
 
