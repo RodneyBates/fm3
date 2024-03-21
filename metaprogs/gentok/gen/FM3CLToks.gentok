@@ -22,13 +22,19 @@ ABS 0
 CltNull                  "<null>" . 
 
 CltVersion               "version" .
-CltHelp                  "help" . 
-      
-CltBuildDir              "build-dir" . 
+CltHelp                  "help" .
 
-    
-CltKeep                  "keep" . 
+CltSrcFile               "src-file" .
+CltSrcDir                "src-dir" .
+CltIncludeDir            "Include-dir" .
+
+CltDisAsmPasses          "disasm-passes" .
+CltDisAsm                "disasm" .
+CltKeepPasses            "keep-passes" .
+CltKeep                  "keep" .
 (* Keep intermediate files. *)
+      
+CltBuildDir              "build-dir" .
       
 CltDisAsmPass1           "disasm-pass-1" . 
 CltDisAsmPass2           "disasm-pass-2" . 

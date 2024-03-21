@@ -13,10 +13,13 @@ INTERFACE FM3CLOptions
 ; IMPORT FM3CLToks 
 ; IMPORT FM3LexTable 
 
-; VAR SourceDirNames : AtomList . T 
-; VAR FileNames : AtomList . T
+; VAR SourceDirNames : AtomList . T
+; VAR SourceFileNames : AtomList . T
+; VAR IncludeDirNames : AtomList . T
+
 ; VAR OptionsLexTable : FM3LexTable . T
 
+; VAR BuildDir := "" 
 ; VAR BuildDirRelPath := "../build"
       (* ^Relative to where the current unit's source file lives. *)
 

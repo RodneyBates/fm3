@@ -35,6 +35,52 @@ MODULE FM3CLArgs
 ; EXCEPTION HelpExcept
     ( BOOLEAN (* Display help text, in addition to version. *) )
 
+; PROCEDURE AppendTextToList ( VAR List : AtomList . T ; Txt : TEXT )
+
+  = BEGIN (*AppendTextToList*) 
+      List := AtomList . Cons ( Atom . FromText ( Txt ) , List )
+    END AppendTextToList 
+
+
+; PROCEDURE AssignTokSetElem
+    ( VAR Set : FM3CLOptions . OptionTokSetTyp
+    ; Elem : FM3CLOptions . OptionTokTyp
+    ; Value : BOOLEAN
+    )
+
+  = BEGIN (*AssignTokSetElem*)
+      IF Value
+      THEN FM3CLOptions . InclOptionTok ( (*IN OUT*) Set , Elem ) 
+      ELSE FM3CLOptions . ExclOptionTok ( (*IN OUT*) Set , Elem ) 
+      END (*IF*) 
+    END AssignTokSetElem  
+
+; PROCEDURE AlterOptionSet
+    ( VAR Set : FM3CLOptions . OptionTokSetTyp
+    ; Changes : FM3CLOptions . OptionTokSetTyp
+    ; Include : BOOLEAN (* Otherwise, exclude. *) 
+    )
+
+  = BEGIN (*AlterOptionSet*)
+      IF Include
+      THEN FM3CLOptions . OptionTokSetUnion ( (*IN OUT*) Set , Changes ) 
+      ELSE FM3CLOptions . OptionTokSetDiff ( (*IN OUT*) Set , Changes ) 
+      END (*IF*) 
+    END AlterOptionSet 
+
+; PROCEDURE AlterPassNos
+    ( VAR Set : FM3CLOptions . PassNoSetTyp
+    ; Changes : FM3CLOptions . PassNoSetTyp
+    ; Include : BOOLEAN (* Otherwise, exclude. *) 
+    )
+
+  = BEGIN (*AlterPassNos*)
+      IF Include
+      THEN FM3CLOptions . PassNoSetUnion ( (*IN OUT*) Set , Changes ) 
+      ELSE FM3CLOptions . PassNoSetDiff ( (*IN OUT*) Set , Changes ) 
+      END (*IF*) 
+    END AlterPassNos 
+
 ; PROCEDURE ParseArgs ( )
   RAISES { FM3SharedUtils . Terminate } 
 
@@ -42,7 +88,7 @@ MODULE FM3CLArgs
   ; VAR PaArgNo : INTEGER
   ; VAR PaArgLen : INTEGER
   ; VAR PaArgSs : INTEGER 
-  ; VAR PaArgText : TEXT 
+  ; VAR PaArgText : TEXT
 
   ; PROCEDURE PaFetchArg ( MinLen : INTEGER := 1 ) RAISES { HelpExcept } 
 
@@ -83,23 +129,50 @@ MODULE FM3CLArgs
         END (*WHILE*)
       END PaPassNoSet
 
-  ; PROCEDURE PaAlterPassNos
-      ( VAR Set : FM3CLOptions . PassNoSetTyp
-      ; Changes : FM3CLOptions . PassNoSetTyp
-      ; Include : BOOLEAN (* Otherwise, exclude. *) 
-      )
+  ; PROCEDURE PaFindTwoHyphenParam ( ) RAISES { HelpExcept }
+    (* Full arg started with two hyphens, thus has a multi-letter option tag.
+       It calls for parameter, which can be the following argument or a
+       suffix of this argument, attached by '='.
+    *) 
 
-    = BEGIN (*PaAlterPassNos*)
-        IF Include
-        THEN FM3CLOptions . PassNoSetUnion ( (*IN OUT*) Set , Changes ) 
-        ELSE FM3CLOptions . PassNoSetDiff ( (*IN OUT*) Set , Changes ) 
-        END (*IF*) 
-      END PaAlterPassNos 
+    = VAR LResult : TEXT
+
+    ; BEGIN (*PaFindTwoHyphenParam*) 
+        IF PaArgSs < PaArgLen
+        THEN
+          IF Text . GetChar ( PaArgText , PaArgSs ) = '='
+          THEN (* Parameter is part of this CL argument. *) 
+            INC ( PaArgSs ) 
+          ELSE (* No equal sign. *) RAISE HelpExcept ( TRUE )
+          END (*IF*)
+        ELSE 
+          INC ( PaArgNo )
+        ; IF PaArgNo >= PaArgCt
+          THEN (* No value. *)
+            PaArgText := "<beyond end of command>"
+          ; PaArgLen := Text . Length ( PaArgText )
+          ; PaArgSs := 0 
+          ; RAISE HelpExcept ( TRUE ) 
+          END (*IF*) 
+        ; PaFetchArg ( MinLen := 1 )
+        END (*IF*)
+      END PaFindTwoHyphenParam
+
+  ; PROCEDURE PaTwoHyphenParam ( ) : TEXT RAISES { HelpExcept }
+    (* Just find it and return it.  Is this too trivial? *) 
+
+    = VAR LResult : TEXT
+
+    ; BEGIN (*PaTwoHyphenParam*)
+        PaFindTwoHyphenParam ( )
+      ; RETURN Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
+      END PaTwoHyphenParam
 
   ; PROCEDURE PaTwoHyphenArg ( ) RAISES { HelpExcept } 
     (* PRE: Arg starts with two hyphens. *) 
 
-    = VAR LOptTok : FM3LexTable . ValueTyp 
+    = VAR LParam : TEXT
+    ; VAR LOptTok : FM3LexTable . ValueTyp 
     ; VAR LNo : BOOLEAN
 
     ; BEGIN
@@ -134,6 +207,47 @@ MODULE FM3CLArgs
         | Clt . CltHelp 
         => RAISE HelpExcept  ( TRUE )
         
+        | Clt . CltSrcFile  
+        => PaFindTwoHyphenParam ( )
+        ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
+        ; AppendTextToList ( FM3CLOptions . SourceFileNames , LParam )
+        
+        | Clt . CltSrcDir  
+        => PaFindTwoHyphenParam ( )
+        ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
+        ; AppendTextToList ( FM3CLOptions . SourceDirNames , LParam ) 
+        
+        | Clt . CltIncludeDir  
+        => PaFindTwoHyphenParam ( )
+        ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
+        ; AppendTextToList ( FM3CLOptions . IncludeDirNames , LParam ) 
+        
+        | Clt . CltDisAsmPasses 
+        => PaFindTwoHyphenParam ( )
+        ; PaPassNoSet ( FM3CLOptions . PassNosToDisAsm , NOT LNo) 
+        
+        | Clt . CltDisAsm 
+        => FM3CLOptions . PassNosToDisAsm := FM3CLOptions . PassNoSetAll
+        
+        | Clt . CltKeepPasses 
+        => PaFindTwoHyphenParam ( )
+        ; PaPassNoSet ( FM3CLOptions . PassNosToKeep , NOT LNo ) 
+        
+        | Clt . CltKeep 
+        => FM3CLOptions . PassNosToKeep := FM3CLOptions . PassNoSetAll
+        
+        | Clt . CltBuildDir 
+        => PaFindTwoHyphenParam ( )
+        ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
+        ; FM3CLOptions . BuildDir := LParam
+        
+        | Clt . CltStdErr  
+        , Clt . CltStdOut  
+        , Clt . CltFM3Log
+        , Clt . CltUnitLog 
+        => AssignTokSetElem 
+             ( FM3CLOptions . OptionTokSet , LOptTok , Value := NOT LNo ) 
+        
         ELSE RAISE HelpExcept  ( TRUE ) 
         END (*CASE*)
       ; INC ( PaArgNo ) 
@@ -148,13 +262,19 @@ MODULE FM3CLArgs
     = VAR LResult : TEXT
 
     ; BEGIN
-        INC ( PaArgSs ) 
-      ; IF PaArgSs < PaArgSs 
-        THEN LResult := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs )
+        IF PaArgSs < PaArgCt 
+        THEN
+          LResult := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs )
+        ; INC ( PaArgNo ) 
         ELSE
           INC ( PaArgNo )
         ; IF PaArgNo >= PaArgCt
-          THEN (* No value. *) RAISE HelpExcept ( TRUE ) END (*IF*) 
+          THEN (* No value. *)
+            PaArgText := "<beyond end of command>"
+          ; PaArgLen := Text . Length ( PaArgText )
+          ; PaArgSs := 0 
+          ; RAISE HelpExcept ( TRUE ) 
+          END (*IF*) 
         ; PaFetchArg ( MinLen := 1 ) 
         ; LResult := PaArgText 
         END (*IF*)
@@ -224,9 +344,9 @@ MODULE FM3CLArgs
                 AND Text . Equal ( Text . Sub ( PaArgText , 0 , 1 ) , "-" ) 
           THEN PaHyphenArg ( PaArgText ) 
           ELSE (* No hyphens. *) 
-            FM3CLOptions . FileNames
+            FM3CLOptions . SourceFileNames
                := AtomList . Cons
-                    ( Atom . FromText ( PaArgText ) , FM3CLOptions . FileNames )
+                    ( Atom . FromText ( PaArgText ) , FM3CLOptions . SourceFileNames )
           ; FM3CLOptions . SrcFileName := PaArgText 
           END (*IF*) 
         ; INC ( PaArgNo )
@@ -326,7 +446,7 @@ MODULE FM3CLArgs
     
     ; BEGIN
       FM3CLOptions . SourceDirNames := NIL 
-    ; FM3CLOptions . FileNames := NIL
+    ; FM3CLOptions . SourceFileNames := NIL
     ; FM3CLOptions . OptionTokSet := OptionTokSetDefault 
     ; LExeName := Params . Get ( 0 )
     ; FM3CLOptions . ResourcePathName
@@ -391,7 +511,8 @@ MODULE FM3CLArgs
     ; FM3SharedUtils . ResourcePathName := FM3CLOptions . ResourcePathName
       (* Push this out so FM3SharedUtils need not import FM3CLOptions and can
          be used in other man programs that get their options other ways.
-      *) 
+      *)
+
     END ComputeDerivedInfo
 
 (*EXPORTED*)
