@@ -25,6 +25,10 @@ INTERFACE FM3Messages
    dragging in the entire compiler.
 *)
 
+; PROCEDURE PutStdErr ( Msg : TEXT ) RAISES { Thread . Alerted } 
+
+; PROCEDURE PutStdOut ( Msg : TEXT ) RAISES { Thread . Alerted }
+
 (* The following is for messages about how the compilation or other process
    is going. Fatal and Log messages go immediatly to stderr (If DoStdErr)
    and immediately to a log file (if DoFM3Log).

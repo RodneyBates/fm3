@@ -8,7 +8,7 @@
 
 INTERFACE FM3Utils
 
-(*& CM3 library: *)
+(* CM3 library: *)
 ; IMPORT Wr 
 
 (* FM3: *) 

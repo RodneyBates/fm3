@@ -24,6 +24,7 @@ MODULE FM3Messages
 
   (* Fatal and Log go immediatly to stderr and optionally to a log file. *)
 
+(*EXPORTED*)
 ; PROCEDURE PutStdErr ( Msg : TEXT ) RAISES { Thread . Alerted } 
 
   = BEGIN
@@ -38,6 +39,7 @@ MODULE FM3Messages
       END (*IF*) 
     END PutStdErr 
 
+(*EXPORTED*)
 ; PROCEDURE PutStdOut ( Msg : TEXT ) RAISES { Thread . Alerted }
 
   = BEGIN

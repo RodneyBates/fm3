@@ -50,15 +50,15 @@ INTERFACE FM3SharedGlobals
 
 (* These ought to be CONST, but that would preclude applying BYTESIZE. *)
 (* ; VAR FM3FileKindIntPkl := 'A' *) 
-; VAR FM3FileKindM3RwPkl := 'B'
-; VAR FM3FileKindPgRwPkl := 'C'
 ; VAR FM3FileKindTokSetsPkl := 'A'
+; VAR FM3FileKindM3RwPkl := 'B' (* Lex machine table. *) 
+; VAR FM3FileKindPgRwPkl := 'B' (* Lex machine table. *)
+; VAR FM3FileKindCltPkl  := 'B' (* Lex machine table. *)
+  (* Command line option strings. *) 
 ; VAR FM3FileKindRdBackLt := 'D' 
   (* Left end of FM3RdBackFile. *) 
 ; VAR FM3FileKindRdBackRt  := 'E' 
   (* Right end of FM3RdBackFile. *) 
-; VAR FM3FileKindCltPkl  := 'B'
-  (* Command line option strings. *) 
 
 ; END FM3SharedGlobals
 .

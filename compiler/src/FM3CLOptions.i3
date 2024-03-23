@@ -15,7 +15,7 @@ INTERFACE FM3CLOptions
 
 ; VAR SourceDirNames : AtomList . T
 ; VAR SourceFileNames : AtomList . T
-; VAR IncludeDirNames : AtomList . T
+; VAR ImportDirNames : AtomList . T
 
 ; VAR OptionsLexTable : FM3LexTable . T
 
@@ -57,7 +57,7 @@ INTERFACE FM3CLOptions
 
 ; TYPE PassNoSetTyp = SET OF PassNoTyp
 ; CONST PassNoSetEmpty = PassNoSetTyp { }
-; CONST PassNoSetAll = PassNoSetTyp { PassNo1 .. PassNoMax }
+; CONST PassNoSetValid = PassNoSetTyp { PassNo1 .. PassNoMax }
 ; CONST PassNoSetUniv = PassNoSetTyp { PassNoNull .. PassNoMax }
 
 ; PROCEDURE PassNoSetUnion ( VAR Left : PassNoSetTyp ; Right : PassNoSetTyp )

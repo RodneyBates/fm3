@@ -15,6 +15,10 @@ UNITNAME FM3CLToks
    which are handled by code in FM3CLArgs.
 *)
 
+(* To build derived files, use the command
+   "./gentok -S -L -i -n FM3CLToks.gentok".
+*) 
+
 SRC 
 
 ABS 0
@@ -26,19 +30,16 @@ CltHelp                  "help" .
 
 CltSrcFile               "src-file" .
 CltSrcDir                "src-dir" .
-CltIncludeDir            "Include-dir" .
-
+CltImportDir             "import-dir" .
+CltResourceDir           "resource-dir" . 
+CltBuildDir              "build-dir" .
+      
 CltDisAsmPasses          "disasm-passes" .
 CltDisAsm                "disasm" .
 CltKeepPasses            "keep-passes" .
 CltKeep                  "keep" .
 (* Keep intermediate files. *)
       
-CltBuildDir              "build-dir" .
-      
-CltDisAsmPass1           "disasm-pass-1" . 
-CltDisAsmPass2           "disasm-pass-2" . 
-
 CltStdErr                "stderr" . 
 (* Write compilation process messages to stderr. *)
       
