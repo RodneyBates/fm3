@@ -59,24 +59,6 @@ MODULE FM3Files
       END (*IF*) 
     END RemoveSuffix 
 
-(* EXPORTED: *) 
-; PROCEDURE AbsFileName ( Name : TEXT ) : TEXT 
-
-  = VAR LResult : TEXT 
-
-  ; BEGIN (* AbsFileName *) 
-      IF Pathname . Absolute ( Name ) 
-      THEN RETURN Name 
-      ELSE 
-        TRY 
-          LResult := FS . GetAbsolutePathname ( Name ) 
-        ; RETURN LResult
-        EXCEPT OSError . E 
-        => RETURN Name
-        END (* TRY EXCEPT *) 
-      END (* IF *) 
-    END AbsFileName 
-
 (*EXPORTED*) 
 ; PROCEDURE OpenUniRd
     ( FileName , PathName , Note1 , Note2 : TEXT := "" ) : UniRd . T

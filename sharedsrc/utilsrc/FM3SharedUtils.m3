@@ -62,6 +62,23 @@ MODULE FM3SharedUtils
     ; Wr . Flush ( Stdio . stderr )
     END StandaloneFatalError 
 
+(* EXPORTED: *) 
+; PROCEDURE AbsFileName ( Name : TEXT ) : TEXT 
+
+  = VAR LResult : TEXT 
+
+  ; BEGIN (* AbsFileName *) 
+      IF Libm3Pathname . Absolute ( Name ) 
+      THEN RETURN Name 
+      ELSE 
+        TRY 
+          LResult := FS . GetAbsolutePathname ( Name ) 
+        ; RETURN LResult
+        EXCEPT OSError . E 
+        => RETURN Name
+        END (* TRY EXCEPT *) 
+      END (* IF *) 
+    END AbsFileName 
 
 (*EXPORTED*) 
 ; PROCEDURE SibDirectoryPath ( FileName : TEXT ; SibDirName : TEXT ) : TEXT
@@ -313,13 +330,13 @@ MODULE FM3SharedUtils
   ; VAR LIsOK : BOOLEAN 
   
   ; BEGIN
-      LRdT := OpenRd ( FileName , ResourcePathName )
+    (* Oh WTH, just do this twice: *) 
+      LFullFileName := Libm3Pathname . Join ( ResourcePathName , FileName ) 
+    ; LRdT := OpenRd ( FileName , ResourcePathName )
     ; ReadPrefix ( LRdT , (*OUT*) LFileKind , (*OUT*) LIsOK )  
     ; IF LFileKind # ExpectedFileKind
       THEN (* Wrong kind. *)
-        (* Oh WTH, just do this twice: *) 
-        LFullFileName := Libm3Pathname . Join ( ResourcePathName , FileName ) 
-      ; RaiseFatal
+        RaiseFatal
           ( CatStrings 
               ( "Resource file " , LFullFileName 
               , " has wrong kind: " , FileKindImage ( LFileKind )  

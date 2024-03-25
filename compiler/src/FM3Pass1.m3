@@ -201,7 +201,7 @@ MODULE FM3Pass1
 
       LUnitRef := FM3Units . NewUnitRef ( )
     ; LSrcFilePath
-        := Pathname . Prefix ( FM3Files . AbsFileName ( SrcFileName ) )
+        := Pathname . Prefix ( FM3SharedUtils . AbsFileName ( SrcFileName ) )
     ; LSrcFileSimpleName := Pathname . Last ( SrcFileName )
     ; LUnitRef ^ . UntSrcUniRd 
         := FM3Files . OpenUniRd

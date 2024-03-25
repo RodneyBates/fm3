@@ -29,6 +29,8 @@ INTERFACE FM3SharedUtils
      Just write to stderror.
   *) 
 
+; PROCEDURE AbsFileName ( Name : TEXT ) : TEXT 
+
 ; PROCEDURE SibDirectoryPath ( FileName : TEXT ; SibDirName : TEXT ) : TEXT
 (* Absolute path name of "SibDir" directory beside parent directory of
    FileName.

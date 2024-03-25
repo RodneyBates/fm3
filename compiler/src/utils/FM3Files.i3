@@ -27,7 +27,7 @@ INTERFACE FM3Files
 
 ; PROCEDURE RemoveSuffix ( FileName : TEXT ) : TEXT  
 
-; PROCEDURE AbsFileName ( Name : TEXT ) : TEXT 
+(*; PROCEDURE AbsFileName ( Name : TEXT ) : TEXT *)
 
 ; PROCEDURE OpenUniRd
     ( FileName , PathHame , Note1 , Note2 : TEXT := "" ) : UniRd . T
