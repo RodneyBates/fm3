@@ -23,7 +23,7 @@ INTERFACE FM3CLOptions
 ; VAR BuildDirRelPath := "../build"
       (* ^Relative to where the current unit's source file lives. *)
 
-; VAR ResourcePathName : TEXT := "."
+; VAR ResourceDirName : TEXT := "."
 
 (* ------------------- Boolean options are kept in a set -------------------- *)
 

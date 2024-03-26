@@ -65,7 +65,7 @@ INTERFACE FM3SharedUtils
 ; PROCEDURE FilePrefix ( Kind : CHAR ) : TEXT
 
 ; PROCEDURE OpenRd
-    ( FileName , PathName , Note1 , Note2 : TEXT := "" )
+    ( DirName , FileName , Note1 , Note2 : TEXT := "" )
   : Rd . T
   RAISES { FatalError } 
 
@@ -102,9 +102,11 @@ INTERFACE FM3SharedUtils
 
 ; PROCEDURE IntHash ( Val : INTEGER ) : FM3Base . HashTyp
 
-; VAR ResourcePathName := "../lib" 
+; VAR ResourceDirName := "../lib" 
   (* ^Since this is a shared compiler/metaprogs interface, clients
-     need to set it as desired. *)
+     can set it as desired. *)
+
+; PROCEDURE DefaultResourceDirName ( ) : TEXT 
 
 ; PROCEDURE Blanks ( Length : INTEGER ) : TEXT 
   (* A TEXT of length Length, all blanks. *) 

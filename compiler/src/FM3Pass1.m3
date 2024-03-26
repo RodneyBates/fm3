@@ -191,7 +191,7 @@ MODULE FM3Pass1
   ; VAR LFullPass1OutName : TEXT 
   ; VAR LFullPatchStackName : TEXT 
   ; VAR LSrcFileSimpleName : TEXT 
-  ; VAR LSrcFilePath : TEXT
+  ; VAR LSrcFileDir : TEXT
   ; VAR LUnitLogFullName : TEXT 
   ; VAR LUnitRef : FM3Units . UnitRefTyp 
 
@@ -200,21 +200,21 @@ MODULE FM3Pass1
 (* Open source file. *)
 
       LUnitRef := FM3Units . NewUnitRef ( )
-    ; LSrcFilePath
+    ; LSrcFileDir
         := Pathname . Prefix ( FM3SharedUtils . AbsFileName ( SrcFileName ) )
     ; LSrcFileSimpleName := Pathname . Last ( SrcFileName )
     ; LUnitRef ^ . UntSrcUniRd 
         := FM3Files . OpenUniRd
-             ( LSrcFileSimpleName , LSrcFilePath , "source file " , NIL ) 
+             ( LSrcFileDir , LSrcFileSimpleName , "source file " , NIL ) 
     ; LUnitRef ^ . UntSrcFileSimpleName := LSrcFileSimpleName 
-    ; LUnitRef ^ . UntSrcFilePath := LSrcFilePath
+    ; LUnitRef ^ . UntSrcFilePath := LSrcFileDir
 
 (* Create the build directory: *)
 
 (* FIXME: FM3CLArgs wants a build directory to put a log file in, even before
           we get here.  Is this the right place for it?
 *)
-    ; EnsureBuildDirectory ( LUnitRef , LSrcFilePath ) 
+    ; EnsureBuildDirectory ( LUnitRef , LSrcFileDir ) 
 
 (* Create the unit log output file. A pure text file. *)
     ; LUnitRef ^ . UntLogSimpleName
@@ -226,7 +226,7 @@ MODULE FM3Pass1
 
     ; LUnitLogFullName
         := Pathname . Join
-             ( LSrcFilePath , LUnitRef ^ . UntLogSimpleName , NIL ) 
+             ( LSrcFileDir , LUnitRef ^ . UntLogSimpleName , NIL ) 
     ; TRY LUnitRef ^ . UntLogWrT := FileWr . Open ( LUnitLogFullName ) 
       EXCEPT
       | OSError . E ( EAtoms )

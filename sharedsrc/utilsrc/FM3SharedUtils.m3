@@ -295,7 +295,7 @@ MODULE FM3SharedUtils
 
 (*EXPORTED*) 
 ; PROCEDURE OpenRd
-    ( FileName , PathName , Note1 , Note2 : TEXT := "" )
+    ( DirName , FileName , Note1 , Note2 : TEXT := "" )
   : Rd . T
   RAISES { FatalError } 
 
@@ -303,7 +303,7 @@ MODULE FM3SharedUtils
   ; VAR LRdT : Rd . T
   
   ; BEGIN
-      LFullFileName := Libm3Pathname . Join ( PathName , FileName ) 
+      LFullFileName := Libm3Pathname . Join ( DirName , FileName ) 
     ; TRY 
        LRdT := FileRd . Open ( LFullFileName ) 
       EXCEPT
@@ -324,25 +324,40 @@ MODULE FM3SharedUtils
   : Rd . T
   RAISES { FatalError , Thread . Alerted } 
 
-  = VAR LFullFileName : TEXT
+  = VAR LRelFileName : TEXT
+  ; VAR LAbsFileName : TEXT
   ; VAR LRdT : Rd . T
   ; VAR LFileKind : FileKindTyp 
   ; VAR LIsOK : BOOLEAN 
   
   ; BEGIN
-    (* Oh WTH, just do this twice: *) 
-      LFullFileName := Libm3Pathname . Join ( ResourcePathName , FileName ) 
-    ; LRdT := OpenRd ( FileName , ResourcePathName )
+      LRdT := OpenRd ( ResourceDirName , FileName )
     ; ReadPrefix ( LRdT , (*OUT*) LFileKind , (*OUT*) LIsOK )  
-    ; IF LFileKind # ExpectedFileKind
-      THEN (* Wrong kind. *)
-        RaiseFatal
-          ( CatStrings 
-              ( "Resource file " , LFullFileName 
-              , " has wrong kind: " , FileKindImage ( LFileKind )  
-              , ", expecting " , FileKindImage ( ExpectedFileKind )  
-              )
-          ) 
+    ; IF NOT LIsOK OR LFileKind # ExpectedFileKind
+      THEN (* Wrong kind. *) 
+        LRelFileName := Libm3Pathname . Join ( ResourceDirName , FileName )
+      ; LAbsFileName := AbsFileName ( LRelFileName )
+      ; IF NOT LIsOK
+        THEN
+          RaiseFatal
+            ( CatStrings 
+                ( "Resource file "
+                , LAbsFileName 
+                , " is not an FM3 internal file." 
+                )
+            )
+        ELSE 
+          RaiseFatal
+            ( CatStrings 
+                ( "Resource file " 
+                , LAbsFileName 
+                , " has wrong kind: " 
+                , FileKindImage ( LFileKind )  
+                , ", expecting " 
+                , FileKindImage ( ExpectedFileKind )  
+                )
+            )
+        END (*IF*) 
       END (*IF*)
     ; RETURN LRdT 
     END OpenResourceRd
@@ -566,6 +581,23 @@ MODULE FM3SharedUtils
       END (* IF *) 
     END Blanks 
 
-; BEGIN
+(* EXPORTED: *) 
+; PROCEDURE DefaultResourceDirName ( ) : TEXT 
+
+  = VAR LExeName : TEXT 
+  ; VAR LResult : TEXT 
+
+  ; BEGIN (*DefaultResourceDirName*)
+      IF Params . Count > 0 
+      THEN  
+        LExeName := Params . Get ( 0 ) 
+      ; LResult := SibDirectoryPath ( LExeName , "lib" ) 
+      ELSE LResult := "../lib" (* Not very likely to work, but what else? *) 
+      END (*IF*) 
+    ; RETURN LResult 
+    END DefaultResourceDirName 
+
+; BEGIN 
+    ResourceDirName := DefaultResourceDirName ( )  
   END FM3SharedUtils 
 .

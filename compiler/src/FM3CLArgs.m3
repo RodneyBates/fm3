@@ -11,13 +11,13 @@ MODULE FM3CLArgs
 ; IMPORT Atom 
 ; IMPORT AtomList 
 ; IMPORT FileWr
-; IMPORT Wr
 ; IMPORT OSError
 ; IMPORT Params
 ; IMPORT Pathname 
 ; IMPORT Rd 
 ; IMPORT Stdio
 ; IMPORT Text 
+; IMPORT Wr
 
 ; IMPORT FM3Base
 ; IMPORT FM3CLOptions 
@@ -29,6 +29,7 @@ MODULE FM3CLArgs
 ; IMPORT FM3Messages 
 ; IMPORT FM3SharedGlobals 
 ; IMPORT FM3SharedUtils 
+; IMPORT FM3TextColors 
 ; IMPORT FM3Version  
 
 ; EXCEPTION TerminateCL ( TEXT (* Message. *) )
@@ -80,56 +81,17 @@ MODULE FM3CLArgs
     END AlterPassNos 
 
 ; PROCEDURE SingleDigitParam ( Param : TEXT ) : INTEGER
+  RAISES { TerminateCL } 
 
   = VAR LResult : INTEGER
 
   ; BEGIN (*SingleDigitParam*)
       IF Text . Length ( Param ) # 1
-      THEN RAISE TerminateCL ( "Pass number must be a single digit." )
+      THEN RAISE TerminateCL ( "Parameter must be a single digit." )
       END (*IF*)
-    ; LResult := ORD ( Text . GetChar ( Param , 0 ) ) - ORD ( '1' )
+    ; LResult := ORD ( Text . GetChar ( Param , 0 ) ) - ORD ( '0' )
     ; RETURN LResult  
-    END SingleDigitParam 
-
-(*#####################################################################**
-
-; PROCEDURE ContribToFsm ( Char : CHAR )  
-
-  = BEGIN 
-      IF GCurRwValue = FM3LexTable . ValueUnrecognized 
-      THEN (* Keep it that way. *) 
-      ELSIF GCurRwValue = FM3LexTable . ValueNull 
-      THEN (* Need more chars. *) 
-        GCurRwValue 
-          := FM3LexTable . IncrNext 
-               ( GCurRwLexTable , Char , (*IN OUT*) GCurRwState )
-      ELSE (* Keep it that way. *) 
-      END (*IF*) 
-    END ContribToFsm 
-
-      ; GCurRwState := FM3LexTable . IncrInit ( GCurRwLexTable ) 
-      ; GCurRwValue := FM3LexTable . ValueNull 
-
-      ; IF GCurRwValue = FM3LexTable . ValueNull 
-        THEN (* Not recognized, but could be a prefix of longer RW. *) 
-(* NOTE: ^This is a workaround for FM3BuildLexMachine's inconsistent habit
-          of having a transition on NullChar for the end of a string, IFF
-          it is a prefix of a longer string. 
-   TODO: Regularize FM3BuildLexMachine and FM3LexTable so this distinction
-         need not be accomodated by client code. 
-*)   
-          GCurRwValue (* Done with string. *) 
-            := FM3LexTable . IncrNext 
-                 ( GCurRwLexTable , FM3LexTable . NullChar , GCurRwState ) 
-        END (*IF*)
-
-          | FM3LexTable . ValueUnrecognized , FM3LexTable . ValueNull 
-
-**%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)
-
-
-
-
+    END SingleDigitParam
 
 ; PROCEDURE ParseArgs ( )
   RAISES { FM3SharedUtils . Terminate } 
@@ -146,10 +108,42 @@ MODULE FM3CLArgs
         PaArgText := Params . Get ( PaArgNo )
       ; IF PaArgText = NIL THEN PaArgText := "" END (*IF*)
       ; PaArgLen := Text . Length ( PaArgText )
+      ; PaArgSs := 0 
       ; IF PaArgLen < MinLen
         THEN RAISE TerminateCL ( "Arg too short.")
         END (*IF*)
       END PaFetchArg
+
+  ; PROCEDURE PaFindParam ( ) RAISES { TerminateCL }
+
+    = VAR LResult : TEXT
+
+    ; BEGIN
+        IF PaArgSs < PaArgLen 
+        THEN (* We're already here. *) 
+        ELSE
+          IF PaArgNo >= PaArgCt
+          THEN (* No value. *)
+            RAISE TerminateCL ( "Arg requires a param."  ) 
+          END (*IF*) 
+        ; INC ( PaArgNo )
+        ; IF PaArgNo >= PaArgCt
+          THEN
+            RAISE TerminateCL ( "Arg requires a param."  ) 
+          END (*IF*) 
+        ; PaFetchArg ( MinLen := 1 ) 
+        END (*IF*)
+      END PaFindParam
+
+  ; PROCEDURE PaNoNo ( No : BOOLEAN ) RAISES { TerminateCL } 
+
+    = BEGIN (*PaNoNo*)
+        IF No
+        THEN
+          PaArgSs := 2 
+        ; RAISE TerminateCL ( "Option does not support the \"no-\" prefix." )
+        END (*IF*) 
+      END PaNoNo 
 
   ; CONST SingleDigits = SET OF CHAR { '1' .. '9' }
 
@@ -169,59 +163,28 @@ MODULE FM3CLArgs
         ; IF NOT LChar IN SingleDigits 
           THEN RAISE TerminateCL  ( "Pass number must be a digit." ) 
           END (*IF*)
-        ; LPassNo := ORD ( LChar ) - ORD ( '1' )
-        ; CASE LPassNo OF
-          | FM3CLOptions . PassNo1 .. FM3CLOptions . PassNoMax - 1
-          => IF Include
-             THEN FM3CLOptions . InclPassNo ( Set , LPassNo )
-             ELSE FM3CLOptions . ExclPassNo ( Set , LPassNo )
-             END (*IF*) 
-          ELSE RAISE TerminateCL  ( "Invalid pass number." )
-          END (*CASE*)
+        ; LPassNo := ORD ( LChar ) - ORD ( '0' )
+        ; IF NOT LPassNo IN FM3CLOptions . PassNoSetValid
+          THEN RAISE TerminateCL ( "Invalid pass number." ) 
+          END (*IF*) 
+        ; IF Include
+          THEN FM3CLOptions . InclPassNo ( Set , LPassNo )
+          ELSE FM3CLOptions . ExclPassNo ( Set , LPassNo )
+          END (*IF*) 
         ; INC ( PaArgSs ) 
         END (*WHILE*)
       END PaPassNoSet
-
-  ; PROCEDURE PaFindTwoHyphenParam ( ) RAISES { TerminateCL }
-    (* Full arg started with two hyphens, thus has a multi-letter option tag.
-       It calls for parameter, which can be the following argument or a
-       suffix of this argument, attached by '='.
-    *) 
-
-    = BEGIN (*PaFindTwoHyphenParam*) 
-        IF PaArgSs < PaArgLen
-        THEN
-          IF Text . GetChar ( PaArgText , PaArgSs ) = '='
-          THEN (* Parameter is part of this CL argument. *) 
-            INC ( PaArgSs ) 
-          ELSE (* No equal sign. *) RAISE TerminateCL ( "No param after \"=\".")
-          END (*IF*)
-        ELSE 
-          IF PaArgNo >= PaArgCt
-          THEN (* No value. *)
-            RAISE TerminateCL ( "No param arg" ) 
-          END (*IF*) 
-        ; INC ( PaArgNo )
-        ; PaFetchArg ( MinLen := 1 )
-        END (*IF*)
-      END PaFindTwoHyphenParam
-
-  ; PROCEDURE PaTwoHyphenParam ( ) : TEXT RAISES { TerminateCL }
-    (* Just find it and return it.  Is this too trivial? *) 
-
-    = VAR LResult : TEXT
-
-    ; BEGIN (*PaTwoHyphenParam*)
-        PaFindTwoHyphenParam ( )
-      ; RETURN Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
-      END PaTwoHyphenParam
 
   ; PROCEDURE PaTwoHyphenArg ( ) RAISES { TerminateCL } 
     (* PRE: Arg starts with two hyphens, PaArgSs = 2. *) 
 
     = VAR LParam : TEXT
-    ; VAR LOptTok : FM3LexTable . ValueTyp 
+    ; VAR LLexState : FM3LexTable . StateNoTyp 
+    ; VAR LLexValue : FM3LexTable . ValueTyp
+    ; VAR LChar : CHAR 
     ; VAR LNo : BOOLEAN
+    ; VAR LHasEquals : BOOLEAN
+(*TODO: Check that arg allows '='. *) 
 
     ; BEGIN
         IF PaArgLen >= 5
@@ -234,109 +197,152 @@ MODULE FM3CLArgs
       ; IF PaArgSs >= PaArgLen
         THEN RAISE TerminateCL  ( "Incomplete arg." )
         END (*IF*)
+        
       ; IF FM3CLOptions . OptionsLexTable = NIL
-        THEN 
+        THEN
           FM3CLOptions . OptionsLexTable
             := FM3Files . ReadFsm
                  ( "Clt" , FM3SharedGlobals . FM3FileKindCltPkl )
-(*TODO: ^Catch an exception and emit a helpful message if this fails to load. *)
-        END (*IF*) 
-      ; LOptTok
-          := FM3LexTable . ValueFromText
-               ( FM3CLOptions . OptionsLexTable
-               , Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs )
-               )
-      ; IF LOptTok = FM3LexTable . ValueNull
-        THEN RAISE TerminateCL  ( "Unknown arg." ) 
-        END (*IF*) 
-      ; CASE LOptTok
+        END (*IF*)
+
+      ; LHasEquals := FALSE 
+      ; LLexState := FM3LexTable . IncrInit ( FM3CLOptions . OptionsLexTable )
+      ; LOOP
+          (* INVARIANT: Lex machine needs a(nother) character.
+             The next one is at PaArgSs, but not fetched.
+          *) 
+          IF PaArgSs >= PaArgLen
+          THEN LChar := FM3LexTable . NullChar
+          ELSE
+            LChar := Text . GetChar ( PaArgText , PaArgSs )
+          ; IF LChar = '='
+            THEN
+              LChar := FM3LexTable . NullChar
+            ; LHasEquals := TRUE 
+            ; INC ( PaArgSs )
+            END (*IF*) 
+          ; INC ( PaArgSs )
+          END (*IF*) 
+        ; LLexValue
+            := FM3LexTable . IncrNext
+                 ( FM3CLOptions . OptionsLexTable
+                 , LChar
+                 , (*IN OUT*) LLexState
+                 )
+        ; IF LLexValue = FM3LexTable . ValueUnrecognized 
+          THEN RAISE TerminateCL  ( "Unrecognized arg." )
+          ELSIF LLexValue = FM3LexTable . ValueNull
+          THEN (* LexTable wants more characters. *)
+            (* And loop. *)
+          ELSE (* A recognized option, but it might be only a proper prefix. *)
+            (* This is made very messy by virtue that LexTable sometimes can
+               and will recognize a string without seeing its successor, if
+               any following character would make for an unrecognizable string.
+               Otherwise, LexTable will need to receive a trailing NullChar
+               before it recognizes the string.
+            *) 
+            IF LChar # FM3LexTable . NullChar
+            THEN (* LexTable recognized the option from its last character. *)
+              IF PaArgSs < PaArgLen
+                 AND Text . GetChar ( PaArgText , PaArgSs ) = '='
+              THEN (* Consume and note the equal sign. *) 
+                LHasEquals := TRUE 
+              ; INC ( PaArgSs )
+              END (*IF*) 
+            END (*IF*) 
+          ; IF LHasEquals OR PaArgSs >= PaArgLen  
+            THEN (* No more chars in PaArgText. *)
+              EXIT
+            ELSE (* There is an extra trailing character, which will make it
+                    urecognizable after all.
+                 *) 
+              RAISE TerminateCL  ( "Unrecognized arg." )
+            END (*IF*) 
+          END (*IF*) 
+        END (*LOOP*) 
+
+      ; CASE LLexValue 
         OF
         | Clt . CltVersion
-        => DisplayVersion ( )
-        ; RAISE FM3SharedUtils . Terminate ( NIL ) 
+        => IF NOT LNo
+           THEN (* OK, so this is silly.  But as much on the user's part. *) 
+             DisplayVersion ( )
+           ; RAISE FM3SharedUtils . Terminate ( NIL )
+           END (*IF*) 
         
         | Clt . CltHelp 
-        => DisplayVersion ( )
-        ; DisplayHelp ( ) 
-        ; RAISE FM3SharedUtils . Terminate ( NIL ) 
+        => IF NOT LNo
+           THEN (* OK, so this is silly.  But as much on the user's part. *) 
+             DisplayVersion ( )
+           ; DisplayHelp ( ) 
+           ; RAISE FM3SharedUtils . Terminate ( NIL ) 
+           END (*IF*) 
         
         | Clt . CltSrcFile  
-        => PaFindTwoHyphenParam ( )
+        => PaNoNo ( LNo )
+        ; PaFindParam ( )
         ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
         ; AppendTextToList ( FM3CLOptions . SourceFileNames , LParam )
-        ; FM3CLOptions . SrcFileName := PaArgText 
+        ; FM3CLOptions . SrcFileName := LParam  
         
         | Clt . CltSrcDir  
-        => PaFindTwoHyphenParam ( )
+        => PaNoNo ( LNo )
+        ; PaFindParam ( )
         ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
         ; AppendTextToList ( FM3CLOptions . SourceDirNames , LParam ) 
         
         | Clt . CltImportDir  
-        => PaFindTwoHyphenParam ( )
+        => PaNoNo ( LNo )
+        ; PaFindParam ( )
         ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
         ; AppendTextToList ( FM3CLOptions . ImportDirNames , LParam ) 
         
         | Clt . CltResourceDir  
-        => PaFindTwoHyphenParam ( )
+        => PaNoNo ( LNo )
+        ; PaFindParam ( )
         ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
-        ; FM3CLOptions . ResourcePathName := LParam
+        ; FM3CLOptions . ResourceDirName := LParam
         
         | Clt . CltBuildDir 
-        => PaFindTwoHyphenParam ( )
+        => PaNoNo ( LNo )
+        ; PaFindParam ( )
         ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
         ; FM3CLOptions . BuildDir := LParam
         
-        | Clt . CltDisAsmPasses 
-        => PaFindTwoHyphenParam ( )
-        ; PaPassNoSet ( FM3CLOptions . PassNosToDisAsm , NOT LNo) 
-        
-        | Clt . CltDisAsm 
-        => FM3CLOptions . PassNosToDisAsm := FM3CLOptions . PassNoSetValid
-        
         | Clt . CltKeepPasses 
-        => PaFindTwoHyphenParam ( )
+        => PaFindParam ( )
         ; PaPassNoSet ( FM3CLOptions . PassNosToKeep , NOT LNo ) 
         
         | Clt . CltKeep 
-        => FM3CLOptions . PassNosToKeep := FM3CLOptions . PassNoSetValid
+        => AlterPassNos
+             ( FM3CLOptions . PassNosToKeep
+             , FM3CLOptions . PassNoSetValid
+             , NOT LNo
+             ) 
 
+        | Clt . CltDisAsmPasses 
+        => PaFindParam ( )
+        ; PaPassNoSet ( FM3CLOptions . PassNosToDisAsm , NOT LNo ) 
+        
+        | Clt . CltDisAsm 
+        => AlterPassNos
+             ( FM3CLOptions . PassNosToDisAsm
+             , FM3CLOptions . PassNoSetValid
+             , NOT LNo
+             ) 
+        
         (* Binary, parameterless options: *) 
         | Clt . CltStdErr  
         , Clt . CltStdOut  
         , Clt . CltFM3Log
         , Clt . CltUnitLog 
         => AssignOptionSetElem 
-             ( FM3CLOptions . OptionTokSet , LOptTok , Value := NOT LNo ) 
+             ( FM3CLOptions . OptionTokSet , LLexValue , Value := NOT LNo ) 
         
         ELSE RAISE TerminateCL ( "Unknown arg." ) 
         END (*CASE*)
-      ; INC ( PaArgNo ) 
+      ; INC ( PaArgNo )
       END PaTwoHyphenArg 
-
-  ; PROCEDURE PaFindSingleHyphenParam ( ArgChar : CHAR ) RAISES { TerminateCL }
-    (* Full arg started with one hyphen, thus has single letter option
-       tags.  The current one calls for parameter, which can be the
-       following argument or a suffix of this argument. Find its PsArgSs. 
-    *) 
-
-    = VAR LResult : TEXT
-
-    ; BEGIN
-        IF PaArgSs < PaArgCt 
-        THEN (* We're already here. *) 
-        ELSE
-          IF PaArgNo >= PaArgCt
-          THEN (* No value. *)
-            RAISE TerminateCL ( "Arg requires a param."  ) 
-          END (*IF*) 
-        ; INC ( PaArgNo )
-        ; IF PaArgNo >= PaArgCt
-          THEN
-            RAISE TerminateCL ( "Arg requires a param."  ) 
-          END (*IF*) 
-        ; PaFetchArg ( MinLen := 1 ) 
-        END (*IF*)
-      END PaFindSingleHyphenParam
 
   ; PROCEDURE PaHyphenArg ( ArgString : TEXT )
     RAISES { TerminateCL , FM3SharedUtils . Terminate } 
@@ -352,24 +358,52 @@ MODULE FM3CLArgs
       ; PaArgSs := 1
       ; LOOP 
           LArgChar := Text . GetChar ( ArgString , PaArgSs )
-        ; CASE LArgChar
-          OF 'v' => DisplayVersion ( )
-          
-          | 'h' => DisplayHelp ( )
-          
-          | 's'
-          =>  PaFindSingleHyphenParam ( LArgChar )
+        ; INC ( PaArgSs )
+        ; CASE LArgChar OF 
+          | 'v'
+          =>  DisplayVersion ( )
+            ; RAISE FM3SharedUtils . Terminate ( NIL )
+         
+          | 'h'
+          =>  DisplayVersion ( )
+            ; DisplayHelp ( )
+            ; RAISE FM3SharedUtils . Terminate ( NIL )
+           
+          | 's' (* Source file. *) 
+          =>  PaFindParam ( )
             ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
             ; AppendTextToList ( FM3CLOptions . SourceFileNames , LParam )
             ; FM3CLOptions . SrcFileName := LParam 
 
-          | 'S'  
-          =>  PaFindTwoHyphenParam ( )
+          | 'S' (* Source directory. *) 
+          =>  PaFindParam ( )
             ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
             ; AppendTextToList ( FM3CLOptions . SourceDirNames , LParam ) 
         
-          | 'd'
-          =>  PaFindSingleHyphenParam ( LArgChar )
+          | 'B'
+          =>  PaFindParam ( )
+            ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
+            ; FM3CLOptions . BuildDir := LParam
+
+          | 'k' (* Keep one pass. *) 
+          =>  PaFindParam ( )
+            ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs )
+            ; LPassNo := SingleDigitParam ( LParam ) 
+            ; IF NOT LPassNo IN FM3CLOptions . PassNoSetValid
+              THEN RAISE TerminateCL ( "Invalid pass number." ) 
+              END (*IF*) 
+            ; FM3CLOptions . InclPassNo
+               ( FM3CLOptions . PassNosToKeep , LPassNo )
+
+          | 'K' (* Keep, all passes. *) 
+          => AlterPassNos
+               ( FM3CLOptions . PassNosToKeep
+               , FM3CLOptions . PassNoSetValid
+               , Include := TRUE 
+               ) 
+                
+          | 'd' (* Disassemble one pass. *) 
+          =>  PaFindParam ( )
             ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs )
             ; LPassNo := SingleDigitParam ( LParam )
             ; IF NOT LPassNo IN FM3CLOptions . PassNoSetValid
@@ -378,23 +412,17 @@ MODULE FM3CLArgs
             ; FM3CLOptions . InclPassNo
                ( FM3CLOptions . PassNosToDisAsm , LPassNo )
                
-          
-          | 'k'
-          => PaFindSingleHyphenParam ( LArgChar )
-            ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs )
-            ; LPassNo := SingleDigitParam ( LParam ) 
-            ; FM3CLOptions . InclPassNo
-               ( FM3CLOptions . PassNosToKeep , LPassNo )
+          | 'D' (* Disassemble , all passes. *) 
+          => AlterPassNos
+               ( FM3CLOptions . PassNosToDisAsm
+               , FM3CLOptions . PassNoSetValid
+               , Include := TRUE 
+               ) 
                 
           | 'I'
-          =>  PaFindSingleHyphenParam ( LArgChar ) 
+          =>  PaFindParam ( ) 
             ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
             ; AppendTextToList ( FM3CLOptions . ImportDirNames , LParam ) 
-
-          | 'B'
-          =>  PaFindSingleHyphenParam ( LArgChar )
-            ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
-            ; FM3CLOptions . BuildDir := LParam
 
           ELSE RAISE TerminateCL  ( "Unknown arg." )
           END (*CASE*)
@@ -413,10 +441,10 @@ MODULE FM3CLArgs
         ; IF PaArgLen >= 1 AND Text . GetChar ( PaArgText , 0 ) = '-'
           THEN
             IF PaArgLen >= 2 AND Text . GetChar ( PaArgText , 1 ) = '-' 
-            THEN
+            THEN (* Two hyphens.*) 
               INC ( PaArgSs , 2 )
             ; PaTwoHyphenArg ( )
-            ELSE
+            ELSE (* One hyphen. *) 
               INC ( PaArgSs )
             ; PaHyphenArg ( PaArgText )
             END (*IF*) 
@@ -431,7 +459,9 @@ MODULE FM3CLArgs
         ; INC ( PaArgNo )
         END (*WHILE*)
       EXCEPT TerminateCL  ( EMsg )
-      =>  Wr . PutText ( Stdio . stderr , "Error in command-line argument:" ) 
+      =>  Wr . PutText ( Stdio . stderr , FM3TextColors . FGDkRed ) 
+        ; Wr . PutText ( Stdio . stderr , "Command line error: " ) 
+        ; Wr . PutText ( Stdio . stderr , FM3TextColors . Reset) 
         ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
         ; Wr . PutText ( Stdio . stderr , "    " ) 
         ; Wr . PutText ( Stdio . stderr , PaArgText ) 
@@ -439,6 +469,9 @@ MODULE FM3CLArgs
         ; Wr . PutText
             ( Stdio . stderr , FM3SharedUtils . Blanks ( 4 + PaArgSs ) ) 
         ; Wr . PutChar ( Stdio . stderr , '^' ) 
+        ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
+        ; Wr . PutText ( Stdio . stderr , "    " ) 
+        ; Wr . PutText ( Stdio . stderr , EMsg ) 
         ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
         ; Wr . Flush ( Stdio . stderr )  
         ; DisplayHelp ( ) 
@@ -449,11 +482,17 @@ MODULE FM3CLArgs
 ; PROCEDURE DisplayVersion ( )
 
   = BEGIN
-      Wr . PutText ( Stdio . stderr , Params . Get ( 0 ) ) 
+      Wr . PutText ( Stdio . stderr , Wr . EOL )
+    ; Wr . PutText ( Stdio . stderr , FM3TextColors . FGDkGreen ) 
+    ; Wr . PutText ( Stdio . stderr , "Running " ) 
+    ; Wr . PutText ( Stdio . stderr , FM3TextColors . Reset) 
+    ; Wr . PutText ( Stdio . stderr , Params . Get ( 0 ) ) 
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL )
     ; Wr . PutText
-        ( Stdio . stderr , ": FM3 Modula-3 compiler, version " ) 
+        ( Stdio . stderr , "    FM3 Modula-3 compiler, version " ) 
     ; Wr . PutText ( Stdio . stderr , FM3Version . VersionString ) 
-    ; Wr . PutText ( Stdio . stderr , Wr . EOL  )
+    ; Wr . PutText ( Stdio . stderr , Wr . EOL )
+    ; Wr . Flush ( Stdio . stderr ) 
     END DisplayVersion
 
 ; CONST HelpTextSimpleName = "FM3HelpText"
@@ -471,8 +510,8 @@ MODULE FM3CLArgs
     ; TRY (*EXCEPT*)
         LHelpRdT
           := FM3SharedUtils . OpenRd
-               ( HelpTextSimpleName
-               , FM3CLOptions . ResourcePathName
+               ( FM3CLOptions . ResourceDirName
+               , HelpTextSimpleName
                , "help text"
                )
       EXCEPT
@@ -487,33 +526,28 @@ MODULE FM3CLArgs
       END (*EXCEPT*) 
     ; IF LOpenFailed 
       THEN 
-        FM3Messages . PutStdErr 
-          ( FM3SharedUtils . CatArrT 
-              ( ARRAY OF REFANY 
-                  { "Unable to open help text file " 
-                  , Pathname . Join 
-                      ( FM3CLOptions . ResourcePathName 
-                      , HelpTextSimpleName 
-                      , NIL 
-                      ) 
-                  , Wr . EOL 
-                  , LReason 
-                  , "    Try supplying "
-                  , FM3CLToks . Image ( FM3CLToks . CltResourceDir )
-                  , " argument first." 
-                  } 
-              ) 
+        Wr . PutText ( Stdio . stderr , "Unable to open help text file " )
+      ; Wr . PutText 
+          ( Stdio . stderr
+          , Pathname . Join 
+              ( FM3CLOptions . ResourceDirName ,  HelpTextSimpleName , NIL ) 
           ) 
+      ; Wr . PutText ( Stdio . stderr , Wr . EOL )  
+      ; Wr . PutText ( Stdio . stderr , LReason )
+      ; Wr . PutText ( Stdio . stderr , "    Try supplying " ) 
+      ; Wr . PutText 
+          ( Stdio . stderr , FM3CLToks . Image ( FM3CLToks . CltResourceDir ) )
+      ; Wr . PutText ( Stdio . stderr , " argument first." ) 
+      ; Wr . Flush ( Stdio . stderr ) 
       ELSE      
         WHILE NOT Rd . EOF ( LHelpRdT )
         DO
           LLine := Rd . GetLine ( LHelpRdT )
         ; LLength := Text . Length ( LLine )
-          (* Don't copy lines beginning with "$Z". *) 
         ; IF LLength >= 2
              AND Text . GetChar ( LLine , 0 ) = '$' 
              AND Text . GetChar ( LLine , 1 ) = 'Z'
-          THEN
+          THEN (* Don't copy lines beginning with "$Z". *) 
           ELSE
             Wr . PutText ( Stdio . stderr , LLine )
           ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
@@ -530,29 +564,19 @@ MODULE FM3CLArgs
              , Clt . CltFM3Log 
              , Clt . CltStdErr 
              , Clt . CltUnitLog
-(* Add as desired: 
-             , Clt . Clt 
-             , Clt . Clt 
-             , Clt . Clt 
-             , Clt . Clt
-             , Clt . Clt 
-             , Clt . Clt 
-             , Clt . Clt 
-             , Clt . Clt
-*) 
              }
 
 ; PROCEDURE SetDefaults ( )
 
-    = VAR LExeName : TEXT
+  = VAR LExeName : TEXT
     
-    ; BEGIN
+  ; BEGIN (*SetDefaults*) 
       FM3CLOptions . SourceDirNames := NIL 
     ; FM3CLOptions . SourceFileNames := NIL
     ; FM3CLOptions . ImportDirNames := NIL
     ; LExeName := Params . Get ( 0 )
-    ; FM3CLOptions . ResourcePathName
-        := FM3SharedUtils . SibDirectoryPath ( LExeName , "lib" )
+    ; FM3CLOptions . ResourceDirName
+        := FM3SharedUtils  . DefaultResourceDirName ( ) 
 
     ; FM3CLOptions . BuildDirRelPath := "../build"
     
@@ -565,26 +589,23 @@ MODULE FM3CLArgs
 
   (* TEMPORARY: during development: *)
 
-    ; FM3CLOptions . SrcFileName
-        := "Main.m3" (* Temporary default, during development *)
+    ; FM3CLOptions . SrcFileName := "Main.m3" 
 
     (* Keep intermediate files. *) 
-    ; FM3CLOptions . InclOptionTok
-        ( FM3CLOptions . OptionTokSet , Clt . CltKeep  ) 
+    ; AlterPassNos
+        ( FM3CLOptions . PassNosToKeep
+        , FM3CLOptions . PassNoSetValid
+        , Include := TRUE 
+        ) 
 
     (* Disassemble intermediate files. *)
-    ; FM3CLOptions . InclPassNo
-        ( FM3CLOptions . PassNosToDisAsm , FM3CLOptions . PassNo2 )
-    ; FM3CLOptions . PassNoSetUnion
-        ( FM3CLOptions . PassNosToKeep , FM3CLOptions . PassNoSetValid ) 
+    ; AlterPassNos
+        ( FM3CLOptions . PassNosToDisAsm
+        , FM3CLOptions . PassNoSetValid
+        , Include := TRUE 
+        ) 
 
     END SetDefaults
-
-; PROCEDURE HandleOptions ( ) 
-
-  = BEGIN
-(* COMPLETEME *)
-    END HandleOptions 
 
 ; PROCEDURE ComputeDerivedInfo ( ) 
 
@@ -613,9 +634,9 @@ MODULE FM3CLArgs
             ( FM3CLOptions . OptionTokSet , Clt . CltFM3Log ) 
         END (*EXCEPT*)
       END (*IF*)
-    ; FM3SharedUtils . ResourcePathName := FM3CLOptions . ResourcePathName
-      (* Push this out so FM3SharedUtils need not import FM3CLOptions and can
-         be used in other man programs that get their options other ways.
+    ; FM3SharedUtils . ResourceDirName := FM3CLOptions . ResourceDirName
+      (* Push this out so FM3SharedUtils need not import FM3CLOptions and thus
+         can be used in other main programs that get their options other ways.
       *)
 
     END ComputeDerivedInfo
@@ -638,72 +659,6 @@ MODULE FM3CLArgs
       THEN Wr . Close ( FM3Messages . FM3LogFileWrT )
       END (*IF*) 
     END Cleanup
-
-(* ------------------------------- Maybe use: --------------------------- *) 
-(* To incorporate, maybe: 
-
-; PROCEDURE SetArgDefaults ( )
-
-  = BEGIN
-      GDoHelp := FALSE 
-    ; GDoGenInterface := FALSE
-    ; GDoGenModule := FALSE
-    ; GDoImageFunc := FALSE
-    ; GDoCountIntToks := FALSE
-    ; GDoGenIntToks := FALSE
-    ; GDoGenSets := FALSE
-    ; GDoGenIntFsm := FALSE
-    ; GDoCountSrcToks := FALSE
-    ; GDoGenSrcToks := FALSE
-    ; GDoGenSrcFsm := FALSE
-
-    ; GInputFileName := "FM3Toks.gentok"
-    ; GOutputFilePrefix := "Tok"
-    ; GOutputDirName := "."
-    ; SetOutputFileNames ( )
-    ; GDoOverrideUNITNAME := FALSE 
-    END SetArgDefaults 
-
-; PROCEDURE MessageLine ( Msg : TEXT )
-
-  = BEGIN
-      Wr . PutText ( Stdio . stderr , "In Line " ) 
-    ; Wr . PutText ( Stdio . stderr , Fmt . Int ( GInputLineNo ) ) 
-    ; Wr . PutText ( Stdio . stderr , ", " ) 
-    ; Wr . PutText ( Stdio . stderr , Msg  ) 
-    ; Wr . PutText ( Stdio . stderr , Wr . EOL )
-    ; Wr . Flush ( Stdio . stderr )
-    END MessageLine
-
-; PROCEDURE OpenInput ( FileName : TEXT ) : Rd . T 
-  RAISES { FM3SharedUtils . Terminate } 
-
-  = VAR LResult : Rd . T
-  
-  ; BEGIN
-      IF FileName = NIL
-         OR Text . Equal ( FileName , "" )
-         OR Text . Equal ( FileName , "-" )
-      THEN LResult := Stdio . stdin 
-      ELSE
-        TRY 
-          LResult := FileRd . Open ( FileName )
-        EXCEPT OSError . E ( <*UNUSED*> Code )
-        => MessageLine ( "Unable to open input file " & FileName )
-        ; LResult := NIL 
-        ; RAISE FM3SharedUtils . Terminate 
-        END (*EXCEPT*)
-      END (*IF*)
-    ; GInputLineNo := 1 
-    ; GNextInChar := '\X00'
-    ; GInputRdT := LResult 
-    ; ConsumeChar ( )
-    ; RETURN LResult 
-    END OpenInput
-
-
-
-*) 
 
 ; BEGIN
   END FM3CLArgs

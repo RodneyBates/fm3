@@ -20,6 +20,7 @@ MODULE FM3Scanner
 ; IMPORT FM3Atom_OAChars 
 ; IMPORT FM3Atom_OAWideChars 
 ; IMPORT FM3Base
+; IMPORT FM3CLOptions 
 ; IMPORT FM3Dict_OAChars_Int
 ; IMPORT FM3Files
 ; IMPORT FM3Globals
@@ -1321,7 +1322,7 @@ MODULE FM3Scanner
       InitEscapeCharMap ( ) 
     ; InitDigitCharMap ( ) 
     ; GM3RwLexTable
-        := FM3Files . ReadFsm ( "M3" , FM3SharedGlobals . FM3FileKindM3RwPkl ) 
+        := FM3Files . ReadFsm ( "M3" , FM3SharedGlobals . FM3FileKindM3RwPkl )
 (*  ; GPgRwLexTable
         := FM3Files . ReadFsm ( "Pg" , FM3SharedGlobals . FM3FileKindPgRwPkl ) *)
     END Init 

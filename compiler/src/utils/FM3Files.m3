@@ -61,7 +61,7 @@ MODULE FM3Files
 
 (*EXPORTED*) 
 ; PROCEDURE OpenUniRd
-    ( FileName , PathName , Note1 , Note2 : TEXT := "" ) : UniRd . T
+    ( DirName , FileName , Note1 , Note2 : TEXT := "" ) : UniRd . T
   RAISES { } 
 
   = VAR LFullFileName : TEXT
@@ -69,7 +69,7 @@ MODULE FM3Files
   ; VAR LResult : UniRd . T 
   
   ; BEGIN
-      LFullFileName := Pathname . Join ( PathName , FileName ) 
+      LFullFileName := Pathname . Join ( DirName , FileName ) 
     ; TRY 
        LRdT := FileRd . Open ( LFullFileName ) 
       EXCEPT
@@ -88,7 +88,7 @@ MODULE FM3Files
            ) 
       END (*EXCEPT*)
 
-(*TODO: Use FM3SharedUtils.OpenRd for all above. *)
+(*TODO: Use FM3SharedUtils.OpenRd for above. *)
     ; LResult := UniRd . New ( LRdT , SrcEnc )
     ; RETURN LResult 
     END OpenUniRd
