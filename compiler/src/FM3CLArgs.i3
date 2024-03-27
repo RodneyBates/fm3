@@ -38,6 +38,8 @@ INTERFACE FM3CLArgs
 
 ; PROCEDURE Cleanup ( )
 
+; PROCEDURE ArgListAsText ( ) : TEXT
+
 (* Compiler completion codes. *) 
 
 ; CONST CcPatchStackNotEmpty = 1 

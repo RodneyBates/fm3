@@ -21,7 +21,8 @@ MODULE  FM3Compile
 ; IMPORT FM3Globals
 ; IMPORT FM3Messages 
 ; IMPORT FM3Pass1 
-; IMPORT FM3Pass2 
+; IMPORT FM3Pass2
+; IMPORT FM3SharedUtils 
 ; IMPORT FM3Units
 ; IMPORT RdBackFile 
 
@@ -88,9 +89,7 @@ MODULE  FM3Compile
     ; RdBackFile . Close ( LRdBack , - 1L )      
     ; Wr . Close ( LDisAsmWrT ) 
 
-    ; TRY FS . DeleteFile ( LCopyFileFullName )
-      EXCEPT OSError . E => (* It didn't exist.  Shouldn't happen. *) 
-      END (*EXCEPT*)
+    ; FM3SharedUtils . DeleteFile ( LCopyFileFullName )
 
     END DisAsmPassFile
 
@@ -132,13 +131,9 @@ MODULE  FM3Compile
                  ( NIL , LPassFileFullName , FM3Globals . CopyFileSuffix ) 
         ; IF NOT RPassNo IN FM3CLOptions . PassNosToKeep  
           THEN
-            TRY FS . DeleteFile ( LPassFileFullName )
-            EXCEPT OSError . E => (* It didn't exist.  Could happen. *) 
-            END (*EXCEPT*)
+            FM3SharedUtils . DeleteFile ( LPassFileFullName )
           END (*IF*) 
-        ; TRY FS . DeleteFile ( LCopyFileFullName )
-          EXCEPT OSError . E => (* It didn't exist.  Shouldn't happen. *) 
-          END (*EXCEPT*)
+        ; FM3SharedUtils . DeleteFile ( LCopyFileFullName )
         END (*IF*) 
       END (*FOR*) 
     END CleanPassFilesAndCopies

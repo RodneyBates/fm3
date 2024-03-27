@@ -17,6 +17,7 @@ MODULE FM3CLArgs
 ; IMPORT Rd 
 ; IMPORT Stdio
 ; IMPORT Text 
+; IMPORT TextWr 
 ; IMPORT Wr
 
 ; IMPORT FM3Base
@@ -96,44 +97,59 @@ MODULE FM3CLArgs
 ; PROCEDURE ParseArgs ( )
   RAISES { FM3SharedUtils . Terminate } 
 
-  = VAR PaArgCt : INTEGER
+  = VAR PaArgText : TEXT
+  ; VAR PaPrevArgText : TEXT
+  ; VAR PaArgCt : INTEGER
   ; VAR PaArgNo : INTEGER
   ; VAR PaArgLen : INTEGER
   ; VAR PaArgSs : INTEGER 
-  ; VAR PaArgText : TEXT
+  ; VAR PaHasEqualSign : BOOLEAN
 
   ; PROCEDURE PaFetchArg ( MinLen : INTEGER := 1 ) RAISES { TerminateCL } 
-
+    (* PRE: PaArgNo < Params . Count *)
+    
     = BEGIN
         PaArgText := Params . Get ( PaArgNo )
-      ; IF PaArgText = NIL THEN PaArgText := "" END (*IF*)
+      ; IF PaArgText = NIL (* Probably not possible. *)
+        THEN PaArgText := ""
+        END (*IF*)
       ; PaArgLen := Text . Length ( PaArgText )
       ; PaArgSs := 0 
       ; IF PaArgLen < MinLen
-        THEN RAISE TerminateCL ( "Arg too short.")
+        THEN RAISE TerminateCL ( "Argument is too short.")
         END (*IF*)
       END PaFetchArg
 
   ; PROCEDURE PaFindParam ( ) RAISES { TerminateCL }
+    (* PRE: A parameter is expected.  *) 
+    (* POST: There is a param and it is in PaArgText, starting at PaArgSs. *) 
 
     = VAR LResult : TEXT
 
     ; BEGIN
         IF PaArgSs < PaArgLen 
-        THEN (* We're already here. *) 
+        THEN (* We're already at the beginning of a parameter inside
+                the current arg in PaArgText. *) 
+          PaPrevArgText := NIL  
         ELSE
-          IF PaArgNo >= PaArgCt
-          THEN (* No value. *)
-            RAISE TerminateCL ( "Arg requires a param."  ) 
-          END (*IF*) 
-        ; INC ( PaArgNo )
+          INC ( PaArgNo )
         ; IF PaArgNo >= PaArgCt
           THEN
-            RAISE TerminateCL ( "Arg requires a param."  ) 
+            RAISE TerminateCL ( "Argument requires a parameter."  ) 
           END (*IF*) 
-        ; PaFetchArg ( MinLen := 1 ) 
+        ; PaPrevArgText := PaArgText 
+        ; PaFetchArg ( MinLen := 1 )
+        (* This entire arg is the parameter. *) 
         END (*IF*)
-      END PaFindParam
+      END PaFindParam 
+
+  ; PROCEDURE PaCheckValidSrcFile ( FileName : TEXT ) RAISES { TerminateCL }
+
+    = BEGIN
+        IF FM3Files . FileSuffix ( FileName ) = FM3Files . SuffixTyp . SfxNull
+        THEN RAISE TerminateCL ( "Invalid source file name." )
+        END (*IF*) 
+      END PaCheckValidSrcFile 
 
   ; PROCEDURE PaNoNo ( No : BOOLEAN ) RAISES { TerminateCL } 
 
@@ -141,9 +157,20 @@ MODULE FM3CLArgs
         IF No
         THEN
           PaArgSs := 2 
-        ; RAISE TerminateCL ( "Option does not support the \"no-\" prefix." )
+        ; RAISE
+            TerminateCL
+              ( "This argument does not support the \"no-\" prefix." )
         END (*IF*) 
-      END PaNoNo 
+      END PaNoNo
+      
+  ; PROCEDURE PaNoEqualSign ( ) RAISES { TerminateCL } 
+  
+    = BEGIN
+        IF PaHasEqualSign 
+        THEN
+          RAISE TerminateCL ( "This argument does not take a parameter. " ) 
+        END (*IF*) 
+      END PaNoEqualSign 
 
   ; CONST SingleDigits = SET OF CHAR { '1' .. '9' }
 
@@ -183,8 +210,6 @@ MODULE FM3CLArgs
     ; VAR LLexValue : FM3LexTable . ValueTyp
     ; VAR LChar : CHAR 
     ; VAR LNo : BOOLEAN
-    ; VAR LHasEquals : BOOLEAN
-(*TODO: Check that arg allows '='. *) 
 
     ; BEGIN
         IF PaArgLen >= 5
@@ -195,7 +220,7 @@ MODULE FM3CLArgs
         ELSE LNo := FALSE 
         END (*IF*)
       ; IF PaArgSs >= PaArgLen
-        THEN RAISE TerminateCL  ( "Incomplete arg." )
+        THEN RAISE TerminateCL  ( "Incomplete argument." )
         END (*IF*)
         
       ; IF FM3CLOptions . OptionsLexTable = NIL
@@ -205,7 +230,7 @@ MODULE FM3CLArgs
                  ( "Clt" , FM3SharedGlobals . FM3FileKindCltPkl )
         END (*IF*)
 
-      ; LHasEquals := FALSE 
+      ; PaHasEqualSign := FALSE 
       ; LLexState := FM3LexTable . IncrInit ( FM3CLOptions . OptionsLexTable )
       ; LOOP
           (* INVARIANT: Lex machine needs a(nother) character.
@@ -218,8 +243,7 @@ MODULE FM3CLArgs
           ; IF LChar = '='
             THEN
               LChar := FM3LexTable . NullChar
-            ; LHasEquals := TRUE 
-            ; INC ( PaArgSs )
+            ; PaHasEqualSign := TRUE 
             END (*IF*) 
           ; INC ( PaArgSs )
           END (*IF*) 
@@ -230,11 +254,13 @@ MODULE FM3CLArgs
                  , (*IN OUT*) LLexState
                  )
         ; IF LLexValue = FM3LexTable . ValueUnrecognized 
-          THEN RAISE TerminateCL  ( "Unrecognized arg." )
+          THEN RAISE TerminateCL  ( "Unrecognized argument." )
           ELSIF LLexValue = FM3LexTable . ValueNull
           THEN (* LexTable wants more characters. *)
-            (* And loop. *)
-          ELSE (* A recognized option, but it might be only a proper prefix. *)
+            (* Loop. *)
+          ELSE (* A recognized option, but it might be only a proper prefix
+                  of the command-line argument.
+               *)
             (* This is made very messy by virtue that LexTable sometimes can
                and will recognize a string without seeing its successor, if
                any following character would make for an unrecognizable string.
@@ -246,17 +272,17 @@ MODULE FM3CLArgs
               IF PaArgSs < PaArgLen
                  AND Text . GetChar ( PaArgText , PaArgSs ) = '='
               THEN (* Consume and note the equal sign. *) 
-                LHasEquals := TRUE 
+                PaHasEqualSign := TRUE 
               ; INC ( PaArgSs )
               END (*IF*) 
             END (*IF*) 
-          ; IF LHasEquals OR PaArgSs >= PaArgLen  
-            THEN (* No more chars in PaArgText. *)
+          ; IF PaHasEqualSign OR PaArgSs >= PaArgLen  
+            THEN (* No more chars in PaArgText.  LLexValue is recognized. *)
               EXIT
-            ELSE (* There is an extra trailing character, which will make it
-                    urecognizable after all.
+            ELSE (* There is an extra trailing character, which will make 
+                    argument LLexValue unrecognizable after all.
                  *) 
-              RAISE TerminateCL  ( "Unrecognized arg." )
+              RAISE TerminateCL  ( "Unrecognized argument." )
             END (*IF*) 
           END (*IF*) 
         END (*LOOP*) 
@@ -264,87 +290,92 @@ MODULE FM3CLArgs
       ; CASE LLexValue 
         OF
         | Clt . CltVersion
-        => IF NOT LNo
-           THEN (* OK, so this is silly.  But as much on the user's part. *) 
-             DisplayVersion ( )
-           ; RAISE FM3SharedUtils . Terminate ( NIL )
-           END (*IF*) 
+        =>  PaNoEqualSign ( )
+          ; IF NOT LNo
+            THEN (* OK, so this is silly.  But as much on the user's part. *) 
+              DisplayVersion ( )
+            ; RAISE FM3SharedUtils . Terminate ( NIL )
+            END (*IF*) 
         
         | Clt . CltHelp 
-        => IF NOT LNo
-           THEN (* OK, so this is silly.  But as much on the user's part. *) 
-             DisplayVersion ( )
-           ; DisplayHelp ( ) 
-           ; RAISE FM3SharedUtils . Terminate ( NIL ) 
-           END (*IF*) 
+        =>  PaNoEqualSign ( )
+          ; IF NOT LNo
+            THEN (* OK, so this is silly.  But as much on the user's part. *) 
+              DisplayVersion ( )
+            ; DisplayHelp ( ) 
+            ; RAISE FM3SharedUtils . Terminate ( NIL ) 
+            END (*IF*) 
         
         | Clt . CltSrcFile  
-        => PaNoNo ( LNo )
-        ; PaFindParam ( )
-        ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
-        ; AppendTextToList ( FM3CLOptions . SourceFileNames , LParam )
-        ; FM3CLOptions . SrcFileName := LParam  
+        =>  PaNoNo ( LNo )
+          ; PaFindParam ( )
+          ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs )
+          ; PaCheckValidSrcFile ( LParam ) 
+          ; AppendTextToList ( FM3CLOptions . SourceFileNames , LParam )
+          ; FM3CLOptions . SrcFileName := LParam  
         
         | Clt . CltSrcDir  
-        => PaNoNo ( LNo )
-        ; PaFindParam ( )
-        ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
-        ; AppendTextToList ( FM3CLOptions . SourceDirNames , LParam ) 
+        =>  PaNoNo ( LNo )
+          ; PaFindParam ( )
+          ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
+          ; AppendTextToList ( FM3CLOptions . SourceDirNames , LParam ) 
         
         | Clt . CltImportDir  
-        => PaNoNo ( LNo )
-        ; PaFindParam ( )
-        ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
-        ; AppendTextToList ( FM3CLOptions . ImportDirNames , LParam ) 
+        =>  PaNoNo ( LNo )
+          ; PaFindParam ( )
+          ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
+          ; AppendTextToList ( FM3CLOptions . ImportDirNames , LParam ) 
         
         | Clt . CltResourceDir  
-        => PaNoNo ( LNo )
-        ; PaFindParam ( )
-        ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
-        ; FM3CLOptions . ResourceDirName := LParam
+        =>  PaNoNo ( LNo )
+          ; PaFindParam ( )
+          ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
+          ; FM3CLOptions . ResourceDirName := LParam
         
         | Clt . CltBuildDir 
-        => PaNoNo ( LNo )
-        ; PaFindParam ( )
-        ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
-        ; FM3CLOptions . BuildDir := LParam
+        =>  PaNoNo ( LNo )
+          ; PaFindParam ( )
+          ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
+          ; FM3CLOptions . BuildDir := LParam
         
         | Clt . CltKeepPasses 
-        => PaFindParam ( )
-        ; PaPassNoSet ( FM3CLOptions . PassNosToKeep , NOT LNo ) 
+        =>  PaFindParam ( )
+          ; PaPassNoSet ( FM3CLOptions . PassNosToKeep , NOT LNo ) 
         
         | Clt . CltKeep 
-        => AlterPassNos
-             ( FM3CLOptions . PassNosToKeep
-             , FM3CLOptions . PassNoSetValid
-             , NOT LNo
-             ) 
+        =>  PaNoEqualSign ( )
+          ; AlterPassNos
+              ( FM3CLOptions . PassNosToKeep
+              , FM3CLOptions . PassNoSetValid
+              , NOT LNo
+              ) 
 
         | Clt . CltDisAsmPasses 
-        => PaFindParam ( )
-        ; PaPassNoSet ( FM3CLOptions . PassNosToDisAsm , NOT LNo ) 
+        =>  PaFindParam ( )
+          ; PaPassNoSet ( FM3CLOptions . PassNosToDisAsm , NOT LNo ) 
         
         | Clt . CltDisAsm 
-        => AlterPassNos
-             ( FM3CLOptions . PassNosToDisAsm
-             , FM3CLOptions . PassNoSetValid
-             , NOT LNo
-             ) 
+        =>  PaNoEqualSign ( )
+          ; AlterPassNos
+              ( FM3CLOptions . PassNosToDisAsm
+              , FM3CLOptions . PassNoSetValid
+              , NOT LNo
+              ) 
         
         (* Binary, parameterless options: *) 
         | Clt . CltStdErr  
         , Clt . CltStdOut  
         , Clt . CltFM3Log
         , Clt . CltUnitLog 
-        => AssignOptionSetElem 
-             ( FM3CLOptions . OptionTokSet , LLexValue , Value := NOT LNo ) 
+        =>  PaNoEqualSign ( )
+          ; AssignOptionSetElem 
+              ( FM3CLOptions . OptionTokSet , LLexValue , Value := NOT LNo ) 
         
-        ELSE RAISE TerminateCL ( "Unknown arg." ) 
+        ELSE RAISE TerminateCL ( "Unrecognized argument." ) 
         END (*CASE*)
-      ; INC ( PaArgNo )
-      END PaTwoHyphenArg 
-
-  ; PROCEDURE PaHyphenArg ( ArgString : TEXT )
+      END PaTwoHyphenArg
+      
+  ; PROCEDURE PaHyphenArg ( )
     RAISES { TerminateCL , FM3SharedUtils . Terminate } 
     (* PRE: Arg starts with one hyphen only. *) 
 
@@ -354,12 +385,18 @@ MODULE FM3CLArgs
     ; VAR LArgChar : CHAR 
 
     ; BEGIN
-        IF PaArgLen <= 1 THEN RAISE TerminateCL ( "Missing arg." ) END (*IF*)
+        IF PaArgLen <= 1
+        THEN RAISE TerminateCL ( "Missing argument." )
+        END (*IF*)
       ; PaArgSs := 1
-      ; LOOP 
-          LArgChar := Text . GetChar ( ArgString , PaArgSs )
+      ; LOOP (* Thru' multiple letters of this argument. *) 
+          LArgChar := Text . GetChar ( PaArgText , PaArgSs )
         ; INC ( PaArgSs )
-        ; CASE LArgChar OF 
+        ; CASE LArgChar OF
+          | '='
+          => RAISE TerminateCL
+               ( "Equal sign not allowed in single-character argument." )
+               
           | 'v'
           =>  DisplayVersion ( )
             ; RAISE FM3SharedUtils . Terminate ( NIL )
@@ -372,18 +409,27 @@ MODULE FM3CLArgs
           | 's' (* Source file. *) 
           =>  PaFindParam ( )
             ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
+            ; PaCheckValidSrcFile ( LParam ) 
             ; AppendTextToList ( FM3CLOptions . SourceFileNames , LParam )
             ; FM3CLOptions . SrcFileName := LParam 
+            ; EXIT 
 
           | 'S' (* Source directory. *) 
           =>  PaFindParam ( )
             ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
             ; AppendTextToList ( FM3CLOptions . SourceDirNames , LParam ) 
+            ; EXIT 
         
+          | 'I'
+          =>  PaFindParam ( ) 
+            ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
+            ; AppendTextToList ( FM3CLOptions . ImportDirNames , LParam ) 
+
           | 'B'
           =>  PaFindParam ( )
             ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
             ; FM3CLOptions . BuildDir := LParam
+            ; EXIT 
 
           | 'k' (* Keep one pass. *) 
           =>  PaFindParam ( )
@@ -394,6 +440,7 @@ MODULE FM3CLArgs
               END (*IF*) 
             ; FM3CLOptions . InclPassNo
                ( FM3CLOptions . PassNosToKeep , LPassNo )
+            ; EXIT 
 
           | 'K' (* Keep, all passes. *) 
           => AlterPassNos
@@ -411,6 +458,7 @@ MODULE FM3CLArgs
               END (*IF*) 
             ; FM3CLOptions . InclPassNo
                ( FM3CLOptions . PassNosToDisAsm , LPassNo )
+            ; EXIT 
                
           | 'D' (* Disassemble , all passes. *) 
           => AlterPassNos
@@ -419,12 +467,7 @@ MODULE FM3CLArgs
                , Include := TRUE 
                ) 
                 
-          | 'I'
-          =>  PaFindParam ( ) 
-            ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
-            ; AppendTextToList ( FM3CLOptions . ImportDirNames , LParam ) 
-
-          ELSE RAISE TerminateCL  ( "Unknown arg." )
+          ELSE RAISE TerminateCL  ( "Unrecognized argument." )
           END (*CASE*)
         ; INC ( PaArgSs )
         ; IF PaArgSs >= PaArgLen THEN EXIT END (*IF*) 
@@ -438,6 +481,7 @@ MODULE FM3CLArgs
     ; TRY 
         WHILE PaArgNo < PaArgCt DO
           PaFetchArg ( MinLen := 1 )
+        ; PaPrevArgText := NIL 
         ; IF PaArgLen >= 1 AND Text . GetChar ( PaArgText , 0 ) = '-'
           THEN
             IF PaArgLen >= 2 AND Text . GetChar ( PaArgText , 1 ) = '-' 
@@ -446,36 +490,49 @@ MODULE FM3CLArgs
             ; PaTwoHyphenArg ( )
             ELSE (* One hyphen. *) 
               INC ( PaArgSs )
-            ; PaHyphenArg ( PaArgText )
+            ; PaHyphenArg ( )
             END (*IF*) 
-          ELSE (* No hyphens. *) 
-            FM3CLOptions . SourceFileNames
-               := AtomList . Cons
-                    ( Atom . FromText ( PaArgText )
-                    , FM3CLOptions . SourceFileNames
-                    )
+          ELSE (* No hyphens. *)
+            PaCheckValidSrcFile ( PaArgText ) 
+          ; AppendTextToList ( FM3CLOptions . SourceFileNames , PaArgText )
           ; FM3CLOptions . SrcFileName := PaArgText 
           END (*IF*) 
         ; INC ( PaArgNo )
         END (*WHILE*)
       EXCEPT TerminateCL  ( EMsg )
-      =>  Wr . PutText ( Stdio . stderr , FM3TextColors . FGDkRed ) 
-        ; Wr . PutText ( Stdio . stderr , "Command line error: " ) 
-        ; Wr . PutText ( Stdio . stderr , FM3TextColors . Reset) 
-        ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
-        ; Wr . PutText ( Stdio . stderr , "    " ) 
-        ; Wr . PutText ( Stdio . stderr , PaArgText ) 
-        ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
-        ; Wr . PutText
-            ( Stdio . stderr , FM3SharedUtils . Blanks ( 4 + PaArgSs ) ) 
-        ; Wr . PutChar ( Stdio . stderr , '^' ) 
-        ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
-        ; Wr . PutText ( Stdio . stderr , "    " ) 
-        ; Wr . PutText ( Stdio . stderr , EMsg ) 
-        ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
-        ; Wr . Flush ( Stdio . stderr )  
-        ; DisplayHelp ( ) 
-        ; RAISE FM3SharedUtils . Terminate ( "FM3CLArgs" )  
+      =>   VAR LBlankCt : INTEGER
+        ; BEGIN
+            Wr . PutText ( Stdio . stderr , FM3TextColors . FGDkRed ) 
+          ; Wr . PutText ( Stdio . stderr , "Command line error: " ) 
+          ; Wr . PutText ( Stdio . stderr , FM3TextColors . Reset) 
+          ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
+          ; Wr . PutText ( Stdio . stderr , "    " )
+          ; LBlankCt := 4 
+          ; IF PaPrevArgText # NIL
+            THEN
+              Wr . PutText ( Stdio . stderr , PaPrevArgText ) 
+            ; INC ( LBlankCt , Text . Length ( PaPrevArgText ) )
+            ; Wr . PutChar ( Stdio . stderr , ' ' )
+            ; INC ( LBlankCt ) 
+            END (*IF*) 
+          ; Wr . PutText ( Stdio . stderr , PaArgText ) 
+          ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
+          ; Wr . PutText
+              ( Stdio . stderr
+              , FM3SharedUtils . Blanks ( LBlankCt + PaArgSs ) 
+              ) 
+          ; Wr . PutChar ( Stdio . stderr , '^' )
+          ; Wr . PutChar ( Stdio . stderr , ' ' )
+          (* 
+          ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
+          ; Wr . PutText ( Stdio . stderr , "    " )
+          *) 
+          ; Wr . PutText ( Stdio . stderr , EMsg )
+          ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
+          ; Wr . Flush ( Stdio . stderr )  
+          ; DisplayHelp ( ) 
+          ; RAISE FM3SharedUtils . Terminate ( "FM3CLArgs" )
+          END (*Block*) 
       END (*EXCEPT*)
     END ParseArgs
 
@@ -607,11 +664,19 @@ MODULE FM3CLArgs
 
     END SetDefaults
 
+; PROCEDURE RemoveLeftoverFiles ( )
+
+  = BEGIN
+      (* This is currently being done elsewhere, e.g. Compile, Pass1, Pass2. *)
+    END RemoveLeftoverFiles 
+
 ; PROCEDURE ComputeDerivedInfo ( ) 
 
   = BEGIN
-      FM3CLOptions . PassNosToKeep
-        := FM3CLOptions . PassNosToKeep + FM3CLOptions . PassNosToDisAsm 
+      FM3CLOptions . PassNoSetUnion
+        ( (*IN OUT*) FM3CLOptions . PassNosToKeep
+        , FM3CLOptions . PassNosToDisAsm
+        ) 
       
     ; IF Clt . CltFM3Log IN FM3CLOptions . OptionTokSet 
       THEN 
@@ -633,11 +698,16 @@ MODULE FM3CLArgs
         ; FM3CLOptions . ExclOptionTok
             ( FM3CLOptions . OptionTokSet , Clt . CltFM3Log ) 
         END (*EXCEPT*)
+      ELSE FM3SharedUtils . DeleteFile ( FM3Messages . FM3LogFileName ) 
       END (*IF*)
     ; FM3SharedUtils . ResourceDirName := FM3CLOptions . ResourceDirName
       (* Push this out so FM3SharedUtils need not import FM3CLOptions and thus
          can be used in other main programs that get their options other ways.
       *)
+
+(* TOTO: remove any leftover old versions of files not to be generated
+         by this run.  Keep pass files, disasm files, logs.
+*) 
 
     END ComputeDerivedInfo
 
@@ -659,6 +729,24 @@ MODULE FM3CLArgs
       THEN Wr . Close ( FM3Messages . FM3LogFileWrT )
       END (*IF*) 
     END Cleanup
+
+(*EXPORTED*)
+; PROCEDURE ArgListAsText ( ) : TEXT
+
+  = VAR LWrT : Wr . T
+  ; VAR LResult : TEXT 
+
+  ; BEGIN
+      LWrT := TextWr . New ( )
+    ; Wr . PutText ( LWrT , Params . Get ( 0 ) ) 
+    ; FOR RArgNo := 1 TO Params . Count - 1
+      DO
+        Wr . PutChar ( LWrT , ' ' )
+      ; Wr . PutText ( LWrT , Params . Get ( RArgNo ) ) 
+      END (*FOR*) 
+    ; LResult := TextWr . ToText ( LWrT )
+    ; RETURN LResult 
+    END ArgListAsText 
 
 ; BEGIN
   END FM3CLArgs

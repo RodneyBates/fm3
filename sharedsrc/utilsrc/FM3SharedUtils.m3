@@ -595,7 +595,16 @@ MODULE FM3SharedUtils
       ELSE LResult := "../lib" (* Not very likely to work, but what else? *) 
       END (*IF*) 
     ; RETURN LResult 
-    END DefaultResourceDirName 
+    END DefaultResourceDirName
+
+; PROCEDURE DeleteFile ( FileName : TEXT )
+(* PRE noncondition: File does not necessarily exist. *) 
+
+  = BEGIN
+      TRY FS . DeleteFile ( FileName )
+      EXCEPT OSError . E => (* It didn't exist. *) 
+      END (*EXCEPT*)
+    END DeleteFile 
 
 ; BEGIN 
     ResourceDirName := DefaultResourceDirName ( )  

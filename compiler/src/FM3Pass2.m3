@@ -782,7 +782,7 @@ MODULE FM3Pass2
       TRY 
         Pass2 ( UnitRef ^ . UntPass2OutEmptyCoord )
 
-(* Write final successful   pass 2 output tokens. *)
+(* Write final successful pass 2 output tokens. *)
       
       ; PutBwdP2
           ( UnitRef ^ . UntPass2OutRdBack , VAL ( Itk . ItkLeftEnd , LONGINT ) )
@@ -866,9 +866,7 @@ MODULE FM3Pass2
              , UnitRef ^ . UntPatchStackSimpleName
              , NIL
              )
-    ; TRY FS . DeleteFile ( LPatchFullFileName )
-      EXCEPT OSError . E => (* It didn't exist. *) 
-      END (*EXCEPT*)
+    ; FM3SharedUtils . DeleteFile ( LPatchFullFileName )
 
     ; FM3Messages . FM3LogArr
         ( ARRAY OF REFANY
@@ -932,15 +930,13 @@ MODULE FM3Pass2
 (* This is new deferred until compile cleanup: 
     ; IF NOT FM3Base . PassNo1 IN FM3CLArgs . PassNosToKeep 
       THEN 
-        TRY FS . DeleteFile
-              ( Pathname . Join
-                  ( UnitRef ^ . UntBuildDirPath 
-                  , UnitRef ^ . UntPass1OutSimpleName
-                  , NIL 
-                  )
-              ) 
-        EXCEPT OSError . E => (* It didn't exist. *) 
-        END (*EXCEPT*) 
+        FM3SharedUtils . DeleteFile
+          ( Pathname . Join
+              ( UnitRef ^ . UntBuildDirPath 
+              , UnitRef ^ . UntPass1OutSimpleName
+              , NIL 
+              )
+          ) 
       END (*IF*)
 *) 
 

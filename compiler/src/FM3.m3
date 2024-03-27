@@ -52,7 +52,7 @@ MODULE FM3 EXPORTS Main
         ; LDebug := 13 (* Complete by exception FatalError. *)
         ; RTProcess . Exit ( 13 ) 
         
-      | FM3SharedUtils . Terminate
+      | FM3SharedUtils . Terminate ( EMsg ) 
       => LDebug := 17 (* Complete by exception Terminate. *) 
          
       END (*EXCEPT*)

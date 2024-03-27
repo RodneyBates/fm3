@@ -47,7 +47,8 @@ MODULE FM3Pass1
 ; IMPORT FM3Base 
 ; FROM FM3Base IMPORT tPosition 
 ; IMPORT FM3CLArgs
-; IMPORT FM3CLOptions  
+; IMPORT FM3CLOptions
+; IMPORT FM3CLToks AS Clt 
 ; IMPORT FM3Compile
 ; IMPORT FM3Compress
 ; FROM FM3Compress IMPORT GetBwd
@@ -223,26 +224,30 @@ MODULE FM3Pass1
              , LUnitRef ^ . UntSrcFileSimpleName
              , FM3Globals . UnitLogSuffix
              ) 
-
     ; LUnitLogFullName
         := Pathname . Join
              ( LSrcFileDir , LUnitRef ^ . UntLogSimpleName , NIL ) 
-    ; TRY LUnitRef ^ . UntLogWrT := FileWr . Open ( LUnitLogFullName ) 
-      EXCEPT
-      | OSError . E ( EAtoms )
-      => <*FATAL Thread . Alerted , Wr . Failure *>
-         BEGIN
-           Wr . PutText ( Stdio . stderr , "Unable to open unit log file " ) 
-         ; Wr . PutText ( Stdio . stderr , LUnitRef ^ . UntLogSimpleName ) 
-         ; Wr . PutText ( Stdio . stderr , ": " ) 
-         ; Wr . PutText
-             ( Stdio . stderr , FM3Messages . AtomListToOSError ( EAtoms ) ) 
-         ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
-         ; Wr . PutText ( Stdio . stderr , "Will proceed without it." ) 
-         ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
-         ; Wr . Flush ( Stdio . stderr )
-         END (*Block.*) 
-      ; LUnitRef ^ . UntLogWrT := NIL 
+    ; IF Clt . CltUnitLog IN FM3CLOptions . OptionTokSet
+      THEN 
+        TRY LUnitRef ^ . UntLogWrT := FileWr . Open ( LUnitLogFullName ) 
+        EXCEPT
+        | OSError . E ( EAtoms )
+        => <*FATAL Thread . Alerted , Wr . Failure *>
+           BEGIN
+             Wr . PutText ( Stdio . stderr , "Unable to open unit log file " ) 
+           ; Wr . PutText ( Stdio . stderr , LUnitRef ^ . UntLogSimpleName ) 
+           ; Wr . PutText ( Stdio . stderr , ": " ) 
+           ; Wr . PutText
+               ( Stdio . stderr , FM3Messages . AtomListToOSError ( EAtoms ) ) 
+           ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
+           ; Wr . PutText ( Stdio . stderr , "Will proceed without it." ) 
+           ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
+           ; Wr . Flush ( Stdio . stderr )
+           END (*Block.*) 
+        ; LUnitRef ^ . UntLogWrT := NIL
+        ELSE (* Remove any leftover unit log file. *) 
+          FM3SharedUtils . DeleteFile ( LUnitLogFullName ) 
+        END (*IF*) 
       END (*EXCEPT*)
     ; FM3Messages . StartUnit
         ( LUnitRef ^ . UntSrcFileSimpleName , LUnitRef ^ . UntLogWrT ) 

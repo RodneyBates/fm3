@@ -111,5 +111,8 @@ INTERFACE FM3SharedUtils
 ; PROCEDURE Blanks ( Length : INTEGER ) : TEXT 
   (* A TEXT of length Length, all blanks. *) 
 
+; PROCEDURE DeleteFile ( FileName : TEXT )
+(* PRE-noncondition: File does not necessarily exist. *) 
+
 ; END FM3SharedUtils 
 .
