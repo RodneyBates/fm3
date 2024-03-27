@@ -1,0 +1,104 @@
+        
+$Z(* -----------------------------------------------------------------------1- *)
+$Z(* This file is part of the FM3 Modula-3 compiler.                           *)
+$Z(* Copyright 2024        Rodney M. Bates.                                    *)
+$Z(* rodney.m.bates@acm.org                                                    *)
+$Z(* Licensed under the MIT License.                                           *)
+$Z(* -----------------------------------------------------------------------2- *)
+$Z
+$Z This is the help text for FM3.
+
+FM3 arg ..
+
+Arguments beginning with "--", e.g. "--src-dir" are long-form options.
+Those beginning with "-", e.g. "-S"  are short-forms.  Those with neither
+are file names to be compiled.  All options have a long form.  Some have
+an equivalent short form.   Some options require a parameter following
+the option name.  
+
+Some long form options allow "no-" prefix to negate the option, e.g.
+"--no-log".  The parameter to a long-form option can either follow
+the option name in the same argument, separated by an equal sign "="
+or stand alone in the following argument.
+
+A short-form option has a single-character name.  Multiple such
+character names can be concatenated in a single argument  introduced
+by "-".  Only the last of these can have a parameter.  The parameter
+to a short-form option name can follow in the same argument or stand
+alone in the following argument.
+
+Some options accumulate when they occur multiple times. Those that do
+hot can also occur multiple times, in which case the last one prevails.
+
+-v
+--version
+       Display version and exit.
+
+-h
+--help
+       Display help and exit.
+
+-s<filename> 
+--src-file[=]<filename>
+       Compile <filename>
+
+-I<directory>
+--import-dir[=]<directory>
+       Look for compiled versions of exported and imported interfaces
+       in <directory>. Accumulates. 
+
+-S<directory>
+--src-dir[=]<directory>
+       Look for source files with unqualified names in <directory>.
+       Includes files named by dashless argument, --src-file, -s, and
+       exported and imported interfaces not found compiled in any
+       --import-dir. Accumulates.
+
+-B<directory>
+--build-dir[=]<directory>
+       Put compiled files in <directory>.  Defaults to <1stsrcdir>/../build,
+       where <1stsrcdir> is the directory containing the first-named source
+       file to be compiled.
+
+--resource-dir[=]<directory>
+       Look in <directory> for various resource files needed by the commpiler.
+       Defaults to <exeDir>/../lib, where <exeDir> is the directory containing
+       the executable for the FM3 compiler.  This help text is one such
+       resource, so you might need to specify --resource-dir prior to --help.
+
+--[no-]stderr 
+       Write compilation process messages to stderr. Defaults to TRUE. 
+      
+--[no-]log 
+       Write compilation process messages to compiler log file FM3Log,
+       in the current working directory.
+
+--[no-]stdout
+       Write compiled code messages to stdout.  Defaults to TRUE 
+
+--[no-]unit-log 
+       Write compiled code messages for each compiled source code unit
+       to a unit-specific log file named <srcFileName>.log, in the same
+       directory ad <srcFileName>. 
+
+-K
+--[no-]keep
+       Keep intermediate compilation files in the build directory.
+       
+-k<passNum>
+--[no-]keep-passes[=]<passNum> ..
+       Keep intermediate compilation files for pass number[s]
+       <passNum> .. in the build directory.
+       
+-D
+--[no-]disasm
+       Disassemble intermediate compilation files in the build directory.
+       Implies --keep. 
+       
+-d<passNum>
+--[no-]disasm-passes[=]<passNum> ..
+       Disassemble intermediate compilation files for pass number(s)
+       <passNum> .. in the build directory.
+       Implies --keep-passes. 
+       
+
