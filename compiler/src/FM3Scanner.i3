@@ -31,10 +31,10 @@ INTERFACE FM3Scanner
         
       (* Fields beyond here are not accessed by Lalr-emitted parsing
          algorithm code, but may be by semantic action code taken from the
-         .lalr file and translated and inserted into the parser  by lalr.
+         .lalr file and translated and inserted into the parser by lalr.
       *) 
       ; SaArgValue : LONGINT
-        (* ORD (either TrAtom or TrWCh). *) 
+        (* ORD (either integer literal value, TrAtom or TrWCh). *) 
       ; SaHash : FM3Base . HashTyp
         (* ^Of any TrTok with a meaningful TrWideChars or TrChars field. *) 
       ; SaAtom : FM3Base . AtomTyp

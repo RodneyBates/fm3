@@ -59,7 +59,7 @@ GLOBAL
     FROM FM3Pass1 IMPORT
       PutBwd_L , PutBwd_LP , PutBwd_LCr , PutBwd_LCP_rp , PutBwd_LCP_eCP_rP ,
       PutBwd_LCPeCprp , PutBwd_LIP , PutBwd_LIP_rip , PutBwd_EIP , PutBwd_ECIP , 
-      PutBwd_ECIP_riP , PutBwd_LCBr , PutBwd_LI3 , PutBwd_LI6 , PutBwd_LCeCr ,
+      PutBwd_ECIP_riP , PutBwd_LCBr , PutBwd_LI3 , PutBwd_LI6 , 
       PutBwd_LCIeCri , PutBwd_LCP_eCP_zCP_rP , Pop4 , Pop8 ;
     FROM FM3Pass1 IMPORT MakeListPos;
     IMPORT FM3Scopes;
@@ -236,6 +236,20 @@ TOKEN
    Regardless of the source syntax, in the internal token streams, a list
    always has separator tokens, never element terminators.   
 *) 
+
+(* --------------------- Precedence and associativity ---------------------- *)
+
+OPER LEFT StkRwRAISES 
+(*
+  LEFT StkRwOR
+  LEFT StkRwAND
+  LEFT StkRwNOT 
+  NONE StkEqual StkUnequal StkLess StkGreater StkLessEqual StkGreaterEqual
+  LEFT StkPlus StkMinus StkAmpersand
+  LEFT StkStar StkSlasn StkRwDIV StkRwMod
+(*  LEFT StkPlus StkMinus *) 
+  LEFT StkDeref
+*)
 
 (* ------------------------------- Productions. ---------------------------- *)
 
@@ -564,22 +578,22 @@ RULE
      { $$ . PaInt := 0 ; } . 
 
 (* List of zero or more comma-separated qualified Idents. *)
-   QualIdStarList : /*Empty*/
+   QualIdentStarList : /*Empty*/
      { $$ . PaInt := 0 ; } .
-   QualIdStarList : QualIdPlusList
+   QualIdentStarList : QualIdentPlusList
      { $$ . PaInt := $1 . PaInt ; } .
-   QualIdPlusList : QualId
+   QualIdentPlusList : QualIdent
      { $$ . PaInt := 1 } . 
-   QualIdPlusList : QualIdPlusList StkComma QualId
+   QualIdentPlusList : QualIdentPlusList StkComma QualIdent
      { $$ . PaInt := $1 . PaInt + 1 ; } .
      
-(* (Possibly) Qualified ident. *)   
-   QualId : StkIdent { FM3Pass1 . IdentRefL2R ( $1 ) ; } .
+(* Qualified ident, which includes unqualified ident. *)   
+   QualIdent : StkIdent { FM3Pass1 . IdentRefL2R ( $1 ) ; } .
 
-   QualId : StkIdent StkDot StkIdent
+   QualIdent : StkIdent StkDot StkIdent
      { FM3Pass1 . QualIdentL2R ( $1 , $3 ) ; } .
 
-   TypeId : QualId.
+   TypeId : QualIdent.
 
    (* Make ROOT and UNTRACED ROOT look like reserved idents, even though
       they are reserved words in source syntax:
@@ -1379,10 +1393,7 @@ RULE
              ) ;
          ELSE (* Method Id was invalid. *) 
            FM3Pass1 . PutBwd_LCI_ri
-             ( Itk . ItkSkipLt
-             , $1 . PaPass1Coord
-             , FM3Globals . NextSkipNo
-             ) ;
+             ( Itk . ItkSkipLt , $1 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
            INC ( FM3Globals . NextSkipNo ) ;
          END (*IF*) 
        END (*Block*) 
@@ -1814,10 +1825,10 @@ RULE
      { $$ . PaBool (* Raises set is present. *) := TRUE ;
        $$ . Scan . Position := $1 . Scan . Position ; 
        FM3Pass1 . PutBwd_LP_rp
-         ( Itk . ItkRaisesANY , $1 . Scan . Position) ; 
+         ( Itk . ItkRaisesANY , $1 . Scan . Position ) ; 
      } . 
    Raises
-     : StkRwRAISES StkOpenBrace QualIdStarList StkCloseBrace 
+     : StkRwRAISES StkOpenBrace QualIdentStarList StkCloseBrace 
      { $$ . PaBool (* Raises set is present. *) := TRUE ;
        $$ . Scan . Position := $1 . Scan . Position ; 
        MakeListPos ( $$ , Itk . ItkRaisesSetLt , $1 . Scan . Position , $3 ) ;
@@ -1931,21 +1942,294 @@ RULE
      
 (* ---------------------------- Expressions ---------------------------- *)
 
-   Expr : QualId. 
-   Expr : StkIntLit .
-   Expr : StkLongIntLit .
-   Expr : StkBasedLit .
-   Expr : StkLongBasedLit .
-   Expr : StkRealLit . 
-   Expr : StkLongRealLit . 
-   Expr : StkExtendedLit . 
-   Expr : StkTextLit . 
-   Expr : StkWideTextLit .  
-   Expr : StkCharLit . 
-   Expr : StkWideCharLit .
+   (* QualIdent and Expr each derive Ident dot Ident, with copies of the
+      same semantic action.  Hopefully, difference in the left context
+      will disabiguate this. 
+   *)
+   
+   Expr : E0 .
 
-   Expr : Expr StkDeref . 
+   E0 : E1 . 
+   E0 : E0 StkRwOR E1
+     { FM3Pass1 . PutBwd_LCP_eCp_rp
+         ( Itk . ItkORLt
+         , $1 . PaPass1Coord
+         , $2  . Scan . Position
+         , $2 . PaPass1Coord 
+         ) ; 
+     } . 
+   
+   E1 : E2 . 
+   E1 : E1 StkRwAND E2
+     { FM3Pass1 . PutBwd_LCP_eCp_rp
+         ( Itk . ItkANDLt
+         , $1 . PaPass1Coord
+         , $2  . Scan . Position
+         , $2 . PaPass1Coord 
+         ) ; 
+     } . 
+   
+   E2 : E3 . 
+   E2 : StkRwNOT E2
+     { FM3Pass1 . PutBwd_LCP_rp
+         ( Itk . ItkNOTLt , $1 . PaPass1Coord , $1 . Scan . Position ) ; 
+     } . 
+   
+   E3 : E4 . 
+   E3 : E3 ExprRelOp E4
+     { FM3Pass1 . PutBwd_LCP_eCp_rp
+         ( $2 . PaTok1 
+         , $1 . PaPass1Coord
+         , $2  . Scan . Position
+         , $2 . PaPass1Coord 
+         ) ; 
+     } . 
+   
+   E4 : E5 . 
+   E4 : E4 ExprAddOp E5
+     { FM3Pass1 . PutBwd_LCP_eCp_rp
+         ( $2 . PaTok1 
+         , $1 . PaPass1Coord
+         , $2  . Scan . Position
+         , $2 . PaPass1Coord 
+         ) ; 
+     } . 
+   
+   E5 : E6 . 
+   E5 : E5 ExprMulOp E6
+     { FM3Pass1 . PutBwd_LCP_eCp_rp
+         ( $2 . PaTok1 
+         , $1 . PaPass1Coord
+         , $2  . Scan . Position
+         , $2 . PaPass1Coord 
+         ) ; 
+     } . 
+   
+   E6 : E7 . 
+   E6 : ExprUnaryAddOp E7
+     { (* Let's leave the unary + in there, just in case there is a need
+          to note its position, for some reason.
+       *) 
+       FM3Pass1 . PutBwd_LCP_rp
+         ( $1 . PaTok1 , $1 . PaPass1Coord , $1 . Scan . Position ) ; 
+     } .
 
+   (* A cartesian product:
+          { E8 without Id, Id }
+        X { Selector without dot, dot, noselector }
+   *) 
+
+   E7 : E8WOId SelectorWODot 
+     { FM3Pass1 . PutBwd_LCIP_rip
+         ( $2 . PaTok1
+         , $1 . PaPass1Coord
+         , $1 . PaInt 
+         , $2 . Scan . Position
+         ) ; 
+     } .
+     
+   E7 : E8WOId StkDot StkIdent 
+     { FM3Pass1 . PutBwd_LCIP_eCip_rip
+         ( Itk . ItkExprDotLt 
+         , $1 . PaPass1Coord
+         , $2 . Scan . SaAtom 
+         , $2 . Scan . Position
+         , $2 . PaPass1Coord 
+         ) ; 
+     } .
+
+   E7 : E8WOId /* No selector. */ . 
+
+   E7 : IdentRef SelectorWODot
+     { FM3Pass1 . PutBwd_LCIP_rip
+         ( $2 . PaTok1
+         , $1 . PaPass1Coord 
+         , $1 . PaInt 
+         , $2 . Scan . Position
+         ) ; 
+     } .
+     
+   E7 : StkIdent StkDot StkIdent
+     { FM3Pass1 . QualIdentL2R ( $1 , $3 ) ; } .
+
+   E7 : IdentRef /* No selector/ */ . 
+
+  (* Dereference. *) 
+   SelectorWODot : StkDeref
+     { $$ . PaTok1 := Itk . ItkDerefLt ;
+       $$ . PaInt := 0 (* Meaningless. *) ;
+     } .
+
+  (* Array subscript list. *) 
+   SelectorWODot : StkOpenBracket SsPlusList StkCloseBracket 
+     { $$ . PaTok1 := Itk . ItkSubscriptLt ;
+       $$ . PaInt := $2 . PaInt (* Subscript count. *) ;
+       FM3Pass1 . MakeListPos
+         ( LHSAttr := $$
+         , TokLt := Itk . ItkSubscriptsPlusListLt
+         , Position := $1 . Scan . Position
+         , ElemsAttr := $2
+         ) ; 
+     } .
+   
+   SsPlusList : Expr 
+     { $$ . PaInt (* Expression count *) :=  1 ; } . 
+   
+   SsPlusList : SsPlusList StkComma Expr 
+     { $$ . PaInt (* Expression count *) := $1 . PaInt + $3 . PaInt ;
+       FM3Pass1 . PutBwd_ECIP
+         ( Itk . ItkSubscriptsPlusListLt
+         , $2 . PaPass1Coord 
+         , $1 . PaInt
+         , $2 . Scan . Position
+         ) ; 
+     } . 
+
+  (* Actual parameter list of call. *) 
+   SelectorWODot : StkOpenParen ActualList StkCloseParen
+     { $$ . PaTok1 := Itk . ItkCallLt ;
+       $$ . PaInt := $2 . PaInt (* Actuals count. *) ;
+       FM3Pass1 . MakeListPos
+         ( LHSAttr := $$
+         , TokLt := Itk . ItkActualsListLt
+         , Position := $1 . Scan . Position
+         , ElemsAttr := $2
+         ) ; 
+     } .
+
+   ActualList : /*Empty*/
+     { $$ . PaInt (* Actual count *) :=  0 ; } . 
+
+   ActualList : Actual 
+     { $$ . PaInt (* Actual count *) :=  1 ; } . 
+   
+   ActualList : ActualList StkComma Actual  
+     { $$ . PaInt (* Actual count *) := $1 . PaInt + $3 . PaInt ;
+       FM3Pass1 . PutBwd_ECIP
+         ( Itk . ItkActualsListLt
+         , $2 . PaPass1Coord 
+         , $1 . PaInt
+         , $2 . Scan . Position
+         ) ; 
+     } .
+
+   Actual : Expr
+     { FM3Pass1 . PutBwd_LCP_rp
+        ( Itk . ItkAnonActualLt , $1 . PaPass1Coord , $1 . Scan . Position ) ;
+     } .
+
+   Actual : StkIdent StkBecomes Expr
+     { FM3Pass1 . PutBwd_LCIP_rip
+         ( Itk . ItkNamedActualLt
+         , $1 . PaPass1Coord
+         , $1 . Scan . SaAtom  
+         , $1 . Scan . Position
+         ) ;
+     } .
+
+  (* Literals.  *) 
+
+   E8WOId : StkIntLit
+     { FM3Pass1 . PutBwd_LCNP_rnp
+         ( Itk . ItkIntLitLt
+         , $1 . PaPass1Coord
+         , $1 . Scan . SaArgValue 
+         , $1 . Scan . Position
+         ) ;
+     } .  
+   E8WOId : StkLongIntLit
+     { FM3Pass1 . PutBwd_LCNP_rnp
+         ( Itk . ItkLongIntLitLt
+         , $1 . PaPass1Coord
+         , $1 . Scan . SaArgValue 
+         , $1 . Scan . Position
+         ) ;
+     } .  
+   E8WOId : StkBasedLit
+     { FM3Pass1 . PutBwd_LCNP_rnp
+         ( Itk . ItkBasedLitLt
+         , $1 . PaPass1Coord
+         , $1 . Scan . SaArgValue 
+         , $1 . Scan . Position
+         ) ;
+     } .   
+   E8WOId : StkLongBasedLit
+     { FM3Pass1 . PutBwd_LCNP_rnp
+         ( Itk . ItkLongBasedLitLt
+         , $1 . PaPass1Coord
+         , $1 . Scan . SaArgValue 
+         , $1 . Scan . Position
+         ) ;
+     } .  
+   E8WOId : StkRealLit
+     { FM3Pass1 . PutBwd_LCNP_rnp
+         ( Itk . ItkRealLitLt
+         , $1 . PaPass1Coord
+         , $1 . Scan . SaArgValue 
+         , $1 . Scan . Position
+         ) ;
+     } . 
+   E8WOId : StkLongRealLit
+     { FM3Pass1 . PutBwd_LCNP_rnp
+         ( Itk . ItkLongRealLitLt
+         , $1 . PaPass1Coord
+         , $1 . Scan . SaArgValue 
+         , $1 . Scan . Position
+         ) ;
+     } . 
+   E8WOId : StkExtendedLit
+     { FM3Pass1 . PutBwd_LCNP_rnp
+         ( Itk . ItkExtendedLitLt
+         , $1 . PaPass1Coord
+         , $1 . Scan . SaArgValue 
+         , $1 . Scan . Position
+         ) ;
+     } .
+     
+   E8WOId : StkCharLit
+     { FM3Pass1 . PutBwd_LCNP_rnp
+         ( Itk . ItkCharLitLt
+         , $1 . PaPass1Coord
+         , $1 . Scan . SaArgValue 
+         , $1 . Scan . Position
+         ) ;
+     } .  
+   E8WOId : StkWideCharLit
+     { FM3Pass1 . PutBwd_LCNP_rnp
+         ( Itk . ItkWideCharLitLt
+         , $1 . PaPass1Coord
+         , $1 . Scan . SaArgValue 
+         , $1 . Scan . Position
+         ) ;
+     } .
+
+   E8WOId : StkTextLit { FM3Pass1 . PutBwd_TextLit ( $1 ) ; } .
+   
+   E8WOId : StkWideTextLit { FM3Pass1 . PutBwd_WideTextLit ( $1 ) ; } .  
+
+   E8WOId : StkOpenParen E0 StkCloseParen . 
+
+   ExprRelOp : StkEqual        { $$ . PaTok1 := Itk . ItkEqualLt ; } . 
+   ExprRelOp : StkUnequal      { $$ . PaTok1 := Itk . ItkUnequalLt ; } . 
+   ExprRelOp : StkLess         { $$ . PaTok1 := Itk . ItkLessLt ; } . 
+   ExprRelOp : StkGreater      { $$ . PaTok1 := Itk . ItkGreaterLt ; } . 
+   ExprRelOp : StkLessEqual    { $$ . PaTok1 := Itk . ItkLessEqualLt ; } . 
+   ExprRelOp : StkGreaterEqual { $$ . PaTok1 := Itk . ItkGreaterEqualLt ; } .
+   ExprRelOp : StkRwIN         { $$ . PaTok1 := Itk . ItkINLt ; } .
+
+
+   ExprAddOp : StkPlus         { $$ . PaTok1 := Itk . ItkBinaryPlusLt ; } . 
+   ExprAddOp : StkMinus        { $$ . PaTok1 := Itk . ItkBinaryMinusLt ; } . 
+   ExprAddOp : StkAmpersand    { $$ . PaTok1 := Itk . ItkAmpersandLt ; } .
+ 
+   ExprMulOp : StkStar         { $$ . PaTok1 := Itk . ItkStarLt ; } . 
+   ExprMulOp : StkSlash        { $$ . PaTok1 := Itk . ItkSlashLt ; } . 
+   ExprMulOp : StkRwDIV        { $$ . PaTok1 := Itk . ItkDIVLt ; } .
+   ExprMulOp : StkRwMOD        { $$ . PaTok1 := Itk . ItkMODLt ; } . 
+   
+   ExprUnaryAddOp : StkPlus    { $$ . PaTok1 := Itk . ItkUnaryPlusLt ; } . 
+   ExprUnaryAddOp : StkMinus   { $$ . PaTok1 := Itk . ItkUnaryMinusLt ; } . 
+ 
 (* ------------------------------ Blocks ------------------------------- *)
 
    BlockLt : /*EMPTY*/

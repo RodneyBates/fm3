@@ -49,7 +49,7 @@ ItkImportAs IDENT POS IDENT POS 6 (* (IdAtom, Line, Column) for interface, as. *
 ItkFormalsListEmpty . 
 ItkFormalTypeAbsent POS 2 (* Position. *).
 ItkFormalExprAbsent POS 2 (* Position. *).
-(*ItkRaisesSetAbsent POS 2 (* Position. *) . *) 
+(*ItkRaisesSetAbsent POS 2 (* Position. *) *) . 
 ItkRaisesANY POS 2 (* Position. *) .
 ItkResultTypeAbsent POS 2 (* Position. *). 
 ItkProcBodyAbsent POS 2 (* Position. *).
@@ -98,7 +98,7 @@ ItkBlock INT POS 3 (* Construct no., Position of LM declaration. *)
 
 (* Type decls. *)
 
-(* All replaced by ItkDeclId:  
+(* All replaced by ItkDeclId:   
 LONE
 ItkTypeDeclId IDENT POS 3 .
 ItkRevealId IDENT POS 3 . 
@@ -257,7 +257,58 @@ LIST ItkIdPlusList
 FIXED ItkExport (* Ident, Unit No. *) . 
 *)
 
+(* ----------------------------- Expressions ------------------------------- *) 
+  
 
+FIXED
+  ItkUnaryPlus POS .
+  ItkUnaryMinus POS . 
+
+FIXED
+  ItkEqual POS        BinOp POS . 
+  ItkUnequal POS      BinOp POS . 
+  ItkLess POS         BinOp POS . 
+  ItkGreater POS      BinOp POS . 
+  ItkLessEqual POS    BinOp POS . 
+  ItkGreaterEqual POS BinOp POS . 
+  ItkBinaryPlus POS   BinOp POS . 
+  ItkBinaryMinus POS  BinOp POS . 
+  ItkAmpersand POS    BinOp POS . 
+  ItkStar POS         BinOp POS .
+  ItkSlash POS        BinOp POS . 
+  ItkAND POS          BinOp POS . 
+  ItkDIV POS          BinOp POS . 
+  ItkIN POS           BinOp POS . 
+  ItkMOD POS          BinOp POS .
+  ItkOR POS           BinOp POS .
+
+  ItkNOT POS .
+
+
+  ItkExprDot IDENT POS
+     Dot IDENT POS . 
+  ItkDeref INT POS (* INT is meaningless, but greatly simplifies parsing *) .
+  ItkSubscript INT POS (* Number of subscripts. *) .
+  ItkCall INT POS (* Number of actual parameters *) .
+
+FIXED
+  ItkIntLit INT POS .
+  ItkLongIntLit INT POS .
+  ItkBasedLit INT POS .
+  ItkLongBasedLit INT POS .
+  ItkRealLit INT POS .
+  ItkLongRealLit INT POS .
+  ItkExtendedLit INT POS .
+  ItkTextLit INT POS .
+  ItkWideTextLit INT POS INT (* value atom ,,Char count. *) .
+  ItkCharLit INT POS .
+  ItkWideCharLit INT POS .
+
+LIST ItkActualsList . 
+LIST ItkSubscriptsPlusList .
+
+FIXED ItkAnonActual POS .
+FIXED ItkNamedActual IDENT POS
 
 (* End of FM3IntToks. *) 
 

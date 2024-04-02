@@ -81,6 +81,10 @@ INTERFACE FM3Pass1
 ; PROCEDURE Coord ( ) : LONGINT
   (* Of the current unit. *)
   
+; PROCEDURE PutBwd_TextLit ( READONLY ParsAttr : tParsAttribute )
+
+; PROCEDURE PutBwd_WideTextLit ( READONLY ParsAttr : tParsAttribute )
+
 ; PROCEDURE PutBwd_Attribute ( READONLY ParsAttr : tParsAttribute )
   
 ; PROCEDURE PutBwdInt ( Value : INTEGER )
@@ -96,14 +100,14 @@ INTERFACE FM3Pass1
 
 (* Here is the naming code, of namings of these PutBwd_<x> procedures:
 
-   Each of the PutBwd_<x> procedures pushes a list of things on the pass1 output file.
-   The letters after the "_" encode what that is.  The letters in the naming
-   code and the parameters are in left-to-right order, for ease of thought,
-   but the actual pushing is in the reverse order, because this stuff needs
-   to be popped backwards.
+   Each of the PutBwd_<x> procedures pushes a list of things on the pass1
+   output file.  The letters after the "_" encode what that is.  The letters
+   in the naming code and the parameters are in left-to-right order, for
+   ease of thought, but the actual pushing is in the reverse order, because
+   this stuff will need to be popped backwards in pass 2.
 
-   A capital letter denotes a value that is passed to the PutBwd_<x> procedure as
-   a parameter.  The parameters are in the same order as the capital letters.
+   A capital letter denotes a value that is passed to the PutBwd_<x> procedure
+   as a parameter.  The parameters are in the same order as the capital letters.
    A lower case letter denotes a value derived from the previous case-
    homonym of itself.
 
@@ -135,6 +139,7 @@ INTERFACE FM3Pass1
    pl means reuse the first position passed in.
 
    'I' or 'i' is an integer value.  'B' or 'b' is a boolean value.
+   'N' or 'n' is a LONGINT value. 
 *) 
 
 ; PROCEDURE PutBwd_L ( T : Itk . TokTyp )
@@ -183,6 +188,13 @@ INTERFACE FM3Pass1
     ; READONLY Position : tPosition 
     )
 
+; PROCEDURE PutBwd_LCNP_rnp
+    ( T : Itk . TokTyp 
+    ; C : LONGINT 
+    ; I : LONGINT 
+    ; READONLY Position : tPosition 
+    )
+
 ; PROCEDURE PutBwd_LCIP_eCiP_riP
     ( T : Itk . TokTyp 
     ; LC : LONGINT 
@@ -193,6 +205,14 @@ INTERFACE FM3Pass1
     ; READONLY RPos : tPosition
     )
     
+; PROCEDURE PutBwd_LCIP_eCip_rip
+    ( T : Itk . TokTyp 
+    ; LC : LONGINT 
+    ; I : INTEGER 
+    ; READONLY LPos : tPosition
+    ; EC : LONGINT 
+    )
+
 ; PROCEDURE PutBwd_LCPI_rpi
     ( T : Itk . TokTyp 
     ; C : LONGINT 
@@ -263,7 +283,7 @@ INTERFACE FM3Pass1
 ; PROCEDURE PutBwd_LI6
     ( T : Itk . TokTyp ; I0 , I1 , I2 , I3 , I4 , I5 : INTEGER )
 
-; PROCEDURE PutBwd_LCeCr ( T : Itk . TokTyp ; Ct , Co : LONGINT )
+; PROCEDURE PutBwd_LC_eC_r ( T : Itk . TokTyp ; Ct , Co : LONGINT )
 
 ; PROCEDURE PutBwd_LCIeCri
     ( T : Itk . TokTyp ; Ct : LONGINT ; I : INTEGER ; Co : LONGINT )
