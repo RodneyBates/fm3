@@ -112,7 +112,10 @@ ABS 5
    StkUnequal          "#" . 
    StkLess             "<" . 
    StkGreater          ">" . 
-   StkLessEqual        "<=" . 
+   StkLessEqual        "<=" .
+
+
+
    StkGreaterEqual     ">=" . 
    StkPlus             "+" . 
    StkMinus            "-" . 

@@ -285,8 +285,7 @@ FIXED
   ItkNOT POS .
 
 
-  ItkExprDot IDENT POS
-     Dot IDENT POS . 
+  ItkExprDot IDENT POS . 
   ItkDeref INT POS (* INT is meaningless, but greatly simplifies parsing *) .
   ItkSubscript INT POS (* Number of subscripts. *) .
   ItkCall INT POS (* Number of actual parameters *) .

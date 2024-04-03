@@ -452,6 +452,12 @@ RULE
          FM3Pass1 . PutBwd_LI
            ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpScopeNo ) ; 
          <* ASSERT FM3Scopes . PopDeclScopeRef ( ) = LScopeRef *>
+         FM3Pass1 . PutBwd_ECIP
+           ( Itk . ItkModuleLt
+           , $3 . PaPass1Coord
+           , LUnitRef ^ . UntUnitNo 
+           , $3 .Scan . Position
+           ) ; 
          FM3Pass1 . CheckUnitFinalId
            ( FM3Units . UnitStackTopRef
            , $6 . Scan . SaAtom
@@ -1970,7 +1976,7 @@ RULE
      } . 
    
    E2 : E3 . 
-   E2 : StkRwNOT E2
+   E2 : StkRwNOT E3
      { FM3Pass1 . PutBwd_LCP_rp
          ( Itk . ItkNOTLt , $1 . PaPass1Coord , $1 . Scan . Position ) ; 
      } . 
@@ -2023,18 +2029,17 @@ RULE
      { FM3Pass1 . PutBwd_LCIP_rip
          ( $2 . PaTok1
          , $1 . PaPass1Coord
-         , $1 . PaInt 
+         , $2 . PaInt 
          , $2 . Scan . Position
          ) ; 
      } .
      
    E7 : E8WOId StkDot StkIdent 
-     { FM3Pass1 . PutBwd_LCIP_eCip_rip
+     { FM3Pass1 . PutBwd_LCIP_rip
          ( Itk . ItkExprDotLt 
          , $1 . PaPass1Coord
-         , $2 . Scan . SaAtom 
+         , $3 . Scan . SaAtom 
          , $2 . Scan . Position
-         , $2 . PaPass1Coord 
          ) ; 
      } .
 
@@ -2044,15 +2049,18 @@ RULE
      { FM3Pass1 . PutBwd_LCIP_rip
          ( $2 . PaTok1
          , $1 . PaPass1Coord 
-         , $1 . PaInt 
+         , $2 . PaInt 
          , $2 . Scan . Position
          ) ; 
      } .
      
-   E7 : StkIdent StkDot StkIdent
-     { FM3Pass1 . QualIdentL2R ( $1 , $3 ) ; } .
-
    E7 : IdentRef /* No selector/ */ . 
+
+  (* Qualified ident. *) 
+   E8WOId /* A qualIdent is not a simple ident, and can have additional
+             selectors. */ 
+     : StkIdent StkDot StkIdent
+     { FM3Pass1 . QualIdentL2R ( $1 , $3 ) ; } .
 
   (* Dereference. *) 
    SelectorWODot : StkDeref
@@ -2076,7 +2084,7 @@ RULE
      { $$ . PaInt (* Expression count *) :=  1 ; } . 
    
    SsPlusList : SsPlusList StkComma Expr 
-     { $$ . PaInt (* Expression count *) := $1 . PaInt + $3 . PaInt ;
+     { $$ . PaInt (* Expression count *) := $1 . PaInt + 1 ;
        FM3Pass1 . PutBwd_ECIP
          ( Itk . ItkSubscriptsPlusListLt
          , $2 . PaPass1Coord 
@@ -2104,7 +2112,7 @@ RULE
      { $$ . PaInt (* Actual count *) :=  1 ; } . 
    
    ActualList : ActualList StkComma Actual  
-     { $$ . PaInt (* Actual count *) := $1 . PaInt + $3 . PaInt ;
+     { $$ . PaInt (* Actual count *) := $1 . PaInt + 1 ;
        FM3Pass1 . PutBwd_ECIP
          ( Itk . ItkActualsListLt
          , $2 . PaPass1Coord 
