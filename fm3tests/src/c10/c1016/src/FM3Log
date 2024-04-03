@@ -1,0 +1,7 @@
+Start unit Main.m3
+[32mFM3: [0mCompiling /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1016/src/Main.m3...
+[32mFM3: [0mPass 1 output file Main.m3.FM3Pass1 has 910 bytes.
+[32mFM3: [0mPatch stack Main.m3.FM3Patch peak size = 69 bytes.
+[32mFM3: [0mPass 2 output file Main.m3.FM3Pass2 has 738 bytes.
+[32mFM3: [0mFinished compiling Main.m3.
+End unit Main.m3
