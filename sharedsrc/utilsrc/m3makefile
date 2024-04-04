@@ -16,3 +16,4 @@ include_dir("../vararraysrc")
 
 module("FM3Base")
 module("FM3SharedUtils")
+module("FM3UnsafeUtils")

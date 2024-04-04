@@ -11,6 +11,8 @@ MODULE FM3Scanner
 ; IMPORT Fmt
 ; IMPORT Pickle2 
 ; IMPORT Rd
+; IMPORT Scan AS FM3Scan
+; IMPORT Text
 ; IMPORT TextIntTbl
 ; IMPORT Thread 
 ; IMPORT UniRd 
@@ -25,12 +27,14 @@ MODULE FM3Scanner
 ; IMPORT FM3Files
 ; IMPORT FM3Globals
 ; IMPORT FM3LexTable
-; IMPORT FM3Messages 
+; IMPORT FM3Messages
+; IMPORT FM3OpenArray_Char 
 ; IMPORT FM3SharedGlobals 
 ; IMPORT FM3SharedUtils 
 ; IMPORT FM3SrcToks 
 ; IMPORT FM3Units
-; IMPORT FM3Utils 
+; IMPORT FM3Utils
+; IMPORT FM3UnsafeUtils 
 
 ; IMPORT IntRanges 
 ; IMPORT IntCharVarArray AS VarArr_Char 
@@ -475,6 +479,61 @@ MODULE FM3Scanner
         END (*IF*) 
       END IdentSuffix 
 
+  ; PROCEDURE NumberArgValue 
+      ( Tok : FM3SrcToks . TokTyp ; CharsRef : FM3OpenArray_Char . T ) 
+    : LONGINT  
+
+    = VAR LResult : LONGINT 
+    ; VAR LLength : INTEGER 
+
+    ; BEGIN 
+        CASE Tok OF 
+        | FM3SrcToks . StkIntLit
+        => LResult 
+             := FM3Scan . LongUnsigned 
+                  ( Text . FromChars ( CharsRef ^ ) , defaultBase := 10 ) 
+
+        | FM3SrcToks . StkLongIntLit 
+        =>  LLength := NUMBER ( CharsRef ^ ) 
+          ; LResult 
+             := FM3Scan . LongUnsigned 
+                  ( Text . FromChars 
+                      ( SUBARRAY ( CharsRef ^ , 0 , LLength - 1 ) ) 
+                  , defaultBase := 10 
+                  )
+
+        | FM3SrcToks . StkBasedLit
+        =>  LResult 
+             := FM3Scan . LongUnsigned 
+                  ( Text . FromChars ( CharsRef ^ ) , defaultBase := 16 )  
+
+        | FM3SrcToks . StkLongBasedLit
+        =>  LLength := NUMBER ( CharsRef ^ ) 
+          ; LResult 
+             := FM3Scan . LongUnsigned 
+                  ( Text . FromChars 
+                      ( SUBARRAY ( CharsRef ^ , 0 , LLength - 1 ) ) 
+                  , defaultBase := 16 
+                  ) 
+
+        | FM3SrcToks . StkRealLit 
+        =>  LResult 
+             := FM3UnsafeUtils . RealToLongInt 
+                  ( FM3Scan . Real ( Text . FromChars ( CharsRef ^ ) ) ) 
+
+        | FM3SrcToks . StkLongRealLit 
+        =>  LResult 
+             := FM3UnsafeUtils . LongRealToLongInt 
+                  ( FM3Scan . LongReal ( Text . FromChars ( CharsRef ^ ) ) )
+
+        | FM3SrcToks . StkExtendedLit
+        =>  LResult 
+             := FM3UnsafeUtils . ExtendedToLongInt 
+                  ( FM3Scan . Extended ( Text . FromChars ( CharsRef ^ ) ) ) 
+        END (*CASE*) 
+      ; RETURN LResult 
+      END NumberArgValue 
+
   ; CONST DigitChars = SET OF CHAR { '0' .. '9' , 'A' .. 'F' , 'a' .. 'f' }
 
   ; PROCEDURE Number ( ) 
@@ -506,6 +565,7 @@ MODULE FM3Scanner
             )
         ; AppendChar ( ScCharVarArr , GTopSsRef . SsCh ) 
         ; NextChar ( ) 
+
         | '_' 
         => LTok := FM3SrcToks . StkBasedLit 
         ; FM3Utils . ContribToHash 
@@ -610,6 +670,7 @@ MODULE FM3Scanner
       ; Attribute . SaHash := ScHash 
       ; Attribute . SaChars 
           := FM3Utils . CharVarArrayToOAChar ( ScCharVarArr ) 
+      ; Attribute . SaArgValue := NumberArgValue ( LTok , Attribute . SaChars ) 
 (* CHECK: Is an atom for a numeric literal character string really needed? 
           Probably only the binary version of the value. *) 
       ; Attribute . SaAtom 

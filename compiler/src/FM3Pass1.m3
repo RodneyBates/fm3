@@ -642,20 +642,15 @@ MODULE FM3Pass1
     ; WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
       DO <* ASSERT ParsAttr . PaInt = LNumber *>
         PutBwd
-          ( WRdBack , VAL ( LNumber , LONGINT ) )
+          ( WRdBack , VAL ( ParsAttr . Scan . Position . Column , LONGINT ) )
       ; PutBwd
-          ( WRdBack
-          , VAL ( ParsAttr . Scan . Position . Column , LONGINT )
-          )
-      ; PutBwd
-          ( WRdBack
-          , VAL ( ParsAttr . Scan . Position . Line , LONGINT )
-          )
+          ( WRdBack , VAL ( ParsAttr . Scan . Position . Line , LONGINT ) )
       ; PutBwd
           ( WRdBack , VAL ( ParsAttr . Scan . SaAtom , LONGINT ) )
       ; PutBwd
-          ( WRdBack , VAL ( Itk . ItkTextLitRt , LONGINT ) )
+          ( WRdBack , VAL ( Itk . ItkTextLitLt , LONGINT ) )
 
+      ; PutBwd ( WRdBack , VAL ( LNumber , LONGINT ) )
       ; FOR RI := LNumber - 1 TO 0 BY - 1
         DO
           PutBwd
@@ -663,23 +658,16 @@ MODULE FM3Pass1
             , VAL ( ORD ( ParsAttr . Scan . SaChars ^ [ RI ] ) , LONGINT )
             )
         END (*FOR*) 
+      ; PutBwd ( WRdBack , VAL ( LNumber , LONGINT ) )
 
       ; PutBwd
-          ( WRdBack , VAL ( LNumber , LONGINT ) )
+          ( WRdBack , VAL ( ParsAttr . Scan . Position . Column , LONGINT ) )
       ; PutBwd
-          ( WRdBack
-          , VAL ( ParsAttr . Scan . Position . Column , LONGINT )
-          )
-      ; PutBwd
-          ( WRdBack
-          , VAL ( ParsAttr . Scan . Position . Line , LONGINT )
-          )
+          ( WRdBack , VAL ( ParsAttr . Scan . Position . Line , LONGINT ) )
       ; PutBwd
           ( WRdBack , VAL ( ParsAttr . Scan . SaAtom , LONGINT ) )
       ; PutBwd
-          ( WRdBack , VAL ( ParsAttr . PaPass1Coord , LONGINT ) )
-      ; PutBwd
-          ( WRdBack , VAL ( Itk . ItkTextLitLt , LONGINT ) )
+          ( WRdBack , VAL ( Itk . ItkTextLitRt , LONGINT ) )
       END (*WITH*) 
     END PutBwd_TextLit 
     
@@ -693,20 +681,15 @@ MODULE FM3Pass1
     ; WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
       DO <* ASSERT ParsAttr . PaInt = LNumber *>
         PutBwd
-          ( WRdBack , VAL ( LNumber , LONGINT ) )
+          ( WRdBack , VAL ( ParsAttr . Scan . Position . Column , LONGINT ) )
       ; PutBwd
-          ( WRdBack
-          , VAL ( ParsAttr . Scan . Position . Column , LONGINT )
-          )
-      ; PutBwd
-          ( WRdBack
-          , VAL ( ParsAttr . Scan . Position . Line , LONGINT )
-          )
+          ( WRdBack , VAL ( ParsAttr . Scan . Position . Line , LONGINT ) )
       ; PutBwd
           ( WRdBack , VAL ( ParsAttr . Scan . SaAtom , LONGINT ) )
       ; PutBwd
-          ( WRdBack , VAL ( Itk . ItkWideTextLitRt , LONGINT ) )
+          ( WRdBack , VAL ( Itk . ItkWideTextLitLt , LONGINT ) )
 
+      ; PutBwd ( WRdBack , VAL ( LNumber , LONGINT ) )
       ; FOR RI := LNumber - 1 TO 0 BY - 1
         DO
           PutBwd
@@ -714,23 +697,16 @@ MODULE FM3Pass1
             , VAL ( ORD ( ParsAttr . Scan . SaWideChars ^ [ RI ] ) , LONGINT )
             ) 
         END (*FOR*) 
+      ; PutBwd ( WRdBack , VAL ( LNumber , LONGINT ) )
 
       ; PutBwd
-          ( WRdBack , VAL ( LNumber , LONGINT ) )
+          ( WRdBack , VAL ( ParsAttr . Scan . Position . Column , LONGINT ) )
       ; PutBwd
-          ( WRdBack
-          , VAL ( ParsAttr . Scan . Position . Column , LONGINT )
-          )
-      ; PutBwd
-          ( WRdBack
-          , VAL ( ParsAttr . Scan . Position . Line , LONGINT )
-          )
+          ( WRdBack , VAL ( ParsAttr . Scan . Position . Line , LONGINT ) )
       ; PutBwd
           ( WRdBack , VAL ( ParsAttr . Scan . SaAtom , LONGINT ) )
       ; PutBwd
-          ( WRdBack , VAL ( ParsAttr . PaPass1Coord , LONGINT ) )
-      ; PutBwd
-          ( WRdBack , VAL ( Itk . ItkWideTextLitLt , LONGINT ) )
+          ( WRdBack , VAL ( Itk . ItkWideTextLitRt , LONGINT ) )
       END (*WITH*) 
     END PutBwd_WideTextLit 
     
@@ -879,6 +855,20 @@ MODULE FM3Pass1
       ; PutBwd ( WRdBack , VAL ( T , LONGINT ) ) 
       END (*WITH*) 
     END PutBwd_LP
+
+(*EXPORTED:*)
+; PROCEDURE PutBwd_LNP
+    ( T : Itk . TokTyp ; N : LONGINT ; READONLY Position : tPosition )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , N ) 
+      ; PutBwd ( WRdBack , VAL ( T , LONGINT ) ) 
+      END (*WITH*) 
+    END PutBwd_LNP
 
 (*EXPORTED:*)
 ; PROCEDURE PutBwd_LP_rp

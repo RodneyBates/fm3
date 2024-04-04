@@ -263,6 +263,7 @@ FIXED ItkExport (* Ident, Unit No. *) .
 FIXED
   ItkUnaryPlus POS .
   ItkUnaryMinus POS . 
+  ItkNOT POS . 
 
 FIXED
   ItkEqual POS        BinOp POS . 
@@ -282,15 +283,20 @@ FIXED
   ItkMOD POS          BinOp POS .
   ItkOR POS           BinOp POS .
 
-  ItkNOT POS .
-
-
+FIXED
   ItkExprDot IDENT POS . 
   ItkDeref INT POS (* INT is meaningless, but greatly simplifies parsing *) .
   ItkSubscript INT POS (* Number of subscripts. *) .
   ItkCall INT POS (* Number of actual parameters *) .
+  ItkConstructor INT POS (* Number of values *) .
 
-FIXED
+  ItkRange POS
+      DotDot POS .
+
+LONE
+  ItkConstructorDotDot POS (* In array constructor. *) . 
+
+  (* The values of all scalar literals are LOOPHOLEd to LONGINT. *)
   ItkIntLit INT POS .
   ItkLongIntLit INT POS .
   ItkBasedLit INT POS .
@@ -298,16 +304,19 @@ FIXED
   ItkRealLit INT POS .
   ItkLongRealLit INT POS .
   ItkExtendedLit INT POS .
-  ItkTextLit INT POS .
-  ItkWideTextLit INT POS INT (* value atom ,,Char count. *) .
   ItkCharLit INT POS .
   ItkWideCharLit INT POS .
+  
+FIXED
+  ItkTextLit     INT POS (* value atom, Char count. *) .
+  ItkWideTextLit INT POS (* value atom, Char count. *) .
+
 
 LIST ItkActualsList . 
 LIST ItkSubscriptsPlusList .
 
 FIXED ItkAnonActual POS .
-FIXED ItkNamedActual IDENT POS
+FIXED ItkNamedExpr IDENT POS . 
 
 (* End of FM3IntToks. *) 
 

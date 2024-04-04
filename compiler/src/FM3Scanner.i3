@@ -8,6 +8,7 @@
 
 INTERFACE FM3Scanner
 
+; IMPORT Text 
 ; IMPORT UniRd 
 
 ; IMPORT FM3Base
@@ -34,7 +35,7 @@ INTERFACE FM3Scanner
          .lalr file and translated and inserted into the parser by lalr.
       *) 
       ; SaArgValue : LONGINT
-        (* ORD (either integer literal value, TrAtom or TrWCh). *) 
+        (* Binary value of any scalar literal, LOOPHOLEd to LONGINT. *) 
       ; SaHash : FM3Base . HashTyp
         (* ^Of any TrTok with a meaningful TrWideChars or TrChars field. *) 
       ; SaAtom : FM3Base . AtomTyp

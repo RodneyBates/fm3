@@ -452,12 +452,6 @@ RULE
          FM3Pass1 . PutBwd_LI
            ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpScopeNo ) ; 
          <* ASSERT FM3Scopes . PopDeclScopeRef ( ) = LScopeRef *>
-         FM3Pass1 . PutBwd_ECIP
-           ( Itk . ItkModuleLt
-           , $3 . PaPass1Coord
-           , LUnitRef ^ . UntUnitNo 
-           , $3 .Scan . Position
-           ) ; 
          FM3Pass1 . CheckUnitFinalId
            ( FM3Units . UnitStackTopRef
            , $6 . Scan . SaAtom
@@ -2128,7 +2122,7 @@ RULE
 
    Actual : StkIdent StkBecomes Expr
      { FM3Pass1 . PutBwd_LCIP_rip
-         ( Itk . ItkNamedActualLt
+         ( Itk . ItkNamedExprLt
          , $1 . PaPass1Coord
          , $1 . Scan . SaAtom  
          , $1 . Scan . Position
@@ -2138,74 +2132,65 @@ RULE
   (* Literals.  *) 
 
    E8WOId : StkIntLit
-     { FM3Pass1 . PutBwd_LCNP_rnp
-         ( Itk . ItkIntLitLt
-         , $1 . PaPass1Coord
+     { FM3Pass1 . PutBwd_LNP
+         ( Itk . ItkIntLit
          , $1 . Scan . SaArgValue 
          , $1 . Scan . Position
          ) ;
      } .  
    E8WOId : StkLongIntLit
-     { FM3Pass1 . PutBwd_LCNP_rnp
-         ( Itk . ItkLongIntLitLt
-         , $1 . PaPass1Coord
+     { FM3Pass1 . PutBwd_LNP 
+         ( Itk . ItkLongIntLit
          , $1 . Scan . SaArgValue 
          , $1 . Scan . Position
          ) ;
      } .  
    E8WOId : StkBasedLit
-     { FM3Pass1 . PutBwd_LCNP_rnp
-         ( Itk . ItkBasedLitLt
-         , $1 . PaPass1Coord
+     { FM3Pass1 . PutBwd_LNP 
+         ( Itk . ItkBasedLit
          , $1 . Scan . SaArgValue 
          , $1 . Scan . Position
          ) ;
      } .   
    E8WOId : StkLongBasedLit
-     { FM3Pass1 . PutBwd_LCNP_rnp
-         ( Itk . ItkLongBasedLitLt
-         , $1 . PaPass1Coord
+     { FM3Pass1 . PutBwd_LNP 
+         ( Itk . ItkLongBasedLit
          , $1 . Scan . SaArgValue 
          , $1 . Scan . Position
          ) ;
      } .  
    E8WOId : StkRealLit
-     { FM3Pass1 . PutBwd_LCNP_rnp
-         ( Itk . ItkRealLitLt
-         , $1 . PaPass1Coord
+     { FM3Pass1 . PutBwd_LNP 
+         ( Itk . ItkRealLit
          , $1 . Scan . SaArgValue 
          , $1 . Scan . Position
          ) ;
      } . 
    E8WOId : StkLongRealLit
-     { FM3Pass1 . PutBwd_LCNP_rnp
-         ( Itk . ItkLongRealLitLt
-         , $1 . PaPass1Coord
+     { FM3Pass1 . PutBwd_LNP 
+         ( Itk . ItkLongRealLit
          , $1 . Scan . SaArgValue 
          , $1 . Scan . Position
          ) ;
      } . 
    E8WOId : StkExtendedLit
-     { FM3Pass1 . PutBwd_LCNP_rnp
-         ( Itk . ItkExtendedLitLt
-         , $1 . PaPass1Coord
+     { FM3Pass1 . PutBwd_LNP 
+         ( Itk . ItkExtendedLit
          , $1 . Scan . SaArgValue 
          , $1 . Scan . Position
          ) ;
      } .
      
    E8WOId : StkCharLit
-     { FM3Pass1 . PutBwd_LCNP_rnp
-         ( Itk . ItkCharLitLt
-         , $1 . PaPass1Coord
+     { FM3Pass1 . PutBwd_LNP 
+         ( Itk . ItkCharLit
          , $1 . Scan . SaArgValue 
          , $1 . Scan . Position
          ) ;
      } .  
    E8WOId : StkWideCharLit
-     { FM3Pass1 . PutBwd_LCNP_rnp
-         ( Itk . ItkWideCharLitLt
-         , $1 . PaPass1Coord
+     { FM3Pass1 . PutBwd_LNP 
+         ( Itk . ItkWideCharLit
          , $1 . Scan . SaArgValue 
          , $1 . Scan . Position
          ) ;
