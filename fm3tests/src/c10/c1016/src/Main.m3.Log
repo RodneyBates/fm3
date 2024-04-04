@@ -1,6 +1,0 @@
-[31mERROR: [0mMain.m3[18,18] Illegal token: "StkCloseBracket", expecting one of:
-       "StkRwNOT"  "StkOpenParen"  "StkPlus"  "StkMinus"  "StkIdent"  "StkIntLit" 
-       "StkLongIntLit"  "StkBasedLit"  "StkLongBasedLit"  "StkRealLit" 
-       "StkLongRealLit"  "StkExtendedLit"  "StkTextLit"  "StkWideTextLit" 
-       "StkCharLit"  "StkWideCharLit" 
-       Repair token(s) inserted:  "StkIntLit" 

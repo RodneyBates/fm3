@@ -15,7 +15,7 @@ MODULE Main
 ; CONST I = L . M . N
 
 ; CONST J = 11 ( )  
-; CONST K = 13L [ ] 
+; CONST K = 13L [ 0 ] 
 ; CONST L = 'O' ^ 
 
 ; BEGIN
