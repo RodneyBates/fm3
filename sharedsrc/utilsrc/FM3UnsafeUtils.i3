@@ -8,11 +8,21 @@
 
 INTERFACE FM3UnsafeUtils
 
+(* These are just loopholes, but with left zeros added or
+   removed, when sizes don't match.
+*) 
+
 ; PROCEDURE RealToLongInt  ( Arg : REAL ) : LONGINT
 
 ; PROCEDURE LongRealToLongInt  ( Arg : LONGREAL ) : LONGINT
 
 ; PROCEDURE ExtendedToLongInt  ( Arg : EXTENDED ) : LONGINT
+
+; PROCEDURE LongIntToReal  ( Arg : LONGINT ) : REAL
+
+; PROCEDURE LongIntToLongReal  ( Arg : LONGINT ) : LONGREAL 
+
+; PROCEDURE LongIntToExtended  ( Arg : LONGINT ) : EXTENDED 
 
 ; END FM3UnsafeUtils 
 .

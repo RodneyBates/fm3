@@ -12,7 +12,8 @@ INTERFACE FM3Utils
 ; IMPORT Wr 
 
 (* FM3: *) 
-; IMPORT FM3Base 
+; IMPORT FM3Base
+; IMPORT FM3IntToks 
 
 ; IMPORT IntCharVarArray AS VarArr_Char 
 ; IMPORT IntWideCharVarArray AS VarArr_WChar
@@ -42,11 +43,17 @@ INTERFACE FM3Utils
 ; PROCEDURE WCharVarArrayToOAWChar
     ( VarArr : VarArr_WChar . T ) : REF ARRAY OF WIDECHAR
 
+; PROCEDURE EscapeChar ( WrT : Wr . T ; WCh : WIDECHAR ; Wide : BOOLEAN )
+
+; PROCEDURE EscapeL ( WrT : Wr . T ; ArgL : LONGINT ; Wide : BOOLEAN )
+
 ; PROCEDURE TextLiteral ( READONLY Chars : REF ARRAY OF CHAR ) : TEXT
   (* Insert quotes and escapes. *) 
 
 ; PROCEDURE WideTextLiteral ( READONLY WChars : REF ARRAY OF WIDECHAR ) : TEXT
   (* Insert quotes and escapes. *) 
+
+; PROCEDURE SwitchTokL2R ( Tok : FM3IntToks . TokTyp ) : FM3IntToks . TokTyp
 
 ; PROCEDURE TextToRefArrayChars ( TextVal : TEXT) : REF ARRAY OF CHAR
   (* WARNING: Don't try this unless you know there are no characters

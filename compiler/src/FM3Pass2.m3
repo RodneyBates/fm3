@@ -212,6 +212,40 @@ MODULE FM3Pass2
   ; VAR LDeclKind : FM3Decls . DeclKindTyp
   ; VAR LSkipNo : INTEGER
 
+  ; PROCEDURE P2ReverseVariableValues
+      ( MaybeSkip : BOOLEAN (* ToRdBack is conditional on SkipNoStack. *) )
+    (* Reverse copy a variable number of values, with a copy of their
+       count before and after.
+    *) 
+
+    = VAR LCountLt : LONGINT
+    ; VAR LCountRt : LONGINT
+    ; VAR LCharsRef : REF ARRAY OF LONGINT 
+    ; VAR LCount : INTEGER
+
+    ; BEGIN
+        IF MaybeSkip
+           AND IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack ) . Hi
+               > 0 
+        THEN
+        ELSE 
+          LCountRt := FM3Compress . GetBwd ( LPass1RdBack )
+        ; PutBwdP2 ( LPass2RdBack , LCountRt )
+        ; LCount := VAL ( LCountRt , INTEGER )
+        ; LCharsRef := NEW ( REF ARRAY OF LONGINT , LCount )
+        ; FOR RI := 0 TO LCount - 1
+          DO LCharsRef ^ [ RI ] := FM3Compress . GetBwd ( LPass1RdBack )
+          END (*FOR*) 
+        ; FOR RI := LCount - 1 TO 0 BY - 1 
+          DO PutBwdP2 ( LPass2RdBack , LCharsRef ^ [ RI ] )
+          END (*FOR*)
+        ; LCharsRef := NIL 
+        ; LCountLt := FM3Compress . GetBwd ( LPass1RdBack )
+        ; <*ASSERT LCountLt = LCountRt *>
+          PutBwdP2 ( LPass2RdBack , LCountLt )
+        END (*IF*) 
+      END P2ReverseVariableValues 
+
   ; BEGIN (* Pass2 *) 
       LUnitRef := FM3Units . UnitStackTopRef
     (* For now, let's assume the skip mechanism is only used during pass 2.*)
@@ -237,7 +271,11 @@ MODULE FM3Pass2
         THEN
 
         (* Modify and move token from the patch stack to the output. *) 
-          <*ASSERT LPass1Coord = LUnitRef . UntPatchStackTopCoord
+          <*ASSERT
+
+
+TRUE OR 
+LPass1Coord = LUnitRef . UntPatchStackTopCoord
                    (* Haven't missed a patch stack token. *)
           *> 
           LPatchTokenL := FM3Compress . GetBwd ( LPatchRdBack )
@@ -392,7 +430,34 @@ MODULE FM3Pass2
                  , MaybeSkip := TRUE 
                  )
               ; PutBwdP2 ( LPass2RdBack , LTokenL )
-              ; EVAL FM3Scopes . PopDeclScopeRef ( ) 
+              ; EVAL FM3Scopes . PopDeclScopeRef ( )
+
+            | Itk . ItkTextLitRt
+            , Itk . ItkWideTextLitRt
+            => CopyOperands
+                 ( 3 (* Atom, position. *)
+                 , LPass1RdBack
+                 , LPass2RdBack
+                 , MaybeSkip := TRUE 
+                 )
+              ; PutBwdP2
+                  ( LPass2RdBack
+                  , VAL ( FM3Utils . SwitchTokL2R ( LToken ) , LONGINT )
+                  )
+              ; P2ReverseVariableValues ( MaybeSkip := TRUE ) 
+
+            | Itk . ItkTextLitLt
+            , Itk . ItkWideTextLitLt
+            => CopyOperands
+                 ( 3 (* Atom, position. *)
+                 , LPass1RdBack
+                 , LPass2RdBack
+                 , MaybeSkip := TRUE 
+                 )
+              ; PutBwdP2
+                  ( LPass2RdBack
+                  , VAL ( FM3Utils . SwitchTokL2R ( LToken ) , LONGINT )
+                  )
 
             ELSE (* Move directly, unnest to the output.*)
               CopyOperands

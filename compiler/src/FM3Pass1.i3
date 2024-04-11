@@ -81,9 +81,9 @@ INTERFACE FM3Pass1
 ; PROCEDURE Coord ( ) : LONGINT
   (* Of the current unit. *)
   
-; PROCEDURE PutBwd_TextLit ( READONLY ParsAttr : tParsAttribute )
+; PROCEDURE PutBwd_TextLit ( VAR(*READONLY*) ParsAttr : tParsAttribute )
 
-; PROCEDURE PutBwd_WideTextLit ( READONLY ParsAttr : tParsAttribute )
+; PROCEDURE PutBwd_WideTextLit ( VAR(*READONLY*) ParsAttr : tParsAttribute )
 
 ; PROCEDURE PutBwd_Attribute ( READONLY ParsAttr : tParsAttribute )
   
@@ -148,6 +148,9 @@ INTERFACE FM3Pass1
 
 ; PROCEDURE PutBwd_LNP
     ( T : Itk . TokTyp ; N : LONGINT ; READONLY Position : tPosition )
+
+; PROCEDURE PutBwd_LNNP
+    ( T : Itk . TokTyp ; N1 , N2 : LONGINT ; READONLY Position : tPosition )
 
 ; PROCEDURE PutBwd_LP_rp
     ( T : Itk . TokTyp ; READONLY Position : tPosition )

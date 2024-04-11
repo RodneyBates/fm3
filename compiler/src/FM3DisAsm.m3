@@ -9,6 +9,7 @@
 MODULE FM3DisAsm
 
 ; IMPORT Fmt
+; IMPORT Fmt AS FM3Fmt 
 ; IMPORT Long
 ; IMPORT Params 
 ; IMPORT Pathname
@@ -29,8 +30,10 @@ MODULE FM3DisAsm
 ; IMPORT FM3SrcToks 
 ; IMPORT FM3IntToks
 ; IMPORT FM3OpenArray_Char
+; IMPORT FM3UnsafeUtils 
 ; IMPORT RdBackFile
 ; IMPORT FM3Units 
+; IMPORT FM3Utils 
 
 ; VAR GIntFilePrefix : TEXT 
 ; VAR GSetsName : TEXT
@@ -47,7 +50,7 @@ MODULE FM3DisAsm
 
 ; VAR GitRef : FM3Units . UnitRefTyp 
 
-; PROCEDURE PutPrefix
+; PROCEDURE ReadAndPutPrefix
     ( RBT : RdBackFile . T ; WrT : Wr . T )
   : LONGINT
   RAISES { RdBackFile .  BOF }
@@ -70,7 +73,7 @@ MODULE FM3DisAsm
       ; Wr . PutText ( WrT , Fmt . Pad ( Fmt . LongInt ( LValueL ) , 21 ) )
       END (*IF*) 
     ; RETURN LValueL 
-    END PutPrefix
+    END ReadAndPutPrefix
 
 (*EXPORTED:*) 
 ; PROCEDURE DumpNumericBwd ( RBT : RdBackFile . T ; WrT : Wr . T )
@@ -92,7 +95,7 @@ MODULE FM3DisAsm
     = VAR LOpndL : LONGINT
     
     ; BEGIN
-        LOpndL := PutPrefix ( RBT , WrT )
+        LOpndL := ReadAndPutPrefix ( RBT , WrT )
       ; Wr . PutText ( WrT , OpndIndent ) 
       ; Wr . PutText ( WrT , Label ) 
       ; Wr . PutText ( WrT , Fmt . LongInt ( LOpndL ) )
@@ -103,7 +106,7 @@ MODULE FM3DisAsm
       FM3SharedUtils . LoadSets ( ) (* Probably redundant. *)  
     ; TRY 
         LOOP
-          LTokenL := PutPrefix ( RBT , WrT )
+          LTokenL := ReadAndPutPrefix ( RBT , WrT )
         ; IF Long . LE ( LTokenL , VAL ( LAST ( INTEGER ) , LONGINT ) )
           THEN (* Nonneg INTEGER *) 
             LToken := VAL ( LTokenL , INTEGER ) 
@@ -266,7 +269,7 @@ MODULE FM3DisAsm
     = VAR LOpndL : LONGINT
     
     ; BEGIN
-        LOpndL := PutPrefix ( RBT , WrT )
+        LOpndL := ReadAndPutPrefix ( RBT , WrT )
       ; Wr . PutText ( WrT , OpndIndent ) 
       ; Wr . PutText ( WrT , Label ) 
       ; Wr . PutText ( WrT , Fmt . LongInt ( LOpndL ) )
@@ -409,7 +412,7 @@ MODULE FM3DisAsm
   
     = VAR LArgL : LONGINT
     
-  (* TODO: Show this in hex (and decimal both? *) 
+(* TODO: Show this in hex (and decimal both? *) 
     ; BEGIN
         IF ArgNo > 0 THEN Wr . PutChar ( WrT , ',' ) END (*IF*)
       ; LArgL := FM3Compress . GetBwd ( RBT )
@@ -417,12 +420,74 @@ MODULE FM3DisAsm
       ; Wr . PutText ( WrT , Fmt . LongInt ( LArgL ) ) 
       END DobCoordArg 
 
+  ; PROCEDURE DobBasedInt ( ValueL : LONGINT )
+    (* PRE: It's the leftmost but not the rightmost arg. *) 
+
+    = VAR LBaseL : LONGINT
+    ; VAR LBase : FM3Fmt . Base
+
+    ; BEGIN
+        LBaseL := FM3Compress . GetBwd ( RBT )
+      ; CASE LBaseL OF
+        (* Scanner always provides 16. *)  
+(* FIXME^ Get the actual base somehow. *) 
+        | 2L .. 16L
+        => LBase := VAL ( LBaseL , FM3Fmt . Base ) 
+        ; Wr . PutText ( WrT , FM3Fmt . Unsigned ( LBase , base := 10 ) )
+        ; Wr . PutChar ( WrT , '_' ) 
+        ; Wr . PutText
+            ( WrT , FM3Fmt . LongUnsigned ( ValueL , base := LBase ) )
+        ELSE (* Out of range base. *) 
+          Wr . PutText ( WrT , FM3Fmt . LongUnsigned ( LBaseL , base := 10 ) )
+        END (*CASE*) 
+      END DobBasedInt
+
+  ; PROCEDURE DobText ( DoString : BOOLEAN ; Wide : BOOLEAN )
+
+    = VAR LArgL : LONGINT
+    ; VAR LCharL : LONGINT
+    ; VAR LCt : INTEGER
+
+    ; BEGIN 
+        Wr . PutChar ( WrT , ' ' ) 
+      ; Wr . PutText ( WrT , FM3IntToks . Name ( LToken ) )
+      ; Wr . PutChar ( WrT , '(' )
+      ; LArgL := FM3Compress . GetBwd ( RBT ) (* Atom. *) 
+      ; Wr . PutText ( WrT , "16_" )
+      ; Wr . PutText ( WrT , FM3Fmt . LongUnsigned ( LArgL , base := 16 ) )
+      ; Wr . PutChar ( WrT , ')' )
+      ; DobPosArg ( 1 ) 
+      ; IF DoString
+        THEN
+          Wr . PutText ( WrT , Wr . EOL ) 
+        ; Wr . PutText ( WrT , "    ("  )
+        ; LArgL := FM3Compress . GetBwd ( RBT ) (* Right char count. *)
+        ; Wr . PutText ( WrT , FM3Fmt . LongUnsigned ( LArgL , base := 10 ) )
+        ; Wr . PutChar ( WrT , ':' )
+        ; IF Wide THEN Wr . PutChar ( WrT , 'W' ) END (*IF*) 
+        ; Wr . PutChar ( WrT , '\"' )
+        ; LCt := VAL ( LArgL , INTEGER )
+        ; FOR RI := 0 TO LCt - 1 (* LM 1st, as reading backwards. *) 
+          DO
+            LCharL := FM3Compress . GetBwd ( RBT )
+          ; FM3Utils . EscapeL ( WrT , LCharL, Wide )  
+          END (*FOR*) 
+        ; Wr . PutText ( WrT , "\":" )
+        ; LArgL := FM3Compress . GetBwd ( RBT ) (* Left char count. *) 
+        ; Wr . PutText ( WrT , FM3Fmt . LongUnsigned ( LArgL , base := 10 ) )
+        END (*IF*) 
+      ; Wr . PutChar ( WrT , ')' )
+      ; Wr . PutText ( WrT , Wr . EOL )
+      END DobText
+
+  ; VAR LArgL : LONGINT 
+  
   ; BEGIN (* DisAsmWOperandsBwd *) 
       FM3SharedUtils . LoadSets ( ) 
 
     ; TRY 
         LOOP (* Thru' token-with-args groups. *) 
-          LTokenL := PutPrefix ( RBT , WrT )
+          LTokenL := ReadAndPutPrefix ( RBT , WrT )
         ; IF Long . LE ( LTokenL , VAL ( LAST ( INTEGER ) , LONGINT ) )
           THEN (* Nonneg INTEGER *) 
             LToken := VAL ( LTokenL , INTEGER ) 
@@ -440,8 +505,8 @@ MODULE FM3DisAsm
               ; Wr . PutText ( WrT , Wr . EOL )
 
             (* Keep these consistent with Fm3ParsePass.UnnestStk: *)
-(* COMPLETEME: *) 
-         (* | FM3SrcToks . StkIntLit 
+(* These should not happen: 
+            | FM3SrcToks . StkIntLit 
             , FM3SrcToks . StkLongIntLit 
             , FM3SrcToks . StkBasedLit 
             , FM3SrcToks . StkLongBasedLit
@@ -454,7 +519,7 @@ MODULE FM3DisAsm
               => PushOACharsBwd
                    ( WRdBack , FM3Scanner . Attribute . SaChars )
             | FM3SrcToks . StkWideTextLit 
-              => PushOAWideCharsBwd
+            => PushOAWideCharsBwd
                    ( WRdBack , FM3Scanner . Attribute . SaWideChars )
             | FM3SrcToks . StkCharLit 
             , FM3SrcToks . StkWideCharLit 
@@ -488,13 +553,96 @@ MODULE FM3DisAsm
               ; Wr . PutText ( WrT , Wr . EOL )
 
             | FM3IntToks . ItkReservedId 
-              => Wr . PutText ( WrT , " " ) 
+              => Wr . PutChar ( WrT , ' ' ) 
               ; Wr . PutText ( WrT , FM3IntToks . Name ( LToken ) )
-              ; Wr . PutChar ( WrT , '(')
+              ; Wr . PutChar ( WrT , '(' )
               ; DobIdentReservedArg ( 0 )
               ; DobPosArg ( 1 )
-              ; Wr . PutChar ( WrT , ')')
+              ; Wr . PutChar ( WrT , ')' )
               ; Wr . PutText ( WrT , Wr . EOL )
+
+            | FM3IntToks . ItkIntLit 
+            , FM3IntToks . ItkLongIntLit 
+            , FM3IntToks . ItkBasedLit 
+            , FM3IntToks . ItkLongBasedLit
+            , FM3IntToks . ItkRealLit 
+            , FM3IntToks . ItkLongRealLit 
+            , FM3IntToks . ItkExtendedLit
+            , FM3IntToks . ItkCharLit
+            , FM3IntToks . ItkWideCharLit
+            =>  Wr . PutChar ( WrT , ' ' ) 
+              ; Wr . PutText ( WrT , FM3IntToks . Name ( LToken ) )
+              ; LArgL := FM3Compress . GetBwd ( RBT )
+              ; Wr . PutText ( WrT , "(16_" )
+              ; Wr . PutText
+                  ( WrT , FM3Fmt . LongUnsigned ( LArgL , base := 16 ) )
+              ; Wr . PutChar ( WrT , '(' )
+              ; CASE LToken OF 
+                |  FM3IntToks . ItkIntLit
+                =>  Wr . PutText
+                      ( WrT , FM3Fmt . LongUnsigned ( LArgL , base := 10 ) )
+                
+                | FM3IntToks . ItkLongIntLit 
+                =>  Wr . PutText
+                      ( WrT , FM3Fmt . LongUnsigned ( LArgL , base := 10 ) )
+                  ; Wr . PutChar ( WrT , 'L' )
+                  
+                | FM3IntToks . ItkBasedLit 
+                => DobBasedInt ( LArgL )
+                
+                | FM3IntToks . ItkLongBasedLit
+                =>  DobBasedInt ( LArgL ) 
+                  ; Wr . PutChar ( WrT , 'L' )
+                  
+                | FM3IntToks . ItkRealLit
+                => Wr . PutText
+                     ( WrT , FM3Fmt . Real
+                         ( FM3UnsafeUtils . LongIntToReal ( LArgL )
+                         , literal := TRUE )
+                         )
+                
+                | FM3IntToks . ItkLongRealLit
+                => Wr . PutText
+                     ( WrT , FM3Fmt . LongReal
+                         ( FM3UnsafeUtils . LongIntToLongReal ( LArgL ) 
+                         , literal := TRUE )
+                         )
+                
+                | FM3IntToks . ItkExtendedLit
+                => Wr . PutText
+                     ( WrT , FM3Fmt . Extended
+                         ( FM3UnsafeUtils . LongIntToExtended ( LArgL ) 
+                         , literal := TRUE )
+                         )
+                
+                | FM3IntToks . ItkCharLit
+                =>  Wr . PutChar ( WrT , '\'' )
+                  ; FM3Utils . EscapeL ( WrT , LArgL , Wide := FALSE ) 
+                  ; Wr . PutChar ( WrT , '\'' )
+                  
+                | FM3IntToks . ItkWideCharLit
+                =>  Wr . PutText ( WrT , "W\'" )
+                  ; FM3Utils . EscapeL ( WrT , LArgL , Wide := TRUE ) 
+                  ; Wr . PutChar ( WrT , '\'' )
+
+                END (*CASE*)
+                
+              ; Wr . PutChar ( WrT , ')' )
+              ; DobPosArg ( 2 ) 
+              ; Wr . PutChar ( WrT , ')' )
+              ; Wr . PutText ( WrT , Wr . EOL )
+
+            | FM3IntToks . ItkTextLitLt
+            =>  DobText ( DoString := FALSE , Wide := FALSE ) 
+
+            | FM3IntToks . ItkTextLitRt
+            =>  DobText ( DoString := TRUE , Wide := FALSE ) 
+
+            | FM3IntToks . ItkWideTextLitLt
+            =>  DobText ( DoString := FALSE , Wide := TRUE ) 
+
+            | FM3IntToks . ItkWideTextLitRt
+            =>  DobText ( DoString := TRUE , Wide := TRUE ) 
 
             ELSE (* Of outer CASE. *) 
               CASE LToken OF 

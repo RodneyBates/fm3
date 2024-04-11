@@ -299,12 +299,12 @@ LONE
   (* The values of all scalar literals are LOOPHOLEd to LONGINT. *)
   ItkIntLit INT POS .
   ItkLongIntLit INT POS .
-  ItkBasedLit INT POS .
-  ItkLongBasedLit INT POS .
+  ItkBasedLit INT INT POS (* value, base. *) .
+  ItkLongBasedLit INT INT POS (* value. base *).
   ItkRealLit INT POS .
   ItkLongRealLit INT POS .
   ItkExtendedLit INT POS .
-  ItkCharLit INT POS .
+  ItkCharLit     INT POS .
   ItkWideCharLit INT POS .
   
 FIXED

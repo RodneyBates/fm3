@@ -9,7 +9,7 @@
 MODULE FM3Utils
 
 ; IMPORT AtomList
-; IMPORT Fmt 
+; IMPORT Fmt AS FM3Fmt  
 ; IMPORT Long AS BitArith
 ; IMPORT Text
 ; IMPORT TextWr
@@ -24,10 +24,10 @@ MODULE FM3Utils
 
 ; IMPORT FM3Atom_OAChars 
 ; IMPORT FM3Base
+; IMPORT FM3IntToks AS Itk
 ; IMPORT FM3OpenArray_Char 
 ; IMPORT FM3SharedGlobals 
 ; IMPORT FM3SrcToks 
-; IMPORT FM3IntToks 
 
 ; TYPE IntRangeTyp = IntRanges . RangeTyp
 
@@ -42,11 +42,11 @@ MODULE FM3Utils
   = BEGIN 
       Wr.PutText
         ( WrT
-        , Fmt . Pad
-            ( Fmt . Unsigned ( Value , base := 16 )
+        , FM3Fmt . Pad
+            ( FM3Fmt . Unsigned ( Value , base := 16 )
             , length := 2 * BYTESIZE ( INTEGER )
             , padChar := '0'
-            , align := Fmt . Align . Right 
+            , align := FM3Fmt . Align . Right 
             )
         )
     END PutHex 
@@ -167,7 +167,8 @@ MODULE FM3Utils
     ; RETURN LResult  
     END WCharVarArrayToOAWChar
 
-; PROCEDURE EscapeChar ( WrT : Wr . T ; WCh : WIDECHAR ) 
+(*EXPORTED*) 
+; PROCEDURE EscapeChar ( WrT : Wr . T ; WCh : WIDECHAR ; Wide : BOOLEAN ) 
 
   = VAR LChOrd : INTEGER
   ; VAR LPadLen : INTEGER
@@ -199,20 +200,40 @@ MODULE FM3Utils
       ; LChOrd := ORD ( WCh )
       ; IF LChOrd > 16_FFFF
         THEN LEscChar := 'U' ; LPadLen := 6 
-        ELSE LEscChar := 'X' ; LPadLen := 4
+        ELSIF Wide OR LChOrd > 16_FF 
+        THEN LEscChar := 'X' ; LPadLen := 4
+        ELSE LEscChar := 'X' ; LPadLen := 2
         END (*IF*) 
       ; Wr . PutChar ( WrT , LEscChar ) 
       ; Wr . PutText 
           ( WrT 
-          , Fmt . Pad 
-              ( Fmt . Int ( ORD ( WCh ) , base := 16 ) 
+          , FM3Fmt . Pad 
+              ( FM3Fmt . Int ( ORD ( WCh ) , base := 16 ) 
               , length := LPadLen
               , padChar := '0' 
-              , align := Fmt . Align . Right 
+              , align := FM3Fmt . Align . Right 
               ) 
           ) 
       END (* CASE *) 
-    END EscapeChar  
+    END EscapeChar
+
+  ; PROCEDURE EscapeL ( WrT : Wr . T ; ArgL : LONGINT ; Wide : BOOLEAN )
+
+    = VAR LWCh : WIDECHAR
+
+    ; BEGIN
+        IF BitArith . LE ( ArgL , 16_FFL ) 
+           OR Wide AND BitArith . LE ( ArgL , 16_10FFFFL ) 
+        THEN
+          LWCh := VAL ( ArgL , WIDECHAR ) 
+        ; EscapeChar ( WrT , LWCh , Wide )
+        ELSE
+          Wr . PutText ( WrT , "\\<16_" )
+        ; Wr . PutText ( WrT , FM3Fmt . LongUnsigned ( ArgL , base := 16 ) )
+        ; Wr . PutText ( WrT , "" )  
+        ; Wr . PutText ( WrT , "\\>" )
+        END (*IF*) 
+      END EscapeL 
 
 (*EXPORTED*) 
 ; PROCEDURE TextLiteral ( READONLY CharsRef : REF ARRAY OF CHAR ) : TEXT
@@ -225,7 +246,7 @@ MODULE FM3Utils
       LWrT := TextWr . New ( )
     ; Wr . PutChar ( LWrT , '\"' )
     ; FOR RI := FIRST ( CharsRef ^ ) TO LAST ( CharsRef ^ )
-      DO EscapeChar ( LWrT , CharsRef ^ [ RI ] ) 
+      DO EscapeChar ( LWrT , CharsRef ^ [ RI ] , Wide := FALSE ) 
       END (*FOR*) 
     ; Wr . PutChar ( LWrT , '\"' )
     ; LResult := TextWr . ToText ( LWrT ) 
@@ -243,7 +264,7 @@ MODULE FM3Utils
       LWrT := TextWr . New ( )
     ; Wr . PutText ( LWrT , "W\"" )
     ; FOR RI := FIRST ( CharsRef ^ ) TO LAST ( CharsRef ^ )
-      DO EscapeChar ( LWrT , CharsRef ^ [ RI ] ) 
+      DO EscapeChar ( LWrT , CharsRef ^ [ RI ] , Wide := TRUE ) 
       END (*FOR*) 
     ; Wr . PutChar ( LWrT , '\"' )
     ; LResult := TextWr . ToText ( LWrT ) 
@@ -303,11 +324,11 @@ MODULE FM3Utils
         ; Wr . PutChar ( WrT , LEscChar ) 
         ; Wr . PutText 
             ( WrT 
-            , Fmt . Pad 
-                ( Fmt . Int ( ORD ( C ) , base := 16 ) 
+            , FM3Fmt . Pad 
+                ( FM3Fmt . Int ( ORD ( C ) , base := 16 ) 
                 , length := LPadLen 
                 , padChar := '0' 
-                , align := Fmt . Align . Right 
+                , align := FM3Fmt . Align . Right 
                 ) 
             ) 
         END (*CASE*) 
@@ -315,6 +336,20 @@ MODULE FM3Utils
     ; RETURN TextWr . ToText ( WrT ) 
     END EscapeText 
 *)
+
+(* EXPORTED: *) 
+; PROCEDURE SwitchTokL2R ( Tok : Itk . TokTyp ) : Itk . TokTyp 
+
+  = BEGIN
+      CASE Tok OF
+      | Itk . ItkTextLitLt => RETURN Itk . ItkTextLitRt 
+      | Itk . ItkTextLitRt => RETURN Itk . ItkTextLitLt 
+      | Itk . ItkWideTextLitLt => RETURN Itk . ItkWideTextLitRt 
+      | Itk . ItkWideTextLitRt => RETURN Itk . ItkWideTextLitLt
+      ELSE RETURN Tok
+      END (*CASE*) 
+    END SwitchTokL2R 
+
 (* EXPORTED: *) 
 ; PROCEDURE TextToRefArrayChars ( TextVal : TEXT) : REF ARRAY OF CHAR
   (* WARNING: Don't try this unless you know there are no characters
@@ -335,7 +370,7 @@ MODULE FM3Utils
 (* EXPORTED: *) 
 ; PROCEDURE TokenOpndCt ( Token : FM3Base . TokTyp ) : INTEGER 
 
-  = BEGIN (*SrcTokOpndCt*)
+  = BEGIN (*TokOpndCt*)
       CASE Token OF
       | FM3SrcToks . StkEOF .. FM3SrcToks . StkBOF 
       , FM3SrcToks . StkRwAND .. FM3SrcToks . StkClosePragma
@@ -343,7 +378,7 @@ MODULE FM3Utils
       | FM3SrcToks . StkIdent .. FM3SrcToks . StkWideCharLit
       => RETURN 3 (* Atom, Line, Column. *) 
 (* NOTE: May need to adjust this if literals have additional operands. *) 
-      | FM3IntToks . TkMinTok .. FM3IntToks . TkMaxTok
+      | Itk . TkMinTok .. Itk . TkMaxTok
       => IF IntSets . IsElement ( Token , FM3SharedGlobals . GTokSetGE6Args )
          THEN RETURN 6
          ELSIF IntSets . IsElement ( Token , FM3SharedGlobals . GTokSetGE5Args )
@@ -358,7 +393,7 @@ MODULE FM3Utils
          THEN RETURN 1
          ELSE RETURN 0
          END (*IF*) 
-      ELSE RETURN -1 (* Not a source token. *) 
+      ELSE RETURN 0 (* Not an internal token. *) 
       END (*CASE*)
     END TokenOpndCt
 
@@ -371,9 +406,9 @@ MODULE FM3Utils
   ; BEGIN (*PositionImage*)
       LWrT := TextWr . New ( )
     ; Wr . PutChar ( LWrT , '(') 
-    ; Wr . PutText ( LWrT , Fmt . Int ( Pos . Line ) ) 
+    ; Wr . PutText ( LWrT , FM3Fmt . Int ( Pos . Line ) ) 
     ; Wr . PutChar ( LWrT , ',' ) 
-    ; Wr . PutText ( LWrT , Fmt . Int ( Pos . Column ) ) 
+    ; Wr . PutText ( LWrT , FM3Fmt . Int ( Pos . Column ) ) 
     ; Wr . PutChar ( LWrT , ')' ) 
     ; LResult := TextWr . ToText ( LWrT ) 
     ; RETURN LResult 

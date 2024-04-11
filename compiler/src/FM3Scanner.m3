@@ -583,7 +583,7 @@ MODULE FM3Scanner
                 )
             ; AppendChar ( ScCharVarArr , GTopSsRef . SsCh ) 
             ; NextChar ( )  
-            UNTIL NOT GTopSsRef . SsCh IN DigitChars 
+            UNTIL NOT GTopSsRef . SsCh IN DigitChars  
           ; IF  GTopSsRef . SsCh = 'L' 
             THEN 
               LTok := FM3SrcToks . StkLongBasedLit 
@@ -601,12 +601,17 @@ MODULE FM3Scanner
         | '.' 
         => NextChar ( ) 
         ; IF GTopSsRef . SsCh = '.' 
-          THEN 
-            <* ASSERT UnsafeUniRd . FastUnGetCodePoint  
-                        ( GTopSsRef ^ . SsUniRd ) 
+          THEN (* "..", a different token. *)
+            <* ASSERT 
+                 UnsafeUniRd . FastUnGetCodePoint ( GTopSsRef ^ . SsUniRd ) 
             *> 
           ELSE
             LTok := FM3SrcToks . StkRealLit 
+          ; FM3Utils . ContribToHash 
+              ( (*IN OUT*) ScHash 
+              , VAL ( ORD ( '.' ) , FM3Utils . HashTyp ) 
+              )
+          ; AppendChar ( ScCharVarArr , '.' ) 
           ; IF GTopSsRef . SsCh IN SET OF CHAR { '0' .. '9' } 
             THEN 
               REPEAT 
@@ -722,7 +727,7 @@ MODULE FM3Scanner
       END LineCharExists 
 
   ; CONST EscapeChars 
-      = SET OF CHAR { '\n' , '\t' , '\r' , '\f' , '\\' , '\'' , '\"' }
+      = SET OF CHAR { 'n' , 't' , 'r' , 'f' , '\\' , '\'' , '\"' }
   ; CONST OctalDigits = SET OF [ '0' .. 'f' ] { '0' .. '7' } 
   ; CONST HexDigits = SET OF [ '0' .. 'f' ] { '0' .. '9' , 'a' .. 'f' , 'A' .. 'F' }
   ; CONST HexTagChars = SET OF CHAR { 'x' , 'X' } 
@@ -758,6 +763,7 @@ MODULE FM3Scanner
       ; IF GTopSsRef . SsCh IN EscapeChars 
         THEN 
           LCh := GEscapeCharMap [ GTopSsRef . SsCh ] 
+        ; NextChar ( ) (* Consume escaped source char. *) 
         ; RETURN LCh 
         END (*IF*)
 
@@ -900,6 +906,7 @@ MODULE FM3Scanner
         ; NextChar ( ) 
         END (*IF*) 
       ; Attribute . SaWCh := LWCh 
+      ; Attribute . SaArgValue := VAL ( ORD ( Attribute . SaWCh ) , LONGINT )
       ; Attribute . SaHash := VAL ( ORD ( LWCh ) , LONGINT )   
       ; Attribute . SaAtom := ORD ( LWCh )  
       ; IF NOT LineCharExists
@@ -1083,6 +1090,7 @@ MODULE FM3Scanner
   ; BEGIN (* GetToken *) 
       ScAtBegOfPragma := GTopSsRef ^ . SsAtBegOfPragma (* From prev. token. *)
     ; GTopSsRef ^ . SsAtBegOfPragma := FALSE 
+    ; Attribute . SaArgValue := 0L 
     ; Attribute . SaWCh := WNUL  
     ; Attribute . SaAtom := FM3Base . AtomNull 
     ; LOOP (* Skip non-token chars. *) 
@@ -1391,5 +1399,3 @@ MODULE FM3Scanner
 ; BEGIN (* FM3Scanner *)
   END FM3Scanner 
 . 
-
-

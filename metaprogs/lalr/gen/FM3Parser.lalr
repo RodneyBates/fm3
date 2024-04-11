@@ -2146,16 +2146,22 @@ RULE
          ) ;
      } .  
    E8WOId : StkBasedLit
-     { FM3Pass1 . PutBwd_LNP 
+     { FM3Pass1 . PutBwd_LNNP 
          ( Itk . ItkBasedLit
          , $1 . Scan . SaArgValue 
+         , 16L (* Base--default.*) 
+(* FIXME ^ Get the real base from the scanner.
+           As of 2024-4-5, only FM3DisAsm uses this. *) 
          , $1 . Scan . Position
          ) ;
      } .   
    E8WOId : StkLongBasedLit
-     { FM3Pass1 . PutBwd_LNP 
+     { FM3Pass1 . PutBwd_LNNP 
          ( Itk . ItkLongBasedLit
          , $1 . Scan . SaArgValue 
+         , 16L (* Base--default.*) 
+(* FIXME ^ Get the real base from the scanner.
+           As of 2024-4-5, only FM3DisAsm uses this. *) 
          , $1 . Scan . Position
          ) ;
      } .  
