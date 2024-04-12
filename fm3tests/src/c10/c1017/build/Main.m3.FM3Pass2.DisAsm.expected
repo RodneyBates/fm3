@@ -103,9 +103,9 @@
  ItkConstDeclColon([16,10],FALSE)
  ItkDeclTypeAbsent()
  ItkConstDeclEquals([16,10])
- ItkTextLitRt(16_1),[16,12]
+ ItkTextLitLt(16_1),[16,12]
     (6:"Mm\t Mm":6)
- ItkTextLitLt(16_1),[16,12])
+ ItkTextLitRt(16_1),[16,12])
  ItkConstDeclRt([16,8])
  ItkBlockDeclListSep(L13(16_d),[17,0])
  ItkConstDeclLt([17,8])
@@ -113,9 +113,9 @@
  ItkConstDeclColon([17,10],FALSE)
  ItkDeclTypeAbsent()
  ItkConstDeclEquals([17,10])
- ItkWideTextLitRt(16_1),[17,12]
+ ItkWideTextLitLt(16_1),[17,12]
     (5:W"Nn\U1000ffNn":5)
- ItkWideTextLitLt(16_1),[17,12])
+ ItkWideTextLitRt(16_1),[17,12])
  ItkConstDeclRt([17,8])
  ItkBlockDeclListRt(L14(16_e),[4,2])
  ItkModuleBegin(L1(16_1),[19,2])
