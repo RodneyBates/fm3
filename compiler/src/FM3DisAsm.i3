@@ -18,7 +18,8 @@ INTERFACE FM3DisAsm
 
 ; PROCEDURE DumpInterpretBwd ( RBT : RdBackFile . T ; WrT : Wr . T )
 
-; PROCEDURE DisAsmWOperandsBwd ( RBT : RdBackFile . T ; WrT : Wr . T )
+; PROCEDURE DisAsmWOperands
+    ( RBT : RdBackFile . T ; WrT : Wr . T ; L2R : BOOLEAN )
   (* PRE: RBT is open. *) 
 
 ; END FM3DisAsm

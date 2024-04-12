@@ -177,7 +177,8 @@ MODULE FM3Pass1
   = BEGIN (*DisAsmPass1*)
       IF NOT FM3CLOptions . PassNo1 IN UnitRef ^ . UntPassNosDisAsmed 
       THEN (* Disassembly file is not already written. *) 
-        FM3Compile . DisAsmPassFile ( UnitRef , FM3Globals . Pass1OutSuffix )
+        FM3Compile . DisAsmPassFile
+          ( UnitRef , FM3Globals . Pass1OutSuffix , L2R := FALSE )
       ; FM3CLOptions . InclPassNo
           ( UnitRef ^ . UntPassNosDisAsmed , FM3CLOptions . PassNo1 ) 
       END (*IF*) 

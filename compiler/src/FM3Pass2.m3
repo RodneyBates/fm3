@@ -442,7 +442,7 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
                  )
               ; PutBwdP2
                   ( LPass2RdBack
-                  , VAL ( FM3Utils . SwitchTokL2R ( LToken ) , LONGINT )
+                  , VAL ( (*FM3Utils . SwitchTokL2R*) ( LToken ) , LONGINT )
                   )
               ; P2ReverseVariableValues ( MaybeSkip := TRUE ) 
 
@@ -456,7 +456,7 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
                  )
               ; PutBwdP2
                   ( LPass2RdBack
-                  , VAL ( FM3Utils . SwitchTokL2R ( LToken ) , LONGINT )
+                  , VAL ( (*FM3Utils . SwitchTokL2R*) ( LToken ) , LONGINT )
                   )
 
             ELSE (* Move directly, unnest to the output.*)
@@ -769,21 +769,21 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
     ; FinishPass2 ( UnitRef ) 
     END RunPass2
 
-(*EXPORTED*) 
 ; PROCEDURE DisAsmPass2
     ( UnitRef : FM3Units . UnitRefTyp ; DoEarlierPasses : BOOLEAN )
 
   = BEGIN (*DisAsmPass2*)
       IF NOT FM3CLOptions . PassNo2 IN UnitRef ^ . UntPassNosDisAsmed 
       THEN (* Disassembly file is not already written. *) 
-        FM3Compile . DisAsmPassFile ( UnitRef , FM3Globals . Pass2OutSuffix )
+        FM3Compile . DisAsmPassFile
+          ( UnitRef , FM3Globals . Pass2OutSuffix , L2R := TRUE )
       ; FM3CLOptions . InclPassNo
           ( UnitRef ^ . UntPassNosDisAsmed , FM3CLOptions . PassNo2 ) 
       END (*IF*) 
     ; IF DoEarlierPasses
       THEN
-(* This is unnecessary, as pass 1 has no earlier pass.  It is here to remind
-   to do this in passes later than pass 2.
+(* This is unnecessary, as pass 1 has no earlier pass.  It is here in comment
+   to remind whoever to do this in passes later than pass 2.
  
         FM3Pass1 . DisAsmPass1 ( DoEarlierPasses := TRUE )
 *) 

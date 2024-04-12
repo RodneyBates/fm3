@@ -253,7 +253,8 @@ MODULE FM3DisAsm
     END NumArgCt 
 
 (*EXPORTED:*) 
-; PROCEDURE DisAsmWOperandsBwd ( RBT : RdBackFile . T ; WrT : Wr . T )
+; PROCEDURE DisAsmWOperands
+    ( RBT : RdBackFile . T ; WrT : Wr . T ; L2R : BOOLEAN )
   (* PRE: RBT is open. *) 
 
   = VAR LTokenL : LONGINT
@@ -482,7 +483,7 @@ MODULE FM3DisAsm
 
   ; VAR LArgL : LONGINT 
   
-  ; BEGIN (* DisAsmWOperandsBwd *) 
+  ; BEGIN (* DisAsmWOperands *) 
       FM3SharedUtils . LoadSets ( ) 
 
     ; TRY 
@@ -633,16 +634,16 @@ MODULE FM3DisAsm
               ; Wr . PutText ( WrT , Wr . EOL )
 
             | FM3IntToks . ItkTextLitLt
-            =>  DobText ( DoString := FALSE , Wide := FALSE ) 
+            =>  DobText ( DoString := L2R , Wide := FALSE ) 
 
             | FM3IntToks . ItkTextLitRt
-            =>  DobText ( DoString := TRUE , Wide := FALSE ) 
+            =>  DobText ( DoString := NOT L2R , Wide := FALSE ) 
 
             | FM3IntToks . ItkWideTextLitLt
-            =>  DobText ( DoString := FALSE , Wide := TRUE ) 
+            =>  DobText ( DoString := L2R , Wide := TRUE ) 
 
             | FM3IntToks . ItkWideTextLitRt
-            =>  DobText ( DoString := TRUE , Wide := TRUE ) 
+            =>  DobText ( DoString := NOT L2R , Wide := TRUE ) 
 
             ELSE (* Of outer CASE. *) 
               CASE LToken OF 
@@ -764,7 +765,7 @@ MODULE FM3DisAsm
       => Wr . PutText ( WrT , Fmt . Pad ( Fmt . LongInt ( 0L) , 6 ) )
       ; Wr . PutText ( WrT , Wr . EOL ) 
       END (*EXCEPT*)
-    END DisAsmWOperandsBwd
+    END DisAsmWOperands
 
 ; BEGIN
   END FM3DisAsm
