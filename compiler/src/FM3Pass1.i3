@@ -54,7 +54,7 @@ INTERFACE FM3Pass1
 ; TYPE SigKindType
     = { SgkTypeDef
       , SgkMethodDef
-      , SgkInteaceProcDecl
+      , SgkInterfaceProcDecl
       , SgkModuleProcDecl 
       } 
 
@@ -375,36 +375,6 @@ INTERFACE FM3Pass1
      exactly the needed size, and load it up with mappings of the idents
      declared in the scope, using a contiguously-numbered range of DeclNos.
   *) 
-
-(* Not exported: 
-; PROCEDURE ScopeRtR2L ( ScopeNo : FM3Base . ScopeNoTyp )
-
-; PROCEDURE DuplDeclR2L
-    ( DeclIdAtom : FM3Base . AtomTyp ; READONLY Position : tPosition )
-  : FM3Base . DeclNoTyp 
-
-; PROCEDURE DeclRtR2L
-    ( DeclIdAtom : FM3Base . AtomTyp
-    ; READONLY Position : tPosition
-    ; DeclKind : FM3Decls . DeclKindTyp 
-    )
-  : FM3Base . DeclNoTyp
-
-; PROCEDURE DeclLtR2L
-    ( DeclIdAtom : FM3Base . AtomTyp
-    ; READONLY Position : tPosition
-    ; DeclKind : FM3Decls . DeclKindTyp 
-    )
-  : FM3Base . DeclNoTyp
-  (* May be 1st or a later duplicate decl of DeclIdAtom *)
-
-; PROCEDURE IdentRefR2L
-    ( IdentRefAtom : FM3Base . AtomTyp ; READONLY Position : tPosition )
-  : FM3Base . DeclNoTyp 
-
-; PROCEDURE ScopeLtR2L ( ScopeNo : FM3Base . ScopeNoTyp )
-
-*) 
 
 ; PROCEDURE DisAsmPass1 ( UnitRef : FM3Units . UnitRefTyp )
 
