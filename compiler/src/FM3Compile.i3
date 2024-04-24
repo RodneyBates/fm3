@@ -8,8 +8,15 @@
 
 INTERFACE FM3Compile
 
+; IMPORT FM3Atom_OAChars 
+; IMPORT FM3Scopes 
 ; IMPORT FM3Units
-; IMPORT RdBackFile  
+; IMPORT RdBackFile
+
+; VAR UnitAtomDict : FM3Atom_OAChars . T
+; VAR IdentAtomInitSize := 50 
+
+; VAR UnitScopeRef : FM3Scopes . ScopeRefTyp 
 
 ; PROCEDURE MakePassFileCopy
     ( UnitRef : FM3Units . UnitRefTyp

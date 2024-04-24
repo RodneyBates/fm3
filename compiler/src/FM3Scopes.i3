@@ -19,6 +19,7 @@ INTERFACE FM3Scopes
 ; TYPE ScopeKindTyp
     = { SkNull
       , SkUniverse (* {Predefined, interfaces? *)
+      , SkComp (* Interfaces touched by a compilation.  Only one. *) 
       , SkInterface (* Including generic and instantiation. *) 
       , SkModule (* Including generic and instantiation. *)
       , SkFormals
@@ -48,7 +49,8 @@ INTERFACE FM3Scopes
       ; ScpDuplDeclIdSet : IntSets . T (* IdentAtoms with > 1 declaration. *) 
 (* CHECK ^ Is there any need for this? *) 
       ; ScpRefIdSet : IntSets . T (* IdentAtoms referenced within. *) 
-      ; ScpDeclDict : FM3Dict_Int_Int . FixedTyp (* IdentNo to Decl no. *)
+      ; ScpDeclDict : FM3Dict_Int_Int . FixedTyp (* IdentAtom to Decl no. *)
+        (* ^ In the unique compilation scope, maps to a unit no. *) 
       ; ScpDeclCt : FM3Base . DeclNoTyp := FM3Base . DeclNoNull 
       ; ScpMinDeclNo := FM3Base . DeclNoNull
       ; ScpScopeNo : FM3Base . ScopeNoTyp (* A self-reference. *)
@@ -62,6 +64,11 @@ INTERFACE FM3Scopes
       ; ScpKind : ScopeKindTyp 
       END (*ScopeTyp*)
       
+; PROCEDURE NewCompScopeRef ( ) : ScopeRefTyp
+  (* A single, unique scope pertaining to the entire run of the compiler
+     and containing only names of interfaces.
+  *) 
+
 ; PROCEDURE NewScopeRef
     ( OwningUnitRef : FM3Units . UnitRefTyp
     ; ScopeKind : ScopeKindTyp

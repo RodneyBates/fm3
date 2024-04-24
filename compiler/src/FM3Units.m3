@@ -186,23 +186,26 @@ MODULE FM3Units
       THEN UnitRef . UntStackDepth := 1
       ELSE UnitRef . UntStackDepth := LBeneathUnitRef . UntStackDepth + 1
       END (*IF*)
-    ; FM3Globals . P1RdBack := UnitRef . UntPass1OutRdBack 
-    ; FM3Globals . PatchRdBack := UnitRef . UntPatchStackRdBack 
-    ; FM3Globals . P2RdBack := UnitRef . UntPass2OutRdBack 
     ; UnitRef ^ . UntStackLink := LBeneathUnitRef  
     ; UnitStackTopRef := UnitRef
     END PushUnit
+
+(*EXPORTED.*)
+; PROCEDURE CacheTopUnitValues ( )
+
+  = BEGIN
+      FM3Globals . P1RdBack := UnitStackTopRef . UntPass1OutRdBack 
+    ; FM3Globals . PatchRdBack := UnitStackTopRef . UntPatchStackRdBack 
+    ; FM3Globals . P2RdBack := UnitStackTopRef . UntPass2OutRdBack 
+    END CacheTopUnitValues 
 
 (*EXPORTED.*)
 ; PROCEDURE PopUnit ( ) : UnitRefTyp  
 
   = VAR LPoppedUnitRef : UnitRefTyp
 
-  ; BEGIN (*Pop*)
-      FM3Globals . P1RdBack := NIL 
-    ; FM3Globals . PatchRdBack := NIL 
-    ; FM3Globals . P2RdBack := NIL 
-    ; LPoppedUnitRef := UnitStackTopRef  
+  ; BEGIN (*PopUnit*)
+      LPoppedUnitRef := UnitStackTopRef  
     ; <* ASSERT LPoppedUnitRef # NIL *>
       UnitStackTopRef := LPoppedUnitRef ^ . UntStackLink
     ; IF UnitStackTopRef = NIL
@@ -216,6 +219,16 @@ MODULE FM3Units
     ; LPoppedUnitRef . UntStackDepth := 0 (* Note not on stack> *)  
     ; RETURN LPoppedUnitRef
     END PopUnit
+
+(*EXPORTED.*)
+; PROCEDURE UncacheTopUnitValues ( )
+  (* Just set the globals to null/NIL values. *) 
+
+  = BEGIN
+      FM3Globals . P1RdBack := NIL 
+    ; FM3Globals . PatchRdBack := NIL 
+    ; FM3Globals . P2RdBack := NIL 
+    END UncacheTopUnitValues 
 
 (*EXPORTED.*)
 ; PROCEDURE CurrentlyInModule ( ) : BOOLEAN

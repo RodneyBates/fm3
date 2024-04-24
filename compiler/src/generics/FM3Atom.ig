@@ -64,14 +64,18 @@ GENERIC INTERFACE FM3Atom ( DictGenformal )
     ( AtomDict : T ; Atom : FM3Base . AtomTyp ; VAR Value : KeyTyp )
   : BOOLEAN (*Found*)
 
-(* Size is an initial estimate of the eventual number of Keys. 
-   Internal allocations will be expanded if and when needed.
-*)
+  (* Size is an initial estimate of the eventual number of Keys. 
+     Internal allocations will be expanded if and when needed.
 
-
-  (* You can use a hash function of your choice, but all Hash values 
+     You can use a hash function of your choice, but all Hash values 
      passed to MakeAtom for a given table T must be computed 
-     consistently from the adjacent Key value by the same function. *)
+     consistently from the adjacent Key value by the same function.
+
+     If you don't already have it for a Key you pass in, you can leave
+     parameter Hash as FM3Utils.HashNull and the procedure will compute it,
+     using the function passed to HashFunction.
+  *)
+
 
 ; END FM3Atom
 .

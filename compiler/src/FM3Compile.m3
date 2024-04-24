@@ -14,6 +14,7 @@ MODULE  FM3Compile
 ; IMPORT FS 
 ; IMPORT Wr 
 
+; IMPORT FM3Atom_OAChars 
 ; IMPORT FM3Base
 ; IMPORT FM3CLArgs 
 ; IMPORT FM3DisAsm 
@@ -22,8 +23,10 @@ MODULE  FM3Compile
 ; IMPORT FM3Messages 
 ; IMPORT FM3Pass1 
 ; IMPORT FM3Pass2
+; IMPORT FM3Scopes 
 ; IMPORT FM3SharedUtils 
 ; IMPORT FM3Units
+; IMPORT FM3Utils
 ; IMPORT RdBackFile 
 
 (*EXPORTED*) 
@@ -142,31 +145,34 @@ MODULE  FM3Compile
 ; PROCEDURE CompileSrcFile ( SrcFileName : TEXT )
 
   = VAR LUnitRef : FM3Units . UnitRefTyp
-  ; VAR LPoppedUnitRef : FM3Units . UnitRefTyp
 
   ; BEGIN (*CompileSrcFile*)
       FM3Pass1 . RunPass1 ( FM3CLOptions . SrcFileName )
-      (* ^POST:  A UnitRef is pushed. *)
-    ; LUnitRef := FM3Units . UnitStackTopRef 
-    ; FM3Pass2 . RunPass2 ( LUnitRef )
+    ; FM3Pass2 . RunPass2 ( )
 
+    ; LUnitRef := FM3Units . UnitStackTopRef 
     ; RdBackFile . Close 
         ( LUnitRef ^ . UntPass2OutRdBack , - 1L (* Leave full length. *) )
       (* ^When the next pass is implemented, don't do this. *)
 
     ; CleanPassFilesAndCopies ( LUnitRef ) 
-    ; LPoppedUnitRef := FM3Units . PopUnit ( )
-    ; <* ASSERT LPoppedUnitRef = LUnitRef *> 
-
-      FM3Messages . FM3LogArr
+    ; FM3Units . UncacheTopUnitValues ( ) 
+    ; FM3Messages . FM3LogArr
         ( ARRAY OF REFANY
             { "Finished compiling " , LUnitRef ^ . UntSrcFileSimpleName , "." }
         )
-    ; FM3Messages . EndUnit ( LPoppedUnitRef ^ . UntSrcFileSimpleName ) 
-
+    ; FM3Messages . EndUnit ( LUnitRef ^ . UntSrcFileSimpleName ) 
     END CompileSrcFile 
 
 ; BEGIN (*FM3Compile*)
+    UnitAtomDict
+      := FM3Atom_OAChars . New
+           ( IdentAtomInitSize
+           , StartAtom := 1 
+           , HashFunc := FM3Utils . HashOfOAChars 
+           , DoReverseMap := TRUE
+           )
+  ; UnitScopeRef := FM3Scopes . NewCompScopeRef ( ) 
   END FM3Compile
 .
 

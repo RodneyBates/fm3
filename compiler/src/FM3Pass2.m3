@@ -657,7 +657,8 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
 
       (* Now handle the original/only declaration. *) 
       ; LDeclRef
-          := FM3Decls . NewDeclRef ( FM3Scopes . DeclScopeStackTopRef , DeclNoI )
+          := FM3Decls . NewDeclRef
+               ( FM3Scopes . DeclScopeStackTopRef , DeclNoI )
       ; LDeclRef . DclLink := NIL 
       ; LDeclRef . DclSelfScopeRef := NIL
 (* TODO: ^ Get this from parser.  Also set the reverse link ScpOwningDeclNo. *) 
@@ -761,12 +762,15 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
     END QualIdentR2L
 
 (*EXPORTED*) 
-; PROCEDURE RunPass2 ( UnitRef : FM3Units . UnitRefTyp ) 
+; PROCEDURE RunPass2 ( ) 
 
-  = BEGIN (*RunPass2*)
-      InitPass2 ( UnitRef ) 
-    ; TranslatePass2 ( UnitRef ) 
-    ; FinishPass2 ( UnitRef ) 
+  = VAR LUnitRef : FM3Units . UnitRefTyp  
+
+  ; BEGIN (*RunPass2*)
+      LUnitRef := FM3Units . UnitStackTopRef 
+    ; InitPass2 ( LUnitRef ) 
+    ; TranslatePass2 ( LUnitRef ) 
+    ; FinishPass2 ( LUnitRef ) 
     END RunPass2
 
 ; PROCEDURE DisAsmPass2

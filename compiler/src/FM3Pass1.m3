@@ -112,11 +112,12 @@ MODULE FM3Pass1
 (*EXPORTED*) 
 ; PROCEDURE RunPass1 ( SrcFileName : TEXT ) 
 
-  =  VAR LUnitRef : FM3Units . UnitRefTyp
- 
+  = VAR LUnitRef : FM3Units . UnitRefTyp
+
   ; BEGIN (*RunPass1*)
-      LUnitRef := InitPass1 ( SrcFileName ) 
-    ; FM3Units . PushUnit ( LUnitRef )
+      LUnitRef := FM3Units . UnitStackTopRef 
+    ; InitPass1 ( LUnitRef , SrcFileName )
+    ; FM3Units . CacheTopUnitValues ( ) 
     ; LUnitRef ^ . UntPassNosDisAsmed := FM3CLOptions . PassNoSetEmpty 
     ; FM3LogArr
         ( ARRAY OF REFANY
@@ -145,8 +146,8 @@ MODULE FM3Pass1
             AND EAtoms . head # NIL
             AND Atom . ToText ( EAtoms . head ) # NIL
             AND Text . Equal ( Atom . ToText ( EAtoms . head ) , "errno=17" )
-(* TODO: There has to be a more graceful way to detect this, but it looks
-         like libm3 is letting us down here.
+(* TODO: There has to be a more graceful (and OS-independent) way to detect
+         this, but it looks like libm3 is letting us down here.
 *) 
          THEN (* The directory already exists. We expect this sometimes. *)
            EVAL EAtoms (* Debug. *)  
@@ -187,7 +188,7 @@ MODULE FM3Pass1
 ; CONST UnitLogSuffix = ".log" 
 
 (*EXPORTED.*)
-; PROCEDURE InitPass1 ( SrcFileName : TEXT ) : FM3Units . UnitRefTyp
+; PROCEDURE InitPass1 ( UnitRef : FM3Units . UnitRefTyp ; SrcFileName : TEXT ) 
 
   = VAR LFullFileName : TEXT
   ; VAR LFullPass1OutName : TEXT 
@@ -195,49 +196,47 @@ MODULE FM3Pass1
   ; VAR LSrcFileSimpleName : TEXT 
   ; VAR LSrcFileDir : TEXT
   ; VAR LUnitLogFullName : TEXT 
-  ; VAR LUnitRef : FM3Units . UnitRefTyp 
 
   ; BEGIN (*InitPass1*)
   
 (* Open source file. *)
 
-      LUnitRef := FM3Units . NewUnitRef ( )
-    ; LSrcFileDir
+      LSrcFileDir
         := Pathname . Prefix ( FM3SharedUtils . AbsFileName ( SrcFileName ) )
     ; LSrcFileSimpleName := Pathname . Last ( SrcFileName )
-    ; LUnitRef ^ . UntSrcUniRd 
+    ; UnitRef ^ . UntSrcUniRd 
         := FM3Files . OpenUniRd
              ( LSrcFileDir , LSrcFileSimpleName , "source file " , NIL )
 (* Is this silly? *) 
-    ; LUnitRef ^ . UntSrcFileSimpleName := LSrcFileSimpleName 
-    ; LUnitRef ^ . UntSrcFilePath := LSrcFileDir
+    ; UnitRef ^ . UntSrcFileSimpleName := LSrcFileSimpleName 
+    ; UnitRef ^ . UntSrcFilePath := LSrcFileDir
 
 (* Create the build directory: *)
 
 (* FIXME: FM3CLArgs wants a build directory to put a log file in, even before
           we get here.  Is this the right place for it?
 *)
-    ; EnsureBuildDirectory ( LUnitRef , LSrcFileDir ) 
+    ; EnsureBuildDirectory ( UnitRef , LSrcFileDir ) 
 
 (* Create the unit log output file. A pure text file. *)
-    ; LUnitRef ^ . UntLogSimpleName
+    ; UnitRef ^ . UntLogSimpleName
         := Pathname . Join
              ( NIL
-             , LUnitRef ^ . UntSrcFileSimpleName
+             , UnitRef ^ . UntSrcFileSimpleName
              , FM3Globals . UnitLogSuffix
              ) 
     ; LUnitLogFullName
         := Pathname . Join
-             ( LSrcFileDir , LUnitRef ^ . UntLogSimpleName , NIL ) 
+             ( LSrcFileDir , UnitRef ^ . UntLogSimpleName , NIL ) 
     ; IF Clt . CltUnitLog IN FM3CLOptions . OptionTokSet
       THEN 
-        TRY LUnitRef ^ . UntLogWrT := FileWr . Open ( LUnitLogFullName ) 
+        TRY UnitRef ^ . UntLogWrT := FileWr . Open ( LUnitLogFullName ) 
         EXCEPT
         | OSError . E ( EAtoms )
         => <*FATAL Thread . Alerted , Wr . Failure *>
            BEGIN
              Wr . PutText ( Stdio . stderr , "Unable to open unit log file " ) 
-           ; Wr . PutText ( Stdio . stderr , LUnitRef ^ . UntLogSimpleName ) 
+           ; Wr . PutText ( Stdio . stderr , UnitRef ^ . UntLogSimpleName ) 
            ; Wr . PutText ( Stdio . stderr , ": " ) 
            ; Wr . PutText
                ( Stdio . stderr , FM3Messages . AtomListToOSError ( EAtoms ) ) 
@@ -246,52 +245,52 @@ MODULE FM3Pass1
            ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
            ; Wr . Flush ( Stdio . stderr )
            END (*Block.*) 
-        ; LUnitRef ^ . UntLogWrT := NIL
+        ; UnitRef ^ . UntLogWrT := NIL
         ELSE (* Remove any leftover unit log file. *) 
           FM3SharedUtils . DeleteFile ( LUnitLogFullName ) 
         END (*IF*) 
       END (*EXCEPT*)
     ; FM3Messages . StartUnit
-        ( LUnitRef ^ . UntSrcFileSimpleName , LUnitRef ^ . UntLogWrT ) 
+        ( UnitRef ^ . UntSrcFileSimpleName , UnitRef ^ . UntLogWrT ) 
 
 (* Create build files for the pass. *)
 
-    ; LUnitRef ^ . UntPass1OutSimpleName
+    ; UnitRef ^ . UntPass1OutSimpleName
         := Pathname . Join
              ( NIL
-             , LUnitRef ^ . UntSrcFileSimpleName
+             , UnitRef ^ . UntSrcFileSimpleName
              , FM3Globals . Pass1OutSuffix
              )
-    ; LUnitRef ^ . UntPatchStackSimpleName
+    ; UnitRef ^ . UntPatchStackSimpleName
         := Pathname . Join
              ( NIL
-             , LUnitRef ^ . UntSrcFileSimpleName
+             , UnitRef ^ . UntSrcFileSimpleName
              , FM3Globals . PatchStackSuffix
              )
     ; TRY (*EXCEPT*)
         (* Heh, heh.  Code the exception handler only once for both files. *) 
         LFullPass1OutName
           := Pathname . Join
-               ( LUnitRef ^ . UntBuildDirPath 
-               , LUnitRef ^ . UntPass1OutSimpleName
+               ( UnitRef ^ . UntBuildDirPath 
+               , UnitRef ^ . UntPass1OutSimpleName
                , NIL
                )
       ; LFullFileName :=  LFullPass1OutName 
-      ; LUnitRef ^ . UntPass1OutRdBack
+      ; UnitRef ^ . UntPass1OutRdBack
           := RdBackFile . Create ( LFullPass1OutName , Truncate := TRUE ) 
-      ; FM3Globals . P1RdBack := LUnitRef ^ . UntPass1OutRdBack
+      ; FM3Globals . P1RdBack := UnitRef ^ . UntPass1OutRdBack
         (* ^Cache for faster access. *)
 
       ; LFullPatchStackName
           := Pathname . Join
-               ( LUnitRef ^ . UntBuildDirPath 
-               , LUnitRef ^ . UntPatchStackSimpleName
+               ( UnitRef ^ . UntBuildDirPath 
+               , UnitRef ^ . UntPatchStackSimpleName
                , NIL
                ) 
       ; LFullFileName :=  LFullPatchStackName 
-      ; LUnitRef ^ . UntPatchStackRdBack
+      ; UnitRef ^ . UntPatchStackRdBack
           := RdBackFile . Create ( LFullPatchStackName , Truncate := TRUE )
-      ; FM3Globals . PatchRdBack := LUnitRef ^ . UntPatchStackRdBack 
+      ; FM3Globals . PatchRdBack := UnitRef ^ . UntPatchStackRdBack 
         (* ^Cache for faster access. *) 
       
       EXCEPT
@@ -311,32 +310,32 @@ MODULE FM3Pass1
 
 (* COMPLETEME: See that RdBack Create adds FM3 file tags and lengths. *)
     ; PutBwd
-        ( LUnitRef ^ . UntPass1OutRdBack , VAL ( Itk . ItkBOF , LONGINT ) ) 
+        ( UnitRef ^ . UntPass1OutRdBack , VAL ( Itk . ItkBOF , LONGINT ) ) 
     ; PutBwd
-        ( LUnitRef ^ . UntPass1OutRdBack , VAL ( Itk . ItkLeftEnd , LONGINT ) )
-    ; LUnitRef ^ . UntPass1OutEmptyCoord
-        := RdBackFile . LengthL ( LUnitRef ^ . UntPass1OutRdBack )
-    ; LUnitRef ^ . UntMaxPass1OutLength
-        := LUnitRef ^ . UntPass1OutEmptyCoord
+        ( UnitRef ^ . UntPass1OutRdBack , VAL ( Itk . ItkLeftEnd , LONGINT ) )
+    ; UnitRef ^ . UntPass1OutEmptyCoord
+        := RdBackFile . LengthL ( UnitRef ^ . UntPass1OutRdBack )
+    ; UnitRef ^ . UntMaxPass1OutLength
+        := UnitRef ^ . UntPass1OutEmptyCoord
         
 (* Write initial tokens to output files. *) 
 
     ; PutBwd
-        ( LUnitRef ^ . UntPatchStackRdBack , VAL ( Itk . ItkBOF , LONGINT ) )
+        ( UnitRef ^ . UntPatchStackRdBack , VAL ( Itk . ItkBOF , LONGINT ) )
     ; PutBwd
-        ( LUnitRef ^ . UntPatchStackRdBack , VAL ( Itk . ItkLeftEnd , LONGINT ) )
-    ; LUnitRef ^ . UntPatchStackEmptyCoord
-        := RdBackFile . LengthL ( LUnitRef ^ . UntPatchStackRdBack )
-    ; LUnitRef ^ . UntMaxPatchStackDepth
-        := LUnitRef ^ . UntPatchStackEmptyCoord
-    ; LUnitRef . UntPatchStackTopCoord := LUnitRef . UntPass1OutEmptyCoord
+        ( UnitRef ^ . UntPatchStackRdBack , VAL ( Itk . ItkLeftEnd , LONGINT ) )
+    ; UnitRef ^ . UntPatchStackEmptyCoord
+        := RdBackFile . LengthL ( UnitRef ^ . UntPatchStackRdBack )
+    ; UnitRef ^ . UntMaxPatchStackDepth
+        := UnitRef ^ . UntPatchStackEmptyCoord
+    ; UnitRef . UntPatchStackTopCoord := UnitRef . UntPass1OutEmptyCoord
 
 (* Create unit data structures. *)
     
 (* TODO: eliminate redundant initialization between here are FM3Units.NewUnit. *)
 (* Check: Do we really need separate atom dictionaries for identifiers,
           numbers, and CHAR literasl? *) 
-    ; LUnitRef ^ . UntIdentAtomDict
+    ; UnitRef ^ . UntIdentAtomDict
         := FM3Atom_OAChars . New
              ( FM3Globals . IdentAtomInitSize
              , StartAtom := FM3Globals . FirstRealAtom
@@ -344,7 +343,7 @@ MODULE FM3Pass1
              , DoReverseMap := TRUE 
              )
 
-    ; LUnitRef ^ . UntNumberAtomDict
+    ; UnitRef ^ . UntNumberAtomDict
         := FM3Atom_OAChars . New
              ( FM3Globals . NumberAtomInitSize
              , StartAtom := FM3Globals . FirstRealAtom
@@ -352,7 +351,7 @@ MODULE FM3Pass1
              , DoReverseMap := TRUE 
              )
 
-    ; LUnitRef ^ . UntCharsAtomDict (* For CHAR literals. *) 
+    ; UnitRef ^ . UntCharsAtomDict (* For CHAR literals. *) 
         := FM3Atom_OAChars . New
              ( FM3Globals . CharsAtomInitSize
              , StartAtom := FM3Globals . FirstRealAtom
@@ -360,7 +359,7 @@ MODULE FM3Pass1
              , DoReverseMap := TRUE 
              )
 
-    ; LUnitRef ^ . UntWCharsAtomDict
+    ; UnitRef ^ . UntWCharsAtomDict
         := FM3Atom_OAWideChars . New
              ( FM3Globals . WideCharsAtomInitSize
              , StartAtom := FM3Globals . FirstRealAtom
@@ -368,14 +367,15 @@ MODULE FM3Pass1
              , DoReverseMap := TRUE 
              )
 
-    ; LUnitRef ^ . UntScopeMap
+    ; UnitRef ^ . UntScopeMap
         := FM3Scopes . NewScopeMap ( FM3Globals . InitScopeCtPerUnit )  
-    ; LUnitRef ^ . UntDeclMap
+    ; UnitRef ^ . UntDeclMap
         := FM3Decls . NewDeclMap ( FM3Globals . InitDeclCtPerUnit )
+(* CLEANUP ^ These duplicate NewUnitRef. *) 
 
 (* Initialize Scanner for unit. *)
       
-    ; FM3Scanner . PushState ( LUnitRef ^ . UntSrcUniRd , LUnitRef )
+    ; FM3Scanner . PushState ( UnitRef ^ . UntSrcUniRd , UnitRef )
 (* CHECK: ? *)
 
     ; FM3Globals . SkipNoStack 
@@ -387,7 +387,6 @@ MODULE FM3Pass1
     ; IntIntVarArray . Touch (* It needs a lower bound. *) 
         ( FM3Globals . SkipNoStack , Ranges_Int . RangeTyp { 0 , 0 } )   
     ; FM3Globals . NextSkipNo := 1 (* But don't use element 0. *) 
-    ; RETURN LUnitRef 
     END InitPass1
 
 ; PROCEDURE TranslatePass1 ( UnitRef : FM3Units . UnitRefTyp )
@@ -1998,7 +1997,7 @@ MODULE FM3Pass1
 (* ----------------------- Procedure signatures --------------------- *)
 
 
-; BEGIN (*FM3Pass2*)
+; BEGIN (*FM3Pass1*)
     InitVarInfo ( )
   END FM3Pass1
 .

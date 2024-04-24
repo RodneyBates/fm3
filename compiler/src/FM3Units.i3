@@ -40,7 +40,15 @@ INTERFACE FM3Units
         { UnitKindTyp . UkModule 
         , UnitKindTyp . UkGenModule 
         , UnitKindTyp . UkInstModule
-        } 
+        }
+
+; TYPE UnitStatusTyp
+         = { UsNull
+           , UsImporting
+           , UsCompiling
+           , UsCompiled
+           , UsLoaded
+           } 
 
 ; PROCEDURE UnitKindImage ( Kind : UnitKindTyp ) : TEXT
 
@@ -94,21 +102,22 @@ INTERFACE FM3Units
       ; UntParseResult : INTEGER 
       ; UntPass2Result : INTEGER
       ; UntNextDeclNo : INTEGER := 1 
-      ; UntKind : UnitKindTyp
+      ; UntKind := UnitKindTyp . UkNull 
+      ; UntStatus := UnitStatusTyp . UsNull  
       ; UntPassNosDisAsmed : FM3CLOptions . PassNoSetTyp 
       ; UntUnsafe : BOOLEAN := FALSE 
       END (*UnitTyp*)
 
 ; TYPE UnitMapTyp = FM3Base . MapTyp
-    (* Map UnitNoTyp to UnitRefTyp.  Only one UnitMap in a compile. *) 
+    (* Map UnitNoTyp to UnitRefTyp. *)
 ; VAR UnitMap : UnitMapTyp
+    (* Only one UnitMap in a compile. Maps Atom nums from the compile id map
+       into unit numbers.
+    *) 
 
 ; PROCEDURE NewUnitMap ( InitUnitCt : FM3Base . UnitNoTyp ) : UnitMapTyp
   (* One UnitMap in a compile. *) 
 
-; VAR UnitStackTopRef : UnitRefTyp := NIL 
-    (* One UnitStack in a compile *)
-    
 ; PROCEDURE NewUnitRef ( ) : UnitRefTyp
   (* Allocate, low-level initialize, give it a UnitNo, and put into UnitMap. *)
 
@@ -120,9 +129,19 @@ INTERFACE FM3Units
 ; PROCEDURE TextOfIdAtom ( IdAtom : FM3Base . AtomTyp ) : TEXT
   (* In the current unit. *) 
 
+; VAR UnitStackTopRef : UnitRefTyp := NIL 
+    (* One UnitStack in a run of the compiler. *)
+    (* This is the Unit curently being worked-on. *) 
+    
 ; PROCEDURE PushUnit ( UnitRef : UnitRefTyp ) 
 
 ; PROCEDURE PopUnit ( ) : UnitRefTyp
+
+; PROCEDURE CacheTopUnitValues ( )
+  (* Cache some fields of the top unit in global variables for faster access. *) 
+
+; PROCEDURE UncacheTopUnitValues ( )
+  (* Just set the globals to null/NIL values. *) 
 
 ; PROCEDURE CurrentlyInModule ( ) : BOOLEAN 
 

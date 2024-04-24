@@ -17,7 +17,6 @@ MODULE FM3 EXPORTS Main
 ; IMPORT FM3Compile 
 ; IMPORT FM3Messages 
 ; IMPORT FM3Pass1 
-; IMPORT FM3Pass2 
 ; IMPORT FM3Scanner
 ; IMPORT FM3SharedUtils
 ; IMPORT FM3Units 
@@ -38,7 +37,10 @@ MODULE FM3 EXPORTS Main
         ; FM3SharedUtils . LoadSets ( )  
         ; FM3Scanner . Init ( )
 
+        ; LUnitRef := FM3Units . NewUnitRef ( ) 
+        ; FM3Units . PushUnit ( LUnitRef ) 
         ; FM3Compile . CompileSrcFile ( FM3CLOptions . SrcFileName ) 
+        ; <* ASSERT FM3Units . PopUnit ( ) = LUnitRef *>  
 
         FINALLY FM3CLArgs . Cleanup ( ) 
         END (*FINALLY*)

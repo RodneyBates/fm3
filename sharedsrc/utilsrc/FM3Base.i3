@@ -33,6 +33,9 @@ INTERFACE FM3Base
 ; CONST DeclNoNull = FIRST ( CARDINAL )
 ; CONST DeclNoMax = LAST ( CARDINAL ) 
 ; CONST DeclNoFirstReal = DeclNoNull + 1
+        (* ^Reserved for compilation scope, containg only  interface names. *) 
+; CONST DeclNoFirstDecl = DeclNoFirstReal + 1
+        (* ^Regular scopes belonging inside a unit and containg declared ids. *)
 
 ; TYPE MapTyp = VarArray_Int_Refany . T 
 
