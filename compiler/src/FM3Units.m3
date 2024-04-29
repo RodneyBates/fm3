@@ -12,11 +12,13 @@ MODULE FM3Units
 
 ; IMPORT FM3Atom_OAChars 
 ; IMPORT FM3Atom_OAWideChars 
+; IMPORT FM3Atom_Text  
 ; IMPORT FM3Base 
 ; IMPORT FM3Decls
 ; IMPORT FM3Globals 
 ; IMPORT FM3Messages 
 ; IMPORT FM3Scopes
+; IMPORT FM3Utils 
 ; IMPORT Ranges_Int
 ; IMPORT VarArray_Int_Refany 
 
@@ -55,19 +57,19 @@ MODULE FM3Units
     END UnitKindSectionNo  
 
 
-(*EXPORTED*) 
-; PROCEDURE NewUnitMap ( InitUnitCt : FM3Base . UnitNoTyp ) : UnitMapTyp
-  (* One UnitMap in a compile. *) 
+; PROCEDURE NewUnitsMap
+    ( InitUnitCt : FM3Base . UnitNoTyp ) : VarArray_Int_Refany . T
+  (* One UnitsMap in a compile. *) 
 
   = BEGIN
       RETURN
         VarArray_Int_Refany . New
           ( NIL , Ranges_Int . RangeTyp {  0 , InitUnitCt - 1 } ) 
-    END NewUnitMap
+    END NewUnitsMap
 
-(*EXPORTED.*)
+(*EXPORTED*) 
 ; PROCEDURE NewUnitRef ( ) : UnitRefTyp
-  (* Allocate, low-level initialize, give it a UnitNo, and put into UnitMap. *)
+  (* Allocate, low-level initialize, give it a UnitNo, and put into UnitsMap. *)
 
   = VAR LUnitRef : UnitRefTyp
   ; VAR LUnitNo : FM3Base . UnitNoTyp 
@@ -97,7 +99,8 @@ MODULE FM3Units
     ; LUnitRef ^ . UntPass2OutSimpleName := NIL
     ; LUnitRef ^ . UntPass2OutRdBack := NIL
     ; LUnitRef ^ . UntUnitIdentAtom := FM3Base . AtomNull
-    ; LUnitRef ^ . UntUnitIdentPos := FM3Base . PositionNull 
+    ; LUnitRef ^ . UntUnitIdentPos := FM3Base . PositionNull
+    ; LUnitRef ^ . UntState := UnitStateTyp . UsNull
     ; LUnitRef ^ . UntUnsafe := FALSE 
     ; LUnitRef ^ . UntIdentAtomDict 
         := FM3Atom_OAChars . New
@@ -133,7 +136,7 @@ MODULE FM3Units
         := FM3Decls . NewDeclMap ( FM3Globals . InitDeclCtPerUnit ) 
     ; LUnitRef ^ . UntNextDeclNo := 1
 
-    ; VarArray_Int_Refany . Assign ( UnitMap , LUnitNo , LUnitRef )
+    ; VarArray_Int_Refany . Assign ( UnitsMap , LUnitNo , LUnitRef )
     ; RETURN LUnitRef 
     END NewUnitRef
     
@@ -231,15 +234,22 @@ MODULE FM3Units
     END UncacheTopUnitValues 
 
 (*EXPORTED.*)
-; PROCEDURE CurrentlyInModule ( ) : BOOLEAN
+; PROCEDURE CurrentUnitIsModule ( ) : BOOLEAN
 
   = BEGIN 
       RETURN UnitStackTopRef ^ . UntKind IN UnitKindSetModule  
-    END CurrentlyInModule
+    END CurrentUnitIsModule
 
 ; BEGIN
-    UnitMap := NewUnitMap ( FM3Globals . InitUnitCt - 1 ) 
-
+    UnitsAtomDict  
+      := FM3Atom_Text . New
+           ( FM3Globals . InitUnitsCt + FM3Globals . InitUnitsCt DIV 3
+           , FM3Base . AtomFirstReal
+           , HashFunc := FM3Utils . HashOfText 
+           , DoReverseMap := TRUE (* Needed? *) 
+           )
+           
+  ; UnitsMap := NewUnitsMap ( FM3Globals . InitUnitsCt - 1 )
   ; NextUnitNo := 1
   ; UnitStackTopRef := NIL 
   END FM3Units

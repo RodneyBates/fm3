@@ -14,9 +14,11 @@ INTERFACE FM3Units
 
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars
+; IMPORT FM3Atom_Text
 ; IMPORT FM3Base
-; IMPORT FM3CLOptions 
+; IMPORT FM3CLOptions
 ; IMPORT RdBackFile
+; IMPORT VarArray_Int_Refany 
 
 ; TYPE UnitKindTyp
          = { UkNull
@@ -42,9 +44,10 @@ INTERFACE FM3Units
         , UnitKindTyp . UkInstModule
         }
 
-; TYPE UnitStatusTyp
+; TYPE UnitStateTyp
          = { UsNull
-           , UsImporting
+           , UsExporting 
+           , UsImporting 
            , UsCompiling
            , UsCompiled
            , UsLoaded
@@ -59,7 +62,8 @@ INTERFACE FM3Units
     = RECORD
         UntStackLink : UnitRefTyp := NIL 
       ; UntSrcFileSimpleName : TEXT := NIL (* Simple name *) 
-      ; UntSrcFilePath : TEXT := NIL (* I.e, directory wherein UntSimpleSrcFileName lives. *)
+      ; UntSrcFilePath : TEXT := NIL
+        (* ^ I.e, directory wherein UntSimpleSrcFileName lives. *)
       ; UntSrcUniRd : UniRd . T 
       ; UntLogSimpleName : TEXT := NIL 
       ; UntLogWrT : Wr . T := NIL
@@ -103,23 +107,20 @@ INTERFACE FM3Units
       ; UntPass2Result : INTEGER
       ; UntNextDeclNo : INTEGER := 1 
       ; UntKind := UnitKindTyp . UkNull 
-      ; UntStatus := UnitStatusTyp . UsNull  
-      ; UntPassNosDisAsmed : FM3CLOptions . PassNoSetTyp 
+      ; UntPassNosDisAsmed : FM3CLOptions . PassNoSetTyp
+      ; UntState := UnitStateTyp . UsNull
       ; UntUnsafe : BOOLEAN := FALSE 
       END (*UnitTyp*)
 
-; TYPE UnitMapTyp = FM3Base . MapTyp
-    (* Map UnitNoTyp to UnitRefTyp. *)
-; VAR UnitMap : UnitMapTyp
-    (* Only one UnitMap in a compile. Maps Atom nums from the compile id map
+; VAR UnitsAtomDict : FM3Atom_Text . T
+; VAR UnitsAtomInitSize := 50
+; VAR UnitsMap : VarArray_Int_Refany . T 
+    (* Only one UnitsMap in a compile. Maps Atom nums from the compile id map
        into unit numbers.
     *) 
 
-; PROCEDURE NewUnitMap ( InitUnitCt : FM3Base . UnitNoTyp ) : UnitMapTyp
-  (* One UnitMap in a compile. *) 
-
 ; PROCEDURE NewUnitRef ( ) : UnitRefTyp
-  (* Allocate, low-level initialize, give it a UnitNo, and put into UnitMap. *)
+  (* Allocate, low-level initialize, give it a UnitNo, and put into UnitsMap. *)
 
 ; PROCEDURE AllocateDeclNos ( Ct : INTEGER ) : INTEGER 
   (* Allocate a contiguous range of Ct Decl numbers, unique
@@ -143,7 +144,7 @@ INTERFACE FM3Units
 ; PROCEDURE UncacheTopUnitValues ( )
   (* Just set the globals to null/NIL values. *) 
 
-; PROCEDURE CurrentlyInModule ( ) : BOOLEAN 
+; PROCEDURE CurrentUnitIsModule ( ) : BOOLEAN 
 
 ; END FM3Units
 

@@ -1844,7 +1844,7 @@ RULE
            := ORD ( FM3Pass1 . DeclIdL2R
                       ( Itk . ItkDeclId , Dkt . DkProc , $2 )
                   ) ;
-         IF FM3Units . CurrentlyInModule ( )
+         IF FM3Units . CurrentUnitIsModule ( )
          THEN LScopeKind  := Skt . SkFormalsAndBody ; 
          ELSE LScopeKind  := Skt . SkFormals ;
          END (*IF*) ; 
@@ -1866,7 +1866,7 @@ RULE
        BEGIN
          $$ . PaInt (* Valid decl count. *) := $1 . PaInt ; 
          LScopeRef := FM3Scopes . DeclScopeStackTopRef ;
-         IF FM3Units . CurrentlyInModule ( )
+         IF FM3Units . CurrentUnitIsModule ( )
          THEN (* => will have a body, regardless of source code. *) 
            IF NOT $3 . PaBool (* This procedure has no body in source code. *)
            THEN

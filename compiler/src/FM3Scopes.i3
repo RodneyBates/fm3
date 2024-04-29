@@ -64,11 +64,6 @@ INTERFACE FM3Scopes
       ; ScpKind : ScopeKindTyp 
       END (*ScopeTyp*)
       
-; PROCEDURE NewCompScopeRef ( ) : ScopeRefTyp
-  (* A single, unique scope pertaining to the entire run of the compiler
-     and containing only names of interfaces.
-  *) 
-
 ; PROCEDURE NewScopeRef
     ( OwningUnitRef : FM3Units . UnitRefTyp
     ; ScopeKind : ScopeKindTyp

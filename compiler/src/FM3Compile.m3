@@ -8,17 +8,23 @@
 
 MODULE  FM3Compile
 
+(* Overall build and compilation process. *) 
+
 ; IMPORT OSError 
 ; IMPORT Pathname
 ; IMPORT FileWr
-; IMPORT FS 
+; IMPORT FS
+; IMPORT UniRd
 ; IMPORT Wr 
 
+; IMPORT FM3Atom_Text 
 ; IMPORT FM3Atom_OAChars 
 ; IMPORT FM3Base
-; IMPORT FM3CLArgs 
+; IMPORT FM3CLArgs
+; IMPORT FM3CLOptions
+; IMPORT FM3Compile 
 ; IMPORT FM3DisAsm 
-; IMPORT FM3CLOptions  
+; IMPORT FM3Files 
 ; IMPORT FM3Globals
 ; IMPORT FM3Messages 
 ; IMPORT FM3Pass1 
@@ -27,7 +33,141 @@ MODULE  FM3Compile
 ; IMPORT FM3SharedUtils 
 ; IMPORT FM3Units
 ; IMPORT FM3Utils
-; IMPORT RdBackFile 
+; IMPORT RdBackFile
+; IMPORT VarArray_Int_Refany
+
+; TYPE Us = FM3Units . UnitStateTyp 
+
+(*EXPORTED.*)
+; PROCEDURE UnitOfFileName ( SrcFileName : TEXT ) : FM3Units . UnitRefTyp
+  (* POST: Result references a unit that is named in FM3Units . UnitsAtomDict,
+     and has field UntSrcFileSimpleName set, both cases using the simple name
+     taken from SrcFileName.
+  *) 
+
+  = VAR LSimpleName : TEXT
+  ; VAR LUnitRef : FM3Units . UnitRefTyp
+  ; VAR LUnitNameAtom : FM3Base . AtomTyp 
+
+  ; BEGIN
+      LSimpleName := Pathname . Last ( SrcFileName ) 
+    ; LUnitNameAtom  
+        := FM3Atom_Text . MakeAtom
+             ( FM3Units . UnitsAtomDict
+             , LSimpleName
+             , Hash := FM3Utils . HashOfText ( LSimpleName ) 
+             )
+(*TODO: Fix FM3Atom so if non-NIL hash is given to New, it will be used
+        by MakeAtom, if not supplied there.
+*) 
+    ; LUnitRef 
+        := VarArray_Int_Refany . Fetch ( FM3Units . UnitsMap , LUnitNameAtom )
+      (* ^Implied NARROW *)
+    ; IF LUnitRef = NIL
+      THEN
+        LUnitRef := FM3Units . NewUnitRef ( )
+      ; LUnitRef ^ . UntSrcFileSimpleName := LSimpleName 
+      ; VarArray_Int_Refany . Assign
+          ( FM3Units . UnitsMap , LUnitNameAtom , LUnitRef )
+      END (*IF*)
+    ; RETURN LUnitRef
+    END UnitOfFileName
+
+; VAR SearchPathShown := FALSE 
+
+; PROCEDURE ShowSrcSearchPathOnce ( ) 
+
+  = BEGIN
+      IF NOT SearchPathShown
+      THEN 
+        FM3Messages . FM3LogArr
+          ( ARRAY OF REFANY
+              { "Search directories for source files are:"
+              , FM3CLOptions . SrcDirMsg 
+              } 
+          ) 
+      ; SearchPathShown := TRUE
+      END (*IF*) 
+    END ShowSrcSearchPathOnce 
+
+(*EXPORTED*) 
+; PROCEDURE FindAndOpenUnitSrcFile
+    ( UnitRef : FM3Units . UnitRefTyp ; Adjective : TEXT )
+  : BOOLEAN (* Success *)
+  (* POST: IF result, then the source file for UnitRef^ was found and opened,
+           and fields UntSrcFilePath, UntSrcUniRd, and UntState are set.
+  *) 
+
+  = VAR LUniRdT : UniRd . T
+  ; VAR LSrcDirList : REF ARRAY OF TEXT 
+  ; VAR LSearchDir : TEXT 
+  ; VAR LDirName : TEXT 
+  ; VAR LFullFileName : TEXT 
+  ; VAR LDirNumber : INTEGER
+  ; VAR LDirSs : INTEGER
+
+  ; BEGIN
+      IF UnitRef = NIL THEN RETURN FALSE END (*IF*) 
+    ; IF UnitRef . UntSrcFileSimpleName = NIL THEN RETURN FALSE END (*IF*) 
+    ; IF UnitRef . UntState # Us . UsNull THEN RETURN FALSE END (*IF*)
+    ; LSrcDirList := FM3CLOptions . SrcDirList
+    ; IF LSrcDirList = NIL THEN RETURN FALSE END (*IF*)
+    ; LDirNumber := NUMBER ( LSrcDirList ^ ) 
+    ; LDirSs := 0
+    ; LOOP
+        IF LDirSs >= LDirNumber
+        THEN
+          FM3Messages . ErrorArr
+            ( ARRAY OF REFANY
+                { " Unable to locate "
+                , Adjective
+                , "source file "
+                , UnitRef ^ . UntSrcFileSimpleName 
+                }
+            )
+        ; ShowSrcSearchPathOnce ( ) 
+        ; RETURN FALSE
+        END (*IF*) 
+      ; LSearchDir
+          := Pathname . Prefix
+               ( FM3SharedUtils . AbsFileName
+                   ( FM3CLOptions . SrcDirList ^ [ LDirNumber ] )
+               )
+      ; LFullFileName
+          := Pathname . Join ( LSearchDir , UnitRef ^ . UntSrcFileSimpleName )
+      ; LUniRdT := NIL 
+      ; TRY 
+          LUniRdT
+            := FM3Files . OpenUniRd
+                 ( LSearchDir
+                 , UnitRef ^ . UntSrcFileSimpleName
+                 , "source file "
+                 , NIL 
+                 )
+        EXCEPT
+        | OSError . E ( EMsg )
+        => LUniRdT := NIL 
+        END (*EXCEPT*)
+      ; IF LUniRdT # NIL
+        THEN (* Found a source file. *)
+          UnitRef ^ . UntSrcFilePath := LSearchDir
+        ; UnitRef ^ . UntSrcUniRd := LUniRdT
+        ; UnitRef ^ . UntState := Us . UsImporting
+        ; RETURN TRUE 
+        ELSE INC ( LDirSs ) 
+        END (*IF*)
+      END (*LOOP*) 
+    END FindAndOpenUnitSrcFile 
+
+(*EXPORTED*) 
+; PROCEDURE CloseUnitSrcFile ( UnitRef : FM3Units . UnitRefTyp ) 
+
+  = BEGIN
+      IF UnitRef = NIL THEN RETURN END (*IF*) 
+    ; IF UnitRef ^ . UntSrcUniRd = NIL THEN RETURN END (*IF*)
+    ; UniRd . Close ( UnitRef ^ . UntSrcUniRd )
+    ; UnitRef ^ . UntSrcUniRd := NIL 
+    END CloseUnitSrcFile 
 
 (*EXPORTED*) 
 ; PROCEDURE MakePassFileCopy
@@ -142,37 +282,56 @@ MODULE  FM3Compile
     END CleanPassFilesAndCopies
 
 (*EXPORTED*)
-; PROCEDURE CompileSrcFile ( SrcFileName : TEXT )
+; PROCEDURE CompileUnitFromSrc ( UnitRef : FM3Units . UnitRefTyp )
 
-  = VAR LUnitRef : FM3Units . UnitRefTyp
-
-  ; BEGIN (*CompileSrcFile*)
-      FM3Pass1 . RunPass1 ( FM3CLOptions . SrcFileName )
+  = BEGIN (*CompileUnitFromSrc*)
+      FM3Pass1 . RunPass1 ( )
     ; FM3Pass2 . RunPass2 ( )
 
-    ; LUnitRef := FM3Units . UnitStackTopRef 
     ; RdBackFile . Close 
-        ( LUnitRef ^ . UntPass2OutRdBack , - 1L (* Leave full length. *) )
+        ( UnitRef ^ . UntPass2OutRdBack , - 1L (* Leave full length. *) )
       (* ^When the next pass is implemented, don't do this. *)
 
-    ; CleanPassFilesAndCopies ( LUnitRef ) 
+    ; CleanPassFilesAndCopies ( UnitRef ) 
     ; FM3Units . UncacheTopUnitValues ( ) 
     ; FM3Messages . FM3LogArr
         ( ARRAY OF REFANY
-            { "Finished compiling " , LUnitRef ^ . UntSrcFileSimpleName , "." }
+            { "Finished compiling " , UnitRef ^ . UntSrcFileSimpleName , "." }
         )
-    ; FM3Messages . EndUnit ( LUnitRef ^ . UntSrcFileSimpleName ) 
-    END CompileSrcFile 
+    ; FM3Messages . EndUnit ( UnitRef ^ . UntSrcFileSimpleName ) 
+    END CompileUnitFromSrc
+
+; PROCEDURE CompileOrLoadCLUnit ( SrcFileName : TEXT )
+  = VAR LUnitRef : FM3Units . UnitRefTyp
+
+  ; BEGIN 
+      LUnitRef := FM3Compile . UnitOfFileName ( SrcFileName )
+    ; IF LUnitRef . UntState = Us . UsNull 
+      THEN (* Haven't seen this unit yet. *)
+      (* Compile it. *)
+      (* Compare this to similar code in FM3ImpExp.Interface *) 
+        IF FM3Compile . FindAndOpenUnitSrcFile ( LUnitRef , Adjective := "")
+        THEN 
+          LUnitRef ^ . UntState := Us . UsExporting 
+        ; FM3Units . PushUnit ( LUnitRef )
+        ; CompileUnitFromSrc ( LUnitRef )
+(* COMPLETEME: Maybe load it instead. *) 
+        ; <* ASSERT FM3Units . PopUnit ( ) = LUnitRef *>
+        END (*IF*)
+      END (*IF*)
+    END CompileOrLoadCLUnit
+
+(*EXPORTED*)
+; PROCEDURE CompileCLUnits ( )
+  (* Compile the units specified on the command line. *) 
+
+  = BEGIN
+      CompileOrLoadCLUnit ( FM3CLOptions . SrcFileName )
+(* COMPLETEME: Do the rest of the CL units. *) 
+    END CompileCLUnits 
 
 ; BEGIN (*FM3Compile*)
-    UnitAtomDict
-      := FM3Atom_OAChars . New
-           ( IdentAtomInitSize
-           , StartAtom := 1 
-           , HashFunc := FM3Utils . HashOfOAChars 
-           , DoReverseMap := TRUE
-           )
-  ; UnitScopeRef := FM3Scopes . NewCompScopeRef ( ) 
+    SearchPathShown := FALSE 
   END FM3Compile
 .
 

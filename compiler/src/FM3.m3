@@ -37,10 +37,7 @@ MODULE FM3 EXPORTS Main
         ; FM3SharedUtils . LoadSets ( )  
         ; FM3Scanner . Init ( )
 
-        ; LUnitRef := FM3Units . NewUnitRef ( ) 
-        ; FM3Units . PushUnit ( LUnitRef ) 
-        ; FM3Compile . CompileSrcFile ( FM3CLOptions . SrcFileName ) 
-        ; <* ASSERT FM3Units . PopUnit ( ) = LUnitRef *>  
+        ; FM3Compile . CompileCLUnits ( ) 
 
         FINALLY FM3CLArgs . Cleanup ( ) 
         END (*FINALLY*)

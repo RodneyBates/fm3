@@ -10,12 +10,19 @@ INTERFACE FM3CLOptions
 
 ; IMPORT AtomList
 
+; IMPORT FM3Atom_Text 
 ; IMPORT FM3CLToks 
 ; IMPORT FM3LexTable 
 
-; VAR SourceDirNames : AtomList . T
-; VAR SourceFileNames : AtomList . T
-; VAR ImportDirNames : AtomList . T
+; VAR SrcDirList : REF ARRAY OF TEXT 
+; VAR SrcDirMsg : TEXT 
+; VAR SourceFileNames : AtomList . T := NIL 
+; VAR ImportDirNames : AtomList . T := NIL 
+; VAR SourceFileCt : INTEGER := 0 
+; VAR ImportDirCt : INTEGER := 0
+
+; VAR SourceDirDict : FM3Atom_Text . T
+      (* Full path names of directories.  Has reverse map. *) 
 
 ; VAR OptionsLexTable : FM3LexTable . T
 

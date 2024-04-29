@@ -31,32 +31,6 @@ MODULE FM3Scopes
     END NewScopeMap
 
 (*EXPORTED*) 
-; PROCEDURE NewCompScopeRef ( ) : ScopeRefTyp
-  (* A single, unique scope pertaining to the entire run of the compiler
-     and containing only names of source files.
-  *) 
-
-  = VAR LScopeRef : ScopeRefTyp
-
-  ; BEGIN
-      LScopeRef := NEW ( ScopeRefTyp )
-    ; LScopeRef ^ . ScpScopeNo := FM3Base . ScopeNoFirstReal  
-    ; LScopeRef ^ . ScpKind := ScopeKindTyp . SkComp 
-    ; LScopeRef ^ . ScpPosition := FM3Base . PositionNull 
-    ; LScopeRef ^ . ScpOnDeclStackCt := 0
-    ; LScopeRef ^ . ScpOnLookupStackCt := 0
-    ; LScopeRef ^ . ScpDeclIdSet := IntSets . Empty ( )
-    ; LScopeRef ^ . ScpFormalIdSet := IntSets . Empty ( )  
-    ; LScopeRef ^ . ScpRefIdSet := IntSets . Empty ( )  
-    ; LScopeRef ^ . ScpDuplDeclIdSet := IntSets . Empty ( )
-    ; LScopeRef ^ . ScpMinDeclNo := FM3Base . DeclNoMax 
-    ; LScopeRef ^ . ScpDeclCt := FM3Base . DeclNoNull  
-    ; LScopeRef ^ . ScpOwningUnitRef := NIL 
-    ; LScopeRef ^ . ScpOwningDeclNo := FM3Base . DeclNoNull
-    ; RETURN LScopeRef 
-    END NewCompScopeRef
-
-(*EXPORTED*) 
 ; PROCEDURE NewScopeRef
     ( OwningUnitRef : FM3Units . UnitRefTyp
     ; ScopeKind : ScopeKindTyp

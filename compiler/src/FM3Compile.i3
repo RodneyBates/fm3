@@ -8,15 +8,27 @@
 
 INTERFACE FM3Compile
 
+(* Overall build and compilation process. *) 
+
 ; IMPORT FM3Atom_OAChars 
 ; IMPORT FM3Scopes 
 ; IMPORT FM3Units
 ; IMPORT RdBackFile
 
-; VAR UnitAtomDict : FM3Atom_OAChars . T
-; VAR IdentAtomInitSize := 50 
+; PROCEDURE UnitOfFileName ( SrcFileName : TEXT ) : FM3Units . UnitRefTyp
+  (* POST: Result references a unit that is named in FM3Units . UnitsAtomDict,
+     and has field UntSrcFileSimpleName set, both cases using the simple name
+     taken from SrcFileName.
+  *) 
 
-; VAR UnitScopeRef : FM3Scopes . ScopeRefTyp 
+; PROCEDURE FindAndOpenUnitSrcFile
+    ( UnitRef : FM3Units . UnitRefTyp ; Adjective : TEXT )
+  : BOOLEAN (* Success *)
+  (* POST: IF result, then the source file for UnitRef^ was found and opened,
+           and fields UntSrcFilePath, UntSrcUniRd, and UntState are set.
+  *) 
+
+; PROCEDURE CloseUnitSrcFile ( UnitRef : FM3Units . UnitRefTyp ) 
 
 ; PROCEDURE MakePassFileCopy
     ( UnitRef : FM3Units . UnitRefTyp
@@ -40,7 +52,8 @@ INTERFACE FM3Compile
      copies are still hanging around.  Delete them. 
   *) 
 
-; PROCEDURE CompileSrcFile ( SrcFileName : TEXT )
+; PROCEDURE CompileCLUnits ( )
+  (* Compile the units specified on the command line. *) 
 
 ; END FM3Compile
 .

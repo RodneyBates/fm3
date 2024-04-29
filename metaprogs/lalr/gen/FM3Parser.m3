@@ -1471,9 +1471,6 @@ VAR
 VAR
    yyIsInitialized      : BOOLEAN;
    yyTableFile          : System.tFile;
-   yyErrMsgWrT          : TextWr . T;
-  yyErrorPos           : FM3Scanner.tPosition;
-   yyMsgLineLen         : INTEGER;
    
 (* Copied in from Parser.m30.orig: *) 
     PROCEDURE ExpandStateStack ( VAR Stack : yyStackType ; ToSize : INTEGER ) =
@@ -1699,6 +1696,9 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
       yyNCombPtr        : yyNCombTypePtr;
       yyErrorCount      : CARDINAL;
       yyText            : TEXT; 
+     yyErrorPos        : FM3Scanner.tPosition;
+      yyErrMsgWrT       : TextWr . T;
+      yyMsgLineLen      : INTEGER;
       yyTokenStringxxx  : TEXT (*ARRAY [0..127] OF CHAR*);
       (* ^For use in a debugger. *) 
       yyRepairsInserted : INTEGER;
@@ -1767,13 +1767,15 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
                   THEN (* read or read terminal reduce ? *)
                     FM3Scanner.ErrorAttribute 
                          (yyRepairToken, (*OUT*)yyRepairAttribute);
-                     TokenName (yyRepairToken, (*OUT*) yyText);
                      IF yyRepairsInserted = 0 THEN 
                        Wr.PutText (yyErrMsgWrT, FM3Messages.NLIndent);
                        yyMsgLineLen := FM3Messages.IndentLen;
-                       AppendToLine ("Repair token(s) inserted: ");
+                       yyText := "Repair token(s) inserted: ";
+                       Wr.PutText (yyErrMsgWrT, yyText);
+                       INC (yyMsgLineLen, Text.Length (yyText))
                      END (*IF*);
-                     QuoteAndFillOnLine ( yyText );
+                     TokenName (yyRepairToken, (*OUT*) yyText);
+                     QuoteAndFillOnLine ( yyText , yyErrMsgWrT , yyMsgLineLen );
                      INC (yyRepairsInserted );
                      IF yyState >= yyFirstFinalState 
                      THEN (* avoid second push *)
@@ -1794,9 +1796,12 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
                   END (* IF *) ;
                ELSE (* Report and start recovery. *)
                   INC (yyErrorCount);
+                 yyErrorPos := FM3Scanner.Attribute.Position;
+                  yyErrMsgWrT := TextWr . New ( );
                   ErrorRecovery 
                     (yyTerminal, yyStateStack,
-                     NUMBER ( yyStateStack ^ ), yyStackPtr);
+                     NUMBER ( yyStateStack ^ ), yyStackPtr,
+                     yyErrMsgWrT , yyMsgLineLen );
                   yyRepairsInserted := 0;
                END (* IF *) ;
             END (* IF *) ;
@@ -1827,9 +1832,11 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
              yyTerminal := FM3Scanner.GetToken ();
               IF yyRepairsInserted >= 0
               (* ^0 => repairs been happening, tho' with no insertions. *) 
-              THEN (* Finished with a repair. *) 
-                 EmitSyntErrMsg ( );
-                 yyRepairsInserted := - 1;
+              THEN (* Finished with a repair. *)
+                FM3Messages.ErrorArr
+                  ( ARRAY OF REFANY { TextWr.ToText (yyErrMsgWrT) } , yyErrorPos );
+                yyErrMsgWrT := NIL; 
+                yyRepairsInserted := - 1;
               END (*IF*);
 
                yyStateStack^ [yyStackPtr] := (*Reduce*)yyState (*ParserDebug*);
@@ -3591,7 +3598,7 @@ yyNonterminal := 225;
                            := ORD ( FM3Pass1 . DeclIdL2R
                                       ( Itk . ItkDeclId , Dkt . DkProc , yyAttributeStack^[yyStackPtr+2] )
                                   ) ;
-                         IF FM3Units . CurrentlyInModule ( )
+                         IF FM3Units . CurrentUnitIsModule ( )
                          THEN LScopeKind  := Skt . SkFormalsAndBody ; 
                          ELSE LScopeKind  := Skt . SkFormals ;
                          END (*IF*) ; 
@@ -3614,7 +3621,7 @@ yyNonterminal := 225;
                        BEGIN
                          yySynAttribute . PaInt (* Valid decl count. *) := yyAttributeStack^[yyStackPtr+1] . PaInt ; 
                          LScopeRef := FM3Scopes . DeclScopeStackTopRef ;
-                         IF FM3Units . CurrentlyInModule ( )
+                         IF FM3Units . CurrentUnitIsModule ( )
                          THEN (* => will have a body, regardless of source code. *) 
                            IF NOT yyAttributeStack^[yyStackPtr+3] . PaBool (* This procedure has no body in source code. *)
                            THEN
@@ -4270,46 +4277,45 @@ yyNonterminal := 133;
              IF yyRepairsInserted >= 0
                 (* ^0 => repair's been happening, tho' with no insertions. *)
              THEN (* Finished with a repair. *)
-               EmitSyntErrMsg ( );
+               FM3Messages.ErrorArr
+                 ( ARRAY OF REFANY { TextWr.ToText (yyErrMsgWrT) } , yyErrorPos );
+               yyErrMsgWrT := NIL; 
                yyRepairsInserted := - 1;
              END (*IF*);
          END (* IF *);
       END (* LOOP *) ;
    END FM3Parser;
 
-PROCEDURE AppendToLine ( FragText : TEXT ) =
-   BEGIN
-      Wr.PutText (yyErrMsgWrT , FragText);
-      INC (yyMsgLineLen, Text.Length (FragText))
-   END AppendToLine;
-
-PROCEDURE QuoteAndFillOnLine ( FragText : TEXT ) =
+PROCEDURE QuoteAndFillOnLine
+   ( FragText : TEXT ; ErrMsgWrT : Wr . T ; VAR MsgLineLen : INTEGER ) =
    VAR FragLen : INTEGER;
    BEGIN
       FragLen := Text.Length (FragText);
-      IF yyMsgLineLen > FM3Messages.IndentLen
+      IF MsgLineLen > FM3Messages.IndentLen
          (* There's already a fragment on this line. *) 
-         AND yyMsgLineLen + FragLen + 2 (*For quotes.*)
+         AND MsgLineLen + FragLen + 2 (*For quotes.*)
              > FM3Messages.MsgLineLen (* Frag won't fit. *) 
       THEN
-        Wr.PutText ( yyErrMsgWrT, FM3Messages.NLIndent);
-        yyMsgLineLen := FM3Messages.IndentLen;
-      ELSIF yyMsgLineLen > FM3Messages.IndentLen
+        Wr.PutText ( ErrMsgWrT, FM3Messages.NLIndent);
+        MsgLineLen := FM3Messages.IndentLen;
+      ELSIF MsgLineLen > FM3Messages.IndentLen
       THEN 
-        Wr.PutChar (yyErrMsgWrT , ' ');
-        INC ( yyMsgLineLen );
+        Wr.PutChar ( ErrMsgWrT , ' ');
+        INC ( MsgLineLen );
       END (*IF*);
-      Wr.PutChar (yyErrMsgWrT , '\"');
-      Wr.PutText (yyErrMsgWrT , FragText);
-      Wr.PutText (yyErrMsgWrT , "\" ");
-      INC (yyMsgLineLen, FragLen + 2);
+      Wr.PutChar ( ErrMsgWrT , '\"');
+      Wr.PutText ( ErrMsgWrT , FragText);
+      Wr.PutText ( ErrMsgWrT , "\" ");
+      INC (MsgLineLen, FragLen + 2);
    END QuoteAndFillOnLine; 
 
 PROCEDURE ErrorRecovery (
       VAR Terminal      : yySymbolRange ;
           StateStack    : yyStackType   ;
           StackSize     : INTEGER       ;
-          StackPtr      : yyStackPtrType
+          StackPtr      : yyStackPtrType;
+          ErrMsgWrT     : Wr . T        ;
+      VAR MsgLineLen    : INTEGER 
     ) =
    VAR
       ContinueSet       : IntSets . T;
@@ -4324,17 +4330,16 @@ PROCEDURE ErrorRecovery (
       VAR TokenText : TEXT;
       BEGIN (*VisitTok*)
          TokenName (Elem, (*OUT*) TokenText);
-         QuoteAndFillOnLine (TokenText);
+         QuoteAndFillOnLine
+           ( TokenText , ErrMsgWrT , MsgLineLen );
       END VisitTok;
 
    BEGIN (* ErrorRecovery *)
    (* Start the error message. *) 
-     yyErrorPos := FM3Scanner.Attribute.Position;
-      yyErrMsgWrT := TextWr . New ( );
       TokenName ( Terminal , (*OUT*) TokenText );
-      Wr.PutText (yyErrMsgWrT , "Illegal token: \"");
-      Wr.PutText (yyErrMsgWrT , TokenText );
-      Wr.PutText (yyErrMsgWrT , "\"" );
+      Wr.PutText ( ErrMsgWrT , "Illegal token: \"");
+      Wr.PutText ( ErrMsgWrT , TokenText );
+      Wr.PutText ( ErrMsgWrT , "\"" );
 
    (* Append list of the set of expected terminal symbols. *)
       ComputeContinuation
@@ -4343,15 +4348,15 @@ PROCEDURE ErrorRecovery (
       THEN (* Shouldn't happen. *) 
       ELSIF IntSets.Card(ContinueSet) = 1
       THEN
-         Wr.PutText ( yyErrMsgWrT, ", expecting \"");
+         Wr.PutText ( ErrMsgWrT, ", expecting \"");
          Token := IntSets . ArbitraryMember (ContinueSet);
          TokenName (Token, (*OUT*) TokenText);
-         Wr.PutText ( yyErrMsgWrT, TokenText);  
-         Wr.PutText ( yyErrMsgWrT, "\"");  
+         Wr.PutText ( ErrMsgWrT, TokenText);  
+         Wr.PutText ( ErrMsgWrT, "\"");  
       ELSE (* Expected set is plural. *)   
-         Wr.PutText ( yyErrMsgWrT, ", expecting one of:");
-         Wr.PutText ( yyErrMsgWrT, FM3Messages.NLIndent );
-         yyMsgLineLen := FM3Messages.IndentLen;
+         Wr.PutText ( ErrMsgWrT, ", expecting one of:");
+         Wr.PutText ( ErrMsgWrT, FM3Messages.NLIndent );
+         MsgLineLen := FM3Messages.IndentLen;
          IntSets . ForAllDo (ContinueSet, VisitTok);
       END (*IF*);
 
@@ -4366,23 +4371,14 @@ PROCEDURE ErrorRecovery (
       (* Append restart point, if any tokens were skipped. *) 
       IF TokensSkipped
       THEN
-         Wr.PutText (yyErrMsgWrT, FM3Messages.NLIndent);
-         Wr.PutText (yyErrMsgWrT , "Restarting parse at ");
-        FM3SharedUtils.PutPosImage ( yyErrMsgWrT , FM3Scanner.Attribute.Position );
+         Wr.PutText ( ErrMsgWrT, FM3Messages.NLIndent);
+         Wr.PutText ( ErrMsgWrT , "Restarting parse at ");
+        FM3SharedUtils.PutPosImage ( ErrMsgWrT , FM3Scanner.Attribute.Position );
       END (*IF*);
 
       ContinueSet := NIL;
       RestartSet := NIL;
    END ErrorRecovery;
-
-PROCEDURE EmitSyntErrMsg ( ) =
-   VAR ErrorMsgText : TEXT;
-   BEGIN 
-      ErrorMsgText := TextWr.ToText (yyErrMsgWrT);
-      FM3Messages.ErrorArr
-        ( ARRAY OF REFANY { ErrorMsgText } , yyErrorPos );
-      yyErrMsgWrT := NIL; 
-   END EmitSyntErrMsg;
 
 (*
    compute the set of terminal symbols that can be accepted (read)

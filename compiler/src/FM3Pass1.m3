@@ -110,21 +110,22 @@ MODULE FM3Pass1
     END PutBwd
 
 (*EXPORTED*) 
-; PROCEDURE RunPass1 ( SrcFileName : TEXT ) 
+; PROCEDURE RunPass1 ( ) 
 
   = VAR LUnitRef : FM3Units . UnitRefTyp
 
   ; BEGIN (*RunPass1*)
       LUnitRef := FM3Units . UnitStackTopRef 
-    ; InitPass1 ( LUnitRef , SrcFileName )
+    ; InitPass1 ( LUnitRef )
     ; FM3Units . CacheTopUnitValues ( ) 
     ; LUnitRef ^ . UntPassNosDisAsmed := FM3CLOptions . PassNoSetEmpty 
     ; FM3LogArr
         ( ARRAY OF REFANY
             { "Compiling "
-            , LUnitRef ^ . UntSrcFilePath
-            , "/"
-            , SrcFileName
+            , Pathname . Join
+                ( LUnitRef ^ . UntSrcFilePath
+                , LUnitRef ^ . UntSrcFileSimpleName
+                ) 
             , "..."
             }
         )
@@ -188,37 +189,23 @@ MODULE FM3Pass1
 ; CONST UnitLogSuffix = ".log" 
 
 (*EXPORTED.*)
-; PROCEDURE InitPass1 ( UnitRef : FM3Units . UnitRefTyp ; SrcFileName : TEXT ) 
+; PROCEDURE InitPass1 ( UnitRef : FM3Units . UnitRefTyp ) 
 
   = VAR LFullFileName : TEXT
   ; VAR LFullPass1OutName : TEXT 
   ; VAR LFullPatchStackName : TEXT 
-  ; VAR LSrcFileSimpleName : TEXT 
-  ; VAR LSrcFileDir : TEXT
   ; VAR LUnitLogFullName : TEXT 
 
   ; BEGIN (*InitPass1*)
   
-(* Open source file. *)
-
-      LSrcFileDir
-        := Pathname . Prefix ( FM3SharedUtils . AbsFileName ( SrcFileName ) )
-    ; LSrcFileSimpleName := Pathname . Last ( SrcFileName )
-    ; UnitRef ^ . UntSrcUniRd 
-        := FM3Files . OpenUniRd
-             ( LSrcFileDir , LSrcFileSimpleName , "source file " , NIL )
-(* Is this silly? *) 
-    ; UnitRef ^ . UntSrcFileSimpleName := LSrcFileSimpleName 
-    ; UnitRef ^ . UntSrcFilePath := LSrcFileDir
-
-(* Create the build directory: *)
+    (* Create the build directory: *)
 
 (* FIXME: FM3CLArgs wants a build directory to put a log file in, even before
           we get here.  Is this the right place for it?
 *)
-    ; EnsureBuildDirectory ( UnitRef , LSrcFileDir ) 
+      EnsureBuildDirectory ( UnitRef , UnitRef ^ . UntSrcFilePath ) 
 
-(* Create the unit log output file. A pure text file. *)
+    (* Create the unit log output file. A pure text file. *)
     ; UnitRef ^ . UntLogSimpleName
         := Pathname . Join
              ( NIL
@@ -227,7 +214,7 @@ MODULE FM3Pass1
              ) 
     ; LUnitLogFullName
         := Pathname . Join
-             ( LSrcFileDir , UnitRef ^ . UntLogSimpleName , NIL ) 
+             ( UnitRef ^ . UntSrcFilePath , UnitRef ^ . UntLogSimpleName , NIL ) 
     ; IF Clt . CltUnitLog IN FM3CLOptions . OptionTokSet
       THEN 
         TRY UnitRef ^ . UntLogWrT := FileWr . Open ( LUnitLogFullName ) 
@@ -253,7 +240,7 @@ MODULE FM3Pass1
     ; FM3Messages . StartUnit
         ( UnitRef ^ . UntSrcFileSimpleName , UnitRef ^ . UntLogWrT ) 
 
-(* Create build files for the pass. *)
+    (* Create build files for the pass. *) 
 
     ; UnitRef ^ . UntPass1OutSimpleName
         := Pathname . Join
@@ -306,7 +293,7 @@ MODULE FM3Pass1
            ) 
       END (*EXCEPT*)
 
-(* Initialize the readback files. *)
+    (* Initialize the readback files. *)
 
 (* COMPLETEME: See that RdBack Create adds FM3 file tags and lengths. *)
     ; PutBwd
@@ -318,7 +305,7 @@ MODULE FM3Pass1
     ; UnitRef ^ . UntMaxPass1OutLength
         := UnitRef ^ . UntPass1OutEmptyCoord
         
-(* Write initial tokens to output files. *) 
+    (* Write initial tokens to output files. *) 
 
     ; PutBwd
         ( UnitRef ^ . UntPatchStackRdBack , VAL ( Itk . ItkBOF , LONGINT ) )
@@ -330,7 +317,7 @@ MODULE FM3Pass1
         := UnitRef ^ . UntPatchStackEmptyCoord
     ; UnitRef . UntPatchStackTopCoord := UnitRef . UntPass1OutEmptyCoord
 
-(* Create unit data structures. *)
+    (* Create unit data structures. *)
     
 (* TODO: eliminate redundant initialization between here are FM3Units.NewUnit. *)
 (* Check: Do we really need separate atom dictionaries for identifiers,
@@ -373,7 +360,7 @@ MODULE FM3Pass1
         := FM3Decls . NewDeclMap ( FM3Globals . InitDeclCtPerUnit )
 (* CLEANUP ^ These duplicate NewUnitRef. *) 
 
-(* Initialize Scanner for unit. *)
+    (* Initialize Scanner for unit. *)
       
     ; FM3Scanner . PushState ( UnitRef ^ . UntSrcUniRd , UnitRef )
 (* CHECK: ? *)

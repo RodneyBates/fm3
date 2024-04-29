@@ -8,6 +8,10 @@
 
 MODULE FM3CLOptions
 
+; IMPORT FM3Atom_Text
+; IMPORT FM3Base 
+; IMPORT FM3Globals
+
 (* ---------------------------- Option token sets ---------------------------*) 
 
 (*EXPORTED*) 
