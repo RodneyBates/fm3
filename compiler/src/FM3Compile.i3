@@ -52,6 +52,8 @@ INTERFACE FM3Compile
      copies are still hanging around.  Delete them. 
   *) 
 
+; PROCEDURE CompileUnitFromSrc ( UnitRef : FM3Units . UnitRefTyp )
+
 ; PROCEDURE CompileCLUnits ( )
   (* Compile the units specified on the command line. *) 
 

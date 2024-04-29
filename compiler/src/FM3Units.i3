@@ -97,6 +97,8 @@ INTERFACE FM3Units
       ; UntCharsAtomDict : FM3Atom_OAChars . T := NIL (* TEXT literals. *) 
       ; UntWCharsAtomDict : FM3Atom_OAWideChars . T := NIL
           (* ^Wide TEXT literals. *)
+      ; UntImportingUnitRef : UnitRefTyp
+      ; UntImportingPosition : FM3Base . tPosition  
       ; UntDeclMap : FM3Base . MapTyp := NIL
       ; UntScopeMap : FM3Base . MapTyp := NIL 
       ; UntScopeNo : FM3Base . ScopeNoTyp := FM3Base . ScopeNoNull 
@@ -109,7 +111,8 @@ INTERFACE FM3Units
       ; UntKind := UnitKindTyp . UkNull 
       ; UntPassNosDisAsmed : FM3CLOptions . PassNoSetTyp
       ; UntState := UnitStateTyp . UsNull
-      ; UntUnsafe : BOOLEAN := FALSE 
+      ; UntUnsafe : BOOLEAN := FALSE  
+      ; UntInCycle : BOOLEAN := FALSE  
       END (*UnitTyp*)
 
 ; VAR UnitsAtomDict : FM3Atom_Text . T

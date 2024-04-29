@@ -93,6 +93,8 @@ MODULE FM3Units
     ; LUnitRef ^ . UntPatchStackSimpleName := NIL
     ; LUnitRef ^ . UntPatchStackRdBack := NIL
     ; LUnitRef ^ . UntMaxPatchStackDepth := 0L 
+    ; LUnitRef ^ . UntImportingUnitRef := NIL 
+    ; LUnitRef ^ . UntImportingPosition := FM3Base . PositionNull  
     ; LUnitRef ^ . UntPass1OutSimpleName := NIL
     ; LUnitRef ^ . UntPass1OutRdBack := NIL
     ; LUnitRef ^ . UntMaxPass1OutLength := 0L 
@@ -102,6 +104,7 @@ MODULE FM3Units
     ; LUnitRef ^ . UntUnitIdentPos := FM3Base . PositionNull
     ; LUnitRef ^ . UntState := UnitStateTyp . UsNull
     ; LUnitRef ^ . UntUnsafe := FALSE 
+    ; LUnitRef ^ . UntInCycle := FALSE 
     ; LUnitRef ^ . UntIdentAtomDict 
         := FM3Atom_OAChars . New
              ( FM3Globals . IdentAtomInitSize
