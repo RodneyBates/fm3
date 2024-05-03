@@ -23,7 +23,7 @@ INTERFACE FM3ExpImp
      an entire compiler run.
   *) 
 
-; PROCEDURE Interface
+; PROCEDURE GetInterface
     ( IntfNameOA : FM3OpenArray_Char . T
     ; IntfHash : FM3Base . HashTyp 
     ; AsNameOA : FM3OpenArray_Char . T

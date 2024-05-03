@@ -69,7 +69,7 @@ MODULE FM3ExpImp
     END ReportCyclic
 
 (*EXPORTED*) 
-; PROCEDURE Interface
+; PROCEDURE GetInterface
     ( IntfNameOA : FM3OpenArray_Char . T
     ; IntfHash : FM3Base . HashTyp 
     ; AsNameOA : FM3OpenArray_Char . T
@@ -79,7 +79,7 @@ MODULE FM3ExpImp
     )
   : FM3Units . UnitRefTyp
     (* ^The interface unit that was [ex/im]ported, possibly NIL *) 
-  (* PRE: IntfNameOA and AsNameOA are Modula-3 identifiers, thus ocntain no
+  (* PRE: IntfNameOA and AsNameOA are Modula-3 identifiers, thus contain no
           file name suffix.
   *) 
 
@@ -88,9 +88,8 @@ MODULE FM3ExpImp
   ; VAR LAdjective : TEXT 
 
   ; BEGIN
-      IF IntfNameOA = NIL OR NUMBER ( IntfNameOA ^ ) = 0
-      THEN RETURN NIL
-      END (*IF*)
+      IF IntfNameOA = NIL THEN RETURN NIL END (*IF*)
+    ; IF NUMBER ( IntfNameOA ^ ) = 0 THEN RETURN NIL END (*IF*)
     ; LSrcFileName
         := Pathname . Join ( NIL , Text . FromChars ( IntfNameOA ^ ) , ".i3" )  
     ; IF AsNameOA = NIL
@@ -110,13 +109,14 @@ MODULE FM3ExpImp
       ; IF FM3Compile . FindAndOpenUnitSrcFile
              ( LIntfUnitRef , Adjective := LAdjective )
         THEN 
-          FM3Units . UnitStackTopRef ^ . UntImportingUnitRef := LIntfUnitRef 
+          FM3Units . UnitStackTopRef ^ . UntImportingUnitRef := LIntfUnitRef
+          (*^ To detect cyclic imports. *) 
         ; FM3Units . UnitStackTopRef ^ . UntImportingPosition := Position
         ; LIntfUnitRef ^ . UntState := Us . UsImporting 
         ; FM3Units . PushUnit ( LIntfUnitRef ) 
         ; FM3Compile . CompileUnitFromSrc ( LIntfUnitRef ) 
         ; <* ASSERT FM3Units . PopUnit ( ) = LIntfUnitRef *>
-          RETURN LIntfUnitRef 
+          RETURN NIL  
         ELSE RETURN LIntfUnitRef 
         END (*IF*) 
       ELSE
@@ -128,7 +128,7 @@ MODULE FM3ExpImp
         END (*IF*)
       END (*IF*)
     ; (* Do the actual [ex/im]port. *) 
-    END Interface 
+    END GetInterface 
 
 ; BEGIN (*FM3ExpImp*)
   END FM3ExpImp
