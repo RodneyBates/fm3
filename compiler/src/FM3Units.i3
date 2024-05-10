@@ -17,7 +17,7 @@ INTERFACE FM3Units
 ; IMPORT FM3Atom_Text
 ; IMPORT FM3Base
 ; IMPORT FM3CLOptions
-; IMPORT FM3Dict_Int_Int 
+; IMPORT FM3Dict_Int_IntPair 
 ; IMPORT FM3OpenArray_Char
 ; IMPORT RdBackFile
 ; IMPORT VarArray_Int_Refany 
@@ -105,7 +105,8 @@ INTERFACE FM3Units
       ; UntImportingPosition : FM3Base . tPosition  
       ; UntDeclMap : FM3Base . MapTyp := NIL (* All the decls in this unit. *) 
       ; UntScopeMap : FM3Base . MapTyp := NIL (* All the scopes in this unit. *)
-      ; UntExpImpDict : FM3Dict_Int_Int . GrowableTyp (* IdentAtom to Decl no. *)
+      ; UntExpImpDict : FM3Dict_Int_IntPair . GrowableTyp
+          (* ^IdentAtom to Decl no. *)
         (* Idents imported. *) 
 
       ; UntExpImpScopeRef : FM3Base . ScopeRefTyp := NIL 

@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023,       Rodney M. Bates.                                    *)
+(* Copyright 2023        Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -15,7 +15,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 
    The other things needed from the generic formals are renamed in
    exported interface FM3Dict.i3, and used here buy those names.
-   This could be done with Compare too, even thoough it is unused in
+   This could be done with Compare too, even though it is unused in
    the interface.
    
    But the generic formals are needed just to give an instatiation

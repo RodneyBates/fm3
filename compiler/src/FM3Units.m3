@@ -15,7 +15,7 @@ MODULE FM3Units
 ; IMPORT FM3Atom_Text  
 ; IMPORT FM3Base 
 ; IMPORT FM3Decls
-; IMPORT FM3Dict_Int_Int 
+; IMPORT FM3Dict_Int_IntPair
 ; IMPORT FM3Globals 
 ; IMPORT FM3Messages 
 ; IMPORT FM3Scopes
@@ -111,7 +111,7 @@ MODULE FM3Units
     ; LUnitRef ^ . UntUnsafe := FALSE 
     ; LUnitRef ^ . UntInCycle := FALSE
     ; LUnitRef ^ . UntExpImpDict
-       := FM3Dict_Int_Int . NewGrowable ( 100 , NIL )
+       := FM3Dict_Int_IntPair . NewGrowable ( 100 , NIL )
     ; LUnitRef ^ . UntIdentAtomDict 
         := FM3Atom_OAChars . New
              ( FM3Globals . IdentAtomInitSize
