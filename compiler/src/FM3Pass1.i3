@@ -23,6 +23,7 @@ INTERFACE FM3Pass1
       ; PaRefany : REFANY 
       ; PaPass1Coord : LONGINT  
       ; PaLong : LONGINT
+      ; PaAtom : FM3Base . AtomTyp 
       ; PaConstructNo : INTEGER
       ; PaListItemNo : INTEGER
       ; PaInt : INTEGER
@@ -39,6 +40,7 @@ INTERFACE FM3Pass1
         , PaRefany := NIL 
         , PaPass1Coord := FIRST ( LONGINT ) 
         , PaLong := FIRST ( LONGINT )
+        , PaAtom := FM3Base . AtomNull 
         , PaConstructNo := FIRST ( INTEGER ) 
         , PaListItemNo := FIRST ( INTEGER )
         , PaInt := FIRST ( INTEGER )
@@ -58,26 +60,27 @@ INTERFACE FM3Pass1
       , SgkModuleProcDecl 
       } 
 
-(* ------------------------- Pass1 output file ---------------------- *)
-
 ; PROCEDURE InterfaceId
     ( UnitRef : FM3Units . UnitRefTyp
-    ; IdAtom : FM3Base . AtomTyp
-    ; Position : FM3Base . tPosition 
+    ; IdScanAttribute : FM3Scanner . tScanAttribute 
     )
+  (*PRE: UnitRef # NIL *) 
 
 ; PROCEDURE ModuleId
     ( UnitRef : FM3Units . UnitRefTyp
-    ; IdAtom : FM3Base . AtomTyp
-    ; Position : FM3Base . tPosition 
+    ; IdScanAttribute : FM3Scanner . tScanAttribute
     )
+  (*PRE: UnitRef # NIL *) 
+    
 
 ; PROCEDURE CheckUnitFinalId
     ( UnitRef : FM3Units . UnitRefTyp
-    ; EndIdAtom : FM3Base . AtomTyp 
+    ; EndIdScanAttribute : FM3Scanner . tScanAttribute 
     ; UnitKind : FM3Units . UnitKindTyp
-    ; Position : FM3Base . tPosition 
-    ) 
+    )
+    
+(* ------------------------- Pass1 output file ---------------------- *)
+
 ; PROCEDURE Coord ( ) : LONGINT
   (* Of the current unit. *)
   
@@ -359,15 +362,15 @@ INTERFACE FM3Pass1
                in current scope.) *)
   (* PRE: IdAttribute is for an identifier in a declaration context. *) 
 
-; PROCEDURE IdentRefL2R ( READONLY StkIdAttribute : tParsAttribute )
+; PROCEDURE IdentRefL2R ( READONLY IdAttribute : tParsAttribute )
   (* Including a reserved Id. *) 
 
-; PROCEDURE OverrideIdentRefL2R ( READONLY StkIdAttribute : tParsAttribute )
+; PROCEDURE OverrideIdentRefL2R ( READONLY IdAttribute : tParsAttribute )
   : BOOLEAN (* It's OK so far. *) 
   (* Disallows reserved Id. *) 
 
 ; PROCEDURE QualIdentL2R
-    ( READONLY StkLtAttribute , StkRtAttribute : tParsAttribute )
+    ( READONLY LtAttribute , RtAttribute : tParsAttribute )
   (* Handles either/both idents reserved (error msg). *) 
     
 ; PROCEDURE DeclScopeRtL2R ( ScopeRef : FM3Scopes . ScopeRefTyp )

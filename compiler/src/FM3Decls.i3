@@ -48,8 +48,8 @@ INTERFACE FM3Decls
            These will have DeclKind DkDuplDecl.  Such a list is mutually
            exclusive of a single node of some other DeclKind. 
         *) 
-      ; DclParentScopeRef : FM3Scopes . ScopeRefTyp (* Containing scope *) 
-      ; DclSelfScopeRef : FM3Scopes . ScopeRefTyp (* If this declares a scope *)
+      ; DclParentScopeRef : FM3Base . ScopeRefTyp (* Containing scope *) 
+      ; DclSelfScopeRef : FM3Base . ScopeRefTyp (* If this declares a scope *)
       ; DclIdAtom : FM3Base . AtomTyp
       ; DclDeclNo : FM3Base . DeclNoTyp (* A self-reference. *)
       ; DclPos : FM3Base . tPosition 
@@ -62,7 +62,7 @@ INTERFACE FM3Decls
 ; PROCEDURE NewDeclMap ( InitDeclCt : FM3Base . DeclNoTyp ) : DeclMapTyp 
 
 ; PROCEDURE NewDeclRef
-    ( ParentScopeRef : FM3Scopes . ScopeRefTyp ; DeclNo : FM3Base . DeclNoTyp )
+    ( ParentScopeRef : FM3Base . ScopeRefTyp ; DeclNo : FM3Base . DeclNoTyp )
   : DeclRefTyp
   (* Allocate a DeclRef and connect in into ParentScopeRef ^. *)
 

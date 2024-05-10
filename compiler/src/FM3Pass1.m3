@@ -117,7 +117,6 @@ MODULE FM3Pass1
   ; BEGIN (*RunPass1*)
       LUnitRef := FM3Units . UnitStackTopRef 
     ; InitPass1 ( LUnitRef )
-    ; FM3Units . CacheTopUnitValues ( ) 
     ; LUnitRef ^ . UntPassNosDisAsmed := FM3CLOptions . PassNoSetEmpty 
     ; FM3LogArr
         ( ARRAY OF REFANY
@@ -355,7 +354,8 @@ MODULE FM3Pass1
              )
 
     ; UnitRef ^ . UntScopeMap
-        := FM3Scopes . NewScopeMap ( FM3Globals . InitScopeCtPerUnit )  
+        := FM3Scopes . NewScopeMap ( FM3Globals . InitScopeCtPerUnit )
+(*FIXME ^This duplicates FM3Units.m3.NewUnitRef *) 
     ; UnitRef ^ . UntDeclMap
         := FM3Decls . NewDeclMap ( FM3Globals . InitDeclCtPerUnit )
 (* CLEANUP ^ These duplicate NewUnitRef. *) 
@@ -381,13 +381,11 @@ MODULE FM3Pass1
   = BEGIN (*TranslatePass1*)
       TRY
 
-(* Run the translation part of pass 1. *)
-      
+      (* Run the translation part of pass 1. *)
         UnitRef ^ . UntParseResult := FM3Parser . FM3Parser ( )
 (* TODO:           ^Something with this? *)
 
-(* Write final successful Pass 1 output file tokens. *)
-
+      (* Write final successful Pass 1 output file tokens. *)
       ; PutBwd
           ( UnitRef ^ . UntPass1OutRdBack
           , VAL ( Itk . ItkRightEnd , LONGINT )
@@ -399,8 +397,8 @@ MODULE FM3Pass1
       
       ; FM3Parser . CloseFM3Parser ( )
 (*TODO ^ Do this sometime later? *)
-(* Prepare for possible disassembly later. *) 
 
+      (* Prepare for possible disassembly later. *) 
       ; FM3Compile . MakePassFileCopy
           ( UnitRef
           , FM3Globals . Pass1OutSuffix
@@ -416,8 +414,7 @@ MODULE FM3Pass1
       => (*Re-*) RAISE FM3SharedUtils . FatalError ( Arg )  
       ELSE
 
-(* Writing of pass 1 output file failed. *)
-
+      (* Writing of pass 1 output file failed. *)
         PutBwd
           ( UnitRef ^ . UntPass1OutRdBack
           , VAL ( Itk . ItkRightEndIncomplete , LONGINT )
@@ -493,87 +490,134 @@ MODULE FM3Pass1
 
     END FinishPass1 
     
+(*
 ; PROCEDURE UnitId 
     ( UnitRef : FM3Units . UnitRefTyp
-    ; IdAtom : FM3Base . AtomTyp
-    ; Position : FM3Base . tPosition
-    ; VAR (*OUT*) IdText : TEXT
+    ; IdScanAttribute : FM3Scanner . tScanAttribute 
     ; VAR (*OUT*) NameFromFileName : TEXT 
     )
 
-  = BEGIN (* UnitId *) 
-      IF UnitRef = NIL THEN RETURN END (*IF*)
-    ; IF IdAtom = FM3Base . AtomNull THEN RETURN END (*IF*)
-    ; IF UnitRef ^ . UntSrcFileSimpleName = NIL THEN RETURN END (*IF*) 
-    ; UnitRef ^ . UntUnitIdentAtom := IdAtom 
-    ; IdText := FM3Units . TextOfIdAtom ( IdAtom )
-    ; UnitRef ^ . UntUnitIdentAtom := IdAtom 
-    ; UnitRef ^ . UntUnitIdentPos := Position 
-    ; NameFromFileName
-        := FM3Files . RemoveSuffix ( UnitRef ^ . UntSrcFileSimpleName ) 
+  = BEGIN (* UnitId *)
+      NameFromFileName := NIL 
+    ; IF UnitRef # NIL
+      THEN 
+        UnitRef ^ . UntUnitIdentPos := IdScanAttribute . Position 
+      ; UnitRef ^ . UntUnitIdent := IdText 
+      ; IF UnitRef ^ . UntSrcFileSimpleName # NIL
+        THEN
+          NameFromFileName
+            := FM3Files . RemoveSuffix ( UnitRef ^ . UntSrcFileSimpleName )
+        END (*IF*) 
+      END (*IF*) 
     END UnitId 
+
+; PROCEDURE NameFromFileName 
+    ( UnitRef : FM3Units . UnitRefTyp
+    ; IdScanAttribute : FM3Scanner . tScanAttribute 
+    )
+  : REF ARRAY OF CHAR
+  (* If the unit name has a suffix of the form .c*, where c is any non-dot,
+     remove it.  NIL if no unit name exists. 
+  *) 
+
+  = VAR LOACharsRef : REF ARRAY OF CHAR
+  l VAR LResult : REF ARRAY OF CHAR
+  ; VAR LNumber : INTEGER
+  ; VAR LSs : INTEGER 
+
+  ; BEGIN (* UnitId *)
+      IF UnitRef = NIL THEN RETURN NIL END (*IF*) 
+    ; LOACharsRef := UnitRef ^ . UntUnitIdentOA
+    ; IF LOACharsRef = NIL THEN RETURN NIL END (*IF*)
+    ; LNumber := NUMBER ( LOACharsRef ^ )
+    ; LSs := LNumber - 1
+    ; LOOP
+        IF LSs < 0 THEN RETURN LOACharsRef 
+        ELSIF LOACharsRef ^ [ LSs ] = '.' 
+        THEN
+          LResult := NEW ( REF ARRAY OF CHAR , LSs )
+        ; LResult ^ := SUBARRAY ( LOACharsRef , 0 , LSs )
+        ; RETURN LResult 
+        ELSE DEC ( LSs ) 
+      END (*LOOP*) 
+    END NameFromFileName
+*) 
+
+; PROCEDURE UnitNameTFromFileName 
+    ( UnitRef : FM3Units . UnitRefTyp ) : TEXT 
+  (*PRE: UnitRef # NIL *) 
+  (* If the unit name has a suffix of the form .c*, where c is any non-dot,
+     remove it.  NIL if no unit name exists. 
+  *) 
+
+  = VAR LFileNameT : TEXT
+  ; VAR LBase : TEXT 
+
+  ; BEGIN (* UnitNameTFromFileName *)
+      LFileNameT := UnitRef ^ . UntSrcFileSimpleName 
+    ; IF LFileNameT = NIL THEN RETURN NIL END (*IF*)
+    ; LBase := Pathname . Base ( LFileNameT )
+    ; RETURN LBase 
+    END UnitNameTFromFileName 
 
 (*EXPORTED:*)
 ; PROCEDURE InterfaceId
     ( UnitRef : FM3Units . UnitRefTyp
-    ; IdAtom : FM3Base . AtomTyp
-    ; Position : FM3Base . tPosition 
+    ; IdScanAttribute : FM3Scanner . tScanAttribute 
     )
+  (*PRE: UnitRef # NIL *) 
 
-  = VAR LIdText : TEXT
-  ; VAR LNameFromFileName : TEXT
+  = VAR LNameFromFileName : TEXT
 
   ; BEGIN (* InterfaceId *)
-      UnitId
-        ( UnitRef , IdAtom , Position
-        , (*OUT*) LIdText , (*OUT*) LNameFromFileName
-        ) 
-    ; IF NOT Text . Equal ( LIdText , LNameFromFileName)
+      UnitRef ^ . UntUnitIdent := IdScanAttribute . SaChars 
+    ; UnitRef ^ . UntUnitIdentPos := IdScanAttribute . Position
+    ; IF UnitRef ^ . UntUnitIdent = NIL THEN RETURN END (*IF*) 
+    ; LNameFromFileName := UnitNameTFromFileName ( UnitRef ) 
+    ; IF LNameFromFileName = NIL THEN RETURN END (*IF*) 
+    ; IF NOT Text . Equal
+             ( Text . FromChars ( UnitRef ^ . UntUnitIdent ^ ) , LNameFromFileName ) 
       THEN
         FM3Messages . ErrorArr
           ( ARRAY OF REFANY
               { "Interface name \""
-              , LIdText
-              , "\" does not match file name \""
+              , UnitRef ^ . UntUnitIdent 
+              , "\" does not agree with file name \""
               , UnitRef ^ . UntSrcFileSimpleName
-              , "\"" 
-              , FM3Messages . NLIndent
-              , "Changing interface name to \""
-              , LNameFromFileName 
               , "\"." 
               }
-          , Position
+          , IdScanAttribute . Position
           )
-      ; UnitRef ^ . UntSrcFileSimpleName := LNameFromFileName 
       END (*IF*)
     END InterfaceId 
 
 (*EXPORTED:*)
 ; PROCEDURE ModuleId
     ( UnitRef : FM3Units . UnitRefTyp
-    ; IdAtom : FM3Base . AtomTyp
-    ; Position : FM3Base . tPosition 
+    ; IdScanAttribute : FM3Scanner . tScanAttribute 
     )
+  (*PRE: UnitRef # NIL *) 
 
-  = VAR LIdText : TEXT
-  ; VAR LNameFromFileName : TEXT
+  = VAR LNameFromFileName : TEXT
 
   ; BEGIN (* ModuleId *) 
-      UnitId
-        ( UnitRef , IdAtom , Position
-        , (*OUT*) LIdText , (*OUT*) LNameFromFileName
-        ) 
-    ; IF NOT Text . Equal ( LIdText , LNameFromFileName)
+      UnitRef ^ . UntUnitIdent := IdScanAttribute . SaChars 
+    ; UnitRef ^ . UntUnitIdentPos := IdScanAttribute . Position
+    ; IF UnitRef ^ . UntUnitIdent = NIL THEN RETURN END (*IF*) 
+    ; LNameFromFileName := UnitNameTFromFileName ( UnitRef ) 
+    ; IF LNameFromFileName = NIL THEN RETURN END (*IF*) 
+    ; IF NOT Text . Equal
+             ( Text . FromChars ( UnitRef ^ . UntUnitIdent ^ ) , LNameFromFileName ) 
       THEN
         FM3Messages . InfoArr
           ( ARRAY OF REFANY
               { "Module name \""
-              , LIdText
+              , UnitRef ^ . UntUnitIdent  
               , "\" does not match file name \""
               , UnitRef ^ . UntSrcFileSimpleName
               , "\"." 
               }
-         , Position 
+         , IdScanAttribute . Position 
          ) 
       END (*IF*)
     END ModuleId 
@@ -581,29 +625,32 @@ MODULE FM3Pass1
 (*EXPORTED:*)
 ; PROCEDURE CheckUnitFinalId
     ( UnitRef : FM3Units . UnitRefTyp
-    ; EndIdAtom : FM3Base . AtomTyp 
+    ; EndIdScanAttribute : FM3Scanner . tScanAttribute 
     ; UnitKind : FM3Units . UnitKindTyp
-    ; Position : FM3Base . tPosition 
     )
     
-  = BEGIN (* CheckUnitFinalId *)
-      IF UnitRef ^ . UntUnitIdentAtom # FM3Base . AtomNull
-         AND EndIdAtom # FM3Base . AtomNull
-         AND EndIdAtom # UnitRef ^ . UntUnitIdentAtom  
+  = VAR LEndIdT : TEXT
+
+  ; BEGIN (* CheckUnitFinalId *)
+      IF UnitRef = NIL THEN RETURN END (*IF*) 
+    ; IF UnitRef ^ . UntUnitIdent = NIL THEN RETURN END (*IF*) 
+    ; IF EndIdScanAttribute . SaChars = NIL THEN RETURN END (*IF*)
+    ; LEndIdT := Text . FromChars ( EndIdScanAttribute . SaChars ^ ) 
+    ; IF EndIdScanAttribute . SaChars ^ # UnitRef ^ . UntUnitIdent ^   
       THEN
         FM3Messages . ErrorArr
           ( ARRAY OF REFANY 
               { "Identifier at end of "
               , FM3Units . UnitKindImage ( UnitKind )
               , " \""
-              , FM3Units . TextOfIdAtom ( UnitRef ^ . UntUnitIdentAtom )
+              , UnitRef ^ . UntUnitIdent 
               , "\", at " 
               , PosImage ( UnitRef ^ . UntUnitIdentPos )  
               , " must repeat its name ("
               , FM3Units . UnitKindSectionNo ( UnitKind )
               , ")." 
               } 
-          , Position
+          , EndIdScanAttribute . Position
           )
       END (*IF*) 
     END CheckUnitFinalId
@@ -1675,7 +1722,9 @@ MODULE FM3Pass1
       
 (*EXPORTED:*)
 ; PROCEDURE Import
-    ( Atom : FM3Base . AtomTyp ; READONLY Position : tPosition ) 
+    ( Atom : FM3Base . AtomTyp
+    ; READONLY Position : tPosition
+    ) 
 
   = BEGIN (*Import*)
     END Import
@@ -1736,32 +1785,37 @@ MODULE FM3Pass1
                in current scope.) *)
   (* PRE: IdAttribute is for an identifier in a declaration context. *) 
 
-  = VAR LTokToPut : Itk . TokTyp
+  = VAR LAtom : FM3Base . AtomTyp 
+  ; VAR LTokToPut : Itk . TokTyp
   ; VAR LResult : BOOLEAN
 
   ; BEGIN (*DeclIdL2R*)
       WITH WScope = FM3Scopes . DeclScopeStackTopRef ^
            , WunRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack 
-      DO
-        IF IdAttribute . Scan . SaIsReservedId
+      DO LAtom  
+           := FM3Atom_OAChars . MakeAtom 
+                ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict
+                , IdAttribute . Scan . SaChars 
+                , IdAttribute . Scan . SaHash 
+                ) 
+      ; IF IdAttribute . Scan . SaIsReservedId
         THEN
           ErrorArr
             ( ARRAY OF REFANY
                 { PosImage ( IdAttribute . Scan . Position )
                 , " Identifier \""
-                , FM3SrcToks . Image ( IdAttribute . Scan . SaAtom )
+                , FM3SrcToks . Image ( LAtom )
                 , "\" is predefined and cannot be redeclared (2.8.2)."
                 } 
             )
-          (* No output. *) 
+          (* No output. *)
+          
         ; RETURN FALSE (* Caller, Don't use this Id. *) 
         ELSE
-          IF NOT IntSets . IsElement
-                   ( IdAttribute . Scan . SaAtom , WScope . ScpDeclIdSet )
+          IF NOT IntSets . IsElement ( LAtom , WScope . ScpDeclIdSet )
           THEN  (* 1st declaration of Ident in scope . *) 
             WScope . ScpDeclIdSet
-              := IntSets . Include
-                   ( WScope . ScpDeclIdSet , IdAttribute . Scan . SaAtom )
+              := IntSets . Include ( WScope . ScpDeclIdSet , LAtom )
           (* Maybe push Separator token: *)
           ; IF SepTok # Itk . ItkNull AND PriorIdCt > 0
             THEN 
@@ -1769,15 +1823,15 @@ MODULE FM3Pass1
             ; PutBwd ( WunRdBack , VAL ( SepPosition . Line , LONGINT ) )
             ; PutBwd ( WunRdBack , VAL ( PriorIdCt , LONGINT ) )
             ; PutBwd ( WunRdBack , VAL ( SepTok , LONGINT ) )
-            END (*IF*) 
+            END (*IF*)
+            
           (* Id is valid. Plan to push Ident token: *)
           ; LTokToPut := DeclIdTok
 (*FIXME ^ This should always be passed in as ItkDeclId, so use it. *) 
           ; LResult := TRUE (* Caller, Use this decl id. *)
-          ELSE (* A Duplicate declaration of SaAtom in current scope. *)
+          ELSE (* A Duplicate declaration of LAtom in current scope. *)
             WScope . ScpDuplDeclIdSet
-              := IntSets . Include
-                   ( WScope . ScpDuplDeclIdSet , IdAttribute . Scan . SaAtom )
+              := IntSets . Include ( WScope . ScpDuplDeclIdSet , LAtom )
 (* CHECK^ Do we need ScpDuplDeclIdSet? *) 
           (* Plan to push duplicate Ident token.  The only effect will be to
              emit an error later, during R2L, when the position of the original
@@ -1793,10 +1847,7 @@ MODULE FM3Pass1
             ( WunRdBack
             , VAL ( IdAttribute . Scan . Position . Line , LONGINT )
             )
-        ; PutBwd
-            ( WunRdBack
-            , VAL ( IdAttribute . Scan . SaAtom , LONGINT )
-            )
+        ; PutBwd ( WunRdBack , VAL ( LAtom , LONGINT ) ) 
         ; IF LTokToPut = Itk . ItkDeclId 
           THEN PutBwd ( WunRdBack , VAL ( ORD ( DeclKind ) , LONGINT ) )
 (* TODO: Make up your mind and either make all the decl ids ItkDeclId,
@@ -1811,45 +1862,58 @@ MODULE FM3Pass1
     END DeclIdL2R
 
 (*EXPORTED.*)
-; PROCEDURE IdentRefL2R ( READONLY StkIdAttribute : tParsAttribute )
+; PROCEDURE IdentRefL2R ( READONLY IdAttribute : tParsAttribute )
   (* Including a reserved Id. *) 
 
-  = VAR LTokToPut : Itk . TokTyp
+  = VAR LAtom : FM3Base . AtomTyp 
+  ; VAR LTokToPut : Itk . TokTyp
 
   ; BEGIN (*IdentRefL2R*)
-      WITH WScan = StkIdAttribute . Scan
-           , WunRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack 
-      DO IF WScan . SaIsReservedId 
+      WITH WScan = IdAttribute . Scan
+           , WunRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO LAtom  
+           := FM3Atom_OAChars . MakeAtom 
+                ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict
+                , IdAttribute . Scan . SaChars 
+                , IdAttribute . Scan . SaHash 
+                ) 
+      ; IF WScan . SaIsReservedId 
         THEN LTokToPut := Itk . ItkReservedId 
         ELSE
           WITH WIdentRefSet = FM3Scopes . LookupScopeStackTopRef ^ . ScpRefIdSet
-          DO WIdentRefSet
-               := IntSets . Include
-                    ( WIdentRefSet , StkIdAttribute . Scan . SaAtom )
+          DO WIdentRefSet := IntSets . Include ( WIdentRefSet , LAtom )
           END (*WITH*) 
         ; LTokToPut := Itk . ItkIdRefAtom 
         END (*IF*) 
       ; PutBwd ( WunRdBack , VAL ( WScan . Position . Column , LONGINT ) ) 
       ; PutBwd ( WunRdBack , VAL ( WScan . Position . Line , LONGINT ) ) 
-      ; PutBwd ( WunRdBack , VAL ( WScan . SaAtom , LONGINT ) ) 
+      ; PutBwd ( WunRdBack , VAL ( LAtom , LONGINT ) ) 
       ; PutBwd ( WunRdBack , VAL ( LTokToPut , LONGINT ) ) 
       END (*WITH*) 
     END IdentRefL2R
 
 (*EXPORTED.*)
-; PROCEDURE OverrideIdentRefL2R ( READONLY StkIdAttribute : tParsAttribute )
+; PROCEDURE OverrideIdentRefL2R ( READONLY IdAttribute : tParsAttribute )
   : BOOLEAN (* It's OK so far. *) 
   (* Disallows reserved Id. *) 
 
-  = BEGIN (*OverrideIdentRefL2R*)
-      WITH WScan = StkIdAttribute . Scan
+  = VAR LAtom : FM3Base . AtomTyp
+  
+  ; BEGIN (*OverrideIdentRefL2R*)
+      WITH WScan = IdAttribute . Scan
            , WunRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack 
       DO IF WScan . SaIsReservedId 
         THEN RETURN FALSE 
         ELSE
-          PutBwd ( WunRdBack , VAL ( WScan . Position . Column , LONGINT ) ) 
+          LAtom  
+            := FM3Atom_OAChars . MakeAtom 
+                 ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict
+                 , IdAttribute . Scan . SaChars 
+                 , IdAttribute . Scan . SaHash 
+                 ) 
+        ; PutBwd ( WunRdBack , VAL ( WScan . Position . Column , LONGINT ) ) 
         ; PutBwd ( WunRdBack , VAL ( WScan . Position . Line , LONGINT ) ) 
-        ; PutBwd ( WunRdBack , VAL ( WScan . SaAtom , LONGINT ) ) 
+        ; PutBwd ( WunRdBack , VAL ( LAtom , LONGINT ) ) 
         ; PutBwd ( WunRdBack , VAL ( Itk . ItkIdRefAtom , LONGINT ) )
         ; RETURN TRUE 
         END (*IF*) 
@@ -1878,49 +1942,60 @@ MODULE FM3Pass1
 
 (*EXPORTED.*)
 ; PROCEDURE QualIdentL2R
-    (  READONLY StkLtIdAttribute , StkRtIdAttribute : tParsAttribute )
+    ( READONLY LtIdAttribute , RtIdAttribute : tParsAttribute )
   (* Handles either/both idents reserved (error msg). *) 
 
-  = BEGIN (*QualIdentL2R*)
+  = VAR LLtAtom : FM3Base . AtomTyp
+  ; VAR LRtAtom : FM3Base . AtomTyp
+
+  ; BEGIN (*QualIdentL2R*)
       WITH WunRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
-      DO IF CheckQualNotReserved ( StkLtIdAttribute )
-            AND CheckQualNotReserved ( StkRtIdAttribute )
+      DO IF CheckQualNotReserved ( LtIdAttribute )
+            AND CheckQualNotReserved ( RtIdAttribute )
         THEN (* All OK. *) 
-          WITH WIdentRefSet = FM3Scopes . DeclScopeStackTopRef ^ . ScpRefIdSet
-          DO WIdentRefSet
-               := IntSets . Include
-                    ( WIdentRefSet , StkLtIdAttribute . Scan . SaAtom )
+          LLtAtom  
+           := FM3Atom_OAChars . MakeAtom 
+                ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict
+                , LtIdAttribute . Scan . SaChars 
+                , LtIdAttribute . Scan . SaHash 
+                ) 
+        ; LRtAtom  
+           := FM3Atom_OAChars . MakeAtom 
+                ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict
+                , RtIdAttribute . Scan . SaChars 
+                , RtIdAttribute . Scan . SaHash 
+                ) 
+        ; WITH WIdentRefSet = FM3Scopes . DeclScopeStackTopRef ^ . ScpRefIdSet
+          DO WIdentRefSet := IntSets . Include ( WIdentRefSet , LLtAtom )
           END (*WITH*) 
         ; PutBwd
             ( WunRdBack
-            , VAL ( StkRtIdAttribute . Scan . Position . Column , LONGINT )
+            , VAL ( RtIdAttribute . Scan . Position . Column , LONGINT )
             )
         ; PutBwd
             ( WunRdBack
-            , VAL ( StkRtIdAttribute . Scan . Position . Line , LONGINT ) 
+            , VAL ( RtIdAttribute . Scan . Position . Line , LONGINT ) 
             ) 
         ; PutBwd
             ( WunRdBack
-            , VAL ( StkLtIdAttribute . Scan . Position . Column , LONGINT )
+            , VAL ( LtIdAttribute . Scan . Position . Column , LONGINT )
             ) 
         ; PutBwd
             ( WunRdBack
-            , VAL ( StkLtIdAttribute . Scan . Position . Line , LONGINT ) 
+            , VAL ( LtIdAttribute . Scan . Position . Line , LONGINT ) 
             )
-        ; PutBwd
-            ( WunRdBack , VAL ( StkRtIdAttribute . Scan . SaAtom , LONGINT ) ) 
-        ; PutBwd
-            ( WunRdBack , VAL ( StkLtIdAttribute . Scan . SaAtom , LONGINT ) ) 
+        ; PutBwd ( WunRdBack , VAL ( LRtAtom , LONGINT ) ) 
+        ; PutBwd ( WunRdBack , VAL ( LLtAtom , LONGINT ) ) 
         ; PutBwd ( WunRdBack , VAL ( Itk . ItkQualIdAtoms , LONGINT ) )
         ELSE 
 (* TODO: Error message here? *) 
           PutBwd 
             ( WunRdBack
-            , VAL ( StkLtIdAttribute . Scan . Position . Column , LONGINT )
+            , VAL ( LtIdAttribute . Scan . Position . Column , LONGINT )
             )
         ; PutBwd 
             ( WunRdBack
-            , VAL ( StkLtIdAttribute . Scan . Position . Line , LONGINT )
+            , VAL ( LtIdAttribute . Scan . Position . Line , LONGINT )
             )
         ; PutBwd ( WunRdBack , VAL ( Itk . ItkInvalidRef , LONGINT ) )
         END (*IF*)

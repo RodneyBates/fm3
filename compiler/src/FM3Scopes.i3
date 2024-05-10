@@ -19,7 +19,7 @@ INTERFACE FM3Scopes
 ; TYPE ScopeKindTyp
     = { SkNull
       , SkUniverse (* {Predefined, interfaces? *)
-      , SkComp (* Interfaces touched by a compilation.  Only one. *) 
+      , SkComp (* Interfaces touched by a compilation.  Only one such scope. *) 
       , SkInterface (* Including generic and instantiation. *) 
       , SkModule (* Including generic and instantiation. *)
       , SkFormals
@@ -39,7 +39,6 @@ INTERFACE FM3Scopes
     = SET OF ScopeKindTyp
         { ScopeKindTyp . SkUniverse .. ScopeKindTyp . SkBlock } 
 
-; TYPE ScopeRefTyp = REF ScopeTyp
 ; TYPE ScopeTyp
     = RECORD
         ScpDeclStackLink : ScopeRefTyp
@@ -63,7 +62,10 @@ INTERFACE FM3Scopes
       ; ScpPosition : FM3Base . tPosition 
       ; ScpKind : ScopeKindTyp 
       END (*ScopeTyp*)
-      
+
+; REVEAL FM3Base . ScopeRefTyp = BRANDED REF ScopeTyp 
+; TYPE ScopeRefTyp = FM3Base . ScopeRefTyp 
+
 ; PROCEDURE NewScopeRef
     ( OwningUnitRef : FM3Units . UnitRefTyp
     ; ScopeKind : ScopeKindTyp

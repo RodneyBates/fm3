@@ -54,7 +54,9 @@ INTERFACE FM3SharedUtils
 ; PROCEDURE PutPosImage ( WrT : Wr . T ; Position : FM3Base . tPosition )
 
 ; PROCEDURE PutTextish ( WrT : Wr . T ; Textish : REFANY )
-  (* Textish can be TEXT, Atom.T, or AtomList.T. *) 
+  (* Textish can be NIL, TEXT, Atom.T, AtomList.T, REF ARRAY OF CHAR,
+     or REF ARRAY OF REFANY.
+  *) 
 
 ; PROCEDURE PutTextishArr ( WrT : Wr . T ; READONLY Arr : ARRAY OF REFANY )
 

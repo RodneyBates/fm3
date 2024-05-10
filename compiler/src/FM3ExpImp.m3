@@ -11,12 +11,20 @@ MODULE FM3ExpImp
 ; IMPORT Pathname 
 ; IMPORT Text
 ; IMPORT TextWr
-; IMPORT Wr 
+; IMPORT Wr
 
+; IMPORT FM3Dict_Int_Int 
+; IMPORT IntIntVarArray 
+; IMPORT IntSets
+
+; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Base
-; IMPORT FM3Compile 
+; IMPORT FM3Compile
+; IMPORT FM3Decls 
 ; IMPORT FM3Messages
 ; IMPORT FM3OpenArray_Char
+; IMPORT FM3Scanner
+; IMPORT FM3Scopes (* For Revelation of ScopeRefTyp *) 
 ; IMPORT FM3Units 
 ; IMPORT FM3Utils
 
@@ -70,37 +78,29 @@ MODULE FM3ExpImp
 
 (*EXPORTED*) 
 ; PROCEDURE GetInterface
-    ( IntfNameOA : FM3OpenArray_Char . T
-    ; IntfHash : FM3Base . HashTyp 
-    ; AsNameOA : FM3OpenArray_Char . T
-    ; AsHash : FM3Base . HashTyp 
-    ; Position : FM3Base . tPosition
-    ; Exports : BOOLEAN 
+    ( IdentChars : FM3OpenArray_Char . T
+    ; Position : FM3Base . tPosition 
+    ; IsExport : BOOLEAN
     )
   : FM3Units . UnitRefTyp
     (* ^The interface unit that was [ex/im]ported, possibly NIL *) 
-  (* PRE: IntfNameOA and AsNameOA are Modula-3 identifiers, thus contain no
-          file name suffix.
-  *) 
 
   = VAR LIntfUnitRef : FM3Units . UnitRefTyp 
   ; VAR LSrcFileName : TEXT 
   ; VAR LAdjective : TEXT 
 
   ; BEGIN
-      IF IntfNameOA = NIL THEN RETURN NIL END (*IF*)
-    ; IF NUMBER ( IntfNameOA ^ ) = 0 THEN RETURN NIL END (*IF*)
+      IF IdentChars = NIL THEN RETURN NIL END (*IF*)
+    ; IF NUMBER ( IdentChars ^ ) = 0 THEN RETURN NIL END (*IF*)
     ; LSrcFileName
-        := Pathname . Join ( NIL , Text . FromChars ( IntfNameOA ^ ) , ".i3" )  
-    ; IF AsNameOA = NIL
-      THEN AsNameOA := IntfNameOA ; AsHash := IntfHash
-      END (*IF*)
+        := Pathname . Join
+             ( NIL , Text . FromChars ( IdentChars ^ ) , ".i3" ) 
     ; LIntfUnitRef := FM3Compile . UnitOfFileName ( LSrcFileName )  
     ; IF LIntfUnitRef . UntState = Us . UsNull 
       THEN (* Haven't seen this unit yet. *)
       (* Compile it. *)
 (*TODO: Or load it. *)
-        IF Exports
+        IF IsExport
         THEN LAdjective := "exported "
         ELSE LAdjective := "imported " 
         END (*IF*) 
@@ -111,10 +111,13 @@ MODULE FM3ExpImp
         THEN 
           FM3Units . UnitStackTopRef ^ . UntImportingUnitRef := LIntfUnitRef
           (*^ To detect cyclic imports. *) 
-        ; FM3Units . UnitStackTopRef ^ . UntImportingPosition := Position
+        ; FM3Units . UnitStackTopRef ^ . UntImportingPosition
+            := Position
         ; LIntfUnitRef ^ . UntState := Us . UsImporting 
-        ; FM3Units . PushUnit ( LIntfUnitRef ) 
+        ; FM3Units . PushUnit ( LIntfUnitRef )
+        ; FM3Units . CacheTopUnitValues ( ) 
         ; FM3Compile . CompileUnitFromSrc ( LIntfUnitRef ) 
+        ; FM3Units . UncacheTopUnitValues ( ) 
         ; <* ASSERT FM3Units . PopUnit ( ) = LIntfUnitRef *>
           RETURN NIL  
         ELSE RETURN LIntfUnitRef 
@@ -128,7 +131,66 @@ MODULE FM3ExpImp
         END (*IF*)
       END (*IF*)
     ; (* Do the actual [ex/im]port. *) 
-    END GetInterface 
+    END GetInterface
+
+(*
+; PROCEDURE ImportDeclByIdent
+    ( FromUnitRef : FM3Units . UnitRefTyp
+    ; IdScanAttribute : FM3Scanner . tScanAttribute
+    )
+
+  = VAR LFromDeclDict : FM3Dict_Int_Int . GrowableTyp 
+  ; VAR LFromDeclIdSet : IntSets . T
+  ; VAR LFromExpImpIdSet : IntSets . T
+  ; VAR LNote : REF ARRAY OF REFANY 
+  ; VAR LFromAtom : FM3Base . AtomTyp
+  ; VAR LFromDeclNo : FM3Base . DeclNoTyp
+  ; VAR LFound : BOOLEAN 
+
+  ; BEGIN
+      IF FromUnitRef = NIL THEN RETURN END (*IF*)
+    ; IF IdScanAttribute . SaChars = NIL THEN RETURN END (*IF*)
+    ; LFromAtom
+        := FM3Atom_OAChars . MakeAtom 
+             ( FromUnitRef ^ . UntIdentAtomDict
+             , IdScanAttribute . SaChars 
+             , IdScanAttribute . SaHash 
+             )
+    ; IF LFromAtom = FM3Base . AtomNull
+      THEN LFound := FALSE
+      ELSE
+        LFromDeclDict := FromUnitRef ^ . UntDeclScopeRef ^ . ScpDeclDict
+      ; IF NOT IntSets . IsElement ( LFromAtom , LFromDeclIdSet )
+        THEN LFound := FALSE 
+        ELSE 
+          LFromDeclNo := FM3Dict . LookupGrowable ( LFromDeclDict , LFromAtom )
+        ; LFound := LFromDeclNo # FM3Base . DeclNoNull
+        END (*IF*) 
+      END (*IF*)
+    ; IF NOT LFound
+      THEN
+        LFromExpImpIdSet := FromUnitRef ^ . UntExpImpScopeRef ^ . ScpDeclIdSet
+      ; IF IntSets . IsElement ( LFromAtom , LFromExpImpIdSet )
+        THEN
+          LNote := NIL  
+        ELSE LNote := NIL 
+        END (*IF*) 
+      ; FM3Messages . ErrorArr
+          ( ARRAY OF REFANY
+              { "Interface "
+              , FromUnitRef ^ . UntUnitIdent 
+              , " has no declaration named "
+              , Text . FromChars ( IdScanAttribute . SaChars ^ )
+              , LNote
+              , Wr . EOL 
+              }
+          , IdScanAttribute . Position 
+          ) 
+      ELSE 
+      
+      END (*IF*) 
+    END ImportDeclByIdent
+*) 
 
 ; BEGIN (*FM3ExpImp*)
   END FM3ExpImp

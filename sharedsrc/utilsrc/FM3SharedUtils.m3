@@ -206,7 +206,9 @@ MODULE FM3SharedUtils
 
 (*EXPORTED*) 
 ; PROCEDURE PutTextish ( WrT : Wr . T ; Textish : REFANY )
-  (* Textish be TEXT, Atom.T, or AtomList.T. *) 
+  (* Textish can be NIL, TEXT, Atom.T, AtomList.T, REF ARRAY OF CHAR,
+     or REF ARRAY OF REFANY.
+  *) 
 
   = BEGIN
       TYPECASE Textish OF
@@ -217,6 +219,12 @@ MODULE FM3SharedUtils
         => Wr . PutText ( WrT , Atom . ToText ( TAtom ) )
       | AtomList . T ( TAtom )
         => Wr . PutText ( WrT , AtomListToText ( TAtom ) )
+      | REF ARRAY OF CHAR ( TOAChars )
+        => FOR RI := 0 TO LAST ( TOAChars ^ )
+           DO Wr . PutChar ( WrT , TOAChars ^ [ RI ] ) 
+           END (*FOR*)
+      | REF ARRAY OF REFANY ( TNestedArr )
+        => PutTextishArr ( WrT , TNestedArr ^ ) 
       ELSE
       END (*TYPECASE*)
     END PutTextish
@@ -224,14 +232,10 @@ MODULE FM3SharedUtils
 (*EXPORTED*) 
 ; PROCEDURE PutTextishArr ( WrT : Wr . T ; READONLY Arr : ARRAY OF REFANY )
 
-  = VAR LNumber : INTEGER
-
-  ; BEGIN 
-      LNumber := NUMBER ( Arr )
-    ; IF LNumber <= 0 THEN RETURN END (*IF*)
-    ; FOR RI := 0 TO LAST ( Arr )
-      DO    
-        PutTextish ( WrT , Arr [ RI ] ) 
+  = BEGIN 
+      IF NUMBER ( Arr ) <= 0 THEN RETURN END (*IF*)
+    ; FOR RI := FIRST ( Arr ) TO LAST ( Arr )  
+      DO PutTextish ( WrT , Arr [ RI ] ) 
       END (*FOR*)
     END PutTextishArr 
 

@@ -24,18 +24,12 @@ INTERFACE FM3ExpImp
   *) 
 
 ; PROCEDURE GetInterface
-    ( IntfNameOA : FM3OpenArray_Char . T
-    ; IntfHash : FM3Base . HashTyp 
-    ; AsNameOA : FM3OpenArray_Char . T
-    ; AsHash : FM3Base . HashTyp 
-    ; Position : FM3Base . tPosition
-    ; Exports : BOOLEAN 
+    ( IdentChars : FM3OpenArray_Char . T
+    ; Position : FM3Base . tPosition 
+    ; IsExport : BOOLEAN
     )
   : FM3Units . UnitRefTyp
     (* ^The interface unit that was [ex/im]ported, possibly NIL *) 
-  (* PRE: IntfNameOA and AsNameOA are Modula-3 identifiers, thus ocntain no
-          file name suffix.
-  *) 
 
 ; END FM3ExpImp
 .

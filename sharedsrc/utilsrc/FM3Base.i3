@@ -24,10 +24,11 @@ INTERFACE FM3Base
 ; CONST UnitNoMax = LAST ( CARDINAL ) 
 ; CONST UnitNoFirstReal = UnitNoNull + 1 
 
+; TYPE ScopeRefTyp <: REFANY 
 ; TYPE ScopeNoTyp = CARDINAL
 ; CONST ScopeNoNull = FIRST ( CARDINAL )
 ; CONST ScopeNoMax = LAST ( CARDINAL ) 
-; CONST ScopeNoFirstReal = ScopeNoNull + 1 
+; CONST ScopeNoFirstReal = ScopeNoNull + 1
 
 ; TYPE DeclNoTyp = CARDINAL
 ; CONST DeclNoNull = FIRST ( CARDINAL )

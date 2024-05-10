@@ -9,10 +9,16 @@
 (* File FM3Parser.lalr.  lalr specification for FM3Parser. *)
 
 (* WARNING: Do not put a lone single quote in a semantic action, e.g.:
-            (* Don't do this. *).  Probably applies to double quote too.
+            { (* Don't do this. *) }.  Probably applies to double quote too.
             lalr will run to the end of its internal buffer looking
             for the quote's mate and give an unclosed-string error.
 *)
+
+(* Use metaprogram lalr to generate FM3Parser.i3, FM3Parser.m3, and
+   _Debug, from this file, using command line:
+   "../lib/lalr -M -g -i -t -d -D -k FM3Parser.lalr"
+*)
+
             
 SCANNER FM3Scanner
 
@@ -51,7 +57,7 @@ GLOBAL
     IMPORT FM3IntToks AS Itk;
     IMPORT FM3SrcToks AS Stk;
     IMPORT FM3Pass1;
-    IMPORT FM3Extern; 
+    IMPORT FM3ExpImp;
     FROM FM3Pass1 IMPORT Coord;
     FROM FM3Pass1 IMPORT PutBwd_Attribute;
     FROM FM3Pass1 IMPORT tParsAttribute;
@@ -282,23 +288,30 @@ RULE
    UnitId : StkIdent
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN
-         $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
+(*
+         $$ . PaAtom  
+           := FM3Atom_OAChars . MakeAtom 
+                ( FM3Units . UnitsAtomDict , $2 . SaChars , $2 . SaHash ) ; 
          $$ . Scan . Position := $1 . Scan . Position ;
-         FM3Units . UnitStackTopRef ^ . UntUnitIdentAtom := $$ . Scan . SaAtom ;
+         FM3Units . UnitStackTopRef ^ . UntUnitIdentAtom := $$ . PaAtom ; *) 
          LScopeRef
            := FM3Scopes . NewScopeRef
                 ( FM3Units . UnitStackTopRef
                 , Skt . SkModule
                 , FM3Scanner . Attribute . Position
                 ) ;
-         FM3Units . UnitStackTopRef ^ . UntScopeNo := LScopeRef . ScpScopeNo ;
+         FM3Units . UnitStackTopRef ^ . UntDeclScopeRef := LScopeRef ; 
        END ; 
      } .
+
+   
        
-   UnitIdImpliedEXPORTS : UnitId 
-     { $$ . Scan . Position := FM3Scanner . Attribute . Position;
-       EVAL FM3Extern . GetExternInterface
-              ( $1 . Scan . SaAtom , IsImport := FALSE ) ; 
+   ImpliedExports : /* Empty */ 
+     { EVAL FM3ExpImp . GetInterface
+              ( FM3Units . UnitStackTopRef ^ . UntUnitIdent
+              , FM3Scanner . Attribute . Position 
+              , IsExport := TRUE
+              ) ; 
      } .
 
    UnitIdAndExports : UnitIdImpliedEXPORTS
@@ -312,11 +325,11 @@ RULE
                 , Skt . SkModule
                 , FM3Scanner . Attribute . Position
                 ) ;
-         FM3Units . UnitStackTopRef ^ . UntScopeNo := LScopeRef . ScpScopeNo ;
+         FM3Units . UnitStackTopRef ^ . UntDeclScopeRef := LScopeRef ;
        END ;  
      } . 
 
-   UnitIdAndExports : UnitId Exports 
+   UnitIdAndExports : StkIdent Exports 
      { $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
        $$ . Scan . Position := $1 . Scan . Position ;
      } .
@@ -348,12 +361,11 @@ RULE
          LUnitRef := FM3Units . UnitStackTopRef ;
            (* ^Already pushed when source file was opened. *) 
          LUnitRef ^ . UntUnsafe := $1 . PaBool ; 
-         FM3Pass1 . InterfaceId
-           ( LUnitRef , $3 . Scan . SaAtom , $3 . Scan . Position ) ;
+         FM3Pass1 . InterfaceId ( LUnitRef , $3 . Scan ) ;
          LScopeRef 
            := FM3Scopes . NewScopeRef 
                 ( LUnitRef , Skt . SkInterface , $1 . Scan . Position ) ;
-         LUnitRef ^ . UntScopeNo := LScopeRef ^ . ScpScopeNo ; 
+         LUnitRef ^ . UntDeclScopeRef := LScopeRef ; 
          FM3Scopes . PushDeclScopeRef ( LScopeRef ) ; 
          FM3Pass1 . PutBwd_LI
            ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo ) ; 
@@ -362,7 +374,10 @@ RULE
 
    InstInterface :
      InterfaceLt StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot 
-     { FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstInterface ; } . 
+     { FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstInterface ;
+       FM3Pass1 . CheckUnitFinalId
+         ( FM3Units . UnitStackTopRef , $5 . Scan , Ukt . UkInstInterface ) ; 
+     } . 
 
    InterfaceMiddle : InterfaceLt StkSemicolon Imports 
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
@@ -388,11 +403,7 @@ RULE
            ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpScopeNo ) ; 
          <* ASSERT FM3Scopes . PopDeclScopeRef ( ) = LScopeRef *>
          FM3Pass1 . CheckUnitFinalId
-           ( FM3Units . UnitStackTopRef
-           , $4 . Scan . SaAtom
-           , Ukt . UkInterface
-           , $4 . Scan . Position 
-           ) ; 
+           ( FM3Units . UnitStackTopRef , $4 . Scan , Ukt . UkInterface ) ; 
          FM3Pass1 . PutBwd_LCIP_rip 
            ( Itk . ItkInterfaceLt
            , $1 . PaPass1Coord
@@ -411,12 +422,11 @@ RULE
          LUnitRef ^ . UntUnsafe := $1 . PaBool ; 
          LUnitRef ^ . UntKind := Ukt . UkModule
            (* ^Could change, if it turns out to be an instantiation. *) ; 
-         FM3Pass1 . ModuleId
-           ( LUnitRef , $3 . Scan . SaAtom , $3 . Scan . Position ) ;
+         FM3Pass1 . ModuleId ( LUnitRef , $3 . Scan ) ;
          LScopeRef 
            := FM3Scopes . NewScopeRef 
                 ( LUnitRef , Skt . SkModule , $1 . Scan . Position ) ;
-         LUnitRef ^ . UntScopeNo := LScopeRef . ScpScopeNo ; 
+         LUnitRef ^ . UntDeclScopeRef := LScopeRef ; 
          FM3Scopes . PushDeclScopeRef ( LScopeRef ) ; 
          FM3Pass1 . PutBwd_LI
            ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo ) ; 
@@ -425,7 +435,10 @@ RULE
 
    InstModule :
      ModuleLt StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot 
-     { FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstModule ; } . 
+     { FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstModule ;
+       FM3Pass1 . CheckUnitFinalId
+         ( FM3Units . UnitStackTopRef , $5 . Scan , Ukt . UkInstModule ) ; 
+     } . 
 
    ModuleMiddle : ModuleLt Exports StkSemicolon Imports 
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
@@ -453,11 +466,7 @@ RULE
            ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpScopeNo ) ; 
          <* ASSERT FM3Scopes . PopDeclScopeRef ( ) = LScopeRef *>
          FM3Pass1 . CheckUnitFinalId
-           ( FM3Units . UnitStackTopRef
-           , $6 . Scan . SaAtom
-           , Ukt . UkModule
-           , $6 . Scan . Position 
-           ) ;
+           ( FM3Units . UnitStackTopRef , $6 .Scan , Ukt . UkModule ) ; 
          FM3Pass1 . PutBwd_LCIP_eCiP_riP 
            ( Itk . ItkModuleLt
            , $1 . PaPass1Coord
@@ -470,18 +479,21 @@ RULE
        END ; 
      } .
 
-   GenInterfaceLt : StkRwGENERIC StkRwINTERFACE UnitId 
-     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
+   GenInterfaceLt : StkRwGENERIC StkRwINTERFACE StkIdent 
+     { VAR LUnitRef : FM3Units . UnitRefTyp ; 
+       VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN 
          $$ . PaBool := $1 . PaBool ;
          $$ . PaByte := ORD ( Ukt . UkInterface ) ; 
+         LUnitRef := FM3Units . UnitStackTopRef ;
+         FM3Pass1 . InterfaceId ( LUnitRef , $3 . Scan ) ;
          LScopeRef 
            := FM3Scopes . NewScopeRef
-                ( FM3Units . UnitStackTopRef
+                ( LUnitRef 
                 , Skt . SkInterface
                 , FM3Scanner . Attribute . Position
                 ) ;
-         FM3Units . UnitStackTopRef ^ . UntScopeNo := LScopeRef . ScpScopeNo ;
+         LUnitRef ^ . UntDeclScopeRef := LScopeRef ;
        END ; 
      } .  
 
@@ -490,21 +502,27 @@ RULE
        StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
      { (* Scope ref:
         FM3Pass1 . PutBwd_LI ( Itk . ItkDeclScopeLt , $1 . PaConstructNo ) ;
-       *) 
+       *)
+       FM3Pass1 . CheckUnitFinalId
+         ( FM3Units . UnitStackTopRef , $8 . Scan , Ukt . UkGenInterface ) ; 
+
      } .
 
-   GenModuleLt : StkRwGENERIC StkRwMODULE UnitId 
-     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
+   GenModuleLt : StkRwGENERIC StkRwMODULE StkIdent  
+     { VAR LUnitRef : FM3Units . UnitRefTyp ; 
+       VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN 
          $$ . PaBool := $1 . PaBool ;
          $$ . PaByte := ORD ( Ukt . UkGenModule ) ;
+         LUnitRef := FM3Units . UnitStackTopRef ;
+         FM3Pass1 . ModuleId ( LUnitRef , $3 . Scan ) ;
          LScopeRef  
            := FM3Scopes . NewScopeRef
-                ( FM3Units . UnitStackTopRef
+                ( LUnitRef
                 , Skt . SkModule
                 , FM3Scanner . Attribute . Position
                 ) ;
-         FM3Units . UnitStackTopRef ^ . UntScopeNo := LScopeRef . ScpScopeNo ;
+         LUnitRef ^ . UntDeclScopeRef := LScopeRef  ;
        END ; 
      } . 
 
@@ -514,6 +532,8 @@ RULE
      { (* scope ref
           FM3Pass1 . PutBwd_LI ( Itk . ItkDeclScopeLt , $1 . PaConstructNo ) ;
        *) 
+       FM3Pass1 . CheckUnitFinalId
+         ( FM3Units . UnitStackTopRef , $7 . Scan , Ukt . UkGenModule ) ; 
      } .
 
 
@@ -725,24 +745,26 @@ RULE
 
 (* Exports are handled directly, without writing internal tokens. *)
 
-   Exports : 
-     {
-
-       (* FM3Extern . GetExternInterface
-            ( 1 . Scan . SaAtom , IsImport := FALSE ) ;
-       *) 
+   Exports : /* Empty */ 
+     { EVAL FM3ExpImp . GetInterface
+              ( FM3Units . UnitStackTopRef ^ . UntUnitIdent
+              , FM3Scanner . Attribute . Position 
+              , IsExport := TRUE
+              ) ; 
      } .
 
    Exports : StkRwEXPORTS ExportPlus .
 
    ExportPlus : StkIdent
-     { EVAL FM3Extern . GetExternInterface
-              ( $1 . Scan . SaAtom , IsImport := FALSE ) ;
+     { EVAL
+         FM3ExpImp . GetInterface
+           ( $1 . Scan . SaChars , $1 . Scan . Position , IsExport := TRUE ) ;
      } .
 
    ExportPlus : ExportPlus StkComma StkIdent
-     { EVAL FM3Extern . GetExternInterface
-              ( $3 . Scan . SaAtom , IsImport := FALSE ) ;
+     { EVAL
+         FM3ExpImp . GetInterface
+           ( $3 . Scan . SaChars , $3 . Scan . Position , IsExport := TRUE ) ;
      } .
 
 (* ------------------------ Generic parameters ---------------------- . *)

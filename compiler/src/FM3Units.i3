@@ -17,6 +17,8 @@ INTERFACE FM3Units
 ; IMPORT FM3Atom_Text
 ; IMPORT FM3Base
 ; IMPORT FM3CLOptions
+; IMPORT FM3Dict_Int_Int 
+; IMPORT FM3OpenArray_Char
 ; IMPORT RdBackFile
 ; IMPORT VarArray_Int_Refany 
 
@@ -51,7 +53,9 @@ INTERFACE FM3Units
            , UsCompiling
            , UsCompiled
            , UsLoaded
-           } 
+           }
+
+
 
 ; PROCEDURE UnitKindImage ( Kind : UnitKindTyp ) : TEXT
 
@@ -67,7 +71,7 @@ INTERFACE FM3Units
       ; UntSrcUniRd : UniRd . T 
       ; UntLogSimpleName : TEXT := NIL 
       ; UntLogWrT : Wr . T := NIL
-      ; UntUnitIdentAtom : FM3Base . AtomTyp := FM3Base . AtomNull
+      ; UntUnitIdent : FM3OpenArray_Char . T 
       ; UntUnitIdentPos : FM3Base . tPosition 
       ; UntBuildDirPath : TEXT := NIL 
       (* ^Same for pass1 output, patch stack, and pass2 output files. *)  
@@ -99,10 +103,18 @@ INTERFACE FM3Units
           (* ^Wide TEXT literals. *)
       ; UntImportingUnitRef : UnitRefTyp
       ; UntImportingPosition : FM3Base . tPosition  
-      ; UntDeclMap : FM3Base . MapTyp := NIL
-      ; UntScopeMap : FM3Base . MapTyp := NIL 
-      ; UntScopeNo : FM3Base . ScopeNoTyp := FM3Base . ScopeNoNull 
+      ; UntDeclMap : FM3Base . MapTyp := NIL (* All the decls in this unit. *) 
+      ; UntScopeMap : FM3Base . MapTyp := NIL (* All the scopes in this unit. *)
+      ; UntExpImpDict : FM3Dict_Int_Int . GrowableTyp (* IdentAtom to Decl no. *)
+        (* Idents imported. *) 
+
+      ; UntExpImpScopeRef : FM3Base . ScopeRefTyp := NIL 
+        (* ^Atoms of idents [ex/im]ported into this unit. *)  
+      ; UntDeclScopeRef : FM3Base . ScopeRefTyp := NIL  
+        (* ^Atoms of idents declared in this unit.  These are disjoint from
+            those in UntExpImpScopeRef *)
       ; UntUnitNo : FM3Base . UnitNoTyp := FM3Base . UnitNoNull
+          (* ^Self-referential. *) 
       ; UntStackDepth : INTEGER 
       ; UntScanResult : INTEGER 
       ; UntParseResult : INTEGER 
@@ -118,7 +130,7 @@ INTERFACE FM3Units
 ; VAR UnitsAtomDict : FM3Atom_Text . T
 ; VAR UnitsAtomInitSize := 50
 ; VAR UnitsMap : VarArray_Int_Refany . T 
-    (* Only one UnitsMap in a compile. Maps Atom nums from the compile id map
+    (* Only one UnitsMap in a compile.  Maps Atoms from UnitsAtomDict
        into unit numbers.
     *) 
 

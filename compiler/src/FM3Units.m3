@@ -15,6 +15,7 @@ MODULE FM3Units
 ; IMPORT FM3Atom_Text  
 ; IMPORT FM3Base 
 ; IMPORT FM3Decls
+; IMPORT FM3Dict_Int_Int 
 ; IMPORT FM3Globals 
 ; IMPORT FM3Messages 
 ; IMPORT FM3Scopes
@@ -84,7 +85,9 @@ MODULE FM3Units
 
     ; LUnitNo := NextUnitNo
     ; INC ( NextUnitNo )
-
+(* TODO: Either complete the list of constant-initialized fields, or bite
+         nails and rely on the declaration.
+*) 
     ; LUnitRef ^ . UntStackLink := NIL 
     ; LUnitRef ^ . UntUnitNo := LUnitNo
     ; LUnitRef ^ . UntSrcFileSimpleName := NIL 
@@ -100,11 +103,15 @@ MODULE FM3Units
     ; LUnitRef ^ . UntMaxPass1OutLength := 0L 
     ; LUnitRef ^ . UntPass2OutSimpleName := NIL
     ; LUnitRef ^ . UntPass2OutRdBack := NIL
-    ; LUnitRef ^ . UntUnitIdentAtom := FM3Base . AtomNull
+    ; LUnitRef ^ . UntExpImpScopeRef := NIL 
+    ; LUnitRef ^ . UntDeclScopeRef := NIL 
+    ; LUnitRef ^ . UntUnitIdent := NIL 
     ; LUnitRef ^ . UntUnitIdentPos := FM3Base . PositionNull
     ; LUnitRef ^ . UntState := UnitStateTyp . UsNull
     ; LUnitRef ^ . UntUnsafe := FALSE 
-    ; LUnitRef ^ . UntInCycle := FALSE 
+    ; LUnitRef ^ . UntInCycle := FALSE
+    ; LUnitRef ^ . UntExpImpDict
+       := FM3Dict_Int_Int . NewGrowable ( 100 , NIL )
     ; LUnitRef ^ . UntIdentAtomDict 
         := FM3Atom_OAChars . New
              ( FM3Globals . IdentAtomInitSize
