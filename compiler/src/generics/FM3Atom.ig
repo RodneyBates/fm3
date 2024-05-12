@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023,       Rodney M. Bates.                                    *)
+(* Copyright 2023..2024  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -41,10 +41,13 @@ GENERIC INTERFACE FM3Atom ( DictGenformal )
     ; DoReverseMap : BOOLEAN 
     )
   : T 
-  (* A new, empty table of Key-value/atom pairs. 
-     InitSize is an initial estimate of the eventual number of Keys. 
-     New will expand Internal allocations as needed.
-  *)
+  (* A new, empty table of Key-value/atom pairs. *)
+  (* InitSize is an initial estimate of the eventual number of Keys. 
+     New will expand internal allocations if and when needed.  *)
+  (* You can use a hash function of your choice, but all Hash values 
+     passed to MakeAtom for a given table T must be computed 
+     consistently from the adjacent Key value by the same function.
+     If NOT DoReverseMap, procedure Key will always return FALSE. *) 
   
 ; PROCEDURE MakeAtom
     ( Dict : T
@@ -55,10 +58,16 @@ GENERIC INTERFACE FM3Atom ( DictGenformal )
   (* If Key is absent from Dict, assign a new atom value and 
      add a Key-to-atom entry to Dict.  Either way, return the 
      atom now associated with Key.  MakeAtom  will not return
-     FM3Base.AtomNull.  If NOT DoReverseMap, procedure Key will
-     always return FALSE. 
+     FM3Base.AtomNull.  
    *)
 
+; PROCEDURE LookupKey
+    ( AtomDict : T 
+    ; READONLY Key : KeyTyp  
+    ; Hash : FM3Base . HashTyp
+    )
+  : FM3Base . AtomTyp 
+  (* The atom associated with Key. FM3Base . AtomNull if not present *)
 
 ; PROCEDURE Key
     ( AtomDict : T ; Atom : FM3Base . AtomTyp ; VAR Value : KeyTyp )
