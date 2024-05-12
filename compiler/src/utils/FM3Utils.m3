@@ -105,7 +105,7 @@ MODULE FM3Utils
     ; FOR RI := 0 TO LLength - 1
       DO
         ContribToHash
-          ( (*IN OUT*) LResult , VAL ( ORD ( Key [ RI ] ) , HashTyp ) )  
+          ( (*IN OUT*) LResult , VAL ( ORD ( Key ^ [ RI ] ) , HashTyp ) )  
       END (*FOR*) 
     ; RETURN LResult 
     END HashOfOAChars 
@@ -122,7 +122,7 @@ MODULE FM3Utils
     ; FOR RI := 0 TO LLength - 1
       DO
         ContribToHash
-          ( (*IN OUT*) LResult , VAL ( ORD ( Key [ RI ] ) , HashTyp ) )  
+          ( (*IN OUT*) LResult , VAL ( ORD ( Key ^ [ RI ] ) , HashTyp ) )  
       END (*FOR*) 
     ; RETURN LResult 
     END HashOfOAWChars 

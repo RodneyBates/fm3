@@ -51,7 +51,8 @@ MODULE FM3Decls
   = BEGIN
       RETURN
         VarArray_Int_Refany . New
-          ( NIL , IntRanges . RangeTyp {  0 , InitDeclCt - 1 } ) 
+          ( NIL , IntRanges . RangeTyp {  0 , InitDeclCt - 1 } )
+(*TODO: Maybe, create a decl object for FM3Base.DeclNoNotUsable. *) 
     END NewDeclMap
 
 (*EXPORTED*) 

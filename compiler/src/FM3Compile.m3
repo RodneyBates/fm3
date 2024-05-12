@@ -39,7 +39,7 @@ MODULE  FM3Compile
 
 (*EXPORTED.*)
 ; PROCEDURE UnitOfFileName ( SrcFileName : TEXT ) : FM3Units . UnitRefTyp
-  (* POST: Result references a unit whose source file is named in
+  (* POST: Result, # NIL, references a unit whose source file is named in
            FM3Units . UnitsAtomDict, and has field UntSrcFileSimpleName set,
            both cases using the simple name taken from SrcFileName.
   *) 
@@ -111,15 +111,16 @@ MODULE  FM3Compile
     ; LDirSs := 0
     ; LOOP
         IF LDirSs >= LDirNumber
-        THEN
+        THEN (* No more directories to search. *) 
           FM3Messages . ErrorArr
             ( ARRAY OF REFANY
-                { " Unable to locate "
+                { "Unable to locate "
                 , Adjective
                 , "source file "
                 , UnitRef ^ . UntSrcFileSimpleName 
                 }
             )
+        ; UnitRef . UntState := Us . UsNotUsable
         ; ShowSrcSearchPathOnce ( ) 
         ; RETURN FALSE
         END (*IF*) 
@@ -147,7 +148,9 @@ MODULE  FM3Compile
         ; UnitRef ^ . UntSrcUniRd := LUniRdT
         ; UnitRef ^ . UntState := Us . UsExporting
         ; RETURN TRUE 
-        ELSE INC ( LDirSs ) 
+        ELSE
+          INC ( LDirSs )
+          (* And loop. *) 
         END (*IF*)
       END (*LOOP*) 
     END FindAndOpenUnitSrcFile 
@@ -294,6 +297,8 @@ MODULE  FM3Compile
     END CompileUnitFromSrc
 
 ; PROCEDURE CompileOrLoadCLUnit ( SrcFileName : TEXT )
+  (* Compile or load the top unit, as named on the command line. *) 
+
   = VAR LUnitRef : FM3Units . UnitRefTyp
 
   ; BEGIN 

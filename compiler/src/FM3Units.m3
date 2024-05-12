@@ -8,19 +8,21 @@
 
 MODULE FM3Units
 
-; IMPORT Text 
+; IMPORT Text
+
+; IMPORT IntSets 
 
 ; IMPORT FM3Atom_OAChars 
 ; IMPORT FM3Atom_OAWideChars 
 ; IMPORT FM3Atom_Text  
 ; IMPORT FM3Base 
 ; IMPORT FM3Decls
-; IMPORT FM3Dict_Int_IntPair
 ; IMPORT FM3Globals 
 ; IMPORT FM3Messages 
 ; IMPORT FM3Scopes
 ; IMPORT FM3Utils 
 ; IMPORT Ranges_Int
+; IMPORT VarArray_Int_ExpImpRef  
 ; IMPORT VarArray_Int_Refany 
 
 ; VAR NextUnitNo : INTEGER := 1
@@ -96,22 +98,19 @@ MODULE FM3Units
     ; LUnitRef ^ . UntPatchStackSimpleName := NIL
     ; LUnitRef ^ . UntPatchStackRdBack := NIL
     ; LUnitRef ^ . UntMaxPatchStackDepth := 0L 
-    ; LUnitRef ^ . UntImportingUnitRef := NIL 
-    ; LUnitRef ^ . UntImportingPosition := FM3Base . PositionNull  
+    ; LUnitRef ^ . UntUnitRefImporting := NIL 
+    ; LUnitRef ^ . UntPositionOfImport := FM3Base . PositionNull  
     ; LUnitRef ^ . UntPass1OutSimpleName := NIL
     ; LUnitRef ^ . UntPass1OutRdBack := NIL
     ; LUnitRef ^ . UntMaxPass1OutLength := 0L 
     ; LUnitRef ^ . UntPass2OutSimpleName := NIL
     ; LUnitRef ^ . UntPass2OutRdBack := NIL
-    ; LUnitRef ^ . UntExpImpScopeRef := NIL 
     ; LUnitRef ^ . UntDeclScopeRef := NIL 
     ; LUnitRef ^ . UntUnitIdent := NIL 
     ; LUnitRef ^ . UntUnitIdentPos := FM3Base . PositionNull
     ; LUnitRef ^ . UntState := UnitStateTyp . UsNull
     ; LUnitRef ^ . UntUnsafe := FALSE 
     ; LUnitRef ^ . UntInCycle := FALSE
-    ; LUnitRef ^ . UntExpImpDict
-       := FM3Dict_Int_IntPair . NewGrowable ( 100 , NIL )
     ; LUnitRef ^ . UntIdentAtomDict 
         := FM3Atom_OAChars . New
              ( FM3Globals . IdentAtomInitSize
@@ -123,7 +122,7 @@ MODULE FM3Units
         := FM3Atom_OAChars . New
              ( FM3Globals . NumberAtomInitSize
              , FM3Base . AtomFirstReal
-             , HashFunc := NIL
+             , HashFunc := FM3Utils . HashOfOAChars 
              , DoReverseMap := TRUE
              )
     ; LUnitRef ^ . UntCharsAtomDict 
@@ -141,7 +140,8 @@ MODULE FM3Units
              , DoReverseMap := TRUE
              )
     ; LUnitRef ^ . UntScopeMap
-        := FM3Scopes . NewScopeMap ( FM3Globals . InitScopeCtPerUnit ) 
+        := FM3Scopes . NewScopeMap ( FM3Globals . InitScopeCtPerUnit )
+    ; LUnitRef ^ . UntExpImpIdSet := IntSets . Empty ( ) 
     ; LUnitRef ^ . UntDeclMap 
         := FM3Decls . NewDeclMap ( FM3Globals . InitDeclCtPerUnit ) 
     ; LUnitRef ^ . UntNextDeclNo := 1
@@ -191,7 +191,7 @@ MODULE FM3Units
 
   = VAR LBeneathUnitRef : UnitRefTyp
 
-  ; BEGIN (*Push*)
+  ; BEGIN (*PushUnit*)
       IF UnitRef = NIL THEN RETURN END (*IF*) 
     ; <* ASSERT UnitRef . UntStackDepth = 0 *> (* Not already on stack. *)
       LBeneathUnitRef := UnitStackTopRef 

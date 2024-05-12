@@ -13,6 +13,7 @@ INTERFACE FM3Decls
 
 ; TYPE DeclKindTyp
     = { DkNull
+      , DkNotUsable 
       , DkDuplDecl
       , DkMod 
       , DkIntf 

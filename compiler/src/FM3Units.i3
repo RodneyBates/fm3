@@ -10,17 +10,18 @@ INTERFACE FM3Units
 
 ; IMPORT Wr
 
+; IMPORT IntSets 
 ; IMPORT UniRd 
+; IMPORT VarArray_Int_ExpImpRef  
+; IMPORT VarArray_Int_Refany 
 
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars
 ; IMPORT FM3Atom_Text
 ; IMPORT FM3Base
 ; IMPORT FM3CLOptions
-; IMPORT FM3Dict_Int_IntPair 
 ; IMPORT FM3OpenArray_Char
 ; IMPORT RdBackFile
-; IMPORT VarArray_Int_Refany 
 
 ; TYPE UnitKindTyp
          = { UkNull
@@ -48,6 +49,7 @@ INTERFACE FM3Units
 
 ; TYPE UnitStateTyp
          = { UsNull
+           , UsNotUsable 
            , UsExporting 
            , UsImporting 
            , UsCompiling
@@ -86,7 +88,8 @@ INTERFACE FM3Units
            patch stack is actually kept, decompressed, in UntPatchStackTopCoord,
            for easy access.  The token itself and its other operands are on the
            RdBackFile proper.  For deeper tokens, the coordinate is kept on top
-           of the token, opposite of the usual order, on top of its other operands. 
+           of the token, opposite of the usual order, on top of its other
+           operands. 
         *) 
       ; UntPass1OutSimpleName : TEXT := NIL
       ; UntPass1OutRdBack : RdBackFile . T := NIL
@@ -101,19 +104,19 @@ INTERFACE FM3Units
       ; UntCharsAtomDict : FM3Atom_OAChars . T := NIL (* TEXT literals. *) 
       ; UntWCharsAtomDict : FM3Atom_OAWideChars . T := NIL
           (* ^Wide TEXT literals. *)
-      ; UntImportingUnitRef : UnitRefTyp
-      ; UntImportingPosition : FM3Base . tPosition  
+      ; UntUnitRefImporting : UnitRefTyp
+        (* The unit this one is in process of [ex|im]porting. *) 
+      ; UntPositionOfImport : FM3Base . tPosition
+        (* Of the being-[ex|im]ported identifier. *) 
       ; UntDeclMap : FM3Base . MapTyp := NIL (* All the decls in this unit. *) 
       ; UntScopeMap : FM3Base . MapTyp := NIL (* All the scopes in this unit. *)
-      ; UntExpImpDict : FM3Dict_Int_IntPair . GrowableTyp
-          (* ^IdentAtom to Decl no. *)
-        (* Idents imported. *) 
-
-      ; UntExpImpScopeRef : FM3Base . ScopeRefTyp := NIL 
+      ; UntExpImpIdSet : IntSets . T 
         (* ^Atoms of idents [ex/im]ported into this unit. *)  
+      ; UntExpImpMap : VarArray_Int_ExpImpRef . T 
+          (* ^IdentAtom to ExpImpRef. *)
       ; UntDeclScopeRef : FM3Base . ScopeRefTyp := NIL  
-        (* ^Atoms of idents declared in this unit.  These are disjoint from
-            those in UntExpImpScopeRef *)
+        (* ^Contains Atoms of idents declared at the top level of this unit.
+            These are disjoint from those in UntExpImpIdSet *)
       ; UntUnitNo : FM3Base . UnitNoTyp := FM3Base . UnitNoNull
           (* ^Self-referential. *) 
       ; UntStackDepth : INTEGER 

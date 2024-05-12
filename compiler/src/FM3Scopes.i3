@@ -49,7 +49,6 @@ INTERFACE FM3Scopes
 (* CHECK ^ Is there any need for this? *) 
       ; ScpRefIdSet : IntSets . T (* IdentAtoms referenced within. *) 
       ; ScpDeclDict : FM3Dict_Int_Int . FixedTyp (* IdentAtom to Decl no. *)
-        (* ^ In the unique compilation scope, maps to a unit no. *) 
       ; ScpDeclCt : FM3Base . DeclNoTyp := FM3Base . DeclNoNull 
       ; ScpMinDeclNo := FM3Base . DeclNoNull
       ; ScpScopeNo : FM3Base . ScopeNoTyp (* A self-reference. *)
