@@ -47,7 +47,19 @@ INTERFACE FM3ExpImp
     ; IdScanAttribute : FM3Scanner . tScanAttribute
       (* ^Containing info about the to-be-imported identifier. *) 
     )
-  : BOOLEAN (* Success. *) 
+  : BOOLEAN (* Success. *)
+
+; PROCEDURE ImportIntfByIdent
+    ( FromUnitRef : FM3Units . UnitRefTyp
+    ; IdScanAttribute : FM3Scanner . tScanAttribute
+      (* ^Containing info about the to-be-imported identifier. *) 
+    )
+
+; PROCEDURE ImportAllDecls
+    ( FromUnitRef :  FM3Units . UnitRefTyp
+    ; IdScanAttribute : FM3Scanner . tScanAttribute
+      (* ^Containing info about the to-be-imported identifier. *) 
+    )
 
 ; END FM3ExpImp
 .

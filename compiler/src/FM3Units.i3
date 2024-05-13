@@ -57,8 +57,6 @@ INTERFACE FM3Units
            , UsLoaded
            }
 
-
-
 ; PROCEDURE UnitKindImage ( Kind : UnitKindTyp ) : TEXT
 
 ; PROCEDURE UnitKindSectionNo ( Kind : UnitKindTyp ) : TEXT

@@ -286,8 +286,11 @@ MODULE FM3ExpImp
           , IdScanAttribute . Position 
           )
           
-      (* Insert an import that is not useable, but duplicatable. *)
-      ; LIntoUnitRef := FM3Units . UnitStackTopRef  
+      (* Insert an import that is not checkable, but duplicatable. *)
+      ; LIntoUnitRef := FM3Units . UnitStackTopRef
+      (* If there's already a non-checkable there, this will just overlay it,
+         changing only the position, which will probably be unused anyway.
+      *) 
       ; LIntoIdentAtom
           := FM3Atom_OAChars . MakeAtom
                ( LIntoUnitRef ^ . UntIdentAtomDict
@@ -313,6 +316,61 @@ MODULE FM3ExpImp
             ) 
       END (*IF*) 
     END ImportDeclByIdent
+
+(*EXPORTED.*)
+; PROCEDURE ImportIntfByIdent
+    ( FromUnitRef : FM3Units . UnitRefTyp
+    ; IdScanAttribute : FM3Scanner . tScanAttribute
+      (* ^Containing info about the to-be-imported identifier. *) 
+    )
+
+  = VAR LIntoUnitRef : FM3Units . UnitRefTyp
+  ; VAR LIntoIdentAtom : FM3Base . AtomTyp  
+  ; VAR LRemoteDeclRef : FM3ExpImpRef . T 
+
+  ; BEGIN
+      IF FromUnitRef = NIL THEN RETURN END (*IF*)
+    ; IF IdScanAttribute . SaChars = NIL THEN RETURN END (*IF*)
+    ; LIntoUnitRef := FM3Units . UnitStackTopRef 
+    ; LIntoIdentAtom
+        := FM3Atom_OAChars . MakeAtom
+             ( LIntoUnitRef ^ . UntIdentAtomDict
+             , IdScanAttribute . SaChars
+             , IdScanAttribute . SaHash
+             )
+    ; LRemoteDeclRef . EirUnitNo := FromUnitRef . UntUnitNo  
+    ; LRemoteDeclRef . EirDeclNo  := FM3Base . DeclNoNull 
+    ; LRemoteDeclRef . EirPosition := IdScanAttribute . Position
+    ; LIntoUnitRef ^ . UntExpImpIdSet
+        := IntSets . Include 
+             ( LIntoUnitRef ^ . UntExpImpIdSet , LIntoIdentAtom )
+    ; VarArray_Int_ExpImpRef . Assign
+        ( LIntoUnitRef . UntExpImpMap , LIntoIdentAtom , LRemoteDeclRef )
+    END ImportIntfByIdent
+
+(*EXPORTED.*)
+; PROCEDURE ImportAllDecls
+    ( FromUnitRef :  FM3Units . UnitRefTyp
+    ; IdScanAttribute : FM3Scanner . tScanAttribute
+      (* ^Containing info about the to-be-imported identifier. *) 
+    )
+
+  = BEGIN
+      IF FromUnitRef = NIL THEN RETURN END (*IF*) 
+    ; WITH WScopeRef = FromUnitRef ^ . UntDeclScopeRef
+      DO IF WScopeRef = NIL THEN RETURN END (*IF*)
+      ; FOR RDeclNo := WScopeRef ^ . ScpMinDeclNo
+            TO WScopeRef ^ . ScpMinDeclNo + WScopeRef ^ . ScpDeclCt - 1
+        DO EVAL ImportDeclByNo
+             ( FromUnitRef 
+             , RDeclNo 
+             , IdScanAttribute . Position
+               (* ^Of the EXPORTS directive's identifier. *) 
+             , IsExport := TRUE
+             )
+        END (*FOR*)
+      END (*WITH*) 
+    END ImportAllDecls 
 
 ; BEGIN (*FM3ExpImp*)
   END FM3ExpImp
