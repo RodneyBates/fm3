@@ -211,12 +211,12 @@ MODULE FM3ExpImp
     ; VarArray_Int_ExpImpRef . Assign
         ( LIntoUnitRef . UntExpImpMap , LIntoIdentAtom , LRemoteDeclRef )
     ; RETURN TRUE 
-    END ImportDeclByNo 
+    END ImportDeclByNo
 
 (*EXPORTED.*)
 ; PROCEDURE ImportDeclByIdent
     ( FromUnitRef : FM3Units . UnitRefTyp
-    ; IdScanAttribute : FM3Scanner . tScanAttribute
+    ; READONLY IdScanAttribute : FM3Scanner . tScanAttribute
       (* ^Containing info about the to-be-imported identifier. *) 
     )
   : BOOLEAN (* Success. *) 
@@ -318,9 +318,9 @@ MODULE FM3ExpImp
     END ImportDeclByIdent
 
 (*EXPORTED.*)
-; PROCEDURE ImportIntfByIdent
+; PROCEDURE ImportIntfASIdent
     ( FromUnitRef : FM3Units . UnitRefTyp
-    ; IdScanAttribute : FM3Scanner . tScanAttribute
+    ; READONLY ASScanAttribute : FM3Scanner . tScanAttribute
       (* ^Containing info about the to-be-imported identifier. *) 
     )
 
@@ -330,28 +330,28 @@ MODULE FM3ExpImp
 
   ; BEGIN
       IF FromUnitRef = NIL THEN RETURN END (*IF*)
-    ; IF IdScanAttribute . SaChars = NIL THEN RETURN END (*IF*)
+    ; IF ASScanAttribute . SaChars = NIL THEN RETURN END (*IF*)
     ; LIntoUnitRef := FM3Units . UnitStackTopRef 
     ; LIntoIdentAtom
         := FM3Atom_OAChars . MakeAtom
              ( LIntoUnitRef ^ . UntIdentAtomDict
-             , IdScanAttribute . SaChars
-             , IdScanAttribute . SaHash
+             , ASScanAttribute . SaChars
+             , ASScanAttribute . SaHash
              )
     ; LRemoteDeclRef . EirUnitNo := FromUnitRef . UntUnitNo  
     ; LRemoteDeclRef . EirDeclNo  := FM3Base . DeclNoNull 
-    ; LRemoteDeclRef . EirPosition := IdScanAttribute . Position
+    ; LRemoteDeclRef . EirPosition := ASScanAttribute . Position
     ; LIntoUnitRef ^ . UntExpImpIdSet
         := IntSets . Include 
              ( LIntoUnitRef ^ . UntExpImpIdSet , LIntoIdentAtom )
     ; VarArray_Int_ExpImpRef . Assign
         ( LIntoUnitRef . UntExpImpMap , LIntoIdentAtom , LRemoteDeclRef )
-    END ImportIntfByIdent
+    END ImportIntfASIdent
 
 (*EXPORTED.*)
 ; PROCEDURE ImportAllDecls
     ( FromUnitRef :  FM3Units . UnitRefTyp
-    ; IdScanAttribute : FM3Scanner . tScanAttribute
+    ; READONLY IdScanAttribute : FM3Scanner . tScanAttribute
       (* ^Containing info about the to-be-imported identifier. *) 
     )
 
