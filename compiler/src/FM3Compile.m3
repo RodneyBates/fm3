@@ -76,7 +76,7 @@ MODULE  FM3Compile
   = BEGIN
       IF NOT SearchPathShown
       THEN 
-        FM3Messages . FM3LogArr
+        FM3Messages . ErrorArr
           ( ARRAY OF REFANY
               { "Search directories for source files are:"
               , FM3CLOptions . SrcDirMsg 

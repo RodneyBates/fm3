@@ -183,17 +183,17 @@ MODULE FM3CLArgs
   ; VAR LResult : TEXT 
 
   ; BEGIN
-      LWrT := TextWr . New ( ) 
-    ; IF List # NIL
-      THEN 
-        FOR RI := FIRST ( List ^ ) TO LAST ( List ^ )
+      IF List = NIL OR NUMBER ( List ^ ) <= 0  
+      THEN LResult := "<empty>"
+      ELSE 
+        LWrT := TextWr . New ( ) 
+      ; FOR RI := FIRST ( List ^ ) TO LAST ( List ^ )
         DO
           Wr . PutText ( LWrT , FM3Messages . NLIndent ) 
         ; Wr . PutText ( LWrT , List ^ [ RI ] ) 
         END (*FOR*)
+      ; LResult := TextWr . ToText ( LWrT )
       END (*IF*) 
-    ; Wr . PutText ( LWrT , Wr . EOL ) 
-    ; LResult := TextWr . ToText ( LWrT )
     ; RETURN LResult 
     END DerivedDirsMsg 
 

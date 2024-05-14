@@ -155,7 +155,7 @@ MODULE FM3Messages
   ; BEGIN
       LMsg := FM3SharedUtils . CatArrT ( Frags , GFM3LabelT ) 
     ; TRY (*EXCEPT*)
-        PutStdErr ( LMsg ) 
+        PutStdOut ( LMsg ) 
       ; PutFM3Log ( LMsg ) 
       EXCEPT Thread . Alerted => END (*EXCEPT*) 
     END FM3LogArr
@@ -306,7 +306,7 @@ MODULE FM3Messages
 
   ; BEGIN
       LMsg := CodeMsgText ( Pos , GErrorLabel , Frags ) 
-    ; PutStdOut ( LMsg ) 
+    ; PutStdErr ( LMsg ) 
     ; PutUnitLog ( LMsg ) 
     END ErrorArr
 
