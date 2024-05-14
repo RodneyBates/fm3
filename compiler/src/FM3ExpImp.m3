@@ -351,8 +351,7 @@ MODULE FM3ExpImp
 (*EXPORTED.*)
 ; PROCEDURE ImportAllDecls
     ( FromUnitRef :  FM3Units . UnitRefTyp
-    ; READONLY IdScanAttribute : FM3Scanner . tScanAttribute
-      (* ^Containing info about the to-be-imported identifier. *) 
+    ; READONLY Position : FM3Base . tPosition
     )
 
   = BEGIN
@@ -364,7 +363,7 @@ MODULE FM3ExpImp
         DO EVAL ImportDeclByNo
              ( FromUnitRef 
              , RDeclNo 
-             , IdScanAttribute . Position
+             , Position
                (* ^Of the EXPORTS directive's identifier. *) 
              , IsExport := TRUE
              )

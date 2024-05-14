@@ -285,26 +285,20 @@ RULE
    Compilation : InstInterface . 
    Compilation : InstModule .
 
+(*
    UnitId : StkIdent
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN
-(*
-         $$ . PaAtom  
-           := FM3Atom_OAChars . MakeAtom 
-                ( FM3Units . UnitsAtomDict , $2 . SaChars , $2 . SaHash ) ; 
          $$ . Scan . Position := $1 . Scan . Position ;
-         FM3Units . UnitStackTopRef ^ . UntUnitIdentAtom := $$ . PaAtom ; *) 
          LScopeRef
            := FM3Scopes . NewScopeRef
                 ( FM3Units . UnitStackTopRef
                 , Skt . SkModule
-                , FM3Scanner . Attribute . Position
+                , $1 . Scan . Position
                 ) ;
          FM3Units . UnitStackTopRef ^ . UntDeclScopeRef := LScopeRef ; 
        END ; 
      } .
-
-   
        
    ImpliedExports : /* Empty */ 
      { EVAL FM3ExpImp . GetInterface
@@ -333,7 +327,7 @@ RULE
      { $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
        $$ . Scan . Position := $1 . Scan . Position ;
      } .
-
+*)
 
 
    InterfaceKind : /*Empty*/ 
@@ -379,7 +373,7 @@ RULE
          ( FM3Units . UnitStackTopRef , $5 . Scan , Ukt . UkInstInterface ) ; 
      } . 
 
-   InterfaceMiddle : InterfaceLt StkSemicolon Imports 
+   InterfaceMiddle : InterfaceLt StkSemicolon ImportList 
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN
          FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInterface ; 
@@ -440,7 +434,7 @@ RULE
          ( FM3Units . UnitStackTopRef , $5 . Scan , Ukt . UkInstModule ) ; 
      } . 
 
-   ModuleMiddle : ModuleLt Exports StkSemicolon Imports 
+   ModuleMiddle : ModuleLt Exports StkSemicolon ImportList 
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN
          LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
@@ -499,7 +493,7 @@ RULE
 
    GenInterface :
        GenInterfaceLt GenInterfaceKind GenFormalList
-       StkSemicolon Imports BlockDeclList StkRwEND StkIdent StkDot 
+       StkSemicolon ImportList BlockDeclList StkRwEND StkIdent StkDot 
      { (* Scope ref:
         FM3Pass1 . PutBwd_LI ( Itk . ItkDeclScopeLt , $1 . PaConstructNo ) ;
        *)
@@ -528,7 +522,7 @@ RULE
 
    GenModule :
        GenModuleLt GenModuleKind GenFormalList
-       StkSemicolon Imports Block StkIdent StkDot 
+       StkSemicolon ImportList Block StkIdent StkDot 
      { (* scope ref
           FM3Pass1 . PutBwd_LI ( Itk . ItkDeclScopeLt , $1 . PaConstructNo ) ;
        *) 
@@ -631,140 +625,105 @@ RULE
 
 (*  ----------------------------- Imports -----------------------. *) 
 
-   Imports : ImportsLt ImportsRecurse ImportsRt 
-     { $$ . PaInt := $2 . PaInt (* Imported interface Count. *) ;
-       $$ . PaLong := $2 . PaLong (* Imported unqualified Ident Count. *) ;
+   ImportList : /*Empty*/ . 
+
+   ImportList : ImportList Import .
+     
+   (* ASImport *) 
+   Import : StkRwIMPORT ImportItemPlusList StkSemicolon .
+     
+   ImportItemPlusList : ImportItem .
+   ImportItemPlusList : ImportItemPlusList StkComma ImportItem . 
+
+   ImportItem : StkIdent 
+     { VAR LUnitRef : FM3Units . UnitRefTyp ;
+       BEGIN
+         LUnitRef
+           := FM3ExpImp . GetInterface
+                ( $1 . Scan . SaChars
+                , $1 . Scan . Position
+                , IsExport := FALSE
+                ) ;
+         FM3ExpImp . ImportIntfASIdent ( LUnitRef , $1 . Scan ) ;
+         Pop4 ( ) ; 
+       END (* Block *) 
      } .
-   ImportsLt : /*Empty*/ { FM3Pass1 . ImportsLt ( ) ; } . 
-   ImportsRt : /*Empty*/ { FM3Pass1 . ImportsRt ( ) ; } . 
-   ImportsRecurse : ImportsRecurse ImportItem  
-     { $$ . PaInt := $1 . PaInt + $2 . PaInt ;
-       $$ . PaLong := $1 . PaLong + $2 . PaLong ;
+     
+   ImportItem : StkIdent StkRwAS StkIdent  
+     { VAR LUnitRef : FM3Units . UnitRefTyp ;
+       BEGIN
+         LUnitRef
+           := FM3ExpImp . GetInterface
+                ( $1 . Scan . SaChars
+                , $1 . Scan . Position
+                , IsExport := FALSE
+                ) ;
+         FM3ExpImp . ImportIntfASIdent ( LUnitRef , $3 . Scan ) ; 
+         Pop8 ( ) ; 
+       END (* Block *) 
      } .
-   ImportsRecurse : /*Empty*/
-     { $$ . PaInt := 0; 
-       $$ . PaLong := 0L; 
+     
+   (* FROM Id IMPORT ... *)
+   FromImportLt : StkRwFROM StkIdent StkRwIMPORT
+     { $$ . PaRefany 
+         := FM3ExpImp . GetInterface
+              ( $2 . Scan . SaChars
+              , $2 . Scan . Position
+              , IsExport := FALSE
+              ) ;
+       Pop4 ( ) ; 
+     } . 
+ 
+   Import : FromImportLt FromImportIdPlusList StkSemicolon . 
+
+   FromImportIdPlusList : StkIdent
+     { EVAL FM3ExpImp . ImportDeclByIdent
+              ( $0 . PaRefany (* Implied NARROW *) , $1 . Scan ) ; 
+       Pop4 ( ) ;
+     } . 
+   
+   FromImportIdPlusList : FromImportPlusList StkComma StkIdent
+     { <* ASSERT $0 . PaRefany # NIL *>
+       EVAL FM3ExpImp . ImportDeclByIdent
+              ( $0 . PaRefany (* Implied NARROW *) , $3 . Scan ) ; 
+       Pop4 ( ) ;
      } . 
 
-   (* IMPORT .. *) 
-   ImportItem : StkRwIMPORT ImportIntfPlusList StkSemicolon  
-     { $$ . PaInt := $2 . PaInt ;
-       $$ . PaLong := 0L ; 
-     } .
-   ImportIntfPlusList : StkIdent 
-     { $$ . PaInt := 1 ;
-       FM3Pass1 . Import
-         ( $1 . Scan . SaAtom , $1 . Scan . Position ) ; 
-       Pop4 ( ) (* Replace the Ident with an ItkImport. *) ; 
-       FM3Pass1 . PutBwd_LI3
-         ( Itk . ItkImport
-         , $1 . Scan . SaAtom
-         , $1 . Scan . Position . Line
-         , $1 . Scan . Position . Column
-         ) ;
-     } . 
-   ImportIntfPlusList : ImportIntfPlusList StkComma StkIdent
-     { $$ . PaInt := $1 . PaInt + 1 ;
-       Pop4 ( ) (* Replace the Ident with an ItkImport. *) ; 
-       FM3Pass1 . Import
-         ( $3 . Scan . SaAtom , $3 . Scan . Position ) ; 
-       FM3Pass1 . PutBwd_LI3
-         ( Itk . ItkImport
-         , $3 . Scan . SaAtom
-         , $3 . Scan . Position . Line
-         , $3 . Scan . Position . Column
-         ) ;
-     } . 
-
-   (* FROM Id IMPORT ... *) 
-   ImportItem : FromImportPlusList StkSemicolon 
-     { $$ . PaInt := $1 . PaInt ;
-       $$ . PaLong := $1 . PaLong ; 
-     } .
-   FromImportPlusList : StkRwFROM IdentRef StkRwIMPORT StkIdent
-     { $$ . PaInt := 1 (* InterfaceCt. *) ;
-       $$ . PaLong := 1L ;
-       $$ . Scan . SaAtom := $2 . Scan . SaAtom ; 
-       $$ . Scan . Position := $2 . Scan . Position ; 
-       FM3Pass1 . FromImport
-         ( $2 . Scan . SaAtom
-         , $2 . Scan . Position 
-         , $4 . Scan . SaAtom
-         , $4 . Scan . Position 
-         ) ; 
-       Pop8 ( ) (* Replace the 2 Idents with an ItkFromImport. *) ; 
-       FM3Pass1 . PutBwd_LI6
-         ( Itk . ItkFromImport
-           (* Interface operands on left, then Decl ID items on Right. *) 
-         , $2 . Scan . SaAtom
-         , $2 . Scan . Position . Line
-         , $2 . Scan . Position . Column
-         , $4 . Scan . SaAtom
-         , $4 . Scan . Position . Line
-         , $4 . Scan . Position . Column
-         ) ;
-     } . 
-   FromImportPlusList : FromImportPlusList StkComma IdentRef
-     { $$ . PaInt := 1 ;
-       $$ . PaLong := $1 . PaLong + 1L ;
-       $$ . Scan . SaAtom := $1 . Scan . SaAtom ; 
-       $$ . Scan . Position := $1 . Scan . Position ; 
-       FM3Pass1 . FromImport
-         ( $1 . Scan . SaAtom
-         , $1 . Scan . Position 
-         , $3 . Scan . SaAtom
-         , $3 . Scan . Position 
-         ) ; 
-       Pop4 ( ) (* Replace the Ident with an ItkFromImport. *) ;
-       FM3Pass1 . PutBwd_LI6
-         ( Itk . ItkFromImport
-           (* Interface operands on left, then Decl ID items on Right. *) 
-         , $1 . Scan . SaAtom
-         , $1 . Scan . Position . Line
-         , $1 . Scan . Position . Column
-         , $3 . Scan . SaAtom
-         , $3 . Scan . Position . Line
-         , $3 . Scan . Position . Column
-         ) ;
-     } . 
-
-(* IMPORT Id AS Id; *)
-(*
-   ImportItem : StkRwFROM IdentRef StkRwIMPORT IdPlusList StkSemicolon 
-     { $$ . PaInt := 1 ;
-       $$ . PaLong := VAL ( $4 . PaInt (* IdPlusList Ct. *) , LONGINT ) ;
-       FM3Pass1 . PutBwd_LCIeCri
-         ( Itk . ItkImportAsLt
-         , $1 . PaPass1Coord
-         , $4 . PaInt
-         , $3 . PaPass1Coord
-         );
-     } .
-*)
 (* ------------------------------- Exports ------------------------- . *)
 
-(* Exports are handled directly, without writing internal tokens. *)
+(* Exports are handled directly in pass 1, without writing internal tokens. *)
 
    Exports : /* Empty */ 
-     { EVAL FM3ExpImp . GetInterface
-              ( FM3Units . UnitStackTopRef ^ . UntUnitIdent
-              , FM3Scanner . Attribute . Position 
-              , IsExport := TRUE
-              ) ; 
+     { VAR LUnitRef : FM3Units . UnitRefTyp ;
+       BEGIN
+          LUnitRef
+            := FM3ExpImp . GetInterface 
+                 ( FM3Units . UnitStackTopRef ^ . UntUnitIdent
+                 , FM3Scanner . Attribute . Position 
+                 , IsExport := TRUE
+                 ) ;
+         FM3ExpImp . ImportAllDecls
+           ( LUnitRef , FM3Scanner . Attribute . Position ) ;
+       END (* Block. *) ;  
      } .
 
    Exports : StkRwEXPORTS ExportPlus .
 
-   ExportPlus : StkIdent
-     { EVAL
-         FM3ExpImp . GetInterface
-           ( $1 . Scan . SaChars , $1 . Scan . Position , IsExport := TRUE ) ;
-     } .
+   ExportPlus : StkExportIdent . 
 
-   ExportPlus : ExportPlus StkComma StkIdent
-     { EVAL
-         FM3ExpImp . GetInterface
-           ( $3 . Scan . SaChars , $3 . Scan . Position , IsExport := TRUE ) ;
+   ExportPlus : ExportPlus StkComma ExportIdent . 
+
+   ExportIdent : StkIdent 
+     { VAR LUnitRef : FM3Units . UnitRefTyp ;
+       BEGIN
+          LUnitRef
+            := FM3ExpImp . GetInterface
+                 ( $1 . Scan . SaChars
+                 , $1 . Scan . Position
+                 , IsExport := TRUE
+                 ) ;
+         FM3ExpImp . ImportAllDecls ( LUnitRef , $1 . Scan . Position ) ;
+       END (* Block. *) ;  
      } .
 
 (* ------------------------ Generic parameters ---------------------- . *)

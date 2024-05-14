@@ -576,7 +576,9 @@ MODULE FM3Pass1
     ; LNameFromFileName := UnitNameTFromFileName ( UnitRef ) 
     ; IF LNameFromFileName = NIL THEN RETURN END (*IF*) 
     ; IF NOT Text . Equal
-             ( Text . FromChars ( UnitRef ^ . UntUnitIdent ^ ) , LNameFromFileName ) 
+             ( Text . FromChars ( UnitRef ^ . UntUnitIdent ^ )
+             , LNameFromFileName
+             ) 
       THEN
         FM3Messages . ErrorArr
           ( ARRAY OF REFANY
@@ -607,13 +609,15 @@ MODULE FM3Pass1
     ; LNameFromFileName := UnitNameTFromFileName ( UnitRef ) 
     ; IF LNameFromFileName = NIL THEN RETURN END (*IF*) 
     ; IF NOT Text . Equal
-             ( Text . FromChars ( UnitRef ^ . UntUnitIdent ^ ) , LNameFromFileName ) 
+               ( Text . FromChars ( UnitRef ^ . UntUnitIdent ^ )
+               , LNameFromFileName
+               ) 
       THEN
         FM3Messages . InfoArr
           ( ARRAY OF REFANY
               { "Module name \""
               , UnitRef ^ . UntUnitIdent  
-              , "\" does not match file name \""
+              , "\" is not consistent with file name \""
               , UnitRef ^ . UntSrcFileSimpleName
               , "\"." 
               }
@@ -629,13 +633,10 @@ MODULE FM3Pass1
     ; UnitKind : FM3Units . UnitKindTyp
     )
     
-  = VAR LEndIdT : TEXT
-
-  ; BEGIN (* CheckUnitFinalId *)
+  = BEGIN (* CheckUnitFinalId *)
       IF UnitRef = NIL THEN RETURN END (*IF*) 
     ; IF UnitRef ^ . UntUnitIdent = NIL THEN RETURN END (*IF*) 
     ; IF EndIdScanAttribute . SaChars = NIL THEN RETURN END (*IF*)
-    ; LEndIdT := Text . FromChars ( EndIdScanAttribute . SaChars ^ ) 
     ; IF EndIdScanAttribute . SaChars ^ # UnitRef ^ . UntUnitIdent ^   
       THEN
         FM3Messages . ErrorArr
@@ -644,7 +645,7 @@ MODULE FM3Pass1
               , FM3Units . UnitKindImage ( UnitKind )
               , " \""
               , UnitRef ^ . UntUnitIdent 
-              , "\", at " 
+              , "\", named at " 
               , PosImage ( UnitRef ^ . UntUnitIdentPos )  
               , " must repeat its name ("
               , FM3Units . UnitKindSectionNo ( UnitKind )
@@ -1708,18 +1709,21 @@ MODULE FM3Pass1
     ; PutBwdInt ( TokLt + Itk . LtToPatch )
     END MakeListPos 
 
+(* REMOVEME:*) 
 (*EXPORTED:*)
 ; PROCEDURE ImportsLt (  )
 
   = BEGIN (*ImportsLt*)
     END ImportsLt
       
+(* REMOVEME:*) 
 (*EXPORTED:*)
 ; PROCEDURE ImportsRt (  )
 
   = BEGIN (*ImportsRt*)
     END ImportsRt
       
+(* REMOVEME:*) 
 (*EXPORTED:*)
 ; PROCEDURE Import
     ( Atom : FM3Base . AtomTyp
