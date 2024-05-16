@@ -87,7 +87,8 @@ MODULE RdBackFile
    RbBlockNextIn-1 is the subscript of the next byte to be removed, but
    analogous to the above, it can be one to the left of the beginning of
    RbBuffer, i.e., -1, with an analogous requirement to flush and change
-   the block to the left, should a GetBwd occur in this state.
+   the block to the left, should a GetBwd occur in this state. Thus there
+   is hysteresis, avoiding rapid jitter in block-shifting.
 *)
 
 ; VAR GDoStderr := TRUE 

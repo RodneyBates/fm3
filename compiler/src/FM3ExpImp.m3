@@ -99,7 +99,7 @@ MODULE FM3ExpImp
     ; IF NUMBER ( IdentChars ^ ) = 0 THEN RETURN NIL END (*IF*)
     ; LSrcFileName
         := Pathname . Join
-             ( NIL , Text . FromChars ( IdentChars ^ ) , ".i3" ) 
+             ( NIL , Text . FromChars ( IdentChars ^ ) , "i3" ) 
     ; LIntfUnitRef := FM3Compile . UnitOfFileName ( LSrcFileName )  
     ; IF LIntfUnitRef . UntState = Us . UsNull 
       THEN (* Haven't seen this unit yet. *)

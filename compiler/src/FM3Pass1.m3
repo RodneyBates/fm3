@@ -1553,11 +1553,19 @@ MODULE FM3Pass1
 
   = BEGIN (*Pop4*)
       WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
-      DO 
-        EVAL GetBwd ( WRdBack ) 
-      ; EVAL GetBwd ( WRdBack ) 
-      ; EVAL GetBwd ( WRdBack )
-      ; EVAL GetBwd ( WRdBack ) 
+      DO
+        TRY 
+          EVAL GetBwd ( WRdBack ) 
+        ; EVAL GetBwd ( WRdBack ) 
+        ; EVAL GetBwd ( WRdBack )
+        ; EVAL GetBwd ( WRdBack )
+        EXCEPT RdBackFile . BOF
+        => FM3Messages . FatalArr
+            ( ARRAY OF REFANY
+                { "Pass 1 output file popped when already empty. " } 
+            , FM3Scanner . Attribute . Position 
+            ) 
+        END (*EXCEPT*) 
       END (*WITH*) 
     END Pop4
       
@@ -1567,14 +1575,22 @@ MODULE FM3Pass1
   = BEGIN (*Pop4*)
       WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
       DO 
-        EVAL GetBwd ( WRdBack ) 
-      ; EVAL GetBwd ( WRdBack ) 
-      ; EVAL GetBwd ( WRdBack )
-      ; EVAL GetBwd ( WRdBack ) 
-      ; EVAL GetBwd ( WRdBack )
-      ; EVAL GetBwd ( WRdBack ) 
-      ; EVAL GetBwd ( WRdBack )
-      ; EVAL GetBwd ( WRdBack ) 
+        TRY 
+          EVAL GetBwd ( WRdBack ) 
+        ; EVAL GetBwd ( WRdBack ) 
+        ; EVAL GetBwd ( WRdBack )
+        ; EVAL GetBwd ( WRdBack ) 
+        ; EVAL GetBwd ( WRdBack )
+        ; EVAL GetBwd ( WRdBack ) 
+        ; EVAL GetBwd ( WRdBack )
+        ; EVAL GetBwd ( WRdBack ) 
+        EXCEPT RdBackFile . BOF
+        => FM3Messages . FatalArr
+            ( ARRAY OF REFANY
+                { "Pass 1 output file popped when already empty. " } 
+            , FM3Scanner . Attribute . Position 
+            ) 
+        END (*EXCEPT*) 
       END (*WITH*) 
     END Pop8
 

@@ -96,8 +96,6 @@ INTERFACE FM3Messages
     ( READONLY Frags : ARRAY OF REFANY ; Pos := FM3Base . PositionNull ) 
   RAISES { Thread . Alerted } 
 
-; VAR xxUnitLogWrT : Wr . T := NIL 
-
 ; PROCEDURE PutPositionImage ( WrT : Wr . T ; Pos : FM3Base . tPosition )
 
 ; PROCEDURE StartUnit

@@ -142,37 +142,43 @@ MODULE FM3CLArgs
       LCt := IntSets . Card ( DirsSet )
     ; LArrRef := NEW ( REF ARRAY OF TEXT , LCt )
     ; LNextIn := 0
-    ; LDir := DirsList 
-    ; WHILE LDir # NIL
-      DO IF IntSets . IsElement ( LDir ^ . Atom , DirsSet )
-        THEN
-          <* ASSERT FM3Atom_Text . Key
-               ( DirsAtomDict , LDir ^ . Atom , (*OUT*) LDirName )
-          *>
-          LIsGoodDir := TRUE 
-        ; TRY
-            IF FS . Status ( LDirName ) . type # FS . DirectoryFileType
-            THEN LIsGoodDir := FALSE
-            END (*IF*) 
-          EXCEPT OSError . E
-          => LIsGoodDir := FALSE  
-          END (*EXCEPT*) 
-        ; IF LIsGoodDir
-          THEN 
-            LArrRef ^ [ LNextIn ] := LDirName
-          ; INC ( LNextIn )
-          END (*IF*) 
-        ; DirsSet := IntSets . Exclude ( DirsSet , LDir ^ . Atom ) 
-        END (*IF*)
-      ; LDir := LDir ^ . Link 
-      END (*WHILE*)
-    ; <* ASSERT IntSets . IsEmpty ( DirsSet ) *>
-      LEmptyCt := LCt - LNextIn 
-    ; IF LEmptyCt > 0 
+    ; LDir := DirsList
+    ; IF LDir = NIL
       THEN
-        LArrRefLong := LArrRef
-      ; LArrRef := NEW ( REF ARRAY OF TEXT , LNextIn )
-      ; LArrRef ^ := SUBARRAY ( LArrRefLong ^ , 0 , LNextIn )
+        LArrRef := NEW ( REF ARRAY OF TEXT , 1 )
+      ; LArrRef ^ [ 0 ] := "." 
+      ELSE 
+        WHILE LDir # NIL
+        DO IF IntSets . IsElement ( LDir ^ . Atom , DirsSet )
+          THEN
+            <* ASSERT FM3Atom_Text . Key
+                 ( DirsAtomDict , LDir ^ . Atom , (*OUT*) LDirName )
+            *>
+            LIsGoodDir := TRUE 
+          ; TRY
+              IF FS . Status ( LDirName ) . type # FS . DirectoryFileType
+              THEN LIsGoodDir := FALSE
+              END (*IF*) 
+            EXCEPT OSError . E
+            => LIsGoodDir := FALSE  
+            END (*EXCEPT*) 
+          ; IF LIsGoodDir
+            THEN 
+              LArrRef ^ [ LNextIn ] := LDirName
+            ; INC ( LNextIn )
+            END (*IF*) 
+          ; DirsSet := IntSets . Exclude ( DirsSet , LDir ^ . Atom ) 
+          END (*IF*)
+        ; LDir := LDir ^ . Link 
+        END (*WHILE*)
+      ; <* ASSERT IntSets . IsEmpty ( DirsSet ) *>
+        LEmptyCt := LCt - LNextIn 
+      ; IF LEmptyCt > 0 
+        THEN
+          LArrRefLong := LArrRef
+        ; LArrRef := NEW ( REF ARRAY OF TEXT , LNextIn )
+        ; LArrRef ^ := SUBARRAY ( LArrRefLong ^ , 0 , LNextIn )
+        END (*IF*)
       END (*IF*) 
     ; RETURN LArrRef 
     END DerivedDirs
@@ -189,8 +195,10 @@ MODULE FM3CLArgs
         LWrT := TextWr . New ( ) 
       ; FOR RI := FIRST ( List ^ ) TO LAST ( List ^ )
         DO
-          Wr . PutText ( LWrT , FM3Messages . NLIndent ) 
+          Wr . PutText ( LWrT , FM3Messages . NLIndent )
+        ; Wr . PutChar ( LWrT , '\"' ) 
         ; Wr . PutText ( LWrT , List ^ [ RI ] ) 
+        ; Wr . PutChar ( LWrT , '\"' ) 
         END (*FOR*)
       ; LResult := TextWr . ToText ( LWrT )
       END (*IF*) 

@@ -125,10 +125,8 @@ MODULE  FM3Compile
         ; RETURN FALSE
         END (*IF*) 
       ; LSearchDir
-          := Pathname . Prefix
-               ( FM3SharedUtils . AbsFileName
-                   ( FM3CLOptions . SrcDirList ^ [ LDirNumber ] )
-               )
+          := FM3SharedUtils . AbsFileName
+               ( FM3CLOptions . SrcDirList ^ [ LDirSs ] )
       ; LUniRdT := NIL 
       ; TRY 
           LUniRdT
@@ -139,7 +137,7 @@ MODULE  FM3Compile
                  , NIL
                  )
         EXCEPT
-        | OSError . E ( EMsg )
+        | OSError . E ( EMsg ) (* This can't happen. *) 
           => LUniRdT := NIL 
         END (*EXCEPT*)
       ; IF LUniRdT # NIL

@@ -73,23 +73,13 @@ MODULE FM3Files
     ; TRY 
        LRdT := FileRd . Open ( LFullFileName ) 
       EXCEPT
-      | OSError . E ( EMsg ) 
-      => FM3Messages . FatalArr
-           ( ARRAY OF REFANY
-               { "Unable to open "
-               , Note1
-               , Note2
-               , " \""
-               , LFullFileName
-               , "\": OSError.E("
-               , EMsg 
-               , ")."
-               } 
-           ) 
+      | OSError . E ( EMsg )
+      => LRdT := NIL 
       END (*EXCEPT*)
-
-(*TODO: Use FM3SharedUtils.OpenRd for above. *)
-    ; LResult := UniRd . New ( LRdT , SrcEnc )
+    ; IF LRdT = NIL
+      THEN LResult := NIL
+      ELSE LResult := UniRd . New ( LRdT , SrcEnc )
+      END (*IF*) 
     ; RETURN LResult 
     END OpenUniRd
 

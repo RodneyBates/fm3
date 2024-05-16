@@ -913,6 +913,7 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
   = VAR LPatchFullFileName : TEXT
   ; VAR LPass2FullFileName : TEXT 
   ; VAR LPass2FullCopyName : TEXT
+  ; VAR LLengthImage : TEXT
   ; VAR LLengthL : LONGINT 
 
   ; BEGIN (*FinishPass2*)
@@ -945,24 +946,18 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
               , FM3Base . Int64Image  ( UnitRef ^ . UntMaxPatchStackDepth )
               , " bytes."
             } 
-        ) 
-    ; IF NOT LLengthL 
-             <= UnitRef ^ . UntPatchStackEmptyCoord 
+        )
+    ; LLengthImage := FM3Base . Int64Image ( LLengthL ) 
+    ; IF LLengthL # UnitRef ^ . UntPatchStackEmptyCoord 
       THEN
         UnitRef . UntPass2Result := FM3CLArgs . CcPatchStackNotEmpty  
       ; DisAsmPass2 ( UnitRef , DoEarlierPasses := TRUE )
-      ; FM3Messages . FM3LogArr
-          ( ARRAY OF REFANY
-              { "Patch stack " 
-              , UnitRef ^ . UntPatchStackSimpleName
-              , " final size = "
-              , FM3Base . Int64Image
-                  ( RdBackFile . LengthL ( UnitRef ^ . UntPatchStackRdBack ) )
-              }
-          ) 
+      ; LLengthImage := FM3Base . Int64Image ( LLengthL ) 
       ; FM3Messages . FatalArr
           ( ARRAY OF REFANY
-              { "Patch stack is not sufficiently empty, should be "  
+              { "Patch stack ending size = "
+              , LLengthImage
+              , "bytes, should be "  
               , FM3Base . Int64Image ( UnitRef ^ . UntPatchStackEmptyCoord )
               , "." 
               } 
@@ -978,18 +973,12 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
       THEN
         UnitRef . UntPass2Result := FM3CLArgs . CcPass1OutNotEmpty  
       ; DisAsmPass2 ( UnitRef , DoEarlierPasses := TRUE )
-      ; FM3LogArr
-          ( ARRAY OF REFANY
-              { "Pass 1 output file "
-              , UnitRef ^ . UntPass1OutSimpleName
-              , " final size = "
-              , FM3Base . Int64Image ( LLengthL )
-              , " bytes."
-              } 
-          )
+      ; LLengthImage := FM3Base . Int64Image ( LLengthL ) 
       ; FatalArr
           ( ARRAY OF REFANY
-              { "Pass 1 output file is not sufficiently empty, should be "
+              { "Pass 1 output file final size = "
+              , LLengthImage
+              , ", should be "
               , FM3Base . Int64Image ( UnitRef ^ . UntPass1OutEmptyCoord )
               , "."
               }
