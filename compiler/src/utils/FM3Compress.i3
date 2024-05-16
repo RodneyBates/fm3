@@ -8,7 +8,7 @@
 
 INTERFACE FM3Compress 
 
-(* Reading and writing, to/from a RdBackFile.T,  a stream of 64-bit words,
+(* Reading and writing, to/from a RdBackFile.T, a stream of 64-bit words,
    using a simple compression technique favoring values that, if viewed as
    64-bit integers, have smaller absolute values. *) 
 
@@ -33,7 +33,10 @@ INTERFACE FM3Compress
 
 ; PROCEDURE PutBwd ( File : RdBackFile . T ; ValueL : LONGINT )
   RAISES { OSError . E } 
-  (* Write compressed bytes to File, in most- to least-significant order. *)
+  (* Write compressed bytes to File, in most- to least-significant order.
+     This is backwards, but sets it up so later reading of the file backwards
+     will see them forwards, i.e., least significant first.  Follow that?
+  *) 
 
 ; PROCEDURE PutFwd  ( File : RdBackFile . T ; ValueL : LONGINT )
   RAISES { OSError . E } 
@@ -42,7 +45,9 @@ INTERFACE FM3Compress
 ; PROCEDURE GetBwd  ( File : RdBackFile . T ) : LONGINT
   RAISES { OSError . E , RdBackFile . BOF } 
   (* Read and decode compressed bytes from File.  Treat them as
-     being in least- to most-significant order. *)
+     being in least- to most-significant order, while reading the
+     file backwards.
+  *)
 
 ; END FM3Compress 
 . 

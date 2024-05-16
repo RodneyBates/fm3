@@ -8,9 +8,9 @@
 
 UNSAFE MODULE FM3Compress 
 
-(* Reading and writing, to/from a RdBackFile.T,  a stream of 64-bit words,
+(* Reading and writing, to/from a RdBackFile.T, a stream of 64-bit words,
    using a simple compression technique favoring values that, if viewed as
-   64-bit integers have smaller absolute values. *) 
+   64-bit integers, have smaller absolute values. *) 
 
 (* Compression scheme: 
    A variable length sequence of one to nine bytes, least significant to most
@@ -61,7 +61,10 @@ UNSAFE MODULE FM3Compress
 (*EXPORTED*)
 ; PROCEDURE PutBwd ( File : RdBackFile . T ; ValueL : LONGINT )
   RAISES { OSError . E } 
-  (* Write compressed bytes to File, in most- to least-significant order. *)
+  (* Write compressed bytes to File, in most- to least-significant order.
+     This is backwards, but sets it up so later reading of the file backwards
+     will see them forwards, i.e., least significant first.  Follow that?
+  *) 
 
   (* For purposes here, consider the LSB as byte 0 and increasing towards
      more significant. *)
@@ -267,7 +270,9 @@ UNSAFE MODULE FM3Compress
 ; PROCEDURE GetBwd  ( File : RdBackFile . T ) : LONGINT
   RAISES { OSError . E , RdBackFile . BOF } 
   (* Read and decode compressed bytes from File.  Treat them as
-     being in least- to most-significant order. *)
+     being in least- to most-significant order, while reading the
+     file backwards.
+  *)
 
   = VAR LResultL : LONGINT
   ; VAR LByteL : LONGINT 
