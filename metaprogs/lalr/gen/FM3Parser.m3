@@ -2157,7 +2157,7 @@ yyNonterminal := 124;
                               ( yyAttributeStack^[yyStackPtr+2] . Scan . SaChars
                               , yyAttributeStack^[yyStackPtr+2] . Scan . Position
                               , IsExport := FALSE
-                              ) ;
+                              ) ; 
                      
               | 425,203 => (* P40 Import (137): FromImportLt FromImportIdPlusList StkSemicolon .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 137;

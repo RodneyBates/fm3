@@ -18,11 +18,12 @@ INTERFACE FM3ExpImpRef
     = RECORD
         EirUnitNo : FM3Base . UnitNoTyp (* The remote unit. *) 
       ; EirDeclNo : FM3Base . DeclNoTyp (* In the other unit. *)
-        (* DeclNoNull, if this is a reference to the unit itself. *) 
-      ; EirPosition : FM3Base . tPosition
-        (* ^Of the EXPORTS or IMPORT that brought it in to the remote unit.
-           Its position in the remote unit can be found in the remote unit's
-           Decl node for it.
+        (* DeclNoNull, if this is a reference to the unit itself. *)
+      ; EirImportingUnitNo : FM3Base . UnitNoTyp
+      ; EirImportingUnitPosition : FM3Base . tPosition
+        (* ^Of the EXPORTS or IMPORT that brought it in to the unit containing
+           this export/import node.  Its position in the remote unit can be
+           found in the remote unit's Decl node for it.
         *) 
       END 
 

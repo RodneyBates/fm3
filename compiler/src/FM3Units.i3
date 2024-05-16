@@ -133,7 +133,7 @@ INTERFACE FM3Units
 ; VAR UnitsAtomInitSize := 50
 ; VAR UnitsMap : VarArray_Int_Refany . T 
     (* Only one UnitsMap in a compile.  Maps Atoms from UnitsAtomDict
-       into unit numbers.
+       directly into unit numbers.
     *) 
 
 ; PROCEDURE NewUnitRef ( ) : UnitRefTyp

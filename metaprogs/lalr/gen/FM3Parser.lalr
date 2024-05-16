@@ -8,7 +8,7 @@
 
 (* File FM3Parser.lalr.  lalr specification for FM3Parser. *)
 
-(* WARNING: Do not put a lone single quote in brace-enclosed code, e.g., don't
+(* WARNING: Do not put a lone single quote in brace-enclosed code, e.g., do not
             write "{ (* Don't do this. *) }".  This probably applies to double
             quote too.  lalr will run to the end of its internal buffer looking
             for the quote's mate and give an unclosed-string error.
@@ -230,7 +230,7 @@ TOKEN
 
 (* END of copied-in token decls from FM3SrcToks.i3. *)
 
-(* Reserved identifiers needn't be known to lalr for parsing, thus embedded
+(* Reserved identifiers need not be known to lalr for parsing, thus embedded
    semantic actions can refer to them directly as FM3SrcToks . Rid*, and
    no copying into here is necessary.
 *) 
@@ -551,7 +551,7 @@ RULE
               ( $2 . Scan . SaChars
               , $2 . Scan . Position
               , IsExport := FALSE
-              ) ;
+              ) ; 
      } . 
  
    Import : FromImportLt FromImportIdPlusList StkSemicolon . 
