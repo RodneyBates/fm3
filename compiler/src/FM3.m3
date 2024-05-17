@@ -10,35 +10,31 @@ MODULE FM3 EXPORTS Main
 
 ; IMPORT RTProcess 
 ; IMPORT Stdio
+; IMPORT Thread 
 ; IMPORT Wr
 
 ; IMPORT FM3CLArgs
-; IMPORT FM3CLOptions  
-; IMPORT FM3Compile 
-; IMPORT FM3Messages 
-; IMPORT FM3Pass1 
+; IMPORT FM3Compile
+; IMPORT FM3Globals 
 ; IMPORT FM3Scanner
 ; IMPORT FM3SharedUtils
-; IMPORT FM3Units 
 
 ; PROCEDURE Work ( )
   RAISES { FM3SharedUtils . FatalError , FM3SharedUtils . Terminate } 
 
-  = VAR LUnitRef : FM3Units . UnitRefTyp
-  ; VAR LPoppedUnitRef : FM3Units . UnitRefTyp
-  ; VAR LDebug : INTEGER := 5 (* For breakpoint *) 
+  = VAR LDebug : INTEGER := 5 (* For breakpoint *) 
   ; VAR LTerminate : INTEGER := 7 (* For breakpoint *)
 
-  ; BEGIN
+  ; <*FATAL Thread . Alerted , Wr . Failure *>
+    BEGIN
       TRY (*EXCEPT*)
         TRY (*FINALLY*)
           FM3CLArgs . Process ( )
-        ; FM3Scanner . Init ( )  
-        ; FM3SharedUtils . LoadSets ( )  
+        ; FM3SharedUtils . LoadSets ( )
+        ; FM3Globals . Init ( ) 
         ; FM3Scanner . Init ( )
-
-        ; FM3Compile . CompileCLUnits ( ) 
-
+        ; FM3Compile . CompileCLUnits ( )
+        ; FM3Globals . Finalize ( ) 
         FINALLY FM3CLArgs . Cleanup ( ) 
         END (*FINALLY*)
       ; LDebug := 11 (* Ordinary completion.*)
@@ -52,9 +48,13 @@ MODULE FM3 EXPORTS Main
         ; RTProcess . Exit ( 13 ) 
         
       | FM3SharedUtils . Terminate ( EMsg ) 
-      => LDebug := 17 (* Complete by exception Terminate. *) 
+      =>  Wr . PutText ( Stdio . stderr , Wr . EOL )
+        ; Wr . PutText ( Stdio . stderr , EMsg ) 
+        ; Wr . PutText ( Stdio . stderr , Wr . EOL )
+        ; Wr . Flush ( Stdio . stderr )
+        ; LDebug := 17 (* Complete by exception Terminate. *) 
          
-      END (*EXCEPT*)
+      END (*EXCEPT*) 
     ; LTerminate := 19 
     END Work 
 

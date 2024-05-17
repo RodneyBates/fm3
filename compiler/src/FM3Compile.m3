@@ -13,14 +13,13 @@ MODULE  FM3Compile
 ; IMPORT OSError 
 ; IMPORT Pathname
 ; IMPORT FileWr
-; IMPORT FS
 ; IMPORT UniRd
-; IMPORT Wr 
+; IMPORT Wr
+
+; IMPORT IntIntVarArray AS VarArray_Int_Int (* FM3's naming convention. *) 
 
 ; IMPORT FM3Atom_Text 
-; IMPORT FM3Atom_OAChars 
 ; IMPORT FM3Base
-; IMPORT FM3CLArgs
 ; IMPORT FM3CLOptions
 ; IMPORT FM3DisAsm 
 ; IMPORT FM3Files 
@@ -28,7 +27,6 @@ MODULE  FM3Compile
 ; IMPORT FM3Messages 
 ; IMPORT FM3Pass1 
 ; IMPORT FM3Pass2
-; IMPORT FM3Scopes 
 ; IMPORT FM3SharedUtils 
 ; IMPORT FM3Units
 ; IMPORT FM3Utils
@@ -97,7 +95,6 @@ MODULE  FM3Compile
   = VAR LUniRdT : UniRd . T
   ; VAR LSrcDirList : REF ARRAY OF TEXT 
   ; VAR LSearchDir : TEXT 
-  ; VAR LDirName : TEXT 
   ; VAR LDirNumber : INTEGER
   ; VAR LDirSs : INTEGER
 
@@ -279,7 +276,9 @@ MODULE  FM3Compile
 ; PROCEDURE CompileUnitFromSrc ( UnitRef : FM3Units . UnitRefTyp )
 
   = BEGIN (*CompileUnitFromSrc*)
-      FM3Pass1 . RunPass1 ( )
+      UnitRef ^ . UntSkipStackBase
+        := VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi 
+    ; FM3Pass1 . RunPass1 ( )
     ; FM3Pass2 . RunPass2 ( )
 
     ; RdBackFile . Close 
@@ -287,7 +286,11 @@ MODULE  FM3Compile
       (* ^When the next pass is implemented, don't do this. *)
 
     ; CleanPassFilesAndCopies ( UnitRef ) 
-    ; FM3Messages . FM3LogArr
+    ; <*ASSERT
+          UnitRef ^ . UntSkipStackBase 
+            = VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi
+      *> 
+      FM3Messages . FM3LogArr
         ( ARRAY OF REFANY
             { "Finished compiling " , UnitRef ^ . UntSrcFileSimpleName , "." }
         )

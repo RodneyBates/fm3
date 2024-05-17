@@ -11,6 +11,7 @@ MODULE FM3Units
 ; IMPORT Text
 
 ; IMPORT IntSets 
+; IMPORT IntIntVarArray AS VarArray_Int_Int (* FM3's naming convention. *)
 
 ; IMPORT FM3Atom_OAChars 
 ; IMPORT FM3Atom_OAWideChars 
@@ -22,7 +23,6 @@ MODULE FM3Units
 ; IMPORT FM3Scopes
 ; IMPORT FM3Utils 
 ; IMPORT Ranges_Int
-; IMPORT VarArray_Int_ExpImpRef  
 ; IMPORT VarArray_Int_Refany 
 
 ; VAR NextUnitNo : INTEGER := 1
@@ -105,7 +105,8 @@ MODULE FM3Units
     ; LUnitRef ^ . UntMaxPass1OutLength := 0L 
     ; LUnitRef ^ . UntPass2OutSimpleName := NIL
     ; LUnitRef ^ . UntPass2OutRdBack := NIL
-    ; LUnitRef ^ . UntDeclScopeRef := NIL 
+    ; LUnitRef ^ . UntDeclScopeRef := NIL
+    ; LUnitRef ^ . UntSkipStackBase := 0 
     ; LUnitRef ^ . UntUnitIdent := NIL 
     ; LUnitRef ^ . UntUnitIdentPos := FM3Base . PositionNull
     ; LUnitRef ^ . UntState := UnitStateTyp . UsNull
@@ -145,7 +146,8 @@ MODULE FM3Units
     ; LUnitRef ^ . UntDeclMap 
         := FM3Decls . NewDeclMap ( FM3Globals . InitDeclCtPerUnit ) 
     ; LUnitRef ^ . UntNextDeclNo := 1
-
+    ; LUnitRef ^ . UntSkipStackBase
+        := VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi 
     ; VarArray_Int_Refany . Assign ( UnitsMap , LUnitNo , LUnitRef )
     ; RETURN LUnitRef 
     END NewUnitRef

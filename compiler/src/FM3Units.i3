@@ -57,6 +57,15 @@ INTERFACE FM3Units
            , UsLoaded
            }
 
+; CONST UnitStateSetUsable
+    = SET OF UnitStateTyp
+        { UnitStateTyp . UsExporting
+        , UnitStateTyp . UsImporting
+        , UnitStateTyp . UsCompiling
+        , UnitStateTyp . UsCompiled
+        , UnitStateTyp . UsLoaded
+        }
+
 ; PROCEDURE UnitKindImage ( Kind : UnitKindTyp ) : TEXT
 
 ; PROCEDURE UnitKindSectionNo ( Kind : UnitKindTyp ) : TEXT
@@ -115,6 +124,8 @@ INTERFACE FM3Units
       ; UntDeclScopeRef : FM3Base . ScopeRefTyp := NIL  
         (* ^Contains Atoms of idents declared at the top level of this unit.
             These are disjoint from those in UntExpImpIdSet *)
+      ; UntSkipStackBase : INTEGER
+        (* TOS Subscript at beginning and end of unit compile. *) 
       ; UntUnitNo : FM3Base . UnitNoTyp := FM3Base . UnitNoNull
           (* ^Self-referential. *) 
       ; UntStackDepth : INTEGER 

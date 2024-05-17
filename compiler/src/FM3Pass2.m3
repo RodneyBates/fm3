@@ -25,7 +25,7 @@ MODULE FM3Pass2
 
 ; IMPORT Ranges_Int
 ; IMPORT RangeUtils 
-; IMPORT IntIntVarArray 
+; IMPORT IntIntVarArray AS VarArray_Int_Int (* FM3's naming convention. *) 
 ; IMPORT VarArray_Int_Refany 
 
 ; IMPORT FM3Atom_OAChars
@@ -76,7 +76,7 @@ MODULE FM3Pass2
 
   = BEGIN (*PutBwdP2*) 
       <* ASSERT RdBack = FM3Globals . P2RdBack *> 
-      IF IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0 
+      IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0 
       THEN (* We are skipping output. *) RETURN
       END (*IF*) 
     ; TRY
@@ -116,14 +116,14 @@ MODULE FM3Pass2
 
   = BEGIN 
       WITH WSkipNoStack = FM3Globals . SkipNoStack
-      , WSkipRange = IntIntVarArray . TouchedRange ( WSkipNoStack )
+      , WSkipRange = VarArray_Int_Int . TouchedRange ( WSkipNoStack )
       DO
         <* ASSERT WSkipRange . Hi > 0 *>
         <* ASSERT 
-             IntIntVarArray . Fetch ( WSkipNoStack , WSkipRange . Hi )
+             VarArray_Int_Int . Fetch ( WSkipNoStack , WSkipRange . Hi )
              = SkipNo
         *>
-        IntIntVarArray . Project (* Pop SkipNoStack. *) 
+        VarArray_Int_Int . Project (* Pop SkipNoStack. *) 
           ( WSkipNoStack , RangeUtils . TrimHi ( WSkipRange ) )
      (* And throw this token away. *) 
       END (*WITH*)
@@ -144,7 +144,7 @@ MODULE FM3Pass2
   ; BEGIN (*CopyOperands*)
 <* ASSERT MaybeSkip = ( ToRdBack = FM3Globals . P2RdBack ) *> 
       IF MaybeSkip
-         AND IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack ) . Hi
+         AND VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi
              > 0 
       THEN (* Just read and discard OpndCt values. *)
         (* The obvious loop is unrolled. *) 
@@ -225,7 +225,7 @@ MODULE FM3Pass2
 
     ; BEGIN
         IF MaybeSkip
-           AND IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack ) . Hi
+           AND VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi
                > 0 
         THEN
         ELSE 
@@ -295,7 +295,7 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
 *) 
 
          (* Copy the operands, reversing them to counteract the reversal
-            accomplished by stack operations. *)
+            accomplished by pop & push stack operations. *)
           ; CopyOperands
               ( FM3Utils . TokenOpndCt ( LPatchedToken ) 
               , LPatchRdBack
@@ -353,9 +353,9 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
             | Itk . ItkSkipRt
             => LSkipNo := GetBwdInt ( LPass1RdBack )
               ; WITH WSkipNoStack = FM3Globals . SkipNoStack
-                DO IntIntVarArray . Assign
+                DO VarArray_Int_Int . Assign
                     ( WSkipNoStack
-                    , IntIntVarArray . TouchedRange ( WSkipNoStack ) . Hi + 1  
+                    , VarArray_Int_Int . TouchedRange ( WSkipNoStack ) . Hi + 1  
                     , LSkipNo
                     )
                 (* Discard this token. *)
@@ -670,7 +670,7 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
       END VisitDecl
 
   ; BEGIN (*DeclIdR2L*) 
-      IF IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
+      IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
       THEN RETURN FM3Base . DeclNoNull 
       END (*IF*) 
     ; VAR LDeclNo : FM3Base . DeclNoTyp
@@ -700,7 +700,7 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
   = VAR LDeclNo : FM3Base . DeclNoTyp
   
   ; BEGIN (*IdentRefR2L*)
-      IF IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
+      IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
       THEN RETURN FM3Base . DeclNoNull 
       END (*IF*) 
     ; WITH WScope = FM3Scopes . LookupScopeStackTopRef ^  
@@ -998,8 +998,7 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
       END (*IF*)
 *) 
 
-(* Report size and maybe disassemble pass 2 output file. *) 
-
+    (* Report size and maybe disassemble pass 2 output file. *) 
     ; LPass2FullFileName
         := Pathname . Join
              ( UnitRef ^ . UntBuildDirPath 
@@ -1021,18 +1020,14 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
       THEN DisAsmPass2 ( UnitRef , DoEarlierPasses := FALSE )
       END (*IF*)
 
-(* Close the source file. *) 
-
+    (* Close the source file. *) 
     ; UniRd . Close ( UnitRef ^ . UntSrcUniRd ) 
 
-(* Shut down the skip stack. *) 
-
+    (* Finish with the skip stack. *) 
     ; <* ASSERT
-           IntIntVarArray . TouchedRange ( FM3Globals . SkipNoStack )
-           = Ranges_Int . RangeTyp { 0 , 0 } 
+           VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi 
+           = UnitRef ^ . UntSkipStackBase 
       *> 
-      FM3Globals . SkipNoStack := NIL
-      
     END FinishPass2
 
 ; BEGIN (*FM3Pass2*)

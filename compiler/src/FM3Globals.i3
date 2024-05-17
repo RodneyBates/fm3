@@ -11,7 +11,7 @@ INTERFACE FM3Globals
 ; IMPORT TextIntTbl
 
 ; IMPORT RdBackFile
-; IMPORT IntIntVarArray 
+; IMPORT IntIntVarArray AS VarArray_Int_Int (* FM3's naming convention. *) 
 
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars
@@ -37,9 +37,9 @@ INTERFACE FM3Globals
 ; VAR PatchRdBack : RdBackFile . T := NIL
 ; VAR P2RdBack : RdBackFile . T := NIL
 
-(* One set of skip numbering should suffice for all units. *) 
-; VAR InitSkipStackCt := 64 (* Seems liberal. *) 
-; VAR SkipNoStack : IntIntVarArray . T 
+(* One set of skip numbering should suffice for all units. *)
+; VAR InitSkipStackCt := 255 (* Sometimes many compile errors? *) 
+; VAR SkipNoStack : VarArray_Int_Int . T
 ; VAR NextSkipNo : INTEGER := 1 
 
 ; VAR M3RwDict : FM3Dict_OAChars_Int . GrowableTyp  
@@ -57,6 +57,8 @@ INTERFACE FM3Globals
 ; VAR FirstRealAtom := 1
 
 ; PROCEDURE Init ( ) 
+
+; PROCEDURE Finalize ( )
 
 ; END FM3Globals
 .

@@ -40,7 +40,6 @@ MODULE FM3Pass1
 ; IMPORT Wr
 
 ; IMPORT Ranges_Int
-; IMPORT IntIntVarArray 
 
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars
@@ -363,15 +362,6 @@ MODULE FM3Pass1
     ; FM3Scanner . PushState ( UnitRef ^ . UntSrcUniRd , UnitRef )
 (* CHECK: ? *)
 
-    ; FM3Globals . SkipNoStack 
-        := IntIntVarArray . New
-             ( FIRST ( INTEGER )
-             , Ranges_Int . RangeTyp
-                 {  0 , FM3Globals . InitSkipStackCt - 1 }
-             )
-    ; IntIntVarArray . Touch (* It needs a lower bound. *) 
-        ( FM3Globals . SkipNoStack , Ranges_Int . RangeTyp { 0 , 0 } )   
-    ; FM3Globals . NextSkipNo := 1 (* But don't use element 0. *) 
     END InitPass1
 
 ; PROCEDURE TranslatePass1 ( UnitRef : FM3Units . UnitRefTyp )

@@ -1,26 +1,34 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023,       Rodney M. Bates.                                    *)
+(* Copyright 2023..2024  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
 MODULE FM3Globals
 
-; IMPORT TextIntTbl 
+; IMPORT IntIntVarArray AS VarArray_Int_Int (* FM3's naming convention. *)
 
-; IMPORT FM3Atom_OAChars 
-; IMPORT FM3Atom_OAWideChars
-; IMPORT FM3Toks 
+; IMPORT Ranges_Int 
 
 ; CONST M3RwCt = 61
 ; CONST PgRwCt = 20 
 
+(*EXPORTED*) 
 ; PROCEDURE Init ( )
 
   = BEGIN
-
+      InitM3RwTbl ( )
+    ; InitPgRwTbl ( ) 
+    ; SkipNoStack 
+        := VarArray_Int_Int . New
+             ( FIRST ( INTEGER )
+             , Ranges_Int . RangeTyp {  0 , InitSkipStackCt - 1 }
+             )
+    ; VarArray_Int_Int . Touch (* It needs a lower bound. *) 
+        ( SkipNoStack , Ranges_Int . RangeTyp { 0 , 0 } )   
+    ; NextSkipNo := 1 (* But don't use element 0. *) 
     END Init
 
 ; PROCEDURE InitM3RwTbl ( )
@@ -36,15 +44,22 @@ MODULE FM3Globals
 
   = BEGIN
 (*  
-      PragmeRwTbl := TextIntTbl . init ( PgRwCt + PgRwCt DIV 2 )
+      PragmaRwTbl := TextIntTbl . init ( PgRwCt + PgRwCt DIV 2 )
     ; PgRwTbl . put ( "INLINE" , FPragmaToks . TkPgInline )
 (* Finish me. *)
 *)
-    END InitPgRwTbl 
+    END InitPgRwTbl
+
+(*EXPORTED*) 
+; PROCEDURE Finalize ( )
+
+  = BEGIN 
+      <* ASSERT
+           VarArray_Int_Int . TouchedRange ( SkipNoStack ) 
+             = Ranges_Int . RangeTyp { 0 , 0 }
+      *> 
+    END Finalize 
 
 ; BEGIN
-    InitM3RwTbl ( )
-  ; InitPgRwTbl ( ) 
-  ; Init ( ) 
   END FM3Globals
 .

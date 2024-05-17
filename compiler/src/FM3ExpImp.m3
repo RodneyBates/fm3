@@ -115,7 +115,8 @@ MODULE FM3ExpImp
       (* Compare this to similar code in FM3Compile.CompileOrLoadCLUnit. *) 
       ; IF FM3Compile . FindAndOpenUnitSrcFile
              ( LIntfUnitRef , Adjective := LAdjective )
-        THEN 
+           AND LIntfUnitRef ^ . UntState IN FM3Units . UnitStateSetUsable
+        THEN
           FM3Units . UnitStackTopRef ^ . UntUnitRefImporting := LIntfUnitRef
           (*^ To detect future cyclic imports. *) 
         ; FM3Units . UnitStackTopRef ^ . UntPositionOfImport := Position
@@ -134,7 +135,7 @@ MODULE FM3ExpImp
            cascaded error messages.
         *)
         END (*IF*) 
-      ELSE
+      ELSE (* This unit already exists. *) 
         IF LIntfUnitRef . UntUnitRefImporting # NIL 
         THEN (* Cyclic imports/exports. *)
           LIntfUnitRef ^ . UntState := Us . UsNotUsable 
@@ -278,6 +279,9 @@ MODULE FM3ExpImp
 
   ; BEGIN
       IF FromUnitRef = NIL THEN RETURN FALSE END (*IF*)
+    ; IF NOT FromUnitRef ^ . UntState IN FM3Units . UnitStateSetUsable
+      THEN RETURN FALSE 
+      END (*IF*) 
     ; IF IdScanAttribute . SaChars = NIL THEN RETURN FALSE END (*IF*)
     ; LFromAtom (* Lookup in the remote unit. *) 
         := FM3Atom_OAChars . LookupKey  
@@ -377,6 +381,9 @@ MODULE FM3ExpImp
 
   ; BEGIN
       IF FromUnitRef = NIL THEN RETURN END (*IF*)
+    ; IF NOT FromUnitRef ^ . UntState IN FM3Units . UnitStateSetUsable
+      THEN RETURN
+      END (*IF*) 
     ; IF ASScanAttribute . SaChars = NIL THEN RETURN END (*IF*)
     ; LIntoUnitRef := FM3Units . UnitStackTopRef 
     ; LIntoIdentAtom
@@ -413,7 +420,10 @@ MODULE FM3ExpImp
     )
 
   = BEGIN
-      IF FromUnitRef = NIL THEN RETURN END (*IF*) 
+      IF FromUnitRef = NIL THEN RETURN END (*IF*)
+    ; IF NOT FromUnitRef ^ . UntState IN FM3Units . UnitStateSetUsable
+      THEN RETURN
+      END (*IF*) 
     ; WITH WScopeRef = FromUnitRef ^ . UntDeclScopeRef
       DO IF WScopeRef = NIL THEN RETURN END (*IF*)
       ; FOR RDeclNo := WScopeRef ^ . ScpMinDeclNo
