@@ -25,7 +25,6 @@ INTERFACE FM3ExpImpRef
            this export/import node.  Its position in the remote unit can be
            found in the remote unit's Decl node for it.
         *) 
-      END 
-
+      END
 ; END FM3ExpImpRef 
 .

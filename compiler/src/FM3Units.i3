@@ -20,6 +20,7 @@ INTERFACE FM3Units
 ; IMPORT FM3Atom_Text
 ; IMPORT FM3Base
 ; IMPORT FM3CLOptions
+; IMPORT FM3ExpImpRef 
 ; IMPORT FM3OpenArray_Char
 ; IMPORT RdBackFile
 
@@ -145,7 +146,15 @@ INTERFACE FM3Units
 ; VAR UnitsMap : VarArray_Int_Refany . T 
     (* Only one UnitsMap in a compile.  Maps Atoms from UnitsAtomDict
        directly into unit numbers.
-    *) 
+    *)
+
+; CONST ExpImpRefNull
+    = FM3ExpImpRef . T
+        { EirUnitNo := FM3Base . UnitNoNull 
+        , EirDeclNo := FM3Base . DeclNoNull
+        , EirImportingUnitNo := FM3Base . UnitNoNull 
+        , EirImportingUnitPosition := FM3Base . PositionNull
+        } 
 
 ; PROCEDURE NewUnitRef ( ) : UnitRefTyp
   (* Allocate, low-level initialize, give it a UnitNo, and put into UnitsMap. *)

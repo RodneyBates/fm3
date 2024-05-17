@@ -51,6 +51,7 @@ INTERFACE FM3Globals
 ; VAR WideCharsAtomInitSize := 600
 
 ; VAR InitUnitsCt := 40
+; VAR InitImportsCt := 100 
 ; VAR InitScopeCtPerUnit := 60 
 ; VAR InitDeclCtPerUnit := 300
 

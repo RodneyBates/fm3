@@ -23,6 +23,7 @@ MODULE FM3Units
 ; IMPORT FM3Scopes
 ; IMPORT FM3Utils 
 ; IMPORT Ranges_Int
+; IMPORT VarArray_Int_ExpImpRef  
 ; IMPORT VarArray_Int_Refany 
 
 ; VAR NextUnitNo : INTEGER := 1
@@ -142,7 +143,12 @@ MODULE FM3Units
              )
     ; LUnitRef ^ . UntScopeMap
         := FM3Scopes . NewScopeMap ( FM3Globals . InitScopeCtPerUnit )
-    ; LUnitRef ^ . UntExpImpIdSet := IntSets . Empty ( ) 
+    ; LUnitRef ^ . UntExpImpIdSet := IntSets . Empty ( )
+    ; LUnitRef ^ . UntExpImpMap
+        := VarArray_Int_ExpImpRef . New
+             ( ExpImpRefNull
+             , Ranges_Int . RangeTyp { 0 , FM3Globals . InitImportsCt - 1 } 
+             ) 
     ; LUnitRef ^ . UntDeclMap 
         := FM3Decls . NewDeclMap ( FM3Globals . InitDeclCtPerUnit ) 
     ; LUnitRef ^ . UntNextDeclNo := 1
