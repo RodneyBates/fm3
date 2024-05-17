@@ -144,7 +144,6 @@ MODULE FM3ExpImp
     ; RETURN LIntfUnitRef 
     END GetInterface
 
-
 ; PROCEDURE CheckDuplicateImport
     ( FromUnitRef : FM3Units . UnitRefTyp
     ; IdentChars : FM3Atom_OAChars . KeyTyp

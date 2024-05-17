@@ -198,7 +198,6 @@ MODULE FM3Pass1
   ; BEGIN (*InitPass1*)
   
     (* Create the build directory: *)
-
 (* FIXME: FM3CLArgs wants a build directory to put a log file in, even before
           we get here.  Is this the right place for it?
 *)
@@ -213,7 +212,7 @@ MODULE FM3Pass1
              ) 
     ; LUnitLogFullName
         := Pathname . Join
-             ( UnitRef ^ . UntSrcFilePath , UnitRef ^ . UntLogSimpleName , NIL ) 
+             ( UnitRef ^ . UntSrcFilePath , UnitRef ^ . UntLogSimpleName , NIL )
     ; IF Clt . CltUnitLog IN FM3CLOptions . OptionTokSet
       THEN 
         TRY UnitRef ^ . UntLogWrT := FileWr . Open ( LUnitLogFullName ) 
@@ -240,7 +239,6 @@ MODULE FM3Pass1
         ( UnitRef ^ . UntSrcFileSimpleName , UnitRef ^ . UntLogWrT ) 
 
     (* Create build files for the pass. *) 
-
     ; UnitRef ^ . UntPass1OutSimpleName
         := Pathname . Join
              ( NIL
