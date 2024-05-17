@@ -1,7 +1,7 @@
 MODULE Main
 
 (* Test Scalar Literals. *)
-; CONST A = 13  
+; CONST A = 13
 ; CONST B = 1234567890123L
 ; CONST C = 16_10FFFF
 ; CONST D = 16_7FFFFFFFFFFFFFFFL
