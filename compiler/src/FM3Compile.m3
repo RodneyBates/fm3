@@ -312,11 +312,13 @@ MODULE  FM3Compile
         THEN 
           LUnitRef ^ . UntState := Us . UsExporting 
         ; FM3Units . PushUnit ( LUnitRef )
-        ; FM3Units . CacheTopUnitValues ( ) 
-        ; CompileUnitFromSrc ( LUnitRef )
-(* COMPLETEME: Maybe load it instead. *) 
+        ; FM3Units . CacheTopUnitValues ( )
+        (* SetUnitLog will have to wait until Pass1.InitPass1 has
+             created the WrT. *) 
+        ; CompileUnitFromSrc ( LUnitRef ) 
         ; <* ASSERT FM3Units . PopUnit ( ) = LUnitRef *>
-          FM3Units . CacheTopUnitValues ( ) 
+          FM3Messages . SetUnitLog ( LUnitRef ^ . UntLogWrT ) 
+        ; FM3Units . CacheTopUnitValues ( ) 
         END (*IF*)
       END (*IF*)
     END CompileOrLoadCLUnit

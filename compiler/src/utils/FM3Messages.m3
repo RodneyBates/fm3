@@ -199,6 +199,14 @@ MODULE FM3Messages
     ; RETURN TextWr . ToText ( LWrT ) 
     END CodeMsgText
 
+(*EXPORTED*)
+; PROCEDURE SetUnitLog ( UnitLogWrT : Wr . T := NIL )
+  RAISES { Thread . Alerted } 
+
+  = BEGIN
+      GUnitLogWrT := UnitLogWrT 
+    END SetUnitLog 
+
 (* Within a unit, Info, Warning, and Error are collected, sorted by
    line/column, and written to stdout at the end of the unit. *)
 
@@ -353,15 +361,12 @@ MODULE FM3Messages
 
 
 (*EXPORTED*)
-; PROCEDURE StartUnit
-    ( UnitName : TEXT ; UnitLogWrT : Wr . T := NIL )
-  RAISES { Thread . Alerted } 
+; PROCEDURE StartUnit ( UnitName : TEXT ) RAISES { Thread . Alerted } 
 
   = VAR LMsg : TEXT 
 
   ; BEGIN
-      GUnitLogWrT := UnitLogWrT 
-    ; LMsg := FM3SharedUtils . CatStrings ( "Start unit " , UnitName ) 
+      LMsg := FM3SharedUtils . CatStrings ( "Start unit " , UnitName ) 
     ; PutStdErr ( LMsg ) 
     ; PutFM3Log ( LMsg ) 
     END StartUnit 
@@ -375,8 +380,6 @@ MODULE FM3Messages
       LMsg := FM3SharedUtils . CatStrings ( "End unit " , UnitName ) 
     ; PutStdErr ( LMsg ) 
     ; PutFM3Log ( LMsg ) 
-    ; Wr . Close ( GUnitLogWrT ) 
-    ; GUnitLogWrT := NIL 
     END EndUnit 
 
 (*EXPORTED*)

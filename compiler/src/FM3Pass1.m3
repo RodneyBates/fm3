@@ -234,8 +234,8 @@ MODULE FM3Pass1
           FM3SharedUtils . DeleteFile ( LUnitLogFullName ) 
         END (*IF*) 
       END (*EXCEPT*)
-    ; FM3Messages . StartUnit
-        ( UnitRef ^ . UntSrcFileSimpleName , UnitRef ^ . UntLogWrT ) 
+    ; FM3Messages . SetUnitLog ( UnitRef ^ . UntLogWrT )
+    ; FM3Messages . StartUnit ( UnitRef ^ . UntSrcFileSimpleName ) 
 
     (* Create build files for the pass. *) 
     ; UnitRef ^ . UntPass1OutSimpleName
@@ -447,8 +447,7 @@ MODULE FM3Pass1
 
   ; BEGIN (*FinishPass1*)
 
-(* Report size and maybe disassemble pass 1 outputfile. *) 
-
+    (* Report size and maybe disassemble pass 1 outputfile. *) 
       LPass1FullFileName
         := Pathname . Join
              ( UnitRef ^ . UntBuildDirPath 

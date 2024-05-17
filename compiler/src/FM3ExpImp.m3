@@ -123,13 +123,16 @@ MODULE FM3ExpImp
           (* ^For possible cyclic-imports message. *) 
         ; LIntfUnitRef ^ . UntState := Us . UsImporting 
         ; FM3Units . PushUnit ( LIntfUnitRef )
-        ; FM3Units . CacheTopUnitValues ( ) 
+        ; FM3Units . CacheTopUnitValues ( )
+          (* SetUnitLog will have to wait until Pass1.InitPass1 has
+             created the WrT. *) 
         ; FM3Compile . CompileUnitFromSrc ( LIntfUnitRef ) 
         ; FM3Units . UnitStackTopRef ^ . UntUnitRefImporting := NIL 
         ; FM3Units . UnitStackTopRef ^ . UntPositionOfImport
             := FM3Base . PositionNull 
         ; <* ASSERT FM3Units . PopUnit ( ) = LIntfUnitRef *>
-         FM3Units . CacheTopUnitValues ( ) 
+          FM3Messages . SetUnitLog ( LIntfUnitRef ^ . UntLogWrT ) 
+        ; FM3Units . CacheTopUnitValues ( ) 
      (* ELSE it wasn't found. *)
         (* Let LIntfUnitRef remain in UntState = Us . UsNull to suppress
            cascaded error messages.

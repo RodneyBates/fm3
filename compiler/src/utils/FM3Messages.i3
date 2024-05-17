@@ -63,6 +63,9 @@ INTERFACE FM3Messages
    at the end by EndUnit.
 *)
 
+; PROCEDURE SetUnitLog ( UnitLogWrT : Wr . T := NIL )
+  RAISES { Thread . Alerted } 
+
 ; PROCEDURE Info
     ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL ) 
   RAISES { Thread . Alerted } 
@@ -98,9 +101,7 @@ INTERFACE FM3Messages
 
 ; PROCEDURE PutPositionImage ( WrT : Wr . T ; Pos : FM3Base . tPosition )
 
-; PROCEDURE StartUnit
-    ( UnitName : TEXT ; UnitLogWrT : Wr . T := NIL )
-  RAISES { Thread . Alerted } 
+; PROCEDURE StartUnit ( UnitName : TEXT ) RAISES { Thread . Alerted } 
 
 ; PROCEDURE EndUnit ( UnitName : TEXT ) RAISES { Thread . Alerted } 
 
