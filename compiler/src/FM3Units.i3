@@ -167,10 +167,7 @@ INTERFACE FM3Units
 ; PROCEDURE PopUnit ( ) : UnitRefTyp
 
 ; PROCEDURE CacheTopUnitValues ( )
-  (* Cache some fields of the top unit in global variables for faster access. *) 
-
-; PROCEDURE UncacheTopUnitValues ( )
-  (* Just set the globals to null/NIL values. *) 
+  (* Cache some fields of top unit in global variables for faster access. *) 
 
 ; PROCEDURE CurrentUnitIsModule ( ) : BOOLEAN 
 

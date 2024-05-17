@@ -315,8 +315,8 @@ MODULE  FM3Compile
         ; FM3Units . CacheTopUnitValues ( ) 
         ; CompileUnitFromSrc ( LUnitRef )
 (* COMPLETEME: Maybe load it instead. *) 
-        ; FM3Units . UncacheTopUnitValues ( ) 
         ; <* ASSERT FM3Units . PopUnit ( ) = LUnitRef *>
+          FM3Units . CacheTopUnitValues ( ) 
         END (*IF*)
       END (*IF*)
     END CompileOrLoadCLUnit

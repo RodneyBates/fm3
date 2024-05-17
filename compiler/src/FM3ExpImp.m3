@@ -125,11 +125,11 @@ MODULE FM3ExpImp
         ; FM3Units . PushUnit ( LIntfUnitRef )
         ; FM3Units . CacheTopUnitValues ( ) 
         ; FM3Compile . CompileUnitFromSrc ( LIntfUnitRef ) 
-        ; FM3Units . UncacheTopUnitValues ( ) 
         ; FM3Units . UnitStackTopRef ^ . UntUnitRefImporting := NIL 
         ; FM3Units . UnitStackTopRef ^ . UntPositionOfImport
             := FM3Base . PositionNull 
         ; <* ASSERT FM3Units . PopUnit ( ) = LIntfUnitRef *>
+         FM3Units . CacheTopUnitValues ( ) 
      (* ELSE it wasn't found. *)
         (* Let LIntfUnitRef remain in UntState = Us . UsNull to suppress
            cascaded error messages.
