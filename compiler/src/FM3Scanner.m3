@@ -138,13 +138,13 @@ MODULE FM3Scanner
     ; LSsRef ^ . SsUnitRef ^ . UntIdentAtomDict 
         := FM3Atom_OAChars . New 
              ( FM3Globals . IdentAtomInitSize , 1 , NIL , DoReverseMap := TRUE ) 
-    ; LSsRef ^ . SsUnitRef ^ . UntNumberAtomDict 
+    ; LSsRef ^ . SsUnitRef ^ . UntNumLitAtomDict 
         := FM3Atom_OAChars . New 
              ( FM3Globals . NumberAtomInitSize , 1 , NIL , DoReverseMap := TRUE ) 
-    ; LSsRef ^ . SsUnitRef ^ . UntCharsAtomDict 
+    ; LSsRef ^ . SsUnitRef ^ . UntCharsLitAtomDict 
         := FM3Atom_OAChars . New 
              ( FM3Globals . CharsAtomInitSize , 1 , NIL , DoReverseMap := TRUE ) 
-    ; LSsRef ^ . SsUnitRef ^ . UntWCharsAtomDict 
+    ; LSsRef ^ . SsUnitRef ^ . UntWCharsLitAtomDict 
         := FM3Atom_OAWideChars . New 
              ( FM3Globals . WideCharsAtomInitSize , 1 , NIL , DoReverseMap := TRUE ) 
 
@@ -404,9 +404,7 @@ MODULE FM3Scanner
   ; PROCEDURE IdentSuffix ( ) 
     (* PRE: The identifier is already started, possibly non-empty. *) 
 
-    = VAR LIntTok : INTEGER 
-
-    ; BEGIN (* IdentSuffix *) 
+    = BEGIN (* IdentSuffix *) 
         WHILE GTopSsRef . SsCh IN IdentFollowChars 
         DO 
           ContribToFsm ( GTopSsRef . SsCh ) 
@@ -680,7 +678,7 @@ MODULE FM3Scanner
           Probably only the binary version of the value. *) 
       ; Attribute . SaAtom 
           := FM3Atom_OAChars . MakeAtom 
-               ( GTopSsRef ^ . SsUnitRef ^ . UntNumberAtomDict 
+               ( GTopSsRef ^ . SsUnitRef ^ . UntNumLitAtomDict 
                , Attribute . SaChars 
                , ScHash 
                ) 
@@ -986,7 +984,7 @@ MODULE FM3Scanner
           := FM3Utils . CharVarArrayToOAChar ( ScCharVarArr ) 
       ; Attribute . SaAtom 
           := FM3Atom_OAChars . MakeAtom 
-               ( GTopSsRef ^ . SsUnitRef ^ . UntCharsAtomDict 
+               ( GTopSsRef ^ . SsUnitRef ^ . UntCharsLitAtomDict 
                , Attribute . SaChars 
                , ScHash 
                ) 
@@ -1036,7 +1034,7 @@ MODULE FM3Scanner
           := FM3Utils . WCharVarArrayToOAWChar ( ScWCharVarArr ) 
       ; Attribute . SaAtom 
           := FM3Atom_OAWideChars . MakeAtom 
-               ( GTopSsRef ^ . SsUnitRef ^ . UntWCharsAtomDict 
+               ( GTopSsRef ^ . SsUnitRef ^ . UntWCharsLitAtomDict 
                , Attribute . SaWideChars 
                , ScHash 
                ) 

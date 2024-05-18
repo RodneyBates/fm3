@@ -66,8 +66,8 @@ MODULE FM3ExpImp
             , FM3Utils . PositionImage ( LUnitRef . UntPositionOfImport )
             )
         ; Wr . PutText ( LWrT , ", imports" )
-        ; LNextUnitRef := LUnitRef . UntUnitRefImporting 
-        ; LUnitRef . UntUnitRefImporting := NIL  
+        ; LNextUnitRef := LUnitRef . UntUnitRefDoingImporting 
+        ; LUnitRef . UntUnitRefDoingImporting := NIL  
         ; LUnitRef ^ . UntInCycle := TRUE
         ; LUnitRef := LNextUnitRef 
         END (*IF*) 
@@ -117,7 +117,8 @@ MODULE FM3ExpImp
              ( LIntfUnitRef , Adjective := LAdjective )
            AND LIntfUnitRef ^ . UntState IN FM3Units . UnitStateSetUsable
         THEN
-          FM3Units . UnitStackTopRef ^ . UntUnitRefImporting := LIntfUnitRef
+          FM3Units . UnitStackTopRef ^ . UntUnitRefDoingImporting
+            := LIntfUnitRef
           (*^ To detect future cyclic imports. *) 
         ; FM3Units . UnitStackTopRef ^ . UntPositionOfImport := Position
           (* ^For possible cyclic-imports message. *) 
@@ -127,7 +128,7 @@ MODULE FM3ExpImp
           (* SetUnitLog will have to wait until Pass1.InitPass1 has
              created the WrT. *) 
         ; FM3Compile . CompileUnitFromSrc ( LIntfUnitRef ) 
-        ; FM3Units . UnitStackTopRef ^ . UntUnitRefImporting := NIL 
+        ; FM3Units . UnitStackTopRef ^ . UntUnitRefDoingImporting := NIL 
         ; FM3Units . UnitStackTopRef ^ . UntPositionOfImport
             := FM3Base . PositionNull 
         ; <* ASSERT FM3Units . PopUnit ( ) = LIntfUnitRef *>
@@ -139,7 +140,7 @@ MODULE FM3ExpImp
         *)
         END (*IF*) 
       ELSE (* This unit already exists. *) 
-        IF LIntfUnitRef . UntUnitRefImporting # NIL 
+        IF LIntfUnitRef . UntUnitRefDoingImporting # NIL 
         THEN (* Cyclic imports/exports. *)
           LIntfUnitRef ^ . UntState := Us . UsNotUsable 
         ; ReportCyclic  ( LIntfUnitRef , Position )

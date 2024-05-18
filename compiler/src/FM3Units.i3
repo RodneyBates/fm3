@@ -92,12 +92,12 @@ INTERFACE FM3Units
         (* ^Value of RdBackFile.LengthL when conceptually empty, but may be
            nonzero, on account of file tag, length, etc. *) 
       ; UntPatchStackTopCoord : LONGINT := 0L
-        (* ^The patch coordinate of what is conceptually the top token on the
-           patch stack is actually kept, decompressed, in UntPatchStackTopCoord,
-           for easy access.  The token itself and its other operands are on the
-           RdBackFile proper.  For deeper tokens, the coordinate is kept on top
-           of the token, opposite of the usual order, on top of its other
-           operands. 
+        (* ^The patch coordinate argument of what is conceptually the top token
+           on the patch stack is actually kept, decompressed, in
+           UntPatchStackTopCoord, for easy access.  The token itself and its
+           other operands are on the RdBackFile proper.  For deeper tokens,
+           the coordinate is kept on top of the token, opposite of the usual
+           order, on top of its other operands. 
         *) 
       ; UntPass1OutSimpleName : TEXT := NIL
       ; UntPass1OutRdBack : RdBackFile . T := NIL
@@ -107,41 +107,47 @@ INTERFACE FM3Units
       ; UntPass2OutRdBack : RdBackFile . T := NIL
       ; UntMaxPass2OutLength : LONGINT := 0L 
       ; UntPass2OutEmptyCoord : LONGINT := 0L
+      ; UntPassNosDisAsmed : FM3CLOptions . PassNoSetTyp
       ; UntIdentAtomDict : FM3Atom_OAChars . T := NIL (* Identifiers. *)   
-      ; UntNumberAtomDict : FM3Atom_OAChars . T := NIL (* Numeric literals. *)  
-      ; UntCharsAtomDict : FM3Atom_OAChars . T := NIL (* TEXT literals. *) 
-      ; UntWCharsAtomDict : FM3Atom_OAWideChars . T := NIL
+      ; UntNumLitAtomDict : FM3Atom_OAChars . T := NIL (* Numeric literals. *)  
+      ; UntCharsLitAtomDict : FM3Atom_OAChars . T := NIL (* TEXT literals. *) 
+      ; UntWCharsLitAtomDict : FM3Atom_OAWideChars . T := NIL
           (* ^Wide TEXT literals. *)
-      ; UntUnitRefImporting : UnitRefTyp
-        (* The unit this one is in process of [ex|im]porting. *) 
+      ; UntUnitRefDoingImporting : UnitRefTyp
+          (* ^The unit this one is in process of [ex|im]porting. *) 
       ; UntPositionOfImport : FM3Base . tPosition
-        (* Of the being-[ex|im]ported identifier. *) 
-      ; UntDeclMap : FM3Base . MapTyp := NIL (* All the decls in this unit. *) 
-      ; UntScopeMap : FM3Base . MapTyp := NIL (* All the scopes in this unit. *)
+          (* ^Of the being-[ex|im]ported identifier. *) 
+      ; UntDeclMap : FM3Base . MapTyp := NIL
+          (* ^DeclNo to DeclRef.  All the true decls in this unit. *) 
+      ; UntScopeMap : FM3Base . MapTyp := NIL
+          (* ScopeNo to ScopeRef.  All the scopes in this unit. *)
       ; UntExpImpIdSet : IntSets . T 
-        (* ^Atoms of idents [ex/im]ported into this unit. *)  
+          (* ^Atoms of idents [ex/im]ported into this unit. *)  
       ; UntExpImpMap : VarArray_Int_ExpImpRef . T 
           (* ^IdentAtom to ExpImpRef. *)
       ; UntDeclScopeRef : FM3Base . ScopeRefTyp := NIL  
-        (* ^Contains Atoms of idents declared at the top level of this unit.
-            These are disjoint from those in UntExpImpIdSet *)
-      ; UntSkipStackBase : INTEGER
-        (* TOS Subscript at beginning and end of unit compile. *) 
+          (* ^Contains Atoms of idents declared at the top level of this unit.
+              These are disjoint from those in UntExpImpIdSet *)
+      ; UntSkipStackBase : INTEGER := 0 
+          (* TOS Subscript at beginning and end of unit compile. *) 
+      ; UntStackDepth : INTEGER := 0
+          (* ^Where on the units stack this UnitRef is. *) 
       ; UntUnitNo : FM3Base . UnitNoTyp := FM3Base . UnitNoNull
           (* ^Self-referential. *) 
-      ; UntStackDepth : INTEGER 
       ; UntScanResult : INTEGER 
       ; UntParseResult : INTEGER 
       ; UntPass2Result : INTEGER
+      ; UntFirstTrueDeclNo : INTEGER := 1 
+        (* ^As opposed to imported proxies, which are all lower-numbered. *) 
       ; UntNextDeclNo : INTEGER := 1 
       ; UntKind := UnitKindTyp . UkNull 
-      ; UntPassNosDisAsmed : FM3CLOptions . PassNoSetTyp
       ; UntState := UnitStateTyp . UsNull
       ; UntUnsafe : BOOLEAN := FALSE  
       ; UntInCycle : BOOLEAN := FALSE  
       END (*UnitTyp*)
 
 ; VAR UnitsAtomDict : FM3Atom_Text . T
+        (* ^Just one in entire compler run.  See comments in FM3Scope.i3. *) 
 ; VAR UnitsAtomInitSize := 50
 ; VAR UnitsMap : VarArray_Int_Refany . T 
     (* Only one UnitsMap in a compile.  Maps Atoms from UnitsAtomDict

@@ -60,7 +60,6 @@ MODULE FM3Units
       END (*CASE*) 
     END UnitKindSectionNo  
 
-
 ; PROCEDURE NewUnitsMap
     ( InitUnitCt : FM3Base . UnitNoTyp ) : VarArray_Int_Refany . T
   (* One UnitsMap in a compile. *) 
@@ -99,7 +98,7 @@ MODULE FM3Units
     ; LUnitRef ^ . UntPatchStackSimpleName := NIL
     ; LUnitRef ^ . UntPatchStackRdBack := NIL
     ; LUnitRef ^ . UntMaxPatchStackDepth := 0L 
-    ; LUnitRef ^ . UntUnitRefImporting := NIL 
+    ; LUnitRef ^ . UntUnitRefDoingImporting := NIL 
     ; LUnitRef ^ . UntPositionOfImport := FM3Base . PositionNull  
     ; LUnitRef ^ . UntPass1OutSimpleName := NIL
     ; LUnitRef ^ . UntPass1OutRdBack := NIL
@@ -120,21 +119,21 @@ MODULE FM3Units
              , HashFunc := NIL
              , DoReverseMap := TRUE
              )
-    ; LUnitRef ^ . UntNumberAtomDict 
+    ; LUnitRef ^ . UntNumLitAtomDict 
         := FM3Atom_OAChars . New
              ( FM3Globals . NumberAtomInitSize
              , FM3Base . AtomFirstReal
              , HashFunc := FM3Utils . HashOfOAChars 
              , DoReverseMap := TRUE
              )
-    ; LUnitRef ^ . UntCharsAtomDict 
+    ; LUnitRef ^ . UntCharsLitAtomDict 
         := FM3Atom_OAChars . New
              ( FM3Globals . CharsAtomInitSize
              , FM3Base . AtomFirstReal
              , HashFunc := NIL
              , DoReverseMap := TRUE
              )
-    ; LUnitRef ^ . UntWCharsAtomDict 
+    ; LUnitRef ^ . UntWCharsLitAtomDict 
         := FM3Atom_OAWideChars . New
              ( FM3Globals . WideCharsAtomInitSize
              , FM3Base . AtomFirstReal

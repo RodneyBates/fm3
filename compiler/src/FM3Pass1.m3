@@ -317,6 +317,9 @@ MODULE FM3Pass1
     
 (* TODO: eliminate redundant initialization between here are FM3Units.NewUnit. *)
 (* Check: Do we really need separate atom dictionaries for identifiers,
+
+(* FIXME: These initializations are duplicates of those in FM3Units.m3.
+          Also in FM3Scanner.m3. *) 
           numbers, and CHAR literasl? *) 
     ; UnitRef ^ . UntIdentAtomDict
         := FM3Atom_OAChars . New
@@ -326,7 +329,7 @@ MODULE FM3Pass1
              , DoReverseMap := TRUE 
              )
 
-    ; UnitRef ^ . UntNumberAtomDict
+    ; UnitRef ^ . UntNumLitAtomDict
         := FM3Atom_OAChars . New
              ( FM3Globals . NumberAtomInitSize
              , StartAtom := FM3Globals . FirstRealAtom
@@ -334,7 +337,7 @@ MODULE FM3Pass1
              , DoReverseMap := TRUE 
              )
 
-    ; UnitRef ^ . UntCharsAtomDict (* For CHAR literals. *) 
+    ; UnitRef ^ . UntCharsLitAtomDict (* For CHAR literals. *) 
         := FM3Atom_OAChars . New
              ( FM3Globals . CharsAtomInitSize
              , StartAtom := FM3Globals . FirstRealAtom
@@ -342,7 +345,7 @@ MODULE FM3Pass1
              , DoReverseMap := TRUE 
              )
 
-    ; UnitRef ^ . UntWCharsAtomDict
+    ; UnitRef ^ . UntWCharsLitAtomDict
         := FM3Atom_OAWideChars . New
              ( FM3Globals . WideCharsAtomInitSize
              , StartAtom := FM3Globals . FirstRealAtom
