@@ -1,0 +1,21 @@
+Start unit Main.m3
+[32mFM3: [0mCompiling /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1018/src/Main.m3...
+Start unit Main.i3
+[32mFM3: [0mCompiling /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1018/src/Main.i3...
+[32mFM3: [0mPass 1 output file Main.i3.FM3Pass1 has 41 bytes.
+[32mFM3: [0mPatch stack Main.i3.FM3Patch peak size = 10 bytes.
+[32mFM3: [0mPass 2 output file Main.i3.FM3Pass2 has 28 bytes.
+[32mFM3: [0mFinished compiling Main.i3.
+End unit Main.i3
+Start unit I1.i3
+[32mFM3: [0mCompiling /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1018/src/I1.i3...
+[32mFM3: [0mPass 1 output file I1.i3.FM3Pass1 has 75 bytes.
+[32mFM3: [0mPatch stack I1.i3.FM3Patch peak size = 32 bytes.
+[32mFM3: [0mPass 2 output file I1.i3.FM3Pass2 has 57 bytes.
+[32mFM3: [0mFinished compiling I1.i3.
+End unit I1.i3
+[32mFM3: [0mPass 1 output file Main.m3.FM3Pass1 has 94 bytes.
+[32mFM3: [0mPatch stack Main.m3.FM3Patch peak size = 32 bytes.
+[32mFM3: [0mPass 2 output file Main.m3.FM3Pass2 has 71 bytes.
+[32mFM3: [0mFinished compiling Main.m3.
+End unit Main.m3
