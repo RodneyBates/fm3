@@ -104,7 +104,8 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
 
 ; PROCEDURE NewGrowable
     ( InitKeyCt : INTEGER ; HashFunc : HashFuncTyp ) : GrowableTyp 
-      (* InitKeyCt is an initial estimate.  *) 
+      (* InitKeyCt is an initial estimate of actual keys.  The dictionary
+         will oversized be and auto-expanded as needed. *) 
 
 ; PROCEDURE InsertGrowable 
     ( Dict : GrowableTyp  

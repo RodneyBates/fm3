@@ -87,8 +87,8 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 (*EXPORTED:*)
 ; PROCEDURE NewGrowable
     ( InitKeyCt : INTEGER ; HashFunc : HashFuncTyp ) : GrowableTyp 
-      (* InitKeyCt is an initial  estimate.  The dictionary will be
-         auto-expanded as needed. *) 
+      (* InitKeyCt is an initial estimate of actual keys.  The dictionary
+         will oversized be and auto-expanded as needed. *) 
 
   = VAR LNew : GrowableTyp 
   ; VAR LTableNumber : INTEGER 

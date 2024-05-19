@@ -22,6 +22,9 @@ INTERFACE FM3SharedUtils
   EXCEPTION Terminate ( TEXT ) 
 
 ; <*IMPLICIT*>
+  EXCEPTION AllocationFailure ( TEXT )
+
+; <*IMPLICIT*>
   EXCEPTION FatalError ( TEXT )
 
 ; PROCEDURE StandaloneFatalError ( Msg : TEXT )

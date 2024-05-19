@@ -39,21 +39,31 @@ MODULE FM3 EXPORTS Main
         END (*FINALLY*)
       ; LDebug := 11 (* Ordinary completion.*)
       
-      EXCEPT FM3SharedUtils . FatalError ( EMsg ) 
-      =>  Wr . PutText ( Stdio . stderr , Wr . EOL )
-        ; Wr . PutText ( Stdio . stderr , EMsg ) 
-        ; Wr . PutText ( Stdio . stderr , Wr . EOL )
-        ; Wr . Flush ( Stdio . stderr )
-        ; LDebug := 13 (* Complete by exception FatalError. *)
-        ; RTProcess . Exit ( 13 ) 
-        
+      EXCEPT
       | FM3SharedUtils . Terminate ( EMsg ) 
       =>  Wr . PutText ( Stdio . stderr , Wr . EOL )
         ; Wr . PutText ( Stdio . stderr , EMsg ) 
         ; Wr . PutText ( Stdio . stderr , Wr . EOL )
         ; Wr . Flush ( Stdio . stderr )
-        ; LDebug := 17 (* Complete by exception Terminate. *) 
+        ; LDebug := 13 (* Complete by exception Terminate. *) 
+        ; RTProcess . Exit ( 11 ) 
          
+      | FM3SharedUtils . AllocationFailure ( EMsg ) 
+      =>  Wr . PutText ( Stdio . stderr , Wr . EOL )
+        ; Wr . PutText ( Stdio . stderr , EMsg ) 
+        ; Wr . PutText ( Stdio . stderr , Wr . EOL )
+        ; Wr . Flush ( Stdio . stderr )
+        ; LDebug := 15 (* Complete by exception "AllocationFailure. *) 
+        ; RTProcess . Exit ( 15 ) 
+         
+      | FM3SharedUtils . FatalError ( EMsg ) 
+      =>  Wr . PutText ( Stdio . stderr , Wr . EOL )
+        ; Wr . PutText ( Stdio . stderr , EMsg ) 
+        ; Wr . PutText ( Stdio . stderr , Wr . EOL )
+        ; Wr . Flush ( Stdio . stderr )
+        ; LDebug := 17 (* Complete by exception FatalError. *)
+        ; RTProcess . Exit ( 17 ) 
+        
       END (*EXCEPT*) 
     ; LTerminate := 19 
     END Work 

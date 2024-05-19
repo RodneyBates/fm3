@@ -21,6 +21,7 @@ MODULE FM3Units
 ; IMPORT FM3Globals 
 ; IMPORT FM3Messages 
 ; IMPORT FM3Scopes
+; IMPORT FM3SharedUtils 
 ; IMPORT FM3Utils 
 ; IMPORT Ranges_Int
 ; IMPORT VarArray_Int_ExpImpProxy  
@@ -38,7 +39,7 @@ MODULE FM3Units
       | Ukt . UkNull => RETURN "<NullUnitKind>"
       | Ukt . UkInterface => RETURN "INTERFACE"
       | Ukt . UkGenInterface => RETURN "GENERIC INTERFACE"
-      | Ukt . UkInstInterface => RETURN "iNTERFACE"
+      | Ukt . UkInstInterface => RETURN "INTERFACE"
       | Ukt . UkModule => RETURN "MODULE"
       | Ukt . UkGenModule => RETURN "GENERIC MODULE"
       | Ukt . UkInstModule => RETURN "MODULE"
@@ -62,12 +63,19 @@ MODULE FM3Units
 
 ; PROCEDURE NewUnitsMap
     ( InitUnitCt : FM3Base . UnitNoTyp ) : VarArray_Int_Refany . T
+  (* PRE: InitUnitCt > 0. *) 
   (* One UnitsMap in a compile. *) 
 
-  = BEGIN
-      RETURN
-        VarArray_Int_Refany . New
-          ( NIL , Ranges_Int . RangeTyp {  0 , InitUnitCt - 1 } ) 
+  = VAR LResult : VarArray_Int_Refany . T 
+
+  ; BEGIN
+      LResult
+        := VarArray_Int_Refany . New
+             ( NIL , Ranges_Int . RangeTyp {  0 , InitUnitCt - 1 } )
+    ; VarArray_Int_Refany . Touch
+        ( LResult , Ranges_Int . RangeTyp {  0 , 0  } )
+    ; RETURN LResult 
+          
     END NewUnitsMap
 
 (*EXPORTED*) 
@@ -83,6 +91,7 @@ MODULE FM3Units
       THEN
         FM3Messages  . FatalArr
           ( ARRAY OF REFANY { "Allocation of a FM3Units.UnitRefTyp failed." } )
+      ; RAISE FM3SharedUtils . AllocationFailure ( "allocating a UnitRef" ) 
       END 
 
     ; LUnitNo := NextUnitNo
@@ -91,6 +100,7 @@ MODULE FM3Units
          nails and rely on the declaration.
 *) 
     ; LUnitRef ^ . UntStackLink := NIL 
+    ; LUnitRef ^ . UntStackDepth := 0
     ; LUnitRef ^ . UntUnitNo := LUnitNo
     ; LUnitRef ^ . UntSrcFileSimpleName := NIL 
     ; LUnitRef ^ . UntSrcFilePath := NIL
@@ -147,10 +157,16 @@ MODULE FM3Units
         := VarArray_Int_ExpImpProxy . New
              ( ExpImpProxyNull
              , Ranges_Int . RangeTyp { 0 , FM3Globals . InitImportsCt - 1 } 
-             ) 
+             )
+    ; VarArray_Int_ExpImpProxy . Touch
+        ( LUnitRef ^ .  UntExpImpMap , Ranges_Int . RangeTyp {  0 , 0 } )
+    ; LUnitRef ^ . UntNextDeclNo := 1 
     ; LUnitRef ^ . UntDeclMap 
         := FM3Decls . NewDeclMap ( FM3Globals . InitDeclCtPerUnit ) 
+    ; VarArray_Int_Refany . Touch
+        ( LUnitRef ^ .  UntDeclMap , Ranges_Int . RangeTyp {  0 , 0 } )
     ; LUnitRef ^ . UntNextDeclNo := 1
+    ; LUnitRef ^ . UntFirstTrueDeclNo := 1
     ; LUnitRef ^ . UntSkipStackBase
         := VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi 
     ; VarArray_Int_Refany . Assign ( UnitsMap , LUnitNo , LUnitRef )
@@ -243,7 +259,8 @@ MODULE FM3Units
              = LPoppedUnitRef ^ . UntStackDepth - 1
         *>
       END (*IF*)
-    ; LPoppedUnitRef . UntStackDepth := 0 (* Note not on stack> *)  
+    ; LPoppedUnitRef . UntStackDepth := 0
+      (* ^Note that it's no longer on the unit stack. *)  
     ; RETURN LPoppedUnitRef
     END PopUnit
 
@@ -257,7 +274,7 @@ MODULE FM3Units
 ; BEGIN
     UnitsAtomDict  
       := FM3Atom_Text . New
-           ( FM3Globals . InitUnitsCt + FM3Globals . InitUnitsCt DIV 3
+           ( FM3Globals . InitUnitsCt 
            , FM3Base . AtomFirstReal
            , HashFunc := FM3Utils . HashOfText 
            , DoReverseMap := TRUE (* Needed? *) 

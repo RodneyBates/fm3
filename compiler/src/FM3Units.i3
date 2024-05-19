@@ -74,7 +74,7 @@ INTERFACE FM3Units
 ; TYPE UnitRefTyp = REF UnitTyp
 ; TYPE UnitTyp
     = RECORD
-        UntStackLink : UnitRefTyp := NIL 
+        UntStackLink : UnitRefTyp := NIL
       ; UntSrcFileSimpleName : TEXT := NIL (* Simple name *) 
       ; UntSrcFilePath : TEXT := NIL
         (* ^ I.e, directory wherein UntSimpleSrcFileName lives. *)
@@ -98,11 +98,15 @@ INTERFACE FM3Units
            other operands are on the RdBackFile proper.  For deeper tokens,
            the coordinate is kept on top of the token, opposite of the usual
            order, on top of its other operands. 
-        *) 
+        *)
+
+(*TODO: box  up pass-dependent groups like this one.  Maybe heap-allocate. *)  
       ; UntPass1OutSimpleName : TEXT := NIL
       ; UntPass1OutRdBack : RdBackFile . T := NIL
       ; UntMaxPass1OutLength : LONGINT := 0L 
       ; UntPass1OutEmptyCoord : LONGINT := 0L
+(**) 
+
       ; UntPass2OutSimpleName : TEXT := NIL (* Parse pass output file. *) 
       ; UntPass2OutRdBack : RdBackFile . T := NIL
       ; UntMaxPass2OutLength : LONGINT := 0L 
