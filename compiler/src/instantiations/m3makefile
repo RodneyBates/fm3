@@ -15,6 +15,6 @@ module("FM3Dict_Int_Int")
 module("FM3Dict_Text_Int") 
 module("FM3Dict_OAChars_Int") 
 module("FM3Dict_OAWideChars_Int")
-interface("FM3ExpImpRef") %For instantiating.
-module("VarArray_Int_ExpImpRef") 
+interface("FM3ExpImpProxy") %For instantiating.
+module("VarArray_Int_ExpImpProxy") 
 

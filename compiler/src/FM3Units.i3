@@ -12,7 +12,7 @@ INTERFACE FM3Units
 
 ; IMPORT IntSets 
 ; IMPORT UniRd 
-; IMPORT VarArray_Int_ExpImpRef  
+; IMPORT VarArray_Int_ExpImpProxy  
 ; IMPORT VarArray_Int_Refany 
 
 ; IMPORT FM3Atom_OAChars
@@ -20,7 +20,7 @@ INTERFACE FM3Units
 ; IMPORT FM3Atom_Text
 ; IMPORT FM3Base
 ; IMPORT FM3CLOptions
-; IMPORT FM3ExpImpRef 
+; IMPORT FM3ExpImpProxy 
 ; IMPORT FM3OpenArray_Char
 ; IMPORT RdBackFile
 
@@ -123,8 +123,8 @@ INTERFACE FM3Units
           (* ScopeNo to ScopeRef.  All the scopes in this unit. *)
       ; UntExpImpIdSet : IntSets . T 
           (* ^Atoms of idents [ex/im]ported into this unit. *)  
-      ; UntExpImpMap : VarArray_Int_ExpImpRef . T 
-          (* ^IdentAtom to ExpImpRef. *)
+      ; UntExpImpMap : VarArray_Int_ExpImpProxy . T 
+          (* ^IdentAtom to ExpImpProxy. *)
       ; UntDeclScopeRef : FM3Base . ScopeRefTyp := NIL  
           (* ^Contains Atoms of idents declared at the top level of this unit.
               These are disjoint from those in UntExpImpIdSet *)
@@ -154,12 +154,12 @@ INTERFACE FM3Units
        directly into unit numbers.
     *)
 
-; CONST ExpImpRefNull
-    = FM3ExpImpRef . T
-        { EirUnitNo := FM3Base . UnitNoNull 
-        , EirDeclNo := FM3Base . DeclNoNull
-        , EirImportingUnitNo := FM3Base . UnitNoNull 
-        , EirImportingUnitPosition := FM3Base . PositionNull
+; CONST ExpImpProxyNull
+    = FM3ExpImpProxy . T
+        { EipUnitNo := FM3Base . UnitNoNull 
+        , EipDeclNo := FM3Base . DeclNoNull
+        , EipImportingUnitNo := FM3Base . UnitNoNull 
+        , EipImportingUnitPosition := FM3Base . PositionNull
         } 
 
 ; PROCEDURE NewUnitRef ( ) : UnitRefTyp

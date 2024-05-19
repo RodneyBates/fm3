@@ -6,25 +6,25 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
 
-INTERFACE FM3ExpImpRef
+INTERFACE FM3ExpImpProxy
 (* For instantiating. *)
 (* A way to refer to a declaration [ex|im]ported from a remote unit. *) 
 
 ; IMPORT FM3Base
 
-; CONST Brand = "FM3ExpImpRef-1.0" 
+; CONST Brand = "FM3ExpImpProxy-1.0" 
 
 ; TYPE T
     = RECORD
-        EirUnitNo : FM3Base . UnitNoTyp (* The remote unit. *) 
-      ; EirDeclNo : FM3Base . DeclNoTyp (* In the other unit. *)
+        EipUnitNo : FM3Base . UnitNoTyp (* The remote unit. *) 
+      ; EipDeclNo : FM3Base . DeclNoTyp (* In the other unit. *)
         (* DeclNoNull, if this is a reference to the unit itself. *)
-      ; EirImportingUnitNo : FM3Base . UnitNoTyp
-      ; EirImportingUnitPosition : FM3Base . tPosition
+      ; EipImportingUnitNo : FM3Base . UnitNoTyp
+      ; EipImportingUnitPosition : FM3Base . tPosition
         (* ^Of the EXPORTS or IMPORT that brought it in to the unit containing
            this export/import node.  Its position in the remote unit can be
            found in the remote unit's Decl node for it.
         *) 
       END
-; END FM3ExpImpRef 
+; END FM3ExpImpProxy 
 .

@@ -6,7 +6,7 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
 
-MODULE VarArray_Int_ExpImpRef  
-  = VarArray ( Ranges_Int )
-END VarArray_Int_ExpImpRef 
+INTERFACE VarArray_Int_ExpImpProxy 
+  = VarArray ( Integer , FM3ExpImpProxy , Ranges_Int )
+END VarArray_Int_ExpImpProxy  
 .
