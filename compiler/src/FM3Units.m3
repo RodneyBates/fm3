@@ -126,7 +126,7 @@ MODULE FM3Units
         := FM3Atom_OAChars . New
              ( FM3Globals . IdentAtomInitSize
              , FM3Base . AtomFirstReal
-             , HashFunc := NIL
+             , HashFunc := FM3Utils . HashOfOAChars 
              , DoReverseMap := TRUE
              )
     ; LUnitRef ^ . UntNumLitAtomDict 
@@ -140,14 +140,14 @@ MODULE FM3Units
         := FM3Atom_OAChars . New
              ( FM3Globals . CharsAtomInitSize
              , FM3Base . AtomFirstReal
-             , HashFunc := NIL
+             , HashFunc := FM3Utils . HashOfOAChars 
              , DoReverseMap := TRUE
              )
     ; LUnitRef ^ . UntWCharsLitAtomDict 
         := FM3Atom_OAWideChars . New
              ( FM3Globals . WideCharsAtomInitSize
              , FM3Base . AtomFirstReal
-             , HashFunc := NIL
+             , HashFunc := FM3Utils . HashOfOAWChars
              , DoReverseMap := TRUE
              )
     ; LUnitRef ^ . UntScopeMap

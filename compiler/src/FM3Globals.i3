@@ -55,8 +55,6 @@ INTERFACE FM3Globals
 ; VAR InitScopeCtPerUnit := 60 
 ; VAR InitDeclCtPerUnit := 300
 
-; VAR FirstRealAtom := 1
-
 ; PROCEDURE Init ( ) 
 
 ; PROCEDURE Finalize ( )

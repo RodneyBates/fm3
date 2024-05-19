@@ -134,19 +134,7 @@ MODULE FM3Scanner
     ; LSsRef ^ . SsUniRd := NewUniRd 
     ; LSsRef ^ . Position . Line := TopmostLineNo 
     ; LSsRef ^ . Position . Column := LeftmostColumnNo 
-    ; LSsRef ^ . SsAtBegOfPragma := FALSE 
-    ; LSsRef ^ . SsUnitRef ^ . UntIdentAtomDict 
-        := FM3Atom_OAChars . New 
-             ( FM3Globals . IdentAtomInitSize , 1 , NIL , DoReverseMap := TRUE ) 
-    ; LSsRef ^ . SsUnitRef ^ . UntNumLitAtomDict 
-        := FM3Atom_OAChars . New 
-             ( FM3Globals . NumberAtomInitSize , 1 , NIL , DoReverseMap := TRUE ) 
-    ; LSsRef ^ . SsUnitRef ^ . UntCharsLitAtomDict 
-        := FM3Atom_OAChars . New 
-             ( FM3Globals . CharsAtomInitSize , 1 , NIL , DoReverseMap := TRUE ) 
-    ; LSsRef ^ . SsUnitRef ^ . UntWCharsLitAtomDict 
-        := FM3Atom_OAWideChars . New 
-             ( FM3Globals . WideCharsAtomInitSize , 1 , NIL , DoReverseMap := TRUE ) 
+    ; LSsRef ^ . SsAtBegOfPragma := FALSE  
 
     ; TRY 
         LSsRef ^ . SsWCh := UnsafeUniRd . FastGetWideChar( LSsRef ^ . SsUniRd ) 

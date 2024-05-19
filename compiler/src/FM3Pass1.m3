@@ -315,50 +315,7 @@ MODULE FM3Pass1
 
     (* Create unit data structures. *)
     
-(* TODO: eliminate redundant initialization between here are FM3Units.NewUnit. *)
-(* Check: Do we really need separate atom dictionaries for identifiers,
-
-(* FIXME: These initializations are duplicates of those in FM3Units.m3.
-          Also in FM3Scanner.m3. *) 
-          numbers, and CHAR literasl? *) 
-    ; UnitRef ^ . UntIdentAtomDict
-        := FM3Atom_OAChars . New
-             ( FM3Globals . IdentAtomInitSize
-             , StartAtom := FM3Globals . FirstRealAtom
-             , HashFunc := FM3Utils . HashOfOAChars
-             , DoReverseMap := TRUE 
-             )
-
-    ; UnitRef ^ . UntNumLitAtomDict
-        := FM3Atom_OAChars . New
-             ( FM3Globals . NumberAtomInitSize
-             , StartAtom := FM3Globals . FirstRealAtom
-             , HashFunc := FM3Utils . HashOfOAChars
-             , DoReverseMap := TRUE 
-             )
-
-    ; UnitRef ^ . UntCharsLitAtomDict (* For CHAR literals. *) 
-        := FM3Atom_OAChars . New
-             ( FM3Globals . CharsAtomInitSize
-             , StartAtom := FM3Globals . FirstRealAtom
-             , HashFunc := FM3Utils . HashOfOAChars
-             , DoReverseMap := TRUE 
-             )
-
-    ; UnitRef ^ . UntWCharsLitAtomDict
-        := FM3Atom_OAWideChars . New
-             ( FM3Globals . WideCharsAtomInitSize
-             , StartAtom := FM3Globals . FirstRealAtom
-             , HashFunc := FM3Utils . HashOfOAWChars
-             , DoReverseMap := TRUE 
-             )
-
-    ; UnitRef ^ . UntScopeMap
-        := FM3Scopes . NewScopeMap ( FM3Globals . InitScopeCtPerUnit )
-(*FIXME ^This duplicates FM3Units.m3.NewUnitRef *) 
-    ; UnitRef ^ . UntDeclMap
-        := FM3Decls . NewDeclMap ( FM3Globals . InitDeclCtPerUnit )
-(* CLEANUP ^ These duplicate NewUnitRef. *) 
+(* Check: Do we really need separate atom dictionaries for identifiers, *) 
 
     (* Initialize Scanner for unit. *)
       
