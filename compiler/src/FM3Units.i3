@@ -130,8 +130,8 @@ INTERFACE FM3Units
       ; UntExpImpMap : VarArray_Int_ExpImpProxy . T 
           (* ^IdentAtom to ExpImpProxy. *)
       ; UntDeclScopeRef : FM3Base . ScopeRefTyp := NIL  
-          (* ^Contains Atoms of idents declared at the top level of this unit.
-              These are disjoint from those in UntExpImpIdSet *)
+          (* ^Contains Atoms of idents and imports known at unit's top level *)
+      ; UntMaxExpImpDeclNo : FM3Base . DeclNoTyp := FM3Base . DeclNoNull 
       ; UntSkipStackBase : INTEGER := 0 
           (* TOS Subscript at beginning and end of unit compile. *) 
       ; UntStackDepth : INTEGER := 0
@@ -142,7 +142,8 @@ INTERFACE FM3Units
       ; UntParseResult : INTEGER 
       ; UntPass2Result : INTEGER
       ; UntFirstTrueDeclNo : INTEGER := 1 
-        (* ^As opposed to imported proxies, which are all lower-numbered. *) 
+        (* ^In the unit's top-level scope.  as opposed to imported proxies,
+            which are all lower-numbered. *) 
       ; UntNextDeclNo : INTEGER := 1 
       ; UntKind := UnitKindTyp . UkNull 
       ; UntState := UnitStateTyp . UsNull
@@ -154,8 +155,8 @@ INTERFACE FM3Units
         (* ^Just one in entire compler run.  See comments in FM3Scope.i3. *) 
 ; VAR UnitsAtomInitSize := 50
 ; VAR UnitsMap : VarArray_Int_Refany . T 
-    (* Only one UnitsMap in a compile.  Maps Atoms from UnitsAtomDict
-       directly into unit numbers.
+    (* Only one UnitsMap in a compile.  Maps both Atoms from UnitsAtomDict
+       and unit numbers (which are the same) directly into UnitRefs.
     *)
 
 ; CONST ExpImpProxyNull

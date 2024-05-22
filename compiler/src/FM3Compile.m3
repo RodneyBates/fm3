@@ -18,6 +18,7 @@ MODULE  FM3Compile
 
 ; IMPORT IntIntVarArray AS VarArray_Int_Int (* FM3's naming convention. *) 
 
+; IMPORT FM3Atom_OAChars 
 ; IMPORT FM3Atom_Text 
 ; IMPORT FM3Base
 ; IMPORT FM3CLOptions
@@ -332,7 +333,35 @@ MODULE  FM3Compile
 (* COMPLETEME: Do the rest of the CL units. *) 
     END CompileCLUnits 
 
-; BEGIN (*FM3Compile*)
+(*EXPORTED*)
+; PROCEDURE ConvertIdentAtom
+    ( FromAtom : FM3Base . AtomTyp
+    ; FromUnitRef : FM3Units . UnitRefTyp 
+    ; ToUnitRef : FM3Units . UnitRefTyp
+    )
+  : FM3Base . AtomTyp 
+
+  = VAR LIdentChars : FM3Atom_OAChars . KeyTyp
+  ; VAR LToAtom : FM3Base . AtomTyp 
+
+  ; BEGIN
+      <* ASSERT
+           FM3Atom_OAChars . Key
+             ( FromUnitRef ^ . UntIdentAtomDict
+             , FromAtom
+             , (*OUT*) LIdentChars
+             )
+      *>
+      LToAtom
+        := FM3Atom_OAChars . MakeAtom
+             ( ToUnitRef ^ . UntIdentAtomDict
+             , LIdentChars
+             , FM3Utils . HashNull
+             )
+    ; RETURN LToAtom  
+    END ConvertIdentAtom 
+    
+; BEGIN
     SearchPathShown := FALSE 
   END FM3Compile
 .

@@ -68,8 +68,9 @@ ItkDeclNo DECL POS 3 (* DeclNo, position *) .
 
 (* Identifier references. *) 
 
-ItkIdRefAtom IDENT POS 3 (* IdAtom, position. Occurs before unnest. *). 
-ItkIdRefDeclNo DECL POS (* DeclNo, position. Occurs after unnest. *) . 
+ItkIdRefAtom IDENT POS 3 (* IdAtom, position. Occurs before pass2. *). 
+ItkIdRefDeclNo DECL POS (* DeclNo, position. Occurs after pass2. *) .
+ItkExpImpRef INT INT POS (* UnitNo, DeclNo, Position.  Occurs afte pass 2. *) 
 
 ItkQualIdAtoms      IDENT IDENT POS POS (* Lt & Rt Id atoms. *) .
 ItkQualIdDeclNoAtom DECL  IDENT POS POS (* Lt decl no, Rt id atom. *) .

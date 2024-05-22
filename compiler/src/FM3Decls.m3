@@ -70,8 +70,6 @@ MODULE FM3Decls
     ; ParentScopeRef ^ . ScpMinDeclNo
         := MIN ( ParentScopeRef ^ . ScpMinDeclNo , DeclNo ) 
     ; LDeclRef . DclParentScopeRef := ParentScopeRef  
-    ; VarArray_Int_Refany . Assign
-        ( FM3Units . UnitStackTopRef ^ . UntDeclMap , DeclNo , LDeclRef )
     ; RETURN LDeclRef 
     END NewDeclRef 
 

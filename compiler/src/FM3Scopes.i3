@@ -43,12 +43,16 @@ INTERFACE FM3Scopes
     = RECORD
         ScpDeclStackLink : ScopeRefTyp
       ; ScpLookupStackLink : ScopeRefTyp
-      ; ScpDeclIdSet : IntSets . T (* IdentAtoms declared within. *) 
-      ; ScpFormalIdSet : IntSets . T (* IdentAtoms declared within. *) 
+      ; ScpDeclIdSet : IntSets . T
+        (* ^IdentAtoms declared within, including imports of top-level scope. *)
+      ; ScpFormalIdSet : IntSets . T
+        (* ^Formal parameter IdentAtoms declared within, if signature scope. *) 
       ; ScpDuplDeclIdSet : IntSets . T (* IdentAtoms with > 1 declaration. *) 
 (* CHECK ^ Is there any need for this? *) 
       ; ScpRefIdSet : IntSets . T (* IdentAtoms referenced within. *) 
-      ; ScpDeclDict : FM3Dict_Int_Int . FixedTyp (* IdentAtom to Decl no. *)
+      ; ScpDeclDict : FM3Dict_Int_Int . FixedTyp
+        (* ^IdentAtom to Decl no.  Includes imports, if top-level unit scope.
+            Includes formals, if signature or proc body scope. *)
       ; ScpDeclCt : FM3Base . DeclNoTyp := FM3Base . DeclNoNull 
       ; ScpMinDeclNo := FM3Base . DeclNoNull
       ; ScpScopeNo : FM3Base . ScopeNoTyp (* A self-reference. *)
@@ -83,7 +87,7 @@ INTERFACE FM3Scopes
 
 ; VAR DeclScopeStackTopRef : ScopeRefTyp := NIL
       (* A global, linked stack containing scopes from multiple units.
-         The top one is where declarations are being handled. *)
+         The top one is where declarations are being inserted. *)
 ; VAR DeclScopeStackCt : INTEGER := 0 
       
 ; VAR LookupScopeStackTopRef : ScopeRefTyp := NIL

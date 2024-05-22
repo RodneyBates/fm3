@@ -197,8 +197,8 @@ MODULE FM3ExpImp
         ; RETURN FALSE
         END (*IF*)
       END (*IF*)
-      (* We handle declarations (not imports) only later, so there is no need
-         to check for a same-named declaration.
+      (* We handle true declarations (not imports) only later, so there is
+         no need to check for a same-named declaration.
       *)
     ; RETURN TRUE 
     END CheckDuplicateImport 
@@ -225,22 +225,12 @@ MODULE FM3ExpImp
         := VarArray_Int_Refany . Fetch
              ( FromUnitRef . UntDeclMap , FromUnitDeclNo )  
     ; <* ASSERT LFromUnitDeclRef # NIL *>
-      LIntoUnitRef := FM3Units . UnitStackTopRef 
-    ; <* ASSERT
-           FM3Atom_OAChars . Key
-             ( FromUnitRef ^ . UntIdentAtomDict
-             , LFromUnitDeclRef ^ . DclIdAtom
-             , (*OUT*) LIdentChars
-             )
-      *>
-      LIntoIdentAtom
-        := FM3Atom_OAChars . MakeAtom
-             ( LIntoUnitRef ^ . UntIdentAtomDict
-             , LIdentChars
-             , FM3Utils . HashNull
-             )
-
-    ; IF CheckDuplicateImport
+      LIntoUnitRef := FM3Units . UnitStackTopRef
+    ; LIntoIdentAtom
+        := FM3Compile . ConvertIdentAtom
+             ( LFromUnitDeclRef ^ . DclIdAtom , FromUnitRef , LIntoUnitRef ) 
+    ; <* ASSERT LIntoIdentAtom # FM3Base . AtomNull *>  
+      IF CheckDuplicateImport
            ( FromUnitRef
            , LIdentChars
            , LFromUnitDeclRef ^ . DclPos 
@@ -316,14 +306,7 @@ MODULE FM3ExpImp
       THEN
         IF IntSets . IsElement ( LFromAtom , FromUnitRef ^ . UntExpImpIdSet )
         THEN (* But it's imported. *) 
-          LNote
-            := FM3SharedUtils . CatArrT
-                 ( ARRAY OF REFANY
-                     { FM3Messages . NLIndent
-                     , "(It's known via export/import,"
-                     , " but those are not transitively importable (2.5.1).)"
-                     }
-                 ) 
+          LNote := NonTransitiveNote 
         ELSE LNote := NIL 
         END (*IF*) 
       ; FM3Messages . ErrorArr

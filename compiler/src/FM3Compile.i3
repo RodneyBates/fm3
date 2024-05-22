@@ -10,7 +10,8 @@ INTERFACE FM3Compile
 
 (* Overall build and compilation process. *) 
 
-; IMPORT FM3Atom_OAChars 
+; IMPORT FM3Atom_OAChars
+; IMPORT FM3Base 
 ; IMPORT FM3Scopes 
 ; IMPORT FM3Units
 ; IMPORT RdBackFile
@@ -56,6 +57,13 @@ INTERFACE FM3Compile
 
 ; PROCEDURE CompileCLUnits ( )
   (* Compile the units specified on the command line. *) 
+
+; PROCEDURE ConvertIdentAtom
+    ( FromAtom : FM3Base . AtomTyp
+    ; FromUnitRef : FM3Units . UnitRefTyp 
+    ; ToUnitRef : FM3Units . UnitRefTyp
+    )
+  : FM3Base . AtomTyp 
 
 ; END FM3Compile
 .

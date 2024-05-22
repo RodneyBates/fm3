@@ -10,6 +10,7 @@ INTERFACE FM3ExpImp
 
 ; IMPORT FM3Atom_OAChars 
 ; IMPORT FM3Base
+; IMPORT FM3Messages 
 ; IMPORT FM3OpenArray_Char
 ; IMPORT FM3Scanner 
 ; IMPORT FM3Units 
@@ -59,6 +60,11 @@ INTERFACE FM3ExpImp
     ( FromUnitRef :  FM3Units . UnitRefTyp
     ; READONLY Position : FM3Base . tPosition
     )
+
+; CONST NonTransitiveNote
+    = FM3Messages . NLIndent
+      & "(It's known via export/import,"
+      & " but not transitively importable (2.5.1).)"
 
 ; END FM3ExpImp
 .
