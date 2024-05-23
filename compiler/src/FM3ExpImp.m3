@@ -63,11 +63,11 @@ MODULE FM3ExpImp
           Wr . PutText ( LWrT , ", which at " ) 
         ; Wr . PutText
             ( LWrT
-            , FM3Utils . PositionImage ( LUnitRef . UntPositionOfImport )
+            , FM3Utils . PositionImage ( LUnitRef ^ . UntPositionOfImport )
             )
         ; Wr . PutText ( LWrT , ", imports" )
-        ; LNextUnitRef := LUnitRef . UntUnitRefDoingImporting 
-        ; LUnitRef . UntUnitRefDoingImporting := NIL  
+        ; LNextUnitRef := LUnitRef ^ . UntUnitRefDoingImporting 
+        ; LUnitRef ^ . UntUnitRefDoingImporting := NIL  
         ; LUnitRef ^ . UntInCycle := TRUE
         ; LUnitRef := LNextUnitRef 
         END (*IF*) 
@@ -103,7 +103,7 @@ MODULE FM3ExpImp
         := Pathname . Join
              ( NIL , Text . FromChars ( IdentChars ^ ) , "i3" ) 
     ; LIntfUnitRef := FM3Compile . UnitOfFileName ( LSrcFileName )  
-    ; IF LIntfUnitRef . UntState = Us . UsNull 
+    ; IF LIntfUnitRef ^ . UntState = Us . UsNull 
       THEN (* Haven't seen this unit yet. *)
       (* Compile it. *)
 (*TODO: Or load it. *)
@@ -140,7 +140,7 @@ MODULE FM3ExpImp
         *)
         END (*IF*) 
       ELSE (* This unit already exists. *) 
-        IF LIntfUnitRef . UntUnitRefDoingImporting # NIL 
+        IF LIntfUnitRef ^ . UntUnitRefDoingImporting # NIL 
         THEN (* Cyclic imports/exports. *)
           LIntfUnitRef ^ . UntState := Us . UsNotUsable 
         ; ReportCyclic  ( LIntfUnitRef , Position )
@@ -168,7 +168,7 @@ MODULE FM3ExpImp
       THEN (* Importing a duplicate identifier. *)
         LPrevImportExpImpProxy
           := VarArray_Int_ExpImpProxy . Fetch
-               ( IntoUnitRef . UntExpImpMap , IntoIdentAtom )
+               ( IntoUnitRef ^ . UntExpImpMap , IntoIdentAtom )
       ; IF LPrevImportExpImpProxy . EipUnitNo # FM3Base . UnitNoNull
         THEN (* And it's useable, so it's a true duplicate. *)
           LPrevUnitRef (* Implicit NARROW. *) 
@@ -201,7 +201,31 @@ MODULE FM3ExpImp
          no need to check for a same-named declaration.
       *)
     ; RETURN TRUE 
-    END CheckDuplicateImport 
+    END CheckDuplicateImport
+
+; PROCEDURE InsertProxy
+    ( UnitRef : FM3Units . UnitRefTyp
+    ; Atom : FM3Base . AtomTyp
+    ; READONLY Proxy : FM3ExpImpProxy . T 
+    )
+
+  = BEGIN 
+      WITH WScopeRef = UnitRef ^ . UntDeclScopeRef
+      DO UnitRef ^ . UntExpImpIdSet
+          := IntSets . Include ( UnitRef ^ . UntExpImpIdSet , Atom )
+      ; WScopeRef ^ . ScpDeclIdSet 
+          := IntSets . Include ( WScopeRef ^ . ScpDeclIdSet , Atom )
+      ; INC ( UnitRef ^ . UntMaxExpImpDeclNo ) 
+      ; FM3Dict_Int_Int . InsertFixed
+          ( WScopeRef ^ . ScpDeclDict
+          , Atom
+          , FM3Base . HashNull
+          , UnitRef ^ . UntMaxExpImpDeclNo 
+          )
+      ; VarArray_Int_ExpImpProxy . Assign
+          ( UnitRef ^ . UntExpImpMap , UnitRef ^ . UntMaxExpImpDeclNo , Proxy )
+      END (*WITH*) 
+    END InsertProxy
 
 (*EXPORTED.*)
 ; PROCEDURE ImportDeclByNo
@@ -218,12 +242,12 @@ MODULE FM3ExpImp
   ; VAR LIntoUnitRef : FM3Units . UnitRefTyp
   ; VAR LIdentChars : FM3Atom_OAChars . KeyTyp
   ; VAR LIntoIdentAtom : FM3Base . AtomTyp  
-  ; VAR LRemoteDeclRef : FM3ExpImpProxy . T 
+  ; VAR LProxy : FM3ExpImpProxy . T 
 
   ; BEGIN
       LFromUnitDeclRef (* Implicit NARROW. *) 
         := VarArray_Int_Refany . Fetch
-             ( FromUnitRef . UntDeclMap , FromUnitDeclNo )  
+             ( FromUnitRef ^ . UntDeclMap , FromUnitDeclNo )  
     ; <* ASSERT LFromUnitDeclRef # NIL *>
       LIntoUnitRef := FM3Units . UnitStackTopRef
     ; LIntoIdentAtom
@@ -239,15 +263,11 @@ MODULE FM3ExpImp
            , Position
            )
       THEN (* all is legal, so do the real import. *)
-        LRemoteDeclRef . EipUnitNo := FromUnitRef ^ . UntUnitNo 
-      ; LRemoteDeclRef . EipDeclNo  := FromUnitDeclNo
-      ; LRemoteDeclRef . EipImportingUnitNo := LIntoUnitRef ^ . UntUnitNo 
-      ; LRemoteDeclRef . EipImportingUnitPosition := Position
-      ; LIntoUnitRef ^ . UntExpImpIdSet
-          := IntSets . Include 
-               ( LIntoUnitRef ^ . UntExpImpIdSet , LIntoIdentAtom )
-      ; VarArray_Int_ExpImpProxy . Assign
-          ( LIntoUnitRef . UntExpImpMap , LIntoIdentAtom , LRemoteDeclRef )
+        LProxy . EipUnitNo := FromUnitRef ^ . UntUnitNo 
+      ; LProxy . EipDeclNo  := FromUnitDeclNo
+      ; LProxy . EipImportingUnitNo := LIntoUnitRef ^ . UntUnitNo 
+      ; LProxy . EipImportingUnitPosition := Position
+      ; InsertProxy ( LIntoUnitRef , LIntoIdentAtom , LProxy ) 
       ; RETURN TRUE
       ELSE RETURN FALSE 
       END (*IF*) 
@@ -268,7 +288,7 @@ MODULE FM3ExpImp
   ; VAR LFromDeclNoInt : INTEGER 
   ; VAR LIntoUnitRef : FM3Units . UnitRefTyp
   ; VAR LIntoIdentAtom : FM3Base . AtomTyp  
-  ; VAR LRemoteDeclRef : FM3ExpImpProxy . T 
+  ; VAR LProxy : FM3ExpImpProxy . T 
   ; VAR LFound : BOOLEAN 
 
   ; BEGIN
@@ -277,7 +297,7 @@ MODULE FM3ExpImp
       THEN RETURN FALSE 
       END (*IF*) 
     ; IF IdScanAttribute . SaChars = NIL THEN RETURN FALSE END (*IF*)
-    ; LFromAtom (* Lookup in the remote unit. *) 
+    ; LFromAtom (* Lookup the ident among the remote unit's atoms. *) 
         := FM3Atom_OAChars . LookupKey  
              ( FromUnitRef ^ . UntIdentAtomDict
              , IdScanAttribute . SaChars 
@@ -333,16 +353,12 @@ MODULE FM3ExpImp
                , IdScanAttribute . SaChars
                , IdScanAttribute . SaHash
                )
-      ; LRemoteDeclRef . EipUnitNo := FM3Base . UnitNoNull
+      ; LProxy . EipUnitNo := FM3Base . UnitNoNull
       (* ^Makes it present but not useable. *) 
-      ; LRemoteDeclRef . EipImportingUnitNo := LIntoUnitRef ^ . UntUnitNo  
-      ; LRemoteDeclRef . EipDeclNo := FM3Base . DeclNoNull 
-      ; LRemoteDeclRef . EipImportingUnitPosition := IdScanAttribute . Position
-      ; LIntoUnitRef ^ . UntExpImpIdSet
-          := IntSets . Include 
-               ( LIntoUnitRef ^ . UntExpImpIdSet , LIntoIdentAtom )
-      ; VarArray_Int_ExpImpProxy . Assign
-          ( LIntoUnitRef . UntExpImpMap , LIntoIdentAtom , LRemoteDeclRef )
+      ; LProxy . EipImportingUnitNo := LIntoUnitRef ^ . UntUnitNo  
+      ; LProxy . EipDeclNo := FM3Base . DeclNoNull 
+      ; LProxy . EipImportingUnitPosition := IdScanAttribute . Position
+      ; InsertProxy ( LIntoUnitRef , LIntoIdentAtom , LProxy ) 
       ; RETURN FALSE 
       ELSE
         RETURN
@@ -364,7 +380,7 @@ MODULE FM3ExpImp
 
   = VAR LIntoUnitRef : FM3Units . UnitRefTyp
   ; VAR LIntoIdentAtom : FM3Base . AtomTyp  
-  ; VAR LRemoteDeclRef : FM3ExpImpProxy . T 
+  ; VAR LProxy : FM3ExpImpProxy . T 
 
   ; BEGIN
       IF FromUnitRef = NIL THEN RETURN END (*IF*)
@@ -388,17 +404,29 @@ MODULE FM3ExpImp
            , ASScanAttribute . Position
            )
       THEN 
-        LRemoteDeclRef . EipUnitNo := FromUnitRef . UntUnitNo  
-      ; LRemoteDeclRef . EipDeclNo  := FM3Base . DeclNoNull 
-      ; LRemoteDeclRef . EipImportingUnitNo := LIntoUnitRef ^ . UntUnitNo 
-      ; LRemoteDeclRef . EipImportingUnitPosition := ASScanAttribute . Position
-      ; LIntoUnitRef ^ . UntExpImpIdSet
-          := IntSets . Include 
-               ( LIntoUnitRef ^ . UntExpImpIdSet , LIntoIdentAtom )
-      ; VarArray_Int_ExpImpProxy . Assign
-          ( LIntoUnitRef . UntExpImpMap , LIntoIdentAtom , LRemoteDeclRef )
-      END (*IF*) 
+        LProxy . EipUnitNo := FromUnitRef ^ . UntUnitNo  
+      ; LProxy . EipDeclNo  := FM3Base . DeclNoNull 
+      ; LProxy . EipImportingUnitNo := LIntoUnitRef ^ . UntUnitNo 
+      ; LProxy . EipImportingUnitPosition := ASScanAttribute . Position
+      ; InsertProxy ( LIntoUnitRef , LIntoIdentAtom , LProxy ) 
+      END (*IF*)
     END ImportIntfASIdent
+
+(*EXPORTED.*)
+; PROCEDURE CountDecls ( FromUnitRef :  FM3Units . UnitRefTyp )
+    : INTEGER (* Number of decls in FromUnitRef^ *) 
+
+  = BEGIN
+      IF FromUnitRef = NIL THEN RETURN 0 END (*IF*)
+    ; IF NOT FromUnitRef ^ . UntState IN FM3Units . UnitStateSetUsable
+      THEN RETURN 0 
+      END (*IF*) 
+    ; WITH WScopeRef = FromUnitRef ^ . UntDeclScopeRef
+      DO IF WScopeRef = NIL THEN RETURN 0
+        ELSE RETURN WScopeRef ^ . ScpDeclCt 
+        END (*IF*)
+      END (*WITH*) 
+    END CountDecls 
 
 (*EXPORTED.*)
 ; PROCEDURE ImportAllDecls

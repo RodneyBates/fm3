@@ -56,6 +56,9 @@ INTERFACE FM3ExpImp
       (* ^Containing info about the to-be-imported identifier. *) 
     )
 
+; PROCEDURE CountDecls ( FromUnitRef :  FM3Units . UnitRefTyp )
+    : INTEGER (* Number of decls in FromUnitRef^ *) 
+
 ; PROCEDURE ImportAllDecls
     ( FromUnitRef :  FM3Units . UnitRefTyp
     ; READONLY Position : FM3Base . tPosition
@@ -63,7 +66,7 @@ INTERFACE FM3ExpImp
 
 ; CONST NonTransitiveNote
     = FM3Messages . NLIndent
-      & "(It's known via export/import,"
+      & "(It's there via export/import,"
       & " but not transitively importable (2.5.1).)"
 
 ; END FM3ExpImp

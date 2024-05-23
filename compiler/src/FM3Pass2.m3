@@ -497,7 +497,7 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
       TRY
         LFound 
           := FM3Dict_Int_Int . LookupFixed
-               ( Scope . ScpDeclDict
+               ( Scope ^ . ScpDeclDict
                , IdAtom
                , FM3Base . HashNull
                , (*OUT*) LDeclNoInt
@@ -581,7 +581,7 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
           TRY 
             LFound
               := FM3Dict_Int_Int . LookupFixed
-                   ( LBlockScopeRef . ScpDeclDict
+                   ( LBlockScopeRef ^ . ScpDeclDict
                    , IdAtom
                    , FM3Base . HashNull
                    , (*OUT*) LDeclNoInt 

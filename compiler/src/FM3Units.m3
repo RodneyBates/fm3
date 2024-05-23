@@ -116,6 +116,7 @@ MODULE FM3Units
     ; LUnitRef ^ . UntPass2OutSimpleName := NIL
     ; LUnitRef ^ . UntPass2OutRdBack := NIL
     ; LUnitRef ^ . UntDeclScopeRef := NIL
+    ; LUnitRef ^ . UntMaxExpImpDeclNo := FM3Base . DeclNoNull 
     ; LUnitRef ^ . UntSkipStackBase := 0 
     ; LUnitRef ^ . UntUnitIdent := NIL 
     ; LUnitRef ^ . UntUnitIdentPos := FM3Base . PositionNull
