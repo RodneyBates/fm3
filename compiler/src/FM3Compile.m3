@@ -342,6 +342,7 @@ MODULE  FM3Compile
   : FM3Base . AtomTyp 
 
   = VAR LIdentChars : FM3Atom_OAChars . KeyTyp
+        (* The chars are the same in both units. *) 
   ; VAR LToAtom : FM3Base . AtomTyp 
 
   ; BEGIN

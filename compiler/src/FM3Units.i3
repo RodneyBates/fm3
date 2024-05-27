@@ -125,13 +125,16 @@ INTERFACE FM3Units
           (* ^DeclNo to DeclRef.  All the true decls in this unit. *) 
       ; UntScopeMap : FM3Base . MapTyp := NIL
           (* ScopeNo to ScopeRef.  All the scopes in this unit. *)
-      ; UntExpImpIdSet : IntSets . T 
+      ; UntExpUnitSet : IntSets . T := IntSets . Empty ( )
+          (* Unit Nos of units exported by this unit. *) 
+      ; UntExpImpIdSet : IntSets . T := IntSets . Empty ( ) 
           (* ^Atoms of idents [ex/im]ported into this unit. *)  
       ; UntExpImpMap : VarArray_Int_ExpImpProxy . T 
-          (* ^IdentAtom to ExpImpProxy. *)
-      ; UntDeclScopeRef : FM3Base . ScopeRefTyp := NIL  
+          (* ^DeclNo to ExpImpProxy. *)
+      ; UntExpImpRefSet : IntSets . T := IntSets . Empty ( ) 
+      ; UntDeclScopeRefd : FM3Base . ScopeRefTyp := NIL  
           (* ^Contains Atoms of idents and imports known at unit's top level *)
-      ; UntMaxExpImpDeclNo : FM3Base . DeclNoTyp := FM3Base . DeclNoNull 
+      ; UntExpImpCt : FM3Base . DeclNoTyp := FM3Base . DeclNoNull 
       ; UntSkipStackBase : INTEGER := 0 
           (* TOS Subscript at beginning and end of unit compile. *) 
       ; UntStackDepth : INTEGER := 0

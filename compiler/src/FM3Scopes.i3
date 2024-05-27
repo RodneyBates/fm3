@@ -53,6 +53,9 @@ INTERFACE FM3Scopes
       ; ScpDeclDict : FM3Dict_Int_Int . FixedTyp
         (* ^IdentAtom to Decl no.  Includes imports, if top-level unit scope.
             Includes formals, if signature or proc body scope. *)
+        (* INVARIANT: Once ScpDeclIdSet and ScpDeclDict are both complete,
+           Atom is in one IFF in th other.
+        *)
       ; ScpDeclCt : FM3Base . DeclNoTyp := FM3Base . DeclNoNull 
       ; ScpMinDeclNo := FM3Base . DeclNoNull
       ; ScpScopeNo : FM3Base . ScopeNoTyp (* A self-reference. *)

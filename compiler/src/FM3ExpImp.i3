@@ -12,6 +12,7 @@ INTERFACE FM3ExpImp
 ; IMPORT FM3Base
 ; IMPORT FM3Messages 
 ; IMPORT FM3OpenArray_Char
+; IMPORT FM3Pass1 
 ; IMPORT FM3Scanner 
 ; IMPORT FM3Units 
 
@@ -27,12 +28,13 @@ INTERFACE FM3ExpImp
 
 ; PROCEDURE GetInterface
     ( IdentChars : FM3OpenArray_Char . T
-    ; Position : FM3Base . tPosition 
+    ; Position : FM3Base . tPosition
+      (* ^Of the [ex/im]port identifier in the current unit. *) 
     ; IsExport : BOOLEAN
     )
   : FM3Units . UnitRefTyp
-    (* ^The interface unit that was [ex/im]ported, possibly NIL *) 
-  (* If not already done, compile or load the interface named by IdentChars. *) 
+    (* ^The interface unit to be [ex/im]ported, possibly NIL *)
+  (* If not already done, compile or load the interface named by IdentChars. *)
 
 ; PROCEDURE ImportDeclByNo
     ( FromUnitRef : FM3Units . UnitRefTyp
@@ -48,12 +50,15 @@ INTERFACE FM3ExpImp
     ; READONLY IdScanAttribute : FM3Scanner . tScanAttribute
       (* ^Containing info about the to-be-imported identifier. *) 
     )
-  : BOOLEAN (* Success. *)
+  : BOOLEAN (* Success. *) 
 
-; PROCEDURE ImportIntfASIdent
-    ( FromUnitRef : FM3Units . UnitRefTyp
-    ; READONLY ASScanAttribute : FM3Scanner . tScanAttribute
-      (* ^Containing info about the to-be-imported identifier. *) 
+; PROCEDURE ImportASPass1
+    ( READONLY IntfParsAttr , ASParsAttr : FM3Pass1 . tParsAttribute )
+
+; PROCEDURE ImportASPass2
+    ( FromUnitNo : FM3Base . UnitNoTyp
+    ; IntoIdentAtom : FM3Base . AtomTyp
+    ; READONLY ImportPosition : FM3Base . tPosition 
     )
 
 ; PROCEDURE CountDecls ( FromUnitRef :  FM3Units . UnitRefTyp )
@@ -61,7 +66,8 @@ INTERFACE FM3ExpImp
 
 ; PROCEDURE ImportAllDecls
     ( FromUnitRef :  FM3Units . UnitRefTyp
-    ; READONLY Position : FM3Base . tPosition
+    ; READONLY ExportPosition : FM3Base . tPosition
+      (* ^Of the EXPORTS directive's identifier. *)
     )
 
 ; CONST NonTransitiveNote

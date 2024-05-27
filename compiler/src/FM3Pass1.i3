@@ -16,7 +16,8 @@ INTERFACE FM3Pass1
 ; IMPORT FM3Scopes 
 ; IMPORT FM3IntToks AS Itk  
 
-  (* Lalr mandates this type, by name, and its 'Scan' field, Q.V. *) 
+  (* Lalr mandates this type, by name, and its 'Scan' field, Q.V. *)
+(*FIXME: But why is it here? *) 
 ; TYPE tParsAttribute
     = RECORD
         Scan : FM3Scanner . tScanAttribute
@@ -141,7 +142,8 @@ INTERFACE FM3Pass1
 
    pl means reuse the first position passed in.
 
-   'I' or 'i' is an integer value.  'B' or 'b' is a boolean value.
+   'I' or 'i' is an integer value.
+   'B' or 'b' is a boolean value.
    'N' or 'n' is a LONGINT value. 
 *) 
 
@@ -164,6 +166,9 @@ INTERFACE FM3Pass1
 
 ; PROCEDURE PutBwd_LIP
     ( T : Itk . TokTyp ; I : INTEGER ; READONLY Position : tPosition )
+
+; PROCEDURE PutBwd_LIIP
+    ( T : Itk . TokTyp ; I1 , I2 : INTEGER ; READONLY Position : tPosition )
 
 ; PROCEDURE PutBwd_LIP_rip
     ( T : Itk . TokTyp ; I : INTEGER ; READONLY Position : tPosition )

@@ -921,6 +921,21 @@ MODULE FM3Pass1
     END PutBwd_LIP
 
 (*EXPORTED:*)
+; PROCEDURE PutBwd_LIIP
+    ( T : Itk . TokTyp ; I1 , I2 : INTEGER ; READONLY Position : tPosition )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I2 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I1 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T , LONGINT ) ) 
+      END (*WITH*) 
+    END PutBwd_LIIP
+
+(*EXPORTED:*)
 ; PROCEDURE PutBwd_LIP_rip
     ( T : Itk . TokTyp ; I : INTEGER ; READONLY Position : tPosition )
 
@@ -1979,7 +1994,8 @@ MODULE FM3Pass1
   = VAR SrtDeclNo : INTEGER 
 
   ; BEGIN (*DeclScopeRtL2R*)
-      VAR LDeclCt : INTEGER
+      VAR LUnitRef : FM3Units . UnitRefTyp 
+    ; VAR LDeclCt : INTEGER
     ; VAR LExpectedToDeclNo : INTEGER 
 
     ; PROCEDURE SrtVisit ( DeclIdAtomI : INTEGER )
@@ -1995,12 +2011,14 @@ MODULE FM3Pass1
         END SrtVisit
 
     ; BEGIN (* Block. *)
-        <* ASSERT ScopeRef = FM3Scopes . DeclScopeStackTopRef *> 
-        IF ScopeRef ^ . ScpKind = FM3Scopes . ScopeKindTyp . SkExports
-        THEN
-(*COMPLETEME: Handle getting exported interfaces here. *) 
-        END (*IF*)
-      ; LDeclCt := IntSets . Card ( ScopeRef ^ . ScpDeclIdSet )
+        <* ASSERT ScopeRef = FM3Scopes . DeclScopeStackTopRef *>
+        LDeclCt := IntSets . Card ( ScopeRef ^ . ScpDeclIdSet )
+      ; LUnitRef := ScopeRef ^ . ScpOwningUnitRef 
+      ; IF LUnitRef ^ . UntDeclScopeRef = ScopeRef
+        THEN (* Top scope of a unit.  Plan to include its [ex|im]ports. *) 
+          INC ( LDeclCt , LUnitRef . UntExpImpCt )  
+        ELSE LUnitRef := NIL
+        END (*IF*) 
       (* LDeclCt is exactly the needed dictionary size. *)
       ; ScopeRef ^ . ScpDeclDict 
           := FM3Dict_Int_Int . NewFixed 
@@ -2008,6 +2026,9 @@ MODULE FM3Pass1
       ; SrtDeclNo := FM3Units . AllocateDeclNos ( LDeclCt )
       ; LExpectedToDeclNo := SrtDeclNo + LDeclCt 
       ; IntSets . ForAllDo ( ScopeRef ^ . ScpDeclIdSet , SrtVisit )
+      ; IF LUnitRef # NIL
+        THEN IntSets . ForAllDo ( LUnitRef ^ . UntExpImpIdSet , SrtVisit )
+        END (*IF*) 
       ; <*ASSERT SrtDeclNo = LExpectedToDeclNo *> 
         TRY FM3Dict_Int_Int . FinalizeFixed ( ScopeRef ^ . ScpDeclDict )
         EXCEPT FM3Dict_Int_Int . Error ( EMsg )

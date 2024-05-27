@@ -61,7 +61,7 @@ MODULE FM3Scopes
     ; LScopeRef ^ . ScpDeclIdSet := IntSets . Empty ( )
                     (* ^For a unit, includes [ex|im]ported idents. *) 
                     (* ^For a procedure w/ body, includes formals. *)
-    ; LScopeRef ^ . ScpDeclDict := FM3Dict_Int_Int . 
+    ; LScopeRef ^ . ScpDeclDict := NIL 
     ; LScopeRef ^ . ScpFormalIdSet := IntSets . Empty ( )  
     ; LScopeRef ^ . ScpRefIdSet := IntSets . Empty ( )  
     ; LScopeRef ^ . ScpDuplDeclIdSet := IntSets . Empty ( )

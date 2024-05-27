@@ -211,6 +211,7 @@ MODULE FM3Pass2
   ; VAR LPatchToken , LPatchedToken , LToken : Itk . TokTyp
   ; VAR LScopeNo : FM3Base . ScopeNoTyp
   ; VAR LAtom : FM3Base . AtomTyp
+  ; VAR LUnitNo : FM3Base . UnitNoTyp 
   ; VAR LPosition : tPosition
   ; VAR LDeclKind : FM3Decls . DeclKindTyp
   ; VAR LSkipNo : INTEGER
@@ -346,7 +347,7 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
             
           ELSE
 
-            (* Move this token to the Pass2 stack. *) 
+            (* Directly handle this token and/or move it to Pass2 output. *) 
             CASE LToken OF
 
             (* Specially handled tokens. *)
@@ -462,7 +463,13 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
                   , VAL ( (*FM3Utils . SwitchTokL2R*) ( LToken ) , LONGINT )
                   )
 
-            ELSE (* Move directly, unnest to the output.*)
+            | Itk . ItkImportAS
+              => LUnitNo := GetBwdInt ( LPass1RdBack )
+              ; LAtom := GetBwdInt ( LPass1RdBack )
+              ; LPosition := GetBwdPos ( LPass1RdBack )
+              ; FM3ExpImp . ImportASPass2 ( LUnitNo , LAtom , LPosition ) 
+
+            ELSE (* Move directly, input to output.*)
               CopyOperands
                 ( FM3Utils . TokenOpndCt ( LToken )
                 , LPass1RdBack
@@ -481,7 +488,8 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
 (* Right-to-left scope handling.  Call sites read the Itk and its operands,
    and pass the operands in. *) 
 
-; PROCEDURE LookupId
+(*EXPORTED*)
+; PROCEDURE LookupDeclNo
     ( READONLY Scope : FM3Scopes . ScopeTyp 
     ; IdAtom : FM3Base . AtomTyp
     ; READONLY Position : tPosition
@@ -493,11 +501,11 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
   ; VAR LMsg : TEXT
   ; VAR LFound : BOOLEAN 
 
-  ; BEGIN (*LookupId*)
+  ; BEGIN (*LookupDeclNo*)
       TRY
         LFound 
           := FM3Dict_Int_Int . LookupFixed
-               ( Scope ^ . ScpDeclDict
+               ( Scope . ScpDeclDict
                , IdAtom
                , FM3Base . HashNull
                , (*OUT*) LDeclNoInt
@@ -526,7 +534,7 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
           , Position 
           ) 
       END (*IF*) 
-    END LookupId
+    END LookupDeclNo
 
 ; PROCEDURE LookupImport ( IdAtom : FM3Base . AtomTyp ) : FM3Base . DeclNoTyp
   (* In the current unit. *) 
@@ -633,7 +641,7 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
       VAR LDeclNo : FM3Base . DeclNoTyp
     ; BEGIN (* Block. *)
         LDeclNo
-          := LookupId
+          := LookupDeclNo
                ( FM3Scopes . DeclScopeStackTopRef ^ , DeclIdAtom , Position )
       ; <*ASSERT LDeclNo # FM3Base . DeclNoNull *>
         VarArray_Int_Refany . CallbackWithElem
@@ -701,7 +709,7 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
         WITH WppRdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack
         DO 
           LDeclNo
-            := LookupId
+            := LookupDeclNo
                  ( FM3Scopes . DeclScopeStackTopRef ^ , DeclIdAtom , Position ) 
         ; <*ASSERT LDeclNo # FM3Base . DeclNoNull *>
           VarArray_Int_Refany . CallbackWithElem 
@@ -748,7 +756,7 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
   *) 
 
   = PROCEDURE VisitProxy
-      ( DeclNoI : INTEGER ; VAR Proxy : FM3ExpImpProxy . T )
+      ( DeclNoInt : INTEGER ; VAR Proxy : FM3ExpImpProxy . T )
 
     = BEGIN
         IF Proxy . EipDeclNo = FM3Base . DeclNoNull
@@ -777,7 +785,7 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
       ; IF LDeclNo = FM3Base . DeclNoNull
         THEN (* Undeclared. *) 
           BadIdent ( "Undeclared identifier" , IdentRefAtom , Position ) 
-        ELSIF LDeclNo <= FM3Units . UnitStackTopRef ^ . UntMaxExpImpDeclNo
+        ELSIF LDeclNo <= FM3Units . UnitStackTopRef ^ . UntExpImpCt
         THEN (* It was brought in by FROM I IMPORT IdentRefAtom. *)
           VarArray_Int_ExpImpProxy . CallbackWithElem 
             ( FM3Units . UnitStackTopRef ^ . UntExpImpMap
@@ -796,10 +804,11 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
 ; PROCEDURE QualIdentR2L ( Pass1RdBack : RdBackFile . T )
   (* (NON)PRE: No operands have been read. *) 
 
-  = VAR LPosLt , LPosRt : FM3Base . tPosition 
+  = VAR LAtomLt , LAtomRt : FM3Base . AtomTyp
+  ; VAR LPosLt , LPosRt : FM3Base . tPosition 
   
   ; PROCEDURE VisitProxy
-      ( DeclNoI : INTEGER ; VAR Proxy : FM3ExpImpProxy . T )
+      ( DeclNoInt : INTEGER ; VAR Proxy : FM3ExpImpProxy . T )
 
     = VAR LIntfUnitRef : FM3Units . UnitRefTyp
     ; VAR LIntfScopeRef : FM3Scopes . ScopeRefTyp 
@@ -814,14 +823,17 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
       ; <* ASSERT LIntfUnitRef # NIL *>
         LIntfAtom
           := FM3Compile . ConvertIdentAtom
-               ( LAtomRt , FM3Units . UnitStackTopRef , LIntfUnitRef )
+               ( LAtomRt
+               , FM3Units . UnitStackTopRef
+               , ToUnitRef := LIntfUnitRef
+               )
       ; LIntfScopeRef := LIntfUnitRef ^ . UntDeclScopeRef
-      ; IF IntSets . IsElement ( LIntfAtom , LIntfScopeRef ^ .  ScpDeclIdSet )
+      ; IF IntSets . IsElement ( LIntfAtom , LIntfScopeRef ^ . ScpDeclIdSet )
         THEN (* Known in this interface. *) 
           IF IntSets . IsElement ( LIntfAtom , LIntfUnitRef ^ . UntExpImpIdSet )
           THEN (* But it's imported. *)
             LNote := FM3ExpImp . NonTransitiveNote 
-          ELSE (* Found the id in the interface unit. *)
+          ELSE (* Found the ident, declared in the interface unit. *)
             LNote := NIL 
           ; <* ASSERT
                  FM3Dict_Int_Int . LookupFixed 
@@ -862,7 +874,6 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
           ) 
       END VisitProxy 
   
-  ; VAR LAtomLt , LAtomRt : FM3Base . AtomTyp
   ; VAR LDeclNo : FM3Base . DeclNoTyp
 
   ; BEGIN (*QualIdentL2R*)
@@ -871,7 +882,7 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
     ; LPosLt := GetBwdPos ( Pass1RdBack ) 
     ; LPosRt := GetBwdPos ( Pass1RdBack )
     ; IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
-      THEN 
+      THEN RETURN 
       END (*IF*) 
     ; WITH WppRdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack 
       DO
@@ -879,7 +890,7 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
       ; IF LDeclNo = FM3Base . DeclNoNull
         THEN (* Left ident undeclared. *) 
           BadIdent ( "Undeclared identifier" , LAtomLt , LPosLt ) 
-        ELSIF LDeclNo <= FM3Units . UnitStackTopRef ^ . UntMaxExpImpDeclNo
+        ELSIF LDeclNo <= FM3Units . UnitStackTopRef ^ . UntExpImpCt
         THEN (* Left ident resolved to an imported interface. *)  
           VarArray_Int_ExpImpProxy . CallbackWithElem 
             ( FM3Units . UnitStackTopRef ^ . UntExpImpMap
