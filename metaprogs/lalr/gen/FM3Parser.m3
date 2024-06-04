@@ -4060,7 +4060,7 @@ yyNonterminal := 130;
               | 646,379 => (* P261 StmtPlus (256): Stmt .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 256;
                 (* line 2239 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt (* Stmt count. *) ; 
+                 yySynAttribute . PaInt := 0 ; 
               | 647,376 => (* P262 StmtPlus (256): StmtPlus StkSemicolon Stmt .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 256;
                 (* line 2242 of "FM3Parser.lalr" *)

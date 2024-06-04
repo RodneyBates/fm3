@@ -2236,7 +2236,7 @@ RULE
          ) ;
      } .
 
-   StmtPlus : Stmt { $$ . PaInt := $1 . PaInt (* Stmt count. *) ; } .
+   StmtPlus : Stmt { $$ . PaInt := 0 ; } .
      
    StmtPlus : StmtPlus StkSemicolon Stmt  
      { $$ . PaInt := $1 . PaInt + 1 (* Stmt count. *) ;
