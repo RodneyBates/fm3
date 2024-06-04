@@ -1848,29 +1848,31 @@ MODULE FM3Pass1
   (* Including a reserved Id. *) 
 
   = VAR LAtom : FM3Base . AtomTyp 
-  ; VAR LTokToPut : Itk . TokTyp
 
   ; BEGIN (*IdentRefL2R*)
       WITH WScan = IdAttribute . Scan
            , WunRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
-      DO LAtom  
+      DO IF WScan . SaIsReservedId 
+        THEN 
+          PutBwd ( WunRdBack , VAL ( WScan . Position . Column , LONGINT ) ) 
+        ; PutBwd ( WunRdBack , VAL ( WScan . Position . Line , LONGINT ) ) 
+        ; PutBwd ( WunRdBack , VAL ( WScan . SaAtom , LONGINT ) ) 
+        ; PutBwd ( WunRdBack , VAL ( Itk . ItkReservedId , LONGINT ) ) 
+        ELSE
+          LAtom  
            := FM3Atom_OAChars . MakeAtom 
                 ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict
                 , IdAttribute . Scan . SaChars 
                 , IdAttribute . Scan . SaHash 
                 ) 
-      ; IF WScan . SaIsReservedId 
-        THEN LTokToPut := Itk . ItkReservedId 
-        ELSE
-          WITH WIdentRefSet = FM3Scopes . LookupScopeStackTopRef ^ . ScpRefIdSet
+        ; WITH WIdentRefSet = FM3Scopes . LookupScopeStackTopRef ^ . ScpRefIdSet
           DO WIdentRefSet := IntSets . Include ( WIdentRefSet , LAtom )
           END (*WITH*) 
-        ; LTokToPut := Itk . ItkIdRefAtom 
+        ; PutBwd ( WunRdBack , VAL ( WScan . Position . Column , LONGINT ) ) 
+        ; PutBwd ( WunRdBack , VAL ( WScan . Position . Line , LONGINT ) ) 
+        ; PutBwd ( WunRdBack , VAL ( LAtom , LONGINT ) ) 
+        ; PutBwd ( WunRdBack , VAL ( Itk . ItkIdRefAtom , LONGINT ) ) 
         END (*IF*) 
-      ; PutBwd ( WunRdBack , VAL ( WScan . Position . Column , LONGINT ) ) 
-      ; PutBwd ( WunRdBack , VAL ( WScan . Position . Line , LONGINT ) ) 
-      ; PutBwd ( WunRdBack , VAL ( LAtom , LONGINT ) ) 
-      ; PutBwd ( WunRdBack , VAL ( LTokToPut , LONGINT ) ) 
       END (*WITH*) 
     END IdentRefL2R
 
