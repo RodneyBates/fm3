@@ -1,0 +1,8 @@
+INTERFACE Main
+
+; VAR MV1 , MV2 : INTEGER 
+; CONST M3 = 3 
+
+; END Main
+.
+

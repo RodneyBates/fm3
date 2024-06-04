@@ -1,0 +1,6 @@
+INTERFACE I1
+
+; CONST IC = 0 
+
+; END I1
+.
