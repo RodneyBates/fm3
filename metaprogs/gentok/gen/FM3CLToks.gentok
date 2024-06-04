@@ -39,6 +39,7 @@ CltDisAsm                "disasm" .
 CltKeepPasses            "keep-passes" .
 CltKeep                  "keep" .
 (* Keep intermediate files. *)
+CltRemoveUnusedDecls     "remove-unused-decls" .
       
 CltStdErr                "stderr" . 
 (* Write compilation process messages to stderr. *)

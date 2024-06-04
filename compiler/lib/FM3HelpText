@@ -22,13 +22,13 @@ the option name in the same argument, separated by an equal sign "="
 or stand alone in the following argument.
 
 A short-form option has a single-character name.  Multiple such
-character names can be concatenated in a single argument  introduced
+character names can be concatenated in a single argument introduced
 by "-".  Only the last of these can have a parameter.  The parameter
-to a short-form option name can follow in the same argument or stand
-alone in the following argument.
+to a short-form option name can immediately follow in the same argument
+with no delimiter or stand alone in the following argument.
 
 Some options accumulate when they occur multiple times. Those that do
-hot can also occur multiple times, in which case the last one prevails.
+not can also occur multiple times, in which case the last one prevails.
 
 -v
 --version
@@ -50,7 +50,7 @@ hot can also occur multiple times, in which case the last one prevails.
 -S<directory>
 --src-dir[=]<directory>
        Look for source files with unqualified names in <directory>.
-       Includes files named by dashless argument, --src-file, -s, and
+       Includes files named by a dashless argument, --src-file, -s, and
        exported and imported interfaces not found compiled in any
        --import-dir. Accumulates.
 
@@ -71,7 +71,7 @@ hot can also occur multiple times, in which case the last one prevails.
       
 --[no-]log 
        Write compilation process messages to compiler log file FM3Log,
-       in the current working directory.
+       in the current working directory.  Defaults to TRUE 
 
 --[no-]stdout
        Write compiled code messages to stdout.  Defaults to TRUE 
@@ -79,11 +79,16 @@ hot can also occur multiple times, in which case the last one prevails.
 --[no-]unit-log 
        Write compiled code messages for each compiled source code unit
        to a unit-specific log file named <srcFileName>.log, in the same
-       directory ad <srcFileName>. 
+       directory as <srcFileName>. 
 
 -K
 --[no-]keep
        Keep intermediate compilation files in the build directory.
+
+--[no-]remove-unused-decls
+       Don't compile declarations that can have no references.  Declarations in
+       the top scope of an interface are always treated as referenceable.
+       defaults to FALSE. 
        
 -k<passNum>
 --[no-]keep-passes[=]<passNum> ..

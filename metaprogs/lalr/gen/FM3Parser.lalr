@@ -518,10 +518,11 @@ RULE
    ImportItemPlusList : ImportItem .
    ImportItemPlusList : ImportItemPlusList StkComma ImportItem . 
 
-   ImportItem : StkIdent { FM3ExpImp . ImportASPass1 ( $1 , $1 ) } .
+   ImportItem : StkIdent
+      { FM3ExpImp . ImportASPass1 ( $1 . Scan , $1 . Scan ) } .
      
    ImportItem : StkIdent StkRwAS StkIdent
-     { FM3ExpImp . ImportASPass1 ( $1 , $3 ) } .
+     { FM3ExpImp . ImportASPass1 ( $1 . Scan , $3 . Scan ) } .
      
    (* FROM Id IMPORT ... *)
    FromImportLt : StkRwFROM StkIdent StkRwIMPORT

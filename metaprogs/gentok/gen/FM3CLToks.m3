@@ -29,10 +29,11 @@ MODULE FM3CLToks
       | 9 => RETURN "disasm"
       | 10 => RETURN "keep-passes"
       | 11 => RETURN "keep"
-      | 12 => RETURN "stderr"
-      | 13 => RETURN "log"
-      | 14 => RETURN "stdout"
-      | 15 => RETURN "unit-log"
+      | 12 => RETURN "remove-unused-decls"
+      | 13 => RETURN "stderr"
+      | 14 => RETURN "log"
+      | 15 => RETURN "stdout"
+      | 16 => RETURN "unit-log"
       ELSE RETURN "<Undef>"
       END (*CASE*) 
     END Image
@@ -54,10 +55,11 @@ MODULE FM3CLToks
       | 9 => RETURN "CltDisAsm"
       | 10 => RETURN "CltKeepPasses"
       | 11 => RETURN "CltKeep"
-      | 12 => RETURN "CltStdErr"
-      | 13 => RETURN "CltFM3Log"
-      | 14 => RETURN "CltStdOut"
-      | 15 => RETURN "CltUnitLog"
+      | 12 => RETURN "CltRemoveUnusedDecls"
+      | 13 => RETURN "CltStdErr"
+      | 14 => RETURN "CltFM3Log"
+      | 15 => RETURN "CltStdOut"
+      | 16 => RETURN "CltUnitLog"
       ELSE RETURN "<Undef>"
       END (*CASE*) 
     END Name

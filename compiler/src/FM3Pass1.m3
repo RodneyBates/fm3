@@ -1994,7 +1994,9 @@ MODULE FM3Pass1
   = VAR SrtDeclNo : INTEGER 
 
   ; BEGIN (*DeclScopeRtL2R*)
-      VAR LUnitRef : FM3Units . UnitRefTyp 
+      VAR LUnitRef : FM3Units . UnitRefTyp
+    ; VAR LParentScopeRef : FM3Scopes . ScopeRefTyp
+    ; VAR LEscapingRefSet : IntSets . T 
     ; VAR LDeclCt : INTEGER
     ; VAR LExpectedToDeclNo : INTEGER 
 
@@ -2012,23 +2014,49 @@ MODULE FM3Pass1
 
     ; BEGIN (* Block. *)
         <* ASSERT ScopeRef = FM3Scopes . DeclScopeStackTopRef *>
-        LDeclCt := IntSets . Card ( ScopeRef ^ . ScpDeclIdSet )
-      ; LUnitRef := ScopeRef ^ . ScpOwningUnitRef 
+      (* Move Idents ref'd but not declared here out to parent lookup scope. *)
+        LEscapingRefSet
+          := IntSets . Difference 
+               ( ScopeRef ^ . ScpRefIdSet , ScopeRef ^ . ScpDeclIdSet ) 
+      ; ScopeRef ^ . ScpRefIdSet 
+          := IntSets . Intersection
+               ( ScopeRef ^ . ScpRefIdSet , ScopeRef ^ . ScpDeclIdSet )
+      ; LParentScopeRef := ScopeRef ^ . ScpLookupStackLink
+      ; IF LParentScopeRef # NIL
+        THEN
+          LParentScopeRef ^ . ScpRefIdSet
+            := IntSets . Union
+                 ( LParentScopeRef ^ . ScpRefIdSet , LEscapingRefSet ) 
+        END (*IF*)
+      ; IF Clt . CltRemoveUnusedDecls IN FM3CLOptions . OptionTokSet
+           AND LUnitRef ^ . UntDeclScopeRef = ScopeRef
+           AND NOT FM3Units . CurrentUnitIsModule ( ) 
+        THEN ScopeRef ^ . ScpDeclIdSet := ScopeRef ^ . ScpRefIdSet
+        END (*IF*) 
+        
+      ; LDeclCt := IntSets . Card ( ScopeRef ^ . ScpDeclIdSet )
+      ; LUnitRef := ScopeRef ^ . ScpOwningUnitRef
+(* Probably remove: 
       ; IF LUnitRef ^ . UntDeclScopeRef = ScopeRef
         THEN (* Top scope of a unit.  Plan to include its [ex|im]ports. *) 
           INC ( LDeclCt , LUnitRef . UntExpImpCt )  
         ELSE LUnitRef := NIL
-        END (*IF*) 
+        END (*IF*)
+*) 
       (* LDeclCt is exactly the needed dictionary size. *)
       ; ScopeRef ^ . ScpDeclDict 
           := FM3Dict_Int_Int . NewFixed 
                ( LDeclCt , FM3SharedUtils . IntHash )
       ; SrtDeclNo := FM3Units . AllocateDeclNos ( LDeclCt )
       ; LExpectedToDeclNo := SrtDeclNo + LDeclCt 
-      ; IntSets . ForAllDo ( ScopeRef ^ . ScpDeclIdSet , SrtVisit )
+(* Probably remove: 
       ; IF LUnitRef # NIL
         THEN IntSets . ForAllDo ( LUnitRef ^ . UntExpImpIdSet , SrtVisit )
-        END (*IF*) 
+             (* ^Do the [ex|im]ports first, so their Decl Nos will be low
+                 for checking that they are indeeed [ex|im]ports. *) 
+        END (*IF*)
+*) 
+      ; IntSets . ForAllDo ( ScopeRef ^ . ScpDeclIdSet , SrtVisit )
       ; <*ASSERT SrtDeclNo = LExpectedToDeclNo *> 
         TRY FM3Dict_Int_Int . FinalizeFixed ( ScopeRef ^ . ScpDeclDict )
         EXCEPT FM3Dict_Int_Int . Error ( EMsg )

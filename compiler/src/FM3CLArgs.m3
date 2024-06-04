@@ -478,6 +478,7 @@ MODULE FM3CLArgs
         , Clt . CltStdOut  
         , Clt . CltFM3Log
         , Clt . CltUnitLog 
+        , Clt . CltRemoveUnusedDecls  
         =>  PaNoEqualSign ( )
           ; AssignOptionSetElem 
               ( FM3CLOptions . OptionTokSet , LLexValue , Value := NOT LNo ) 

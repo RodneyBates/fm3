@@ -49,12 +49,14 @@ INTERFACE FM3Scopes
         (* ^Formal parameter IdentAtoms declared within, if signature scope. *) 
       ; ScpDuplDeclIdSet : IntSets . T (* IdentAtoms with > 1 declaration. *) 
 (* CHECK ^ Is there any need for this? *) 
-      ; ScpRefIdSet : IntSets . T (* IdentAtoms referenced within. *) 
+      ; ScpRefIdSet : IntSets . T
+        (* ^IdentAtoms referenced within.  Gradually pruned to those
+           both referenced and declared within. *) 
       ; ScpDeclDict : FM3Dict_Int_Int . FixedTyp
-        (* ^IdentAtom to Decl no.  Includes imports, if top-level unit scope.
+        (* ^IdentAtom to Decl no.
             Includes formals, if signature or proc body scope. *)
         (* INVARIANT: Once ScpDeclIdSet and ScpDeclDict are both complete,
-           Atom is in one IFF in th other.
+           Atom is in one IFF in the other.
         *)
       ; ScpDeclCt : FM3Base . DeclNoTyp := FM3Base . DeclNoNull 
       ; ScpMinDeclNo := FM3Base . DeclNoNull

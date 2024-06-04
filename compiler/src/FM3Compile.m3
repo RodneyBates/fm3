@@ -10,12 +10,14 @@ MODULE  FM3Compile
 
 (* Overall build and compilation process. *) 
 
+; IMPORT FileWr
 ; IMPORT OSError 
 ; IMPORT Pathname
-; IMPORT FileWr
+; IMPORT Text 
 ; IMPORT UniRd
 ; IMPORT Wr
 
+; IMPORT IntSets 
 ; IMPORT IntIntVarArray AS VarArray_Int_Int (* FM3's naming convention. *) 
 
 ; IMPORT FM3Atom_OAChars 
@@ -50,7 +52,7 @@ MODULE  FM3Compile
   ; BEGIN
       LSimpleName := Pathname . Last ( SrcFileName ) 
     ; LUnitNameAtom  
-        := FM3Atom_Text . MakeAtom
+        := FM3Atom_Text . MakeAtom  
              ( FM3Units . UnitsAtomDict
              , LSimpleName
              , Hash := FM3Utils . HashOfText ( LSimpleName ) 
@@ -331,7 +333,7 @@ MODULE  FM3Compile
   = BEGIN
       CompileOrLoadCLUnit ( FM3CLOptions . SrcFileName )
 (* COMPLETEME: Do the rest of the CL units. *) 
-    END CompileCLUnits 
+    END CompileCLUnits
 
 (*EXPORTED*)
 ; PROCEDURE ConvertIdentAtom

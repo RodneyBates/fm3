@@ -112,7 +112,8 @@ INTERFACE FM3Units
       ; UntMaxPass2OutLength : LONGINT := 0L 
       ; UntPass2OutEmptyCoord : LONGINT := 0L
       ; UntPassNosDisAsmed : FM3CLOptions . PassNoSetTyp
-      ; UntIdentAtomDict : FM3Atom_OAChars . T := NIL (* Identifiers. *)   
+      ; UntIdentAtomDict : FM3Atom_OAChars . T := NIL
+          (* ^All Identifiers occurring in the unit. *)   
       ; UntNumLitAtomDict : FM3Atom_OAChars . T := NIL (* Numeric literals. *)  
       ; UntCharsLitAtomDict : FM3Atom_OAChars . T := NIL (* TEXT literals. *) 
       ; UntWCharsLitAtomDict : FM3Atom_OAWideChars . T := NIL
@@ -125,14 +126,17 @@ INTERFACE FM3Units
           (* ^DeclNo to DeclRef.  All the true decls in this unit. *) 
       ; UntScopeMap : FM3Base . MapTyp := NIL
           (* ScopeNo to ScopeRef.  All the scopes in this unit. *)
-      ; UntExpUnitSet : IntSets . T := IntSets . Empty ( )
+      ; UntExpUnitSet : IntSets . T := NIL (* IntSets . Empty ( ) *)
           (* Unit Nos of units exported by this unit. *) 
-      ; UntExpImpIdSet : IntSets . T := IntSets . Empty ( ) 
+      ; UntExpImpIdSet : IntSets . T := NIL (* IntSets . Empty ( ) *) 
           (* ^Atoms of idents [ex/im]ported into this unit. *)  
+      ; UntImpIntfIdSet : IntSets . T := NIL (* IntSets . Empty ( ) *) 
+          (* ^Atoms of imported idents that name interfaces. *)  
       ; UntExpImpMap : VarArray_Int_ExpImpProxy . T 
-          (* ^DeclNo to ExpImpProxy. *)
-      ; UntExpImpRefSet : IntSets . T := IntSets . Empty ( ) 
-      ; UntDeclScopeRefd : FM3Base . ScopeRefTyp := NIL  
+          (* ^Unit Ident atom to ExpImpProxy. *)
+          (* INVARIANT: Atom is in UntExpImpMap IFF in UntExpImpIdSet. *) 
+      ; UntExpImpRefSet : IntSets . T := NIL (* IntSets . Empty ( ) *) 
+      ; UntDeclScopeRef : FM3Base . ScopeRefTyp := NIL  
           (* ^Contains Atoms of idents and imports known at unit's top level *)
       ; UntExpImpCt : FM3Base . DeclNoTyp := FM3Base . DeclNoNull 
       ; UntSkipStackBase : INTEGER := 0 
@@ -155,7 +159,10 @@ INTERFACE FM3Units
       END (*UnitTyp*)
 
 ; VAR UnitsAtomDict : FM3Atom_Text . T
-        (* ^Just one in entire compler run.  See comments in FM3Scope.i3. *) 
+        (* ^Just one in entire compler run.  Map source file names as TEXTS
+            directly to unit numbers, which will be compact. See comments
+            in FM3Scope.i3.
+        *) 
 ; VAR UnitsAtomInitSize := 50
 ; VAR UnitsMap : VarArray_Int_Refany . T 
     (* Only one UnitsMap in a compile.  Maps both Atoms from UnitsAtomDict

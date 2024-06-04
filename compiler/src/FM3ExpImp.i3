@@ -53,7 +53,9 @@ INTERFACE FM3ExpImp
   : BOOLEAN (* Success. *) 
 
 ; PROCEDURE ImportASPass1
-    ( READONLY IntfParsAttr , ASParsAttr : FM3Pass1 . tParsAttribute )
+    ( READONLY IntfScanAttr : FM3Scanner . tScanAttribute
+    ; READONLY ASScanAttr : FM3Scanner . tScanAttribute
+    )
 
 ; PROCEDURE ImportASPass2
     ( FromUnitNo : FM3Base . UnitNoTyp

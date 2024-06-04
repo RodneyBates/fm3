@@ -53,6 +53,7 @@ ItkFormalExprAbsent POS 2 (* Position. *).
 ItkRaisesANY POS 2 (* Position. *) .
 ItkResultTypeAbsent POS 2 (* Position. *). 
 ItkProcBodyAbsent POS 2 (* Position. *).
+ItkIdRefAtomNotUsable IDENT POS . 
 
 (* Scopes and declarations within. *) 
 LONE
@@ -72,9 +73,10 @@ ItkIdRefAtom IDENT POS 3 (* IdAtom, position. Occurs before pass2. *).
 ItkIdRefDeclNo DECL POS (* DeclNo, position. Occurs after pass2. *) .
 ItkExpImpRef INT INT POS (* UnitNo, DeclNo, Position.  Occurs afte pass 2. *) 
 
-ItkQualIdAtoms      IDENT IDENT POS POS (* Lt & Rt Id atoms. *) .
-ItkQualIdDeclNoAtom DECL  IDENT POS POS (* Lt decl no, Rt id atom. *) .
-ItkQualIdDeclNos    DECL  DECL  POS POS (* Lt & Rt decl nos. *) .
+ItkQualIdAtoms        IDENT IDENT POS POS (* Lt & Rt Id atoms. *) .
+ItkQualIdDeclNoAtom   DECL  IDENT POS POS (* Lt decl no, Rt id atom. *) .
+ItkQualIdDeclNos      DECL  DECL  POS POS (* Lt & Rt decl nos. *) .
+ItkQualIdUnitNoDeclNo INT   DECL  POS POS (* Lt UnitNo, Rt declNo. *) .
 
 ItkInvalidRef POS .
 
