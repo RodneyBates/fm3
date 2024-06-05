@@ -297,7 +297,8 @@ MODULE  FM3Compile
         ( ARRAY OF REFANY
             { "Finished compiling " , UnitRef ^ . UntSrcFileSimpleName , "." }
         )
-    ; FM3Messages . EndUnit ( UnitRef ^ . UntSrcFileSimpleName ) 
+    ; Wr . Close ( UnitRef ^ . UntLogWrT ) 
+    ; FM3Messages . EndUnit ( UnitRef . UntSrcFileSimpleName ) 
     END CompileUnitFromSrc
 
 ; PROCEDURE CompileOrLoadCLUnit ( SrcFileName : TEXT )

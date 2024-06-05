@@ -763,7 +763,14 @@ MODULE FM3CLArgs
 
   (* TEMPORARY: during development: *)
 
-    ; FM3CLOptions . SrcFileName := "Main.m3" 
+    ; FM3CLOptions . SrcFileName := "Main.m3"
+
+    (* Write logs: *) 
+    ; AssignOptionSetElem
+        ( FM3CLOptions . OptionTokSet , Clt . CltUnitLog , Value := TRUE )
+
+    ; AssignOptionSetElem
+        ( FM3CLOptions . OptionTokSet , Clt . CltFM3Log , Value := TRUE ) 
 
     (* Keep intermediate files. *) 
     ; AlterPassNos
