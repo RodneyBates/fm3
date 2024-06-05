@@ -314,7 +314,7 @@ MODULE FM3Messages
 
   ; BEGIN
       LMsg := CodeMsgText ( Pos , GErrorLabel , Frags ) 
-    ; PutStdErr ( LMsg ) 
+    ; PutStdOut ( LMsg ) 
     ; PutUnitLog ( LMsg ) 
     END ErrorArr
 
@@ -343,7 +343,7 @@ MODULE FM3Messages
   = VAR LMsg : TEXT 
 
   ; BEGIN
-      LMsg := FM3SharedUtils . CatArrT ( Frags , "    " ) 
+      LMsg := FM3SharedUtils . CatArrT ( Frags , IndentPrefix ) 
     ; PutStdOut ( LMsg ) 
     ; PutUnitLog ( LMsg ) 
     END IndentArr

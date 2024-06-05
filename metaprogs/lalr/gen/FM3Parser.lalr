@@ -366,6 +366,8 @@ RULE
      { VAR LUnitRef : FM3Units . UnitRefTyp ; 
        VAR LScopeRef : FM3Scopes . ScopeRefTyp ;  
        BEGIN
+         $$ . PaPos := $3 . Scan . Position ;
+         (* ^Module name position, in case no explicit EXPORTS. *) 
          LUnitRef := FM3Units . UnitStackTopRef ;
            (* ^Already pushed when source file was opened. *) 
          LUnitRef ^ . UntUnsafe := $1 . PaBool ; 
@@ -560,7 +562,7 @@ RULE
          LUnitRef
            := FM3ExpImp . GetInterface 
                 ( FM3Units . UnitStackTopRef ^ . UntUnitIdent
-                , $0 . Scan . Position 
+                , $0 . PaPos
                 , IsExport := TRUE
                 ) ;
          FM3ExpImp . ImportAllDecls
@@ -649,10 +651,17 @@ RULE
      { $$ . PaInt := $1 . PaInt + 1 ; } .
      
 (* Qualified ident, which includes unqualified ident. *)   
-   QualIdent : StkIdent { FM3Pass1 . IdentRefL2R ( $1 ) ; } .
+   QualIdent : StkIdent
+     { $$ . Scan . SaChars := $1 . Scan . SaChars ;
+       $$ . Scan . SaIsReservedId := $1 . Scan . SaIsReservedId ;
+       FM3Pass1 . IdentRefL2R ( $1 ) ;
+     } .
 
    QualIdent : StkIdent StkDot StkIdent
-     { FM3Pass1 . QualIdentL2R ( $1 , $3 ) ; } .
+     { $$ . Scan . SaChars := $1 . Scan . SaChars ;
+       $$ . Scan . SaIsReservedId := $1 . Scan . SaIsReservedId ;
+       FM3Pass1 . QualIdentL2R ( $1 , $3 ) ;
+     } .
 
    TypeId : QualIdent.
 

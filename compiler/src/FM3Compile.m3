@@ -77,7 +77,7 @@ MODULE  FM3Compile
   = BEGIN
       IF NOT SearchPathShown
       THEN 
-        FM3Messages . ErrorArr
+        FM3Messages . IndentArr
           ( ARRAY OF REFANY
               { "Search directories for source files are:"
               , FM3CLOptions . SrcDirMsg 
@@ -89,7 +89,10 @@ MODULE  FM3Compile
 
 (*EXPORTED*) 
 ; PROCEDURE FindAndOpenUnitSrcFile
-    ( UnitRef : FM3Units . UnitRefTyp ; Adjective : TEXT )
+    ( UnitRef : FM3Units . UnitRefTyp
+    ; Adjective : TEXT
+    ; ExpImpPosition : FM3Base . tPosition
+    )
   : BOOLEAN (* Success *)
   (* POST: IF result, then the source file for UnitRef^ was found and opened,
            and fields UntSrcFilePath, UntSrcUniRd, and UntState are set.
@@ -119,6 +122,7 @@ MODULE  FM3Compile
                 , "source file "
                 , UnitRef ^ . UntSrcFileSimpleName 
                 }
+            , ExpImpPosition 
             )
         ; UnitRef . UntState := Us . UsNotUsable
         ; ShowSrcSearchPathOnce ( ) 
@@ -312,7 +316,11 @@ MODULE  FM3Compile
       THEN (* Haven't seen this unit yet. *)
       (* Compile it. *)
       (* Compare this to similar code in FM3ImpExp.Interface *) 
-        IF FindAndOpenUnitSrcFile ( LUnitRef , Adjective := "")
+        IF FindAndOpenUnitSrcFile
+             ( LUnitRef
+             , Adjective := ""
+             , ExpImpPosition := FM3Base . PositionNull
+             )
         THEN 
           LUnitRef ^ . UntState := Us . UsExporting 
         ; FM3Units . PushUnit ( LUnitRef )

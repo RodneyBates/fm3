@@ -439,7 +439,7 @@ MODULE FM3Scanner
               := GCurRwValue (* A recognized reserved pragma name. *) 
           END (*CASE*) 
 
-        ELSE (* Looking for a reserved word or reserved identifier. *) 
+        ELSE (* Looking for a reserved word or [reserved] identifier. *) 
           CASE GCurRwValue 
           OF FM3SrcToks . RidABS .. FM3SrcToks . RidWIDECHAR 
           => (* Reserved identifier. *) 
@@ -448,6 +448,9 @@ MODULE FM3Scanner
               Attribute . SaIsReservedId := TRUE 
             ; Attribute . SaAtom := GCurRwValue 
             ; Attribute . SaTok := FM3SrcToks . StkIdent
+; IF Attribute . SaChars = NIL 
+  THEN EVAL IdentSuffix 
+  END (*IF*) 
           | FM3LexTable . ValueUnrecognized , FM3LexTable . ValueNull 
           => (* Plain ol' identifier. *)
               Attribute . SaIsReservedId := FALSE (* NOT predeclared. *)
@@ -458,6 +461,9 @@ MODULE FM3Scanner
                      , ScHash 
                      ) 
             ; Attribute . SaTok := FM3SrcToks . StkIdent
+; IF Attribute . SaChars = NIL 
+  THEN EVAL IdentSuffix 
+  END (*IF*) 
           ELSE (* Reserved word. *) 
             Attribute . SaIsReservedId := TRUE 
           ; Attribute . SaTok := GCurRwValue 
@@ -1302,6 +1308,16 @@ MODULE FM3Scanner
 
    (* ELSE Can't happen.  (Other values ruled out earlier). *)  
       END (* CASE *)
+
+; IF Attribute . Position . Line = 12
+     AND Attribute . Position . Column = 6
+  THEN
+    VAR VVV : INTEGER := 3
+  ; BEGIN VVV := 5
+    END 
+  END
+
+
     ; RETURN Attribute . SaTok 
     END GetToken
 

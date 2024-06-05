@@ -588,13 +588,15 @@ MODULE FM3Pass1
       THEN
         FM3Messages . ErrorArr
           ( ARRAY OF REFANY 
-              { "Identifier at end of "
+              { "Identifier \""
+              , EndIdScanAttribute . SaChars 
+              , "\" at end of "
               , FM3Units . UnitKindImage ( UnitKind )
-              , " \""
+              , " named \""
               , UnitRef ^ . UntUnitIdent 
-              , "\", named at " 
+              , "\", at " 
               , PosImage ( UnitRef ^ . UntUnitIdentPos )  
-              , " must repeat its name ("
+              , ", must repeat its name ("
               , FM3Units . UnitKindSectionNo ( UnitKind )
               , ")." 
               } 
@@ -1611,7 +1613,8 @@ MODULE FM3Pass1
        DO 
          FM3Messages . ErrorArr
            ( ARRAY OF REFANY 
-               { VarLabel [ WDeclInfo . DiKind ] 
+               { "Declared "
+               , VarLabel [ WDeclInfo . DiKind ] 
                , " must have a type and/or an initial value. "
                , VarSection [ WDeclInfo . DiKind  ]
                } 
@@ -1858,7 +1861,13 @@ MODULE FM3Pass1
         ; PutBwd ( WunRdBack , VAL ( WScan . Position . Line , LONGINT ) ) 
         ; PutBwd ( WunRdBack , VAL ( WScan . SaAtom , LONGINT ) ) 
         ; PutBwd ( WunRdBack , VAL ( Itk . ItkReservedId , LONGINT ) ) 
-        ELSE
+        ELSIF IdAttribute . Scan . SaChars = NIL
+        THEN (* Can this happen? *) 
+          PutBwd ( WunRdBack , VAL ( WScan . Position . Column , LONGINT ) ) 
+        ; PutBwd ( WunRdBack , VAL ( WScan . Position . Line , LONGINT ) ) 
+        ; PutBwd ( WunRdBack , VAL ( FM3Base . AtomNull , LONGINT ) ) 
+        ; PutBwd ( WunRdBack , VAL ( Itk . ItkIdRefAtomNotUsable , LONGINT ) ) 
+        ELSE 
           LAtom  
            := FM3Atom_OAChars . MakeAtom 
                 ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict

@@ -733,6 +733,7 @@ MODULE FM3CLArgs
 ; CONST OptionTokSetDefault 
           = FM3CLOptions . OptionTokSetTyp
              { Clt . CltStdErr 
+             , Clt . CltStdOut  
              , Clt . CltFM3Log 
              , Clt . CltStdErr 
              , Clt . CltUnitLog

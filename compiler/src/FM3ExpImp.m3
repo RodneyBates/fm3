@@ -118,7 +118,7 @@ MODULE FM3ExpImp
 
       (* Compare this to similar code in FM3Compile.CompileOrLoadCLUnit. *) 
       ; IF FM3Compile . FindAndOpenUnitSrcFile
-             ( LIntfUnitRef , Adjective := LAdjective )
+             ( LIntfUnitRef , LAdjective , Position )
            AND LIntfUnitRef ^ . UntState IN FM3Units . UnitStateSetUsable
         THEN
           FM3Units . UnitStackTopRef ^ . UntUnitRefDoingImporting

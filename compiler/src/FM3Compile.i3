@@ -23,7 +23,10 @@ INTERFACE FM3Compile
   *) 
 
 ; PROCEDURE FindAndOpenUnitSrcFile
-    ( UnitRef : FM3Units . UnitRefTyp ; Adjective : TEXT )
+    ( UnitRef : FM3Units . UnitRefTyp
+    ; Adjective : TEXT
+    ; ExpImpPosition : FM3Base . tPosition
+    )
   : BOOLEAN (* Success *)
   (* POST: IF result, then the source file for UnitRef^ was found and opened,
            and fields UntSrcFilePath, UntSrcUniRd, and UntState are set.
