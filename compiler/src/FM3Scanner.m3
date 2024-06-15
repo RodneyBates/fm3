@@ -123,7 +123,7 @@ MODULE FM3Scanner
      ( NewUniRd : UniRd . T ; UnitRef : FM3Units . UnitRefTyp ) 
   (* PRE: NewUniRd is open and ready to be read. but not locked. *) 
 
-  = VAR LSsRef : ScanStateRefTyp 
+  = VAR LSsRef : ScanStateRefTyp (* Topmost after push. *) 
 
   ; BEGIN 
       LSsRef := NEW ( ScanStateRefTyp ) 
@@ -166,15 +166,13 @@ MODULE FM3Scanner
 (* EXPORTED: *) 
 ; PROCEDURE PopState ( ) : UniRd . T (* Previous reader. *)  
 
-  = VAR LSsRef : ScanStateRefTyp 
+  = VAR LSsRef : ScanStateRefTyp (* Topmost before pop. *)
 
   ; BEGIN 
       IF GTopSsRef = NIL THEN RETURN NIL END (* IF *) 
     ; LSsRef := GTopSsRef 
     ; GTopSsRef := LSsRef ^ . SsLink 
-    ; IF GTopSsRef # NIL 
-      THEN Attribute := GTopSsRef ^ . SsSavedAttribute 
-      END (*IF*) 
+    ; Attribute := LSsRef ^ . SsSavedAttribute 
     ; TRY UniRd . Close ( LSsRef . SsUniRd ) 
       EXCEPT 
       | Thread . Alerted => (* Ignore *)  
