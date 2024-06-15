@@ -263,7 +263,7 @@ MODULE FM3ExpImp
     ; <* ASSERT LFromUnitDeclRef # NIL *>
       LIntoUnitRef := FM3Units . UnitStackTopRef
     ; LIntoIdentAtom
-        := FM3Compile . ConvertIdentAtom
+        := FM3Compile . ConvertAndCreateIdentAtom
              ( LFromUnitDeclRef ^ . DclIdAtom , FromUnitRef , LIntoUnitRef )
 (*CHECK: Can we get the hash of the chars? *) 
     ; <* ASSERT LIntoIdentAtom # FM3Base . AtomNull *>  
@@ -347,7 +347,6 @@ MODULE FM3ExpImp
               , IdScanAttribute . SaChars 
               , "\"" 
               , LNote
-              , Wr . EOL 
               }
           , IdScanAttribute . Position 
           )

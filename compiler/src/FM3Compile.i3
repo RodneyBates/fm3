@@ -66,7 +66,21 @@ INTERFACE FM3Compile
     ; FromUnitRef : FM3Units . UnitRefTyp 
     ; ToUnitRef : FM3Units . UnitRefTyp
     )
-  : FM3Base . AtomTyp 
+  : FM3Base . AtomTyp (* Could be FM3Base . AtomNull *)
+  (* Return the ident atom in ToUnitRef that has the same spelling 
+     that FromAtom has in FromUnitRef.  Null if anything fails.
+  *) 
+
+; PROCEDURE ConvertAndCreateIdentAtom
+    ( FromAtom : FM3Base . AtomTyp
+    ; FromUnitRef : FM3Units . UnitRefTyp 
+    ; ToUnitRef : FM3Units . UnitRefTyp
+    )
+  : FM3Base . AtomTyp (* Could be FM3Base . AtomNull *)
+  (* Return the ident atom in ToUnitRef that has the same spelling 
+     that FromAtom has in FromUnitRef, creating the atom in ToUnitRef
+     if it does not already exist.  
+  *) 
 
 ; END FM3Compile
 .

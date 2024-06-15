@@ -741,11 +741,6 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
              }
          , Position 
          )
-    ; WITH WppRdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack
-      DO PutBwdP2 ( WppRdBack , VAL ( Position . Column , LONGINT ) ) 
-      ; PutBwdP2 ( WppRdBack , VAL ( Position . Line , LONGINT ) ) 
-      ; PutBwdP2 ( WppRdBack , VAL ( Itk . ItkInvalidRef , LONGINT ) )
-      END (*WITH*) 
     END BadIdent
 
 ; PROCEDURE IdentRefR2L
@@ -756,15 +751,16 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
           to some trouble to ensure this.)
   *) 
 
-  = VAR LDeclNo : FM3Base . DeclNoTyp
+  = VAR LExpImpUnitRef : FM3Units . UnitRefTyp
+  ; VAR LDeclNo : FM3Base . DeclNoTyp
   ; VAR LProxy : FM3ExpImpProxy . T
   ; VAR LIntfNameChars : FM3Atom_OAChars . KeyTyp
-
+  ; VAR LImpIsUsable : BOOLEAN 
 
   ; BEGIN (*IdentRefR2L*)
       IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
       THEN RETURN 
-      END (*IF*) 
+      END (*IF*)
     ; WITH WppRdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack 
       DO IF FM3Scopes . LookupScopeStackTopRef 
             = FM3Units . UnitStackTopRef ^ . UntDeclScopeRef
@@ -777,35 +773,43 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
           LProxy
             := VarArray_Int_ExpImpProxy . Fetch
                  ( FM3Units . UnitStackTopRef ^ . UntExpImpMap , IdentRefAtom )
-        ; <* ASSERT LProxy . EipUnitNo # FM3Base . UnitNoNull *>
-          IF LProxy . EipDeclNo = FM3Base . DeclNoNull
-          THEN (* Interface name w/o a selection--illegal. *) 
-            IF NOT FM3Atom_OAChars . Key
-                     ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict
-                     , IdentRefAtom
-                     , (*OUT*) LIntfNameChars
-                     )
-            THEN LIntfNameChars := NIL
-            END (*IF*) 
-          ; FM3Messages . ErrorArr
-              ( ARRAY OF REFANY
-                  { "No declaration within imported interface \""
-                  , LIntfNameChars
-                  , "\" is selected. (2.6.3)."
-                  }
-              , Position
-              ) 
-          ; PutBwdP2 ( WppRdBack , VAL ( Position . Column , LONGINT ) ) 
-          ; PutBwdP2 ( WppRdBack , VAL ( Position . Line , LONGINT ) ) 
-          ; PutBwdP2 ( WppRdBack , VAL ( IdentRefAtom , LONGINT ) ) 
-          ; PutBwdP2
-              ( WppRdBack , VAL ( Itk . ItkIdRefAtomNotUsable , LONGINT ) )
-          ELSE (* A declaration brought in by EXPORTS or FROM I IMPORT. *)
-            PutBwdP2 ( WppRdBack , VAL ( Position . Column , LONGINT ) ) 
-          ; PutBwdP2 ( WppRdBack , VAL ( Position . Line , LONGINT ) ) 
-          ; PutBwdP2 ( WppRdBack , VAL ( LProxy . EipDeclNo , LONGINT ) ) 
-          ; PutBwdP2 ( WppRdBack , VAL ( LProxy . EipUnitNo , LONGINT ) ) 
-          ; PutBwdP2 ( WppRdBack , VAL ( Itk . ItkExpImpRef , LONGINT ) )
+        ; IF LProxy . EipUnitNo = FM3Base . UnitNoNull
+          THEN LImpIsUsable := FALSE
+          ELSE
+            LExpImpUnitRef
+              := VarArray_Int_Refany . Fetch
+                   ( FM3Units . UnitsMap , LProxy . EipUnitNo )
+          ; LImpIsUsable
+              := LExpImpUnitRef ^ . UntState IN FM3Units . UnitStateSetUsable 
+          END (*IF*)
+        ; IF LImpIsUsable
+          THEN 
+            IF LProxy . EipDeclNo = FM3Base . DeclNoNull
+            THEN (* Interface name w/o a selection--illegal. *) 
+              IF NOT FM3Atom_OAChars . Key
+                       ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict
+                       , IdentRefAtom
+                       , (*OUT*) LIntfNameChars
+                       )
+              THEN LIntfNameChars := NIL
+              END (*IF*) 
+            ; FM3Messages . ErrorArr
+                ( ARRAY OF REFANY
+                    { "No declaration within imported interface \""
+                    , LIntfNameChars
+                    , "\" is selected. (2.6.3)."
+                    }
+                , Position
+                ) 
+            ELSE (* A declaration brought in by EXPORTS or FROM I IMPORT. *)
+            (* Read the following backwards: *) 
+              PutBwdP2 ( WppRdBack , VAL ( Position . Column , LONGINT ) ) 
+            ; PutBwdP2 ( WppRdBack , VAL ( Position . Line , LONGINT ) ) 
+            ; PutBwdP2 ( WppRdBack , VAL ( LProxy . EipDeclNo , LONGINT ) ) 
+            ; PutBwdP2 ( WppRdBack , VAL ( LProxy . EipUnitNo , LONGINT ) ) 
+            ; PutBwdP2 ( WppRdBack , VAL ( Itk . ItkExpImpRef , LONGINT ) )
+            ; RETURN 
+            END (*IF*)
           END (*IF*) 
         ELSE (* Look for a reference to a local declaration. *) 
           LDeclNo := LookupBlockRef ( IdentRefAtom )
@@ -814,12 +818,20 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
             BadIdent ( "Undeclared identifier" , IdentRefAtom , Position )
           ELSE (* It names a local declaration. *)
           (* Change to a reference token with DeclNo instead of Atom. *)
+          (* Read the following backwards: *) 
             PutBwdP2 ( WppRdBack , VAL ( Position . Column , LONGINT ) ) 
           ; PutBwdP2 ( WppRdBack , VAL ( Position . Line , LONGINT ) ) 
           ; PutBwdP2 ( WppRdBack , VAL ( LDeclNo , LONGINT ) ) 
           ; PutBwdP2 ( WppRdBack , VAL ( Itk . ItkIdRefDeclNo , LONGINT ) )
+          ; RETURN 
           END (*IF*) 
         END (*IF*)
+      (* No usable meaning found. *) 
+      (* Read the following backwards: *) 
+      ; PutBwdP2 ( WppRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwdP2 ( WppRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwdP2 ( WppRdBack , VAL ( IdentRefAtom , LONGINT ) ) 
+      ; PutBwdP2 ( WppRdBack , VAL ( Itk . ItkIdRefAtomNotUsable , LONGINT ) )
       END (*WITH*) 
     END IdentRefR2L
 
@@ -827,15 +839,24 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
   (* (NON)PRE: No operands have been read. *) 
 
   = VAR LIntfUnitRef : FM3Units . UnitRefTyp
+  ; VAR LExpImpUnitRef : FM3Units . UnitRefTyp 
   ; VAR LIntfScopeRef : FM3Scopes . ScopeRefTyp
   ; VAR LNote : TEXT
   ; VAR LIdentChars : FM3Atom_OAChars . KeyTyp 
   ; VAR LDeclNo : FM3Base . DeclNoTyp
   ; VAR LAtomLt , LAtomRt : FM3Base . AtomTyp
+  ; VAR LNotUsableTok : FM3Base . AtomTyp 
+  ; VAR LNotUsablePos : FM3Base . tPosition 
   ; VAR LIntfRtAtom : FM3Base . AtomTyp
   ; VAR LIntfDeclNoInt : INTEGER 
   ; VAR LPosLt , LPosRt : FM3Base . tPosition
   ; VAR LProxy : FM3ExpImpProxy . T
+  ; VAR LImpIsUsable : BOOLEAN
+
+(* TODO: This is so convoluted, I have no confidence that I understand it.
+         Rewrite, and if necessary, abandon the misquided attempt to
+         have only one copy of the code emitting ItkIdRefAtomNotUsable.
+*) 
 
   ; BEGIN (*QualIdentR2L*)
       LAtomLt := GetBwdAtom ( Pass1RdBack ) 
@@ -848,36 +869,69 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
     ; WITH WppRdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack 
       DO IF FM3Scopes . LookupScopeStackTopRef 
             = FM3Units . UnitStackTopRef ^ . UntDeclScopeRef
+              (*^ We are in the topmost scope of the unit. *) 
             AND IntSets . IsElement
-                  ( LAtomLt
-                  , FM3Units . UnitStackTopRef ^ . UntExpImpIdSet
-                  )
-        THEN (* It's [ex|im]ported. *)
+                  ( LAtomLt , FM3Units . UnitStackTopRef ^ . UntExpImpIdSet )
+        THEN (* Left ident is [ex|im]ported. *)
           LProxy
             := VarArray_Int_ExpImpProxy . Fetch
                  ( FM3Units . UnitStackTopRef ^ . UntExpImpMap , LAtomLt )
-        ; IF LProxy . EipDeclNo = FM3Base . DeclNoNull
-          THEN (* Interface name w/o a selection. *)
-            LIntfUnitRef (*Implicit NARROW*) 
+        ; IF LProxy . EipUnitNo = FM3Base . UnitNoNull
+          THEN LImpIsUsable := FALSE
+          ELSE
+            LExpImpUnitRef
               := VarArray_Int_Refany . Fetch
                    ( FM3Units . UnitsMap , LProxy . EipUnitNo )
-          ; <* ASSERT LIntfUnitRef # NIL *>
-            LIntfRtAtom
-              := FM3Compile . ConvertIdentAtom
-                   ( LAtomRt
-                   , FM3Units . UnitStackTopRef
-                   , ToUnitRef := LIntfUnitRef
-                   )
-          ; LIntfScopeRef := LIntfUnitRef ^ . UntDeclScopeRef
-          ; IF IntSets . IsElement
-                 ( LIntfRtAtom , LIntfScopeRef ^ . ScpDeclIdSet )
-            THEN (* Right ident is known in left-denoted interface. *) 
-              IF IntSets . IsElement
-                   ( LIntfRtAtom , LIntfUnitRef ^ . UntExpImpIdSet )
-              THEN (* But it's imported there. *)
-                LNote := FM3ExpImp . NonTransitiveNote 
-              ELSE (* Found the right ident, declared in the interface unit. *)
-                LNote := NIL 
+          ; LImpIsUsable
+              := LExpImpUnitRef ^ . UntState IN FM3Units . UnitStateSetUsable 
+          END (*IF*)
+        ; IF LImpIsUsable
+          THEN 
+            IF LProxy . EipDeclNo = FM3Base . DeclNoNull
+            THEN (* Left denotes an interface. *)
+              LIntfUnitRef (*Implicit NARROW*) 
+                := VarArray_Int_Refany . Fetch
+                     ( FM3Units . UnitsMap , LProxy . EipUnitNo )
+            ; <* ASSERT LIntfUnitRef # NIL *>
+              LIntfRtAtom
+                := FM3Compile . ConvertIdentAtom
+                     ( LAtomRt
+                     , FM3Units . UnitStackTopRef
+                     , ToUnitRef := LIntfUnitRef
+                     )
+            ; LIntfScopeRef := LIntfUnitRef ^ . UntDeclScopeRef
+            ; IF IntSets . IsElement
+                   ( LIntfRtAtom , LIntfScopeRef ^ . ScpDeclIdSet )
+              THEN (* Right ident is known in left-denoted interface. *)
+                IF IntSets . IsElement
+                     ( LIntfRtAtom , LIntfUnitRef ^ . UntExpImpIdSet )
+                THEN (* But it's imported there, =>not declared. *)
+                  IF NOT FM3Atom_OAChars . Key
+                           ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict
+                           , LAtomRt 
+                           , (*OUT*) LIdentChars
+                           )
+                  THEN LIdentChars := NIL
+                  END (*IF*) 
+                ; FM3Messages . ErrorArr
+                    ( ARRAY OF REFANY
+                        { "Interface \""
+                        , LIntfUnitRef ^ . UntUnitIdent
+                        , "\" does not declare \""
+                        , LIdentChars 
+                        , "\" (2.6.3)"
+                        , FM3ExpImp . NonTransitiveNote 
+                        }
+                    , LPosRt
+                    )
+                (* Read the following backwards: *) 
+                ; PutBwdP2 ( WppRdBack , VAL ( LPosRt . Column , LONGINT ) ) 
+                ; PutBwdP2 ( WppRdBack , VAL ( LPosRt . Line , LONGINT ) ) 
+                ; PutBwdP2 ( WppRdBack , VAL ( LAtomRt , LONGINT ) ) 
+                ; PutBwdP2
+                    ( WppRdBack , VAL ( Itk . ItkIdRefAtomNotUsable , LONGINT ) )
+                ; RETURN 
+                END (*IF*) 
               ; <* ASSERT
                      FM3Dict_Int_Int . LookupFixed 
                        ( LIntfScopeRef ^ . ScpDeclDict
@@ -897,62 +951,74 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
               ; PutBwdP2
                   ( WppRdBack , VAL ( Itk . ItkQualIdUnitNoDeclNo , LONGINT ) )
               ; RETURN 
+              ELSE (* Fall thru'*) 
+              END (*IF*)
+
+            (* Right ident is not declared in left-named interface. *)
+            ; IF NOT FM3Atom_OAChars . Key
+                       ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict
+                       , LAtomRt 
+                       , (*OUT*) LIdentChars
+                       )
+              THEN LIdentChars := NIL
               END (*IF*) 
+            ; FM3Messages . ErrorArr
+                ( ARRAY OF REFANY
+                    { "Interface \""
+                    , LIntfUnitRef ^ . UntUnitIdent
+                    , "\" does not declare \""
+                    , LIdentChars 
+                    , "\" (2.6.3)"
+                    }
+                , LPosRt
+                )
+            ; LNotUsableTok := LAtomRt
+            ; LNotUsablePos := LPosRt 
+            (* Fall thru' again. *)
+            
+            ELSE (* Left denotes a decl, brought in by EXPORTS or FROM-IMPORT. *)
+            (* Turn it into an imported- expression-dot construct. *) 
+            (* Read the following backwards: *) 
+              PutBwdP2 ( WppRdBack , VAL ( LPosLt . Column , LONGINT ) ) 
+            ; PutBwdP2 ( WppRdBack , VAL ( LPosLt . Line , LONGINT ) ) 
+            ; PutBwdP2 ( WppRdBack , VAL ( LAtomRt , LONGINT ) ) 
+            ; PutBwdP2 ( WppRdBack , VAL ( Itk . ItkExprDotLt , LONGINT ) )
+
+            ; PutBwdP2 ( WppRdBack , VAL ( LPosLt . Column , LONGINT ) ) 
+            ; PutBwdP2 ( WppRdBack , VAL ( LPosLt . Line , LONGINT ) ) 
+            ; PutBwdP2 ( WppRdBack , VAL ( LProxy . EipDeclNo , LONGINT ) ) 
+            ; PutBwdP2 ( WppRdBack , VAL ( LProxy . EipUnitNo , LONGINT ) ) 
+            ; PutBwdP2 ( WppRdBack , VAL
+                ( Itk . ItkQualIdUnitNoDeclNo , LONGINT ) )
+
+            ; PutBwdP2 ( WppRdBack , VAL ( LPosLt . Column , LONGINT ) ) 
+            ; PutBwdP2 ( WppRdBack , VAL ( LPosLt . Line , LONGINT ) ) 
+            ; PutBwdP2 ( WppRdBack , VAL ( LAtomRt , LONGINT ) ) 
+            ; PutBwdP2 ( WppRdBack , VAL ( Itk . ItkExprDotRt , LONGINT ) )
+            ; RETURN 
             END (*IF*)
-
-          (* Right ident is not declared in left-named interface. *)
-          ; IF NOT FM3Atom_OAChars . Key
-                     ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict
-                     , LAtomRt 
-                     , (*OUT*) LIdentChars
-                     )
-            THEN LIdentChars := NIL
-            END (*IF*) 
-          ; FM3Messages . ErrorArr
-              ( ARRAY OF REFANY
-                  { "Interface \""
-                  , LIntfUnitRef ^ . UntUnitIdent
-                  , "\" does not declare \""
-                  , LIdentChars 
-                  , "\" (2.6.3)"
-                  , LNote 
-                  }
-              , LPosRt
-              ) 
-          (* Read the following backwards: *) 
-          ; PutBwdP2 ( WppRdBack , VAL ( LPosLt . Column , LONGINT ) ) 
-          ; PutBwdP2 ( WppRdBack , VAL ( LPosLt . Line , LONGINT ) ) 
-          ; PutBwdP2 ( WppRdBack , VAL ( Itk . ItkInvalidRef , LONGINT ) )
-          ELSE (* Left declaration brought in by EXPORTS or FROM I IMPORT. *)
-          
-          (* Turn it into a expression-dot construct. *) 
-          (* Read the following backwards: *) 
-            PutBwdP2 ( WppRdBack , VAL ( LPosLt . Column , LONGINT ) ) 
-          ; PutBwdP2 ( WppRdBack , VAL ( LPosLt . Line , LONGINT ) ) 
-          ; PutBwdP2 ( WppRdBack , VAL ( LAtomRt , LONGINT ) ) 
-          ; PutBwdP2 ( WppRdBack , VAL ( Itk . ItkExprDotLt , LONGINT ) )
-
-          ; PutBwdP2 ( WppRdBack , VAL ( LPosLt . Column , LONGINT ) ) 
-          ; PutBwdP2 ( WppRdBack , VAL ( LPosLt . Line , LONGINT ) ) 
-          ; PutBwdP2 ( WppRdBack , VAL ( LProxy . EipDeclNo , LONGINT ) ) 
-          ; PutBwdP2 ( WppRdBack , VAL ( LProxy . EipUnitNo , LONGINT ) ) 
-          ; PutBwdP2 ( WppRdBack , VAL
-              ( Itk . ItkQualIdUnitNoDeclNo , LONGINT ) )
-          
-          ; PutBwdP2 ( WppRdBack , VAL ( LPosLt . Column , LONGINT ) ) 
-          ; PutBwdP2 ( WppRdBack , VAL ( LPosLt . Line , LONGINT ) ) 
-          ; PutBwdP2 ( WppRdBack , VAL ( LAtomRt , LONGINT ) ) 
-          ; PutBwdP2 ( WppRdBack , VAL ( Itk . ItkExprDotRt , LONGINT ) )
-          END (*IF*) 
+          ELSE (* Left id is not usable. *)
+            LNotUsableTok := LAtomLt
+          ; LNotUsablePos := LPosLt 
+          (* And Fall thru' *) 
+          END (*IF*)
 
         ELSE (* Look for a left reference to a local declaration. *) 
           LDeclNo := LookupBlockRef ( LAtomLt )
         ; IF LDeclNo = FM3Base . DeclNoNull
           THEN (* Undeclared. *) 
-            BadIdent ( "Undeclared identifier" , LAtomLt , LPosLt )
+            FM3Messages . ErrorArr
+             ( ARRAY OF REFANY
+                 { "Undeclared identifier" 
+                 , " \""
+                 , FM3Units . TextOfIdAtom ( LAtomLt )
+                 , "\", (2.1)." 
+                 }
+             , LPosLt
+             )
           ELSE (* Lt names a local declaration that is not an interface. *)
 
-          (* Turn the qualident into an expression-dot construct. *)
+          (* Turn the qualident into an id-expression-dot construct. *)
           (* Read the following backwards: *) 
             PutBwdP2 ( WppRdBack , VAL ( LPosLt . Column , LONGINT ) ) 
           ; PutBwdP2 ( WppRdBack , VAL ( LPosLt . Line , LONGINT ) ) 
@@ -968,8 +1034,17 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
           ; PutBwdP2 ( WppRdBack , VAL ( LPosLt . Line , LONGINT ) ) 
           ; PutBwdP2 ( WppRdBack , VAL ( LAtomRt , LONGINT ) ) 
           ; PutBwdP2 ( WppRdBack , VAL ( Itk . ItkExprDotRt , LONGINT ) )
+          ; RETURN 
           END (*IF*) 
         END (*IF*)
+
+      (* No usable meaning found. *) 
+      (* Read the following backwards: *) 
+      ; PutBwdP2 ( WppRdBack , VAL ( LNotUsablePos . Column , LONGINT ) ) 
+      ; PutBwdP2 ( WppRdBack , VAL ( LNotUsablePos . Line , LONGINT ) ) 
+      ; PutBwdP2 ( WppRdBack , VAL ( LNotUsableTok , LONGINT ) ) 
+      ; PutBwdP2 ( WppRdBack , VAL ( Itk . ItkIdRefAtomNotUsable , LONGINT ) )
+
       END (*WITH*) 
     END QualIdentR2L
 

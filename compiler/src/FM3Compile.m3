@@ -350,28 +350,64 @@ MODULE  FM3Compile
     ; FromUnitRef : FM3Units . UnitRefTyp 
     ; ToUnitRef : FM3Units . UnitRefTyp
     )
-  : FM3Base . AtomTyp 
+  : FM3Base . AtomTyp (* Could be FM3Base . AtomNull *)
+  (* Return the ident atom in ToUnitRef that has the same spelling 
+     that FromAtom has in FromUnitRef.  Null if anything fails.
+  *) 
 
   = VAR LIdentChars : FM3Atom_OAChars . KeyTyp
         (* The chars are the same in both units. *) 
   ; VAR LToAtom : FM3Base . AtomTyp 
 
   ; BEGIN
-      <* ASSERT
-           FM3Atom_OAChars . Key
-             ( FromUnitRef ^ . UntIdentAtomDict
-             , FromAtom
-             , (*OUT*) LIdentChars
-             )
-      *>
-      LToAtom
-        := FM3Atom_OAChars . MakeAtom
+      IF NOT FM3Atom_OAChars . Key
+               ( FromUnitRef ^ . UntIdentAtomDict
+               , FromAtom
+               , (*OUT*) LIdentChars
+               )
+      THEN RETURN FM3Base . AtomNull
+      END (*IF*) 
+    ; LToAtom (* Lookup the ident among the remote unit's atoms. *) 
+        := FM3Atom_OAChars . LookupKey  
              ( ToUnitRef ^ . UntIdentAtomDict
-             , LIdentChars
-             , FM3Utils . HashNull
+             , LIdentChars 
+             , FM3Utils . HashNull 
              )
     ; RETURN LToAtom  
     END ConvertIdentAtom 
+    
+(*EXPORTED*)
+; PROCEDURE ConvertAndCreateIdentAtom
+    ( FromAtom : FM3Base . AtomTyp
+    ; FromUnitRef : FM3Units . UnitRefTyp 
+    ; ToUnitRef : FM3Units . UnitRefTyp
+    )
+  : FM3Base . AtomTyp (* Could be FM3Base . AtomNull *)
+  (* Return the ident atom in ToUnitRef that has the same spelling 
+     that FromAtom has in FromUnitRef, creating the atom in ToUnitRef
+     if it does not already exist.  
+  *) 
+
+  = VAR LIdentChars : FM3Atom_OAChars . KeyTyp
+        (* The chars are the same in both units. *) 
+  ; VAR LToAtom : FM3Base . AtomTyp 
+
+  ; BEGIN
+      IF NOT FM3Atom_OAChars . Key
+               ( FromUnitRef ^ . UntIdentAtomDict
+               , FromAtom
+               , (*OUT*) LIdentChars
+               )
+      THEN RETURN FM3Base . AtomNull
+      END (*IF*) 
+    ; LToAtom (* Lookup/create the ident among the to-unit's atoms. *) 
+        := FM3Atom_OAChars . MakeAtom   
+             ( ToUnitRef ^ . UntIdentAtomDict
+             , LIdentChars 
+             , FM3Utils . HashNull 
+             )
+    ; RETURN LToAtom  
+    END ConvertAndCreateIdentAtom 
     
 ; BEGIN
     SearchPathShown := FALSE 
