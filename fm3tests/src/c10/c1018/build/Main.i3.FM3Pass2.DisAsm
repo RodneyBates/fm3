@@ -8,7 +8,7 @@
  ItkDeclNo(D2,[3,12])
  ItkVarDeclIdListRt(L2(16_2),[3,6])
  ItkVarDeclType([3,16])
- ItkReservedId(Rid"<Undef>",[3,18])
+ ItkReservedId(Rid"INTEGER",[3,18])
  ItkVarDeclVal([4,0])
  ItkDeclValAbsent()
  ItkVarDeclRt([3,6])
