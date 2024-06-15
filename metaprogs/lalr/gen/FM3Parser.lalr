@@ -546,7 +546,7 @@ RULE
               ( $0 . PaRefany (* Implied NARROW *) , $1 . Scan ) ; 
      } . 
    
-   FromImportIdPlusList : FromImportPlusList StkComma StkIdent
+   FromImportIdPlusList : FromImportIdPlusList StkComma StkIdent
      { <* ASSERT $0 . PaRefany # NIL *>
        EVAL FM3ExpImp . ImportDeclByIdent
               ( $0 . PaRefany (* Implied NARROW *) , $3 . Scan ) ; 
@@ -572,7 +572,7 @@ RULE
 
    Exports : StkRwEXPORTS ExportIdPlusList .
 
-   ExportIdPlusList : StkExportIdent . 
+   ExportIdPlusList : ExportIdent . 
 
    ExportIdPlusList : ExportIdPlusList StkComma ExportIdent . 
 
