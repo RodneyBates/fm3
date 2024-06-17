@@ -23,6 +23,6 @@ End unit Level2.i3
 End unit Intf.i3
 [32mFM3: [0mPass 1 output file Main.m3.FM3Pass1 has 340 bytes.
 [32mFM3: [0mPatch stack Main.m3.FM3Patch peak size = 34 bytes.
-[32mFM3: [0mPass 2 output file Main.m3.FM3Pass2 has 256 bytes.
+[32mFM3: [0mPass 2 output file Main.m3.FM3Pass2 has 250 bytes.
 [32mFM3: [0mFinished compiling Main.m3.
 End unit Main.m3

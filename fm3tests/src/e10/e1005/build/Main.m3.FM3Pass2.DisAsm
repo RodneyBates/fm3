@@ -29,7 +29,6 @@
  ItkTypeDeclLt([14,7])
  ItkDeclNo(D9,[14,7])
  ItkTypeDeclEquals([14,14])
- ItkIdRefAtomNotUsable(Id0"<NoAtomIdent>",[280,0])
  ItkTypeDeclRt([14,7])
  ItkBlockDeclListSep(L5(16_5),[15,0])
  ItkTypeDeclLt([15,7])
