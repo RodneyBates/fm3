@@ -1,5 +1,9 @@
 MODULE Main
 
+(* CT errors concerning exports and imports,
+   mostly detected in FM3ExpImp.m3.
+*) 
+
 EXPORTS Main
 , Exp  
 
