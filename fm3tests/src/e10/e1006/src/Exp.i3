@@ -1,0 +1,13 @@
+INTERFACE Exp
+
+; FROM Deeper IMPORT D1 
+
+; CONST M4 = D1
+
+; CONST E1 = 17 
+; CONST E2 = 19 
+; CONST E3 = 23 
+; CONST E4 = 29 
+
+; END Exp
+. 
