@@ -2047,7 +2047,7 @@ MODULE FM3Pass1
         
       ; LDeclCt := IntSets . Card ( ScopeRef ^ . ScpDeclIdSet )
       ; LUnitRef := ScopeRef ^ . ScpOwningUnitRef
-(* Probably remove: 
+(* Probably remove, done earlier: 
       ; IF LUnitRef ^ . UntDeclScopeRef = ScopeRef
         THEN (* Top scope of a unit.  Plan to include its [ex|im]ports. *) 
           INC ( LDeclCt , LUnitRef . UntExpImpCt )  
@@ -2060,7 +2060,7 @@ MODULE FM3Pass1
                ( LDeclCt , FM3SharedUtils . IntHash )
       ; SrtDeclNo := FM3Units . AllocateDeclNos ( LDeclCt )
       ; LExpectedToDeclNo := SrtDeclNo + LDeclCt 
-(* Probably remove: 
+(* Probably remove done earllier: 
       ; IF LUnitRef # NIL
         THEN IntSets . ForAllDo ( LUnitRef ^ . UntExpImpIdSet , SrtVisit )
              (* ^Do the [ex|im]ports first, so their Decl Nos will be low

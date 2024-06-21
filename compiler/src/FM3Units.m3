@@ -108,7 +108,7 @@ MODULE FM3Units
     ; LUnitRef ^ . UntPatchStackSimpleName := NIL
     ; LUnitRef ^ . UntPatchStackRdBack := NIL
     ; LUnitRef ^ . UntMaxPatchStackDepth := 0L 
-    ; LUnitRef ^ . UntUnitRefDoingImporting := NIL 
+    ; LUnitRef ^ . UntImportingUnitRef := NIL 
     ; LUnitRef ^ . UntPositionOfImport := FM3Base . PositionNull  
     ; LUnitRef ^ . UntPass1OutSimpleName := NIL
     ; LUnitRef ^ . UntPass1OutRdBack := NIL

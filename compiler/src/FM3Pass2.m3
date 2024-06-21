@@ -532,7 +532,8 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
               , "." 
               }
           , Position 
-          ) 
+          )
+      ; RETURN FM3Base . DeclNoNull 
       END (*IF*) 
     END LookupDeclNo
 

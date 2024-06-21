@@ -36,6 +36,11 @@ INTERFACE FM3Base
 ; CONST DeclNoNotUseable = DeclNoNull + 1 
 ; CONST DeclNoFirstReal = DeclNoNotUseable + 1
 
+(* Note lack of periods, for Pathname.Join. *)  
+; CONST InterfaceFileNameSuffix = "i3" 
+; CONST ModuleFileNameSuffix = "m3"
+(* Any need for generics? *) 
+
 ; TYPE MapTyp = VarArray_Int_Refany . T 
 
 
@@ -67,6 +72,7 @@ INTERFACE FM3Base
 
 ; TYPE Card64Typ = [ 0L .. 16_7FFFFFFFFFFFFFFFL ] 
   (* ^64 bit cardinal *)
+  (* NOTE: This is only the positive half of the 64-bit signed range. *) 
   (* Works on a 32- or 64-bit host. *) 
 
 ; TYPE Int64Typ = [ - 16_7FFFFFFFFFFFFFFFL - 1L .. 16_7FFFFFFFFFFFFFFFL ] 

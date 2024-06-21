@@ -118,7 +118,7 @@ INTERFACE FM3Units
       ; UntCharsLitAtomDict : FM3Atom_OAChars . T := NIL (* TEXT literals. *) 
       ; UntWCharsLitAtomDict : FM3Atom_OAWideChars . T := NIL
           (* ^Wide TEXT literals. *)
-      ; UntUnitRefDoingImporting : UnitRefTyp
+      ; UntImportingUnitRef : UnitRefTyp
           (* ^The unit this one is in process of [ex|im]porting. *) 
       ; UntPositionOfImport : FM3Base . tPosition
           (* ^Of the being-[ex|im]ported identifier. *) 
