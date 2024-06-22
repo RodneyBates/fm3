@@ -39,10 +39,11 @@ MODULE  FM3Compile
 ; TYPE Us = FM3Units . UnitStateTyp 
 
 (*EXPORTED.*)
-; PROCEDURE UnitRefOfFileName ( SrcFileName : TEXT ) : FM3Units . UnitRefTyp
-  (* POST: Result, # NIL, references a unit whose source file is named in
+; PROCEDURE GetUnitRefOfFileName ( SrcFileName : TEXT ) : FM3Units . UnitRefTyp
+  (* POST: Result, # NIL, references a UnitTyp whose source file is named in
            FM3Units . UnitsAtomDict, and has field UntSrcFileSimpleName set,
-           both cases using the simple name taken from SrcFileName.
+           using the simple name taken from SrcFileName.
+           Allocate the UnitTyp if necessary. 
   *) 
 
   = VAR LSimpleName : TEXT
@@ -68,7 +69,7 @@ MODULE  FM3Compile
           ( FM3Units . UnitsMap , LUnitNameAtom , LUnitRef )
       END (*IF*)
     ; RETURN LUnitRef
-    END UnitRefOfFileName
+    END GetUnitRefOfFileName
 
 ; VAR SearchPathShown := FALSE 
 
@@ -311,7 +312,7 @@ MODULE  FM3Compile
   = VAR LUnitRef : FM3Units . UnitRefTyp
 
   ; BEGIN 
-      LUnitRef := UnitRefOfFileName ( SrcFileName )
+      LUnitRef := GetUnitRefOfFileName ( SrcFileName )
     ; IF LUnitRef . UntState = Us . UsNull 
       THEN (* Haven't seen this unit yet. *)
       (* Compile it. *)

@@ -552,7 +552,7 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
         TRY 
           LFound
             := FM3Dict_Int_Int . LookupFixed
-                 ( FM3Units . UnitStackTopRef ^ . UntDeclScopeRef
+                 ( FM3Units . UnitStackTopRef ^ . UntScopeRef
                    ^ . ScpDeclDict
                  , IdAtom
                  , FM3Base . HashNull
@@ -569,29 +569,29 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
 ; PROCEDURE LookupBlockRef ( IdAtom : FM3Base . AtomTyp ) : FM3Base . DeclNoTyp
   (* Starting at lookup TOS. *) 
 
-  = VAR LBlockScopeRef : FM3Scopes . ScopeRefTyp 
+  = VAR LScopeRef : FM3Scopes . ScopeRefTyp 
   ; VAR LDeclNoInt : INTEGER
   ; VAR LFound : BOOLEAN 
 
   ; BEGIN (*LookupBlockRef*)
-      LBlockScopeRef := FM3Scopes . LookupScopeStackTopRef
+      LScopeRef := FM3Scopes . LookupScopeStackTopRef
     ; LOOP
-        IF LBlockScopeRef = NIL (* Undeclared *) 
+        IF LScopeRef = NIL (* Undeclared *) 
         THEN RETURN FM3Base . DeclNoNull 
         END (*IF*) 
-      ; IF NOT LBlockScopeRef ^ . ScpKind IN FM3Scopes . ScopeKindSetBlock
+      ; IF NOT LScopeRef ^ . ScpKind IN FM3Scopes . ScopeKindSetBlock
            (* ^Can this happen? *) 
         THEN (* Skip over this scope. *)
-          LBlockScopeRef := LBlockScopeRef ^ . ScpLookupStackLink
+          LScopeRef := LScopeRef ^ . ScpLookupStackLink
         ELSIF NOT IntSets . IsElement
-                    ( IdAtom , LBlockScopeRef ^ . ScpDeclIdSet )   
+                    ( IdAtom , LScopeRef ^ . ScpDeclIdSet )   
         THEN (* Try an outer scope. *) 
-          LBlockScopeRef := LBlockScopeRef ^ . ScpLookupStackLink
+          LScopeRef := LScopeRef ^ . ScpLookupStackLink
         ELSE
           TRY 
             LFound
               := FM3Dict_Int_Int . LookupFixed
-                   ( LBlockScopeRef ^ . ScpDeclDict
+                   ( LScopeRef ^ . ScpDeclDict
                    , IdAtom
                    , FM3Base . HashNull
                    , (*OUT*) LDeclNoInt 
@@ -780,12 +780,10 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
       END (*IF*)
     ; WITH WppRdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack 
       DO IF FM3Scopes . LookupScopeStackTopRef 
-            = FM3Units . UnitStackTopRef ^ . UntDeclScopeRef
+            = FM3Units . UnitStackTopRef ^ . UntScopeRef
               (*^ We are in the topmost scope of the unit. *) 
             AND IntSets . IsElement
-                  ( IdentRefAtom
-                  , FM3Units . UnitStackTopRef ^ . UntExpImpIdSet
-                  )
+                  ( IdentRefAtom , FM3Units . UnitStackTopRef ^ . UntExpImpIdSet )
         THEN (* It's [ex|im]ported. *)
           LProxy
             := VarArray_Int_ExpImpProxy . Fetch
@@ -876,7 +874,7 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
       END (*IF*) 
     ; WITH WppRdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack 
       DO IF FM3Scopes . LookupScopeStackTopRef 
-            = FM3Units . UnitStackTopRef ^ . UntDeclScopeRef
+            = FM3Units . UnitStackTopRef ^ . UntScopeRef
               (*^ Looking up in the topmost scope of the unit. *) 
             AND IntSets . IsElement
                   ( LAtomLt , FM3Units . UnitStackTopRef ^ . UntExpImpIdSet )
@@ -907,7 +905,7 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
                      , FromUnitRef := FM3Units . UnitStackTopRef
                      , ToUnitRef := LIntfUnitRef
                      )
-            ; LIntfScopeRef := LIntfUnitRef ^ . UntDeclScopeRef
+            ; LIntfScopeRef := LIntfUnitRef ^ . UntScopeRef
             ; IF IntSets . IsElement
                    ( LIntfRtAtom , LIntfScopeRef ^ . ScpDeclIdSet )
               THEN (* Right ident is known in left-denoted interface. *)

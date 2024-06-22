@@ -19,6 +19,7 @@ INTERFACE FM3Base
 ; CONST AtomNull = FIRST ( CARDINAL )
 ; CONST AtomFirstReal = AtomNull + 1 
 
+; TYPE UnitRefTyp <: REFANY 
 ; TYPE UnitNoTyp = CARDINAL
 ; CONST UnitNoNull = FIRST ( CARDINAL )
 ; CONST UnitNoMax = LAST ( CARDINAL ) 
@@ -30,6 +31,7 @@ INTERFACE FM3Base
 ; CONST ScopeNoMax = LAST ( CARDINAL ) 
 ; CONST ScopeNoFirstReal = ScopeNoNull + 1
 
+; TYPE DeclRefTyp <: REFANY 
 ; TYPE DeclNoTyp = CARDINAL
 ; CONST DeclNoNull = FIRST ( CARDINAL )
 ; CONST DeclNoMax = LAST ( CARDINAL )

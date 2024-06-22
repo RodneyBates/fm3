@@ -80,7 +80,7 @@ INTERFACE FM3Scopes
     ; READONLY Position : FM3Base . tPosition
     )
   : ScopeRefTyp
-  (* Allocate and connect a ScopeNo and ScopeRef Owned by OwningUnitRef. *) 
+  (* Allocate and connect a ScopeNo and ScopeRef, owned by OwningUnitRef. *) 
 
 ; PROCEDURE ScopeRefOfScopeNo ( ScopeNo : FM3Base . ScopeNoTyp ) : ScopeRefTyp 
   (* In the current unit. *) 
@@ -97,7 +97,8 @@ INTERFACE FM3Scopes
       
 ; VAR LookupScopeStackTopRef : ScopeRefTyp := NIL
       (* Another global, linked stack containing scopes from multiple units.
-         Unqualified ident references are searched top-to-bottom. *) 
+         Inner scopes are on top.  Unqualified ident references are searched
+         top down to the enclosing unit scope. *) 
 ; VAR LookupScopeStackCt : INTEGER := 0 
       
 ; PROCEDURE PushDeclScopeRef ( ScopeRef : ScopeRefTyp ) 

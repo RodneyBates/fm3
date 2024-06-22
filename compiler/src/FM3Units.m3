@@ -115,7 +115,7 @@ MODULE FM3Units
     ; LUnitRef ^ . UntMaxPass1OutLength := 0L 
     ; LUnitRef ^ . UntPass2OutSimpleName := NIL
     ; LUnitRef ^ . UntPass2OutRdBack := NIL
-    ; LUnitRef ^ . UntDeclScopeRef := NIL
+    ; LUnitRef ^ . UntScopeRef := NIL
     ; LUnitRef ^ . UntExpImpCt := FM3Base . DeclNoNull 
     ; LUnitRef ^ . UntSkipStackBase := 0 
     ; LUnitRef ^ . UntUnitIdent := NIL 
@@ -175,8 +175,8 @@ MODULE FM3Units
     END NewUnitRef
     
 (*EXPORTED.*)
-; PROCEDURE AllocateDeclNos ( Ct : INTEGER ) : INTEGER 
-  (* Allocate a contiguous range of Ct Decl numbers, unique
+; PROCEDURE AllocateDeclNos ( Count : INTEGER ) : INTEGER 
+  (* Allocate a contiguous range of Count Decl numbers, unique
      within the current scope, and return the lowest number.
   *) 
 
@@ -185,7 +185,7 @@ MODULE FM3Units
   ; BEGIN (*AllocateDeclNos*)
       IF UnitStackTopRef = NIL THEN RETURN FM3Base . DeclNoNull END (*IF*)
     ; LResult := UnitStackTopRef ^ . UntNextDeclNo
-    ; INC ( UnitStackTopRef ^ . UntNextDeclNo , Ct )
+    ; INC ( UnitStackTopRef ^ . UntNextDeclNo , Count )
     ; RETURN LResult 
     END AllocateDeclNos
     

@@ -48,6 +48,10 @@ INTERFACE FM3Units
         , UnitKindTyp . UkInstModule
         }
 
+; PROCEDURE UnitKindImage ( Kind : UnitKindTyp ) : TEXT
+
+; PROCEDURE UnitKindSectionNo ( Kind : UnitKindTyp ) : TEXT
+
 ; TYPE UnitStateTyp
          = { UsNull
            , UsNotUsable 
@@ -67,11 +71,9 @@ INTERFACE FM3Units
         , UnitStateTyp . UsLoaded
         }
 
-; PROCEDURE UnitKindImage ( Kind : UnitKindTyp ) : TEXT
+; REVEAL FM3Base . UnitRefTyp = BRANDED REF UnitTyp 
+; TYPE UnitRefTyp = FM3Base . UnitRefTyp 
 
-; PROCEDURE UnitKindSectionNo ( Kind : UnitKindTyp ) : TEXT
-
-; TYPE UnitRefTyp = REF UnitTyp
 ; TYPE UnitTyp
     = RECORD
         UntStackLink : UnitRefTyp := NIL
@@ -130,14 +132,12 @@ INTERFACE FM3Units
           (* Unit Nos of units exported by this unit. *) 
       ; UntExpImpIdSet : IntSets . T := NIL (* IntSets . Empty ( ) *) 
           (* ^Atoms of idents [ex/im]ported into this unit. *)  
-      ; UntImpIntfIdSet : IntSets . T := NIL (* IntSets . Empty ( ) *) 
-          (* ^Atoms of imported idents that name interfaces. *)  
       ; UntExpImpMap : VarArray_Int_ExpImpProxy . T 
           (* ^Unit Ident atom to ExpImpProxy. *)
           (* INVARIANT: Atom is in UntExpImpMap IFF in UntExpImpIdSet. *) 
       ; UntExpImpRefSet : IntSets . T := NIL (* IntSets . Empty ( ) *) 
-      ; UntDeclScopeRef : FM3Base . ScopeRefTyp := NIL  
-          (* ^Contains Atoms of idents and imports known at unit's top level *)
+      ; UntScopeRef : FM3Base . ScopeRefTyp := NIL  
+          (* ^Contains Atoms of [ex|im]ports and decls known at unit's top level *)
       ; UntExpImpCt : FM3Base . DeclNoTyp := FM3Base . DeclNoNull 
       ; UntSkipStackBase : INTEGER := 0 
           (* TOS Subscript at beginning and end of unit compile. *) 
@@ -159,7 +159,7 @@ INTERFACE FM3Units
       END (*UnitTyp*)
 
 ; VAR UnitsAtomDict : FM3Atom_Text . T
-        (* ^Just one in entire compler run.  Map source file names as TEXTS
+        (* ^Just one in entire compler run.  Map source file simple names as TEXTS
             directly to unit numbers, which will be compact. See comments
             in FM3Scope.i3.
         *) 
@@ -180,8 +180,8 @@ INTERFACE FM3Units
 ; PROCEDURE NewUnitRef ( ) : UnitRefTyp
   (* Allocate, low-level initialize, give it a UnitNo, and put into UnitsMap. *)
 
-; PROCEDURE AllocateDeclNos ( Ct : INTEGER ) : INTEGER 
-  (* Allocate a contiguous range of Ct Decl numbers, unique
+; PROCEDURE AllocateDeclNos ( Count : INTEGER ) : INTEGER 
+  (* Allocate a contiguous range of Count Decl numbers, unique
      within the current unit, and return the lowest number.
   *) 
 

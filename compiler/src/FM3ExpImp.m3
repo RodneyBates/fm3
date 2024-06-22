@@ -109,7 +109,7 @@ MODULE FM3ExpImp
              , Text . FromChars ( IdentChars ^ )
              , FM3Base . InterfaceFileNameSuffix
              ) 
-    ; LIntfUnitRef := FM3Compile . UnitRefOfFileName ( LSrcFileName )
+    ; LIntfUnitRef := FM3Compile . GetUnitRefOfFileName ( LSrcFileName )
     ; IF LIntfUnitRef ^ . UntState = Us . UsNull 
       THEN (* Haven't seen this unit yet. *)
       (* Compile it. *)
@@ -258,7 +258,7 @@ MODULE FM3ExpImp
       WITH WSet = UnitRef ^ . UntExpImpIdSet
       DO WSet := IntSets . Include ( WSet , IdentAtom )
       END (*WITH*) 
-    ; WITH WSet = UnitRef ^ . UntDeclScopeRef ^ . ScpDeclIdSet 
+    ; WITH WSet = UnitRef ^ . UntScopeRef ^ . ScpDeclIdSet 
       DO WSet := IntSets . Include ( WSet , IdentAtom )
       END (*WITH*) 
     ; VarArray_Int_ExpImpProxy . Assign
@@ -269,7 +269,7 @@ MODULE FM3ExpImp
 ; PROCEDURE ImportDeclByNo
     ( FromUnitRef : FM3Units . UnitRefTyp
     ; FromUnitDeclNo : FM3Base . DeclNoTyp
-    ; Position : FM3Base . tPosition
+    ; ExpImpPosition : FM3Base . tPosition
       (* ^Of the EXPORTS or IMPORT directive's interface identifier. *) 
     ; IsExport : BOOLEAN 
     )
@@ -295,14 +295,14 @@ MODULE FM3ExpImp
       IF CheckDuplicateImport
            ( LIntoUnitRef
            , LIntoIdentAtom
-           , Position
+           , ExpImpPosition
            , IsExport 
            )
       THEN (* All is legal, so do the real import. *)
         LProxy . EipUnitNo := FromUnitRef ^ . UntUnitNo 
       ; LProxy . EipDeclNo  := FromUnitDeclNo
       ; LProxy . EipImportingUnitNo := LIntoUnitRef ^ . UntUnitNo 
-      ; LProxy . EipImportingUnitPosition := Position
+      ; LProxy . EipImportingUnitPosition := ExpImpPosition
       ; InsertExpImp ( LIntoUnitRef , LIntoIdentAtom , LProxy ) 
       ; RETURN TRUE
       ELSE RETURN FALSE 
@@ -342,7 +342,7 @@ MODULE FM3ExpImp
       THEN (* The ident is nowhere in the from-interface at all. *)
         LFound := FALSE
       ELSIF NOT IntSets . IsElement
-        ( LFromAtom , FromUnitRef ^ . UntDeclScopeRef ^ . ScpDeclIdSet )
+        ( LFromAtom , FromUnitRef ^ . UntScopeRef ^ . ScpDeclIdSet )
       THEN (* It's not in the from-interface's top declaration scope. *)
         LFound := FALSE 
       ELSIF IntSets . IsElement ( LFromAtom , FromUnitRef ^ . UntExpImpIdSet )
@@ -352,7 +352,7 @@ MODULE FM3ExpImp
       ELSE
         LFound
           := FM3Dict_Int_Int . LookupFixed
-               ( FromUnitRef ^ . UntDeclScopeRef ^ . ScpDeclDict 
+               ( FromUnitRef ^ . UntScopeRef ^ . ScpDeclDict 
                , LFromAtom
                , FM3Base . HashNull
                , (*OUT*) LFromDeclNoInt
@@ -459,7 +459,7 @@ MODULE FM3ExpImp
         DO WUnitIdSet := IntSets . Include ( WUnitIdSet , LASIdentAtom )
         END (*WITH*) 
       ; WITH WScopeIdSet 
-               = FM3Units . UnitStackTopRef ^ . UntDeclScopeRef ^ . ScpDeclIdSet
+               = FM3Units . UnitStackTopRef ^ . UntScopeRef ^ . ScpDeclIdSet
         DO WScopeIdSet := IntSets . Include ( WScopeIdSet , LASIdentAtom ) 
         END (*WITH*)
       ; VarArray_Int_ExpImpProxy . CallbackWithElem
@@ -512,7 +512,7 @@ RETURN ;
     ; IF NOT FromUnitRef ^ . UntState IN FM3Units . UnitStateSetUsable
       THEN RETURN 0 
       END (*IF*) 
-    ; WITH WScopeRef = FromUnitRef ^ . UntDeclScopeRef
+    ; WITH WScopeRef = FromUnitRef ^ . UntScopeRef
       DO IF WScopeRef = NIL THEN RETURN 0
         ELSE RETURN WScopeRef ^ . ScpDeclCt 
         END (*IF*)
@@ -531,7 +531,7 @@ RETURN ;
     ; IF NOT FromUnitRef ^ . UntState IN FM3Units . UnitStateSetUsable
       THEN RETURN
       END (*IF*) 
-    ; WITH WScopeRef = FromUnitRef ^ . UntDeclScopeRef
+    ; WITH WScopeRef = FromUnitRef ^ . UntScopeRef
       DO IF WScopeRef = NIL THEN RETURN END (*IF*)
       ; FOR RDeclNo := WScopeRef ^ . ScpMinDeclNo
             TO WScopeRef ^ . ScpMinDeclNo + WScopeRef ^ . ScpDeclCt - 1

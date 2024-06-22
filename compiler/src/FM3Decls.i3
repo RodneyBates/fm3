@@ -40,7 +40,8 @@ INTERFACE FM3Decls
 
 ; PROCEDURE DeclKindImage ( Kind : DeclKindTyp ) : TEXT
 
-; TYPE DeclRefTyp = REF DeclTyp 
+; REVEAL FM3Base . DeclRefTyp = BRANDED REF DeclTyp 
+; TYPE DeclRefTyp = FM3Base . DeclRefTyp 
 ; TYPE DeclTyp
     = RECORD 
         DclLink : DeclRefTyp

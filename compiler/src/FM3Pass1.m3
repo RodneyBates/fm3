@@ -2040,7 +2040,7 @@ MODULE FM3Pass1
                  ( LParentScopeRef ^ . ScpRefIdSet , LEscapingRefSet ) 
         END (*IF*)
       ; IF Clt . CltRemoveUnusedDecls IN FM3CLOptions . OptionTokSet
-           AND LUnitRef ^ . UntDeclScopeRef = ScopeRef
+           AND LUnitRef ^ . UntScopeRef = ScopeRef
            AND NOT FM3Units . CurrentUnitIsModule ( ) 
         THEN ScopeRef ^ . ScpDeclIdSet := ScopeRef ^ . ScpRefIdSet
         END (*IF*) 
@@ -2048,7 +2048,7 @@ MODULE FM3Pass1
       ; LDeclCt := IntSets . Card ( ScopeRef ^ . ScpDeclIdSet )
       ; LUnitRef := ScopeRef ^ . ScpOwningUnitRef
 (* Probably remove, done earlier: 
-      ; IF LUnitRef ^ . UntDeclScopeRef = ScopeRef
+      ; IF LUnitRef ^ . UntScopeRef = ScopeRef
         THEN (* Top scope of a unit.  Plan to include its [ex|im]ports. *) 
           INC ( LDeclCt , LUnitRef . UntExpImpCt )  
         ELSE LUnitRef := NIL

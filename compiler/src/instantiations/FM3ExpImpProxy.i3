@@ -17,13 +17,13 @@ INTERFACE FM3ExpImpProxy
 ; TYPE T
     = RECORD
         EipUnitNo : FM3Base . UnitNoTyp (* The remote unit. *) 
-      ; EipDeclNo : FM3Base . DeclNoTyp (* In the other unit. *)
+      ; EipDeclNo : FM3Base . DeclNoTyp (* In the remote unit. *)
         (* DeclNoNull, if this is a reference to the unit itself. *)
       ; EipImportingUnitNo : FM3Base . UnitNoTyp
       ; EipImportingUnitPosition : FM3Base . tPosition
-        (* ^Of the EXPORTS or IMPORT that brought it in to the unit containing
-           this export/import node.  Its position in the remote unit can be
-           found in the remote unit's Decl node for it.
+        (* ^Of the EXPORTS or IMPORT ident that brought it in to the unit
+           containing this export/import node.  Its position in the remote
+           unit can be found in the remote unit's Decl node for it.
         *) 
       END
 ; END FM3ExpImpProxy 
