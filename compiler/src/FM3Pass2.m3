@@ -463,12 +463,6 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
                   , VAL ( (*FM3Utils . SwitchTokL2R*) ( LToken ) , LONGINT )
                   )
 
-            | Itk . ItkImportAS
-              => LUnitNo := GetBwdInt ( LPass1RdBack )
-              ; LAtom := GetBwdInt ( LPass1RdBack )
-              ; LPosition := GetBwdPos ( LPass1RdBack )
-              ; FM3ExpImp . ImportASPass2 ( LUnitNo , LAtom , LPosition ) 
-
             ELSE (* Move directly, input to output.*)
               CopyOperands
                 ( FM3Utils . TokenOpndCt ( LToken )

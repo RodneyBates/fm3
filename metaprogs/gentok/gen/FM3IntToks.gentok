@@ -43,9 +43,7 @@ ItkModule INT POS 3 (* UnitNo, Position. *)
 
 LONE
 ItkUnitId IDENT POS 3 (* IdAtom, Line, Column. *) . 
-ItkImportAS INT IDENT POS 4 (* Imported UnitNo, ASIdAtom, Position of atom. *) .
-(*ItkFromImport IDENT POS IDENT POS 6 (* (IdAtom, Line, Column) for interface, decl. *) . *) 
-ItkImportAs IDENT POS IDENT POS 6 (* (IdAtom, Line, Column) for interface, as. *) .
+
 ItkFormalsListEmpty . 
 ItkFormalTypeAbsent POS 2 (* Position. *).
 ItkFormalExprAbsent POS 2 (* Position. *).
@@ -207,7 +205,6 @@ LIST
        of element to right.
 *) 
  
-ItkExportIdList (* Position is EXPORTS. *) . 
 ItkGenFormalIdList (* Position is "(" *) .
 ItkGenActualIdList (* Position is "(" *) .
 ItkVarDeclIdList (* Position is is LM ident. *) .
@@ -249,15 +246,10 @@ FIXED ItkModule INT POS 3 (* UnitNo, Position. *)
         Begin INT POS 
 . 
 
-LIST ItkExportsList
-       (* Element Count, Element No. *) 
-.
-
 LIST ItkIdPlusList
        (* Element Count, Element No. *) 
 .
 
-FIXED ItkExport (* Ident, Unit No. *) . 
 *)
 
 (* ----------------------------- Expressions ------------------------------- *) 

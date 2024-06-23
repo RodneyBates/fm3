@@ -122,7 +122,7 @@ MODULE FM3Units
     ; LUnitRef ^ . UntUnitIdentPos := FM3Base . PositionNull
     ; LUnitRef ^ . UntState := UnitStateTyp . UsNull
     ; LUnitRef ^ . UntUnsafe := FALSE 
-    ; LUnitRef ^ . UntInCycle := FALSE
+    ; LUnitRef ^ . UntInExpImpCycle := FALSE
     ; LUnitRef ^ . UntIdentAtomDict 
         := FM3Atom_OAChars . New
              ( FM3Globals . IdentAtomInitSize

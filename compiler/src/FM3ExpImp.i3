@@ -12,7 +12,6 @@ INTERFACE FM3ExpImp
 ; IMPORT FM3Base
 ; IMPORT FM3Messages 
 ; IMPORT FM3OpenArray_Char
-; IMPORT FM3Pass1 
 ; IMPORT FM3Scanner 
 ; IMPORT FM3Units 
 
@@ -52,15 +51,9 @@ INTERFACE FM3ExpImp
     )
   : BOOLEAN (* Success. *) 
 
-; PROCEDURE ImportASPass1
+; PROCEDURE ImportAS
     ( READONLY IntfScanAttr : FM3Scanner . tScanAttribute
     ; READONLY ASScanAttr : FM3Scanner . tScanAttribute
-    )
-
-; PROCEDURE ImportASPass2
-    ( FromUnitNo : FM3Base . UnitNoTyp
-    ; IntoIdentAtom : FM3Base . AtomTyp
-    ; READONLY ImportPosition : FM3Base . tPosition 
     )
 
 ; PROCEDURE CountDecls ( FromUnitRef :  FM3Units . UnitRefTyp )
@@ -71,6 +64,8 @@ INTERFACE FM3ExpImp
     ; READONLY ExportPosition : FM3Base . tPosition
       (* ^Of the EXPORTS directive's identifier. *)
     )
+
+; PROCEDURE Done ( ) 
 
 ; CONST NonTransitiveNote
     = FM3Messages . NLIndent

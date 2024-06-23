@@ -328,7 +328,7 @@ RULE
          ( FM3Units . UnitStackTopRef , $6 . Scan , Ukt . UkInstInterface ) ; 
      } . 
 
-   InterfaceMiddle : InterfaceLt StkSemicolon ImportList 
+   InterfaceMiddle : InterfaceLt StkSemicolon ImportList ExpImpDone 
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN
          FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInterface ; 
@@ -390,7 +390,7 @@ RULE
          ( FM3Units . UnitStackTopRef , $6 . Scan , Ukt . UkInstModule ) ; 
      } . 
 
-   ModuleMiddle : ModuleLt Exports StkSemicolon ImportList 
+   ModuleMiddle : ModuleLt Exports StkSemicolon ImportList ExpImpDone 
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN
          FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkModule ; 
@@ -448,7 +448,7 @@ RULE
 
    GenInterface :
        GenInterfaceLt GenInterfaceKind GenFormalList
-       StkSemicolon ImportList BlockDeclList StkRwEND StkIdent StkDot 
+       StkSemicolon ImportList ExpImpDone BlockDeclList StkRwEND StkIdent StkDot 
      { (* Scope ref:
         FM3Pass1 . PutBwd_LI ( Itk . ItkDeclScopeLt , $1 . PaConstructNo ) ;
        *)
@@ -476,7 +476,7 @@ RULE
 
    GenModule :
        GenModuleLt GenModuleKind GenFormalList
-       StkSemicolon ImportList Block StkIdent StkDot 
+       StkSemicolon ImportList ExpImpDone Block StkIdent StkDot 
      { (* scope ref
           FM3Pass1 . PutBwd_LI ( Itk . ItkDeclScopeLt , $1 . PaConstructNo ) ;
        *) 
@@ -521,10 +521,10 @@ RULE
    ImportItemPlusList : ImportItemPlusList StkComma ImportItem . 
 
    ImportItem : StkIdent
-      { FM3ExpImp . ImportASPass1 ( $1 . Scan , $1 . Scan ) } .
+      { FM3ExpImp . ImportAS ( $1 . Scan , $1 . Scan ) } .
      
    ImportItem : StkIdent StkRwAS StkIdent
-     { FM3ExpImp . ImportASPass1 ( $1 . Scan , $3 . Scan ) } .
+     { FM3ExpImp . ImportAS ( $1 . Scan , $3 . Scan ) } .
      
    (* FROM Id IMPORT ... *)
    FromImportLt : StkRwFROM StkIdent StkRwIMPORT
@@ -539,16 +539,17 @@ RULE
    Import : FromImportLt FromImportIdPlusList StkSemicolon . 
 
    FromImportIdPlusList : StkIdent
-     { <* ASSERT $0 . PaRefany # NIL *>
-       EVAL FM3ExpImp . ImportDeclByIdent
+     { EVAL FM3ExpImp . ImportDeclByIdent
               ( $0 . PaRefany (* Implied NARROW *) , $1 . Scan ) ; 
      } . 
    
    FromImportIdPlusList : FromImportIdPlusList StkComma StkIdent
-     { <* ASSERT $0 . PaRefany # NIL *>
-       EVAL FM3ExpImp . ImportDeclByIdent
+     { EVAL FM3ExpImp . ImportDeclByIdent
               ( $0 . PaRefany (* Implied NARROW *) , $3 . Scan ) ; 
-     } . 
+     } .
+
+   ExpImpDone : /* Empty */
+     { FM3ExpImp . Done ( ) ; } . 
 
 (* ------------------------------- Exports ------------------------- . *)
 

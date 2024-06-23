@@ -21,19 +21,16 @@ MODULE FM3ExpImp
 ; IMPORT FM3Compile
 ; IMPORT FM3Decls
 ; IMPORT FM3Dict_Int_Int 
-; IMPORT FM3IntToks AS Itk
 ; IMPORT FM3Messages
 ; IMPORT FM3OpenArray_Char
-; IMPORT FM3Pass1 
 ; IMPORT FM3Scanner
 ; IMPORT FM3Scopes (* For Revelation of ScopeRefTyp *) 
-; IMPORT FM3SharedUtils 
 ; IMPORT FM3Units 
 ; IMPORT FM3Utils
 ; IMPORT VarArray_Int_ExpImpProxy  
 ; IMPORT VarArray_Int_Refany  
 
-; TYPE Us = FM3Units . UnitStateTyp 
+; TYPE Ust = FM3Units . UnitStateTyp 
 
 ; PROCEDURE ReportCyclic
     ( UnitRef : FM3Units . UnitRefTyp ; Position : FM3Base . tPosition )
@@ -49,7 +46,6 @@ MODULE FM3ExpImp
       LWrT := TextWr . New ( )
     ; Wr . PutText ( LWrT , "Cyclic import of" )
     ; LUnitRef := UnitRef (* Start at bottom. *)  
-    ; LNextUnitRef := NIL 
     ; LOOP 
         Wr . PutText ( LWrT , FM3Messages . NLIndent ) 
       ; Wr . PutText
@@ -59,8 +55,9 @@ MODULE FM3ExpImp
               , LUnitRef ^ . UntSrcFileSimpleName
               )
           )
-      ; IF LNextUnitRef # NIL AND LUnitRef = UnitRef 
-        THEN (* At the the starting unit for the second time. *) 
+      ; LNextUnitRef := LUnitRef ^ . UntImportingUnitRef 
+      ; IF LNextUnitRef = UnitRef 
+        THEN (* Coming back to the the starting unit. *) 
           Wr . PutChar ( LWrT , '.' ) 
         ; Wr . PutText ( LWrT , Wr . EOL ) 
         ; EXIT
@@ -71,10 +68,8 @@ MODULE FM3ExpImp
             , FM3Utils . PositionImage ( LUnitRef ^ . UntPositionOfImport )
             )
         ; Wr . PutText ( LWrT , ", imports" )
-        ; LNextUnitRef := LUnitRef ^ . UntImportingUnitRef 
         ; LUnitRef ^ . UntImportingUnitRef := NIL  
-        ; LUnitRef ^ . UntInCycle := TRUE
-        ; LUnitRef . UntState := Us . UsNotUsable
+        ; LUnitRef ^ . UntInExpImpCycle := TRUE
         ; LUnitRef := LNextUnitRef 
         END (*IF*) 
       END (*LOOP*) 
@@ -93,7 +88,7 @@ MODULE FM3ExpImp
     ; IsExport : BOOLEAN
     )
   : FM3Units . UnitRefTyp
-    (* ^The interface unit to be [ex/im]ported, # NIL *)
+    (* ^The Desired interface. *)
   (* If not already done, compile or load the interface named by IdentChars. *) 
 
   = VAR LIntfUnitRef : FM3Units . UnitRefTyp 
@@ -110,7 +105,8 @@ MODULE FM3ExpImp
              , FM3Base . InterfaceFileNameSuffix
              ) 
     ; LIntfUnitRef := FM3Compile . GetUnitRefOfFileName ( LSrcFileName )
-    ; IF LIntfUnitRef ^ . UntState = Us . UsNull 
+    ; IF LIntfUnitRef ^ . UntState = Ust . UsNotUsable THEN RETURN NIL END (*IF*)  
+    ; IF LIntfUnitRef ^ . UntState = Ust . UsNull 
       THEN (* Haven't seen this unit yet. *)
       (* Compile it. *)
 (*TODO: Or load it. *)
@@ -120,45 +116,55 @@ MODULE FM3ExpImp
         END (*IF*) 
 
       (* Compare this to similar code in FM3Compile.CompileOrLoadCLUnit. *) 
-      ; IF FM3Compile . FindAndOpenUnitSrcFile
-             ( LIntfUnitRef , LAdjective , Position )
-           AND LIntfUnitRef ^ . UntState IN FM3Units . UnitStateSetUsable
+      ; IF NOT FM3Compile . FindAndOpenUnitSrcFile
+                 ( LIntfUnitRef , LAdjective , Position )
         THEN
-          FM3Units . UnitStackTopRef ^ . UntImportingUnitRef
-            := LIntfUnitRef
-          (*^ To detect future cyclic imports. *) 
-        ; FM3Units . UnitStackTopRef ^ . UntPositionOfImport := Position
-          (* ^For possible cyclic-imports message. *) 
-        ; LIntfUnitRef ^ . UntState := Us . UsImporting 
-        ; FM3Units . PushUnit ( LIntfUnitRef )
-        ; FM3Units . CacheTopUnitValues ( )
-          (* SetUnitLog will have to wait until Pass1.InitPass1 has
-             created its WrT.  
-             FM3Messages . SetUnitLog ( LIntfUnitRef ^ . UntLogWrT )
-          *) 
-        ; FM3Compile . CompileUnitFromSrc ( LIntfUnitRef ) 
-        ; <* ASSERT FM3Units . PopUnit ( ) = LIntfUnitRef *>
-          FM3Units . UnitStackTopRef ^ . UntImportingUnitRef := NIL 
-        ; FM3Units . UnitStackTopRef ^ . UntPositionOfImport
-            := FM3Base . PositionNull 
-        ; FM3Messages . SetUnitLog ( FM3Units . UnitStackTopRef ^ . UntLogWrT ) 
-        ; FM3Units . CacheTopUnitValues ( ) 
-        ELSE (* it wasn't found. *)
-          LIntfUnitRef ^ . UntState := Us . UsNotUsable 
+          LIntfUnitRef ^ . UntState := Ust . UsNotUsable 
           (* ^Suppress cascaded error messages. *)
-        END (*IF*) 
-      ELSE (* This unit already exists. *) 
-        FM3Units . UnitStackTopRef ^ . UntImportingUnitRef
+        ; RETURN NIL
+        END (*IF*)
+
+      (* Compile LIntfUnitRef^. *) 
+      ; FM3Units . UnitStackTopRef ^ . UntImportingUnitRef
           := LIntfUnitRef
         (*^ To detect future cyclic imports. *) 
       ; FM3Units . UnitStackTopRef ^ . UntPositionOfImport := Position
         (* ^For possible cyclic-imports message. *) 
+      ; LIntfUnitRef ^ . UntState := Ust . UsImporting
+
+      ; FM3Units . PushUnit ( LIntfUnitRef )
+      ; FM3Units . CacheTopUnitValues ( )
+        (* SetUnitLog will have to wait until Pass1.InitPass1 has
+           created its WrT.  
+           FM3Messages . SetUnitLog ( LIntfUnitRef ^ . UntLogWrT )
+        *) 
+      ; FM3Compile . CompileUnitFromSrc ( LIntfUnitRef ) 
+      ; <* ASSERT FM3Units . PopUnit ( ) = LIntfUnitRef *>
+        FM3Messages . SetUnitLog ( FM3Units . UnitStackTopRef ^ . UntLogWrT ) 
+      ; FM3Units . CacheTopUnitValues ( )
+      ; FM3Units . UnitStackTopRef ^ . UntImportingUnitRef := NIL 
+      ; FM3Units . UnitStackTopRef ^ . UntPositionOfImport
+          := FM3Base . PositionNull 
+      ; LIntfUnitRef ^ . UntState := Ust . UsCompiled 
+      ; RETURN LIntfUnitRef 
+
+      ELSE (* This unit already exists and is usable. *)
+(* TODO: This will need some thought and work for compiled but outdated units. *)
+        FM3Units . UnitStackTopRef ^ . UntImportingUnitRef
+          := LIntfUnitRef
+        (*^ To detect future cyclic imports. *) 
+      ; FM3Units . UnitStackTopRef ^ . UntPositionOfImport := Position
+        (* ^For possible cyclic-imports message. *)
       ; IF LIntfUnitRef ^ . UntImportingUnitRef # NIL 
         THEN (* Cyclic imports/exports. *)
           ReportCyclic  ( LIntfUnitRef , Position )
+        ; RETURN NIL 
         END (*IF*)
+      ; FM3Units . UnitStackTopRef ^ . UntImportingUnitRef := NIL 
+      ; FM3Units . UnitStackTopRef ^ . UntPositionOfImport
+          := FM3Base . PositionNull
+      ; RETURN LIntfUnitRef 
       END (*IF*)
-    ; RETURN LIntfUnitRef 
     END GetInterface
 
 ; PROCEDURE CheckDuplicateImport
@@ -410,7 +416,7 @@ MODULE FM3ExpImp
     END ImportDeclByIdent
 
 (*EXPORTED*) 
-; PROCEDURE ImportASPass1
+; PROCEDURE ImportAS
     ( READONLY IntfScanAttr : FM3Scanner . tScanAttribute
     ; READONLY ASScanAttr : FM3Scanner . tScanAttribute
     )
@@ -419,7 +425,7 @@ MODULE FM3ExpImp
   ; VAR LASIdentAtom : FM3Base . AtomTyp
   
   ; PROCEDURE AssignProxy
-      ( Ss : INTEGER ; VAR (*READONLY*) Elem : FM3ExpImpProxy . T ) 
+      ( <*UNUSED*> Ss : INTEGER ; VAR (*READONLY*) Elem : FM3ExpImpProxy . T ) 
 
     = BEGIN
         Elem . EipUnitNo := LIntfUnitRef . UntUnitNo
@@ -435,6 +441,7 @@ MODULE FM3ExpImp
              , IntfScanAttr . Position
              , IsExport := FALSE
              )
+    ; IF LIntfUnitRef = NIL THEN RETURN END (*IF*) 
     ; LASIdentAtom
         := FM3Atom_OAChars . MakeAtom
              ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict
@@ -447,14 +454,8 @@ MODULE FM3ExpImp
            , ASScanAttr . Position
            , IsExport := FALSE  
            )
-      THEN (* OK *) 
-        FM3Pass1 . PutBwd_LIIP
-          ( Itk . ItkImportAS
-          , LIntfUnitRef ^ . UntUnitNo
-          , LASIdentAtom 
-          , ASScanAttr . Position 
-          )
-      ; INC ( FM3Units . UnitStackTopRef ^ . UntExpImpCt )
+      THEN (* OK *)
+        INC ( FM3Units . UnitStackTopRef ^ . UntExpImpCt )
       ; WITH WUnitIdSet = FM3Units . UnitStackTopRef ^ . UntExpImpIdSet
         DO WUnitIdSet := IntSets . Include ( WUnitIdSet , LASIdentAtom )
         END (*WITH*) 
@@ -468,40 +469,7 @@ MODULE FM3ExpImp
           , AssignProxy
           ) 
       END (*IF*)
-    END ImportASPass1 
-
-(*EXPORTED.*)
-; PROCEDURE ImportASPass2
-    ( FromUnitNo : FM3Base . UnitNoTyp
-    ; IntoIdentAtom : FM3Base . AtomTyp
-    ; READONLY ImportPosition : FM3Base . tPosition 
-    )
-
-  = VAR LFromUnitRef : FM3Units . UnitRefTyp
-  ; VAR LIntoUnitRef : FM3Units . UnitRefTyp
-  ; VAR LProxy : FM3ExpImpProxy . T 
-
-  ; BEGIN
-
-RETURN ; 
-      IF IntoIdentAtom = FM3Base . AtomNull THEN RETURN END (*IF*)
-    ; LFromUnitRef (* Implicit NARROW. *) 
-        := VarArray_Int_Refany . Fetch ( FM3Units . UnitsMap , FromUnitNo ) 
-    ; IF LFromUnitRef = NIL THEN RETURN END (*IF*)
-    ; IF NOT LFromUnitRef ^ . UntState IN FM3Units . UnitStateSetUsable
-      THEN RETURN
-      END (*IF*) 
-    ; LIntoUnitRef := FM3Units . UnitStackTopRef 
-    ; IF CheckDuplicateImport
-           ( LIntoUnitRef , IntoIdentAtom , ImportPosition , IsExport := FALSE )
-      THEN (* Not a duplicate. *)
-        LProxy . EipUnitNo := LFromUnitRef ^ . UntUnitNo  
-      ; LProxy . EipDeclNo  := FM3Base . DeclNoNull 
-      ; LProxy . EipImportingUnitNo := LIntoUnitRef ^ . UntUnitNo 
-      ; LProxy . EipImportingUnitPosition := ImportPosition
-      ; InsertExpImp ( LIntoUnitRef , IntoIdentAtom , LProxy ) 
-      END (*IF*)
-    END ImportASPass2
+    END ImportAS
 
 (*EXPORTED.*)
 ; PROCEDURE CountDecls ( FromUnitRef :  FM3Units . UnitRefTyp )
@@ -544,6 +512,14 @@ RETURN ;
         END (*FOR*)
       END (*WITH*) 
     END ImportAllDecls 
+
+(*EXPORTED.*)
+; PROCEDURE Done ( ) 
+
+  = BEGIN
+      VarArray_Int_ExpImpProxy . Compact
+        ( FM3Units . UnitStackTopRef ^ . UntExpImpMap ) 
+    END Done 
 
 ; BEGIN (*FM3ExpImp*)
   END FM3ExpImp

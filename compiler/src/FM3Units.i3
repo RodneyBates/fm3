@@ -155,7 +155,7 @@ INTERFACE FM3Units
       ; UntKind := UnitKindTyp . UkNull 
       ; UntState := UnitStateTyp . UsNull
       ; UntUnsafe : BOOLEAN := FALSE  
-      ; UntInCycle : BOOLEAN := FALSE  
+      ; UntInExpImpCycle : BOOLEAN := FALSE  
       END (*UnitTyp*)
 
 ; VAR UnitsAtomDict : FM3Atom_Text . T
