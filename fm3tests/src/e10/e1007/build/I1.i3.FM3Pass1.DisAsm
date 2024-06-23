@@ -1,0 +1,13 @@
+ ItkEOF()
+ ItkRightEnd()
+ ItkInterfaceLtPatch(C4,L3(16_3),[1,0])
+ ItkInterfaceRt(L3(16_3),[1,0])
+ ItkDeclScopeRt(L1(16_1))
+ ItkLookupScopeRt(L1(16_1))
+ ItkBlockDeclListRt(L0(16_0),[6,2])
+ ItkBlockDeclListLt(L0(16_0),[6,2])
+ ItkLookupScopeLt(L1(16_1))
+ ItkDeclScopeLt(L1(16_1))
+ ItkLeftEnd()
+ ItkBOF()
+     0

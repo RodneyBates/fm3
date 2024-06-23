@@ -1,0 +1,8 @@
+INTERFACE I1
+
+
+; IMPORT   I2 
+
+; END I1 
+.
+

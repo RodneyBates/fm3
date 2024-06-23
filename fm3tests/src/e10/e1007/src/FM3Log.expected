@@ -1,0 +1,35 @@
+Start unit Main.m3
+[32mFM3: [0mCompiling /home/rodney/proj/m3/fm3/git/fm3tests/src/e10/e1007/src/Main.m3...
+Start unit Null.i3
+[32mFM3: [0mCompiling /home/rodney/proj/m3/fm3/git/fm3tests/src/e10/e1007/src/Null.i3...
+[32mFM3: [0mPass 1 output file Null.i3.FM3Pass1 has 41 bytes.
+[32mFM3: [0mPatch stack Null.i3.FM3Patch peak size = 10 bytes.
+[32mFM3: [0mPass 2 output file Null.i3.FM3Pass2 has 28 bytes.
+[32mFM3: [0mFinished compiling Null.i3.
+End unit Null.i3
+Start unit I1.i3
+[32mFM3: [0mCompiling /home/rodney/proj/m3/fm3/git/fm3tests/src/e10/e1007/src/I1.i3...
+Start unit I2.i3
+[32mFM3: [0mCompiling /home/rodney/proj/m3/fm3/git/fm3tests/src/e10/e1007/src/I2.i3...
+Start unit I3.i3
+[32mFM3: [0mCompiling /home/rodney/proj/m3/fm3/git/fm3tests/src/e10/e1007/src/I3.i3...
+[32mFM3: [0mPass 1 output file I3.i3.FM3Pass1 has 41 bytes.
+[32mFM3: [0mPatch stack I3.i3.FM3Patch peak size = 10 bytes.
+[32mFM3: [0mPass 2 output file I3.i3.FM3Pass2 has 28 bytes.
+[32mFM3: [0mFinished compiling I3.i3.
+End unit I3.i3
+[32mFM3: [0mPass 1 output file I2.i3.FM3Pass1 has 41 bytes.
+[32mFM3: [0mPatch stack I2.i3.FM3Patch peak size = 10 bytes.
+[32mFM3: [0mPass 2 output file I2.i3.FM3Pass2 has 28 bytes.
+[32mFM3: [0mFinished compiling I2.i3.
+End unit I2.i3
+[32mFM3: [0mPass 1 output file I1.i3.FM3Pass1 has 41 bytes.
+[32mFM3: [0mPatch stack I1.i3.FM3Patch peak size = 10 bytes.
+[32mFM3: [0mPass 2 output file I1.i3.FM3Pass2 has 28 bytes.
+[32mFM3: [0mFinished compiling I1.i3.
+End unit I1.i3
+[32mFM3: [0mPass 1 output file Main.m3.FM3Pass1 has 57 bytes.
+[32mFM3: [0mPatch stack Main.m3.FM3Patch peak size = 16 bytes.
+[32mFM3: [0mPass 2 output file Main.m3.FM3Pass2 has 43 bytes.
+[32mFM3: [0mFinished compiling Main.m3.
+End unit Main.m3
