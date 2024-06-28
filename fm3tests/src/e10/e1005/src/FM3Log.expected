@@ -16,13 +16,13 @@ Start unit Level2.i3
 [32mFM3: [0mPass 2 output file Level2.i3.FM3Pass2 has 51 bytes.
 [32mFM3: [0mFinished compiling Level2.i3.
 End unit Level2.i3
-[32mFM3: [0mPass 1 output file Intf.i3.FM3Pass1 has 74 bytes.
+[32mFM3: [0mPass 1 output file Intf.i3.FM3Pass1 has 68 bytes.
 [32mFM3: [0mPatch stack Intf.i3.FM3Patch peak size = 26 bytes.
 [32mFM3: [0mPass 2 output file Intf.i3.FM3Pass2 has 51 bytes.
 [32mFM3: [0mFinished compiling Intf.i3.
 End unit Intf.i3
-[32mFM3: [0mPass 1 output file Main.m3.FM3Pass1 has 340 bytes.
-[32mFM3: [0mPatch stack Main.m3.FM3Patch peak size = 34 bytes.
-[32mFM3: [0mPass 2 output file Main.m3.FM3Pass2 has 250 bytes.
+[32mFM3: [0mPass 1 output file Main.m3.FM3Pass1 has 487 bytes.
+[32mFM3: [0mPatch stack Main.m3.FM3Patch peak size = 41 bytes.
+[32mFM3: [0mPass 2 output file Main.m3.FM3Pass2 has 357 bytes.
 [32mFM3: [0mFinished compiling Main.m3.
 End unit Main.m3

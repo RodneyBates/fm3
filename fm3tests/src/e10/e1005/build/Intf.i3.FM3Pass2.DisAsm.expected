@@ -3,7 +3,7 @@
  ItkInterfaceLt(L3(16_3),[1,0])
  ItkBlockDeclListLt(L1(16_1),[6,2])
  ItkTypeDeclLt([6,7])
- ItkDeclNo(D3,[6,7])
+ ItkDeclNo(D4,[6,7])
  ItkTypeDeclEquals([6,20])
  ItkReservedId(Rid"BOOLEAN",[6,22])
  ItkTypeDeclRt([6,7])

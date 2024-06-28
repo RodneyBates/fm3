@@ -16,6 +16,12 @@ MODULE Main EXPORTS Lotsa
 ; TYPE Good = E1
 ; TYPE Bad = E2
 
+; CONST E1 = 0  
+; CONST Lotsa = 0  
+; CONST Intf = 0
+; CONST Mumble = 0
+; CONST Nonexistent  = 0  
+
 ; BEGIN
   END Main
 .
