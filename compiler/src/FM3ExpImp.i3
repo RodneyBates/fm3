@@ -35,11 +35,19 @@ INTERFACE FM3ExpImp
     (* ^The interface unit to be [ex/im]ported, possibly NIL *)
   (* If not already done, compile or load the interface named by IdentChars. *)
 
+; PROCEDURE CheckDuplicateExpImp 
+    ( IntoUnitRef : FM3Units . UnitRefTyp
+    ; IntoIdentAtom : FM3Base . AtomTyp 
+    ; ImportPosition : FM3Base . tPosition 
+    ; IdentInserterText : TEXT 
+    )
+  : BOOLEAN (* Check passed. *) 
+
 ; PROCEDURE ImportDeclByNo
     ( FromUnitRef : FM3Units . UnitRefTyp
     ; FromUnitDeclNo : FM3Base . DeclNoTyp
     ; Position : FM3Base . tPosition
-    ; IsExport : BOOLEAN 
+    ; Duplicator : TEXT  
     )
   : BOOLEAN (* Success. *)
   (* PRE: FromUnitDeclNo leads to a DeclRef in FromUnitRef^. *)

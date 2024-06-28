@@ -54,6 +54,7 @@ MODULE FM3Pass1
 ; IMPORT FM3Decls
 ; IMPORT FM3Dict_Int_Int
 ; IMPORT FM3DisAsm
+; IMPORT FM3ExpImp 
 ; IMPORT FM3RTFailures 
 ; IMPORT FM3Files
 ; IMPORT FM3Globals
@@ -1759,6 +1760,7 @@ MODULE FM3Pass1
 (*EXPORTED.*)
 ; PROCEDURE DeclIdL2R 
     ( DeclIdTok : Itk . TokTyp
+  (*FIXME ^ This is always be passed in as ItkDeclId. Remove the formal. *) 
     ; DeclKind : Dkt 
     ; READONLY IdAttribute : tParsAttribute
     ; SepTok : Itk . TokTyp := Itk . ItkNull
@@ -1771,7 +1773,6 @@ MODULE FM3Pass1
   (* PRE: IdAttribute is for an identifier in a declaration context. *) 
 
   = VAR LAtom : FM3Base . AtomTyp 
-  ; VAR LTokToPut : Itk . TokTyp
   ; VAR LResult : BOOLEAN
 
   ; BEGIN (*DeclIdL2R*)
@@ -1794,13 +1795,41 @@ MODULE FM3Pass1
                 } 
             )
           (* No output. *)
-          
         ; RETURN FALSE (* Caller, Don't use this Id. *) 
-        ELSE
-          IF NOT IntSets . IsElement ( LAtom , WScope . ScpDeclIdSet )
-          THEN  (* 1st declaration of Ident in scope . *) 
+        ELSE (* Programmer-declared identifier. *)
+          IF WScope . ScpOwningUnitRef = FM3Units . UnitStackTopRef 
+             AND NOT FM3ExpImp . CheckDuplicateExpImp
+                       ( FM3Units . UnitStackTopRef
+                       , LAtom
+                       , IdAttribute . Scan . Position
+                       , "declaration"
+                       )
+          THEN (* It duplicated an export or import. *) 
+            LResult := FALSE 
+          ELSIF IntSets . IsElement ( LAtom , WScope . ScpDeclIdSet )
+          THEN (* It duplicates an earlier decl in this scope. *) 
+            WScope . ScpDuplDeclIdSet
+              := IntSets . Include ( WScope . ScpDuplDeclIdSet , LAtom )
+(* CHECK^ Do we need ScpDuplDeclIdSet? *) 
+          (* Plan to push duplicate Ident token.  The only effect will be to
+             emit an error later, during R2L, when the position of the original
+             declaring occurence is known. *) 
+          ; PutBwd
+              ( WunRdBack
+              , VAL ( IdAttribute . Scan . Position . Column , LONGINT )
+              ) 
+          ; PutBwd
+              ( WunRdBack
+              , VAL ( IdAttribute . Scan . Position . Line , LONGINT )
+              )
+          ; PutBwd ( WunRdBack , VAL ( LAtom , LONGINT ) ) 
+          ; PutBwd ( WunRdBack , VAL (  Itk . ItkDuplDeclId , LONGINT ) )
+          ; LResult := FALSE (* Caller, Don't use this Id. *)
+          
+          ELSE  (* 1st declaration of Ident in scope . *) 
             WScope . ScpDeclIdSet
               := IntSets . Include ( WScope . ScpDeclIdSet , LAtom )
+              
           (* Maybe push Separator token: *)
           ; IF SepTok # Itk . ItkNull AND PriorIdCt > 0
             THEN 
@@ -1810,37 +1839,20 @@ MODULE FM3Pass1
             ; PutBwd ( WunRdBack , VAL ( SepTok , LONGINT ) )
             END (*IF*)
             
-          (* Id is valid. Plan to push Ident token: *)
-          ; LTokToPut := DeclIdTok
-(*FIXME ^ This should always be passed in as ItkDeclId, so use it. *) 
+          (* Id is valid.  Push Ident token: *)
+          ; PutBwd
+              ( WunRdBack
+              , VAL ( IdAttribute . Scan . Position . Column , LONGINT )
+              ) 
+          ; PutBwd
+              ( WunRdBack
+              , VAL ( IdAttribute . Scan . Position . Line , LONGINT )
+              )
+          ; PutBwd ( WunRdBack , VAL ( LAtom , LONGINT ) ) 
+          ; PutBwd ( WunRdBack , VAL ( ORD ( DeclKind ) , LONGINT ) )
+          ; PutBwd ( WunRdBack , VAL ( Itk . ItkDeclId , LONGINT ) )
           ; LResult := TRUE (* Caller, Use this decl id. *)
-          ELSE (* A Duplicate declaration of LAtom in current scope. *)
-            WScope . ScpDuplDeclIdSet
-              := IntSets . Include ( WScope . ScpDuplDeclIdSet , LAtom )
-(* CHECK^ Do we need ScpDuplDeclIdSet? *) 
-          (* Plan to push duplicate Ident token.  The only effect will be to
-             emit an error later, during R2L, when the position of the original
-             declaring occurence is known. *) 
-          ; LTokToPut := Itk . ItkDuplDeclId
-          ; LResult := FALSE (* Caller, Don't use this Id. *)
-          END (*IF*) 
-        ; PutBwd
-            ( WunRdBack
-            , VAL ( IdAttribute . Scan . Position . Column , LONGINT )
-            ) 
-        ; PutBwd
-            ( WunRdBack
-            , VAL ( IdAttribute . Scan . Position . Line , LONGINT )
-            )
-        ; PutBwd ( WunRdBack , VAL ( LAtom , LONGINT ) ) 
-        ; IF LTokToPut = Itk . ItkDeclId 
-          THEN PutBwd ( WunRdBack , VAL ( ORD ( DeclKind ) , LONGINT ) )
-(* TODO: Make up your mind and either make all the decl ids ItkDeclId,
-         (which has a declKind), or always use the passed-in
-         kind-distinguished Id token, (which does not) everywhere.
-*) 
-          END (*IF*) 
-        ; PutBwd ( WunRdBack , VAL ( LTokToPut , LONGINT ) )
+          END (*IF*)
         ; RETURN LResult
         END (*IF*)
       END (*WITH*) 
@@ -2039,35 +2051,23 @@ MODULE FM3Pass1
             := IntSets . Union
                  ( LParentScopeRef ^ . ScpRefIdSet , LEscapingRefSet ) 
         END (*IF*)
+      ; LUnitRef := ScopeRef ^ . ScpOwningUnitRef
       ; IF Clt . CltRemoveUnusedDecls IN FM3CLOptions . OptionTokSet
            AND LUnitRef ^ . UntScopeRef = ScopeRef
-           AND NOT FM3Units . CurrentUnitIsModule ( ) 
+           AND FM3Units . CurrentUnitIsModule ( ) 
         THEN ScopeRef ^ . ScpDeclIdSet := ScopeRef ^ . ScpRefIdSet
-        END (*IF*) 
-        
-      ; LDeclCt := IntSets . Card ( ScopeRef ^ . ScpDeclIdSet )
-      ; LUnitRef := ScopeRef ^ . ScpOwningUnitRef
-(* Probably remove, done earlier: 
-      ; IF LUnitRef ^ . UntScopeRef = ScopeRef
-        THEN (* Top scope of a unit.  Plan to include its [ex|im]ports. *) 
-          INC ( LDeclCt , LUnitRef . UntExpImpCt )  
-        ELSE LUnitRef := NIL
         END (*IF*)
-*) 
+
+      ; LDeclCt := IntSets . Card ( ScopeRef ^ . ScpDeclIdSet ) 
       (* LDeclCt is exactly the needed dictionary size. *)
       ; ScopeRef ^ . ScpDeclDict 
           := FM3Dict_Int_Int . NewFixed 
                ( LDeclCt , FM3SharedUtils . IntHash )
       ; SrtDeclNo := FM3Units . AllocateDeclNos ( LDeclCt )
-      ; LExpectedToDeclNo := SrtDeclNo + LDeclCt 
-(* Probably remove done earllier: 
-      ; IF LUnitRef # NIL
-        THEN IntSets . ForAllDo ( LUnitRef ^ . UntExpImpIdSet , SrtVisit )
-             (* ^Do the [ex|im]ports first, so their Decl Nos will be low
-                 for checking that they are indeeed [ex|im]ports. *) 
-        END (*IF*)
-*) 
+      ; LExpectedToDeclNo := SrtDeclNo + LDeclCt
+
       ; IntSets . ForAllDo ( ScopeRef ^ . ScpDeclIdSet , SrtVisit )
+
       ; <*ASSERT SrtDeclNo = LExpectedToDeclNo *> 
         TRY FM3Dict_Int_Int . FinalizeFixed ( ScopeRef ^ . ScpDeclDict )
         EXCEPT FM3Dict_Int_Int . Error ( EMsg )

@@ -133,7 +133,10 @@ INTERFACE FM3Units
       ; UntExpImpIdSet : IntSets . T := NIL (* IntSets . Empty ( ) *) 
           (* ^Atoms of idents [ex/im]ported into this unit. *)  
       ; UntExpImpMap : VarArray_Int_ExpImpProxy . T 
-          (* ^Unit Ident atom to ExpImpProxy. *)
+          (* ^Unit Ident atom to ExpImpProxy.
+             We fill this very early, during [ex|im]port processing of the unit,
+             so the atoms will be compactly numbered.
+          *)
           (* INVARIANT: Atom is in UntExpImpMap IFF in UntExpImpIdSet. *) 
       ; UntExpImpRefSet : IntSets . T := NIL (* IntSets . Empty ( ) *) 
       ; UntScopeRef : FM3Base . ScopeRefTyp := NIL  

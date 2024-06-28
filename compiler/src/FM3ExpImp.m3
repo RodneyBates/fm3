@@ -121,7 +121,7 @@ MODULE FM3ExpImp
         THEN
           LIntfUnitRef ^ . UntState := Ust . UsNotUsable 
           (* ^Suppress cascaded error messages. *)
-        ; RETURN NIL
+        ; RETURN LIntfUnitRef 
         END (*IF*)
 
       (* Compile LIntfUnitRef^. *) 
@@ -167,18 +167,18 @@ MODULE FM3ExpImp
       END (*IF*)
     END GetInterface
 
-; PROCEDURE CheckDuplicateImport
+(*EXPORTED.*)
+; PROCEDURE CheckDuplicateExpImp
     ( IntoUnitRef : FM3Units . UnitRefTyp
     ; IntoIdentAtom : FM3Base . AtomTyp 
     ; ImportPosition : FM3Base . tPosition 
-    ; IsExport : BOOLEAN 
+    ; Duplicator : TEXT 
     )
   : BOOLEAN (* Check passed. *) 
 
   = VAR LPrevExpImpUnitRef : FM3Units . UnitRefTyp
   ; VAR LPrevDeclUnitRef : FM3Units . UnitRefTyp
   ; VAR LPrevDeclRef : FM3Decls . DeclRefTyp
-  ; VAR LDirectiveText : TEXT 
   ; VAR LIdentChars : FM3Atom_OAChars . KeyTyp
   ; VAR LPrevExpImpProxy : FM3ExpImpProxy . T
   ; VAR LPrevDeclPosition : FM3Base . tPosition 
@@ -221,13 +221,10 @@ MODULE FM3ExpImp
             ELSE LPrevDeclPosition := LPrevDeclRef . DclPos
             END (*IF*) 
           END (*IF*)
-        ; IF IsExport THEN LDirectiveText := "export" 
-          ELSE LDirectiveText := "import"
-          END (*IF*) 
         ; FM3Messages . ErrorArr
             ( ARRAY OF REFANY
                 { "Duplicate "
-                , LDirectiveText 
+                , Duplicator 
                 , " of \""
                 , LIdentChars
                 , "\", previously from "
@@ -252,7 +249,7 @@ MODULE FM3ExpImp
          no need to check for a same-named declaration.
       *)
     ; RETURN TRUE 
-    END CheckDuplicateImport
+    END CheckDuplicateExpImp
 
 ; PROCEDURE InsertExpImp
     ( UnitRef : FM3Units . UnitRefTyp
@@ -262,9 +259,6 @@ MODULE FM3ExpImp
 
   = BEGIN 
       WITH WSet = UnitRef ^ . UntExpImpIdSet
-      DO WSet := IntSets . Include ( WSet , IdentAtom )
-      END (*WITH*) 
-    ; WITH WSet = UnitRef ^ . UntScopeRef ^ . ScpDeclIdSet 
       DO WSet := IntSets . Include ( WSet , IdentAtom )
       END (*WITH*) 
     ; VarArray_Int_ExpImpProxy . Assign
@@ -277,7 +271,7 @@ MODULE FM3ExpImp
     ; FromUnitDeclNo : FM3Base . DeclNoTyp
     ; ExpImpPosition : FM3Base . tPosition
       (* ^Of the EXPORTS or IMPORT directive's interface identifier. *) 
-    ; IsExport : BOOLEAN 
+    ; Duplicator : TEXT 
     )
   : BOOLEAN (* Success. *)
   (* PRE: FromUnitDeclNo leads to a DeclRef in FromUnitRef^. *)
@@ -298,11 +292,11 @@ MODULE FM3ExpImp
              ( LFromUnitDeclRef ^ . DclIdAtom , FromUnitRef , LIntoUnitRef )
 (*CHECK: Can we get the hash of the chars? *) 
     ; <* ASSERT LIntoIdentAtom # FM3Base . AtomNull *>  
-      IF CheckDuplicateImport
+      IF CheckDuplicateExpImp
            ( LIntoUnitRef
            , LIntoIdentAtom
            , ExpImpPosition
-           , IsExport 
+           , Duplicator 
            )
       THEN (* All is legal, so do the real import. *)
         LProxy . EipUnitNo := FromUnitRef ^ . UntUnitNo 
@@ -347,10 +341,6 @@ MODULE FM3ExpImp
     ; IF LFromAtom = FM3Base . AtomNull
       THEN (* The ident is nowhere in the from-interface at all. *)
         LFound := FALSE
-      ELSIF NOT IntSets . IsElement
-        ( LFromAtom , FromUnitRef ^ . UntScopeRef ^ . ScpDeclIdSet )
-      THEN (* It's not in the from-interface's top declaration scope. *)
-        LFound := FALSE 
       ELSIF IntSets . IsElement ( LFromAtom , FromUnitRef ^ . UntExpImpIdSet )
       THEN (* It's imported, thus not transitively importable. *) 
         LNote := NonTransitiveNote
@@ -367,12 +357,7 @@ MODULE FM3ExpImp
       
     ; IF NOT LFound
       THEN
-        IF IntSets . IsElement ( LFromAtom , FromUnitRef ^ . UntExpImpIdSet )
-        THEN (* But it's imported into the from-interface. *) 
-          LNote := NonTransitiveNote 
-        ELSE LNote := NIL 
-        END (*IF*) 
-      ; FM3Messages . ErrorArr
+        FM3Messages . ErrorArr
           ( ARRAY OF REFANY
               { "Interface "
               , FromUnitRef ^ . UntUnitIdent 
@@ -410,7 +395,7 @@ MODULE FM3ExpImp
             ( FromUnitRef
             , LFromDeclNoInt
             , IdScanAttribute . Position
-            , IsExport := FALSE
+            , "import"
             ) 
       END (*IF*) 
     END ImportDeclByIdent
@@ -448,21 +433,17 @@ MODULE FM3ExpImp
              , ASScanAttr . SaChars
              , ASScanAttr . SaHash
              )
-    ; IF CheckDuplicateImport
+    ; IF CheckDuplicateExpImp
            ( FM3Units . UnitStackTopRef 
            , LASIdentAtom
            , ASScanAttr . Position
-           , IsExport := FALSE  
+           , "import"  
            )
-      THEN (* OK *)
+      THEN (* OK, not a duplicate. *)
         INC ( FM3Units . UnitStackTopRef ^ . UntExpImpCt )
       ; WITH WUnitIdSet = FM3Units . UnitStackTopRef ^ . UntExpImpIdSet
         DO WUnitIdSet := IntSets . Include ( WUnitIdSet , LASIdentAtom )
         END (*WITH*) 
-      ; WITH WScopeIdSet 
-               = FM3Units . UnitStackTopRef ^ . UntScopeRef ^ . ScpDeclIdSet
-        DO WScopeIdSet := IntSets . Include ( WScopeIdSet , LASIdentAtom ) 
-        END (*WITH*)
       ; VarArray_Int_ExpImpProxy . CallbackWithElem
           ( FM3Units . UnitStackTopRef ^ . UntExpImpMap
           , LASIdentAtom
@@ -507,7 +488,7 @@ MODULE FM3ExpImp
              ( FromUnitRef 
              , RDeclNo 
              , ExportPosition  
-             , IsExport := TRUE
+             , "export"
              )
         END (*FOR*)
       END (*WITH*) 
@@ -518,7 +499,11 @@ MODULE FM3ExpImp
 
   = BEGIN
       VarArray_Int_ExpImpProxy . Compact
-        ( FM3Units . UnitStackTopRef ^ . UntExpImpMap ) 
+        ( FM3Units . UnitStackTopRef ^ . UntExpImpMap )
+    ; FM3Units . UnitStackTopRef ^ . UntNextDeclNo
+        := VarArray_Int_ExpImpProxy . TouchedRange
+             ( FM3Units . UnitStackTopRef ^ . UntExpImpMap  ) . Hi
+           + 1 
     END Done 
 
 ; BEGIN (*FM3ExpImp*)
