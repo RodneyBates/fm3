@@ -7,7 +7,7 @@ Start unit Misnamed.i3
 [32mFM3: [0mPass 2 output file Misnamed.i3.FM3Pass2 has 28 bytes.
 [32mFM3: [0mFinished compiling Misnamed.i3.
 End unit Misnamed.i3
-[32mFM3: [0mPass 1 output file Main.m3.FM3Pass1 has 560 bytes.
+[32mFM3: [0mPass 1 output file Main.m3.FM3Pass1 has 554 bytes.
 [32mFM3: [0mPatch stack Main.m3.FM3Patch peak size = 67 bytes.
 [32mFM3: [0mPass 2 output file Main.m3.FM3Pass2 has 260 bytes.
 [32mFM3: [0mFinished compiling Main.m3.
