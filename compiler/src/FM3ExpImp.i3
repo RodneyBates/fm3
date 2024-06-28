@@ -37,7 +37,7 @@ INTERFACE FM3ExpImp
 
 ; PROCEDURE CheckDuplicateExpImp 
     ( IntoUnitRef : FM3Units . UnitRefTyp
-    ; IntoIdentAtom : FM3Base . AtomTyp 
+    ; NewIdentAtom : FM3Base . AtomTyp 
     ; ImportPosition : FM3Base . tPosition 
     ; IdentInserterText : TEXT 
     )

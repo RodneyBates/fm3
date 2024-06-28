@@ -170,7 +170,7 @@ MODULE FM3ExpImp
 (*EXPORTED.*)
 ; PROCEDURE CheckDuplicateExpImp
     ( IntoUnitRef : FM3Units . UnitRefTyp
-    ; IntoIdentAtom : FM3Base . AtomTyp 
+    ; NewIdentAtom : FM3Base . AtomTyp 
     ; ImportPosition : FM3Base . tPosition 
     ; Duplicator : TEXT 
     )
@@ -185,12 +185,12 @@ MODULE FM3ExpImp
 
   ; BEGIN 
       IF NOT IntSets . IsElement
-               ( IntoIdentAtom , IntoUnitRef ^ . UntExpImpIdSet )
+               ( NewIdentAtom , IntoUnitRef ^ . UntExpImpIdSet )
       THEN RETURN TRUE
       END (*IF*) 
     ; LPrevExpImpProxy
         := VarArray_Int_ExpImpProxy . Fetch
-             ( IntoUnitRef ^ . UntExpImpMap , IntoIdentAtom )
+             ( IntoUnitRef ^ . UntExpImpMap , NewIdentAtom )
     ; IF LPrevExpImpProxy . EipUnitNo = FM3Base . UnitNoNull
       THEN RETURN TRUE
       END (*IF*) 
@@ -206,7 +206,7 @@ MODULE FM3ExpImp
     (* There is a previous same-named [ex|im]port and it's usable. *) 
     ; IF NOT FM3Atom_OAChars . Key 
                ( IntoUnitRef ^ . UntIdentAtomDict
-               , IntoIdentAtom
+               , NewIdentAtom
                , (*OUT*) LIdentChars
                )
       THEN LIdentChars := NIL
