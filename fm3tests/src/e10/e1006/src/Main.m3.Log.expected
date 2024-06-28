@@ -1,16 +1,16 @@
-[31mERROR: [0mMain.m3[4,3] Duplicate export of "M4", previously from Main.m3:(3,8),
+[31mERROR: [0mMain.m3[8,2] Duplicate export of "M4", previously from Main.i3:(7,8),
        declared at Main.i3:(6,8), (2.5.1)
-[31mERROR: [0mMain.m3[6,18] Duplicate import of "E1", previously from Main.m3:(4,3),
+[31mERROR: [0mMain.m3[10,18] Duplicate import of "E1", previously from Exp.i3:(8,2),
        declared at Exp.i3:(7,8), (2.5.1)
-[31mERROR: [0mMain.m3[8,4] Duplicate import of "E2", previously from Main.m3:(4,3),
+[31mERROR: [0mMain.m3[12,4] Duplicate import of "E2", previously from Exp.i3:(8,2),
        declared at Exp.i3:(8,8), (2.5.1)
-[31mERROR: [0mMain.m3[9,4] Duplicate import of "E3", previously from Main.m3:(4,3),
+[31mERROR: [0mMain.m3[13,4] Duplicate import of "E3", previously from Exp.i3:(8,2),
        declared at Exp.i3:(9,8), (2.5.1)
-[31mERROR: [0mMain.m3[10,4] Duplicate import of "E4", previously from Main.m3:(4,3),
+[31mERROR: [0mMain.m3[14,4] Duplicate import of "E4", previously from Exp.i3:(8,2),
        declared at Exp.i3:(10,8), (2.5.1)
-[31mERROR: [0mMain.m3[12,18] Interface Exp has no declaration named "D1"
+[31mERROR: [0mMain.m3[16,18] Interface Exp has no declaration named "D1"
        (It's there via export/import, but not transitively importable (2.5.1).)
-[31mERROR: [0mMain.m3[13,18] Interface Exp has no declaration named "M3"
-[31mERROR: [0mMain.m3[14,18] Interface Exp has no declaration named "D2"
-[31mERROR: [0mMain.m3[17,9] Duplicate import of "Exp", previously from Main.m3:(16,9),
+[31mERROR: [0mMain.m3[17,18] Interface Exp has no declaration named "M3"
+[31mERROR: [0mMain.m3[18,18] Interface Exp has no declaration named "D2"
+[31mERROR: [0mMain.m3[21,9] Duplicate import of "Exp", previously from Exp.i3:(20,9),
        declared at Exp.i3:(1,10), (2.5.1)
