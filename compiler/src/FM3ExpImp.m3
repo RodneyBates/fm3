@@ -184,71 +184,73 @@ MODULE FM3ExpImp
   ; VAR LPrevDeclPosition : FM3Base . tPosition 
 
   ; BEGIN 
-      IF IntSets . IsElement
-           ( IntoIdentAtom , IntoUnitRef ^ . UntExpImpIdSet )
-      THEN (* Importing a duplicate identifier. *)
-        LPrevExpImpProxy
-          := VarArray_Int_ExpImpProxy . Fetch
-               ( IntoUnitRef ^ . UntExpImpMap , IntoIdentAtom )
-      ; IF LPrevExpImpProxy . EipUnitNo # FM3Base . UnitNoNull
-        THEN (* And it's useable, so this would be a true duplicate. *)
-          LPrevExpImpUnitRef (* Implicit NARROW. *) 
-            := VarArray_Int_Refany . Fetch
-                 ( FM3Units . UnitsMap
-                 , LPrevExpImpProxy . EipImportingUnitNo 
-                 )
-        ; IF NOT FM3Atom_OAChars . Key 
-                   ( IntoUnitRef ^ . UntIdentAtomDict
-                   , IntoIdentAtom
-                   , (*OUT*) LIdentChars
-                   )
-          THEN LIdentChars := NIL
-          END (*IF*)
-        ; LPrevDeclUnitRef (* Implicit NARROW. *) 
-            := VarArray_Int_Refany . Fetch
-                 ( FM3Units . UnitsMap
-                 , LPrevExpImpProxy . EipUnitNo 
-                 )
-        ; IF LPrevExpImpProxy . EipDeclNo = FM3Base . DeclNoNull
-          THEN LPrevDeclPosition := LPrevDeclUnitRef ^ . UntUnitIdentPos 
-          ELSE
-            LPrevDeclRef (*Implied NARROW*) 
-              := VarArray_Int_Refany . Fetch
-                   ( LPrevDeclUnitRef ^ . UntDeclMap
-                   , LPrevExpImpProxy . EipDeclNo
-                   )
-          ; IF LPrevDeclRef = NIL THEN LPrevDeclPosition := FM3Base . PositionNull 
-            ELSE LPrevDeclPosition := LPrevDeclRef . DclPos
-            END (*IF*) 
-          END (*IF*)
-        ; FM3Messages . ErrorArr
-            ( ARRAY OF REFANY
-                { "Duplicate "
-                , Duplicator 
-                , " of \""
-                , LIdentChars
-                , "\", previously from "
-                , LPrevExpImpUnitRef ^ . UntSrcFileSimpleName 
-                , ":" 
-                , FM3Utils . PositionImage
-                    ( LPrevExpImpProxy . EipImportingUnitPosition )
-                ,"," 
-                , FM3Messages . NLIndent
-                , "declared at "
-                , LPrevDeclUnitRef ^ . UntSrcFileSimpleName 
-                , ":" 
-                , FM3Utils . PositionImage ( LPrevDeclPosition ) 
-                , ", (2.5.1)"
-                } 
-            , ImportPosition 
-            )
-        ; RETURN FALSE
+      IF NOT IntSets . IsElement
+               ( IntoIdentAtom , IntoUnitRef ^ . UntExpImpIdSet )
+      THEN RETURN TRUE
+      END (*IF*) 
+    ; LPrevExpImpProxy
+        := VarArray_Int_ExpImpProxy . Fetch
+             ( IntoUnitRef ^ . UntExpImpMap , IntoIdentAtom )
+    ; IF LPrevExpImpProxy . EipUnitNo = FM3Base . UnitNoNull
+      THEN RETURN TRUE
+      END (*IF*) 
+    ; LPrevExpImpUnitRef (* Implicit NARROW. *) 
+        := VarArray_Int_Refany . Fetch
+             ( FM3Units . UnitsMap
+             , LPrevExpImpProxy . EipUnitNo 
+             )
+    ; IF LPrevExpImpUnitRef ^ . UntState = Ust . UsNotUsable 
+      THEN RETURN TRUE
+      END (*IF*)
+      
+    (* There is a previous same-named [ex|im]port and it's usable. *) 
+    ; IF NOT FM3Atom_OAChars . Key 
+               ( IntoUnitRef ^ . UntIdentAtomDict
+               , IntoIdentAtom
+               , (*OUT*) LIdentChars
+               )
+      THEN LIdentChars := NIL
+      END (*IF*)
+    ; LPrevDeclUnitRef (* Implicit NARROW. *) 
+        := VarArray_Int_Refany . Fetch
+             ( FM3Units . UnitsMap
+             , LPrevExpImpProxy . EipUnitNo 
+             )
+    ; IF LPrevExpImpProxy . EipDeclNo = FM3Base . DeclNoNull
+      THEN LPrevDeclPosition := LPrevDeclUnitRef ^ . UntUnitIdentPos 
+      ELSE
+        LPrevDeclRef (*Implied NARROW*) 
+          := VarArray_Int_Refany . Fetch
+               ( LPrevDeclUnitRef ^ . UntDeclMap
+               , LPrevExpImpProxy . EipDeclNo
+               )
+      ; IF LPrevDeclRef = NIL (* Shouldn't happen. *) 
+        THEN LPrevDeclPosition := FM3Base . tPosition { 0 , 0 }  
+        ELSE LPrevDeclPosition := LPrevDeclRef . DclPos
         END (*IF*)
       END (*IF*)
-      (* We handle true declarations (not imports) only later, so there is
-         no need to check for a same-named declaration.
-      *)
-    ; RETURN TRUE 
+    ; FM3Messages . ErrorArr
+        ( ARRAY OF REFANY
+            { "Duplicate "
+            , Duplicator 
+            , " of \""
+            , LIdentChars
+            , "\", previously from "
+            , LPrevExpImpUnitRef ^ . UntSrcFileSimpleName 
+            , ":" 
+            , FM3Utils . PositionImage
+                ( LPrevExpImpProxy . EipImportingUnitPosition )
+            ,"," 
+            , FM3Messages . NLIndent
+            , "declared at "
+            , LPrevDeclUnitRef ^ . UntSrcFileSimpleName 
+            , ":" 
+            , FM3Utils . PositionImage ( LPrevDeclPosition ) 
+            , ", (2.5.1)"
+            } 
+        , ImportPosition 
+        )
+    ; RETURN FALSE
     END CheckDuplicateExpImp
 
 ; PROCEDURE InsertExpImp
