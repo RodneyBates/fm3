@@ -872,20 +872,20 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
 
         (* Turn the qualident into separate Id ref and dot Id. *)
         (* Read the following backwards: *) 
-          PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Column , LONGINT ) ) 
-        ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Line , LONGINT ) ) 
+          PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
+        ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
         ; PutBwdP2 ( Wp2RdBack , VAL ( LAtomRt , LONGINT ) ) 
-        ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExprDotLt , LONGINT ) )
+        ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExprDotRt , LONGINT ) )
 
         ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Column , LONGINT ) ) 
         ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Line , LONGINT ) ) 
         ; PutBwdP2 ( Wp2RdBack , VAL ( LDeclNoLt , LONGINT ) ) 
         ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkIdRefDeclNo , LONGINT ) )
 
-        ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Column , LONGINT ) ) 
-        ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Line , LONGINT ) ) 
+        ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
+        ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
         ; PutBwdP2 ( Wp2RdBack , VAL ( LAtomRt , LONGINT ) ) 
-        ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExprDotRt , LONGINT ) )
+        ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExprDotLt , LONGINT ) )
 
         ELSIF LookupExpImp ( LAtomLt , (*OUT*) LUnitNoLt , (*OUT*) LDeclNoLt )
         THEN (* Lt ident is [ex|im]ported. *)  
@@ -975,11 +975,13 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
                *)
           (* Turn it into separate QualId ref and dot Id *) 
           (* Read the following backwards: *) 
-            PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Column , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Line , LONGINT ) ) 
+            PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
+          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
           ; PutBwdP2 ( Wp2RdBack , VAL ( LAtomRt , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExprDotLt , LONGINT ) )
+          ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExprDotRt , LONGINT ) )
 
+          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
+          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
           ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Column , LONGINT ) ) 
           ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Line , LONGINT ) ) 
           ; PutBwdP2 ( Wp2RdBack , VAL ( LDeclNoLt , LONGINT ) ) 
@@ -987,10 +989,10 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
           ; PutBwdP2 ( Wp2RdBack , VAL
               ( Itk . ItkQualIdUnitNoDeclNo , LONGINT ) )
 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Column , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Line , LONGINT ) ) 
+          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
+          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
           ; PutBwdP2 ( Wp2RdBack , VAL ( LAtomRt , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExprDotRt , LONGINT ) )
+          ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExprDotLt , LONGINT ) )
           ; RETURN 
           END (*IF*)
         ELSE (* Undeclared. *)
