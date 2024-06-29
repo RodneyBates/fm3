@@ -1,0 +1,7 @@
+INTERFACE Imp
+
+; CONST I1 = 23
+; CONST I2 = 4 
+
+; END Imp
+.
