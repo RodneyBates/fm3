@@ -192,45 +192,6 @@ MODULE FM3Pass2
   ; VAR LPass1Coord : LONGINT
   ; VAR LPatchTokenL , LPatchedTokenL , LTokenL : LONGINT 
   ; VAR LPatchToken , LPatchedToken , LToken : Itk . TokTyp
-  ; VAR LScopeNo : FM3Base . ScopeNoTyp
-  ; VAR LAtom : FM3Base . AtomTyp
-  ; VAR LPosition : tPosition
-  ; VAR LDeclKind : FM3Decls . DeclKindTyp
-  ; VAR LSkipNo : INTEGER
-
-  ; PROCEDURE P2ReverseVariableValues
-      ( MaybeSkip : BOOLEAN (* ToRdBack is conditional on SkipNoStack. *) )
-    (* Reverse copy a variable number of values, with a copy of their
-       count before and after.
-    *) 
-
-    = VAR LCountLt : LONGINT
-    ; VAR LCountRt : LONGINT
-    ; VAR LCharsRef : REF ARRAY OF LONGINT 
-    ; VAR LCount : INTEGER
-
-    ; BEGIN
-        IF MaybeSkip
-           AND VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi
-               > 0 
-        THEN
-        ELSE 
-          LCountRt := FM3Compress . GetBwd ( LPass1RdBack )
-        ; PutBwdP2 ( LPass2RdBack , LCountRt )
-        ; LCount := VAL ( LCountRt , INTEGER )
-        ; LCharsRef := NEW ( REF ARRAY OF LONGINT , LCount )
-        ; FOR RI := 0 TO LCount - 1
-          DO LCharsRef ^ [ RI ] := FM3Compress . GetBwd ( LPass1RdBack )
-          END (*FOR*) 
-        ; FOR RI := LCount - 1 TO 0 BY - 1 
-          DO PutBwdP2 ( LPass2RdBack , LCharsRef ^ [ RI ] )
-          END (*FOR*)
-        ; LCharsRef := NIL 
-        ; LCountLt := FM3Compress . GetBwd ( LPass1RdBack )
-        ; <*ASSERT LCountLt = LCountRt *>
-          PutBwdP2 ( LPass2RdBack , LCountLt )
-        END (*IF*) 
-      END P2ReverseVariableValues 
 
   ; BEGIN (* Pass2 *) 
       LUnitRef := FM3Units . UnitStackTopRef
@@ -245,7 +206,7 @@ MODULE FM3Pass2
     ; LOOP (* One of three possible actions. *) 
         LPass1Coord := RdBackFile . LengthL ( LPass1RdBack )
       ; IF LPass1Coord <= LMPass1Depth
-           (* ^Nothing more to pop off Pass1 strack. *) 
+           (* ^Nothing more to pop off Pass1 stack. *) 
            AND RdBackFile . LengthL ( LPatchRdBack )
                <= LUnitRef . UntPatchStackTopCoord
            (* ^ Nothing more to pop off Patch stack. *) 
@@ -282,6 +243,8 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
 
          (* Copy the operands, reversing them to counteract the reversal
             accomplished by pop & push stack operations. *)
+(* CHECK: Are there any patch tokens that get special pass-2 handling, other
+          than writing to output? *) 
           ; CopyOperands
               ( FM3Utils . TokenOpndCt ( LPatchedToken ) 
               , LPatchRdBack
@@ -327,139 +290,194 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
           ; PutBwdPatch ( LPatchRdBack , LTokenL )
             (* ^Push the token code deeper than its patch coordinate. *)
             
-          ELSE
+          ELSIF HandleTok ( LToken )
+          THEN (* Was specially handled here. *)  
+          ELSE (* Move directly, input to output.*)
+            CopyOperands
+              ( FM3Utils . TokenOpndCt ( LToken )
+              , LPass1RdBack
+              , LPass2RdBack
+              , MaybeSkip := TRUE 
+              ) 
+          ; PutBwdP2 ( LPass2RdBack , LTokenL )
 
-            (* Directly handle this token and/or move it to Pass2 output. *) 
-            CASE LToken OF
-
-            (* Specially handled tokens. *)
-            | Itk . ItkSkipLt
-            => SkipLt ( GetBwdInt ( FM3Globals . P1RdBack ) ) 
- 
-            | Itk . ItkSkipRt
-            => LSkipNo := GetBwdInt ( LPass1RdBack )
-              ; WITH WSkipNoStack = FM3Globals . SkipNoStack
-                DO VarArray_Int_Int . Assign
-                    ( WSkipNoStack
-                    , VarArray_Int_Int . TouchedRange ( WSkipNoStack ) . Hi + 1  
-                    , LSkipNo
-                    )
-                (* Discard this token. *)
-                END (*WITH*)
-
-            | Itk . ItkScopeEmpty 
-            =>  LScopeNo := GetBwdScopeNo ( LPass1RdBack )
-(* TODO: Anything here? *) 
-
-            | Itk . ItkDeclScopeRt 
-            =>  LScopeNo := GetBwdScopeNo ( LPass1RdBack )
-              ; FM3Scopes . PushDeclScopeRef
-                  ( FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) )
-
-            | Itk . ItkDeclScopeLt 
-            =>  LScopeNo := GetBwdScopeNo ( LPass1RdBack ) 
-              ; <* ASSERT FM3Scopes . PopDeclScopeRef ( )
-                          = FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) *>
-
-            | Itk . ItkLookupScopeRt 
-            =>  LScopeNo := GetBwdScopeNo ( LPass1RdBack ) 
-              ; FM3Scopes . PushLookupScopeRef
-                  ( FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) )
-
-            | Itk . ItkLookupScopeLt 
-            =>  LScopeNo := GetBwdScopeNo ( LPass1RdBack ) 
-              ; <* ASSERT FM3Scopes . PopLookupScopeRef ( )
-                          = FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) *> 
-
-(* CONSISTIFY: For some of these, fetch the operands inside the called proc. *) 
-            | Itk . ItkDuplDeclId
-            => LAtom := GetBwdAtom ( LPass1RdBack )
-              ; LPosition := GetBwdPos ( LPass1RdBack )
-              ; EVAL DuplDeclIdR2L ( LAtom , LPosition )
-
-            | Itk . ItkDeclId
-            => LDeclKind := GetBwdDeclKind ( LPass1RdBack )
-              ; LAtom := GetBwdAtom ( LPass1RdBack )
-              ; LPosition := GetBwdPos ( LPass1RdBack )
-              ; EVAL DeclIdR2L ( LDeclKind , LAtom , LPosition )
-
-(* FIXME: We now use different tokens for different declkinds, eg.
-          ItkVALUEFormalIdListElem.  But is that necessary? *) 
-              
-            | Itk . ItkIdRefAtom 
-            => LAtom := GetBwdAtom ( LPass1RdBack )
-              ; LPosition := GetBwdPos ( LPass1RdBack )
-              ; IdentRefR2L ( LAtom , LPosition )
-
-            | Itk . ItkQualIdAtoms 
-            => QualIdentR2L ( LPass1RdBack )
-
-            | Itk . ItkBlockRt
-            => LScopeNo := GetBwdScopeNo ( LPass1RdBack ) 
-           (* Doesn't exist, probably ItkBlock[LR]t will disappear.
-
-           *) 
-              ; CopyOperands
-                 ( 2 (*Position*)
-                 , LPass1RdBack
-                 , LPass2RdBack
-                 , MaybeSkip := TRUE 
-                 )
-              ; PutBwdP2 ( LPass2RdBack , VAL ( LScopeNo , LONGINT ) ) 
-              ; PutBwdP2 ( LPass2RdBack , VAL ( Itk . ItkBlockRt , LONGINT ) )
-
-            | Itk . ItkBlockLt 
-            => CopyOperands
-                 ( FM3Utils . TokenOpndCt ( LToken ) 
-                 , LPass1RdBack
-                 , LPass2RdBack
-                 , MaybeSkip := TRUE 
-                 )
-              ; PutBwdP2 ( LPass2RdBack , LTokenL )
-              ; EVAL FM3Scopes . PopDeclScopeRef ( )
-
-            | Itk . ItkTextLitRt
-            , Itk . ItkWideTextLitRt
-            => CopyOperands
-                 ( 3 (* Atom, position. *)
-                 , LPass1RdBack
-                 , LPass2RdBack
-                 , MaybeSkip := TRUE 
-                 )
-              ; PutBwdP2
-                  ( LPass2RdBack
-                  , VAL ( (*FM3Utils . SwitchTokL2R*) ( LToken ) , LONGINT )
-                  )
-              ; P2ReverseVariableValues ( MaybeSkip := TRUE ) 
-
-            | Itk . ItkTextLitLt
-            , Itk . ItkWideTextLitLt
-            => CopyOperands
-                 ( 3 (* Atom, position. *)
-                 , LPass1RdBack
-                 , LPass2RdBack
-                 , MaybeSkip := TRUE 
-                 )
-              ; PutBwdP2
-                  ( LPass2RdBack
-                  , VAL ( (*FM3Utils . SwitchTokL2R*) ( LToken ) , LONGINT )
-                  )
-
-            ELSE (* Move directly, input to output.*)
-              CopyOperands
-                ( FM3Utils . TokenOpndCt ( LToken )
-                , LPass1RdBack
-                , LPass2RdBack
-                , MaybeSkip := TRUE 
-                ) 
-            ; PutBwdP2 ( LPass2RdBack , LTokenL )
-            END (*CASE*) 
           END (*IF*) 
         (* And loop *)           
         END (*IF*)
 
       END (*LOOP*)
     END Pass2
+
+; PROCEDURE HandleTok ( Token : Itk . TokTyp ) : BOOLEAN (* Handled it. *) 
+
+  = VAR LUnitRef : FM3Units . UnitRefTyp
+  ; VAR LPass1RdBack : RdBackFile . T 
+  ; VAR LPatchRdBack : RdBackFile . T 
+  ; VAR LPass2RdBack : RdBackFile . T 
+  ; VAR LScopeNo : FM3Base . ScopeNoTyp
+  ; VAR LAtom : FM3Base . AtomTyp
+  ; VAR LPosition : tPosition
+  ; VAR LDeclKind : FM3Decls . DeclKindTyp
+  ; VAR LSkipNo : INTEGER
+  
+  ; PROCEDURE P2ReverseVariableValues
+      ( MaybeSkip : BOOLEAN (* ToRdBack is conditional on SkipNoStack. *) )
+    (* Reverse copy a variable number of values, with a copy of their
+       count before and after.
+    *) 
+
+    = VAR LCountLt : LONGINT
+    ; VAR LCountRt : LONGINT
+    ; VAR LCharsRef : REF ARRAY OF LONGINT 
+    ; VAR LCount : INTEGER
+
+    ; BEGIN
+        IF MaybeSkip
+           AND VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi
+               > 0 
+        THEN
+        ELSE 
+          LCountRt := FM3Compress . GetBwd ( LPass1RdBack )
+        ; PutBwdP2 ( LPass2RdBack , LCountRt )
+        ; LCount := VAL ( LCountRt , INTEGER )
+        ; LCharsRef := NEW ( REF ARRAY OF LONGINT , LCount )
+        ; FOR RI := 0 TO LCount - 1
+          DO LCharsRef ^ [ RI ] := FM3Compress . GetBwd ( LPass1RdBack )
+          END (*FOR*) 
+        ; FOR RI := LCount - 1 TO 0 BY - 1 
+          DO PutBwdP2 ( LPass2RdBack , LCharsRef ^ [ RI ] )
+          END (*FOR*)
+        ; LCharsRef := NIL 
+        ; LCountLt := FM3Compress . GetBwd ( LPass1RdBack )
+        ; <*ASSERT LCountLt = LCountRt *>
+          PutBwdP2 ( LPass2RdBack , LCountLt )
+        END (*IF*) 
+      END P2ReverseVariableValues 
+
+  ; BEGIN
+      LUnitRef := FM3Units . UnitStackTopRef
+    ; LPass1RdBack := LUnitRef . UntPass1OutRdBack 
+    ; LPass2RdBack := LUnitRef . UntPass2OutRdBack
+    ; CASE Token OF
+
+      (* Specially handled tokens. *)
+      | Itk . ItkSkipLt
+      => SkipLt ( GetBwdInt ( FM3Globals . P1RdBack ) ) 
+
+      | Itk . ItkSkipRt
+      => LSkipNo := GetBwdInt ( LPass1RdBack )
+        ; WITH WSkipNoStack = FM3Globals . SkipNoStack
+          DO VarArray_Int_Int . Assign
+              ( WSkipNoStack
+              , VarArray_Int_Int . TouchedRange ( WSkipNoStack ) . Hi + 1  
+              , LSkipNo
+              )
+          (* Discard this token. *)
+          END (*WITH*)
+
+      | Itk . ItkScopeEmpty 
+      =>  LScopeNo := GetBwdScopeNo ( LPass1RdBack )
+(* TODO: Anything here? *) 
+
+      | Itk . ItkDeclScopeRt 
+      =>  LScopeNo := GetBwdScopeNo ( LPass1RdBack )
+        ; FM3Scopes . PushDeclScopeRef
+            ( FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) )
+
+      | Itk . ItkDeclScopeLt 
+      =>  LScopeNo := GetBwdScopeNo ( LPass1RdBack ) 
+        ; <* ASSERT FM3Scopes . PopDeclScopeRef ( )
+                    = FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) *>
+
+      | Itk . ItkLookupScopeRt 
+      =>  LScopeNo := GetBwdScopeNo ( LPass1RdBack ) 
+        ; FM3Scopes . PushLookupScopeRef
+            ( FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) )
+
+      | Itk . ItkLookupScopeLt 
+      =>  LScopeNo := GetBwdScopeNo ( LPass1RdBack ) 
+        ; <* ASSERT FM3Scopes . PopLookupScopeRef ( )
+                    = FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) *> 
+
+(* CONSISTIFY: For some of these, fetch the operands inside the called proc. *) 
+      | Itk . ItkDuplDeclId
+      => LAtom := GetBwdAtom ( LPass1RdBack )
+        ; LPosition := GetBwdPos ( LPass1RdBack )
+        ; EVAL DuplDeclIdR2L ( LAtom , LPosition )
+
+      | Itk . ItkDeclId
+      => LDeclKind := GetBwdDeclKind ( LPass1RdBack )
+        ; LAtom := GetBwdAtom ( LPass1RdBack )
+        ; LPosition := GetBwdPos ( LPass1RdBack )
+        ; EVAL DeclIdR2L ( LDeclKind , LAtom , LPosition )
+
+(* FIXME: We now use different tokens for different declkinds, eg.
+    ItkVALUEFormalIdListElem.  But is that necessary? *) 
+
+      | Itk . ItkIdRefAtom 
+      => LAtom := GetBwdAtom ( LPass1RdBack )
+        ; LPosition := GetBwdPos ( LPass1RdBack )
+        ; IdentRefR2L ( LAtom , LPosition )
+
+      | Itk . ItkQualIdAtoms 
+      => QualIdentR2L ( LPass1RdBack )
+
+      | Itk . ItkBlockRt
+      => LScopeNo := GetBwdScopeNo ( LPass1RdBack ) 
+     (* Doesn't exist, probably ItkBlock[LR]t will disappear.
+
+     *) 
+        ; CopyOperands
+           ( 2 (*Position*)
+           , LPass1RdBack
+           , LPass2RdBack
+           , MaybeSkip := TRUE 
+           )
+        ; PutBwdP2 ( LPass2RdBack , VAL ( LScopeNo , LONGINT ) ) 
+        ; PutBwdP2 ( LPass2RdBack , VAL ( Itk . ItkBlockRt , LONGINT ) )
+
+      | Itk . ItkBlockLt 
+      => CopyOperands
+           ( FM3Utils . TokenOpndCt ( Token ) 
+           , LPass1RdBack
+           , LPass2RdBack
+           , MaybeSkip := TRUE 
+           )
+        ; PutBwdP2 ( LPass2RdBack , VAL ( Token , LONGINT ) )
+        ; EVAL FM3Scopes . PopDeclScopeRef ( )
+
+      | Itk . ItkTextLitRt
+      , Itk . ItkWideTextLitRt
+      => CopyOperands
+           ( 3 (* Atom, position. *)
+           , LPass1RdBack
+           , LPass2RdBack
+           , MaybeSkip := TRUE 
+           )
+        ; PutBwdP2
+            ( LPass2RdBack
+            , VAL ( (*FM3Utils . SwitchTokL2R*) ( Token ) , LONGINT )
+            )
+        ; P2ReverseVariableValues ( MaybeSkip := TRUE ) 
+
+      | Itk . ItkTextLitLt
+      , Itk . ItkWideTextLitLt
+      => CopyOperands
+           ( 3 (* Atom, position. *)
+           , LPass1RdBack
+           , LPass2RdBack
+           , MaybeSkip := TRUE 
+           )
+        ; PutBwdP2
+            ( LPass2RdBack
+            , VAL ( (*FM3Utils . SwitchTokL2R*) ( Token ) , LONGINT )
+            )
+
+      ELSE (* No special pass2 handling.  Let the caller handle it. *)
+        RETURN FALSE 
+      END (*CASE*)
+    ; RETURN TRUE (* We handled it here. *) 
+    END HandleTok 
 
 (* Right-to-left scope handling.  Call sites read the Itk and its operands,
    and pass the operands in. *) 
@@ -853,7 +871,6 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
   ; VAR LIntfAtomRt : FM3Base . AtomTyp
   ; VAR LIntfDeclNoInt : INTEGER 
   ; VAR LPosLt , LPosRt : FM3Base . tPosition
-  ; VAR LProxy : FM3ExpImpProxy . T
 
   ; BEGIN (*QualIdentR2L*)
       LAtomLt := GetBwdAtom ( Pass1RdBack ) 
