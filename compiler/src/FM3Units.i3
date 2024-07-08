@@ -71,7 +71,8 @@ INTERFACE FM3Units
         , UnitStateTyp . UsLoaded
         }
 
-; REVEAL FM3Base . UnitRefTyp = BRANDED REF UnitTyp 
+; CONST UnitRefBrand = "UnitRef0.1"
+; REVEAL FM3Base . UnitRefTyp = BRANDED UnitRefBrand REF UnitTyp 
 ; TYPE UnitRefTyp = FM3Base . UnitRefTyp 
 
 ; TYPE UnitTyp
@@ -126,6 +127,8 @@ INTERFACE FM3Units
           (* ^Of the being-[ex|im]ported identifier. *) 
       ; UntDeclMap : FM3Base . MapTyp := NIL
           (* ^DeclNo to DeclRef.  All the true decls in this unit. *) 
+      ; UntDefMap : FM3Base . MapTyp := NIL
+          (* ^DefNo to DefRef.  All the defs in this unit. *) 
       ; UntScopeMap : FM3Base . MapTyp := NIL
           (* ScopeNo to ScopeRef.  All the scopes in this unit. *)
       ; UntExpUnitSet : IntSets . T := NIL (* IntSets . Empty ( ) *)
@@ -146,15 +149,15 @@ INTERFACE FM3Units
           (* TOS Subscript at beginning and end of unit compile. *) 
       ; UntStackDepth : INTEGER := 0
           (* ^Where on the units stack this UnitRef is. *) 
-      ; UntUnitNo : FM3Base . UnitNoTyp := FM3Base . UnitNoNull
+      ; UntSelfUnitNo : FM3Base . UnitNoTyp := FM3Base . UnitNoNull
           (* ^Self-referential. *) 
       ; UntScanResult : INTEGER 
       ; UntParseResult : INTEGER 
       ; UntPass2Result : INTEGER
       ; UntFirstTrueDeclNo : INTEGER := 1 
-        (* ^In the unit's top-level scope.  as opposed to imported proxies,
+        (* ^In the unit's top-level scope.  As opposed to imported proxies,
             which are all lower-numbered. *) 
-      ; UntNextDeclNo : INTEGER := 1 
+      ; UntNextDeclNo : INTEGER := 1
       ; UntKind := UnitKindTyp . UkNull 
       ; UntState := UnitStateTyp . UsNull
       ; UntUnsafe : BOOLEAN := FALSE  

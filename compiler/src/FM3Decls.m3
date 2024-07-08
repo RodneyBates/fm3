@@ -65,7 +65,7 @@ MODULE FM3Decls
 
   ; BEGIN
       LDeclRef := NEW ( DeclRefTyp )
-    ; LDeclRef . DclDeclNo := DeclNo
+    ; LDeclRef . DclSelfDeclNo := DeclNo
     ; INC ( ParentScopeRef ^ . ScpDeclCt )
     ; ParentScopeRef ^ . ScpMinDeclNo
         := MIN ( ParentScopeRef ^ . ScpMinDeclNo , DeclNo ) 
@@ -78,69 +78,69 @@ MODULE FM3Decls
    be very deep.
 *) 
 
-; TYPE DeclInfoNodeTyp
+; TYPE DeclParseInfoNodeTyp
     = RECORD
-        DinLink : DeclInfoRefTyp
-      ; DinInfo : DeclInfoTyp 
+        DinLink : DeclParseInfoRefTyp
+      ; DinInfo : DeclParseInfoTyp 
       END
-; TYPE DeclInfoRefTyp = REF DeclInfoNodeTyp
+; TYPE DeclParseInfoRefTyp = REF DeclParseInfoNodeTyp
 
-; VAR DeclInfoStack : DeclInfoRefTyp 
-; VAR DeclInfoStackDepth : INTEGER 
+; VAR DeclParseInfoStack : DeclParseInfoRefTyp 
+; VAR DeclParseInfoStackDepth : INTEGER 
 
 (*EXPORTED*)
-; PROCEDURE PushDeclInfo ( READONLY Info : DeclInfoTyp )
+; PROCEDURE PushDeclParseInfo ( READONLY Info : DeclParseInfoTyp )
   : INTEGER (* Depth after push. *)  
 
   = BEGIN
-      DeclInfoStack
-        := NEW ( DeclInfoRefTyp
-               , DinLink := DeclInfoStack
+      DeclParseInfoStack
+        := NEW ( DeclParseInfoRefTyp
+               , DinLink := DeclParseInfoStack
                , DinInfo := Info 
                )
-    ; INC ( DeclInfoStackDepth )
-    ; RETURN DeclInfoStackDepth 
-    END PushDeclInfo
+    ; INC ( DeclParseInfoStackDepth )
+    ; RETURN DeclParseInfoStackDepth 
+    END PushDeclParseInfo
     
 (*EXPORTED*) 
-; PROCEDURE PopDeclInfo ( ) : INTEGER (* Depth before pop. *) 
+; PROCEDURE PopDeclParseInfo ( ) : INTEGER (* Depth before pop. *) 
 
   = VAR LResult : INTEGER
   ; BEGIN
-      IF DeclInfoStack = NIL
+      IF DeclParseInfoStack = NIL
       THEN
-        <* ASSERT DeclInfoStackDepth = 0 *>
+        <* ASSERT DeclParseInfoStackDepth = 0 *>
         RETURN 0 
       ELSE
-        LResult := DeclInfoStackDepth
+        LResult := DeclParseInfoStackDepth
       ; <* ASSERT LResult > 0 *>
-        DEC ( DeclInfoStackDepth ) 
-      ; DeclInfoStack := DeclInfoStack . DinLink
+        DEC ( DeclParseInfoStackDepth ) 
+      ; DeclParseInfoStack := DeclParseInfoStack . DinLink
       ; RETURN LResult
       END (*IF*)  
-    END PopDeclInfo 
+    END PopDeclParseInfo 
 
 (*EXPORTED*) 
-; PROCEDURE TopDeclInfo ( ) : DeclInfoTyp
+; PROCEDURE TopDeclParseInfo ( ) : DeclParseInfoTyp
   (* <Result>.DiKind = DeclKindTyp.DkNull, => stack is empty. *) 
 
   = BEGIN
-      IF DeclInfoStack = NIL
+      IF DeclParseInfoStack = NIL
       THEN RETURN
-        DeclInfoTyp
+        DeclParseInfoTyp
           { DiDeclTok := FM3IntToks . ItkNull
           , DiIdListTok := FM3IntToks . ItkNull
           , DiIdTok := FM3IntToks . ItkNull
           , DiIdSepTok := FM3IntToks . ItkNull
           , DiKind := DeclKindTyp.DkNull
           } 
-      ELSE RETURN DeclInfoStack . DinInfo 
+      ELSE RETURN DeclParseInfoStack . DinInfo 
       END (*IF*) 
-   END TopDeclInfo 
+   END TopDeclParseInfo 
 
 ; BEGIN
-    DeclInfoStack := NIL
-  ; DeclInfoStackDepth := 0
+    DeclParseInfoStack := NIL
+  ; DeclParseInfoStackDepth := 0
 (* CHECK: Could there ever be a need to reinitialize this" *) 
   END FM3Decls
 .

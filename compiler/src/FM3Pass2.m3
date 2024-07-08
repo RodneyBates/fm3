@@ -30,6 +30,8 @@ MODULE FM3Pass2
 ; IMPORT FM3Compress
 ; FROM FM3Compress IMPORT GetBwd
 ; IMPORT FM3Decls
+; IMPORT FM3Defs  
+; FROM FM3Defs IMPORT DefStackTopRef  
 ; IMPORT FM3Dict_Int_Int
 ; IMPORT FM3ExpImp
 ; IMPORT FM3ExpImpProxy 
@@ -48,11 +50,12 @@ MODULE FM3Pass2
 ; IMPORT FM3Utils
 ; IMPORT RdBackFile 
 
+; TYPE Ext = FM3Defs . ExpKindTyp 
+; TYPE Ust = FM3Units . UnitStateTyp 
+
 ; CONST PosImage = FM3Utils . PositionImage
 
 ; CONST ALOSE = FM3Messages . AtomListToOSError 
-
-; TYPE Ust = FM3Units . UnitStateTyp 
 
 ; PROCEDURE PutBwdP2 ( RdBack : RdBackFile . T ; ValueL : LONGINT )
   (* Wrap FM3Compress . PutBwd for pass 2 output file. 
@@ -312,15 +315,15 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
 
   = VAR LUnitRef : FM3Units . UnitRefTyp
   ; VAR LPass1RdBack : RdBackFile . T 
-  ; VAR LPatchRdBack : RdBackFile . T 
   ; VAR LPass2RdBack : RdBackFile . T 
   ; VAR LScopeNo : FM3Base . ScopeNoTyp
   ; VAR LAtom : FM3Base . AtomTyp
   ; VAR LPosition : tPosition
-  ; VAR LDeclKind : FM3Decls . DeclKindTyp
+  ; VAR LDeclKind : FM3Decls . DeclKindTyp 
   ; VAR LSkipNo : INTEGER
+  ; VAR LSkipping : BOOLEAN 
   
-  ; PROCEDURE P2ReverseVariableValues
+  ; PROCEDURE HtReverseVariableValues
       ( MaybeSkip : BOOLEAN (* ToRdBack is conditional on SkipNoStack. *) )
     (* Reverse copy a variable number of values, with a copy of their
        count before and after.
@@ -332,9 +335,7 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
     ; VAR LCount : INTEGER
 
     ; BEGIN
-        IF MaybeSkip
-           AND VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi
-               > 0 
+        IF MaybeSkip AND LSkipping 
         THEN
         ELSE 
           LCountRt := FM3Compress . GetBwd ( LPass1RdBack )
@@ -352,12 +353,14 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
         ; <*ASSERT LCountLt = LCountRt *>
           PutBwdP2 ( LPass2RdBack , LCountLt )
         END (*IF*) 
-      END P2ReverseVariableValues 
+      END HtReverseVariableValues 
 
   ; BEGIN
       LUnitRef := FM3Units . UnitStackTopRef
     ; LPass1RdBack := LUnitRef . UntPass1OutRdBack 
     ; LPass2RdBack := LUnitRef . UntPass2OutRdBack
+    ; LSkipping
+        := VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
     ; CASE Token OF
 
       (* Specially handled tokens. *)
@@ -458,7 +461,7 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
             ( LPass2RdBack
             , VAL ( (*FM3Utils . SwitchTokL2R*) ( Token ) , LONGINT )
             )
-        ; P2ReverseVariableValues ( MaybeSkip := TRUE ) 
+        ; HtReverseVariableValues ( MaybeSkip := TRUE ) 
 
       | Itk . ItkTextLitLt
       , Itk . ItkWideTextLitLt
@@ -472,6 +475,36 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
             ( LPass2RdBack
             , VAL ( (*FM3Utils . SwitchTokL2R*) ( Token ) , LONGINT )
             )
+
+(* REF type: *) 
+      | Itk . ItkREFDefRt 
+      => WITH WPosition = GetBwdPos ( LPass1RdBack )
+        DO IF NOT LSkipping 
+          THEN 
+            DefStackTopRef 
+              := NEW ( FM3Defs . DefREFTypeTyp
+                     , DefLink := FM3Defs . DefStackTopRef 
+                     , DefPosition := WPosition 
+                     , DefExpKind := FM3Defs . DefStackTopRef . DefExpKind 
+                     , DefIsLegalRecursive := TRUE
+                     )
+          END (*IF*)
+        END (*WITH*) 
+
+      | Itk . ItkREFDefLt 
+      => (* PRE: TOS is referent, TOS-1 is REF def, *) 
+        WITH WPosition = GetBwdPos ( LPass1RdBack )
+        DO IF NOT LSkipping 
+          THEN
+            WITH WDefREFType 
+                   = NARROW
+                       ( DefStackTopRef . DefLink , FM3Defs . DefREFTypeTyp )
+            DO 
+              WDefREFType . DefREFReferent := DefStackTopRef 
+            ; DefStackTopRef := DefStackTopRef . DefLink
+            END (*WITH*) 
+          END (*IF*) 
+        END (*WITH*)
 
       ELSE (* No special pass2 handling.  Let the caller handle it. *)
         RETURN FALSE 
@@ -647,7 +680,6 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
       ; LNewDeclRef . DclSelfScopeRef
           := FM3Scopes . DeclScopeStackTopRef (* Why not? *)
       ; LNewDeclRef . DclIdAtom := DeclIdAtom 
-      ; LNewDeclRef . DclDeclNo := (* Implicit NARROW. *) DeclNoI 
       ; LNewDeclRef . DclPos := Position 
       ; LNewDeclRef . DclKind := FM3Decls . DeclKindTyp . DkDuplDecl
       ; VarArray_Int_Refany . Assign
@@ -714,7 +746,6 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
       ; LDeclRef . DclSelfScopeRef := NIL
 (* TODO: ^ Get this from parser.  Also set the reverse link ScpOwningDeclNo. *) 
       ; LDeclRef . DclIdAtom := DeclIdAtom 
-      ; LDeclRef . DclDeclNo := DeclNoI
       ; LDeclRef . DclPos := Position 
       ; LDeclRef . DclKind := DeclKind 
       ; DeclRefany := LDeclRef 
@@ -964,7 +995,7 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
             ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Line , LONGINT ) ) 
             ; PutBwdP2 ( Wp2RdBack , VAL ( LIntfDeclNoInt , LONGINT ) ) 
             ; PutBwdP2
-                ( Wp2RdBack , VAL ( LIntfUnitRef ^ . UntUnitNo , LONGINT ) ) 
+                ( Wp2RdBack , VAL ( LIntfUnitRef ^ . UntSelfUnitNo , LONGINT ) ) 
             ; PutBwdP2
                 ( Wp2RdBack , VAL ( Itk . ItkQualIdUnitNoDeclNo , LONGINT ) )
             ELSE (* Right ident is not known in left-named interface. *)

@@ -38,6 +38,13 @@ INTERFACE FM3Base
 ; CONST DeclNoNotUseable = DeclNoNull + 1 
 ; CONST DeclNoFirstReal = DeclNoNotUseable + 1
 
+; TYPE DefTyp <: ROOT 
+; TYPE DefNoTyp = CARDINAL
+; CONST DefNoNull = FIRST ( CARDINAL )
+; CONST DefNoMax = LAST ( CARDINAL )
+; CONST DefNoNotUseable = DefNoNull + 1 
+; CONST DefNoFirstReal = DefNoNotUseable + 1
+
 (* Note lack of periods, for Pathname.Join. *)  
 ; CONST InterfaceFileNameSuffix = "i3" 
 ; CONST ModuleFileNameSuffix = "m3"

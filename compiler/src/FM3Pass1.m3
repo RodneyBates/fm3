@@ -1604,20 +1604,20 @@ MODULE FM3Pass1
 
   (* Anything that requires a type and/or value: variable , formal, field. 
      Check and maybe emit message. 
-     Gets DeclKind from FM3Decls.TopDeclInfo. 
+     Gets DeclKind from FM3Decls.TopDeclParseInfo. 
   *) 
 
   = BEGIN 
      IF NOT  HasType AND NOT HasValue 
      THEN
-       WITH WDeclInfo = FM3Decls . TopDeclInfo ( )
+       WITH WDeclParseInfo = FM3Decls . TopDeclParseInfo ( )
        DO 
          FM3Messages . ErrorArr
            ( ARRAY OF REFANY 
                { "Declared "
-               , VarLabel [ WDeclInfo . DiKind ] 
+               , VarLabel [ WDeclParseInfo . DiKind ] 
                , " must have a type and/or an initial value. "
-               , VarSection [ WDeclInfo . DiKind  ]
+               , VarSection [ WDeclParseInfo . DiKind  ]
                } 
            , Position
            )
@@ -1795,7 +1795,8 @@ MODULE FM3Pass1
                 } 
             )
           (* No output. *)
-        ; RETURN FALSE (* Caller, Don't use this Id. *) 
+        ; RETURN FALSE (* Caller, Don't use this Id. *)
+        
         ELSE (* Programmer-declared identifier. *)
           IF WScope . ScpOwningUnitRef = FM3Units . UnitStackTopRef 
              AND NOT FM3ExpImp . CheckDuplicateExpImp
@@ -2011,7 +2012,7 @@ MODULE FM3Pass1
 ; PROCEDURE DeclScopeRtL2R ( ScopeRef : FM3Scopes . ScopeRefTyp )
   (* Create an IdAtom-to-declNo, fixed-size dictionary for the scope, of
      exactly the needed size, and load it up with mappings of the idents
-     declared in the scope, using a contiguously-numbered range of DeclNos.
+     declared in the scope, onto a contiguously-numbered range of DeclNos.
   *) 
 
   = VAR SrtDeclNo : INTEGER 

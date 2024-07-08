@@ -316,7 +316,7 @@ RULE
          LUnitRef ^ . UntScopeRef := LScopeRef ; 
          FM3Scopes . PushDeclScopeRef ( LScopeRef ) ; 
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo ) ;
+           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
        END ; 
      } .
 
@@ -335,7 +335,7 @@ RULE
          LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
          FM3Scopes . PushLookupScopeRef ( LScopeRef ) ;
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkLookupScopeLt , LScopeRef ^ . ScpScopeNo ) ;
+           ( Itk . ItkLookupScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
        END ; 
      } . 
 
@@ -344,19 +344,19 @@ RULE
        BEGIN
          LScopeRef := FM3Scopes . LookupScopeStackTopRef ;
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkLookupScopeRt , LScopeRef ^ . ScpScopeNo ) ; 
+           ( Itk . ItkLookupScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ; 
          <* ASSERT FM3Scopes . PopLookupScopeRef ( ) = LScopeRef *>
          <* ASSERT LScopeRef = FM3Scopes . DeclScopeStackTopRef *> 
          FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpScopeNo ) ; 
+           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ; 
          <* ASSERT FM3Scopes . PopDeclScopeRef ( ) = LScopeRef *>
          FM3Pass1 . CheckUnitFinalId
            ( FM3Units . UnitStackTopRef , $4 . Scan , Ukt . UkInterface ) ; 
          FM3Pass1 . PutBwd_LCIP_rip 
            ( Itk . ItkInterfaceLt
            , $1 . PaPass1Coord
-           , FM3Units . UnitStackTopRef ^ . UntUnitNo 
+           , FM3Units . UnitStackTopRef ^ . UntSelfUnitNo 
            , $1 . Scan . Position
            ) ; 
        END ; 
@@ -378,7 +378,7 @@ RULE
          LUnitRef ^ . UntScopeRef := LScopeRef ; 
          FM3Scopes . PushDeclScopeRef ( LScopeRef ) ; 
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo ) ; 
+           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ; 
        END ; 
      } .
 
@@ -397,7 +397,7 @@ RULE
          LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
          FM3Scopes . PushLookupScopeRef ( LScopeRef ) ;
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkLookupScopeLt , LScopeRef ^ . ScpScopeNo ) ;
+           ( Itk . ItkLookupScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
        END ; 
      } . 
 
@@ -407,19 +407,19 @@ RULE
        BEGIN
          LScopeRef := FM3Scopes . LookupScopeStackTopRef ; 
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkLookupScopeRt , LScopeRef ^ . ScpScopeNo ) ;
+           ( Itk . ItkLookupScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ;
          <* ASSERT FM3Scopes . PopLookupScopeRef ( ) = LScopeRef *>
          <* ASSERT LScopeRef = FM3Scopes . DeclScopeStackTopRef *> 
          FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpScopeNo ) ; 
+           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ; 
          <* ASSERT FM3Scopes . PopDeclScopeRef ( ) = LScopeRef *>
          FM3Pass1 . CheckUnitFinalId
            ( FM3Units . UnitStackTopRef , $6 .Scan , Ukt . UkModule ) ; 
          FM3Pass1 . PutBwd_LCIP_eCiP_riP 
            ( Itk . ItkModuleLt
            , $1 . PaPass1Coord
-           , FM3Units . UnitStackTopRef ^ . UntUnitNo 
+           , FM3Units . UnitStackTopRef ^ . UntSelfUnitNo 
            , $1 . Scan . Position
            , $3 . PaPass1Coord
            , $3 . Scan . Position
@@ -611,25 +611,35 @@ RULE
    *) 
 
    DeclIdListElems : StkIdent
-     { $$ . PaInt (* Valid Id count. *)
-         := ORD
-              ( FM3Pass1 . DeclIdL2R
-                  ( Itk . ItkDeclId 
-                  , FM3Decls . TopDeclInfo ( ) . DiKind
-                  , IdAttribute := $1
-                  )
-              ) ;
+     { IF FM3Pass1 . DeclIdL2R
+            ( Itk . ItkDeclId 
+            , FM3Decls . TopDeclParseInfo ( ) . DiKind
+            , IdAttribute := $1
+            )
+       THEN (* Use this ident. *) 
+         $$ . PaInt := 1 ;
+         $$ . PaRefany := IntSets . Singleton ( $1 . Scan . SaAtom ) 
+       ELSE
+         $$ . PaInt := 0 ;
+         $$ . PaRefany := IntSets . Empty ( ) 
+       END (*IF*) ; 
      } . 
      
    DeclIdListElems : DeclIdListElems StkComma StkIdent
      { IF FM3Pass1 . DeclIdL2R
             ( Itk . ItkDeclId 
-            , FM3Decls . TopDeclInfo ( ) . DiKind
+            , FM3Decls . TopDeclParseInfo ( ) . DiKind
             , IdAttribute := $3
             )
        (* ^No Itk separators here.  It would be kinda silly. *) 
-       THEN (* Use this ident. *) $$ . PaInt := $1 . PaInt + 1 ;  
-       ELSE $$ . PaInt := $1 . PaInt (* Valid Id count, no increase. *) ; 
+       THEN (* Use this ident. *)
+         $$ . PaInt := $1 . PaInt + 1 ;
+         $$ . PaRefany
+           := IntSets . Include
+                ( NARROW ( $3 . PaRefany , IntSets . T ) , $3 . Scan . SaAtom ) ;  
+       ELSE
+         $$ . PaInt := $3 . PaInt (* Valid Id count, no increase. *) ;
+         $$ . PaRefany := $3 . PaRefany ; 
        END (*IF*) ;
      } . 
 
@@ -930,9 +940,9 @@ RULE
    *)
    
    VarDeclGroupLt : StkRwVAR
-     { $$ . PaInt (* DeclInfoDepth *) 
-         := FM3Decls . PushDeclInfo
-              ( FM3Decls . DeclInfoTyp
+     { $$ . PaInt (* DeclParseInfoDepth *) 
+         := FM3Decls . PushDeclParseInfo
+              ( FM3Decls . DeclParseInfoTyp
                   { DiDeclTok := Itk . ItkVarDeclLt
                   , DiIdListTok := Itk . ItkVarDeclIdListLt
                   , DiIdTok := Itk . ItkDeclId
@@ -946,7 +956,7 @@ RULE
    VarDeclGroup : VarDeclGroupLt VarDeclList 
       { $$ . PaInt (* Decl count. *) := $2 . PaInt ;
         $$ . PaPos (* Rt Semicolon. *) := $2 . PaPos ;  
-        <* ASSERT FM3Decls . PopDeclInfo ( ) = $1 . PaInt *>
+        <* ASSERT FM3Decls . PopDeclParseInfo ( ) = $1 . PaInt *>
       } . 
 
    VarDeclList : /*Empty*/ 
@@ -998,10 +1008,10 @@ RULE
           AND $1 . PaInt > 0 
        THEN 
          $$ . PaInt := $1 . PaInt (* Valid id count. *) ;
-         WITH WDeclInfo = FM3Decls . TopDeclInfo ( )
+         WITH WDeclParseInfo = FM3Decls . TopDeclParseInfo ( )
          DO 
            FM3Pass1 . PutBwd_LCP_eCP_zCP_rP (* The declaration itself. *) 
-             ( WDeclInfo . DiDeclTok 
+             ( WDeclParseInfo . DiDeclTok 
              , $1 . PaPass1Coord
              , $1 . Scan . Position
              , $2 . PaPass1Coord
@@ -1024,7 +1034,7 @@ RULE
        $$ . PaInt := $1 . PaInt (* Valid id count. *) ;
        MakeListPos (* The identifier list. *) 
          ( $$
-         , FM3Decls . TopDeclInfo ( ) . DiIdListTok
+         , FM3Decls . TopDeclParseInfo ( ) . DiIdListTok
 (* CHECK: Do we still want different decl id tokens? *) 
          , $1 . Scan . Position
          , ElemsAttr := $1
@@ -1093,7 +1103,7 @@ RULE
          FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
 (* TODO: Store LScopeRef or its ScopeNo in the enum type. *) 
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo  ) ;
+           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo  ) ;
        END; 
      } .
 
@@ -1103,7 +1113,7 @@ RULE
          LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
          FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpScopeNo  ) ;
+           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo  ) ;
          <* ASSERT FM3Scopes . PopDeclScopeRef ( ) = LScopeRef *>
          FM3Pass1 . MakeListPos
            ( LHSAttr := $$ 
@@ -1185,9 +1195,9 @@ RULE
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN 
          $$ . PaPass1Coord := FM3Pass1 . Coord ( ) ;
-         $$ . PaInt (* DeclInfoDepth *) 
-           := FM3Decls . PushDeclInfo
-                ( FM3Decls . DeclInfoTyp
+         $$ . PaInt (* DeclParseInfoDepth *) 
+           := FM3Decls . PushDeclParseInfo
+                ( FM3Decls . DeclParseInfoTyp
                     { DiDeclTok := Itk . ItkFieldDeclLt
                     , DiIdListTok := Itk . ItkFieldDeclIdListLt
                     , DiIdTok := Itk . ItkDeclId
@@ -1205,7 +1215,7 @@ RULE
          FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
 (* TODO: Store LScopeRef or its ScopeNo in the record type. *) 
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo  ) ;
+           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo  ) ;
        END; 
      } . 
  
@@ -1215,7 +1225,7 @@ RULE
          LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
          FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpScopeNo  ) ;
+           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo  ) ;
          <* ASSERT FM3Scopes . PopDeclScopeRef ( ) = LScopeRef *>  
          FM3Pass1 . PutBwd_LCIP_rip
            ( Itk . ItkRecDefLt
@@ -1223,8 +1233,8 @@ RULE
            , $2 . PaInt (* Count of decls, fields, formals, etc. *) 
            , $1 . Scan . Position
            ) ;
-         <* ASSERT FM3Decls . PopDeclInfo ( )
-                   = $1 . PaInt (* DeclInfoDepth. *)
+         <* ASSERT FM3Decls . PopDeclParseInfo ( )
+                   = $1 . PaInt (* DeclParseInfoDepth. *)
          *> 
        END; 
      } .
@@ -1286,7 +1296,7 @@ RULE
                   ) ;
            FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
            FM3Pass1 . PutBwd_LI
-             ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo  ) ;
+             ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo  ) ;
          END (*IF*) 
        END (*Block*) 
      } . 
@@ -1302,7 +1312,7 @@ RULE
            LScopeRef := FM3Scopes . DeclScopeStackTopRef ;
            FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
            FM3Pass1 . PutBwd_LI
-             ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpScopeNo  ) ;
+             ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo  ) ;
            <* ASSERT FM3Scopes . PopDeclScopeRef ( ) = LScopeRef *>
 *) 
            FM3Pass1 . PutBwd_LCIP_rip
@@ -1423,9 +1433,9 @@ RULE
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN 
          $$ . Scan . Position := $1 . Scan . Position ;
-         $$ . PaInt (* DeclInfoDepth *) 
-           := FM3Decls . PushDeclInfo
-                ( FM3Decls . DeclInfoTyp
+         $$ . PaInt (* DeclParseInfoDepth *) 
+           := FM3Decls . PushDeclParseInfo
+                ( FM3Decls . DeclParseInfoTyp
                     { DiDeclTok := Itk . ItkFieldDeclLt
                     , DiIdListTok := Itk . ItkFieldDeclIdListLt
                     , DiIdTok := Itk . ItkDeclId
@@ -1443,7 +1453,7 @@ RULE
          FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
 (* TODO: Store LScopeRef or its ScopeNo in the object type. *) 
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo  ) ;
+           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo  ) ;
        END; 
      } .
 
@@ -1454,15 +1464,15 @@ RULE
          LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
          FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpScopeNo  ) ;
+           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo  ) ;
          <* ASSERT FM3Scopes . PopDeclScopeRef ( ) = LScopeRef *>  
          FM3Pass1 . PutBwd_LCP_rp
            ( Itk . ItkObjDefLt
            , $1 . PaPass1Coord
            , $1 . Scan . Position
            ) ;
-         <* ASSERT FM3Decls . PopDeclInfo ( )
-                   = $1 . PaInt (* DeclInfoDepth. *)
+         <* ASSERT FM3Decls . PopDeclParseInfo ( )
+                   = $1 . PaInt (* DeclParseInfoDepth. *)
          *> 
        END; 
      } .
@@ -1482,7 +1492,7 @@ RULE
                 ) ;
          FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;  
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo ) ;
+           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
        END (*Block*)
      } . 
    
@@ -1524,7 +1534,7 @@ RULE
          THEN (* Proc type, method, or in an interface, formals-only. *) 
            FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
            FM3Pass1 . PutBwd_LI
-             ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpScopeNo  ) ;
+             ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo  ) ;
            <* ASSERT FM3Scopes . PopDeclScopeRef ( ) = LScopeRef *>
          END (*IF*) ;
          MakeListPos
@@ -1555,9 +1565,9 @@ RULE
    FormalLt : /*Empty*/
      { $$ . Scan . Position := FM3Scanner . Attribute . Position ;
        $$ . PaByte := ORD ( Dkt . DkVALUEFormal ) ;  
-       $$ . PaInt (* DeclInfoDepth after push. *) 
-         := FM3Decls . PushDeclInfo
-              ( FM3Decls . DeclInfoTyp
+       $$ . PaInt (* DeclParseInfoDepth after push. *) 
+         := FM3Decls . PushDeclParseInfo
+              ( FM3Decls . DeclParseInfoTyp
                   { DiDeclTok := Itk . ItkVALUEFormalLt
                   , DiIdListTok := Itk . ItkVALUEFormalIdListLt 
                   , DiIdTok := Itk . ItkDeclId
@@ -1570,9 +1580,9 @@ RULE
    FormalLt : StkRwVALUE 
      { $$ . Scan . Position := $1 . Scan . Position ;
        $$ . PaByte := ORD ( Dkt . DkVALUEFormal ) ;
-       $$ . PaInt (* DeclInfoDepth after push. *) 
-         := FM3Decls . PushDeclInfo
-              ( FM3Decls . DeclInfoTyp
+       $$ . PaInt (* DeclParseInfoDepth after push. *) 
+         := FM3Decls . PushDeclParseInfo
+              ( FM3Decls . DeclParseInfoTyp
                   { DiDeclTok := Itk . ItkVALUEFormalLt
                   , DiIdListTok := Itk . ItkVALUEFormalIdListLt 
                   , DiIdTok := Itk . ItkDeclId
@@ -1586,9 +1596,9 @@ RULE
    FormalLt : StkRwVAR 
      { $$ . Scan . Position := $1 . Scan . Position ; 
        $$ . PaByte := ORD ( Dkt . DkVARFormal ) ;
-       $$ . PaInt (* DeclInfoDepth after push. *) 
-         := FM3Decls . PushDeclInfo
-              ( FM3Decls . DeclInfoTyp
+       $$ . PaInt (* DeclParseInfoDepth after push. *) 
+         := FM3Decls . PushDeclParseInfo
+              ( FM3Decls . DeclParseInfoTyp
                   { DiDeclTok := Itk . ItkVARFormalLt
                   , DiIdListTok := Itk . ItkVARFormalIdListLt 
                   , DiIdTok := Itk . ItkDeclId
@@ -1600,9 +1610,9 @@ RULE
    FormalLt : StkRwREADONLY
      { $$ . Scan . Position := $1 . Scan . Position ; 
        $$ . PaByte := ORD ( Dkt . DkROFormal ) ;
-       $$ . PaInt (* DeclInfoDepth after push. *) 
-         := FM3Decls . PushDeclInfo
-              ( FM3Decls . DeclInfoTyp
+       $$ . PaInt (* DeclParseInfoDepth after push. *) 
+         := FM3Decls . PushDeclParseInfo
+              ( FM3Decls . DeclParseInfoTyp
                   { DiDeclTok := Itk . ItkROFormalLt
                   , DiIdListTok := Itk . ItkROFormalIdListLt 
                   , DiIdTok := Itk . ItkDeclId
@@ -1654,7 +1664,7 @@ RULE
          ELSE 
            $$ .PaInt := $2 . PaInt (* Valid Id count. *) ;  
            FM3Pass1 . PutBwd_LCP_eCP_zCP_rP 
-             ( FM3Decls . TopDeclInfo ( ) . DiDeclTok 
+             ( FM3Decls . TopDeclParseInfo ( ) . DiDeclTok 
              , $1 . PaPass1Coord
              , $2 . Scan . Position
              , $3 . PaPass1Coord
@@ -1664,7 +1674,7 @@ RULE
              , $1 . Scan . Position 
              ) ;
          END (*IF*) ;
-         <* ASSERT FM3Decls . PopDeclInfo ( ) = $1 . PaInt *>
+         <* ASSERT FM3Decls . PopDeclParseInfo ( ) = $1 . PaInt *>
        END (*Block*) 
      } .
 
@@ -1674,7 +1684,7 @@ RULE
        $$ .PaInt := $1 . PaInt (* Valid Id Ct. *) ; 
        MakeListPos
          ( $$
-         , FM3Decls . TopDeclInfo ( ) . DiIdListTok
+         , FM3Decls . TopDeclParseInfo ( ) . DiIdListTok
          , $1 . Scan . Position
          , ElemsAttr := $1
          ) ; 
@@ -1773,7 +1783,7 @@ RULE
                 ) ;
          FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpScopeNo  ) ;
+           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo  ) ;
        END (*Block*) 
      } . 
 
@@ -1814,7 +1824,7 @@ RULE
          END (*IF*) ;
          FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpScopeNo  ) ;
+           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo  ) ;
          FM3Pass1 . PutBwd_LCI_ri
            ( LProcTok , $1 . PaPass1Coord , $1 . Scan . SaAtom ) ; 
          <* ASSERT FM3Scopes . PopDeclScopeRef ( ) = LScopeRef *>
@@ -1839,7 +1849,7 @@ RULE
          LScopeRef := FM3Scopes . DeclScopeStackTopRef ;
          FM3Scopes . PushLookupScopeRef ( LScopeRef ) ; 
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkLookupScopeLt , LScopeRef ^ . ScpScopeNo ) ; 
+           ( Itk . ItkLookupScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ; 
        END (*Block*) ; 
      } .
 
@@ -1850,7 +1860,7 @@ RULE
          $$ . Scan . Position := $1 . Scan . Position ;
          LScopeRef := FM3Scopes . LookupScopeStackTopRef ;
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkLookupScopeRt , LScopeRef ^ . ScpScopeNo  ) ;
+           ( Itk . ItkLookupScopeRt , LScopeRef ^ . ScpSelfScopeNo  ) ;
          <* ASSERT FM3Scopes . PopLookupScopeRef ( ) = LScopeRef *>
          FM3Pass1 . PutBwd_LP
            ( Itk . ItkProcBodyRt , $1 . Scan . Position ) ;

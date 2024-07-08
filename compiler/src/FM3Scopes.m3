@@ -52,7 +52,7 @@ MODULE FM3Scopes
       ELSE LScopeNo := LRange . Hi + 1
       END (* IF *) 
     ; LScopeRef := NEW ( ScopeRefTyp )
-    ; LScopeRef ^ . ScpScopeNo := LScopeNo
+    ; LScopeRef ^ . ScpSelfScopeNo := LScopeNo
     ; LScopeRef ^ . ScpKind := ScopeKind
     ; LScopeRef ^ . ScpPosition := Position
     ; LScopeRef ^ . ScpOnDeclStackCt := 0

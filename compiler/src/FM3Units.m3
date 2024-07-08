@@ -18,6 +18,7 @@ MODULE FM3Units
 ; IMPORT FM3Atom_Text  
 ; IMPORT FM3Base 
 ; IMPORT FM3Decls
+; IMPORT FM3Defs
 ; IMPORT FM3Globals 
 ; IMPORT FM3Messages 
 ; IMPORT FM3Scopes
@@ -101,7 +102,7 @@ MODULE FM3Units
 *) 
     ; LUnitRef ^ . UntStackLink := NIL 
     ; LUnitRef ^ . UntStackDepth := 0
-    ; LUnitRef ^ . UntUnitNo := LUnitNo
+    ; LUnitRef ^ . UntSelfUnitNo := LUnitNo
     ; LUnitRef ^ . UntSrcFileSimpleName := NIL 
     ; LUnitRef ^ . UntSrcFilePath := NIL
     ; LUnitRef ^ . UntBuildDirPath := NIL
@@ -164,6 +165,8 @@ MODULE FM3Units
     ; LUnitRef ^ . UntNextDeclNo := 1 
     ; LUnitRef ^ . UntDeclMap 
         := FM3Decls . NewDeclMap ( FM3Globals . InitDeclCtPerUnit ) 
+    ; LUnitRef ^ . UntDefMap 
+        := FM3Defs . NewDefMap ( FM3Globals . InitDefCtPerUnit ) 
     ; VarArray_Int_Refany . Touch
         ( LUnitRef ^ .  UntDeclMap , Ranges_Int . RangeTyp {  0 , 0 } )
     ; LUnitRef ^ . UntNextDeclNo := 1

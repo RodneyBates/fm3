@@ -9,6 +9,7 @@
 INTERFACE FM3Decls
 
 ; IMPORT FM3Base
+; IMPORT FM3Defs 
 ; IMPORT FM3Scopes
 
 ; TYPE DeclKindTyp
@@ -40,7 +41,8 @@ INTERFACE FM3Decls
 
 ; PROCEDURE DeclKindImage ( Kind : DeclKindTyp ) : TEXT
 
-; REVEAL FM3Base . DeclRefTyp = BRANDED REF DeclTyp 
+; CONST DeclRefBrand = "DeclRef0.1" 
+; REVEAL FM3Base . DeclRefTyp = BRANDED DeclRefBrand REF DeclTyp 
 ; TYPE DeclRefTyp = FM3Base . DeclRefTyp 
 ; TYPE DeclTyp
     = RECORD 
@@ -52,8 +54,11 @@ INTERFACE FM3Decls
         *) 
       ; DclParentScopeRef : FM3Base . ScopeRefTyp (* Containing scope *) 
       ; DclSelfScopeRef : FM3Base . ScopeRefTyp (* If this declares a scope *)
+      ; DclDef : FM3Defs . DefTyp 
       ; DclIdAtom : FM3Base . AtomTyp
-      ; DclDeclNo : FM3Base . DeclNoTyp (* A self-reference. *)
+      ; DclIdCt : INTEGER
+      ; DclIdNo : INTEGER (* Counts while going thru' mulitple idents. *) 
+      ; DclSelfDeclNo : FM3Base . DeclNoTyp (* A self-reference. *)
       ; DclPos : FM3Base . tPosition 
       ; DclKind : DeclKindTyp 
       END (*DeclObjBaseTyp*)
@@ -74,7 +79,7 @@ INTERFACE FM3Decls
    was turning out to be insanely fragile and complicated.
 *)
 
-; TYPE DeclInfoTyp
+; TYPE DeclParseInfoTyp
     = RECORD
         DiDeclTok : FM3Base . TokTyp 
       ; DiIdListTok : FM3Base . TokTyp
@@ -83,13 +88,13 @@ INTERFACE FM3Decls
       ; DiKind : DeclKindTyp 
       END 
  
-; PROCEDURE PushDeclInfo ( READONLY Info : DeclInfoTyp )
+; PROCEDURE PushDeclParseInfo ( READONLY Info : DeclParseInfoTyp )
   : INTEGER (* Depth after push. *)  
 
-; PROCEDURE PopDeclInfo ( )
+; PROCEDURE PopDeclParseInfo ( )
   : INTEGER (* Depth before pop. *) 
 
-; PROCEDURE TopDeclInfo ( ) : DeclInfoTyp
+; PROCEDURE TopDeclParseInfo ( ) : DeclParseInfoTyp
   (* <Result>.DiKind = DeclKindTyp.DkNull, => stack is empty. *) 
 
 ; END FM3Decls

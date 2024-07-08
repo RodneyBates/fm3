@@ -53,7 +53,8 @@ INTERFACE FM3Globals
 ; VAR InitUnitsCt := 40
 ; VAR InitImportsCt := 100 
 ; VAR InitScopeCtPerUnit := 60 
-; VAR InitDeclCtPerUnit := 300
+; VAR InitDeclCtPerUnit := 100
+; VAR InitDefCtPerUnit := 300
 
 ; PROCEDURE Init ( ) 
 

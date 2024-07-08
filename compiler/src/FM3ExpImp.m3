@@ -301,9 +301,9 @@ MODULE FM3ExpImp
            , Duplicator 
            )
       THEN (* All is legal, so do the real import. *)
-        LProxy . EipUnitNo := FromUnitRef ^ . UntUnitNo 
+        LProxy . EipUnitNo := FromUnitRef ^ . UntSelfUnitNo 
       ; LProxy . EipDeclNo  := FromUnitDeclNo
-      ; LProxy . EipImportingUnitNo := LIntoUnitRef ^ . UntUnitNo 
+      ; LProxy . EipImportingUnitNo := LIntoUnitRef ^ . UntSelfUnitNo 
       ; LProxy . EipImportingUnitPosition := ExpImpPosition
       ; InsertExpImp ( LIntoUnitRef , LIntoIdentAtom , LProxy ) 
       ; RETURN TRUE
@@ -386,7 +386,7 @@ MODULE FM3ExpImp
                )
       ; LProxy . EipUnitNo := FM3Base . UnitNoNull
       (* ^Makes it present but not useable. *) 
-      ; LProxy . EipImportingUnitNo := LIntoUnitRef ^ . UntUnitNo  
+      ; LProxy . EipImportingUnitNo := LIntoUnitRef ^ . UntSelfUnitNo  
       ; LProxy . EipDeclNo := FM3Base . DeclNoNull 
       ; LProxy . EipImportingUnitPosition := IdScanAttribute . Position
       ; InsertExpImp ( LIntoUnitRef , LIntoIdentAtom , LProxy ) 
@@ -415,9 +415,10 @@ MODULE FM3ExpImp
       ( <*UNUSED*> Ss : INTEGER ; VAR (*READONLY*) Elem : FM3ExpImpProxy . T ) 
 
     = BEGIN
-        Elem . EipUnitNo := LIntfUnitRef . UntUnitNo
+        Elem . EipUnitNo := LIntfUnitRef . UntSelfUnitNo
       ; Elem . EipDeclNo := FM3Base . DeclNoNull
-      ; Elem . EipImportingUnitNo := FM3Units . UnitStackTopRef ^ . UntUnitNo
+      ; Elem . EipImportingUnitNo
+          := FM3Units . UnitStackTopRef ^ . UntSelfUnitNo
       ; Elem . EipImportingUnitPosition := ASScanAttr . Position 
       END AssignProxy
  

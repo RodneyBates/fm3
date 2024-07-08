@@ -60,7 +60,7 @@ INTERFACE FM3Scopes
         *)
       ; ScpDeclCt : FM3Base . DeclNoTyp := FM3Base . DeclNoNull 
       ; ScpMinDeclNo := FM3Base . DeclNoNull
-      ; ScpScopeNo : FM3Base . ScopeNoTyp (* A self-reference. *)
+      ; ScpSelfScopeNo : FM3Base . ScopeNoTyp (* A self-reference. *)
       ; ScpOwningUnitRef : FM3Units . UnitRefTyp := NIL 
       ; ScpOwningDeclNo : FM3Base . DeclNoTyp
       ; ScpOnDeclStackCt : INTEGER := 0
@@ -71,7 +71,8 @@ INTERFACE FM3Scopes
       ; ScpKind : ScopeKindTyp 
       END (*ScopeTyp*)
 
-; REVEAL FM3Base . ScopeRefTyp = BRANDED REF ScopeTyp 
+; CONST ScopeRefBrand = "ScopeRef0.1" 
+; REVEAL FM3Base . ScopeRefTyp = BRANDED ScopeRefBrand REF ScopeTyp 
 ; TYPE ScopeRefTyp = FM3Base . ScopeRefTyp 
 
 ; PROCEDURE NewScopeRef
