@@ -311,6 +311,38 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
       END (*LOOP*)
     END Pass2
 
+; PROCEDURE DefRt ( NewDef : FM3Defs . DefTyp )
+  (* PRE NOT Skipping. *)
+
+  = VAR LPosition : FM3Base . tPosition
+  ; VAR LParentDef : DefTyp
+  
+  ; BEGIN 
+      WITH WScope = FM3Scopes . DeclScopeStackTopRef
+      DO 
+        LParentDefRef = FM3Defs . DefStackTopRef
+      ; IF FM3Defs . DefStackTopRef = NIL
+           (* NewDef is a Topmost def object. *)
+        THEN
+          <* ASSERT WScope ^ . ScpCurrentDefRef = NIL
+        ; WScope ^ . ScpCurrentDefRef := NewDef  
+        END (*IF*) 
+      ; NewDef . DefLink := FM3Defs . DefStackTopRef
+      ; FM3Defs . DefStackTopRef := NewDef 
+      ; NewDef . DefIsLegalRecursive := TRUE
+      END (*WITH*) 
+    END DefRt 
+
+; PROCEDURE DefLt ( )
+  (* PRE NOT Skipping. *)
+
+  ; BEGIN 
+      FM3Defs . DefStackTopRef := FM3Defs . DefStackTopRef . DefLink
+    ; IF FM3Defs . DefStackTopRef = NIL
+      THEN FM3Scopes . DeclScopeStackTopRef ^ . ScpCurrentDefRef := NIL 
+      END (*IF*) 
+    END DefLt 
+
 ; PROCEDURE HandleTok ( Token : Itk . TokTyp ) : BOOLEAN (* Handled it. *) 
 
   = VAR LUnitRef : FM3Units . UnitRefTyp
@@ -476,18 +508,35 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
             , VAL ( (*FM3Utils . SwitchTokL2R*) ( Token ) , LONGINT )
             )
 
+      | Itk . ItkRecDefRt
+      , Itk . ItkREFDefRt
+      => WITH WScope = FM3Scopes . DeclScopeStackTopRef
+         DO <* ASSERT WScope ^ . ScpCurrentDefRef = NIL
+         ; 
+         END (*WITH*) 
+
+      | Itk . ItkRecDefLt
+      , Itk . ItkREFDefLt
+      => FM3Scopes . DeclScopeStackTopRef . ScpCurrentDefRef := NIL 
+
 (* REF type: *) 
       | Itk . ItkREFDefRt 
       => WITH WPosition = GetBwdPos ( LPass1RdBack )
+         , WParentDefRef = FM3Defs . DefStackTopRef 
         DO IF NOT LSkipping 
           THEN 
-            DefStackTopRef 
+            FM3Defs . DefStackTopRef 
               := NEW ( FM3Defs . DefREFTypeTyp
-                     , DefLink := FM3Defs . DefStackTopRef 
+                     , DefLink := WParentDefRef 
                      , DefPosition := WPosition 
                      , DefExpKind := FM3Defs . DefStackTopRef . DefExpKind 
                      , DefIsLegalRecursive := TRUE
                      )
+          ; IF WParentDefRef = NIL (* Topmost def object. *)
+            THEN
+              <* ASSERT WScope ^ . ScpCurrentDefRef = NIL
+            ; WScope ^ . ScpCurrentDefRef := FM3Defs . DefStackTopRef  
+            END (*IF*) 
           END (*IF*)
         END (*WITH*) 
 
@@ -502,6 +551,9 @@ LPass1Coord = LUnitRef . UntPatchStackTopCoord
             DO 
               WDefREFType . DefREFReferent := DefStackTopRef 
             ; DefStackTopRef := DefStackTopRef . DefLink
+            ; IF DefStackTopRef = NIL
+              THEN WScope ^ . ScpCurrentDefRef := NIL 
+              END (*IF*) 
             END (*WITH*) 
           END (*IF*) 
         END (*WITH*)

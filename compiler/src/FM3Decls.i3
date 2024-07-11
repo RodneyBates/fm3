@@ -54,6 +54,11 @@ INTERFACE FM3Decls
         *) 
       ; DclParentScopeRef : FM3Base . ScopeRefTyp (* Containing scope *) 
       ; DclSelfScopeRef : FM3Base . ScopeRefTyp (* If this declares a scope *)
+      ; DclRecursionGraph : IntSets . T
+      ; DclReachesDecls : InbtSets . T
+        (* ^Decl Nos in the containing scope reachable through DeclDef,
+            and illegal recursives.  Relative to least decl no of scope.
+        *) 
       ; DclDef : FM3Defs . DefTyp 
       ; DclIdAtom : FM3Base . AtomTyp
       ; DclIdCt : INTEGER

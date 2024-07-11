@@ -58,6 +58,7 @@ INTERFACE FM3Scopes
         (* INVARIANT: Once ScpDeclIdSet and ScpDeclDict are both complete,
            Atom is in one IFF in the other.
         *)
+      ; ScpCurrentDecl : FM3Decls . DeclRefTyp 
       ; ScpDeclCt : FM3Base . DeclNoTyp := FM3Base . DeclNoNull 
       ; ScpMinDeclNo := FM3Base . DeclNoNull
       ; ScpSelfScopeNo : FM3Base . ScopeNoTyp (* A self-reference. *)
