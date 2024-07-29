@@ -165,10 +165,12 @@ MODULE FM3Units
     ; LUnitRef ^ . UntNextDeclNo := 1 
     ; LUnitRef ^ . UntDeclMap 
         := FM3Decls . NewDeclMap ( FM3Globals . InitDeclCtPerUnit ) 
+    ; VarArray_Int_Refany . Touch
+        ( LUnitRef ^ .  UntDeclMap , Ranges_Int . RangeTyp {  0 , 0 } )
     ; LUnitRef ^ . UntDefMap 
         := FM3Defs . NewDefMap ( FM3Globals . InitDefCtPerUnit ) 
     ; VarArray_Int_Refany . Touch
-        ( LUnitRef ^ .  UntDeclMap , Ranges_Int . RangeTyp {  0 , 0 } )
+        ( LUnitRef ^ .  UntDefMap , Ranges_Int . RangeTyp {  0 , 0 } )
     ; LUnitRef ^ . UntNextDeclNo := 1
     ; LUnitRef ^ . UntFirstTrueDeclNo := 1
     ; LUnitRef ^ . UntSkipStackBase

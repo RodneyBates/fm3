@@ -95,13 +95,6 @@ INTERFACE FM3Units
         (* ^Value of RdBackFile.LengthL when conceptually empty, but may be
            nonzero, on account of file tag, length, etc. *) 
       ; UntPatchStackTopCoord : LONGINT := 0L
-        (* ^The patch coordinate argument of what is conceptually the top token
-           on the patch stack is actually kept, decompressed, in
-           UntPatchStackTopCoord, for easy access.  The token itself and its
-           other operands are on the RdBackFile proper.  For deeper tokens,
-           the coordinate is kept on top of the token, opposite of the usual
-           order, on top of its other operands. 
-        *)
 
 (*TODO: box  up pass-dependent groups like this one.  Maybe heap-allocate. *)  
       ; UntPass1OutSimpleName : TEXT := NIL
@@ -109,7 +102,6 @@ INTERFACE FM3Units
       ; UntMaxPass1OutLength : LONGINT := 0L 
       ; UntPass1OutEmptyCoord : LONGINT := 0L
 (**) 
-
       ; UntPass2OutSimpleName : TEXT := NIL (* Parse pass output file. *) 
       ; UntPass2OutRdBack : RdBackFile . T := NIL
       ; UntMaxPass2OutLength : LONGINT := 0L 

@@ -12,7 +12,7 @@ INTERFACE FM3Scopes
 
 ; IMPORT FM3Base
 ; FROM FM3Base IMPORT ScopeNoTyp 
-; FROM FM3Base IMPORT ScopeNoNull 
+; FROM FM3Base IMPORT ScopeNoNull
 ; IMPORT FM3Dict_Int_Int
 ; IMPORT FM3Units 
 
@@ -58,7 +58,7 @@ INTERFACE FM3Scopes
         (* INVARIANT: Once ScpDeclIdSet and ScpDeclDict are both complete,
            Atom is in one IFF in the other.
         *)
-      ; ScpCurrentDecl : FM3Decls . DeclRefTyp 
+      ; ScpCurrentDef : REFANY (* FM3Defs . DefTyp. *)  
       ; ScpDeclCt : FM3Base . DeclNoTyp := FM3Base . DeclNoNull 
       ; ScpMinDeclNo := FM3Base . DeclNoNull
       ; ScpSelfScopeNo : FM3Base . ScopeNoTyp (* A self-reference. *)

@@ -8,6 +8,8 @@
 
 INTERFACE FM3Decls
 
+; IMPORT IntSets
+
 ; IMPORT FM3Base
 ; IMPORT FM3Defs 
 ; IMPORT FM3Scopes
@@ -55,7 +57,7 @@ INTERFACE FM3Decls
       ; DclParentScopeRef : FM3Base . ScopeRefTyp (* Containing scope *) 
       ; DclSelfScopeRef : FM3Base . ScopeRefTyp (* If this declares a scope *)
       ; DclRecursionGraph : IntSets . T
-      ; DclReachesDecls : InbtSets . T
+      ; DclReachesDecls : IntSets . T
         (* ^Decl Nos in the containing scope reachable through DeclDef,
             and illegal recursives.  Relative to least decl no of scope.
         *) 
