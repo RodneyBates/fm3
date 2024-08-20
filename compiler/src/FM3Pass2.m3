@@ -296,7 +296,10 @@ MODULE FM3Pass2
           (* This shouldn't happen.  The client should already have seen
              a previous BOF and stopped calling here.
           *)  
-          Result . TrRdBack := NIL
+          PutBwdPatch ( LPatchRdBack , LPatchStackTopCoord )
+            (* ^Push the current patch coordinate back on patch stack, just
+               for stack consistency. *)
+        ; Result . TrRdBack := NIL
         ; Result . TrTok := Itk . ItkBOF
         ; RETURN 
         END (*IF*)
@@ -582,6 +585,8 @@ TRUE OR
             ( LPass2RdBack
             , VAL ( (*FM3Utils . SwitchTokL2R*) ( TokResult . TrTok ) , LONGINT )
             )
+
+(*
 (* FIXME: These need to copy the token and arguments. *) 
       | Itk . ItkRecDefRt
       => WITH WScope = FM3Scopes . DeclScopeStackTopRef
