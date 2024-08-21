@@ -102,7 +102,7 @@ MODULE FM3Pass2
     END PutBwdPatch
 
 ; PROCEDURE SkipRt ( SkipNo : INTEGER )
-  (* Right, pass 2 initial end of a range of conditionally skipped tokens. *)
+  (* Pass 2, initial (right) end of a range of conditionally skipped tokens. *)
 
   = BEGIN 
       WITH WSkipNoStack = FM3Globals . SkipNoStack
@@ -111,13 +111,13 @@ MODULE FM3Pass2
           , VarArray_Int_Int . TouchedRange ( WSkipNoStack ) . Hi + 1
           , SkipNo
           )
-         (* ^Effectively a push, using touched Hi as stack Ss. *)
+         (* ^Effectively a push, where touched Hi is stack Ss. *)
       (* And discard the ItkSkipRt token. *)
       END (*WITH*)
     END SkipRt 
 
 ; PROCEDURE SkipLt ( SkipNo : INTEGER )
-  (* Left, pass 2 final end of a range of conditionally skipped tokens. *)
+  (* Pass 2 final (left) end of a range of conditionally skipped tokens. *)
 
   = BEGIN 
       WITH WSkipNoStack = FM3Globals . SkipNoStack
@@ -295,7 +295,10 @@ MODULE FM3Pass2
         THEN (* Done with the entire file. *)
           (* This shouldn't happen.  The client should already have seen
              a previous BOF and stopped calling here.
-          *)  
+          *)
+          <* ASSERT TRUE OR 
+               RdBackFile . LengthL ( LPatchRdBack ) = LPatchStackTopCoord
+          *>
           PutBwdPatch ( LPatchRdBack , LPatchStackTopCoord )
             (* ^Push the current patch coordinate back on patch stack, just
                for stack consistency. *)
@@ -315,8 +318,8 @@ TRUE OR
           *> 
           LPatchedTokenL := FM3Compress . GetBwd ( LPatchRdBack )
         ; LPatchedToken := VAL ( LPatchedTokenL , Itk . TokTyp ) 
-        ; IF LPatchedToken = Itk . ItkSkipLtPatch
-          THEN (* Will only happen from the patch stack.  Handle it
+        ; IF LPatchedToken = Itk . ItkSkipLt
+          THEN (* ItkSkipLt will come only from the patch stack.  Handle it
                   here, so multiple token handlers don't have to.
                *)
             SkipLt ( GetBwdInt ( FM3Globals . PatchRdBack ) )
@@ -333,9 +336,10 @@ TRUE OR
         ; LTokenL := FM3Compress . GetBwd ( LPass1RdBack )
         ; LToken := VAL ( LTokenL , Itk . TokTyp ) 
         ; IF IntSets . IsElement ( LToken , FM3SharedGlobals . GTokSetPatch )
-          THEN 
+          THEN
 
           (* Move this token from the input file to the patch stack. *)
+          (* Also change the token code to its already-patched counterpart. *) 
           (* Reading RtoL toward BOF.  Writing RtoL towards EOF/TOS. *) 
             LPatchStackTopCoord := FM3Compress . GetBwd ( LPass1RdBack )
           ; CopyOperandsNoReverse
@@ -354,7 +358,7 @@ TRUE OR
           (* And loop. *)
 
           ELSIF LToken = Itk . ItkSkipRt
-          THEN (* This will not happen as a patched token.  Handle it
+          THEN (* ItkSkipRt will come only from the Pass1 RdBack.  Handle it
                   here, so multiple token handlers don't have to.
                *) 
             SkipRt ( GetBwdInt ( LPass1RdBack) ) 
@@ -1359,7 +1363,7 @@ TRUE OR
     ; LLengthL := RdBackFile . LengthL ( UnitRef ^ . UntPatchStackRdBack )
     ; RdBackFile . Close (  UnitRef ^ . UntPatchStackRdBack , 0L )
       (* No point in keeping the patch stack.  It has pogo-sticked and 
-         now should be empty. *)
+         now should be devoid of significant content. *)
     ; LPatchFullFileName
         := Pathname . Join
              ( UnitRef ^ . UntBuildDirPath 
