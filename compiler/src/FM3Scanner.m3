@@ -1035,7 +1035,10 @@ MODULE FM3Scanner
       END WideTextLit 
 
   ; PROCEDURE CommentSuffix ( ) 
-    (* PRE: Initial opening delimiter has been scanned and consumed. *) 
+    (* PRE: Initial opening delimiter has been scanned and consumed. *)
+    (* Treat delimiters of nested comments (and their other text too) 
+       as just text of the outermost comment. 
+    *)  
 
     = VAR LNestingDepth : INTEGER 
 
@@ -1055,6 +1058,7 @@ MODULE FM3Scanner
                   , ")"
                   } 
               )  
+          ; EXIT 
           ELSIF GTopSsRef . SsWCh = W'(' 
           THEN 
             NextChar ( ) 
