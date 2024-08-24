@@ -313,6 +313,9 @@ MODULE FM3Pass1
     ; UnitRef ^ . UntMaxPatchStackDepth
         := UnitRef ^ . UntPatchStackEmptyCoord
     ; UnitRef . UntPatchStackTopCoord := UnitRef . UntPass1OutEmptyCoord
+    ; PutBwd
+        ( UnitRef ^ . UntPatchStackRdBack , FM3Globals . PatchSackEmptySentinal )
+      (* ^A sentinal for when the patch stack is empty of actual tokens. *) 
 
     (* Create unit data structures. *)
     

@@ -94,7 +94,7 @@ MODULE FM3Pass2
       => FM3Messages . FatalArr
            ( ARRAY OF REFANY
                { "Unable to write to patch file: "
-(*TODO: Give RdBackFile a "Filename" function,, then insert it here. *) 
+(*TODO: Give RdBackFile a "Filename" function, then insert it here. *) 
                , ALOSE ( EMsg ) , "."  
                }
            ) 
@@ -275,7 +275,7 @@ MODULE FM3Pass2
   ; VAR LPatchedToken : Itk . TokTyp
   ; VAR LUnitRef : FM3Units . UnitRefTyp
   ; VAR LPass1RdBack : RdBackFile . T 
-  ; VAR LPatchRdBack : RdBackFile . T 
+  ; VAR LPatchRdBack : RdBackFile . T
 
   ; BEGIN (* GetTokCode *) 
       LUnitRef := FM3Units . UnitStackTopRef
@@ -290,14 +290,15 @@ MODULE FM3Pass2
       ; IF LPass1Coord <= LMPass1Depth
            (* ^Nothing more to read from the Pass1 file. *) 
            AND RdBackFile . LengthL ( LPatchRdBack )
-               <= LPatchStackTopCoord
+               <= FM3Units . UnitStackTopRef ^ . UntPatchStackEmptyCoord
            (* ^ Nothing more to pop off Patch stack. *) 
         THEN (* Done with the entire file. *)
           (* This shouldn't happen.  The client should already have seen
              a previous BOF and stopped calling here.
           *)
-          <* ASSERT TRUE OR 
-               RdBackFile . LengthL ( LPatchRdBack ) = LPatchStackTopCoord
+          <* ASSERT 
+               RdBackFile . LengthL ( LPatchRdBack )
+               = FM3Units . UnitStackTopRef ^ . UntPatchStackEmptyCoord 
           *>
           PutBwdPatch ( LPatchRdBack , LPatchStackTopCoord )
             (* ^Push the current patch coordinate back on patch stack, just
@@ -307,12 +308,11 @@ MODULE FM3Pass2
         ; RETURN 
         END (*IF*)
         
-      (* One of three possible actions. *)
+      (* More to be done.  One of three possible actions. *)
       (* Check first for a patched token on top of the patch stack. *)
       ; IF LPass1Coord <= LPatchStackTopCoord
        THEN (* Give caller the token off the patch stack. *) 
           <*ASSERT
-TRUE OR 
             LPass1Coord = LPatchStackTopCoord
             (* ^Haven't missed a patch stack token. *)
           *> 
@@ -504,7 +504,8 @@ TRUE OR
       | Itk . ItkDeclScopeLt 
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
         ; <* ASSERT FM3Scopes . PopDeclScopeRef ( )
-                    = FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) *>
+                    = FM3Scopes . ScopeRefOfScopeNo ( LScopeNo )
+          *>
 
       | Itk . ItkLookupScopeRt 
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
@@ -514,7 +515,8 @@ TRUE OR
       | Itk . ItkLookupScopeLt 
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
         ; <* ASSERT FM3Scopes . PopLookupScopeRef ( )
-                    = FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) *> 
+                    = FM3Scopes . ScopeRefOfScopeNo ( LScopeNo )
+          *> 
 
 (* CONSISTIFY: For some of these, fetch the operands inside the called proc. *) 
       | Itk . ItkDuplDeclId
@@ -1349,6 +1351,7 @@ TRUE OR
   ; VAR LPass2FullFileName : TEXT 
   ; VAR LLengthImage : TEXT
   ; VAR LLengthL : LONGINT 
+  ; VAR LCoordSentinalL : LONGINT 
 
   ; BEGIN (*FinishPass2*)
     (* Close pass 2. *) 
@@ -1359,8 +1362,12 @@ TRUE OR
 (* Finish with and close patch stack. *)
 
     ; UnitRef ^ . UntMaxPatchStackDepth
-        := RdBackFile . MaxLengthL ( UnitRef ^ . UntPatchStackRdBack ) 
-    ; LLengthL := RdBackFile . LengthL ( UnitRef ^ . UntPatchStackRdBack )
+        := RdBackFile . MaxLengthL ( UnitRef ^ . UntPatchStackRdBack )
+    ; LCoordSentinalL := FM3Compress . GetBwd ( UnitRef ^ . UntPatchStackRdBack )
+    ; <* ASSERT LCoordSentinalL = FM3Globals . PatchSackEmptySentinal 
+                , "Mismatched coordinate sentinal."
+      *>
+      LLengthL := RdBackFile . LengthL ( UnitRef ^ . UntPatchStackRdBack )
     ; RdBackFile . Close (  UnitRef ^ . UntPatchStackRdBack , 0L )
       (* No point in keeping the patch stack.  It has pogo-sticked and 
          now should be devoid of significant content. *)
