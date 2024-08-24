@@ -73,20 +73,16 @@ MODULE  FM3Compile
 
 ; VAR SearchPathShown := FALSE 
 
-; PROCEDURE ShowSrcSearchPathOnce ( ) 
+; PROCEDURE SrcSearchPathOnce ( ) : TEXT  
 
   = BEGIN
-      IF NOT SearchPathShown
-      THEN 
-        FM3Messages . IndentArr
-          ( ARRAY OF REFANY
-              { "Search directories for source files are:"
-              , FM3CLOptions . SrcDirMsg 
-              } 
-          ) 
-      ; SearchPathShown := TRUE
-      END (*IF*) 
-    END ShowSrcSearchPathOnce 
+      IF SearchPathShown THEN RETURN "" END (*IF*) 
+    ; SearchPathShown := TRUE
+    ; RETURN
+        FM3Messages . NLIndent
+        & "Search directories for source files are:"
+        & FM3CLOptions . SrcDirMsg 
+    END SrcSearchPathOnce 
 
 (*EXPORTED*) 
 ; PROCEDURE FindAndOpenUnitSrcFile
@@ -121,12 +117,12 @@ MODULE  FM3Compile
                 { "Unable to locate "
                 , Adjective
                 , "source file "
-                , UnitRef ^ . UntSrcFileSimpleName 
+                , UnitRef ^ . UntSrcFileSimpleName
+                , SrcSearchPathOnce ( ) 
                 }
             , ExpImpPosition 
             )
         ; UnitRef . UntState := Us . UsNotUsable
-        ; ShowSrcSearchPathOnce ( ) 
         ; RETURN FALSE
         END (*IF*) 
       ; LSearchDir
