@@ -123,6 +123,8 @@ ItkFullReveal POS 2 (* Position of ident. *)
 ItkPartialReveal POS 2 (* Position of ident. *)
   Subtype POS 2 .
 
+ItkExceptionDecl POS (* Position of ident. *) 
+
 LONE
 ItkInvalidType POS (* To suppress derived errors. *) . 
 

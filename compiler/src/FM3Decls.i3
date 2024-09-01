@@ -11,7 +11,7 @@ INTERFACE FM3Decls
 ; IMPORT IntSets
 
 ; IMPORT FM3Base
-; IMPORT FM3Defs 
+; IMPORT FM3Exprs 
 ; IMPORT FM3Scopes
 
 ; TYPE DeclKindTyp
@@ -57,14 +57,10 @@ INTERFACE FM3Decls
       ; DclParentScopeRef : FM3Base . ScopeRefTyp (* Containing scope *) 
       ; DclSelfScopeRef : FM3Base . ScopeRefTyp (* If this declares a scope *)
       ; DclRecursionGraph : IntSets . T
-      ; DclReachesDecls : IntSets . T
-        (* ^Decl Nos in the containing scope reachable through DeclDef,
-            and illegal recursives.  Relative to least decl no of scope.
-        *) 
-      ; DclDef : FM3Defs . DefTyp 
+      ; DclDef : FM3Exprs . ExprTyp := NIL 
       ; DclIdAtom : FM3Base . AtomTyp
       ; DclIdCt : INTEGER
-      ; DclIdNo : INTEGER (* Counts while going thru' mulitple idents. *) 
+      ; DclIdNo : INTEGER (* Counts while going thru' multiple idents. *) 
       ; DclSelfDeclNo : FM3Base . DeclNoTyp (* A self-reference. *)
       ; DclPos : FM3Base . tPosition 
       ; DclKind : DeclKindTyp 
@@ -78,7 +74,7 @@ INTERFACE FM3Decls
 ; PROCEDURE NewDeclRef
     ( ParentScopeRef : FM3Base . ScopeRefTyp ; DeclNo : FM3Base . DeclNoTyp )
   : DeclRefTyp
-  (* Allocate a DeclRef and connect in into ParentScopeRef ^. *)
+  (* Allocate a DeclRef and initialize a couple of fields. *)
 
 (* A stack of info about different kinds of declarations and their sometimes
    multiple identifiers, allowing for sharing among them of parser productions

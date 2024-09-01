@@ -119,8 +119,8 @@ INTERFACE FM3Units
           (* ^Of the being-[ex|im]ported identifier. *) 
       ; UntDeclMap : FM3Base . MapTyp := NIL
           (* ^DeclNo to DeclRef.  All the true decls in this unit. *) 
-      ; UntDefMap : FM3Base . MapTyp := NIL
-          (* ^DefNo to DefRef.  All the defs in this unit. *) 
+      ; UntExprMap : FM3Base . MapTyp := NIL
+          (* ^ExprNo to ExprRef.  All the exprs in this unit. *) 
       ; UntScopeMap : FM3Base . MapTyp := NIL
           (* ScopeNo to ScopeRef.  All the scopes in this unit. *)
       ; UntExpUnitSet : IntSets . T := NIL (* IntSets . Empty ( ) *)

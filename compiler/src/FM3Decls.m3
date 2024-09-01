@@ -59,17 +59,14 @@ MODULE FM3Decls
 ; PROCEDURE NewDeclRef
     ( ParentScopeRef : FM3Scopes . ScopeRefTyp ; DeclNo : FM3Base . DeclNoTyp )
   : DeclRefTyp
-  (* Allocate a DeclRef and connect it into ParentScopeRef ^. *)
+  (* Allocate a DeclRef and initialize a couple of fields. *)
 
   = VAR LDeclRef : DeclRefTyp
 
   ; BEGIN
       LDeclRef := NEW ( DeclRefTyp )
-    ; LDeclRef . DclSelfDeclNo := DeclNo
-    ; INC ( ParentScopeRef ^ . ScpDeclCt )
-    ; ParentScopeRef ^ . ScpMinDeclNo
-        := MIN ( ParentScopeRef ^ . ScpMinDeclNo , DeclNo ) 
-    ; LDeclRef . DclParentScopeRef := ParentScopeRef  
+    ; LDeclRef ^ . DclSelfDeclNo := DeclNo
+    ; LDeclRef ^ . DclParentScopeRef := ParentScopeRef
     ; RETURN LDeclRef 
     END NewDeclRef 
 

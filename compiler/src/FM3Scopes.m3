@@ -65,7 +65,6 @@ MODULE FM3Scopes
     ; LScopeRef ^ . ScpFormalIdSet := IntSets . Empty ( )  
     ; LScopeRef ^ . ScpRefIdSet := IntSets . Empty ( )  
     ; LScopeRef ^ . ScpDuplDeclIdSet := IntSets . Empty ( )
-    ; LScopeRef ^ . ScpMinDeclNo := FM3Base . DeclNoMax 
     ; LScopeRef ^ . ScpDeclCt := FM3Base . DeclNoNull  
     ; LScopeRef ^ . ScpOwningUnitRef := OwningUnitRef 
     ; LScopeRef ^ . ScpOwningDeclNo := FM3Base . DeclNoNull

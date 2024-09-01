@@ -14,7 +14,8 @@ INTERFACE FM3Scopes
 ; FROM FM3Base IMPORT ScopeNoTyp 
 ; FROM FM3Base IMPORT ScopeNoNull
 ; IMPORT FM3Dict_Int_Int
-; IMPORT FM3Units 
+; IMPORT FM3Graph 
+; IMPORT FM3Units
 
 ; TYPE ScopeKindTyp
     = { SkNull
@@ -51,15 +52,21 @@ INTERFACE FM3Scopes
 (* CHECK ^ Is there any need for this? *) 
       ; ScpRefIdSet : IntSets . T
         (* ^IdentAtoms referenced within.  Gradually pruned to those
-           both referenced and declared within. *) 
+           both referenced and declared within. *)
       ; ScpDeclDict : FM3Dict_Int_Int . FixedTyp
         (* ^IdentAtom to Decl no.
             Includes formals, if signature or proc body scope. *)
         (* INVARIANT: Once ScpDeclIdSet and ScpDeclDict are both complete,
            Atom is in one IFF in the other.
         *)
-      ; ScpCurrentDef : REFANY (* FM3Defs . DefTyp. *)  
-      ; ScpDeclCt : FM3Base . DeclNoTyp := FM3Base . DeclNoNull 
+      ; ScpDeclGraph : FM3Graph . GraphTyp 
+        (* Arcs are intra-scope RefId to declId.  Only those that would
+           contribute to an illegal recursive decl cycle.
+        *) 
+      ; ScpCurDeclRefIdNoSet : IntSets . T (*1*)
+      ; ScpCurDeclRef : REFANY (* FM3Decls . DeclRefTyp. *) (*1*)   
+      ; ScpCurExprObj : REFANY (* FM3Defs . DeclDefTyp. *) (*1*) 
+      ; ScpDeclCt : FM3Base . DeclNoTyp := FM3Base . DeclNoNull
       ; ScpMinDeclNo := FM3Base . DeclNoNull
       ; ScpSelfScopeNo : FM3Base . ScopeNoTyp (* A self-reference. *)
       ; ScpOwningUnitRef : FM3Units . UnitRefTyp := NIL 
@@ -69,8 +76,13 @@ INTERFACE FM3Scopes
         (* ^Number of times it's on either scope stack. *)
 (* CHECK ^Do we really need this? *) 
       ; ScpPosition : FM3Base . tPosition 
-      ; ScpKind : ScopeKindTyp 
+      ; ScpKind : ScopeKindTyp
       END (*ScopeTyp*)
+
+      (* NOTE 1: This field retains meaning only during handling of a single
+                 declaration within the scope.  It is reinitialized and reused
+                 in later declarations.
+      *) 
 
 ; CONST ScopeRefBrand = "ScopeRef0.1" 
 ; REVEAL FM3Base . ScopeRefTyp = BRANDED ScopeRefBrand REF ScopeTyp 

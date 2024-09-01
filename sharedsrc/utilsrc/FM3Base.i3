@@ -38,12 +38,12 @@ INTERFACE FM3Base
 ; CONST DeclNoNotUseable = DeclNoNull + 1 
 ; CONST DeclNoFirstReal = DeclNoNotUseable + 1
 
-; TYPE DefTyp <: ROOT 
-; TYPE DefNoTyp = CARDINAL
-; CONST DefNoNull = FIRST ( CARDINAL )
-; CONST DefNoMax = LAST ( CARDINAL )
-; CONST DefNoNotUseable = DefNoNull + 1 
-; CONST DefNoFirstReal = DefNoNotUseable + 1
+; TYPE ExprTyp <: ROOT 
+; TYPE ExprNoTyp = CARDINAL
+; CONST ExprNoNull = FIRST ( CARDINAL )
+; CONST ExprNoMax = LAST ( CARDINAL )
+; CONST ExprNoNotUseable = ExprNoNull + 1 
+; CONST ExprNoFirstReal = ExprNoNotUseable + 1
 
 (* Note lack of periods, for Pathname.Join. *)  
 ; CONST InterfaceFileNameSuffix = "i3" 
@@ -51,7 +51,6 @@ INTERFACE FM3Base
 (* Any need for generics? *) 
 
 ; TYPE MapTyp = VarArray_Int_Refany . T 
-
 
 (* Type declarations that are 
    intended to be the same size regardless of a 

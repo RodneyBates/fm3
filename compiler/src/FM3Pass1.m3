@@ -1773,7 +1773,7 @@ MODULE FM3Pass1
     )
   : BOOLEAN (* Use this declared id.  (It's not predefined and not a duplicate
                in current scope.) *)
-  (* PRE: IdAttribute is for an identifier in a declaration context. *) 
+  (* PRE: IdAttribute is for an identifier in a declaring context. *) 
 
   = VAR LAtom : FM3Base . AtomTyp 
   ; VAR LResult : BOOLEAN
@@ -1815,7 +1815,7 @@ MODULE FM3Pass1
             WScope . ScpDuplDeclIdSet
               := IntSets . Include ( WScope . ScpDuplDeclIdSet , LAtom )
 (* CHECK^ Do we need ScpDuplDeclIdSet? *) 
-          (* Plan to push duplicate Ident token.  The only effect will be to
+          (* Write a duplicate Ident token.  The only effect will be to
              emit an error later, during R2L, when the position of the original
              declaring occurence is known. *) 
           ; PutBwd
@@ -1834,7 +1834,7 @@ MODULE FM3Pass1
             WScope . ScpDeclIdSet
               := IntSets . Include ( WScope . ScpDeclIdSet , LAtom )
               
-          (* Maybe push Separator token: *)
+          (* Maybe write Separator token: *)
           ; IF SepTok # Itk . ItkNull AND PriorIdCt > 0
             THEN 
               PutBwd ( WunRdBack , VAL ( SepPosition . Column , LONGINT ) ) 
@@ -1843,7 +1843,7 @@ MODULE FM3Pass1
             ; PutBwd ( WunRdBack , VAL ( SepTok , LONGINT ) )
             END (*IF*)
             
-          (* Id is valid.  Push Ident token: *)
+          (* Id is valid.  Write Ident token: *)
           ; PutBwd
               ( WunRdBack
               , VAL ( IdAttribute . Scan . Position . Column , LONGINT )
@@ -2064,6 +2064,7 @@ MODULE FM3Pass1
 
       ; LDeclCt := IntSets . Card ( ScopeRef ^ . ScpDeclIdSet ) 
       (* LDeclCt is exactly the needed dictionary size. *)
+      ; ScopeRef ^ . ScpDeclCt := LDeclCt 
       ; ScopeRef ^ . ScpDeclDict 
           := FM3Dict_Int_Int . NewFixed 
                ( LDeclCt , FM3SharedUtils . IntHash )

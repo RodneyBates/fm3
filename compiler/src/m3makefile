@@ -6,7 +6,6 @@
 %(* Licensed under the MIT License.                                           *)
 %(* -----------------------------------------------------------------------2- *)
 
-
 % m3makefile for FM3.
 
 build_standalone ( ) 
@@ -43,10 +42,11 @@ module("FM3CLToks")
 module("FM3Scanner")
 %module("FM3Chars")
 module("FM3Decls")
-module("FM3Defs")
 module("FM3Errors")
 module("FM3ExpImp")
+module("FM3Exprs")
 module("FM3Globals")
+module("FM3Graph")
 module("FM3IntToks")
 module("FM3Pass1")
 module("FM3Pass2")

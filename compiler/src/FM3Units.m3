@@ -18,7 +18,8 @@ MODULE FM3Units
 ; IMPORT FM3Atom_Text  
 ; IMPORT FM3Base 
 ; IMPORT FM3Decls
-; IMPORT FM3Defs
+; IMPORT FM3Exprs 
+; IMPORT FM3Units
 ; IMPORT FM3Globals 
 ; IMPORT FM3Messages 
 ; IMPORT FM3Scopes
@@ -167,10 +168,10 @@ MODULE FM3Units
         := FM3Decls . NewDeclMap ( FM3Globals . InitDeclCtPerUnit ) 
     ; VarArray_Int_Refany . Touch
         ( LUnitRef ^ .  UntDeclMap , Ranges_Int . RangeTyp {  0 , 0 } )
-    ; LUnitRef ^ . UntDefMap 
-        := FM3Defs . NewDefMap ( FM3Globals . InitDefCtPerUnit ) 
+    ; LUnitRef ^ . UntExprMap 
+        := FM3Exprs . NewExprMap ( FM3Globals . InitDefCtPerUnit ) 
     ; VarArray_Int_Refany . Touch
-        ( LUnitRef ^ .  UntDefMap , Ranges_Int . RangeTyp {  0 , 0 } )
+        ( LUnitRef ^ .  UntExprMap , Ranges_Int . RangeTyp {  0 , 0 } )
     ; LUnitRef ^ . UntNextDeclNo := 1
     ; LUnitRef ^ . UntFirstTrueDeclNo := 1
     ; LUnitRef ^ . UntSkipStackBase
