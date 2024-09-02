@@ -63,8 +63,7 @@ INTERFACE FM3Scopes
         (* Arcs are intra-scope RefId to declId.  Only those that would
            contribute to an illegal recursive decl cycle.
         *) 
-      ; ScpCurDeclRefIdNoSet : IntSets . T (*1*)
-      ; ScpCurDeclRef : REFANY (* FM3Decls . DeclRefTyp. *) (*1*)   
+      ; ScpCurDefRefDeclNoSet : IntSets . T (*1*)
       ; ScpCurExprObj : REFANY (* FM3Defs . DeclDefTyp. *) (*1*) 
       ; ScpDeclCt : FM3Base . DeclNoTyp := FM3Base . DeclNoNull
       ; ScpMinDeclNo := FM3Base . DeclNoNull

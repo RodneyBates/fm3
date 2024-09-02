@@ -2069,6 +2069,7 @@ MODULE FM3Pass1
           := FM3Dict_Int_Int . NewFixed 
                ( LDeclCt , FM3SharedUtils . IntHash )
       ; SrtDeclNo := FM3Units . AllocateDeclNos ( LDeclCt )
+      ; ScopeRef ^ . ScpMinDeclNo := SrtDeclNo 
       ; LExpectedToDeclNo := SrtDeclNo + LDeclCt
 
       ; IntSets . ForAllDo ( ScopeRef ^ . ScpDeclIdSet , SrtVisit )

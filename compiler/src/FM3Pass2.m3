@@ -411,7 +411,7 @@ MODULE FM3Pass2
       DO IF WScopeRef ^ . ScpCurExprObj = NIL 
         THEN
           WScopeRef ^ . ScpCurExprObj := NewExprObj
-        ; WScopeRef ^ . ScpCurDeclRefIdNoSet := IntSets . Empty ( ) 
+        ; WScopeRef ^ . ScpCurDefRefDeclNoSet := IntSets . Empty ( ) 
         ; NewExprObj . ExpIsLegalRecursive := FALSE 
         ELSE
           NewExprObj . ExpKind := NewExprObj . ExpLink . ExpKind 
@@ -545,7 +545,6 @@ MODULE FM3Pass2
       , Itk . ItkFieldDeclListSep 
       , Itk . ItkFieldDeclListLt 
       =>  LCount := GetBwdInt ( TokResult . TrRdBack ) 
-        ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDeclRef := NIL  
         ; CopyOperandsNoReverse
            ( 2 (*Position*)
            , TokResult . TrRdBack
@@ -576,7 +575,7 @@ MODULE FM3Pass2
       =>  HtDeclNo := GetBwdInt ( TokResult . TrRdBack ) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; IntSets . ForAllDo
-            ( FM3Scopes . LookupScopeStackTopRef ^ . ScpCurDeclRefIdNoSet
+            ( FM3Scopes . LookupScopeStackTopRef ^ . ScpCurDefRefDeclNoSet
             , HtVisitRefNo
             ) 
 
@@ -920,8 +919,6 @@ FM3Exprs . ExprStackTopObj
       ; LDeclRef
           := FM3Decls . NewDeclRef
                ( FM3Scopes . DeclScopeStackTopRef , DeclNoI )
-      ; <* ASSERT FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDeclRef = NIL *>
-        FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDeclRef := LDeclRef 
       ; LDeclRef ^ . DclLink := NIL 
       ; LDeclRef ^ . DclSelfScopeRef := NIL
 (* TODO: ^ Get this from parser.  Also set the reverse link ScpOwningDeclNo. *) 
@@ -1036,7 +1033,7 @@ FM3Exprs . ExprStackTopObj
                      + FM3Scopes . DeclScopeStackTopRef . ScpDeclCt
             THEN (* It's declared in the current decl scope. *) 
               WITH WRefIdNoSet
-                   = FM3Scopes . LookupScopeStackTopRef ^ . ScpCurDeclRefIdNoSet
+                   = FM3Scopes . LookupScopeStackTopRef ^ . ScpCurDefRefDeclNoSet
               DO WRefIdNoSet := IntSets . Include ( WRefIdNoSet , LRefDeclNo ) 
               END (*WITH*)
             END (*IF*) 

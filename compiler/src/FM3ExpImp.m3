@@ -484,8 +484,9 @@ MODULE FM3ExpImp
       THEN RETURN
       END (*IF*) 
     ; WITH WScopeRef = FromUnitRef ^ . UntScopeRef
-      DO IF WScopeRef = NIL THEN RETURN END (*IF*)
-      ; FOR RDeclNo := WScopeRef ^ . ScpMinDeclNo
+      DO IF WScopeRef = NIL OR WScopeRef ^ . ScpDeclCt = 0 THEN RETURN END (*IF*)
+      ; <* ASSERT WScopeRef ^ . ScpMinDeclNo > 0 *>
+        FOR RDeclNo := WScopeRef ^ . ScpMinDeclNo
             TO WScopeRef ^ . ScpMinDeclNo + WScopeRef ^ . ScpDeclCt - 1
         DO EVAL ImportDeclByNo
              ( FromUnitRef 
