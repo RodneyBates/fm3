@@ -118,7 +118,9 @@ INTERFACE FM3Units
       ; UntPositionOfImport : FM3Base . tPosition
           (* ^Of the being-[ex|im]ported identifier. *) 
       ; UntDeclMap : FM3Base . MapTyp := NIL
-          (* ^DeclNo to DeclRef.  All the true decls in this unit. *) 
+          (* ^DeclNo to and <: of FM3Decls.DeclRefTyp.  All the decls in this
+              unit, but not duplicate decls.
+          *) 
       ; UntExprMap : FM3Base . MapTyp := NIL
           (* ^ExprNo to ExprRef.  All the exprs in this unit. *) 
       ; UntScopeMap : FM3Base . MapTyp := NIL
