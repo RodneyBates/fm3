@@ -37,8 +37,11 @@ INTERFACE RdBackFile
 
 ; PROCEDURE Open ( Filename : TEXT ) : T RAISES { OSError . E }   
 
+; PROCEDURE FileName ( RbFile : T ) : TEXT 
+  (* Never NIL.  Possibly empty. *) 
+
 ; PROCEDURE LengthL ( RbFile : T ) : LONGCARD
-  RAISES { Thread . Alerted , OSError . E }
+  RAISES { OSError . E }
   (* Number of bytes in the file. *) 
 
 ; PROCEDURE MaxLengthL ( RbFile : T ) : LONGCARD RAISES { OSError . E }
@@ -51,7 +54,7 @@ INTERFACE RdBackFile
   (* TruncTo < 0 means max length. *) 
 
 ; PROCEDURE Put ( RbFile : T ; Value : ByteTyp )
-  RAISES { Thread . Alerted , OSError . E }  
+  RAISES { OSError . E }  
 
 ; PROCEDURE GetBwd
     ( RbFile : T ; Consume := TRUE ) : ByteTyp RAISES { OSError . E , BOF }

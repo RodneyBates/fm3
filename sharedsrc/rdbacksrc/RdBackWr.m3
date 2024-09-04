@@ -60,7 +60,7 @@ MODULE RdBackWr
     END MakeAtomList  
 
 ; PROCEDURE Length ( RbWrT : T ) : CARDINAL
-  RAISES { Thread . Alerted , Wr . Failure }
+  RAISES { Wr . Failure }
   
   = VAR LLengthL : LONGINT
   
@@ -87,7 +87,7 @@ MODULE RdBackWr
     END Length
 
 ; PROCEDURE PutString ( RbWrT : T ; READONLY Chars : ARRAY OF CHAR )
-  RAISES { Thread . Alerted , Wr . Failure }
+  RAISES { Wr . Failure }
   
   = BEGIN
       TRY 

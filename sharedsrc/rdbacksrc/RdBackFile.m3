@@ -40,7 +40,6 @@ MODULE RdBackFile
 ; IMPORT Atom 
 ; IMPORT AtomList 
 ; IMPORT File
-; IMPORT FileWr
 ; IMPORT FS 
 ; IMPORT OSError
 ; IMPORT RegularFile
@@ -49,9 +48,6 @@ MODULE RdBackFile
 ; IMPORT TextWr
 ; IMPORT Thread 
 ; IMPORT Wr
-
-; IMPORT FM3Messages
-; IMPORT FM3SharedUtils
 
 ; CONST Beginning = RegularFile . Origin . Beginning
 ; CONST Current = RegularFile . Origin . Current 
@@ -244,11 +240,21 @@ MODULE RdBackFile
           )
       END (*IF*) 
     ; RETURN LResult 
-    END Open  
+    END Open
+
+(*EXPORTED*)
+; PROCEDURE FileName ( RbFile : T ) : TEXT 
+  (* Never NIL.  Possibly empty. *) 
+
+  = BEGIN
+      IF RbFile = NIL THEN RETURN "" END (*IF*)
+    ; IF RbFile . RbFileName = NIL THEN RETURN "" END (*IF*)
+    ; RETURN RbFile . RbFileName 
+    END FileName 
 
 (*EXPORTED*)
 ; PROCEDURE LengthL ( RbFile : T ) : LONGCARD
-  RAISES { Thread . Alerted , OSError . E }
+  RAISES { OSError . E }
 
   = BEGIN
       IF RbFile = NIL THEN Raise ( "LengthL, NIL file." ) END (*IF*) 
@@ -546,7 +552,7 @@ MODULE RdBackFile
 
 (*EXPORTED*)
 ; PROCEDURE Put ( RbFile : T ; Value : ByteTyp )
-  RAISES { Thread . Alerted , OSError . E }  
+  RAISES { OSError . E }  
 
   = BEGIN
       IF RbFile = NIL THEN Raise ( "Put" , ", NIL file." ) END (*IF*) 

@@ -72,8 +72,9 @@ MODULE FM3Pass2
       EXCEPT OSError . E ( EMsg )
       => FM3Messages . FatalArr
            ( ARRAY OF REFANY
-               { "Unable to write to readback file: "
-(*TODO: Give RdBackFile a "Filename" function,, then insert it here. *) 
+               { "Unable to write to readback file \""
+               , RdBackFile . FileName ( RdBack )
+               , "\", " 
                , FM3Messages . AtomListToOSError ( EMsg ) , "."  
                }
            ) 
@@ -92,8 +93,9 @@ MODULE FM3Pass2
       EXCEPT OSError . E ( EMsg )
       => FM3Messages . FatalArr
            ( ARRAY OF REFANY
-               { "Unable to write to patch file: "
-(*TODO: Give RdBackFile a "Filename" function, then insert it here. *) 
+               { "Unable to write to patch file \""
+               , RdBackFile . FileName ( RdBack )
+               , "\", " 
                , FM3Messages . AtomListToOSError ( EMsg ) , "."  
                }
            ) 
