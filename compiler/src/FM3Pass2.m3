@@ -285,7 +285,7 @@ MODULE FM3Pass2
     ; LPatchRdBack := LUnitRef . UntPatchStackRdBack 
     ; LMPass1Depth := MAX ( LMPass1Depth , LUnitRef . UntPass1OutEmptyCoord )
 
-    ; LOOP  
+    ; LOOP (* Thru' a sequence of SkipRt & SkipLt tokens plus one other. *)  
         LPass1Coord := RdBackFile . LengthL ( LPass1RdBack )
       ; LPatchStackTopCoord := FM3Compress . GetBwd ( LPatchRdBack ) 
       ; IF LPass1Coord <= LMPass1Depth
@@ -294,9 +294,6 @@ MODULE FM3Pass2
                <= LUnitRef ^ . UntPatchStackEmptyCoord
            (* ^ Nothing more to pop off Patch stack. *) 
         THEN (* Done with the entire file. *)
-          (* This shouldn't happen.  The client should already have seen
-             a previous BOF and stopped calling here.
-          *)
           <* ASSERT 
                RdBackFile . LengthL ( LPatchRdBack )
                = LUnitRef ^ . UntPatchStackEmptyCoord 
@@ -461,8 +458,8 @@ MODULE FM3Pass2
 
   ; PROCEDURE HtReverseVariableValues
       ( MaybeSkip : BOOLEAN (* ToRdBack is conditional on SkipNoStack. *) )
-    (* Reverse copy a variable number of values, with a copy of their
-       count before and after.
+    (* Reverse copy a variable number (given by the first operand. of values,
+       with a copy of their count before and after.
     *) 
 
     = VAR LCountLt : LONGINT
@@ -600,6 +597,7 @@ MODULE FM3Pass2
         ; PutBwdP2 ( HtPass2RdBack , VAL ( LScopeNo , LONGINT ) ) 
         ; PutBwdP2 ( HtPass2RdBack , VAL ( Itk . ItkBlockRt , LONGINT ) )
 
+(* ItkBlock[RL]t will probably disappear. *) 
       | Itk . ItkBlockLt 
       => CopyOperandsInOrder
            ( FM3Utils . TokenOpndCt ( TokResult . TrTok ) 
@@ -608,7 +606,6 @@ MODULE FM3Pass2
            , MaybeSkip := TRUE 
            )
         ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
-        ; EVAL FM3Scopes . PopDeclScopeRef ( )
 
       | Itk . ItkTextLitRt
       , Itk . ItkWideTextLitRt
@@ -694,10 +691,7 @@ FM3Exprs . ExprStackTopObj
    and pass the operands in. *) 
 
 ; PROCEDURE LookupDeclNoInScope
-    ( READONLY Scope : FM3Scopes . ScopeTyp 
-    ; IdAtom : FM3Base . AtomTyp
-    ; READONLY Position : tPosition
-    ) 
+    ( READONLY Scope : FM3Scopes . ScopeTyp ; IdAtom : FM3Base . AtomTyp ) 
   : FM3Base . DeclNoTyp 
   (* PRE: IdAtom is in Scope's dictionary. *) 
 
@@ -715,31 +709,13 @@ FM3Exprs . ExprStackTopObj
                , (*OUT*) LDeclNoInt
                )
       ; IF LFound
-        THEN
-          RETURN LDeclNoInt (* Implied NARROW. *) 
-        ELSE LMsg := "not found"
+        THEN RETURN VAL ( LDeclNoInt , FM3Base . DeclNoTyp )
+        ELSE RETURN FM3Base . DeclNoNull
         END (*IF*) 
       EXCEPT FM3Dict_Int_Int . Error ( EMsg )
-        => LFound := FALSE
-        ; LMsg := EMsg 
+      => RETURN FM3Base . DeclNoNull
+      ELSE RETURN FM3Base . DeclNoNull
       END (*EXCEPT*)
-    ; IF NOT LFound
-      THEN 
-        FM3Messages . FatalArr
-          ( ARRAY OF REFANY
-              { "While looking up declaration of \""
-              , FM3Units . TextOfIdAtom ( IdAtom ) 
-              , "\" in scope at "
-              , PosImage ( Scope . ScpPosition )
-              , ", "
-              , LMsg 
-              , "." 
-              }
-          , Position 
-          )
-      ; RETURN FM3Base . DeclNoNull
-      ELSE RETURN VAL ( LDeclNoInt , FM3Base . DeclNoTyp )
-      END (*IF*) 
     END LookupDeclNoInScope
 
 ; PROCEDURE LookupExpImp
@@ -795,10 +771,11 @@ FM3Exprs . ExprStackTopObj
                    , (*OUT*) LDeclNoInt 
                    )
           EXCEPT FM3Dict_Int_Int . Error ( EMsg )
-            => LFound := FALSE
+          => LFound := FALSE
+          ELSE LFound := FALSE
           END (*EXCEPT*)
         ; <* ASSERT LFound *>
-          RETURN LDeclNoInt (* Implied NARROW. *) 
+          RETURN VAL ( LDeclNoInt , FM3Base . DeclNoTyp ) 
         ELSE (* Try the next outer scope. *) 
           LScopeRef := LScopeRef ^ . ScpLookupStackLink
         END (*IF*) 
@@ -852,7 +829,7 @@ FM3Exprs . ExprStackTopObj
       ; DdiPosition := GetBwdPos ( TokResult . TrRdBack )
       ; LDeclNo
           := LookupDeclNoInScope
-               ( FM3Scopes . DeclScopeStackTopRef ^ , DdiAtom , DdiPosition )
+               ( FM3Scopes . DeclScopeStackTopRef ^ , DdiAtom )
       ; <*ASSERT LDeclNo # FM3Base . DeclNoNull *>
         VarArray_Int_Refany . CallbackWithElem
           ( FM3Units . UnitStackTopRef ^ . UntDeclMap , LDeclNo , Visit )
@@ -922,7 +899,7 @@ FM3Exprs . ExprStackTopObj
         DO 
           LDeclNo
             := LookupDeclNoInScope
-                 ( FM3Scopes . DeclScopeStackTopRef ^ , DidAtom , DidPosition ) 
+                 ( FM3Scopes . DeclScopeStackTopRef ^ , DidAtom ) 
         ; <*ASSERT LDeclNo # FM3Base . DeclNoNull *>
           VarArray_Int_Refany . CallbackWithElem 
             ( FM3Units . UnitStackTopRef ^ . UntDeclMap , LDeclNo , VisitDecl )
@@ -1004,7 +981,9 @@ FM3Exprs . ExprStackTopObj
     ; WITH Wp2RdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack 
       DO
       (* Look for a reference to the scope we are declaring in. *) 
-        LRefDeclNo := LookupBlockRef ( LIdentRefAtom )
+        LRefDeclNo
+          := LookupDeclNoInScope
+               ( FM3Scopes . DeclScopeStackTopRef ^ , LIdentRefAtom )
       ; IF LRefDeclNo # FM3Base . DeclNoNull
         THEN 
           IF NOT FM3Exprs . ExprStackTopObj . ExpIsLegalRecursive
