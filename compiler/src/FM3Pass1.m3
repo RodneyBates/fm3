@@ -100,8 +100,9 @@ MODULE FM3Pass1
         EXCEPT OSError . E ( EMsg )
         => FatalArr
              ( ARRAY OF REFANY
-                 { "Unable to write to readback file: "
-(*TODO: Give RdBackFile a "Filename" function,, then insert it here. *) 
+                 { "Unable to write to readback file \""
+                 , RdBackFile . FileName ( RdBack )
+                 , "\", " 
                  , ALOSE ( EMsg ) , "."  
                  }
              ) 
