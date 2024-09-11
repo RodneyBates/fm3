@@ -168,7 +168,7 @@ MODULE FM3Pass2
     ; MaybeSkip : BOOLEAN (* ToRdBack is conditional on SkipNoStack. *) 
     )
   (* Copy operands, up to 6. This is could be confusing.  One-at-a-time pop,
-     push temporily reverses them left-to-right.  But if the caller is copying
+     push temporally reverses them left-to-right.  But if the caller is copying
      to a RdBack that is to be read in the opposite direction, that will
      implicitly reverse them, for net same temporal order when the next pass
      reads them. 
@@ -214,7 +214,7 @@ MODULE FM3Pass2
     ; FromRdBack , ToRdBack : RdBackFile . T
     ; MaybeSkip : BOOLEAN (* ToRdBack is conditional on SkipNoStack. *) 
     )
-  (* This is tricky.  Pop, push reverses then, but this procedure does
+  (* This is tricky.  Pop, push reverses them, but this procedure does
      a compensating reverse, for net same order. 
   *)
  
@@ -396,30 +396,46 @@ MODULE FM3Pass2
       END (*LOOP*)
     END Pass2Tokens
 
-; PROCEDURE DefExprRt ( NewExprObj : FM3Exprs . ExprTyp )
+; PROCEDURE ExprAbsent ( )
+
+  = VAR LNewObj : FM3Exprs . ExprTyp
+
+  ; BEGIN
+      LNewObj := NEW ( FM3Exprs . ExprTyp )  
+    ; LNewObj . ExpLink := FM3Exprs . ExprStackTopObj  
+    ; FM3Exprs . ExprStackTopObj := LNewObj  
+    END ExprAbsent  
+
+; PROCEDURE DefExprRt ( NewExprObj : FM3Exprs . ExprCommon )
   (* PRE: NOT Skipping. *)
   (* Expressions that are contained in definitions. *) 
 
   = VAR LUnitRef : FM3Units . UnitRefTyp
-  ; VAR LPosition : FM3Base . tPosition
+  ; VAR LScopeRef : FM3Scopes . ScopeRefTyp 
   
   ; BEGIN
       LUnitRef := FM3Units . UnitStackTopRef 
-    ; WITH WScopeRef = FM3Scopes . DeclScopeStackTopRef
-      DO IF WScopeRef ^ . ScpCurExprObj = NIL 
-        THEN
-          WScopeRef ^ . ScpCurExprObj := NewExprObj
-        ; WScopeRef ^ . ScpCurDefRefDeclNoSet := IntSets . Empty ( ) 
-        ; NewExprObj . ExpIsLegalRecursive := FALSE 
+    ; LScopeRef := FM3Scopes . DeclScopeStackTopRef
+    ; IF LScopeRef ^ . ScpCurExprObj = NIL 
+      THEN
+        LScopeRef ^ . ScpCurExprObj := NewExprObj
+      ; LScopeRef ^ . ScpCurDefRefDeclNoSet := IntSets . Empty ( ) 
+      ELSE
+        TYPECASE NewExprObj . ExpLink OF
+        | NULL => 
+        | FM3Exprs . ExprCommon ( TDeeperExpr ) 
+        => NewExprObj . ExpKind := TDeeperExpr . ExpKind
         ELSE
-          NewExprObj . ExpKind := NewExprObj . ExpLink . ExpKind 
-        END (*IF*) 
-      ; NewExprObj . ExpSelfExprNo 
-          := VarArray_Int_Refany . TouchedRange ( LUnitRef ^ . UntExprMap ) . Hi
-             + 1
-      ; VarArray_Int_Refany . Assign
-          ( LUnitRef . UntExprMap , ExprStackTopObj . ExpSelfExprNo , NewExprObj )
-      END (*WITH*) 
+        END (*TYPECASE*) 
+      END (*IF*) 
+    ; NewExprObj . ExpIsLegalRecursive := FALSE 
+    ; NewExprObj . ExpSelfExprNo 
+        := VarArray_Int_Refany . TouchedRange ( LUnitRef ^ . UntExprMap ) . Hi
+           + 1
+    ; VarArray_Int_Refany . Assign
+        ( LUnitRef . UntExprMap , NewExprObj . ExpSelfExprNo , NewExprObj )
+    ; NewExprObj . ExpLink := FM3Exprs . ExprStackTopObj  
+    ; FM3Exprs . ExprStackTopObj := NewExprObj  
     END DefExprRt 
 
 ; PROCEDURE DefExprLt ( )
@@ -427,23 +443,103 @@ MODULE FM3Pass2
   (* Expressions that are contained in definitions. *) 
 
   = BEGIN 
-      FM3Exprs . ExprStackTopObj := FM3Exprs . ExprStackTopObj . ExpLink
-(* REVIEW: I think this is premature.  Not 'til Itk*DeclLt *) 
-    END DefExprLt 
+(* TODO: Anything? *) 
+    END DefExprLt
 
 ; PROCEDURE HandleTok ( READONLY TokResult : TokResultTyp ) 
 
   = VAR HtDeclNo : FM3Base . DeclNoTyp 
 
   ; VAR LUnitRef : FM3Units . UnitRefTyp
-  ; VAR LScopeRef : FM3Scopes . ScopeRefTyp 
+  ; VAR LScopeRef : FM3Scopes . ScopeRefTyp
+  ; VAR LExpr : FM3Exprs . ExprTyp 
   ; VAR HtPass1RdBack : RdBackFile . T 
   ; VAR HtPass2RdBack : RdBackFile . T
+  ; VAR LLongInt : LONGINT 
   ; VAR LScopeNo : FM3Base . ScopeNoTyp
   ; VAR LCount : INTEGER 
   ; VAR LPosition : tPosition
-  ; VAR HtSkipping : BOOLEAN 
-  
+  ; VAR HtSkipping : BOOLEAN
+
+  ; PROCEDURE HtExprRt ( NewExpr : FM3Exprs . ExprCommon )
+
+    = BEGIN 
+        WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
+        DO IF HtSkipping 
+          THEN (* NewExpr becomes immediate garbage. *) 
+          ELSE 
+            DefExprRt ( NewExpr )
+          ; NewExpr . ExpPosition := WPosition
+          ; NewExpr . ExpKind := Ekt . EkType
+(* TODO:      ^Figure this out. *) 
+          END (*IF*)
+        END (*WITH*)
+      END HtExprRt 
+
+  ; PROCEDURE HtExprOpnd1  ( )
+      (* PRE: TOS is 1st (LM) operand, TOS-1 is parent. *) 
+    = VAR LOpnd : FM3Exprs . ExprTyp
+
+    ; BEGIN 
+        WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
+        DO IF NOT HtSkipping 
+          THEN
+            LOpnd := FM3Exprs . PopExprStack ( )
+          ; TYPECASE FM3Exprs . ExprStackTopObj
+            OF NULL => <*ASSERT FALSE*>
+            | FM3Exprs . Expr1OpndTyp ( TParentExpr ) 
+            => <*ASSERT WPosition = TParentExpr . ExpPosition *>
+               TParentExpr . ExpOpnd1 := LOpnd
+            ELSE <*ASSERT FALSE*>
+            END (*TYPECASE*)
+          ; DefExprLt ( ) 
+          END (*IF*) 
+        END (*WITH*)
+      END HtExprOpnd1 
+
+  ; PROCEDURE HtExprOpnd2  ( )
+      (* PRE: TOS is 2nd operand, TOS-1 is parent. *) 
+    = VAR LOpnd : FM3Exprs . ExprTyp
+
+    ; BEGIN 
+        WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
+        DO IF NOT HtSkipping 
+          THEN
+            LOpnd := FM3Exprs . PopExprStack ( )
+          ; TYPECASE FM3Exprs . ExprStackTopObj
+            OF NULL => <*ASSERT FALSE*>
+            | FM3Exprs . Expr2OpndTyp ( TParentExpr ) 
+            => <*ASSERT WPosition = TParentExpr . ExpPosition *>
+               TParentExpr . ExpOpnd2 := LOpnd
+            ELSE <*ASSERT FALSE*>
+            END (*TYPECASE*)
+          ; DefExprLt ( ) 
+          END (*IF*) 
+        END (*WITH*)
+      END HtExprOpnd2
+
+  ; PROCEDURE HtScopeOpnd1  ( )
+      (* 1st (LM) operand of an expr node and it is a scope. *) 
+      (* PRE: Top of scope stack is 1st scope operand.
+              Top of expr stack is containing type. *) 
+    = VAR LScopeRef : FM3Scopes . ScopeRefTyp
+
+    ; BEGIN 
+        WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
+        DO IF NOT HtSkipping 
+          THEN
+            LScopeRef := FM3Scopes . DeclScopeStackTopRef
+          ; TYPECASE FM3Exprs . ExprStackTopObj
+            OF NULL => <*ASSERT FALSE*>
+            | FM3Exprs . Expr1ScopeTyp ( TParentExpr ) 
+            => <*ASSERT WPosition = TParentExpr . ExpPosition *>
+               TParentExpr . ExpScopeRef1 := LScopeRef
+            ELSE <*ASSERT FALSE*>
+            END (*TYPECASE*)
+          END (*IF*) 
+        END (*WITH*)
+      END HtScopeOpnd1 
+
   ; <*INLINE*> PROCEDURE HtPassTokenThru ( )
 
     = BEGIN 
@@ -557,6 +653,19 @@ MODULE FM3Pass2
       , Itk . ItkFullRevealRt 
       , Itk . ItkPartialRevealRt 
       =>  FM3Scopes . DeclScopeStackTopRef ^ . ScpCurExprObj := NIL
+        ; HtPassTokenThru ( )
+
+      | Itk . ItkDeclTypeAbsent 
+      , Itk . ItkDeclValAbsent
+      , Itk . ItkFormalTypeAbsent
+      , Itk . ItkFormalExprAbsent 
+      =>  ExprAbsent ( )
+        ; HtPassTokenThru ( ) 
+
+      | Itk . ItkFieldDeclVal
+      , Itk . ItkFieldDeclType
+(* FIXME: What about Formals? *)
+      =>  EVAL FM3Exprs . PopExprStack ( ) (* Garbits. *) 
         ; HtPassTokenThru ( ) 
 
       | Itk . ItkDeclNo
@@ -607,6 +716,24 @@ MODULE FM3Pass2
            )
         ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
 
+      | Itk . ItkIntLit
+      =>  LLongInt := GetBwd ( TokResult . TrRdBack )
+        ; LPosition := GetBwdPos ( TokResult . TrRdBack )
+        ; IF NOT HtSkipping 
+          THEN
+            WITH LExpr = NEW ( FM3Exprs . ExprConstValue )
+            DO 
+            DefExprRt ( LExpr )
+          ; LExpr . ExpValue := LLongInt
+          ; LExpr . ExpValueType := NIL
+(* COMPLETEME:                      ^ *) 
+          ; LExpr . ExpPosition := LPosition
+          ; LExpr . ExpKind := Ekt . EkConst
+          ; LExpr . ExpIsLegalRecursive := TRUE
+(* Copy token? *) 
+          END 
+          END (*IF*)
+
       | Itk . ItkTextLitRt
       , Itk . ItkWideTextLitRt
       => CopyOperandsInOrder
@@ -628,59 +755,41 @@ MODULE FM3Pass2
            )
         ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
 
-(*
-(* FIXME: These need to copy the token and arguments. *) 
-      | Itk . ItkRecDefRt
-      => WITH WScopeRef = FM3Scopes . DeclScopeStackTopRef
-         DO <* ASSERT WScopeRef ^ . ScpCurExprObj = NIL *>
-FM3Exprs . ExprStackTopObj
-         END (*WITH*) 
+      (* Enumeration type: *) 
+(* FIXME: Some of these need to copy the token and arguments. *)   
+      | Itk . ItkEnumTypeRt
+      =>  LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *) 
+        ; HtExprRt ( NEW ( FM3Exprs . ExprEnumTypeTyp ) ) 
 
-      | Itk . ItkRecDefLt
-      => FM3Scopes . DeclScopeStackTopRef . ScpCurExprObj := NIL 
-*)
+      | Itk . ItkEnumTypeLt
+      =>  LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *) 
+        ; HtScopeOpnd1 ( ) 
 
-(* REF type: *) 
-      | Itk . ItkREFDefRt 
-      => WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
-        DO IF NOT HtSkipping 
-          THEN 
-            FM3Exprs . ExprStackTopObj (* Push. *)
-              := NEW ( FM3Exprs . ExprREFTypeTyp
-                     , ExpLink := FM3Exprs . ExprStackTopObj 
-                     , ExpPosition := WPosition
-                     , ExpKind := Ekt . EkType
-                       (* ^Will be overlaid if not topmost def of a decl. *) 
-                     , ExpIsLegalRecursive := TRUE
-                     )
-          ; FM3Exprs . InitNewTopExpr ( )
-          ; DefExprRt ( FM3Exprs . ExprStackTopObj ) 
-          END (*IF*)
-        END (*WITH*) 
+      (* Record type: *) 
+      | Itk . ItkRecTypeRt
+      =>  LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *) 
+        ; HtExprRt ( NEW ( FM3Exprs . ExprRecTypeTyp ) )
+(* Copy token? *) 
 
-      | Itk . ItkREFDefLt 
-      => (* PRE: TOS is referent, TOS-1 is REF def, *) 
-        WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
-        DO IF NOT HtSkipping 
-          THEN
-            IF WPosition = FM3Exprs . ExprStackTopObj . ExpPosition 
-            THEN (* Push of referent didn't happen, probably not implemented. *)
-            ELSE 
-              WITH WDefREFType 
-                = NARROW
-                    ( ExprStackTopObj . ExpLink , FM3Exprs . ExprREFTypeTyp )
-              DO 
-                WDefREFType . ExprREFReferent := ExprStackTopObj 
-              ; ExprStackTopObj := WDefREFType . ExpLink
-              ; IF ExprStackTopObj = NIL
-                THEN
-                  FM3Scopes . DeclScopeStackTopRef ^ . ScpCurExprObj := NIL 
-                END (*IF*) 
-              END (*WITH*)
-            END (*IF*)
-          ; DefExprLt ( ) 
-          END (*IF*) 
-        END (*WITH*)
+      | Itk . ItkRecTypeLt
+      =>  LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *) 
+        ; HtScopeOpnd1 ( ) 
+(* Copy token? *) 
+
+      (* REF type: *) 
+      | Itk . ItkREFTypeRt 
+      =>  HtExprRt ( NEW ( FM3Exprs . ExprREFTypeTyp ) ) 
+
+      | Itk . ItkREFTypeLt
+      =>  HtExprOpnd1 ( ) 
+
+      (* Subrange type: *) 
+      | Itk . ItkSubrTypeRt 
+      => HtExprRt ( NEW ( FM3Exprs . ExprSubrTypeTyp ) ) 
+
+      | Itk . ItkSubrTypeDotDot => HtExprOpnd2 ( ) 
+
+      | Itk . ItkSubrTypeLt => HtExprOpnd1 ( ) 
 
       ELSE (* No special pass2 handling. *)
         HtPassTokenThru ( ) 
@@ -696,11 +805,13 @@ FM3Exprs . ExprStackTopObj
   (* PRE: IdAtom is in Scope's dictionary. *) 
 
   = VAR LDeclNoInt : INTEGER
+  ; VAR LResult : FM3Base . DeclNoTyp 
   ; VAR LMsg : TEXT
   ; VAR LFound : BOOLEAN 
 
   ; BEGIN (*LookupDeclNoInScope*)
-      TRY
+      LResult := FM3Base . DeclNoNull
+    ; TRY
         LFound 
           := FM3Dict_Int_Int . LookupFixed
                ( Scope . ScpDeclDict
@@ -709,13 +820,13 @@ FM3Exprs . ExprStackTopObj
                , (*OUT*) LDeclNoInt
                )
       ; IF LFound
-        THEN RETURN VAL ( LDeclNoInt , FM3Base . DeclNoTyp )
-        ELSE RETURN FM3Base . DeclNoNull
+        THEN LResult := VAL ( LDeclNoInt , FM3Base . DeclNoTyp )
         END (*IF*) 
       EXCEPT FM3Dict_Int_Int . Error ( EMsg )
-      => RETURN FM3Base . DeclNoNull
-      ELSE RETURN FM3Base . DeclNoNull
+      => 
+      ELSE 
       END (*EXCEPT*)
+    ; RETURN LResult 
     END LookupDeclNoInScope
 
 ; PROCEDURE LookupExpImp
@@ -946,6 +1057,32 @@ FM3Exprs . ExprStackTopObj
       END (*WITH*) 
     END PutNotUsable
 
+; PROCEDURE CheckRecursiveRef ( RefDeclNo : FM3Base . DeclNoTyp ) 
+
+  = VAR LScopeMinDeclNo : FM3Base . DeclNoTyp 
+
+  ; BEGIN
+      TYPECASE FM3Exprs . ExprStackTopObj OF 
+      NULL =>
+      | FM3Exprs . ExprCommon ( TRefExpr ) 
+      => IF NOT TRefExpr . ExpIsLegalRecursive
+         THEN 
+           LScopeMinDeclNo := FM3Scopes . LookupScopeStackTopRef . ScpMinDeclNo
+         ; IF LScopeMinDeclNo <= RefDeclNo
+              AND RefDeclNo
+                  < LScopeMinDeclNo
+                    + FM3Scopes . LookupScopeStackTopRef . ScpDeclCt
+           THEN (* It's declared in the current decl scope. *) 
+             WITH WRefIdNoSet
+                  = FM3Scopes . LookupScopeStackTopRef ^ . ScpCurDefRefDeclNoSet
+             DO WRefIdNoSet := IntSets . Include ( WRefIdNoSet , RefDeclNo ) 
+             END (*WITH*)
+           END (*IF*) 
+         END (*IF*)
+      ELSE
+      END (*TYPECASE*) 
+    END CheckRecursiveRef 
+
 ; PROCEDURE IdentRefR2L ( TokResult : TokResultTyp )
   (* PRE: The ident is not followed by dot Ident. (The parser has gone
           to some trouble to ensure this.)
@@ -968,41 +1105,20 @@ FM3Exprs . ExprStackTopObj
     ; IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
       THEN (* We are skipping output. *) RETURN 
       END (*IF*)
-    ; FM3Exprs . ExprStackTopObj (* Push. *)
-        := NEW ( FM3Exprs . ExprIdTyp
-               , ExpLink := FM3Exprs . ExprStackTopObj 
-               , ExpPosition := LPosition
-               , ExpKind := Ekt . EkType
-                 (* ^Will be overlaid if not topmost def of a decl. *) 
-               , ExpIsLegalRecursive := FALSE
-               )
-    ; FM3Exprs . InitNewTopExpr ( )
-    ; DefExprRt ( FM3Exprs . ExprStackTopObj ) 
+    ; LExprIdObj := NEW ( FM3Exprs . ExprIdTyp )
+    ; DefExprRt ( LExprIdObj ) 
+    ; LExprIdObj . ExpPosition := LPosition
+    ; LExprIdObj . ExpKind := Ekt . EkType
+(* FIXME:                    ^Get the correct kind. *) 
     ; WITH Wp2RdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack 
       DO
-      (* Look for a reference to the scope we are declaring in. *) 
-        LRefDeclNo
-          := LookupDeclNoInScope
-               ( FM3Scopes . DeclScopeStackTopRef ^ , LIdentRefAtom )
+      (* Look for a reference to the block scope we are declaring in. *) 
+        LRefDeclNo := LookupBlockRef ( LIdentRefAtom )
       ; IF LRefDeclNo # FM3Base . DeclNoNull
-        THEN 
-          IF NOT FM3Exprs . ExprStackTopObj . ExpIsLegalRecursive
-          THEN 
-            LScopeMinDeclNo := FM3Scopes . DeclScopeStackTopRef . ScpMinDeclNo
-          ; IF LScopeMinDeclNo <= LRefDeclNo
-               AND LRefDeclNo
-                   < LScopeMinDeclNo
-                     + FM3Scopes . DeclScopeStackTopRef . ScpDeclCt
-            THEN (* It's declared in the current decl scope. *) 
-              WITH WRefIdNoSet
-                   = FM3Scopes . LookupScopeStackTopRef ^ . ScpCurDefRefDeclNoSet
-              DO WRefIdNoSet := IntSets . Include ( WRefIdNoSet , LRefDeclNo ) 
-              END (*WITH*)
-            END (*IF*) 
-          END (*IF*) 
-        
-          (* Change to a reference token with DeclNo instead of Atom. *)
-          (* Read the following backwards: *) 
+        THEN
+          CheckRecursiveRef ( LRefDeclNo )
+          
+        (* Change to a reference token with DeclNo instead of Atom. *)
         ; PutBwdP2 ( Wp2RdBack , VAL ( LPosition . Column , LONGINT ) ) 
         ; PutBwdP2 ( Wp2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
         ; PutBwdP2 ( Wp2RdBack , VAL ( LRefDeclNo , LONGINT ) ) 
@@ -1011,7 +1127,7 @@ FM3Exprs . ExprStackTopObj
                 ( LIdentRefAtom , (*OUT*) LUnitNo , (*OUT*) LRefDeclNo )
         THEN (* Export or import is present. *) 
           IF LUnitNo = FM3Base . UnitNoNull
-(* CHECK: ^v Which of these ways denoting unusablilty can happen? *) 
+(* CHECK: ^v Which of these ways denoting unusability can happen? *) 
           THEN LIsUsable := FALSE
           ELSE
             LExpImpUnitRef (* Implicit NARROW. *) 
@@ -1067,6 +1183,7 @@ FM3Exprs . ExprStackTopObj
   ; VAR LIdentChars : FM3Atom_OAChars . KeyTyp 
   ; VAR LUnitNoLt : FM3Base . UnitNoTyp
   ; VAR LDeclNoLt : FM3Base . DeclNoTyp
+  ; VAR LRefDeclNo : FM3Base . DeclNoTyp
   ; VAR LAtomLt , LAtomRt : FM3Base . AtomTyp
   ; VAR LIntfAtomRt : FM3Base . AtomTyp
   ; VAR LIntfDeclNoInt : INTEGER 
@@ -1086,10 +1203,10 @@ FM3Exprs . ExprStackTopObj
         LDeclNoLt := LookupBlockRef ( LAtomLt )
       ; IF LDeclNoLt # FM3Base . DeclNoNull
         THEN (* Lt names a local declaration, not an interface. *)
+          CheckRecursiveRef ( LRefDeclNo )
 
         (* Turn the qualident into separate Id ref and dot Id. *)
-        (* Read the following backwards: *) 
-          PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
+        ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
         ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
         ; PutBwdP2 ( Wp2RdBack , VAL ( LAtomRt , LONGINT ) ) 
         ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExprDotRt , LONGINT ) )
@@ -1157,7 +1274,6 @@ FM3Exprs . ExprStackTopObj
                      , (*OUT*) LIntfDeclNoInt 
                      )
               *>
-            (* Read the following backwards: *) 
               PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
             ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
             ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Column , LONGINT ) ) 
@@ -1191,7 +1307,6 @@ FM3Exprs . ExprStackTopObj
                   or FROM-IMPORT.
                *)
           (* Turn it into separate QualId ref and dot Id *) 
-          (* Read the following backwards: *) 
             PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
           ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
           ; PutBwdP2 ( Wp2RdBack , VAL ( LAtomRt , LONGINT ) ) 

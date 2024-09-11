@@ -42,28 +42,28 @@ ItkModule INT POS 3 (* UnitNo, Position. *)
 
 
 LONE
-ItkUnitId IDENT POS 3 (* IdAtom, Line, Column. *) . 
+  ItkUnitId IDENT POS 3 (* IdAtom, Line, Column. *) . 
 
-ItkFormalsListEmpty . 
-ItkFormalTypeAbsent POS 2 (* Position. *).
-ItkFormalExprAbsent POS 2 (* Position. *).
-(*ItkRaisesSetAbsent POS 2 (* Position. *) *) . 
-ItkRaisesANY POS 2 (* Position. *) .
-ItkResultTypeAbsent POS 2 (* Position. *). 
-ItkProcBodyAbsent POS 2 (* Position. *).
-ItkIdRefAtomNotUsable IDENT POS . 
+  ItkFormalsListEmpty . 
+  ItkFormalTypeAbsent POS 2 (* Position. *).
+  ItkFormalExprAbsent POS 2 (* Position. *).
+  (*ItkRaisesSetAbsent POS 2 (* Position. *) *) . 
+  ItkRaisesANY POS 2 (* Position. *) .
+  ItkResultTypeAbsent POS 2 (* Position. *). 
+  ItkProcBodyAbsent POS 2 (* Position. *).
+  ItkIdRefAtomNotUsable IDENT POS . 
 
 (* Scopes and declarations within. *) 
 LONE
-ItkScopeEmpty INT (* ScopeNo. *) .
-ItkDeclScopeLt INT (* ScopeNo. *) .
-ItkDeclScopeRt INT (* ScopeNo. *) . 
-ItkLookupScopeLt INT (* ScopeNo. *) .
-ItkLookupScopeRt INT (* ScopeNo. *) . 
-ItkReservedId IDENT POS 3 (* Rid*, Position. *). 
-ItkDuplDeclId IDENT POS 3 (* IdAtom, position *) . 
-ItkDeclId INT IDENT POS 4 (* DeclKind, IdAtom, position *) .
-ItkDeclNo DECL POS 3 (* DeclNo, position *) .
+  ItkScopeEmpty INT (* ScopeNo. *) .
+  ItkDeclScopeLt INT (* ScopeNo. *) .
+  ItkDeclScopeRt INT (* ScopeNo. *) . 
+  ItkLookupScopeLt INT (* ScopeNo. *) .
+  ItkLookupScopeRt INT (* ScopeNo. *) . 
+  ItkReservedId IDENT POS 3 (* Rid*, Position. *). 
+  ItkDuplDeclId IDENT POS 3 (* IdAtom, position *) . 
+  ItkDeclId INT IDENT POS 4 (* DeclKind, IdAtom, position *) .
+  ItkDeclNo DECL POS 3 (* DeclNo, position *) .
 
 (* Identifier references. *) 
 
@@ -137,15 +137,22 @@ ItkVARFormalId   IDENT POS .
 ItkROFormalId    IDENT POS . 
 *)
 FIXED 
-ItkREFDef POS 2 . 
+ItkREFType POS 2 .
+ItkSubrType POS 2
+  DotDot POS 2
+. 
 
 (* Record type definitions. *) 
 FIXED
-ItkRecDef INT POS 3 (* field count, Position of RECORD, field count. *) .
+  ItkRecType INT POS 3 (* field count, Position of RECORD, field count. *) .
+
+(* Enumeration type definitions. *) 
+FIXED
+  ItkEnumType INT POS 3 (* field count, Position of RECORD, field count. *) .
 
 (* Object types. *)
 FIXED 
-  ItkObjDef POS 2 (* Position of OBJECT. *) .
+  ItkObjType POS 2 (* Position of OBJECT. *) .
   ItkSupertype POS 2 (* Position of OBJECT. *) .
   ItkBrand POS (* With explicit brand value. *) .
 
