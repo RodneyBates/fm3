@@ -1764,7 +1764,7 @@ MODULE FM3Pass1
 (*EXPORTED.*)
 ; PROCEDURE DeclIdL2R 
     ( DeclIdTok : Itk . TokTyp
-  (*FIXME ^ This is always be passed in as ItkDeclId. Remove the formal. *) 
+(*FIXME ^ This is always be passed in as ItkDeclId. Remove the formal. *) 
     ; DeclKind : Dkt 
     ; READONLY IdAttribute : tParsAttribute
     ; SepTok : Itk . TokTyp := Itk . ItkNull

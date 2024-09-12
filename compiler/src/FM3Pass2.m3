@@ -552,6 +552,35 @@ MODULE FM3Pass2
       ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
       END HtPassTokenThru 
 
+  ; <*INLINE*> PROCEDURE HtMaybePassTokenThru ( ) : BOOLEAN (* Handled it. *)
+    (* Use this only for writing to pass 2 output. *) 
+
+    = BEGIN 
+        <* ASSERT HtPass2RdBack = FM3Globals . P2RdBack *> 
+        IF HtSkipping 
+        THEN
+          DiscardOperands
+            ( FM3Utils . TokenOpndCt ( TokResult . TrTok )
+            , TokResult . TrRdBack
+            ) 
+        ; RETURN TRUE  
+        ELSE 
+          IF FM3Scopes . DeclScopeStackTopRef ^ . ScpCurExprObj = NIL
+          THEN (* Not inside a decl-defining expression. *) 
+            CopyOperandsInOrder
+              ( FM3Utils . TokenOpndCt ( TokResult . TrTok )
+              , TokResult . TrRdBack 
+              , HtPass2RdBack
+              , MaybeSkip := TRUE 
+              ) 
+          ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
+          ; RETURN TRUE
+          ELSE (* Caller must handle in its own way. *)
+            RETURN FALSE 
+          END (*IF*)
+        END (*IF*) 
+      END HtMaybePassTokenThru 
+
   ; PROCEDURE HtReverseVariableValues
       ( MaybeSkip : BOOLEAN (* ToRdBack is conditional on SkipNoStack. *) )
     (* Reverse copy a variable number (given by the first operand. of values,
@@ -758,38 +787,48 @@ MODULE FM3Pass2
       (* Enumeration type: *) 
 (* FIXME: Some of these need to copy the token and arguments. *)   
       | Itk . ItkEnumTypeRt
-      =>  LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *) 
+      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
+        ; LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *) 
         ; HtExprRt ( NEW ( FM3Exprs . ExprEnumTypeTyp ) ) 
 
       | Itk . ItkEnumTypeLt
-      =>  LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *) 
+      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
+        ; LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *) 
         ; HtScopeOpnd1 ( ) 
 
       (* Record type: *) 
       | Itk . ItkRecTypeRt
-      =>  LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *) 
+      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
+        ; LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *) 
         ; HtExprRt ( NEW ( FM3Exprs . ExprRecTypeTyp ) )
 (* Copy token? *) 
 
       | Itk . ItkRecTypeLt
-      =>  LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *) 
+      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
+        ; LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *) 
         ; HtScopeOpnd1 ( ) 
 (* Copy token? *) 
 
       (* REF type: *) 
       | Itk . ItkREFTypeRt 
-      =>  HtExprRt ( NEW ( FM3Exprs . ExprREFTypeTyp ) ) 
+      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
+        ; HtExprRt ( NEW ( FM3Exprs . ExprREFTypeTyp ) ) 
 
       | Itk . ItkREFTypeLt
-      =>  HtExprOpnd1 ( ) 
+      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
+        ; HtExprOpnd1 ( ) 
 
       (* Subrange type: *) 
       | Itk . ItkSubrTypeRt 
-      => HtExprRt ( NEW ( FM3Exprs . ExprSubrTypeTyp ) ) 
+      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
+        ; HtExprRt ( NEW ( FM3Exprs . ExprSubrTypeTyp ) ) 
 
-      | Itk . ItkSubrTypeDotDot => HtExprOpnd2 ( ) 
+      | Itk . ItkSubrTypeDotDot 
+      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
 
-      | Itk . ItkSubrTypeLt => HtExprOpnd1 ( ) 
+      | Itk . ItkSubrTypeLt 
+      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*)
+        ; HtExprOpnd2 ( )
 
       ELSE (* No special pass2 handling. *)
         HtPassTokenThru ( ) 
