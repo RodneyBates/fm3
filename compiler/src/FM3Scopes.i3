@@ -80,7 +80,7 @@ INTERFACE FM3Scopes
 
       (* NOTE 1: This field retains meaning only during handling of a single
                  declaration within the scope.  It is reinitialized and reused
-                 in later declarations.
+                 in later declarations.  It is NIL when not in a declaration. 
       *) 
 
 ; CONST ScopeRefBrand = "ScopeRef0.1" 

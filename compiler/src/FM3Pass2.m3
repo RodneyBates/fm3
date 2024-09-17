@@ -752,15 +752,15 @@ MODULE FM3Pass2
           THEN
             WITH LExpr = NEW ( FM3Exprs . ExprConstValue )
             DO 
-            DefExprRt ( LExpr )
-          ; LExpr . ExpValue := LLongInt
-          ; LExpr . ExpValueType := NIL
+              DefExprRt ( LExpr )
+            ; LExpr . ExpValue := LLongInt
+            ; LExpr . ExpValueType := NIL
 (* COMPLETEME:                      ^ *) 
-          ; LExpr . ExpPosition := LPosition
-          ; LExpr . ExpKind := Ekt . EkConst
-          ; LExpr . ExpIsLegalRecursive := TRUE
+            ; LExpr . ExpPosition := LPosition
+            ; LExpr . ExpKind := Ekt . EkConst
+            ; LExpr . ExpIsLegalRecursive := TRUE
 (* Copy token? *) 
-          END 
+            END (*WITH*)  
           END (*IF*)
 
       | Itk . ItkTextLitRt
@@ -1096,13 +1096,93 @@ MODULE FM3Pass2
       END (*WITH*) 
     END PutNotUsable
 
-; PROCEDURE CheckRecursiveRef ( RefDeclNo : FM3Base . DeclNoTyp ) 
+; <*INLINE*> PROCEDURE AreInsideADecl ( ) : BOOLEAN
+
+  = VAR LOpenScopeRef : FM3Scopes . ScopeRefTyp
+
+  ; BEGIN
+      LOpenScopeRef := FM3Scopes . LookupScopeStackTopRef
+    ; IF LOpenScopeRef = NIL THEN RETURN FALSE END (*IF*)
+    ; RETURN LOpenScopeRef ^ . ScpCurExprObj # NIL 
+    END AreInsideADecl
+
+; PROCEDURE RefIsToCurDeclScope ( RefDeclNo : FM3Base . DeclNoTyp ) : BOOLEAN
+
+  = VAR LOpenScopeRef : FM3Scopes . ScopeRefTyp
+  ; VAR LScopeMinDeclNo : FM3Base . DeclNoTyp 
+
+  ; BEGIN
+      LOpenScopeRef := FM3Scopes . LookupScopeStackTopRef
+    ; IF LOpenScopeRef = NIL THEN RETURN FALSE END (*IF*)
+    ; LScopeMinDeclNo := LOpenScopeRef . ScpMinDeclNo
+    ; IF RefDeclNo < LScopeMinDeclNo THEN RETURN FALSE END (*IF*) 
+    ; IF RefDeclNo >= LScopeMinDeclNo + LOpenScopeRef ^ . ScpDeclCt
+      THEN RETURN FALSE
+      END (*IF*) 
+    ; RETURN TRUE 
+    END RefIsToCurDeclScope
+
+; PROCEDURE NoteRecursiveRef ( RefDeclNo : FM3Base . DeclNoTyp )
+  (* PRE: RefIsToCurDeclScope ( RefDeclNo ) *)
+  (* Do so only if a ref here would not make a recursive decl legal. *) 
+
+  = BEGIN
+      TYPECASE FM3Exprs . ExprStackTopObj OF 
+      NULL => 
+      | FM3Exprs . ExprCommon ( TRefExpr ) 
+      => IF NOT TRefExpr . ExpIsLegalRecursive
+         THEN 
+           WITH WRefIdNoSet
+                = FM3Scopes . LookupScopeStackTopRef ^ . ScpCurDefRefDeclNoSet
+           DO WRefIdNoSet := IntSets . Include ( WRefIdNoSet , RefDeclNo ) 
+           END (*WITH*)
+         END (*IF*)
+      ELSE 
+      END (*TYPECASE*) 
+    END NoteRecursiveRef 
+(*
+; PROCEDURE CheckRecursiveRef ( RefDeclNo : FM3Base . DeclNoTyp )
+  : BOOLEAN (* It's been handled. *)  
 
   = VAR LScopeMinDeclNo : FM3Base . DeclNoTyp 
 
   ; BEGIN
-      TYPECASE FM3Exprs . ExprStackTopObj OF 
-      NULL =>
+      LScopeMinDeclNo := FM3Scopes . LookupScopeStackTopRef . ScpMinDeclNo
+    ; IF LScopeMinDeclNo <= RefDeclNo
+         AND RefDeclNo
+             < LScopeMinDeclNo
+               + FM3Scopes . LookupScopeStackTopRef . ScpDeclCt
+      THEN (* It's declared in the current decl scope. *)
+        TYPECASE FM3Exprs . ExprStackTopObj OF 
+        NULL => 
+        | FM3Exprs . ExprCommon ( TRefExpr ) 
+        => IF NOT TRefExpr . ExpIsLegalRecursive
+           THEN 
+             WITH WRefIdNoSet
+                  = FM3Scopes . LookupScopeStackTopRef ^ . ScpCurDefRefDeclNoSet
+             DO WRefIdNoSet := IntSets . Include ( WRefIdNoSet , RefDeclNo ) 
+             END (*WITH*)
+           END (*IF*)
+        ELSE 
+        END (*TYPECASE*) 
+
+        Create a ExprIdNo
+
+      ELSE
+
+        copy to output
+
+      END 
+
+
+
+
+      IF FM3Scopes . DeclScopeStackTopRef ^ . ScpCurExprObj = NIL
+      THEN (* Not inside a decl-defining expression. *)
+        RETURN FALSE
+      END (*IF*) 
+    ; TYPECASE FM3Exprs . ExprStackTopObj OF 
+      NULL => RETURN FALSE 
       | FM3Exprs . ExprCommon ( TRefExpr ) 
       => IF NOT TRefExpr . ExpIsLegalRecursive
          THEN 
@@ -1118,10 +1198,10 @@ MODULE FM3Pass2
              END (*WITH*)
            END (*IF*) 
          END (*IF*)
-      ELSE
+      ELSE RETURN FALSE 
       END (*TYPECASE*) 
     END CheckRecursiveRef 
-
+*) 
 ; PROCEDURE IdentRefR2L ( TokResult : TokResultTyp )
   (* PRE: The ident is not followed by dot Ident. (The parser has gone
           to some trouble to ensure this.)
@@ -1129,7 +1209,7 @@ MODULE FM3Pass2
 
   = VAR LExpImpUnitRef : FM3Units . UnitRefTyp
   ; VAR LRefDeclRef : FM3Decls . DeclRefTyp
-  ; VAR LExprIdObj : FM3Exprs . ExprIdTyp
+  ; VAR LExprIdObj : FM3Exprs . ExprRefDeclNo
   ; VAR LIdentRefAtom : FM3Base . AtomTyp 
   ; VAR LUnitNo : FM3Base . UnitNoTyp
   ; VAR LRefDeclNo : FM3Base . DeclNoTyp
@@ -1144,40 +1224,47 @@ MODULE FM3Pass2
     ; IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
       THEN (* We are skipping output. *) RETURN 
       END (*IF*)
-    ; LExprIdObj := NEW ( FM3Exprs . ExprIdTyp )
-    ; DefExprRt ( LExprIdObj ) 
-    ; LExprIdObj . ExpPosition := LPosition
-    ; LExprIdObj . ExpKind := Ekt . EkType
-(* FIXME:                    ^Get the correct kind. *) 
     ; WITH Wp2RdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack 
       DO
-      (* Look for a reference to the block scope we are declaring in. *) 
+      
+      (* Look for a reference to a decl in an enclosing* open scope. *) 
         LRefDeclNo := LookupBlockRef ( LIdentRefAtom )
-      ; IF LRefDeclNo # FM3Base . DeclNoNull
-        THEN
-          CheckRecursiveRef ( LRefDeclNo )
+      ; IF LRefDeclNo # FM3Base . DeclNoNull 
+        THEN 
+          IF AreInsideADecl ( ) 
+          THEN (* Create an ExprIdNo node. *) 
+            IF RefIsToCurDeclScope ( LRefDeclNo )
+            THEN NoteRecursiveRef ( LRefDeclNo )
+            END (*IF*) 
+          ; WITH WExpr = NEW ( FM3Exprs . ExprRefDeclNo )
+            DO 
+              DefExprRt ( WExpr )
+            ; WExpr . ExpDeclNo := LRefDeclNo 
+            ; WExpr . ExpPosition := LPosition
+            ; WExpr . ExpKind := Ekt . EkRef
+            ; WExpr . ExpIsUsable := TRUE
+            END (*WITH*)
+          ELSE (* Change to a reference token with DeclNo instead of Atom. *)
+            PutBwdP2 ( Wp2RdBack , VAL ( LPosition . Column , LONGINT ) ) 
+          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
+          ; PutBwdP2 ( Wp2RdBack , VAL ( LRefDeclNo , LONGINT ) ) 
+          ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkIdRefDeclNo , LONGINT ) )
+          END (*IF*)
           
-        (* Change to a reference token with DeclNo instead of Atom. *)
-        ; PutBwdP2 ( Wp2RdBack , VAL ( LPosition . Column , LONGINT ) ) 
-        ; PutBwdP2 ( Wp2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
-        ; PutBwdP2 ( Wp2RdBack , VAL ( LRefDeclNo , LONGINT ) ) 
-        ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkIdRefDeclNo , LONGINT ) )
+        (* Look for something [ex|im]ported. *) 
         ELSIF LookupExpImp
                 ( LIdentRefAtom , (*OUT*) LUnitNo , (*OUT*) LRefDeclNo )
         THEN (* Export or import is present. *) 
           IF LUnitNo = FM3Base . UnitNoNull
-(* CHECK: ^v Which of these ways denoting unusability can happen? *) 
           THEN LIsUsable := FALSE
+(* CHECK: ^v Which of these ways denoting unusability can happen? *) 
           ELSE
             LExpImpUnitRef (* Implicit NARROW. *) 
-              := VarArray_Int_Refany . Fetch
-                   ( FM3Units . UnitsMap
-                   , LUnitNo 
-                   )
+              := VarArray_Int_Refany . Fetch ( FM3Units . UnitsMap , LUnitNo )
           ; LIsUsable := LExpImpUnitRef ^ . UntState # Ust . UsNotUsable
           END (*IF*)
         ; IF LIsUsable
-          THEN (* It names an interface.  There is no selection. *)
+          THEN (* LExpImpUnitRef names an interface. *)
             IF LRefDeclNo = FM3Base . DeclNoNull
             THEN (* Interface name w/o a selection--illegal. *) 
               IF NOT FM3Atom_OAChars . Key
@@ -1197,12 +1284,25 @@ MODULE FM3Pass2
                 ) 
             ; PutNotUsable( LIdentRefAtom , LPosition ) 
             ELSE (* A remote decl brought in by EXPORTS or FROM I IMPORT. *)
-            (* Read the following backwards: *) 
-              PutBwdP2 ( Wp2RdBack , VAL ( LPosition . Column , LONGINT ) ) 
-            ; PutBwdP2 ( Wp2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
-            ; PutBwdP2 ( Wp2RdBack , VAL ( LRefDeclNo , LONGINT ) ) 
-            ; PutBwdP2 ( Wp2RdBack , VAL ( LUnitNo , LONGINT ) ) 
-            ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExpImpRef , LONGINT ) )
+              IF AreInsideADecl ( )   
+              THEN (* Create an ExprIdNo node. *) 
+                WITH WExpr = NEW ( FM3Exprs . ExprRemoteRef )
+                DO 
+                  DefExprRt ( WExpr )
+                ; WExpr . ExpRemoteUnitNo := LUnitNo 
+                ; WExpr . ExpRemoteDeclNo := LRefDeclNo 
+                ; WExpr . ExpPosition := LPosition
+                ; WExpr . ExpKind := Ekt . EkRef
+                ; WExpr . ExpIsUsable := TRUE
+                END (*WITH*)
+              ELSE (* Emit a token. *)  
+              (* Read the following backwards: *) 
+                PutBwdP2 ( Wp2RdBack , VAL ( LPosition . Column , LONGINT ) ) 
+              ; PutBwdP2 ( Wp2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
+              ; PutBwdP2 ( Wp2RdBack , VAL ( LRefDeclNo , LONGINT ) ) 
+              ; PutBwdP2 ( Wp2RdBack , VAL ( LUnitNo , LONGINT ) ) 
+              ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExpImpRef , LONGINT ) )
+              END (*IF*) 
             END (*IF*)
           ELSE (* It was already unusable. *) 
             PutNotUsable( LIdentRefAtom , LPosition ) 
@@ -1221,7 +1321,7 @@ MODULE FM3Pass2
   = VAR LIntfUnitRef : FM3Units . UnitRefTyp
   ; VAR LIdentChars : FM3Atom_OAChars . KeyTyp 
   ; VAR LUnitNoLt : FM3Base . UnitNoTyp
-  ; VAR LDeclNoLt : FM3Base . DeclNoTyp
+  ; VAR LRefDeclNoLt : FM3Base . DeclNoTyp
   ; VAR LRefDeclNo : FM3Base . DeclNoTyp
   ; VAR LAtomLt , LAtomRt : FM3Base . AtomTyp
   ; VAR LIntfAtomRt : FM3Base . AtomTyp
@@ -1238,38 +1338,61 @@ MODULE FM3Pass2
       END (*IF*) 
     ; WITH Wp2RdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack 
       DO
-        (* Look for a left reference to a local declaration. *) 
-        LDeclNoLt := LookupBlockRef ( LAtomLt )
-      ; IF LDeclNoLt # FM3Base . DeclNoNull
+      
+      (* Look for a left reference to a decl in an enclosing open scope. *) 
+        LRefDeclNoLt := LookupBlockRef ( LAtomLt )
+      ; IF LRefDeclNoLt # FM3Base . DeclNoNull
         THEN (* Lt names a local declaration, not an interface. *)
-          CheckRecursiveRef ( LRefDeclNo )
+          IF AreInsideADecl ( ) 
+          THEN (* Create an ExprIdNo node. *) 
+            IF RefIsToCurDeclScope ( LRefDeclNo )
+            THEN NoteRecursiveRef ( LRefDeclNo )
+            END (*IF*) 
+          ; WITH WDotExpr = NEW ( FM3Exprs . ExprDot )
+            , WLtExpr = NEW ( FM3Exprs . ExprRefDeclNo )
+            DO 
+              DefExprRt ( WDotExpr )
+            ; WDotExpr . ExpDotContainer := WLtExpr 
+            ; WDotExpr . ExpDotIdAtom := LAtomRt
+            ; WDotExpr . ExpPosition := LPosRt
+            ; WDotExpr . ExpKind := Ekt . EkRef
+            ; WDotExpr . ExpIsUsable := TRUE
+            ; DefExprRt ( WLtExpr )
+            ; WLtExpr . ExpDeclNo := LRefDeclNoLt 
+            ; WLtExpr . ExpPosition := LPosLt
+            ; WLtExpr . ExpKind := Ekt . EkRef
+            ; WLtExpr . ExpIsUsable := TRUE
+            END (*WITH*)
+          ; EVAL FM3Exprs . PopExprStack ( ) (* The expr **) 
+          ELSE (* Emit tokens for a dot Id applied to a DeclNo Id reference. *)
 
-        (* Turn the qualident into separate Id ref and dot Id. *)
-        ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
-        ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
-        ; PutBwdP2 ( Wp2RdBack , VAL ( LAtomRt , LONGINT ) ) 
-        ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExprDotRt , LONGINT ) )
+          (* Turn the qualident into separate Id ref and dot Id. *)
+            PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
+          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
+          ; PutBwdP2 ( Wp2RdBack , VAL ( LAtomRt , LONGINT ) ) 
+          ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExprDotRt , LONGINT ) )
 
-        ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Column , LONGINT ) ) 
-        ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Line , LONGINT ) ) 
-        ; PutBwdP2 ( Wp2RdBack , VAL ( LDeclNoLt , LONGINT ) ) 
-        ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkIdRefDeclNo , LONGINT ) )
+          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Column , LONGINT ) ) 
+          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Line , LONGINT ) ) 
+          ; PutBwdP2 ( Wp2RdBack , VAL ( LRefDeclNoLt , LONGINT ) ) 
+          ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkIdRefDeclNo , LONGINT ) )
 
-        ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
-        ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
-        ; PutBwdP2 ( Wp2RdBack , VAL ( LAtomRt , LONGINT ) ) 
-        ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExprDotLt , LONGINT ) )
+          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
+          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
+          ; PutBwdP2 ( Wp2RdBack , VAL ( LAtomRt , LONGINT ) ) 
+          ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExprDotLt , LONGINT ) )
+          END (*IF*) 
 
-        ELSIF LookupExpImp ( LAtomLt , (*OUT*) LUnitNoLt , (*OUT*) LDeclNoLt )
+        (* Look for something [ex|im]ported. *) 
+        ELSIF LookupExpImp ( LAtomLt , (*OUT*) LUnitNoLt , (*OUT*) LRefDeclNoLt )
         THEN (* Lt ident is [ex|im]ported. *)  
           IF LUnitNoLt = FM3Base . UnitNoNull
           THEN (* Unusable. *) 
             PutNotUsable( LAtomLt , LPosLt ) 
-          ELSIF LDeclNoLt = FM3Base . DeclNoNull
+          ELSIF LRefDeclNoLt = FM3Base . DeclNoNull
           THEN (* Lt names an imported interface. *)
             LIntfUnitRef (*Implicit NARROW*) 
-              := VarArray_Int_Refany . Fetch
-                   ( FM3Units . UnitsMap , LUnitNoLt )
+              := VarArray_Int_Refany . Fetch ( FM3Units . UnitsMap , LUnitNoLt )
           ; <* ASSERT LIntfUnitRef # NIL *>
             LIntfAtomRt
               := FM3Compile . ConvertIdentAtom
@@ -1279,7 +1402,9 @@ MODULE FM3Pass2
                    )
           ; IF IntSets . IsElement
                  ( LIntfAtomRt , LIntfUnitRef ^ . UntExpImpIdSet )
-            THEN (* Rt imported into interface, not transitively importable. *)
+            THEN (* Rt ident is imported into the remote interface,
+                    not transitively importable.
+                 *)
               IF NOT FM3Atom_OAChars . Key
                        ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict
                        , LAtomRt 
@@ -1299,7 +1424,6 @@ MODULE FM3Pass2
                 , LPosRt
                 )
             ; PutNotUsable ( LAtomRt , LPosRt )
-
             ELSIF IntSets . IsElement
                     ( LIntfAtomRt
                     , LIntfUnitRef ^ . UntScopeRef ^ . ScpDeclIdSet
@@ -1313,15 +1437,28 @@ MODULE FM3Pass2
                      , (*OUT*) LIntfDeclNoInt 
                      )
               *>
-              PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
-            ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
-            ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Column , LONGINT ) ) 
-            ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Line , LONGINT ) ) 
-            ; PutBwdP2 ( Wp2RdBack , VAL ( LIntfDeclNoInt , LONGINT ) ) 
-            ; PutBwdP2
-                ( Wp2RdBack , VAL ( LIntfUnitRef ^ . UntSelfUnitNo , LONGINT ) ) 
-            ; PutBwdP2
-                ( Wp2RdBack , VAL ( Itk . ItkQualIdUnitNoDeclNo , LONGINT ) )
+              IF AreInsideADecl ( )
+              THEN 
+                WITH WExpr = NEW ( FM3Exprs . ExprRemoteRef )
+                DO 
+                  DefExprRt ( WExpr )
+                ; WExpr . ExpRemoteUnitNo := LIntfUnitRef ^ . UntSelfUnitNo 
+                ; WExpr . ExpRemoteDeclNo := LIntfDeclNoInt 
+                ; WExpr . ExpPosition := LPosLt
+                ; WExpr . ExpKind := Ekt . EkRef
+                ; WExpr . ExpIsUsable := TRUE
+                END (*WITH*)
+              ELSE 
+                PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
+              ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
+              ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Column , LONGINT ) ) 
+              ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Line , LONGINT ) ) 
+              ; PutBwdP2 ( Wp2RdBack , VAL ( LIntfDeclNoInt , LONGINT ) ) 
+              ; PutBwdP2
+                  ( Wp2RdBack , VAL ( LIntfUnitRef ^ . UntSelfUnitNo , LONGINT ) ) 
+              ; PutBwdP2
+                  ( Wp2RdBack , VAL ( Itk . ItkQualIdUnitNoDeclNo , LONGINT ) )
+              END (*IF*) 
             ELSE (* Right ident is not known in left-named interface. *)
               IF NOT FM3Atom_OAChars . Key
                        ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict
@@ -1342,28 +1479,49 @@ MODULE FM3Pass2
               )
             ; PutNotUsable ( LAtomRt , LPosRt ) 
             END (*IF*)
-          ELSE (* Left denotes a remote decl, brought in by EXPORTS
-                  or FROM-IMPORT.
+          ELSE (* Left Ident by itself denotes a remote decl, brought in
+                  by EXPORTS or FROM-IMPORT.
                *)
-          (* Turn it into separate QualId ref and dot Id *) 
-            PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LAtomRt , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExprDotRt , LONGINT ) )
+            IF AreInsideADecl ( )
+            THEN 
+              WITH WDotExpr = NEW ( FM3Exprs . ExprDot )
+              , WLtExpr = NEW ( FM3Exprs . ExprRemoteRef )
+              DO 
+                DefExprRt ( WDotExpr )
+              ; WDotExpr . ExpDotIdAtom := LAtomRt
+              ; WDotExpr . ExpDotContainer := WLtExpr 
+              ; WDotExpr . ExpPosition := LPosRt
+              ; WDotExpr . ExpKind := Ekt . EkRef
+              ; WDotExpr . ExpIsUsable := TRUE
+              ; DefExprRt ( WLtExpr )
+              ; WLtExpr . ExpRemoteUnitNo := LUnitNoLt 
+              ; WLtExpr . ExpRemoteDeclNo := LRefDeclNoLt 
+              ; WLtExpr . ExpPosition := LPosLt
+              ; WLtExpr . ExpKind := Ekt . EkRef
+              ; WLtExpr . ExpIsUsable := TRUE
+              END (*WITH*)
+            ; EVAL FM3Exprs . PopExprStack ( ) 
+            ELSE 
+            (* Turn it into separate QualId ref and dot Id *) 
+              PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
+            ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
+            ; PutBwdP2 ( Wp2RdBack , VAL ( LAtomRt , LONGINT ) ) 
+            ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExprDotRt , LONGINT ) )
 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Column , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Line , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LDeclNoLt , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LUnitNoLt , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL
-              ( Itk . ItkQualIdUnitNoDeclNo , LONGINT ) )
+            ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
+            ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
+            ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Column , LONGINT ) ) 
+            ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Line , LONGINT ) ) 
+            ; PutBwdP2 ( Wp2RdBack , VAL ( LRefDeclNoLt , LONGINT ) ) 
+            ; PutBwdP2 ( Wp2RdBack , VAL ( LUnitNoLt , LONGINT ) ) 
+            ; PutBwdP2 ( Wp2RdBack , VAL
+                ( Itk . ItkQualIdUnitNoDeclNo , LONGINT ) )
 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LAtomRt , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExprDotLt , LONGINT ) )
+            ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
+            ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
+            ; PutBwdP2 ( Wp2RdBack , VAL ( LAtomRt , LONGINT ) ) 
+            ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExprDotLt , LONGINT ) )
+            END (*IF*) 
           ; RETURN 
           END (*IF*)
         ELSE (* Undeclared. *)
