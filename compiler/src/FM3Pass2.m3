@@ -31,7 +31,6 @@ MODULE FM3Pass2
 ; FROM FM3Compress IMPORT GetBwd
 ; IMPORT FM3Decls
 ; IMPORT FM3Exprs  
-; FROM FM3Exprs IMPORT ExprStackTopObj  
 ; IMPORT FM3Dict_Int_Int
 ; IMPORT FM3ExpImp
 ; IMPORT FM3ExpImpProxy 
@@ -52,7 +51,8 @@ MODULE FM3Pass2
 ; IMPORT RdBackFile 
 
 ; TYPE Ekt = FM3Exprs . ExprKindTyp 
-; TYPE Ust = FM3Units . UnitStateTyp 
+; TYPE Ust = FM3Units . UnitStateTyp
+; TYPE Lot = FM3Base . LoTypeTyp 
 
 ; CONST PosImage = FM3Utils . PositionImage
 
@@ -161,7 +161,7 @@ MODULE FM3Pass2
       END (*IF*) 
     END DiscardOperands 
 
-; PROCEDURE CopyOperandsReverse
+; <*UNUSED*> PROCEDURE CopyOperandsReverse
 
     ( OpndCt : [ 0 .. 6 ] 
     ; FromRdBack , ToRdBack : RdBackFile . T
@@ -452,7 +452,6 @@ MODULE FM3Pass2
 
   ; VAR LUnitRef : FM3Units . UnitRefTyp
   ; VAR LScopeRef : FM3Scopes . ScopeRefTyp
-  ; VAR LExpr : FM3Exprs . ExprTyp 
   ; VAR HtPass1RdBack : RdBackFile . T 
   ; VAR HtPass2RdBack : RdBackFile . T
   ; VAR LLongInt : LONGINT 
@@ -460,6 +459,38 @@ MODULE FM3Pass2
   ; VAR LCount : INTEGER 
   ; VAR LPosition : tPosition
   ; VAR HtSkipping : BOOLEAN
+
+  ; PROCEDURE HtIntLit ( LoType : Lot )
+    (* Both INTEGER and LONGINT. *)
+
+    = VAR LLongInt : LONGINT 
+    ; VAR LPosition : tPosition
+
+    ; BEGIN
+        LLongInt := GetBwd ( TokResult . TrRdBack )
+      ; LPosition := GetBwdPos ( TokResult . TrRdBack )
+      ; IF NOT HtSkipping 
+        THEN
+          IF AreInsideADecl ( )
+          THEN 
+            WITH LExpr = NEW ( FM3Exprs . ExprConstValue )
+            DO 
+              DefExprRt ( LExpr )
+            ; LExpr . ExpValueL := LLongInt
+            ; LExpr . ExpValueLoType := LoType  
+            ; LExpr . ExpPosition := LPosition
+            ; LExpr . ExpKind := Ekt . EkConst
+            ; LExpr . ExpIsLegalRecursive := TRUE
+            END (*WITH*)
+          ELSE
+  (* DECIDE: Do we want just one token code with a LoTyp operand here? *) 
+            PutBwdP2 ( HtPass2RdBack , VAL ( LPosition . Column , LONGINT ) ) 
+          ; PutBwdP2 ( HtPass2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
+          ; PutBwdP2 ( HtPass2RdBack , LLongInt )
+          ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
+          END (*IF*) 
+        END (*IF*)
+      END HtIntLit 
 
   ; PROCEDURE HtExprRt ( NewExpr : FM3Exprs . ExprCommon )
 
@@ -746,22 +777,10 @@ MODULE FM3Pass2
         ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
 
       | Itk . ItkIntLit
-      =>  LLongInt := GetBwd ( TokResult . TrRdBack )
-        ; LPosition := GetBwdPos ( TokResult . TrRdBack )
-        ; IF NOT HtSkipping 
-          THEN
-            WITH LExpr = NEW ( FM3Exprs . ExprConstValue )
-            DO 
-              DefExprRt ( LExpr )
-            ; LExpr . ExpValue := LLongInt
-            ; LExpr . ExpValueType := NIL
-(* COMPLETEME:                      ^ *) 
-            ; LExpr . ExpPosition := LPosition
-            ; LExpr . ExpKind := Ekt . EkConst
-            ; LExpr . ExpIsLegalRecursive := TRUE
-(* Copy token? *) 
-            END (*WITH*)  
-          END (*IF*)
+      => HtIntLit ( Lot . LotInt ) 
+
+      | Itk . ItkLongIntLit
+      => HtIntLit ( Lot . LotLongInt ) 
 
       | Itk . ItkTextLitRt
       , Itk . ItkWideTextLitRt
@@ -833,8 +852,8 @@ MODULE FM3Pass2
       ELSE (* No special pass2 handling. *)
         HtPassTokenThru ( ) 
       END (*CASE*)
-    END HandleTok 
-
+    END HandleTok
+    
 (* Right-to-left scope handling.  Call sites read the Itk and its operands,
    and pass the operands in. *) 
 
@@ -845,7 +864,6 @@ MODULE FM3Pass2
 
   = VAR LDeclNoInt : INTEGER
   ; VAR LResult : FM3Base . DeclNoTyp 
-  ; VAR LMsg : TEXT
   ; VAR LFound : BOOLEAN 
 
   ; BEGIN (*LookupDeclNoInScope*)
@@ -861,7 +879,7 @@ MODULE FM3Pass2
       ; IF LFound
         THEN LResult := VAL ( LDeclNoInt , FM3Base . DeclNoTyp )
         END (*IF*) 
-      EXCEPT FM3Dict_Int_Int . Error ( EMsg )
+      EXCEPT FM3Dict_Int_Int . Error ( <*UNUSED*> EMsg )
       => 
       ELSE 
       END (*EXCEPT*)
@@ -920,7 +938,7 @@ MODULE FM3Pass2
                    , FM3Base . HashNull
                    , (*OUT*) LDeclNoInt 
                    )
-          EXCEPT FM3Dict_Int_Int . Error ( EMsg )
+          EXCEPT FM3Dict_Int_Int . Error ( <*UNUSED*> EMsg )
           => LFound := FALSE
           ELSE LFound := FALSE
           END (*EXCEPT*)
@@ -1208,12 +1226,9 @@ MODULE FM3Pass2
   *) 
 
   = VAR LExpImpUnitRef : FM3Units . UnitRefTyp
-  ; VAR LRefDeclRef : FM3Decls . DeclRefTyp
-  ; VAR LExprIdObj : FM3Exprs . ExprRefDeclNo
   ; VAR LIdentRefAtom : FM3Base . AtomTyp 
   ; VAR LUnitNo : FM3Base . UnitNoTyp
   ; VAR LRefDeclNo : FM3Base . DeclNoTyp
-  ; VAR LScopeMinDeclNo : FM3Base . DeclNoTyp 
   ; VAR LPosition : FM3Base . tPosition 
   ; VAR LIntfNameChars : FM3Atom_OAChars . KeyTyp
   ; VAR LIsUsable : BOOLEAN 

@@ -113,7 +113,19 @@ INTERFACE FM3Base
 ; CONST CmpNR = 2 (* No relation.*) 
 
 ; TYPE HashTyp = LONGINT
-; CONST HashNull = 0L 
+; CONST HashNull = 0L
+
+; TYPE LoTypeTyp
+    = { LotNull 
+      , LotInt (* including Bool, Char, WideChar, Enum, small set. *) 
+      , LotLongInt 
+      , LotReal
+      , LotLongReal
+      , LotExtended
+      , LotText
+      , LotBigSet (* Multi-word. *) 
+      , LotRef 
+      } 
 
 (*FIXME: M2SHORTCARD is for compatibility with reusem3/Positions.tPosition.
          These are probably adequate, but maybe 32 bits would be better
