@@ -372,7 +372,7 @@ MODULE FM3ExpImp
           )
           
       (* Insert an import that is not useable, but is replaceable by a
-         later one, useable or not, with the same ident. .
+         later one, useable or not, with the same ident. 
       *)
       ; LIntoUnitRef := FM3Units . UnitStackTopRef
       (* If there's already a non-useable there, this will just overlay it,

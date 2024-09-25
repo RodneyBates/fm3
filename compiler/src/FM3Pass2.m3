@@ -892,7 +892,7 @@ MODULE FM3Pass2
     ; VAR (*OUT*) DeclNo : FM3Base . DeclNoTyp
     )
   : BOOLEAN (* It's present. *) 
-  (* In the current unit.  *) 
+  (* Look in the current unit.  *) 
 
   = VAR LExpImpProxy : FM3ExpImpProxy . T
 
@@ -1104,14 +1104,18 @@ MODULE FM3Pass2
     )
 
   = BEGIN
-      WITH Wp2RdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack
-      DO 
-      (* Read the following backwards: *) 
-        PutBwdP2 ( Wp2RdBack , VAL ( Position . Column , LONGINT ) ) 
-      ; PutBwdP2 ( Wp2RdBack , VAL ( Position . Line , LONGINT ) ) 
-      ; PutBwdP2 ( Wp2RdBack , VAL ( IdentRefAtom , LONGINT ) ) 
-      ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkIdRefAtomNotUsable , LONGINT ) )
-      END (*WITH*) 
+      IF AreInsideADecl ( )
+      THEN ExprAbsent ( )
+      ELSE 
+        WITH Wp2RdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack
+        DO 
+        (* Read the following backwards: *) 
+          PutBwdP2 ( Wp2RdBack , VAL ( Position . Column , LONGINT ) ) 
+        ; PutBwdP2 ( Wp2RdBack , VAL ( Position . Line , LONGINT ) ) 
+        ; PutBwdP2 ( Wp2RdBack , VAL ( IdentRefAtom , LONGINT ) ) 
+        ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkIdRefAtomNotUsable , LONGINT ) )
+        END (*WITH*)
+      END (*IF*) 
     END PutNotUsable
 
 ; <*INLINE*> PROCEDURE AreInsideADecl ( ) : BOOLEAN
@@ -1124,28 +1128,21 @@ MODULE FM3Pass2
     ; RETURN LOpenScopeRef ^ . ScpCurExprObj # NIL 
     END AreInsideADecl
 
-; PROCEDURE RefIsToCurDeclScope ( RefDeclNo : FM3Base . DeclNoTyp ) : BOOLEAN
+; PROCEDURE CheckRecursiveRef ( RefDeclNo : FM3Base . DeclNoTyp )
 
   = VAR LOpenScopeRef : FM3Scopes . ScopeRefTyp
   ; VAR LScopeMinDeclNo : FM3Base . DeclNoTyp 
 
   ; BEGIN
       LOpenScopeRef := FM3Scopes . LookupScopeStackTopRef
-    ; IF LOpenScopeRef = NIL THEN RETURN FALSE END (*IF*)
+    ; IF LOpenScopeRef = NIL THEN RETURN END (*IF*)
     ; LScopeMinDeclNo := LOpenScopeRef . ScpMinDeclNo
-    ; IF RefDeclNo < LScopeMinDeclNo THEN RETURN FALSE END (*IF*) 
+    ; IF RefDeclNo < LScopeMinDeclNo THEN RETURN END (*IF*) 
     ; IF RefDeclNo >= LScopeMinDeclNo + LOpenScopeRef ^ . ScpDeclCt
-      THEN RETURN FALSE
-      END (*IF*) 
-    ; RETURN TRUE 
-    END RefIsToCurDeclScope
-
-; PROCEDURE NoteRecursiveRef ( RefDeclNo : FM3Base . DeclNoTyp )
-  (* PRE: RefIsToCurDeclScope ( RefDeclNo ) *)
-  (* Do so only if a ref here would not make a recursive decl legal. *) 
-
-  = BEGIN
-      TYPECASE FM3Exprs . ExprStackTopObj OF 
+      THEN RETURN
+      END (*IF*)
+    (* It's recursive, now is it legal? *) 
+    ; TYPECASE FM3Exprs . ExprStackTopObj OF 
       NULL => 
       | FM3Exprs . ExprCommon ( TRefExpr ) 
       => IF NOT TRefExpr . ExpIsLegalRecursive
@@ -1157,69 +1154,8 @@ MODULE FM3Pass2
          END (*IF*)
       ELSE 
       END (*TYPECASE*) 
-    END NoteRecursiveRef 
-(*
-; PROCEDURE CheckRecursiveRef ( RefDeclNo : FM3Base . DeclNoTyp )
-  : BOOLEAN (* It's been handled. *)  
-
-  = VAR LScopeMinDeclNo : FM3Base . DeclNoTyp 
-
-  ; BEGIN
-      LScopeMinDeclNo := FM3Scopes . LookupScopeStackTopRef . ScpMinDeclNo
-    ; IF LScopeMinDeclNo <= RefDeclNo
-         AND RefDeclNo
-             < LScopeMinDeclNo
-               + FM3Scopes . LookupScopeStackTopRef . ScpDeclCt
-      THEN (* It's declared in the current decl scope. *)
-        TYPECASE FM3Exprs . ExprStackTopObj OF 
-        NULL => 
-        | FM3Exprs . ExprCommon ( TRefExpr ) 
-        => IF NOT TRefExpr . ExpIsLegalRecursive
-           THEN 
-             WITH WRefIdNoSet
-                  = FM3Scopes . LookupScopeStackTopRef ^ . ScpCurDefRefDeclNoSet
-             DO WRefIdNoSet := IntSets . Include ( WRefIdNoSet , RefDeclNo ) 
-             END (*WITH*)
-           END (*IF*)
-        ELSE 
-        END (*TYPECASE*) 
-
-        Create a ExprIdNo
-
-      ELSE
-
-        copy to output
-
-      END 
-
-
-
-
-      IF FM3Scopes . DeclScopeStackTopRef ^ . ScpCurExprObj = NIL
-      THEN (* Not inside a decl-defining expression. *)
-        RETURN FALSE
-      END (*IF*) 
-    ; TYPECASE FM3Exprs . ExprStackTopObj OF 
-      NULL => RETURN FALSE 
-      | FM3Exprs . ExprCommon ( TRefExpr ) 
-      => IF NOT TRefExpr . ExpIsLegalRecursive
-         THEN 
-           LScopeMinDeclNo := FM3Scopes . LookupScopeStackTopRef . ScpMinDeclNo
-         ; IF LScopeMinDeclNo <= RefDeclNo
-              AND RefDeclNo
-                  < LScopeMinDeclNo
-                    + FM3Scopes . LookupScopeStackTopRef . ScpDeclCt
-           THEN (* It's declared in the current decl scope. *) 
-             WITH WRefIdNoSet
-                  = FM3Scopes . LookupScopeStackTopRef ^ . ScpCurDefRefDeclNoSet
-             DO WRefIdNoSet := IntSets . Include ( WRefIdNoSet , RefDeclNo ) 
-             END (*WITH*)
-           END (*IF*) 
-         END (*IF*)
-      ELSE RETURN FALSE 
-      END (*TYPECASE*) 
     END CheckRecursiveRef 
-*) 
+
 ; PROCEDURE IdentRefR2L ( TokResult : TokResultTyp )
   (* PRE: The ident is not followed by dot Ident. (The parser has gone
           to some trouble to ensure this.)
@@ -1248,9 +1184,7 @@ MODULE FM3Pass2
         THEN 
           IF AreInsideADecl ( ) 
           THEN (* Create an ExprIdNo node. *) 
-            IF RefIsToCurDeclScope ( LRefDeclNo )
-            THEN NoteRecursiveRef ( LRefDeclNo )
-            END (*IF*) 
+            CheckRecursiveRef ( LRefDeclNo )
           ; WITH WExpr = NEW ( FM3Exprs . ExprRefDeclNo )
             DO 
               DefExprRt ( WExpr )
@@ -1270,7 +1204,7 @@ MODULE FM3Pass2
         ELSIF LookupExpImp
                 ( LIdentRefAtom , (*OUT*) LUnitNo , (*OUT*) LRefDeclNo )
         THEN (* Export or import is present. *) 
-          IF LUnitNo = FM3Base . UnitNoNull
+          IF LUnitNo = FM3Base . UnitNoNull (* But not usable. *) 
           THEN LIsUsable := FALSE
 (* CHECK: ^v Which of these ways denoting unusability can happen? *) 
           ELSE
@@ -1360,14 +1294,12 @@ MODULE FM3Pass2
         THEN (* Lt names a local declaration, not an interface. *)
           IF AreInsideADecl ( ) 
           THEN (* Create an ExprIdNo node. *) 
-            IF RefIsToCurDeclScope ( LRefDeclNo )
-            THEN NoteRecursiveRef ( LRefDeclNo )
-            END (*IF*) 
+            CheckRecursiveRef ( LRefDeclNo )
           ; WITH WDotExpr = NEW ( FM3Exprs . ExprDot )
-            , WLtExpr = NEW ( FM3Exprs . ExprRefDeclNo )
+                 , WLtExpr = NEW ( FM3Exprs . ExprRefDeclNo )
             DO 
               DefExprRt ( WDotExpr )
-            ; WDotExpr . ExpDotContainer := WLtExpr 
+            ; WDotExpr . ExpOpnd1 := WLtExpr 
             ; WDotExpr . ExpDotIdAtom := LAtomRt
             ; WDotExpr . ExpPosition := LPosRt
             ; WDotExpr . ExpKind := Ekt . EkRef
@@ -1502,20 +1434,20 @@ MODULE FM3Pass2
               WITH WDotExpr = NEW ( FM3Exprs . ExprDot )
               , WLtExpr = NEW ( FM3Exprs . ExprRemoteRef )
               DO 
-                DefExprRt ( WDotExpr )
+                DefExprRt ( WDotExpr ) (* Which pushes. *) 
               ; WDotExpr . ExpDotIdAtom := LAtomRt
-              ; WDotExpr . ExpDotContainer := WLtExpr 
+              ; WDotExpr . ExpOpnd1 := WLtExpr 
               ; WDotExpr . ExpPosition := LPosRt
               ; WDotExpr . ExpKind := Ekt . EkRef
               ; WDotExpr . ExpIsUsable := TRUE
-              ; DefExprRt ( WLtExpr )
+              ; DefExprRt ( WLtExpr ) (* Which pushes. *)
               ; WLtExpr . ExpRemoteUnitNo := LUnitNoLt 
               ; WLtExpr . ExpRemoteDeclNo := LRefDeclNoLt 
               ; WLtExpr . ExpPosition := LPosLt
               ; WLtExpr . ExpKind := Ekt . EkRef
               ; WLtExpr . ExpIsUsable := TRUE
               END (*WITH*)
-            ; EVAL FM3Exprs . PopExprStack ( ) 
+            ; EVAL FM3Exprs . PopExprStack ( ) (* The LtExpr. *) 
             ELSE 
             (* Turn it into separate QualId ref and dot Id *) 
               PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 

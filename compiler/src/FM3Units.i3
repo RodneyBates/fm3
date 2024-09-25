@@ -171,7 +171,7 @@ INTERFACE FM3Units
 
 ; CONST ExpImpProxyNull
     = FM3ExpImpProxy . T
-        { EipUnitNo := FM3Base . UnitNoNull 
+        { EipUnitNo := FM3Base . UnitNoNull (* Null means present but not usable. *)
         , EipDeclNo := FM3Base . DeclNoNull
         , EipImportingUnitNo := FM3Base . UnitNoNull 
         , EipImportingUnitPosition := FM3Base . PositionNull
