@@ -18,6 +18,7 @@
  ItkConstDeclColon([4,11],FALSE)
  ItkDeclTypeAbsent()
  ItkConstDeclEquals([4,11])
+ ItkIntLit(16_3(3),[4,13])
  ItkConstDeclRt([4,8])
  ItkBlockDeclListRt(L3(16_3),[3,2])
  ItkInterfaceRt(L2(16_2),[1,0])
