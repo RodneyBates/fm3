@@ -333,19 +333,19 @@ RULE
        BEGIN
          FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInterface ; 
          LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
-         FM3Scopes . PushLookupScopeRef ( LScopeRef ) ;
+         FM3Scopes . PushOpenScopeRef ( LScopeRef ) ;
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkLookupScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
+           ( Itk . ItkOpenScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
        END ; 
      } . 
 
    Interface : InterfaceMiddle BlockDeclList StkRwEND StkIdent StkDot
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN
-         LScopeRef := FM3Scopes . LookupScopeStackTopRef ;
+         LScopeRef := FM3Scopes . OpenScopeStackTopRef ;
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkLookupScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ; 
-         <* ASSERT FM3Scopes . PopLookupScopeRef ( ) = LScopeRef *>
+           ( Itk . ItkOpenScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ; 
+         <* ASSERT FM3Scopes . PopOpenScopeRef ( ) = LScopeRef *>
          <* ASSERT LScopeRef = FM3Scopes . DeclScopeStackTopRef *> 
          FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
          FM3Pass1 . PutBwd_LI
@@ -395,9 +395,9 @@ RULE
        BEGIN
          FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkModule ; 
          LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
-         FM3Scopes . PushLookupScopeRef ( LScopeRef ) ;
+         FM3Scopes . PushOpenScopeRef ( LScopeRef ) ;
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkLookupScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
+           ( Itk . ItkOpenScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
        END ; 
      } . 
 
@@ -405,10 +405,10 @@ RULE
             StkRwBEGIN StmtList StkRwEND StkIdent StkDot
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN
-         LScopeRef := FM3Scopes . LookupScopeStackTopRef ; 
+         LScopeRef := FM3Scopes . OpenScopeStackTopRef ; 
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkLookupScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ;
-         <* ASSERT FM3Scopes . PopLookupScopeRef ( ) = LScopeRef *>
+           ( Itk . ItkOpenScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ;
+         <* ASSERT FM3Scopes . PopOpenScopeRef ( ) = LScopeRef *>
          <* ASSERT LScopeRef = FM3Scopes . DeclScopeStackTopRef *> 
          FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
          FM3Pass1 . PutBwd_LI
@@ -1846,9 +1846,9 @@ RULE
          FM3Pass1 . PutBwd_LP
            ( Itk . ItkProcBodyLt , $1 . Scan . Position ) ;
          LScopeRef := FM3Scopes . DeclScopeStackTopRef ;
-         FM3Scopes . PushLookupScopeRef ( LScopeRef ) ; 
+         FM3Scopes . PushOpenScopeRef ( LScopeRef ) ; 
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkLookupScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ; 
+           ( Itk . ItkOpenScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ; 
        END (*Block*) ; 
      } .
 
@@ -1857,10 +1857,10 @@ RULE
        BEGIN
          $$ . PaBool (* Procedure has a body. *) := TRUE ; 
          $$ . Scan . Position := $1 . Scan . Position ;
-         LScopeRef := FM3Scopes . LookupScopeStackTopRef ;
+         LScopeRef := FM3Scopes . OpenScopeStackTopRef ;
          FM3Pass1 . PutBwd_LI
-           ( Itk . ItkLookupScopeRt , LScopeRef ^ . ScpSelfScopeNo  ) ;
-         <* ASSERT FM3Scopes . PopLookupScopeRef ( ) = LScopeRef *>
+           ( Itk . ItkOpenScopeRt , LScopeRef ^ . ScpSelfScopeNo  ) ;
+         <* ASSERT FM3Scopes . PopOpenScopeRef ( ) = LScopeRef *>
          FM3Pass1 . PutBwd_LP
            ( Itk . ItkProcBodyRt , $1 . Scan . Position ) ;
        END;

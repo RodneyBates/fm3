@@ -56,7 +56,7 @@ MODULE FM3Scopes
     ; LScopeRef ^ . ScpKind := ScopeKind
     ; LScopeRef ^ . ScpPosition := Position
     ; LScopeRef ^ . ScpOnDeclStackCt := 0
-    ; LScopeRef ^ . ScpOnLookupStackCt := 0
+    ; LScopeRef ^ . ScpOnOpenScopeStackCt := 0
  
     ; LScopeRef ^ . ScpDeclIdSet := IntSets . Empty ( )
                     (* ^For a unit, includes [ex|im]ported idents. *) 
@@ -112,35 +112,35 @@ MODULE FM3Scopes
     END PopDeclScopeRef 
 
 (*EXPORTED.*)
-; PROCEDURE PushLookupScopeRef ( ScopeRef : ScopeRefTyp ) 
+; PROCEDURE PushOpenScopeRef ( ScopeRef : ScopeRefTyp ) 
 
-  = BEGIN (*PushLookupScopeRef*)
+  = BEGIN (*PushOpenScopeRef*)
       IF ScopeRef = NIL THEN RETURN END (*IF*)
-    ; ScopeRef ^ . ScpLookupStackLink := LookupScopeStackTopRef
-    ; LookupScopeStackTopRef := ScopeRef
-    ; INC ( ScopeRef ^ . ScpOnLookupStackCt ) 
-    ; INC ( LookupScopeStackCt ) 
-    END PushLookupScopeRef
+    ; ScopeRef ^ . ScpOpenScopeStackLink := OpenScopeStackTopRef
+    ; OpenScopeStackTopRef := ScopeRef
+    ; INC ( ScopeRef ^ . ScpOnOpenScopeStackCt ) 
+    ; INC ( OpenScopeStackCt ) 
+    END PushOpenScopeRef
 
 (*EXPORTED.*)
-; PROCEDURE PopLookupScopeRef ( ) : ScopeRefTyp  
+; PROCEDURE PopOpenScopeRef ( ) : ScopeRefTyp  
 
   = VAR LPoppedScopeRef : ScopeRefTyp
 
-  ; BEGIN (*PopLookupScope*)
-      LPoppedScopeRef := LookupScopeStackTopRef 
-    ; LookupScopeStackTopRef := LPoppedScopeRef . ScpLookupStackLink
-    ; DEC ( LookupScopeStackCt ) 
-    ; DEC ( LPoppedScopeRef ^ . ScpOnLookupStackCt )
-    ; <* ASSERT ( LookupScopeStackTopRef = NIL ) = ( LookupScopeStackCt = 0 ) *>
+  ; BEGIN (*PopOpenScope*)
+      LPoppedScopeRef := OpenScopeStackTopRef 
+    ; OpenScopeStackTopRef := LPoppedScopeRef . ScpOpenScopeStackLink
+    ; DEC ( OpenScopeStackCt ) 
+    ; DEC ( LPoppedScopeRef ^ . ScpOnOpenScopeStackCt )
+    ; <* ASSERT ( OpenScopeStackTopRef = NIL ) = ( OpenScopeStackCt = 0 ) *>
       RETURN LPoppedScopeRef
-    END PopLookupScopeRef 
+    END PopOpenScopeRef 
 
 ; BEGIN
     DeclScopeStackTopRef := NIL
   ; DeclScopeStackCt := 0 
-  ; LookupScopeStackTopRef := NIL
-  ; LookupScopeStackCt := 0 
+  ; OpenScopeStackTopRef := NIL
+  ; OpenScopeStackCt := 0 
   END FM3Scopes
 .
 

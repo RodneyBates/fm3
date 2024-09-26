@@ -58,8 +58,8 @@ LONE
   ItkScopeEmpty INT (* ScopeNo. *) .
   ItkDeclScopeLt INT (* ScopeNo. *) .
   ItkDeclScopeRt INT (* ScopeNo. *) . 
-  ItkLookupScopeLt INT (* ScopeNo. *) .
-  ItkLookupScopeRt INT (* ScopeNo. *) . 
+  ItkOpenScopeLt INT (* ScopeNo. *) .
+  ItkOpenScopeRt INT (* ScopeNo. *) . 
   ItkReservedId IDENT POS 3 (* Rid*, Position. *). 
   ItkDuplDeclId IDENT POS 3 (* IdAtom, position *) . 
   ItkDeclId INT IDENT POS 4 (* DeclKind, IdAtom, position *) .

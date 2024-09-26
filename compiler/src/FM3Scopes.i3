@@ -43,7 +43,7 @@ INTERFACE FM3Scopes
 ; TYPE ScopeTyp
     = RECORD
         ScpDeclStackLink : ScopeRefTyp
-      ; ScpLookupStackLink : ScopeRefTyp
+      ; ScpOpenScopeStackLink : ScopeRefTyp
       ; ScpDeclIdSet : IntSets . T
         (* ^IdentAtoms declared within, including imports of top-level scope. *)
       ; ScpFormalIdSet : IntSets . T
@@ -71,7 +71,7 @@ INTERFACE FM3Scopes
       ; ScpOwningUnitRef : FM3Units . UnitRefTyp := NIL 
       ; ScpOwningDeclNo : FM3Base . DeclNoTyp
       ; ScpOnDeclStackCt : INTEGER := 0
-      ; ScpOnLookupStackCt : INTEGER := 0
+      ; ScpOnOpenScopeStackCt : INTEGER := 0
         (* ^Number of times it's on either scope stack. *)
 (* CHECK ^Do we really need this? *) 
       ; ScpPosition : FM3Base . tPosition 
@@ -108,17 +108,17 @@ INTERFACE FM3Scopes
          The top one is where declarations are being inserted. *)
 ; VAR DeclScopeStackCt : INTEGER := 0 
       
-; VAR LookupScopeStackTopRef : ScopeRefTyp := NIL
+; VAR OpenScopeStackTopRef : ScopeRefTyp := NIL
       (* Another global, linked stack containing scopes from multiple units.
          Inner scopes are on top.  Unqualified ident references are searched
          top down to the enclosing unit scope. *) 
-; VAR LookupScopeStackCt : INTEGER := 0 
+; VAR OpenScopeStackCt : INTEGER := 0 
       
 ; PROCEDURE PushDeclScopeRef ( ScopeRef : ScopeRefTyp ) 
-; PROCEDURE PushLookupScopeRef ( ScopeRef : ScopeRefTyp ) 
+; PROCEDURE PushOpenScopeRef ( ScopeRef : ScopeRefTyp ) 
 
 ; PROCEDURE PopDeclScopeRef ( ) : ScopeRefTyp  
-; PROCEDURE PopLookupScopeRef ( ) : ScopeRefTyp  
+; PROCEDURE PopOpenScopeRef ( ) : ScopeRefTyp  
 
 ; END FM3Scopes
 .

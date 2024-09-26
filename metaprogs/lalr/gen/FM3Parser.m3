@@ -1968,9 +1968,9 @@ yyNonterminal := 120;
                        BEGIN
                          FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInterface ; 
                          LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
-                         FM3Scopes . PushLookupScopeRef ( LScopeRef ) ;
+                         FM3Scopes . PushOpenScopeRef ( LScopeRef ) ;
                          FM3Pass1 . PutBwd_LI
-                           ( Itk . ItkLookupScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
+                           ( Itk . ItkOpenScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
                        END ; 
                      
               | 405,214 => (* P17 Interface (108): InterfaceMiddle BlockDeclList StkRwEND StkIdent StkDot .*)
@@ -1978,10 +1978,10 @@ yyNonterminal := 120;
                 (* line 343 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
                        BEGIN
-                         LScopeRef := FM3Scopes . LookupScopeStackTopRef ;
+                         LScopeRef := FM3Scopes . OpenScopeStackTopRef ;
                          FM3Pass1 . PutBwd_LI
-                           ( Itk . ItkLookupScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ; 
-                         <* ASSERT FM3Scopes . PopLookupScopeRef ( ) = LScopeRef *>
+                           ( Itk . ItkOpenScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ; 
+                         <* ASSERT FM3Scopes . PopOpenScopeRef ( ) = LScopeRef *>
                          <* ASSERT LScopeRef = FM3Scopes . DeclScopeStackTopRef *> 
                          FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
                          FM3Pass1 . PutBwd_LI
@@ -2033,9 +2033,9 @@ yyNonterminal := 120;
                        BEGIN
                          FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkModule ; 
                          LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
-                         FM3Scopes . PushLookupScopeRef ( LScopeRef ) ;
+                         FM3Scopes . PushOpenScopeRef ( LScopeRef ) ;
                          FM3Pass1 . PutBwd_LI
-                           ( Itk . ItkLookupScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
+                           ( Itk . ItkOpenScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
                        END ; 
                      
               | 409,289 => (* P21 Module (110): ModuleMiddle BlockDeclList StkRwBEGIN StmtList StkRwEND StkIdent StkDot .*)
@@ -2043,10 +2043,10 @@ yyNonterminal := 120;
                 (* line 406 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
                        BEGIN
-                         LScopeRef := FM3Scopes . LookupScopeStackTopRef ; 
+                         LScopeRef := FM3Scopes . OpenScopeStackTopRef ; 
                          FM3Pass1 . PutBwd_LI
-                           ( Itk . ItkLookupScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ;
-                         <* ASSERT FM3Scopes . PopLookupScopeRef ( ) = LScopeRef *>
+                           ( Itk . ItkOpenScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ;
+                         <* ASSERT FM3Scopes . PopOpenScopeRef ( ) = LScopeRef *>
                          <* ASSERT LScopeRef = FM3Scopes . DeclScopeStackTopRef *> 
                          FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
                          FM3Pass1 . PutBwd_LI
@@ -3617,9 +3617,9 @@ yyNonterminal := 222;
                          FM3Pass1 . PutBwd_LP
                            ( Itk . ItkProcBodyLt , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ;
                          LScopeRef := FM3Scopes . DeclScopeStackTopRef ;
-                         FM3Scopes . PushLookupScopeRef ( LScopeRef ) ; 
+                         FM3Scopes . PushOpenScopeRef ( LScopeRef ) ; 
                          FM3Pass1 . PutBwd_LI
-                           ( Itk . ItkLookupScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ; 
+                           ( Itk . ItkOpenScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ; 
                        END (*Block*) ; 
                      
               | 576,285 => (* P188 OptProcBody (231): ProcBodyLt Block StkIdent StkSemicolon .*)
@@ -3629,10 +3629,10 @@ yyNonterminal := 222;
                        BEGIN
                          yySynAttribute . PaBool (* Procedure has a body. *) := TRUE ; 
                          yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ;
-                         LScopeRef := FM3Scopes . LookupScopeStackTopRef ;
+                         LScopeRef := FM3Scopes . OpenScopeStackTopRef ;
                          FM3Pass1 . PutBwd_LI
-                           ( Itk . ItkLookupScopeRt , LScopeRef ^ . ScpSelfScopeNo  ) ;
-                         <* ASSERT FM3Scopes . PopLookupScopeRef ( ) = LScopeRef *>
+                           ( Itk . ItkOpenScopeRt , LScopeRef ^ . ScpSelfScopeNo  ) ;
+                         <* ASSERT FM3Scopes . PopOpenScopeRef ( ) = LScopeRef *>
                          FM3Pass1 . PutBwd_LP
                            ( Itk . ItkProcBodyRt , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ;
                        END;

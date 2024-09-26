@@ -1891,7 +1891,7 @@ MODULE FM3Pass1
                 , IdAttribute . Scan . SaChars 
                 , IdAttribute . Scan . SaHash 
                 ) 
-        ; WITH WIdentRefSet = FM3Scopes . LookupScopeStackTopRef ^ . ScpRefIdSet
+        ; WITH WIdentRefSet = FM3Scopes . OpenScopeStackTopRef ^ . ScpRefIdSet
           DO WIdentRefSet := IntSets . Include ( WIdentRefSet , LAtom )
           END (*WITH*) 
         ; PutBwd ( WunRdBack , VAL ( WScan . Position . Column , LONGINT ) ) 
@@ -2049,7 +2049,7 @@ MODULE FM3Pass1
       ; ScopeRef ^ . ScpRefIdSet 
           := IntSets . Intersection
                ( ScopeRef ^ . ScpRefIdSet , ScopeRef ^ . ScpDeclIdSet )
-      ; LParentScopeRef := ScopeRef ^ . ScpLookupStackLink
+      ; LParentScopeRef := ScopeRef ^ . ScpOpenScopeStackLink
       ; IF LParentScopeRef # NIL
         THEN
           LParentScopeRef ^ . ScpRefIdSet

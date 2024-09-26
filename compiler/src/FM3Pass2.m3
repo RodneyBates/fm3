@@ -648,7 +648,7 @@ MODULE FM3Pass2
 
       = BEGIN
           FM3Graph . AddArc
-            ( (*IN OUT*) FM3Scopes . LookupScopeStackTopRef . ScpDeclGraph
+            ( (*IN OUT*) FM3Scopes . OpenScopeStackTopRef . ScpDeclGraph
             , HtDeclNo
             , RefDeclNo
             )
@@ -677,16 +677,16 @@ MODULE FM3Pass2
                     = FM3Scopes . ScopeRefOfScopeNo ( LScopeNo )
           *>
 
-      | Itk . ItkLookupScopeRt 
+      | Itk . ItkOpenScopeRt 
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
         ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo )
         ; LScopeRef ^ . ScpDeclGraph
             := FM3Graph . NewEmpty ( MaxNodeCt := LScopeRef ^ . ScpDeclCt ) 
-        ; FM3Scopes . PushLookupScopeRef ( LScopeRef ) 
+        ; FM3Scopes . PushOpenScopeRef ( LScopeRef ) 
 
-      | Itk . ItkLookupScopeLt 
+      | Itk . ItkOpenScopeLt 
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
-        ; <* ASSERT FM3Scopes . PopLookupScopeRef ( )
+        ; <* ASSERT FM3Scopes . PopOpenScopeRef ( )
                     = FM3Scopes . ScopeRefOfScopeNo ( LScopeNo )
           *>
 
@@ -732,7 +732,7 @@ MODULE FM3Pass2
       =>  HtDeclNo := GetBwdInt ( TokResult . TrRdBack ) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; IntSets . ForAllDo
-            ( FM3Scopes . LookupScopeStackTopRef ^ . ScpCurDefRefDeclNoSet
+            ( FM3Scopes . OpenScopeStackTopRef ^ . ScpCurDefRefDeclNoSet
             , HtVisitRefNo
             ) 
 
@@ -880,8 +880,8 @@ MODULE FM3Pass2
         THEN LResult := VAL ( LDeclNoInt , FM3Base . DeclNoTyp )
         END (*IF*) 
       EXCEPT FM3Dict_Int_Int . Error ( <*UNUSED*> EMsg )
-      => 
-      ELSE 
+      => LResult := FM3Base . DeclNoNull 
+      ELSE LResult := FM3Base . DeclNoNull 
       END (*EXCEPT*)
     ; RETURN LResult 
     END LookupDeclNoInScope
@@ -913,21 +913,21 @@ MODULE FM3Pass2
       END (*IF*)
     END LookupExpImp 
 
-; PROCEDURE LookupBlockRef ( IdAtom : FM3Base . AtomTyp ) : FM3Base . DeclNoTyp  
-  (* In nearest enclosing (block) scope on lookup stack. *) 
+; PROCEDURE LookupOpenRef ( IdAtom : FM3Base . AtomTyp ) : FM3Base . DeclNoTyp  
+  (* In nearest enclosing open scope on open scope stack. *) 
 
   = VAR LScopeRef : FM3Scopes . ScopeRefTyp 
   ; VAR LDeclNoInt : INTEGER
   ; VAR LFound : BOOLEAN 
 
-  ; BEGIN (*LookupBlockRef*)
-      LScopeRef := FM3Scopes . LookupScopeStackTopRef
+  ; BEGIN (*LookupOpenRef*)
+      LScopeRef := FM3Scopes . OpenScopeStackTopRef
     ; LOOP
         IF LScopeRef = NIL THEN RETURN FM3Base . DeclNoNull END (*IF*) 
       ; IF NOT LScopeRef ^ . ScpKind IN FM3Scopes . ScopeKindSetBlock
            (* ^Can this happen? *) 
         THEN (* Skip over this scope. *)
-          LScopeRef := LScopeRef ^ . ScpLookupStackLink
+          LScopeRef := LScopeRef ^ . ScpOpenScopeStackLink
         ELSIF IntSets . IsElement ( IdAtom , LScopeRef ^ . ScpDeclIdSet )
         THEN (* It's declared in this scope. *) 
           TRY 
@@ -945,10 +945,10 @@ MODULE FM3Pass2
         ; <* ASSERT LFound *>
           RETURN VAL ( LDeclNoInt , FM3Base . DeclNoTyp ) 
         ELSE (* Try the next outer scope. *) 
-          LScopeRef := LScopeRef ^ . ScpLookupStackLink
+          LScopeRef := LScopeRef ^ . ScpOpenScopeStackLink
         END (*IF*) 
       END (*LOOP*) 
-    END LookupBlockRef
+    END LookupOpenRef
 
 ; PROCEDURE DuplDeclIdR2L ( READONLY TokResult : TokResultTyp )
   : FM3Base . DeclNoTyp
@@ -1088,7 +1088,7 @@ MODULE FM3Pass2
 
   = BEGIN 
       FM3Messages . ErrorArr
-         ( ARRAY OF REFANY
+         ( ARRAY OF REFANY 
              { Msg
              , " \""
              , FM3Units . TextOfIdAtom ( IdentAtom )
@@ -1123,7 +1123,7 @@ MODULE FM3Pass2
   = VAR LOpenScopeRef : FM3Scopes . ScopeRefTyp
 
   ; BEGIN
-      LOpenScopeRef := FM3Scopes . LookupScopeStackTopRef
+      LOpenScopeRef := FM3Scopes . OpenScopeStackTopRef
     ; IF LOpenScopeRef = NIL THEN RETURN FALSE END (*IF*)
     ; RETURN LOpenScopeRef ^ . ScpCurExprObj # NIL 
     END AreInsideADecl
@@ -1134,7 +1134,7 @@ MODULE FM3Pass2
   ; VAR LScopeMinDeclNo : FM3Base . DeclNoTyp 
 
   ; BEGIN
-      LOpenScopeRef := FM3Scopes . LookupScopeStackTopRef
+      LOpenScopeRef := FM3Scopes . OpenScopeStackTopRef
     ; IF LOpenScopeRef = NIL THEN RETURN END (*IF*)
     ; LScopeMinDeclNo := LOpenScopeRef . ScpMinDeclNo
     ; IF RefDeclNo < LScopeMinDeclNo THEN RETURN END (*IF*) 
@@ -1148,7 +1148,7 @@ MODULE FM3Pass2
       => IF NOT TRefExpr . ExpIsLegalRecursive
          THEN 
            WITH WRefIdNoSet
-                = FM3Scopes . LookupScopeStackTopRef ^ . ScpCurDefRefDeclNoSet
+                = FM3Scopes . OpenScopeStackTopRef ^ . ScpCurDefRefDeclNoSet
            DO WRefIdNoSet := IntSets . Include ( WRefIdNoSet , RefDeclNo ) 
            END (*WITH*)
          END (*IF*)
@@ -1179,7 +1179,7 @@ MODULE FM3Pass2
       DO
       
       (* Look for a reference to a decl in an enclosing* open scope. *) 
-        LRefDeclNo := LookupBlockRef ( LIdentRefAtom )
+        LRefDeclNo := LookupOpenRef ( LIdentRefAtom )
       ; IF LRefDeclNo # FM3Base . DeclNoNull 
         THEN 
           IF AreInsideADecl ( ) 
@@ -1289,7 +1289,7 @@ MODULE FM3Pass2
       DO
       
       (* Look for a left reference to a decl in an enclosing open scope. *) 
-        LRefDeclNoLt := LookupBlockRef ( LAtomLt )
+        LRefDeclNoLt := LookupOpenRef ( LAtomLt )
       ; IF LRefDeclNoLt # FM3Base . DeclNoNull
         THEN (* Lt names a local declaration, not an interface. *)
           IF AreInsideADecl ( ) 
