@@ -6,6 +6,8 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
+(* Internal representation of command-line options. *) 
+
 INTERFACE FM3CLOptions
 
 ; IMPORT AtomList

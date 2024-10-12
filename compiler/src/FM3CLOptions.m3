@@ -6,6 +6,8 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
+(* Internal representation of command-line options. *) 
+
 MODULE FM3CLOptions
 
 ; IMPORT FM3Atom_Text

@@ -31,21 +31,22 @@ INTERFACE FM3CLToks
 ; CONST CltResourceDir                               =     6 (*16_06 *)
 ; CONST CltBuildDir                                  =     7 (*16_07 *)
 ; CONST CltDisAsmPasses                              =     8 (*16_08 *)
-; CONST CltDisAsm                                    =     9 (*16_09 *)
-; CONST CltKeepPasses                                =    10 (*16_0a *)
-; CONST CltKeep                                      =    11 (*16_0b *)
+; CONST CltDisAsmVerbose                             =     9 (*16_09 *)
+; CONST CltDisAsm                                    =    10 (*16_0a *)
+; CONST CltKeepPasses                                =    11 (*16_0b *)
+; CONST CltKeep                                      =    12 (*16_0c *)
 (* Keep intermediate files. *)
-; CONST CltRemoveUnusedDecls                         =    12 (*16_0c *)
-; CONST CltStdErr                                    =    13 (*16_0d *)
+; CONST CltRemoveUnusedDecls                         =    13 (*16_0d *)
+; CONST CltStdErr                                    =    14 (*16_0e *)
 (* Write compilation process messages to stderr. *)
-; CONST CltFM3Log                                    =    14 (*16_0e *)
+; CONST CltFM3Log                                    =    15 (*16_0f *)
 (* Write compilation process messages to compiler log file. *)
-; CONST CltStdOut                                    =    15 (*16_0f *)
+; CONST CltStdOut                                    =    16 (*16_10 *)
 (* Write compiled code messages to stdout. *)
-; CONST CltUnitLog                                   =    16 (*16_10 *)
+; CONST CltUnitLog                                   =    17 (*16_11 *)
 (* Write compiled code messages to unit-specific log file. *)
 (* End of file FM3CLToks.gentok *)
-; CONST TkMaxTok                                     =    16
+; CONST TkMaxTok                                     =    17
 
 ; END FM3CLToks
 .

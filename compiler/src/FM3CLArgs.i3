@@ -6,6 +6,13 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
+(* Parsing the command line, its options, arguments, etc. *)
+(* Store decoded values in FM3CLOptions. *)
+(* See compiler/lib/FM3HelpText. *) 
+(* See metaprogs/gentok/gen/FM3CLToks.gentok and generated
+   files FM3CLToks.[im]3 in the same directory.
+*) 
+
 INTERFACE FM3CLArgs
 
 ; IMPORT Wr

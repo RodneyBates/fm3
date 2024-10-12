@@ -8,6 +8,9 @@ $Z(* -----------------------------------------------------------------------2- *
 $Z
 $Z This is the help text for FM3.
 
+$Z Lines like this, starting with "$Z" at the beginningl, are not
+$Z Displayed to the user. 
+
 FM3 arg ..
 
 Arguments beginning with "--", e.g. "--src-dir" are long-form options.
@@ -29,6 +32,8 @@ with no delimiter or stand alone in the following argument.
 
 Some options accumulate when they occur multiple times. Those that do
 not can also occur multiple times, in which case the last one prevails.
+
+Boolean options default to FALSE. 
 
 -v
 --version
@@ -98,7 +103,11 @@ not can also occur multiple times, in which case the last one prevails.
 -D
 --[no-]disasm
        Disassemble intermediate compilation files in the build directory.
-       Implies --keep. 
+       Implies --keep.
+
+--[no-]disasm-verbose
+       When disassembling intermediate files, show displacements and
+       and binary values of token codes. 
        
 -d<passNum>
 --[no-]disasm-passes[=]<passNum> ..

@@ -24,7 +24,9 @@ MODULE FM3DisAsm
 ; IMPORT FM3SharedUtils 
 
 ; IMPORT FM3Atom_OAChars
-; IMPORT FM3Base 
+; IMPORT FM3Base
+; IMPORT FM3CLOptions 
+; IMPORT FM3CLToks AS Clt
 ; IMPORT FM3Compress
 ; IMPORT FM3Decls 
 ; IMPORT FM3SrcToks 
@@ -48,7 +50,13 @@ MODULE FM3DisAsm
 ; VAR GTokSetGE5Args : IntSets . T 
 ; VAR GTokSetGE6Args : IntSets . T 
 
-; VAR GitRef : FM3Units . UnitRefTyp 
+; VAR GitRef : FM3Units . UnitRefTyp
+
+; PROCEDURE FetchOptions ( )  
+
+  = BEGIN
+    Verbose := Clt . CltDisAsmVerbose IN FM3CLOptions . OptionTokSet 
+    END FetchOptions 
 
 ; PROCEDURE ReadAndPutPrefix
     ( RBT : RdBackFile . T ; WrT : Wr . T )
@@ -79,6 +87,7 @@ MODULE FM3DisAsm
 ; PROCEDURE DumpNumericBwd ( RBT : RdBackFile . T ; WrT : Wr . T )
 
   = BEGIN
+      FetchOptions ( ) 
 (* COMPLETEME: *) 
     END DumpNumericBwd 
 
@@ -103,7 +112,9 @@ MODULE FM3DisAsm
       END DibPutOpnd  
 
   ; BEGIN (* DumpInterpretBwd *) 
-      FM3SharedUtils . LoadSets ( ) (* Probably redundant. *)  
+      FM3SharedUtils . LoadSets ( ) (* Probably redundant. *)
+    ; FetchOptions ( ) 
+
     ; TRY 
         LOOP
           LTokenL := ReadAndPutPrefix ( RBT , WrT )
@@ -484,7 +495,8 @@ MODULE FM3DisAsm
   ; VAR LArgL : LONGINT 
   
   ; BEGIN (* DisAsmWOperands *) 
-      FM3SharedUtils . LoadSets ( ) 
+      FM3SharedUtils . LoadSets ( )
+    ; FetchOptions () 
 
     ; TRY 
         LOOP (* Thru' token-with-args groups. *) 
@@ -495,7 +507,7 @@ MODULE FM3DisAsm
 
           ; CASE LToken OF
 
-          (* Variable terminals. *) 
+            (* Variable terminals. *) 
             | FM3SrcToks . StkIdent 
               => Wr . PutText ( WrT , " " ) 
               ; Wr . PutText ( WrT , FM3SrcToks . Name ( LToken ) )

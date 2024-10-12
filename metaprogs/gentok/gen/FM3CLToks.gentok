@@ -35,6 +35,7 @@ CltResourceDir           "resource-dir" .
 CltBuildDir              "build-dir" .
       
 CltDisAsmPasses          "disasm-passes" .
+CltDisAsmVerbose         "disasm-verbose" . 
 CltDisAsm                "disasm" .
 CltKeepPasses            "keep-passes" .
 CltKeep                  "keep" .

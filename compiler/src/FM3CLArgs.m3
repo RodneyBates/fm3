@@ -6,6 +6,13 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
+(* Parsing the command line, its options, arguments, etc. *)
+(* Store decoded values in FM3CLOptions. *) 
+(* See compiler/lib/FM3HelpText. *)
+(* See metaprogs/gentok/gen/FM3CLToks.gentok and generated
+   files FM3CLToks.[im]3 in the same directory.
+*) 
+
 MODULE FM3CLArgs
 
 ; IMPORT Atom 
@@ -478,7 +485,8 @@ MODULE FM3CLArgs
         , Clt . CltStdOut  
         , Clt . CltFM3Log
         , Clt . CltUnitLog 
-        , Clt . CltRemoveUnusedDecls  
+        , Clt . CltRemoveUnusedDecls
+        , Clt . CltDisAsmVerbose 
         =>  PaNoEqualSign ( )
           ; AssignOptionSetElem 
               ( FM3CLOptions . OptionTokSet , LLexValue , Value := NOT LNo ) 
