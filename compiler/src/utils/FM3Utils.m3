@@ -27,7 +27,7 @@ MODULE FM3Utils
 ; IMPORT FM3IntToks AS Itk
 ; IMPORT FM3OpenArray_Char 
 ; IMPORT FM3SharedGlobals 
-; IMPORT FM3SrcToks 
+; IMPORT FM3SrcToks
 
 ; TYPE IntRangeTyp = IntRanges . RangeTyp
 
@@ -405,11 +405,11 @@ MODULE FM3Utils
 
   ; BEGIN (*PositionImage*)
       LWrT := TextWr . New ( )
-    ; Wr . PutChar ( LWrT , '(') 
+    ; Wr . PutChar ( LWrT , '[') 
     ; Wr . PutText ( LWrT , FM3Fmt . Int ( Pos . Line ) ) 
     ; Wr . PutChar ( LWrT , ',' ) 
     ; Wr . PutText ( LWrT , FM3Fmt . Int ( Pos . Column ) ) 
-    ; Wr . PutChar ( LWrT , ')' ) 
+    ; Wr . PutChar ( LWrT , ']' ) 
     ; LResult := TextWr . ToText ( LWrT ) 
     ; RETURN LResult 
     END PositionImage
@@ -431,6 +431,16 @@ MODULE FM3Utils
       ELSE RETURN NIL 
       END (*IF*) 
     END CharsOfAtom
+
+(*EXPORTED.*)
+; PROCEDURE PutOACharsWr ( WrT : Wr . T ; CharsRef : FM3OpenArray_Char . T ) 
+
+  = BEGIN
+      IF CharsRef = NIL THEN RETURN END (*IF*)
+    ; FOR RI := FIRST ( CharsRef ^ ) TO LAST ( CharsRef ^ )
+      DO Wr . PutChar ( WrT , CharsRef ^ [ RI ] )
+      END (*FOR*) 
+    END PutOACharsWr 
 
 ; BEGIN
   END FM3Utils 

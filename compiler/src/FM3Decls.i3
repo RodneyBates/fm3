@@ -16,7 +16,6 @@ INTERFACE FM3Decls
 
 ; TYPE DeclKindTyp
     = { DkNull
-      , DkNotUsable 
       , DkDuplDecl
       , DkMod 
       , DkIntf 
@@ -56,13 +55,15 @@ INTERFACE FM3Decls
         *) 
       ; DclParentScopeRef : FM3Base . ScopeRefTyp (* Containing scope *) 
       ; DclSelfScopeRef : FM3Base . ScopeRefTyp (* If this declares a scope *)
-      ; DclDef : FM3Exprs . ExprTyp := NIL 
+      ; DclDefType : FM3Exprs . ExprTyp := NIL 
+      ; DclDefValue : FM3Exprs . ExprTyp := NIL 
       ; DclIdAtom : FM3Base . AtomTyp
       ; DclIdCt : INTEGER
-      ; DclIdNo : INTEGER (* Counts while going thru' multiple idents. *) 
+      ; DclIdNo : INTEGER (* Counts up while going thru' multiple idents. *) 
       ; DclSelfDeclNo : FM3Base . DeclNoTyp (* A self-reference. *)
       ; DclPos : FM3Base . tPosition 
-      ; DclKind : DeclKindTyp 
+      ; DclKind : DeclKindTyp
+      ; DclIsUsable : BOOLEAN 
       END (*DeclObjBaseTyp*)
 
 ; TYPE DeclMapTyp = FM3Base . MapTyp

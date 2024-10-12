@@ -1809,7 +1809,7 @@ MODULE FM3Pass1
                        , IdAttribute . Scan . Position
                        , "declaration"
                        )
-          THEN (* It duplicated an export or import. *) 
+          THEN (* It duplicates an export or import. *) 
             LResult := FALSE 
           ELSIF IntSets . IsElement ( LAtom , WScope . ScpDeclIdSet )
           THEN (* It duplicates an earlier decl in this scope. *) 

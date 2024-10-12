@@ -138,17 +138,18 @@ ItkROFormalId    IDENT POS .
 *)
 FIXED 
 ItkREFType POS 2 .
+ItkOpenArrayType POS 2 .
 ItkSubrType POS 2
   DotDot POS 2
 . 
 
 (* Record type definitions. *) 
 FIXED
-  ItkRecType INT POS 3 (* field count, Position of RECORD, field count. *) .
+  ItkRecType INT POS 3 (* field count, Position of RECORD. *) .
 
 (* Enumeration type definitions. *) 
 FIXED
-  ItkEnumType INT POS 3 (* field count, Position of RECORD, field count. *) .
+  ItkEnumType INT POS 3 (* field count, Position of "..". *) .
 
 (* Object types. *)
 FIXED 
@@ -243,7 +244,7 @@ ItkROFormalIdList (* Position is READONLY. *).
 
          So it's left undone for now.
 *) 
-ItkBlockDeclList . 
+ItkOpenDeclList . 
 
 (* Statements *)
 

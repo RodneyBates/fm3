@@ -17,14 +17,39 @@ INTERFACE FM3Scopes
 ; IMPORT FM3Graph 
 ; IMPORT FM3Units
 
+(* A scope and its directly-contained declarations are termed "Open"
+   if the declarations are referred-to by unqualified identifiers,
+   which can happen only from inside the scope itself and deeplier-
+   nested constructs.
+
+   A scope and its directly-contained declarations are termed "Qualified"
+   if the declarations are referred-to by dot selections, <openScope>.Ident.
+
+   An open scope does not occur inside a qualified scope.
+   
+   A procedure signature behaves as qualified when referred-to by the formal
+   parameter name of a named binding in a call and open when referred-to
+   within a procedure body.
+
+   In FM3, a procedure signature and procedure body have separate ScopeType
+   objects but with disjoint identifier sets. Similarly, a compilation unit
+   has a separate scope object for identifiers brought in by EXPORTs or IMPORTs
+   and those declared within the unit, with disjoint identifier sets. 
+
+*)
+
+(*TODO: Review these when more is implemented. *) 
 ; TYPE ScopeKindTyp
     = { SkNull
       , SkUniverse (* {Predefined, interfaces? *)
-      , SkComp (* Interfaces touched by a compilation.  Only one such scope. *) 
+      , SkComp (* Interfaces touched by a compilation.  Only one such scope. *)
+      , SkUnit (* Exports & Imports of a single compilation unit. *) 
       , SkInterface (* Including generic and instantiation. *) 
       , SkModule (* Including generic and instantiation. *)
-      , SkFormals
-      , SkFormalsAndBody 
+      , SkFormals (* Built as part of a type definition, treated as qualified
+                     when ref'd by a named formal within an actual parameter list,
+                     treated as open for other lookups.  No self references.
+                  *) 
       , SkBlock
       , SkCompEnv (* Compiled, IMPORTed, EXPORTed. *) 
       , SkExports 
@@ -36,14 +61,32 @@ INTERFACE FM3Scopes
       , SkExcept 
       } 
 
-; CONST ScopeKindSetBlock
-    = SET OF ScopeKindTyp
-        { ScopeKindTyp . SkUniverse .. ScopeKindTyp . SkBlock } 
+; CONST ScopeKindSetTypeDef = SET OF ScopeKindTyp
+    { ScopeKindTyp . SkFormals
+    , ScopeKindTyp . SkEnum
+    , ScopeKindTyp . SkRec
+    , ScopeKindTyp . SkObj
+    } 
+
+; CONST ScopeKindSetOpen = SET OF ScopeKindTyp
+    { ScopeKindTyp . SkUnit
+    , ScopeKindTyp . SkInterface 
+    , ScopeKindTyp . SkModule 
+    , ScopeKindTyp . SkBlock
+    } 
+
+; CONST ScopeKindSetBinding = SET OF ScopeKindTyp
+    { ScopeKindTyp . SkWith
+    , ScopeKindTyp . SkTypecase
+    , ScopeKindTyp . SkExcept 
+    } 
+
 
 ; TYPE ScopeTyp
     = RECORD
         ScpDeclStackLink : ScopeRefTyp
       ; ScpOpenScopeStackLink : ScopeRefTyp
+      ; ScpOwningUnitRef : FM3Units . UnitRefTyp := NIL 
       ; ScpDeclIdSet : IntSets . T
         (* ^IdentAtoms declared within, including imports of top-level scope. *)
       ; ScpFormalIdSet : IntSets . T
@@ -57,18 +100,20 @@ INTERFACE FM3Scopes
         (* ^IdentAtom to Decl no.
             Includes formals, if signature or proc body scope. *)
         (* INVARIANT: Once ScpDeclIdSet and ScpDeclDict are both complete,
-           Atom is in one IFF in the other.
+           Atom is in one IFF or the other.
         *)
       ; ScpDeclGraph : FM3Graph . GraphTyp 
         (* Arcs are intra-scope RefId to declId.  Only those that would
            contribute to an illegal recursive decl cycle.
         *) 
-      ; ScpCurDefRefDeclNoSet : IntSets . T (*1*)
+      ; ScpCurDeclRefNoSet : IntSets . T (*1*)
+        (* Decl Nos of ident refs in the current definition to ids
+           declared in the current containing open scope.
+        *) 
       ; ScpCurExprObj : REFANY (* FM3Defs . DeclDefTyp. *) (*1*) 
       ; ScpDeclCt : FM3Base . DeclNoTyp := FM3Base . DeclNoNull
       ; ScpMinDeclNo := FM3Base . DeclNoNull
       ; ScpSelfScopeNo : FM3Base . ScopeNoTyp (* A self-reference. *)
-      ; ScpOwningUnitRef : FM3Units . UnitRefTyp := NIL 
       ; ScpOwningDeclNo : FM3Base . DeclNoTyp
       ; ScpOnDeclStackCt : INTEGER := 0
       ; ScpOnOpenScopeStackCt : INTEGER := 0
@@ -76,6 +121,7 @@ INTERFACE FM3Scopes
 (* CHECK ^Do we really need this? *) 
       ; ScpPosition : FM3Base . tPosition 
       ; ScpKind : ScopeKindTyp
+      ; ScpInsideDecl : BOOLEAN := FALSE (*1*)
       END (*ScopeTyp*)
 
       (* NOTE 1: This field retains meaning only during handling of a single

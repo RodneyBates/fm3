@@ -11,9 +11,11 @@ INTERFACE FM3Utils
 (* CM3 library: *)
 ; IMPORT Wr 
 
-(* FM3: *) 
+(* FM3: *)
+; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Base
-; IMPORT FM3IntToks 
+; IMPORT FM3IntToks
+; IMPORT FM3OpenArray_Char 
 
 ; IMPORT IntCharVarArray AS VarArr_Char 
 ; IMPORT IntWideCharVarArray AS VarArr_WChar
@@ -62,6 +64,12 @@ INTERFACE FM3Utils
 ; PROCEDURE TokenOpndCt ( Token : FM3Base . TokTyp ) : INTEGER
 
 ; PROCEDURE PositionImage ( Pos : FM3Base . tPosition ) : TEXT 
+
+; PROCEDURE CharsOfAtom
+    ( AtomMap : FM3Atom_OAChars . T ; Atom : FM3Base . AtomTyp )
+  : FM3OpenArray_Char . T
+
+; PROCEDURE PutOACharsWr ( WrT : Wr . T ; CharsRef : FM3OpenArray_Char . T ) 
 
 ; END FM3Utils
 .

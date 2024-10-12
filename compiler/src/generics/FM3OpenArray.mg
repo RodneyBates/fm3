@@ -47,7 +47,7 @@ GENERIC MODULE FM3OpenArray ( Elem )
       ; IF Left ^ [ LSs ] > Right ^ [ LSs ] THEN RETURN CmpGT END (* IF *)
       ; INC ( LSs ) 
       END (*LOOP*) 
-    END Compare  
+    END Compare
 
 ; BEGIN
   END FM3OpenArray 

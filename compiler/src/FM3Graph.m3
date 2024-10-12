@@ -54,7 +54,7 @@ MODULE FM3Graph
     END MakeEmpty 
 
 ; <*INLINE*>
-  PROCEDURE MakeArc ( Graph : GraphTyp ; Pred , Succ : NodeNoTyp ) : ArcTyp
+  PROCEDURE MakeArc ( Graph : GraphTyp ; Pred , Succ : INTEGER ) : ArcTyp
     RAISES { BadNodeNo } 
 
   = VAR LArc : INTEGER
@@ -75,14 +75,14 @@ MODULE FM3Graph
     END MakeArc 
 
 (*EXPORTED:*)
-; <*INLINE*> PROCEDURE PredNode ( Graph : GraphTyp ; Arc : ArcTyp ) : NodeNoTyp  
+; <*INLINE*> PROCEDURE PredNode ( Graph : GraphTyp ; Arc : ArcTyp ) : INTEGER  
 
   = BEGIN
       RETURN Arc DIV Graph ^ . GrNodeCt 
     END PredNode 
 
 (*EXPORTED:*)
-; <*INLINE*> PROCEDURE SuccNodeNo ( Graph : GraphTyp ; Arc : ArcTyp ) : NodeNoTyp  
+; <*INLINE*> PROCEDURE SuccNodeNo ( Graph : GraphTyp ; Arc : ArcTyp ) : INTEGER  
 
   = BEGIN
       RETURN Arc MOD Graph ^ . GrNodeCt 
@@ -90,7 +90,7 @@ MODULE FM3Graph
 
 (*EXPORTED:*)
 ; PROCEDURE AddArc
-    ( VAR (*IN OUT *) Graph : GraphTyp ; Pred , Succ : NodeNoTyp ) 
+    ( VAR (*IN OUT *) Graph : GraphTyp ; Pred , Succ : INTEGER ) 
     RAISES { BadNodeNo } 
 
   = BEGIN
@@ -101,16 +101,16 @@ MODULE FM3Graph
 
 ; TYPE StackTyp = RECORD
     StkTopSs : INTEGER:= - 1 
-  ; StkElemsRef : REF ARRAY OF NodeNoTyp 
+  ; StkElemsRef : REF ARRAY OF INTEGER  
   END
 
 ; PROCEDURE InitStack ( VAR Stack : StackTyp ; ElemCt : INTEGER  ) 
   = BEGIN
       Stack . StkTopSs := - 1 
-    ; Stack . StkElemsRef := NEW ( REF ARRAY OF NodeNoTyp , ElemCt ) 
+    ; Stack . StkElemsRef := NEW ( REF ARRAY OF INTEGER , ElemCt ) 
     END InitStack 
 
-; PROCEDURE Push ( VAR Stack : StackTyp ; Elem : NodeNoTyp )
+; PROCEDURE Push ( VAR Stack : StackTyp ; Elem : INTEGER )
 
   = BEGIN
       INC ( Stack . StkTopSs )
@@ -160,13 +160,13 @@ MODULE FM3Graph
   ; VAR SCCPStack : StackTyp 
   ; VAR SCCSStack : StackTyp 
 
-  ; PROCEDURE Search ( SearchNodeNo (*V*) : NodeNoTyp )
+  ; PROCEDURE Search ( SearchNodeNo (*V*) : INTEGER )
   
-    = PROCEDURE SchVisit ( Arc : IntSets . ElemT ) RAISES ANY 
+    = PROCEDURE SchVisitArc ( Arc : IntSets . ElemT ) RAISES ANY 
 
-      = VAR LSuccNodeNo (*W*) : NodeNoTyp
+      = VAR LSuccNodeNo (*W*) : INTEGER
 
-      ; BEGIN (* SchVisit *) 
+      ; BEGIN (* SchVisitArc *) 
           LSuccNodeNo := SuccNodeNo ( Graph , Arc ) 
         ; WITH WWInfo = Graph ^ . GrNodeInfo ^ [ LSuccNodeNo ]
           DO 
@@ -182,9 +182,9 @@ MODULE FM3Graph
               END (*WHILE*) 
             END (*IF*)
           END (*WITH*) 
-        END SchVisit
+        END SchVisitArc
 
-    ; VAR LPoppedNodeNo : NodeNoTyp
+    ; VAR LPoppedNodeNo : INTEGER
     ; VAR LSCCMemberCt : INTEGER 
     ; VAR LSCCLoSs : INTEGER 
 
@@ -195,7 +195,7 @@ MODULE FM3Graph
       ; Push ( SCCPStack , SearchNodeNo )
       ; ForAllInRangeDo (* All outgoing arcs of SearchNodeNo. *) 
           ( Graph ^ . GrArcSet
-          , SchVisit 
+          , SchVisitArc 
           , SearchNodeNo * Graph ^ . GrNodeCt
           , ( SearchNodeNo + 1 ) * Graph ^ . GrNodeCt - 1
           )
@@ -210,8 +210,16 @@ MODULE FM3Graph
           ; INC ( LSCCMemberCt )
           ; IF LPoppedNodeNo = SearchNodeNo THEN EXIT END (*IF*) 
           END (*LOOP*)
-        ; VisitSCC
-            ( SUBARRAY ( SCCSStack . StkElemsRef ^ , LSCCLoSs , LSCCMemberCt ) ) 
+        ; IF LSCCMemberCt = 1 (* Singleton SCC. *) 
+          AND NOT IntSets . IsElement
+                    ( Graph . GrNodeCt * ( LSCCLoSs + 1 )
+                    , Graph ^ . GrArcSet
+                    )
+          THEN (* There is no self-to-self arc, we don't want such an SCC. *)
+          ELSE 
+            VisitSCC
+              ( SUBARRAY ( SCCSStack . StkElemsRef ^ , LSCCLoSs , LSCCMemberCt ) )
+          END (*IF*) 
         ; <* ASSERT Pop ( SCCPStack) = SearchNodeNo *> 
         END (*IF*)
       END Search

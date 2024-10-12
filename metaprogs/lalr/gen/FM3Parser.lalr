@@ -339,7 +339,7 @@ RULE
        END ; 
      } . 
 
-   Interface : InterfaceMiddle BlockDeclList StkRwEND StkIdent StkDot
+   Interface : InterfaceMiddle OpenDeclList StkRwEND StkIdent StkDot
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN
          LScopeRef := FM3Scopes . OpenScopeStackTopRef ;
@@ -401,7 +401,7 @@ RULE
        END ; 
      } . 
 
-   Module : ModuleMiddle BlockDeclList
+   Module : ModuleMiddle OpenDeclList
             StkRwBEGIN StmtList StkRwEND StkIdent StkDot
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN
@@ -448,7 +448,7 @@ RULE
 
    GenInterface :
        GenInterfaceLt GenInterfaceKind GenFormalList
-       StkSemicolon ImportList ExpImpDone BlockDeclList StkRwEND StkIdent StkDot 
+       StkSemicolon ImportList ExpImpDone OpenDeclList StkRwEND StkIdent StkDot 
      { (* Scope ref:
         FM3Pass1 . PutBwd_LI ( Itk . ItkDeclScopeLt , $1 . PaConstructNo ) ;
        *)
@@ -734,7 +734,7 @@ RULE
        THEN  
          $$ . PaPos (* Rt semicolon.*) := $3 . Scan . Position ;
          FM3Pass1 . PutBwd_ECIP (* Insert a separator. *)
-           ( Itk . ItkBlockDeclListLt
+           ( Itk . ItkOpenDeclListLt
            , $2 . PaPass1Coord 
            , $1 . PaInt
            , $1 . PaPos (* Rt semicolon of $1 *) 
@@ -822,7 +822,7 @@ RULE
        THEN  
          $$ . PaPos (* Rt semicolon.*) := $3 . Scan . Position ;
          FM3Pass1 . PutBwd_ECIP (* Insert a separator. *)
-           ( Itk . ItkBlockDeclListLt
+           ( Itk . ItkOpenDeclListLt
            , $2 . PaPass1Coord 
            , $1 . PaInt
            , $1 . PaPos (* Rt semicolon of $1 *) 
@@ -902,7 +902,7 @@ RULE
        THEN 
          $$ . PaPos (* Rt semicolon. *) := $3 . Scan . Position ; 
          FM3Pass1 . PutBwd_ECIP (* Insert a separator. *) 
-           ( Itk . ItkBlockDeclListLt
+           ( Itk . ItkOpenDeclListLt
            , $2 . PaPass1Coord 
            , $1 . PaInt
            , $1 . PaPos 
@@ -989,7 +989,7 @@ RULE
        THEN 
          $$ . PaPos (* Rt Semicolon. *) := $3 . Scan . Position ;  
          FM3Pass1 . PutBwd_ECIP (* Insert a separator. *) 
-           ( Itk . ItkBlockDeclListLt
+           ( Itk . ItkOpenDeclListLt
            , $2 . PaPass1Coord 
            , $1 . PaInt
            , $1 . PaPos 
@@ -1064,13 +1064,7 @@ RULE
 
    Type :  TypeId . 
 
-   Type : StkRwREF Type 
-     { FM3Pass1 . PutBwd_LCP_rp
-         ( Itk . ItkREFTypeLt
-         , $1 . PaPass1Coord
-         , $1 . Scan . Position 
-         ) ;
-     } .
+(* ------------------------ Predefined type names ---------------------- *)
 
    Type : StkRidADDRESS . 
    Type : StkRidBOOLEAN . 
@@ -1089,7 +1083,34 @@ RULE
    Type : StkRidTYPECODE . 
    Type : StkRidWIDECHAR .
 
-(* ------------------------- Enumeration types ------------------------ *)
+(* ------------------------------- REF Types --------------------------- *)
+
+   Type : StkRwREF Type 
+     { FM3Pass1 . PutBwd_LCP_rp
+         ( Itk . ItkREFTypeLt
+         , $1 . PaPass1Coord
+         , $1 . Scan . Position 
+         ) ;
+     } .
+
+(* ----------------------------- Array Types --------------------------- *)
+
+   Type : OpenArrayType .
+
+   OpenArrayType : StkRwARRAY StkRwOF Type 
+     { FM3Pass1 . PutBwd_LCP_rp
+         ( Itk . ItkOpenArrayTypeLt
+         , $1 . PaPass1Coord
+         , $1 . Scan . Position 
+         ) ;
+     } .
+
+   Type : FixedArrayType .
+
+   FixedArrayType : .
+
+
+(* ---------------------------- Enumeration types ---------------------- *)
 
    EnumTypeLt : StkOpenBrace
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
@@ -1771,13 +1792,19 @@ RULE
                       ( Itk . ItkDeclId , Dkt . DkProc , $2 )
                   ) ;
          IF FM3Units . CurrentUnitIsModule ( )
-         THEN LScopeKind  := Skt . SkFormalsAndBody ; 
-         ELSE LScopeKind  := Skt . SkFormals ;
+         THEN (* Body scope.*) 
+           LScopeRef
+             := FM3Scopes . NewScopeRef
+                  ( FM3Units . UnitStackTopRef
+                  , Skt . SkModule  
+                  , FM3Scanner . Attribute . Position
+                  ) ;
+           FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
          END (*IF*) ; 
-         LScopeRef
+         LScopeRef (* Formals scope. *) 
            := FM3Scopes . NewScopeRef
                 ( FM3Units . UnitStackTopRef
-                , LScopeKind 
+                , Skt . SkFormals  
                 , FM3Scanner . Attribute . Position
                 ) ;
          FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
@@ -2161,7 +2188,7 @@ RULE
      {
      } .
 
-   Block : BlockLt BlockDeclList StkRwBEGIN StmtList StkRwEND
+   Block : BlockLt OpenDeclList StkRwBEGIN StmtList StkRwEND
      {
      } .
 
@@ -2195,18 +2222,18 @@ RULE
    (* A block declaration always includes a terminating semicolon in the
       source syntax, but we emit only Itk *separators*. *)
 
-   BlockDeclList : /*Empty*/
+   OpenDeclList : /*Empty*/
      { FM3Pass1 . MakeListEmpty 
          ( $$
-         , Itk . ItkBlockDeclListLt
+         , Itk . ItkOpenDeclListLt
          , FM3Scanner . Attribute . Position
          ) ; 
      } .
      
-   BlockDeclList : BlockDeclPlus 
+   OpenDeclList : BlockDeclPlus 
      { MakeListPos
          ( $$
-         , Itk . ItkBlockDeclListLt
+         , Itk . ItkOpenDeclListLt
          , $1 . Scan . Position
          , $1 (* Used for element count and left patch coordinate. *) 
          ) ;
@@ -2224,7 +2251,7 @@ RULE
        THEN
          $$ . PaPos (* Rt semicolon. *) := $2 . PaPos ; 
          FM3Pass1 . PutBwd_ECIP (* Insert a separator. *)
-           ( Itk . ItkBlockDeclListLt
+           ( Itk . ItkOpenDeclListLt
            , $2 . PaPass1Coord
            , $1 . PaInt
            , $1 . PaPos 
