@@ -1,0 +1,6 @@
+[31mERROR: [0mMain.m3[7,7] Illegal recursive declaration: "A"
+[31mERROR: [0mMain.m3[9,7] Illegal recursive declarations: "D", also involving
+       "E" [20,7]
+       "B" [11,7]
+       "C" [18,7]
+[31mERROR: [0mMain.m3[13,7] Illegal recursive declaration: "Rec"
