@@ -549,9 +549,9 @@ ItkROFormalId    IDENT POS .
 ; CONST ItkVarDeclValuePatch            (*ArgCt: 2*) =   419 (*16_a3 03 *)
 
 (* LONE ItkDeclTypeAbsent: *)
-; CONST ItkDeclTypeAbsent               (*ArgCt: 0*) =   420 (*16_a4 03 *)
+; CONST ItkDeclTypeAbsent               (*ArgCt: 2*) =   420 (*16_a4 03 *)
 (* LONE ItkDeclValAbsent: *)
-; CONST ItkDeclValAbsent                (*ArgCt: 0*) =   421 (*16_a5 03 *)
+; CONST ItkDeclValAbsent                (*ArgCt: 2*) =   421 (*16_a5 03 *)
 (* One formal, with possibly multiple idents. *)
 (* Position of LM ident (Lt) or of semicolon (Rt). *)
 (* FIXED ItkVALUEFormal: *)

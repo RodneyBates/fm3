@@ -1048,7 +1048,8 @@ RULE
    OptDeclType : /*Empty*/
      { $$ . PaBool (* Present. *) := FALSE (* Absent. *) ;
        $$ . Scan . Position := FM3Scanner . Attribute . Position ;
-       FM3Pass1 . PutBwd_L ( Itk . ItkDeclTypeAbsent ) ; 
+       FM3Pass1 . PutBwd_LP
+         ( Itk . ItkDeclTypeAbsent , FM3Scanner . Attribute . Position ) ; 
      } . 
    OptDeclValue : StkBecomes Expr 
      { $$ . PaBool (* Present. *) := TRUE ;
@@ -1057,7 +1058,8 @@ RULE
    OptDeclValue : /*Empty*/
      { $$ . PaBool (* Present. *) := FALSE (* Absent. *) ;
        $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
-       FM3Pass1 . PutBwd_L ( Itk . ItkDeclValAbsent ) ; 
+       FM3Pass1 . PutBwd_LP
+         ( Itk . ItkDeclValAbsent , FM3Scanner . Attribute . Position ) ; 
      } . 
 
 (* --------------------------------- Types ----------------------------- *)
