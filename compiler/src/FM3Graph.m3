@@ -199,7 +199,7 @@ MODULE FM3Graph
           , SearchNodeNo * Graph ^ . GrNodeCt
           , ( SearchNodeNo + 1 ) * Graph ^ . GrNodeCt - 1
           )
-      ; IF Top ( SCCPStack) = SearchNodeNo
+      ; IF Top ( SCCPStack ) = SearchNodeNo
         THEN (* Found an SCC. *) 
           LSCCMemberCt := 0 
         ; LOOP
@@ -212,7 +212,7 @@ MODULE FM3Graph
           END (*LOOP*)
         ; IF LSCCMemberCt = 1 (* Singleton SCC. *) 
           AND NOT IntSets . IsElement
-                    ( Graph . GrNodeCt * ( LSCCLoSs + 1 )
+                    ( ( Graph . GrNodeCt + 1 ) * LPoppedNodeNo 
                     , Graph ^ . GrArcSet
                     )
           THEN (* There is no self-to-self arc, we don't want such an SCC. *)

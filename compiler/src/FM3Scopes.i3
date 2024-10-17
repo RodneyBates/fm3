@@ -107,10 +107,14 @@ INTERFACE FM3Scopes
            contribute to an illegal recursive decl cycle.
         *) 
       ; ScpCurDeclRefNoSet : IntSets . T (*1*)
-        (* Decl Nos of ident refs in the current definition to ids
-           declared in the current containing open scope.
-        *) 
-      ; ScpCurExprObj : REFANY (* FM3Defs . DeclDefTyp. *) (*1*) 
+        (* Decl Nos of ident refs in definition(s) of the current decl to idents
+           declared in the current containing open scope that do not legalize
+           recursive declarations.
+        *)
+      ; ScpCurDefExprs
+          := ARRAY BOOLEAN (*Is value expr*) OF REFANY { NIL , .. } (*1*) 
+      ; ScpCurTypeExpr : REFANY := NIL (* FM3Defs . DeclDefTyp. *) (*1*) 
+      ; ScpCurValueExpr : REFANY := NIL (* FM3Defs . DeclDefTyp. *) (*1*) 
       ; ScpDeclCt : FM3Base . DeclNoTyp := FM3Base . DeclNoNull
       ; ScpMinDeclNo := FM3Base . DeclNoNull
       ; ScpSelfScopeNo : FM3Base . ScopeNoTyp (* A self-reference. *)
@@ -122,11 +126,14 @@ INTERFACE FM3Scopes
       ; ScpPosition : FM3Base . tPosition 
       ; ScpKind : ScopeKindTyp
       ; ScpInsideDecl : BOOLEAN := FALSE (*1*)
+      ; ScpCurDefIsValue : BOOLEAN := FALSE (*1*) (* As opposed to a type def. *) 
       END (*ScopeTyp*)
 
       (* NOTE 1: This field retains meaning only during handling of a single
-                 declaration within the scope.  It is reinitialized and reused
-                 in later declarations.  It is NIL when not in a declaration. 
+                 declaration within the scope.  It is reinitialized and reused in
+                 later declarations.  It is NIL when not working in a declaration.
+                 It would more naturally be in a Decl object, but we don't have
+                 one when needed, and when we finally do, there can be >1.
       *) 
 
 ; CONST ScopeRefBrand = "ScopeRef0.1" 

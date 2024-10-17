@@ -110,16 +110,16 @@ ItkConstId IDENT POS 3 .
 
 FIXED
 ItkConstDecl POS
-  Colon POS BOOL 
-  Equals POS . 
+  Type POS BOOL 
+  Value POS . 
  
 ItkTypeDecl POS 2 (* Position of ident. *)
-  Equals POS 2 . 
+  Type POS 2 . 
 ItkSubtypeDecl POS 2 (* Position of ident (Lt). *)
   Subtype POS 2 . 
 
 ItkFullReveal POS 2 (* Position of ident. *)
-  Equals POS 2 . 
+  Type POS 2 . 
 ItkPartialReveal POS 2 (* Position of ident. *)
   Subtype POS 2 .
 
@@ -173,14 +173,14 @@ ItkOverrideList .
 FIXED
 (* One field decl, with possibly multiple idents. *) 
 ItkFieldDecl POS 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
-  Type POS 2     (* Position of colon. *) 
-  Val POS 2      (* Position of becomes. *)
+  Type POS 2       (* Position of colon. *) 
+  Value POS 2      (* Position of becomes. *)
 . 
 
 (* One variable decl, with possibly multiple idents. *) 
 ItkVarDecl POS 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
   Type POS 2     (* Position of colon. *) 
-  Val POS 2      (* Position of becomes. *)
+  Value POS 2    (* Position of becomes. *)
 .
 
 LONE
@@ -190,20 +190,20 @@ LONE
 (* One formal, with possibly multiple idents. *)
 FIXED 
   ItkVALUEFormal POS 2 (* Position of LM ident (Lt) or of semicolon (Rt). *)
-    Type POS 2     (* Position of colon. *) 
-    Val POS 2      (* Position of becomes. *) 
+    Type POS 2         (* Position of colon. *) 
+    Value POS 2        (* Position of becomes. *) 
 .
 
 (* One formal, with possibly multiple idents. *) 
-ItkVARFormal POS 2 (* Position of LM ident (Lt) or of semicolon (Rt). *)
-  Type POS 2     (* Position of colon. *) 
-  Val POS 2      (* Position of becomes. *) 
+ItkVARFormal POS 2     (* Position of LM ident (Lt) or of semicolon (Rt). *)
+  Type   POS 2         (* Position of colon. *) 
+  Value POS 2          (* Position of becomes. *) 
 .
 
 (* One formal, with possibly multiple idents. *) 
-ItkROFormal POS 2 (* Position of LM ident (Lt) or of semicolon (Rt). *)
-  Type POS 2     (* Position of colon. *) 
-  Val POS 2      (* Position of becomes, *) 
+ItkROFormal POS 2      (* Position of LM ident (Lt) or of semicolon (Rt). *)
+  Type POS 2           (* Position of colon. *) 
+  Value POS 2          (* Position of becomes, *) 
 .
 
 LIST

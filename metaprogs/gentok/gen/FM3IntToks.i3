@@ -296,13 +296,13 @@ ItkConstId IDENT POS 3 .
 ; CONST ItkConstDeclLtPatch             (*ArgCt: 2*) =   268 (*16_8c 02 *)
 ; CONST ItkConstDeclRt                  (*ArgCt: 2*) =   269 (*16_8d 02 *)
 
-; CONST ItkConstDeclColon               (*ArgCt: 3*) =   270 (*16_8e 02 *)
-; CONST ItkConstDeclColonTemp           (*ArgCt: 3*) =   271 (*16_8f 02 *)
-; CONST ItkConstDeclColonPatch          (*ArgCt: 3*) =   272 (*16_90 02 *)
+; CONST ItkConstDeclType                (*ArgCt: 3*) =   270 (*16_8e 02 *)
+; CONST ItkConstDeclTypeTemp            (*ArgCt: 3*) =   271 (*16_8f 02 *)
+; CONST ItkConstDeclTypePatch           (*ArgCt: 3*) =   272 (*16_90 02 *)
 
-; CONST ItkConstDeclEquals              (*ArgCt: 2*) =   273 (*16_91 02 *)
-; CONST ItkConstDeclEqualsTemp          (*ArgCt: 2*) =   274 (*16_92 02 *)
-; CONST ItkConstDeclEqualsPatch         (*ArgCt: 2*) =   275 (*16_93 02 *)
+; CONST ItkConstDeclValue               (*ArgCt: 2*) =   273 (*16_91 02 *)
+; CONST ItkConstDeclValueTemp           (*ArgCt: 2*) =   274 (*16_92 02 *)
+; CONST ItkConstDeclValuePatch          (*ArgCt: 2*) =   275 (*16_93 02 *)
 
 (* Position of ident. *)
 (* FIXED ItkTypeDecl: *)
@@ -311,9 +311,9 @@ ItkConstId IDENT POS 3 .
 ; CONST ItkTypeDeclLtPatch              (*ArgCt: 2*) =   278 (*16_96 02 *)
 ; CONST ItkTypeDeclRt                   (*ArgCt: 2*) =   279 (*16_97 02 *)
 
-; CONST ItkTypeDeclEquals               (*ArgCt: 2*) =   280 (*16_98 02 *)
-; CONST ItkTypeDeclEqualsTemp           (*ArgCt: 2*) =   281 (*16_99 02 *)
-; CONST ItkTypeDeclEqualsPatch          (*ArgCt: 2*) =   282 (*16_9a 02 *)
+; CONST ItkTypeDeclType                 (*ArgCt: 2*) =   280 (*16_98 02 *)
+; CONST ItkTypeDeclTypeTemp             (*ArgCt: 2*) =   281 (*16_99 02 *)
+; CONST ItkTypeDeclTypePatch            (*ArgCt: 2*) =   282 (*16_9a 02 *)
 
 (* Position of ident (Lt). *)
 (* FIXED ItkSubtypeDecl: *)
@@ -333,9 +333,9 @@ ItkConstId IDENT POS 3 .
 ; CONST ItkFullRevealLtPatch            (*ArgCt: 2*) =   292 (*16_a4 02 *)
 ; CONST ItkFullRevealRt                 (*ArgCt: 2*) =   293 (*16_a5 02 *)
 
-; CONST ItkFullRevealEquals             (*ArgCt: 2*) =   294 (*16_a6 02 *)
-; CONST ItkFullRevealEqualsTemp         (*ArgCt: 2*) =   295 (*16_a7 02 *)
-; CONST ItkFullRevealEqualsPatch        (*ArgCt: 2*) =   296 (*16_a8 02 *)
+; CONST ItkFullRevealType               (*ArgCt: 2*) =   294 (*16_a6 02 *)
+; CONST ItkFullRevealTypeTemp           (*ArgCt: 2*) =   295 (*16_a7 02 *)
+; CONST ItkFullRevealTypePatch          (*ArgCt: 2*) =   296 (*16_a8 02 *)
 
 (* Position of ident. *)
 (* FIXED ItkPartialReveal: *)
@@ -395,7 +395,7 @@ ItkROFormalId    IDENT POS .
 ; CONST ItkSubrTypeDotDotPatch          (*ArgCt: 2*) =   328 (*16_c8 02 *)
 
 (* Record type definitions. *)
-(* field count, Position of RECORD, field count. *)
+(* field count, Position of RECORD. *)
 (* FIXED ItkRecType: *)
 ; CONST ItkRecTypeLt                    (*ArgCt: 3*) =   329 (*16_c9 02 *)
 ; CONST ItkRecTypeLtTemp                (*ArgCt: 3*) =   330 (*16_ca 02 *)
@@ -403,7 +403,7 @@ ItkROFormalId    IDENT POS .
 ; CONST ItkRecTypeRt                    (*ArgCt: 3*) =   332 (*16_cc 02 *)
 
 (* Enumeration type definitions. *)
-(* field count, Position of RECORD, field count. *)
+(* field count, Position of "..". *)
 (* FIXED ItkEnumType: *)
 ; CONST ItkEnumTypeLt                   (*ArgCt: 3*) =   333 (*16_cd 02 *)
 ; CONST ItkEnumTypeLtTemp               (*ArgCt: 3*) =   334 (*16_ce 02 *)
@@ -526,9 +526,9 @@ ItkROFormalId    IDENT POS .
 ; CONST ItkFieldDeclTypePatch           (*ArgCt: 2*) =   406 (*16_96 03 *)
 
 (* Position of becomes. *)
-; CONST ItkFieldDeclVal                 (*ArgCt: 2*) =   407 (*16_97 03 *)
-; CONST ItkFieldDeclValTemp             (*ArgCt: 2*) =   408 (*16_98 03 *)
-; CONST ItkFieldDeclValPatch            (*ArgCt: 2*) =   409 (*16_99 03 *)
+; CONST ItkFieldDeclValue               (*ArgCt: 2*) =   407 (*16_97 03 *)
+; CONST ItkFieldDeclValueTemp           (*ArgCt: 2*) =   408 (*16_98 03 *)
+; CONST ItkFieldDeclValuePatch          (*ArgCt: 2*) =   409 (*16_99 03 *)
 
 (* One variable decl, with possibly multiple idents. *)
 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
@@ -544,9 +544,9 @@ ItkROFormalId    IDENT POS .
 ; CONST ItkVarDeclTypePatch             (*ArgCt: 2*) =   416 (*16_a0 03 *)
 
 (* Position of becomes. *)
-; CONST ItkVarDeclVal                   (*ArgCt: 2*) =   417 (*16_a1 03 *)
-; CONST ItkVarDeclValTemp               (*ArgCt: 2*) =   418 (*16_a2 03 *)
-; CONST ItkVarDeclValPatch              (*ArgCt: 2*) =   419 (*16_a3 03 *)
+; CONST ItkVarDeclValue                 (*ArgCt: 2*) =   417 (*16_a1 03 *)
+; CONST ItkVarDeclValueTemp             (*ArgCt: 2*) =   418 (*16_a2 03 *)
+; CONST ItkVarDeclValuePatch            (*ArgCt: 2*) =   419 (*16_a3 03 *)
 
 (* LONE ItkDeclTypeAbsent: *)
 ; CONST ItkDeclTypeAbsent               (*ArgCt: 0*) =   420 (*16_a4 03 *)
@@ -566,9 +566,9 @@ ItkROFormalId    IDENT POS .
 ; CONST ItkVALUEFormalTypePatch         (*ArgCt: 2*) =   428 (*16_ac 03 *)
 
 (* Position of becomes. *)
-; CONST ItkVALUEFormalVal               (*ArgCt: 2*) =   429 (*16_ad 03 *)
-; CONST ItkVALUEFormalValTemp           (*ArgCt: 2*) =   430 (*16_ae 03 *)
-; CONST ItkVALUEFormalValPatch          (*ArgCt: 2*) =   431 (*16_af 03 *)
+; CONST ItkVALUEFormalValue             (*ArgCt: 2*) =   429 (*16_ad 03 *)
+; CONST ItkVALUEFormalValueTemp         (*ArgCt: 2*) =   430 (*16_ae 03 *)
+; CONST ItkVALUEFormalValuePatch        (*ArgCt: 2*) =   431 (*16_af 03 *)
 
 (* One formal, with possibly multiple idents. *)
 (* Position of LM ident (Lt) or of semicolon (Rt). *)
@@ -584,9 +584,9 @@ ItkROFormalId    IDENT POS .
 ; CONST ItkVARFormalTypePatch           (*ArgCt: 2*) =   438 (*16_b6 03 *)
 
 (* Position of becomes. *)
-; CONST ItkVARFormalVal                 (*ArgCt: 2*) =   439 (*16_b7 03 *)
-; CONST ItkVARFormalValTemp             (*ArgCt: 2*) =   440 (*16_b8 03 *)
-; CONST ItkVARFormalValPatch            (*ArgCt: 2*) =   441 (*16_b9 03 *)
+; CONST ItkVARFormalValue               (*ArgCt: 2*) =   439 (*16_b7 03 *)
+; CONST ItkVARFormalValueTemp           (*ArgCt: 2*) =   440 (*16_b8 03 *)
+; CONST ItkVARFormalValuePatch          (*ArgCt: 2*) =   441 (*16_b9 03 *)
 
 (* One formal, with possibly multiple idents. *)
 (* Position of LM ident (Lt) or of semicolon (Rt). *)
@@ -602,9 +602,9 @@ ItkROFormalId    IDENT POS .
 ; CONST ItkROFormalTypePatch            (*ArgCt: 2*) =   448 (*16_c0 03 *)
 
 (* Position of becomes, *)
-; CONST ItkROFormalVal                  (*ArgCt: 2*) =   449 (*16_c1 03 *)
-; CONST ItkROFormalValTemp              (*ArgCt: 2*) =   450 (*16_c2 03 *)
-; CONST ItkROFormalValPatch             (*ArgCt: 2*) =   451 (*16_c3 03 *)
+; CONST ItkROFormalValue                (*ArgCt: 2*) =   449 (*16_c1 03 *)
+; CONST ItkROFormalValueTemp            (*ArgCt: 2*) =   450 (*16_c2 03 *)
+; CONST ItkROFormalValuePatch           (*ArgCt: 2*) =   451 (*16_c3 03 *)
 
 (* GenTok implicitly gives list tokens:
      The usual patch coordinate, if it's a patch token.

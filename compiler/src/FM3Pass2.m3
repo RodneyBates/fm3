@@ -50,7 +50,11 @@ MODULE FM3Pass2
 ; IMPORT FM3SharedUtils 
 ; IMPORT FM3Units 
 ; IMPORT FM3Utils
-; IMPORT RdBackFile 
+; IMPORT RdBackFile
+
+
+
+; IMPORT FM3Sets
 
 ; TYPE Ekt = FM3Exprs . ExprKindTyp 
 ; TYPE Ust = FM3Units . UnitStateTyp
@@ -404,7 +408,7 @@ MODULE FM3Pass2
   = BEGIN
       Top := FM3Exprs . ExprStackTopObj
 (*    ; <* ASSERT Top # NIL *>
-      <* ASSERT Top . ExpLink = NIL *>
+      <* ASSERT Top . ExpStackLink = NIL *>
 *) 
     END AssertExprStack1 
 
@@ -420,9 +424,9 @@ MODULE FM3Pass2
   = BEGIN
       Top := FM3Exprs . ExprStackTopObj
     ; <* ASSERT Top # NIL *>
-      Second := Top . ExpLink 
+      Second := Top . ExpStackLink 
     ; <* ASSERT Top # NIL *>
-      <* ASSERT Second . ExpLink = NIL *>
+      <* ASSERT Second . ExpStackLink = NIL *>
     END AssertExprStack2 
 
 ; PROCEDURE AssertExprStackGE2 ( VAR (*OUT*) Top , Second : FM3Exprs . ExprTyp )
@@ -430,7 +434,7 @@ MODULE FM3Pass2
   = BEGIN
       Top := FM3Exprs . ExprStackTopObj
     ; <* ASSERT Top # NIL *>
-      Second := Top . ExpLink 
+      Second := Top . ExpStackLink 
     END AssertExprStackGE2
 
 ; PROCEDURE PopExpr1 ( ) 
@@ -469,30 +473,31 @@ MODULE FM3Pass2
   (* Expressions that are contained in definitions. *) 
 
   = VAR LUnitRef : FM3Units . UnitRefTyp
-  ; VAR LScopeRef : FM3Scopes . ScopeRefTyp 
+  ; VAR LScopeRef : FM3Scopes . ScopeRefTyp
   
   ; BEGIN
-      LUnitRef := FM3Units . UnitStackTopRef 
+      LUnitRef := FM3Units . UnitStackTopRef
     ; LScopeRef := FM3Scopes . DeclScopeStackTopRef
-    ; IF LScopeRef ^ . ScpCurExprObj = NIL 
-      THEN
-        LScopeRef ^ . ScpCurExprObj := NewExprObj
-      ; LScopeRef ^ . ScpCurDeclRefNoSet := IntSets . Empty ( ) 
-      ELSE
-        TYPECASE NewExprObj . ExpLink OF
-        | NULL => 
-        | FM3Exprs . ExprCommon ( TDeeperExpr ) 
-        => NewExprObj . ExpKind := TDeeperExpr . ExpKind
-        ELSE
-        END (*TYPECASE*) 
-      END (*IF*) 
-    ; NewExprObj . ExpIsLegalRecursive := FALSE 
+    ; WITH WCurDef = LScopeRef ^. ScpCurDefExprs [ LScopeRef . ScpCurDefIsValue ]
+      DO IF WCurDef = NIL
+        THEN (* NewExprObj is root of expression tree. *) WCurDef := NewExprObj
+        ELSE (* Inherit some things from parent expr node. *) 
+          TYPECASE FM3Exprs . ExprStackTopObj OF 
+          | NULL => <* ASSERT FALSE , "Orphan expr node" *> 
+          | FM3Exprs . ExprCommon ( TParentExpr ) 
+          =>  NewExprObj . ExpKind := TParentExpr . ExpKind
+            ; NewExprObj . ExpIsLegalRecursive
+                := NewExprObj . ExpIsLegalRecursive
+                   OR TParentExpr . ExpIsLegalRecursive
+          END (*TYPECASE*)
+        END (*IF*)
+      END (*WITH*) 
     ; NewExprObj . ExpSelfExprNo 
         := VarArray_Int_Refany . TouchedRange ( LUnitRef ^ . UntExprMap ) . Hi
            + 1
     ; VarArray_Int_Refany . Assign
         ( LUnitRef . UntExprMap , NewExprObj . ExpSelfExprNo , NewExprObj )
-    ; FM3Exprs . PushExprStack ( NewExprObj ) 
+    ; FM3Exprs . PushExprStack ( NewExprObj )
     END DefExprRt 
 
 ; PROCEDURE DefExprLt ( )
@@ -558,7 +563,9 @@ MODULE FM3Pass2
           ELSE 
             DefExprRt ( NewExpr )
           ; NewExpr . ExpPosition := WPosition
+(* DefExpr copies this down from parent: 
           ; NewExpr . ExpKind := Ekt . EkType
+*) 
 (* TODO:      ^Figure this out. *) 
           END (*IF*)
         END (*WITH*)
@@ -762,23 +769,71 @@ MODULE FM3Pass2
       =>  FM3Scopes . OpenScopeStackTopRef ^ . ScpInsideDecl := FALSE 
         ; HtPassTokenThru ( ) 
 
-      | Itk . ItkVarDeclLt 
-      , Itk . ItkConstDeclLt 
+      | Itk . ItkConstDeclRt 
+      , Itk . ItkVarDeclRt 
+      , Itk . ItkVALUEFormalRt
+      , Itk . ItkVARFormalRt
+      , Itk . ItkROFormalRt
+      , Itk . ItkFieldDeclRt (* Of either record or object. *) 
+      =>  FM3Scopes . DeclScopeStackTopRef ^.  ScpCurDeclRefNoSet
+            := IntSets . Empty ( )
+        ; FM3Scopes . DeclScopeStackTopRef ^. ScpCurDefExprs
+            := ARRAY BOOLEAN OF REFANY { NIL , .. }
+        ; FM3Scopes . DeclScopeStackTopRef ^. ScpCurDefIsValue := TRUE
+            (* ^ Value def coming up. *)
+        ; HtPassTokenThru ( )
+
+      | Itk . ItkConstDeclValue 
+      , Itk . ItkVarDeclValue 
+      , Itk . ItkVALUEFormalValue
+      , Itk . ItkVARFormalValue
+      , Itk . ItkROFormalValue
+      , Itk . ItkFieldDeclValue (* Of either record or object. *) 
+      =>  EVAL FM3Exprs . PopExprStack ( ) 
+        ; FM3Scopes . DeclScopeStackTopRef ^. ScpCurDefIsValue := FALSE
+            (* ^Now type def coming up. *)
+        ; HtPassTokenThru ( )
+
+      | Itk . ItkConstDeclType 
+      , Itk . ItkVarDeclType 
+      , Itk . ItkVALUEFormalType
+      , Itk . ItkVARFormalType
+      , Itk . ItkROFormalType
+      , Itk . ItkFieldDeclType (* Of either record or object. *) 
+      =>  EVAL  FM3Exprs . PopExprStack ( )  
+        ; FM3Scopes . DeclScopeStackTopRef ^. ScpCurDefIsValue := TRUE
+            (* ^Done with type, value is next. *) 
+        ; HtPassTokenThru ( )
+
+      | Itk . ItkConstDeclLt 
+      , Itk . ItkVarDeclLt 
       , Itk . ItkVALUEFormalLt
       , Itk . ItkVARFormalLt
       , Itk . ItkROFormalLt
       , Itk . ItkFieldDeclLt (* Of either record or object. *) 
-      =>  (* Two subtrees to pop: expr on top and type. *)
-          EVAL FM3Exprs . PopExprStack ( )  
-        ; EVAL FM3Exprs . PopExprStack ( )  
+      =>  HtPassTokenThru ( )
+
+      | Itk . ItkTypeDeclRt
+      , Itk . ItkFullRevealRt 
+      , Itk . ItkPartialRevealRt
+      =>  FM3Scopes . DeclScopeStackTopRef ^.  ScpCurDeclRefNoSet
+            := IntSets . Empty ( ) 
+        ; FM3Scopes . DeclScopeStackTopRef ^. ScpCurDefExprs
+            := ARRAY BOOLEAN OF REFANY { NIL , .. }
+        ; FM3Scopes . DeclScopeStackTopRef ^. ScpCurDefIsValue := FALSE
+            (* ^ These have only a type def. *) 
+        ; HtPassTokenThru ( )
+
+      | Itk . ItkTypeDeclType
+      , Itk . ItkFullRevealType 
+      , Itk . ItkPartialRevealSubtype
+      =>  EVAL FM3Exprs . PopExprStack ( )  
         ; HtPassTokenThru ( )
 
       | Itk . ItkTypeDeclLt
       , Itk . ItkFullRevealLt 
       , Itk . ItkPartialRevealLt
-      =>  (* One subtree to pop. *)
-          EVAL FM3Exprs . PopExprStack ( )  
-        ; HtPassTokenThru ( )
+      =>  HtPassTokenThru ( )
 
       | Itk . ItkMethodDeclLt
       =>  (* One subtree to pop. *)
@@ -791,11 +846,6 @@ MODULE FM3Pass2
       , Itk . ItkFormalExprAbsent 
       =>  ExprAbsent ( )
         ; HtPassTokenThru ( ) 
-
-      | Itk . ItkFieldDeclVal
-      , Itk . ItkFieldDeclType
-(* FIXME: What about Formals? *)
-      =>  HtPassTokenThru ( ) 
 
       | Itk . ItkDeclNo
       =>  HtDeclNo := GetBwdInt ( TokResult . TrRdBack ) 
@@ -901,7 +951,8 @@ MODULE FM3Pass2
       (* REF type: *) 
       | Itk . ItkREFTypeRt 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
-        ; HtExprRt ( NEW ( FM3Exprs . ExprREFTypeTyp ) ) 
+        ; HtExprRt
+            ( NEW ( FM3Exprs . ExprREFTypeTyp , ExpIsLegalRecursive := TRUE ) ) 
 
       | Itk . ItkREFTypeLt
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
@@ -1234,17 +1285,26 @@ MODULE FM3Pass2
       ; LDeclRef ^ . DclIdAtom := DidAtom
       ; LDeclRef ^ . DclPos := DidPosition 
       ; LDeclRef ^ . DclKind := DidDeclKind
-
+      ; LDeclRef ^ . DclDefValue
+          := FM3Scopes . DeclScopeStackTopRef ^. ScpCurDefExprs [ TRUE ]  
+      ; LDeclRef ^ . DclDefType 
+          := FM3Scopes . DeclScopeStackTopRef ^. ScpCurDefExprs [ FALSE ] 
+          
       ; CASE DidDeclKind OF
-        | Dkt . DkConst
-        , Dkt . DkVar
+        | Dkt . DkVar
         =>  <* ASSERT FM3Scopes . DeclScopeStackTopRef ^. ScpKind
                       IN FM3Scopes . ScopeKindSetOpen
             *>
-            (* These have a type and a value on the expression stack. *)
-            LDeclRef ^. DclDefValue := FM3Exprs . ExprStackTopObj
-          ; LDeclRef ^. DclDefType := FM3Exprs . ExprStackTopObj . ExpLink 
-          ; <* ASSERT LDeclRef ^. DclDefType # NIL *> 
+            (* This must have a type and/or a value expr. *)
+            <* ASSERT LDeclRef ^. DclDefType # NIL 
+                      OR LDeclRef ^. DclDefType # NIL *> 
+
+        | Dkt . DkConst
+        =>  <* ASSERT FM3Scopes . DeclScopeStackTopRef ^. ScpKind
+                      IN FM3Scopes . ScopeKindSetOpen
+            *>
+            (* This has an optional type and a required value expr. *)
+            <* ASSERT LDeclRef ^. DclDefType # NIL *> 
 
         | Dkt . DkType                        
         , Dkt . DkMethod
@@ -1253,9 +1313,8 @@ MODULE FM3Pass2
         =>  <* ASSERT FM3Scopes . DeclScopeStackTopRef ^. ScpKind
                       IN FM3Scopes . ScopeKindSetOpen
             *>
-            (* These have a type on the expression stack. *)
-            LDeclRef ^. DclDefType := FM3Exprs . ExprStackTopObj 
-          ; <* ASSERT LDeclRef ^. DclDefType # NIL *> 
+            (* These have a required type on the expression stack. *)
+            <* ASSERT LDeclRef ^. DclDefType # NIL *> 
 
         | Dkt . DkVALUEFormal
         , Dkt . DkVARFormal
@@ -1265,16 +1324,17 @@ MODULE FM3Pass2
         =>  <* ASSERT NOT FM3Scopes . DeclScopeStackTopRef ^. ScpKind
                           IN FM3Scopes . ScopeKindSetOpen
             *>
-            (* These have a type and a value on the expression stack. *)
-            LDeclRef ^. DclDefValue := FM3Exprs . ExprStackTopObj
-          ; LDeclRef ^. DclDefType := FM3Exprs . ExprStackTopObj . ExpLink 
-          ; <* ASSERT LDeclRef ^. DclDefType # NIL *> 
+            (* These must have a type and/or a value expr. *)
+            <* ASSERT LDeclRef ^. DclDefType # NIL 
+                      OR LDeclRef ^. DclDefType # NIL *> 
 
         | Dkt . DkExc
         , Dkt . DkEnumLit
         =>  <* ASSERT NOT FM3Scopes . DeclScopeStackTopRef ^. ScpKind
                           IN FM3Scopes . ScopeKindSetOpen
             *>
+            <* ASSERT LDeclRef ^. DclDefType = NIL 
+                      AND LDeclRef ^. DclDefType = NIL *> 
 (* COMPLETEME *)
             
         | Dkt . DkNull
@@ -1390,7 +1450,7 @@ MODULE FM3Pass2
       END (*IF*)
     (* The ref is to the current open scope.  Would it be legal in a recursion? *) 
     ; TYPECASE FM3Exprs . ExprStackTopObj OF 
-      NULL => 
+      NULL => EVAL FM3Sets . IntImage ( 7 ) 
       | FM3Exprs . ExprCommon ( TRefExpr ) 
       => IF NOT TRefExpr . ExpIsLegalRecursive
          THEN 
@@ -1399,7 +1459,7 @@ MODULE FM3Pass2
            DO WRefIdNoSet := IntSets . Include ( WRefIdNoSet , RefDeclNo ) 
            END (*WITH*)
          END (*IF*)
-      ELSE 
+      ELSE EVAL FM3Sets . IntImage ( 9 ) 
       END (*TYPECASE*) 
     END CheckRecursiveRef 
 
