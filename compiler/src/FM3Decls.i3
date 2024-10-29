@@ -11,7 +11,8 @@ INTERFACE FM3Decls
 ; IMPORT IntSets
 
 ; IMPORT FM3Base
-; IMPORT FM3Exprs 
+; IMPORT FM3Exprs
+; IMPORT FM3Globals 
 ; IMPORT FM3Scopes
 
 ; TYPE DeclKindTyp
@@ -43,8 +44,8 @@ INTERFACE FM3Decls
 ; PROCEDURE DeclKindImage ( Kind : DeclKindTyp ) : TEXT
 
 ; CONST DeclRefBrand = "DeclRef0.1" 
-; REVEAL FM3Base . DeclRefTyp = BRANDED DeclRefBrand REF DeclTyp 
-; TYPE DeclRefTyp = FM3Base . DeclRefTyp 
+; REVEAL FM3Globals . DeclRefTyp = BRANDED DeclRefBrand REF DeclTyp 
+; TYPE DeclRefTyp = FM3Globals . DeclRefTyp 
 ; TYPE DeclTyp
     = RECORD 
         DclLink : DeclRefTyp
@@ -53,14 +54,14 @@ INTERFACE FM3Decls
            These will have DeclKind DkDuplDecl.  Such a list is mutually
            exclusive of a single node of some other DeclKind. 
         *) 
-      ; DclParentScopeRef : FM3Base . ScopeRefTyp (* Containing scope *) 
-      ; DclSelfScopeRef : FM3Base . ScopeRefTyp (* If this declares a scope *)
+      ; DclParentScopeRef : FM3Globals . ScopeRefTyp (* Containing scope *) 
+      ; DclSelfScopeRef : FM3Globals . ScopeRefTyp (* If this declares a scope *)
       ; DclDefType : FM3Exprs . ExprTyp := NIL 
       ; DclDefValue : FM3Exprs . ExprTyp := NIL 
       ; DclIdAtom : FM3Base . AtomTyp
       ; DclIdCt : INTEGER
       ; DclIdNo : INTEGER (* Counts up while going thru' multiple idents. *) 
-      ; DclSelfDeclNo : FM3Base . DeclNoTyp (* A self-reference. *)
+      ; DclSelfDeclNo : FM3Globals . DeclNoTyp (* A self-reference. *)
       ; DclPos : FM3Base . tPosition 
       ; DclKind : DeclKindTyp
       ; DclIsUsable : BOOLEAN 
@@ -69,10 +70,12 @@ INTERFACE FM3Decls
 ; TYPE DeclMapTyp = FM3Base . MapTyp
     (* Map DeclNoTyp to DeclRefTyp. One of these per Unit. *)
 
-; PROCEDURE NewDeclMap ( InitDeclCt : FM3Base . DeclNoTyp ) : DeclMapTyp 
+; PROCEDURE NewDeclMap ( InitDeclCt : FM3Globals . DeclNoTyp ) : DeclMapTyp 
 
 ; PROCEDURE NewDeclRef
-    ( ParentScopeRef : FM3Base . ScopeRefTyp ; DeclNo : FM3Base . DeclNoTyp )
+    ( ParentScopeRef : FM3Globals . ScopeRefTyp
+    ; DeclNo : FM3Globals . DeclNoTyp
+    )
   : DeclRefTyp
   (* Allocate a DeclRef and initialize a couple of fields. *)
 

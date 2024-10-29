@@ -10,6 +10,7 @@ INTERFACE FM3ExpImp
 
 ; IMPORT FM3Atom_OAChars 
 ; IMPORT FM3Base
+; IMPORT FM3Globals 
 ; IMPORT FM3Messages 
 ; IMPORT FM3OpenArray_Char
 ; IMPORT FM3Scanner 
@@ -45,7 +46,7 @@ INTERFACE FM3ExpImp
 
 ; PROCEDURE ImportDeclByNo
     ( FromUnitRef : FM3Units . UnitRefTyp
-    ; FromUnitDeclNo : FM3Base . DeclNoTyp
+    ; FromUnitDeclNo : FM3Globals . DeclNoTyp
     ; Position : FM3Base . tPosition
     ; Duplicator : TEXT  
     )

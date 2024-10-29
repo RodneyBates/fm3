@@ -29,6 +29,122 @@ ABS 0
    
 ABS 5
 
+   TokMinPredef            "<TokMinPredef>" 
+  
+   (* Reserved identifiers: *)
+   (* We want to scan these with the same lex machine as reserved words,
+      but then treat each of them as source token StkReservedId, using the
+      code the lex table gives as an atom id.  This may rebiasing them
+      to agree with FM3PreDecl, which the scanner will do.
+   *) 
+
+   RidNull             "<RidNull>" . (* Scanner will never present this. *) 
+   RidABS              "ABS" . 
+   RidADDRESS          "ADDRESS" . 
+   RidADR              "ADR" . 
+   RidADRSIZE          "ADRSIZE" . 
+   RidBITSIZE          "BITSIZE" . 
+   RidBOOLEAN          "BOOLEAN" . 
+   RidBYTESIZE         "BYTESIZE" . 
+   RidCARDINAL         "CARDINAL" . 
+   RidCEILING          "CEILING" . 
+   RidCHAR             "CHAR" . 
+   RidDEC              "DEC" . 
+   RidDISPOSE          "DISPOSE" . 
+   RidEXTENDED         "EXTENDED" . 
+   RidFALSE            "FALSE" . 
+   RidFIRST            "FIRST" . 
+   RidFLOAT            "FLOAT" . 
+   RidFLOOR            "FLOOR" . 
+   RidINC              "INC" . 
+   RidINTEGER          "INTEGER" . 
+   RidISTYPE           "ISTYPE" . 
+   RidLAST             "LAST" . 
+   RidLONGCARD         "LONGCARD" . 
+   RidLONGINT          "LONGINT" . 
+   RidLONGREAL         "LONGREAL" . 
+   RidLOOPHOLE         "LOOPHOLE" . 
+   RidMAX              "MAX" . 
+   RidMIN              "MIN" . 
+   RidMUTEX            "MUTEX" . 
+   RidNARROW           "NARROW" . 
+   RidNEW              "NEW" . 
+   RidNIL              "NIL" . 
+   RidNULL             "NULL" . 
+   RidNUMBER           "NUMBER" . 
+   RidORD              "ORD" . 
+   RidREAL             "REAL" . 
+   RidREFANY           "REFANY" . 
+   RidROUND            "ROUND" . 
+   RidSUBARRAY         "SUBARRAY" . 
+   RidTEXT             "TEXT" . 
+   RidTRUE             "TRUE" . 
+   RidTRUNC            "TRUNC" . 
+   RidTYPECODE         "TYPECODE" . 
+   RidVAL              "VAL" .
+   RidWIDECHAR         "WIDECHAR" .
+
+   (* These behave semantically like reserved identifiers, but each occurs in
+      a different set of syntactic contexts from identifiers, so they are
+      source-code reserved words.  We convert those after parsing into
+      reserved idents with the following Rid atoms.
+   *)
+   
+   RidROOT             "<ROOT>" .
+   RidUNTRACEDROOT     "<UNTRACED_ROOT>" .
+
+   (* Idents in Word and Long. *)
+
+   Word_T              "T" . 
+   Word_Size           "Size" . 
+   Word_Plus           "Plus" . 
+   Word_Times          "Times" . 
+   Word_Minus          "Minus" . 
+   Word_Divide         "Divide" . 
+   Word_Mod            "Mod" . 
+   Word_LT             "LT" . 
+   Word_LE             "LE" . 
+   Word_GT             "GT" . 
+   Word_GE             "GE" . 
+   Word_And            "And" . 
+   Word_Or             "Or" . 
+   Word_Xor            "Xor" . 
+   Word_Not            "Not" . 
+   Word_Shift          "Shift" . 
+   Word_LeftShift      "LeftShift" . 
+   Word_RightShift     "RightShift" . 
+   Word_Rotate         "Rotate" . 
+   Word_LeftRotate     "LeftRotate" . 
+   Word_RightRotate    "RightRotate" . 
+   Word_Extract        "Extract" . 
+   Word_Insert         "Insert" . 
+
+   Long_T              "T" . 
+   Long_Size           "Size" . 
+   Long_Plus           "Plus" . 
+   Long_Times          "Times" . 
+   Long_Minus          "Minus" . 
+   Long_Divide         "Divide" . 
+   Long_Mod            "Mod" . 
+   Long_LT             "LT" . 
+   Long_LE             "LE" . 
+   Long_GT             "GT" . 
+   Long_GE             "GE" . 
+   Long_And            "And" . 
+   Long_Or             "Or" . 
+   Long_Xor            "Xor" . 
+   Long_Not            "Not" . 
+   Long_Shift          "Shift" . 
+   Long_LeftShift      "LeftShift" . 
+   Long_RightShift     "RightShift" . 
+   Long_Rotate         "Rotate" . 
+   Long_LeftRotate     "LeftRotate" . 
+   Long_RightRotate    "RightRotate" . 
+   Long_Extract        "Extract" . 
+   Long_Insert         "Insert" . 
+
+   TokMaxPredef        "<TokMaxPredef>" .
+   
    (* Modula-3 Reserved words: *) 
    StkRwAND            "AND" .   
    StkRwANY            "ANY" .   
@@ -114,8 +230,6 @@ ABS 5
    StkGreater          ">" . 
    StkLessEqual        "<=" .
 
-
-
    StkGreaterEqual     ">=" . 
    StkPlus             "+" . 
    StkMinus            "-" . 
@@ -140,67 +254,6 @@ ABS 5
    StkCharLit . 
    StkWideCharLit .
    StkLexErrChars .
-   StkPragmaId . (* Not a known pragma ident, but found where one is expected. *)  
-
-   (* Reserved identifiers: *)
-   (* We want to scan these with the same lex machine as reserved words,
-      but then treat each of them as source token StkReservedId, using the
-      code the lex table gives as an atom id.  This may rebiasing them
-      to agree with FM3PreDecl, which the scanner will do.
-   *) 
-
-   RidNull             "<RidNull>" . (* Scanner will never present this. *) 
-   RidABS              "ABS" . 
-   RidADDRESS          "ADDRESS" . 
-   RidADR              "ADR" . 
-   RidADRSIZE          "ADRSIZE" . 
-   RidBITSIZE          "BITSIZE" . 
-   RidBOOLEAN          "BOOLEAN" . 
-   RidBYTESIZE         "BYTESIZE" . 
-   RidCARDINAL         "CARDINAL" . 
-   RidCEILING          "CEILING" . 
-   RidCHAR             "CHAR" . 
-   RidDEC              "DEC" . 
-   RidDISPOSE          "DISPOSE" . 
-   RidEXTENDED         "EXTENDED" . 
-   RidFALSE            "FALSE" . 
-   RidFIRST            "FIRST" . 
-   RidFLOAT            "FLOAT" . 
-   RidFLOOR            "FLOOR" . 
-   RidINC              "INC" . 
-   RidINTEGER          "INTEGER" . 
-   RidISTYPE           "ISTYPE" . 
-   RidLAST             "LAST" . 
-   RidLONGCARD         "LONGCARD" . 
-   RidLONGINT          "LONGINT" . 
-   RidLONGREAL         "LONGREAL" . 
-   RidLOOPHOLE         "LOOPHOLE" . 
-   RidMAX              "MAX" . 
-   RidMIN              "MIN" . 
-   RidMUTEX            "MUTEX" . 
-   RidNARROW           "NARROW" . 
-   RidNEW              "NEW" . 
-   RidNIL              "NIL" . 
-   RidNULL             "NULL" . 
-   RidNUMBER           "NUMBER" . 
-   RidORD              "ORD" . 
-   RidREAL             "REAL" . 
-   RidREFANY           "REFANY" . 
-   RidROUND            "ROUND" . 
-   RidSUBARRAY         "SUBARRAY" . 
-   RidTEXT             "TEXT" . 
-   RidTRUE             "TRUE" . 
-   RidTRUNC            "TRUNC" . 
-   RidTYPECODE         "TYPECODE" . 
-   RidVAL              "VAL" .
-   RidWIDECHAR         "WIDECHAR" .
-
-   (* These behave semantically like reserved identifiers, but each occurs in
-      a different set of syntactic contexts from identifiers, so they are
-      source-code reserved words.  We convert them as reserved idents with
-      the following Rid atoms.
-   *)
+   StkPragmaId . (* Not a known pragma ident, but found where one is expected. *)
    
-   RidROOT             "<ROOT>" .
-   RidUNTRACEDROOT     "<UNTRACED_ROOT>" .
-
+(* End of FM3SrcToks.gentok. *) 

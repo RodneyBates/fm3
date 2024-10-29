@@ -7,7 +7,7 @@
 (* -----------------------------------------------------------------------2- *)
 
 (* GenTok: A metaprogram to generate a package containing declarations
-   for internal tokens, and some additional support. *) 
+   for compiler token codes, and some additional support. *) 
 
 MODULE GenTok
 
@@ -42,7 +42,7 @@ EXPORTS Main
 ; CONST EofChar = '\XFF'
 ; CONST CR = '\n'
 ; CONST LF = '\r' 
-; CONST Letters = SET OF CHAR { 'A' .. 'Z' , 'a' .. 'z' }
+; CONST Letters = SET OF CHAR { 'A' .. 'Z' , 'a' .. 'z' , '_' }
 ; CONST Digits = SET OF CHAR { '0' .. '9' }
 ; CONST LettersNDigits = Letters + Digits 
 

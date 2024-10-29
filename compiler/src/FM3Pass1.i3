@@ -11,6 +11,7 @@ INTERFACE FM3Pass1
 ; IMPORT FM3Base
 ; FROM FM3Base IMPORT tPosition 
 ; IMPORT FM3Decls 
+; IMPORT FM3Globals 
 ; IMPORT FM3Units 
 ; IMPORT FM3Scanner
 ; IMPORT FM3Scopes 
@@ -202,6 +203,13 @@ INTERFACE FM3Pass1
     ; READONLY Position : tPosition 
     )
 
+; PROCEDURE PutBwd_LCIIP_riip
+    ( T : Itk . TokTyp 
+    ; C : LONGINT 
+    ; I1 , I2 : INTEGER 
+    ; READONLY Position : tPosition 
+    )
+
 ; PROCEDURE PutBwd_LCNP_rnp
     ( T : Itk . TokTyp 
     ; C : LONGINT 
@@ -346,7 +354,7 @@ INTERFACE FM3Pass1
     ; READONLY DeclPos : tPosition
     )
 
-; PROCEDURE BeginBlock ( ) : FM3Base . ScopeNoTyp (* Created. *) 
+; PROCEDURE BeginBlock ( ) : FM3Globals . ScopeNoTyp (* Created. *) 
 
 ; PROCEDURE EndBlock ( )
 
@@ -363,7 +371,7 @@ INTERFACE FM3Pass1
     ; READONLY SepPosition : tPosition := FM3Base . PositionNull 
     ; PriorIdCt : INTEGER := 0 (* Number of ids to left of this one. *)
     )
-  : BOOLEAN (* Use this declared id.  (It's not predefined and not a duplicate
+  : BOOLEAN (* Use this declared id.  (It's not builtin and not a duplicate
                in current scope.) *)
   (* PRE: IdAttribute is for an identifier in a declaration context. *) 
 
@@ -378,6 +386,17 @@ INTERFACE FM3Pass1
     ( READONLY LtAttribute , RtAttribute : tParsAttribute )
   (* Handles either/both idents reserved (error msg). *) 
     
+; PROCEDURE NoSelectorAllowed
+    ( IdAttribute : tParsAttribute ; SelectedTag : TEXT )
+
+; PROCEDURE BuiltinIdentActualsL2R
+    ( READONLY IdAttribute , ActualsAttribute : tParsAttribute )
+  (* PRE: IdAttibute is for a lone builtin ident. *) 
+  (* PRE: ActualsAttribute is for an actual parameter list. *) 
+
+; PROCEDURE IdentCallL2R
+    ( READONLY IdAttribute , ActualsAttribute : tParsAttribute ) 
+
 ; PROCEDURE DeclScopeRtL2R ( ScopeRef : FM3Scopes . ScopeRefTyp )
   (* Create an IdAtom-to-declNo, fixed-size dictionary for the scope, of
      exactly the needed size, and load it up with mappings of the idents

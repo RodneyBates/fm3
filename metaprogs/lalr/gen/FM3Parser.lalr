@@ -591,7 +591,16 @@ RULE
 (* ----------------------------- Identifiers ---------------------------- *)
 
    IdentRef : StkIdent
-     { FM3Pass1 . IdentRefL2R ( $1 ) ; } .
+     { $$ . Scan . SaChars := $1 . Scan . SaChars ;
+       $$ . Scan . SaIsReservedId := $1 . Scan . SaIsReservedId ;
+       FM3Pass1 . IdentRefL2R ( $1 ) ;
+     } .
+
+   QualIdentRef : StkIdent StkDot StkIdent   
+     { $$ . Scan . SaChars := $1 . Scan . SaChars ;
+       $$ . Scan . SaIsReservedId := $1 . Scan . SaIsReservedId ;
+       FM3Pass1 . QualIdentL2R ( $1 , $3 ) ;
+     } .
 
 (* List of one or more comma-separated Idents.*)
    IdPlusList : IdentRef 
@@ -649,33 +658,38 @@ RULE
    IdStarList : /*Empty*/
      { $$ . PaInt := 0 ; } . 
 
-(* List of zero or more comma-separated qualified Idents. *)
-   QualIdentStarList : /*Empty*/
-     { $$ . PaInt := 0 ; } .
-   QualIdentStarList : QualIdentPlusList
-     { $$ . PaInt := $1 . PaInt ; } .
-   QualIdentPlusList : QualIdent
-     { $$ . PaInt := 1 } . 
-   QualIdentPlusList : QualIdentPlusList StkComma QualIdent
-     { $$ . PaInt := $1 . PaInt + 1 ; } .
-     
-(* Qualified ident, which includes unqualified ident. *)   
+(* Qualified or unqualified ident. *)
+
+   MaybeQualIdent : IdentRef
+     { $$ . Scan . SaChars := $1 . Scan . SaChars ;
+       $$ . Scan . SaIsReservedId := $1 . Scan . SaIsReservedId ;
+     } . 
+   MaybeQualIdent : QualIdent 
+     { $$ . Scan . SaChars := $1 . Scan . SaChars ;
+       $$ . Scan . SaIsReservedId := $1 . Scan . SaIsReservedId ;
+     } . 
+   
    QualIdent : StkIdent
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
        $$ . Scan . SaIsReservedId := $1 . Scan . SaIsReservedId ;
        FM3Pass1 . IdentRefL2R ( $1 ) ;
      } .
 
-   QualIdent : StkIdent StkDot StkIdent
-     { $$ . Scan . SaChars := $1 . Scan . SaChars ;
-       $$ . Scan . SaIsReservedId := $1 . Scan . SaIsReservedId ;
-       FM3Pass1 . QualIdentL2R ( $1 , $3 ) ;
-     } .
+(* List of zero or more comma-separated maybe-qualified Idents. *)
+   MaybeQualIdentStarList : /*Empty*/
+     { $$ . PaInt := 0 ; } .
+   MaybeQualIdentStarList : MaybeQualIdentPlusList
+     { $$ . PaInt := $1 . PaInt ; } .
+   MaybeQualIdentPlusList : MaybeQualIdent
+     { $$ . PaInt := 1 } . 
+   MaybeQualIdentPlusList : MaybeQualIdentPlusList StkComma MaybeQualIdent
+     { $$ . PaInt := $1 . PaInt + 1 ; } .
+     
+   TypeId : MaybeQualIdent.
 
-   TypeId : QualIdent.
-
-   (* Make ROOT and UNTRACED ROOT look like reserved idents, even though
-      they are reserved words in source syntax:
+   (* Make ROOT and UNTRACED ROOT look to later passes like reserved idents,
+      even though they are necessarily reserved words in source syntax,
+      because their syntactic contexts differ from those of identifiers:
    *) 
 
    TypeId : StkRwROOT
@@ -1066,7 +1080,7 @@ RULE
 
    Type :  TypeId . 
 
-(* ------------------------ Predefined type names ---------------------- *)
+(* ------------------------ Builtin type names ---------------------- *)
 
    Type : StkRidADDRESS . 
    Type : StkRidBOOLEAN . 
@@ -1090,6 +1104,14 @@ RULE
    Type : StkRwREF Type 
      { FM3Pass1 . PutBwd_LCP_rp
          ( Itk . ItkREFTypeLt
+         , $1 . PaPass1Coord
+         , $1 . Scan . Position 
+         ) ;
+     } .
+
+   Type : StkUNTRACED StkRwREF Type 
+     { FM3Pass1 . PutBwd_LCP_rp
+         ( Itk . ItkUNTRACEDREFTypeLt
          , $1 . PaPass1Coord
          , $1 . Scan . Position 
          ) ;
@@ -1969,14 +1991,30 @@ RULE
          ( $1 . PaTok1 , $1 . PaPass1Coord , $1 . Scan . Position ) ; 
      } .
 
-   (* A cartesian product:
-          { E8 without Id, Id }
-        X { Selector without dot, dot, noselector }
+   (* E7 is a Cartesian product:
+          { E8WOId, Id }
+        X { Deref, Subscripts, Actuals, dot-id, absent-selector }
+      Not cartesion-factored, because combinations Id-dot-Id and Id-Actuals
+      are special cases. 
    *) 
 
-   E7 : E8WOId SelectorWODot 
+   E7 : E8WOId StkDeref 
+     { FM3Pass1 . PutBwd_LCP_rp
+         ( Itk . ItkDerefLt , $1 . PaPass1Coord , $2 . Scan . Position ) ; 
+     } .
+     
+   E7 : E8WOId Subscripts 
      { FM3Pass1 . PutBwd_LCIP_rip
-         ( $2 . PaTok1
+         ( Itk . ItkSubscriptLt 
+         , $1 . PaPass1Coord 
+         , $2 . PaInt 
+         , $2 . Scan . Position
+         ) ; 
+     } .
+     
+   E7 : E8WOId Actuals  
+     { FM3Pass1 . PutBwd_LCIP_rip
+         ( Itk . ItkCallLt 
          , $1 . PaPass1Coord
          , $2 . PaInt 
          , $2 . Scan . Position
@@ -1994,33 +2032,53 @@ RULE
 
    E7 : E8WOId /* No selector. */ . 
 
-   E7 : IdentRef SelectorWODot
+   E7 : IdentRef StkDeref 
+     { FM3Pass1 . PutBwd_LCP_rp
+         ( Itk . ItkDerefLt , $1 . PaPass1Coord , $2 . Scan . Position ) ;
+     } .
+     
+   E7 : IdentRef Subscripts 
      { FM3Pass1 . PutBwd_LCIP_rip
-         ( $2 . PaTok1
+         ( Itk . ItkSubscriptLt 
          , $1 . PaPass1Coord 
          , $2 . PaInt 
          , $2 . Scan . Position
          ) ; 
      } .
+
+   E7: IdentRef Actuals 
+     { FM3Pass1 . PutBwd_LCIP_rip
+         ( Itk . ItkCallLt 
+         , $1 . PaPass1Coord 
+         , $2 . PaInt 
+         , $2 . Scan . Position
+         ) ; 
+     } . 
      
-   E7 : IdentRef /* No selector/ */ . 
+   E7 : IdentRef /* No selector */
+     { FM3Pass1 . IdentRefL2R ( $1 ) ; } .
 
-  (* Qualified ident. *) 
-   E8WOId /* A qualIdent is not a simple ident, and can have additional
-             selectors. */ 
-     : StkIdent StkDot StkIdent
-     { FM3Pass1 . QualIdentL2R ( $1 , $3 ) ; } .
-
-  (* Dereference. *) 
-   SelectorWODot : StkDeref
-     { $$ . PaTok1 := Itk . ItkDerefLt ;
-       $$ . PaInt := 0 (* Meaningless. *) ;
+   E7: BuiltinIdentRef Actuals 
+     { (* This is tricky.  Skip the ident for now.  Very soon,
+            BuiltinIdentActualsL2R may either reinsert it, put its atom
+            into an ItkBuiltinCall, or skip the actuals too. *)
+         FM3Pass1 . PutBwd_LCI_ri 
+           ( Itk . ItkSkipLt
+           , $1 . PaPass1Coord  
+           , FM3Globals . NextSkipNo  
+           ) ;
+         INC ( FM3Globals . NextSkipNo ) ; 
+         FM3Pass1 . BuiltinIdentActualsL2R ( $1 , $2 ) ;
      } .
 
+   E7 : BuiltinIdentRef  
+     { FM3Pass1 . BuiltinSelector ( $1 , $2 , "selected" ) } .
+
+   E7 : QualIdent /* Special case. */ . 
+   
   (* Array subscript list. *) 
-   SelectorWODot : StkOpenBracket SsPlusList StkCloseBracket 
-     { $$ . PaTok1 := Itk . ItkSubscriptLt ;
-       $$ . PaInt := $2 . PaInt (* Subscript count. *) ;
+   Subscripts : StkOpenBracket SsPlusList StkCloseBracket 
+     { $$ . PaInt := $2 . PaInt (* Subscript count. *) ;
        FM3Pass1 . MakeListPos
          ( LHSAttr := $$
          , TokLt := Itk . ItkSubscriptsPlusListLt
@@ -2043,9 +2101,8 @@ RULE
      } . 
 
   (* Actual parameter list of call. *) 
-   SelectorWODot : StkOpenParen ActualList StkCloseParen
-     { $$ . PaTok1 := Itk . ItkCallLt ;
-       $$ . PaInt := $2 . PaInt (* Actuals count. *) ;
+   Actuals : StkOpenParen ActualList StkCloseParen
+     { $$ . PaInt := $2 . PaInt (* Actuals count. *) ;
        FM3Pass1 . MakeListPos
          ( LHSAttr := $$
          , TokLt := Itk . ItkActualsListLt
@@ -2083,6 +2140,15 @@ RULE
          , $1 . Scan . Position
          ) ;
      } .
+
+  (* E8WOId, Other than a single Ident, things that can be followed by
+     some kinds of selectors:
+  *) 
+
+  (* Qualified ident. *) 
+   E8WOId /* This is not a single ident.  It can have additional selectors. */ 
+     : StkIdent StkDot StkIdent
+     { FM3Pass1 . QualIdentL2R ( $1 , $3 ) ; } .
 
   (* Literals.  *) 
 

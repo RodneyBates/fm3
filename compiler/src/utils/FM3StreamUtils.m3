@@ -10,7 +10,9 @@ MODULE FM3StreamUtils
 
 ; IMPORT FM3Base 
 ; IMPORT FM3Compress 
-; IMPORT FM3Decls  
+; IMPORT FM3Decls
+; IMPORT FM3Globals 
+
 ; IMPORT RdBackFile 
 
 (*EXPORTED.*)
@@ -41,12 +43,13 @@ MODULE FM3StreamUtils
     END GetBwdInt
     
 (*EXPORTED.*)
-; PROCEDURE GetBwdScopeNo ( RdBack : RdBackFile . T ) : FM3Base . ScopeNoTyp 
+; PROCEDURE GetBwdScopeNo ( RdBack : RdBackFile . T ) : FM3Globals . ScopeNoTyp 
 
-  = VAR LResult : FM3Base . ScopeNoTyp 
+  = VAR LResult : FM3Globals . ScopeNoTyp 
 
   ; BEGIN (*GetBwdScopeNo*)
-      LResult := VAL ( FM3Compress . GetBwd ( RdBack ) , FM3Base . ScopeNoTyp ) 
+      LResult
+        := VAL ( FM3Compress . GetBwd ( RdBack ) , FM3Globals . ScopeNoTyp ) 
     ; RETURN LResult 
     END GetBwdScopeNo 
 

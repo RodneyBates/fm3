@@ -17,11 +17,41 @@ INTERFACE FM3Globals
 ; IMPORT FM3Atom_OAWideChars
 ; IMPORT FM3Base 
 ; IMPORT FM3Dict_OAChars_Int
-; IMPORT FM3Units
+
+(* Avoid cyclic imports of strongly-connected data structure interfaces.
+   Opaque types are revealed i their respective interfaces.
+ *)
+
+
+; TYPE UnitRefTyp <: REFANY 
+; TYPE UnitNoTyp = CARDINAL
+; CONST UnitNoNull = FIRST ( CARDINAL )
+; CONST UnitNoMax = LAST ( CARDINAL ) 
+; CONST UnitNoFirstReal = UnitNoNull + 1 
+
+; TYPE ScopeRefTyp <: REFANY 
+; TYPE ScopeNoTyp = CARDINAL
+; CONST ScopeNoNull = FIRST ( CARDINAL )
+; CONST ScopeNoMax = LAST ( CARDINAL ) 
+; CONST ScopeNoFirstReal = ScopeNoNull + 1
+
+; TYPE DeclRefTyp <: REFANY 
+; TYPE DeclNoTyp = CARDINAL
+; CONST DeclNoNull = FIRST ( CARDINAL )
+; CONST DeclNoMax = LAST ( CARDINAL )
+; CONST DeclNoNotUseable = DeclNoNull + 1 
+; CONST DeclNoFirstReal = DeclNoNotUseable + 1
+
+; TYPE ExprTyp <: ROOT 
+; TYPE ExprNoTyp = CARDINAL
+; CONST ExprNoNull = FIRST ( CARDINAL )
+; CONST ExprNoMax = LAST ( CARDINAL )
+; CONST ExprNoNotUseable = ExprNoNull + 1 
+; CONST ExprNoFirstReal = ExprNoNotUseable + 1
 
 (* File names of internal and generated files: *)
 
-(** Suffixes are W/O  '.', so can use Pathname.Join. *) 
+(* Suffixes are W/O  '.', so can use Pathname.Join. *) 
 ; CONST PatchStackSuffix = "FM3Patch"
       (* The patch stack, used and emptied during parse pass 1. *)
 ; CONST PatchSackEmptySentinal = -1L

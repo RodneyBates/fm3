@@ -64,7 +64,7 @@ MODULE FM3Units
     END UnitKindSectionNo  
 
 ; PROCEDURE NewUnitsMap
-    ( InitUnitCt : FM3Base . UnitNoTyp ) : VarArray_Int_Refany . T
+    ( InitUnitCt : FM3Globals . UnitNoTyp ) : VarArray_Int_Refany . T
   (* PRE: InitUnitCt > 0. *) 
   (* One UnitsMap in a compile. *) 
 
@@ -85,7 +85,7 @@ MODULE FM3Units
   (* Allocate, low-level initialize, give it a UnitNo, and put into UnitsMap. *)
 
   = VAR LUnitRef : UnitRefTyp
-  ; VAR LUnitNo : FM3Base . UnitNoTyp 
+  ; VAR LUnitNo : FM3Globals . UnitNoTyp 
 
   ; BEGIN
       LUnitRef := NEW ( UnitRefTyp )
@@ -118,7 +118,7 @@ MODULE FM3Units
     ; LUnitRef ^ . UntPass2OutSimpleName := NIL
     ; LUnitRef ^ . UntPass2OutRdBack := NIL
     ; LUnitRef ^ . UntScopeRef := NIL
-    ; LUnitRef ^ . UntExpImpCt := FM3Base . DeclNoNull 
+    ; LUnitRef ^ . UntExpImpCt := FM3Globals . DeclNoNull 
     ; LUnitRef ^ . UntSkipStackBase := 0 
     ; LUnitRef ^ . UntUnitIdent := NIL 
     ; LUnitRef ^ . UntUnitIdentPos := FM3Base . PositionNull
@@ -189,7 +189,7 @@ MODULE FM3Units
   = VAR LResult : INTEGER 
 
   ; BEGIN (*AllocateDeclNos*)
-      IF UnitStackTopRef = NIL THEN RETURN FM3Base . DeclNoNull END (*IF*)
+      IF UnitStackTopRef = NIL THEN RETURN FM3Globals . DeclNoNull END (*IF*)
     ; LResult := UnitStackTopRef ^ . UntNextDeclNo
     ; INC ( UnitStackTopRef ^ . UntNextDeclNo , Count )
     ; RETURN LResult 

@@ -21,6 +21,7 @@ MODULE FM3ExpImp
 ; IMPORT FM3Compile
 ; IMPORT FM3Decls
 ; IMPORT FM3Dict_Int_Int 
+; IMPORT FM3Globals 
 ; IMPORT FM3Messages
 ; IMPORT FM3OpenArray_Char
 ; IMPORT FM3Scanner
@@ -191,7 +192,7 @@ MODULE FM3ExpImp
     ; LPrevExpImpProxy
         := VarArray_Int_ExpImpProxy . Fetch
              ( IntoUnitRef ^ . UntExpImpMap , NewIdentAtom )
-    ; IF LPrevExpImpProxy . EipUnitNo = FM3Base . UnitNoNull
+    ; IF LPrevExpImpProxy . EipUnitNo = FM3Globals . UnitNoNull
       THEN RETURN TRUE
       END (*IF*) 
     ; LPrevExpImpUnitRef (* Implicit NARROW. *) 
@@ -216,7 +217,7 @@ MODULE FM3ExpImp
              ( FM3Units . UnitsMap
              , LPrevExpImpProxy . EipUnitNo 
              )
-    ; IF LPrevExpImpProxy . EipDeclNo = FM3Base . DeclNoNull
+    ; IF LPrevExpImpProxy . EipDeclNo = FM3Globals . DeclNoNull
       THEN LPrevDeclPosition := LPrevDeclUnitRef ^ . UntUnitIdentPos 
       ELSE
         LPrevDeclRef (*Implied NARROW*) 
@@ -270,7 +271,7 @@ MODULE FM3ExpImp
 (*EXPORTED.*)
 ; PROCEDURE ImportDeclByNo
     ( FromUnitRef : FM3Units . UnitRefTyp
-    ; FromUnitDeclNo : FM3Base . DeclNoTyp
+    ; FromUnitDeclNo : FM3Globals . DeclNoTyp
     ; ExpImpPosition : FM3Base . tPosition
       (* ^Of the EXPORTS or IMPORT directive's interface identifier. *) 
     ; Duplicator : TEXT 
@@ -384,10 +385,10 @@ MODULE FM3ExpImp
                , IdScanAttribute . SaChars
                , IdScanAttribute . SaHash
                )
-      ; LProxy . EipUnitNo := FM3Base . UnitNoNull
+      ; LProxy . EipUnitNo := FM3Globals . UnitNoNull
       (* ^Makes it present but not useable. *) 
       ; LProxy . EipImportingUnitNo := LIntoUnitRef ^ . UntSelfUnitNo  
-      ; LProxy . EipDeclNo := FM3Base . DeclNoNull 
+      ; LProxy . EipDeclNo := FM3Globals . DeclNoNull 
       ; LProxy . EipImportingUnitPosition := IdScanAttribute . Position
       ; InsertExpImp ( LIntoUnitRef , LIntoIdentAtom , LProxy ) 
       ; RETURN FALSE 
@@ -416,7 +417,7 @@ MODULE FM3ExpImp
 
     = BEGIN
         Elem . EipUnitNo := LIntfUnitRef . UntSelfUnitNo
-      ; Elem . EipDeclNo := FM3Base . DeclNoNull
+      ; Elem . EipDeclNo := FM3Globals . DeclNoNull
       ; Elem . EipImportingUnitNo
           := FM3Units . UnitStackTopRef ^ . UntSelfUnitNo
       ; Elem . EipImportingUnitPosition := ASScanAttr . Position 

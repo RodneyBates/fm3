@@ -12,6 +12,7 @@ INTERFACE FM3Scanner
 ; IMPORT UniRd 
 
 ; IMPORT FM3Base
+; IMPORT FM3Globals 
 ; IMPORT FM3OpenArray_Char
 ; IMPORT FM3OpenArray_WideChar
 ; IMPORT FM3Units 
@@ -79,7 +80,7 @@ INTERFACE FM3Scanner
 
 ; PROCEDURE PopState ( ) : UniRd . T (* Previous reader. *)  
 
-; PROCEDURE CurrentUnitNo ( ) : FM3Base . UnitNoTyp 
+; PROCEDURE CurrentUnitNo ( ) : FM3Globals . UnitNoTyp 
 
 ; END FM3Scanner 
 . 

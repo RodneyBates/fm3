@@ -9,10 +9,11 @@
 MODULE FM3Extern
 
 ; IMPORT FM3Base 
+; IMPORT FM3Globals 
 
 ; PROCEDURE GetExternInterface
     ( NameAtom : FM3Base . AtomTyp ; IsImport : BOOLEAN )
-  : FM3Base . UnitNoTyp
+  : FM3Globals . UnitNoTyp
 
   = BEGIN
 (* IMPLEMENT ME. *)

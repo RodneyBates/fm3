@@ -138,6 +138,7 @@ ItkROFormalId    IDENT POS .
 *)
 FIXED 
 ItkREFType POS 2 .
+ItkUNTRACEDREFType POS 2 .
 ItkOpenArrayType POS 2 .
 ItkSubrType POS 2
   DotDot POS 2
@@ -289,13 +290,16 @@ FIXED
   ItkIN POS           BinOp POS . 
   ItkMOD POS          BinOp POS .
   ItkOR POS           BinOp POS .
-
+  
 FIXED
   ItkExprDot IDENT POS . 
-  ItkDeref INT POS (* INT is meaningless, but greatly simplifies parsing *) .
+  ItkDeref POS . 
   ItkSubscript INT POS (* Number of subscripts. *) .
   ItkCall INT POS (* Number of actual parameters *) .
   ItkConstructor INT POS (* Number of values *) .
+
+LONE 
+  ItkBuiltinCall IDENT INT POS (* Builtin source token, actuals count. *) 
 
   ItkRange POS
       DotDot POS .

@@ -11,8 +11,7 @@ INTERFACE FM3Scopes
 ; IMPORT IntSets
 
 ; IMPORT FM3Base
-; FROM FM3Base IMPORT ScopeNoTyp 
-; FROM FM3Base IMPORT ScopeNoNull
+; IMPORT FM3Globals 
 ; IMPORT FM3Dict_Int_Int
 ; IMPORT FM3Graph 
 ; IMPORT FM3Units
@@ -115,10 +114,10 @@ INTERFACE FM3Scopes
           := ARRAY BOOLEAN (*Is value expr*) OF REFANY { NIL , .. } (*1*) 
       ; ScpCurTypeExpr : REFANY := NIL (* FM3Defs . DeclDefTyp. *) (*1*) 
       ; ScpCurValueExpr : REFANY := NIL (* FM3Defs . DeclDefTyp. *) (*1*) 
-      ; ScpDeclCt : FM3Base . DeclNoTyp := FM3Base . DeclNoNull
-      ; ScpMinDeclNo := FM3Base . DeclNoNull
-      ; ScpSelfScopeNo : FM3Base . ScopeNoTyp (* A self-reference. *)
-      ; ScpOwningDeclNo : FM3Base . DeclNoTyp
+      ; ScpDeclCt : FM3Globals . DeclNoTyp := FM3Globals . DeclNoNull
+      ; ScpMinDeclNo := FM3Globals . DeclNoNull
+      ; ScpSelfScopeNo : FM3Globals . ScopeNoTyp (* A self-reference. *)
+      ; ScpOwningDeclNo : FM3Globals . DeclNoTyp
       ; ScpOnDeclStackCt : INTEGER := 0
       ; ScpOnOpenScopeStackCt : INTEGER := 0
         (* ^Number of times it's on either scope stack. *)
@@ -137,8 +136,8 @@ INTERFACE FM3Scopes
       *) 
 
 ; CONST ScopeRefBrand = "ScopeRef0.1" 
-; REVEAL FM3Base . ScopeRefTyp = BRANDED ScopeRefBrand REF ScopeTyp 
-; TYPE ScopeRefTyp = FM3Base . ScopeRefTyp 
+; REVEAL FM3Globals . ScopeRefTyp = BRANDED ScopeRefBrand REF ScopeTyp 
+; TYPE ScopeRefTyp = FM3Globals . ScopeRefTyp 
 
 ; PROCEDURE NewScopeRef
     ( OwningUnitRef : FM3Units . UnitRefTyp
@@ -148,13 +147,13 @@ INTERFACE FM3Scopes
   : ScopeRefTyp
   (* Allocate and connect a ScopeNo and ScopeRef, owned by OwningUnitRef. *) 
 
-; PROCEDURE ScopeRefOfScopeNo ( ScopeNo : FM3Base . ScopeNoTyp ) : ScopeRefTyp 
+; PROCEDURE ScopeRefOfScopeNo ( ScopeNo : FM3Globals . ScopeNoTyp ) : ScopeRefTyp 
   (* In the current unit. *) 
 
 ; TYPE ScopeMapTyp = FM3Base . MapTyp
   (* Map ScopeNoTyp to ScopeRefTyp. One of these per unit. *) 
 
-; PROCEDURE NewScopeMap ( ScopeCt : FM3Base . ScopeNoTyp ) : ScopeMapTyp
+; PROCEDURE NewScopeMap ( ScopeCt : FM3Globals . ScopeNoTyp ) : ScopeMapTyp
 
 ; VAR DeclScopeStackTopRef : ScopeRefTyp := NIL
       (* A global, linked stack containing scopes from multiple units.

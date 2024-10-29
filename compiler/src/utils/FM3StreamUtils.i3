@@ -6,11 +6,14 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
+(* Reading and writing compressed internal token streams. *) 
+
 INTERFACE FM3StreamUtils
 
-; IMPORT FM3Base 
-; IMPORT FM3Decls  
 ; IMPORT RdBackFile 
+; IMPORT FM3Base 
+; IMPORT FM3Decls
+; IMPORT FM3Globals 
 
 ; PROCEDURE PutBwdAtom ( RdBack : RdBackFile . T ; Atom : FM3Base . AtomTyp )
 
@@ -19,7 +22,7 @@ INTERFACE FM3StreamUtils
 
 ; PROCEDURE GetBwdInt ( RdBack : RdBackFile. T ) : INTEGER  
 
-; PROCEDURE GetBwdScopeNo ( RdBack : RdBackFile . T ) : FM3Base . ScopeNoTyp 
+; PROCEDURE GetBwdScopeNo ( RdBack : RdBackFile . T ) : FM3Globals . ScopeNoTyp 
 
 ; PROCEDURE GetBwdAtom ( RdBack : RdBackFile. T ) : FM3Base . AtomTyp 
 

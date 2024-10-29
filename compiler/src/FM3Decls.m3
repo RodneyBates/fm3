@@ -11,6 +11,7 @@ MODULE FM3Decls
 ; IMPORT IntRanges 
 
 ; IMPORT FM3Base
+; IMPORT FM3Globals 
 ; IMPORT FM3IntToks
 ; IMPORT FM3Scopes
 ; IMPORT FM3Units 
@@ -45,7 +46,7 @@ MODULE FM3Decls
     END DeclKindImage
 
 (*EXPORTED*) 
-; PROCEDURE NewDeclMap ( InitDeclCt : FM3Base . DeclNoTyp ) : DeclMapTyp
+; PROCEDURE NewDeclMap ( InitDeclCt : FM3Globals . DeclNoTyp ) : DeclMapTyp
   (* One of these per Unit. *) 
 
   = BEGIN
@@ -57,7 +58,9 @@ MODULE FM3Decls
 
 (*EXPORTED*) 
 ; PROCEDURE NewDeclRef
-    ( ParentScopeRef : FM3Scopes . ScopeRefTyp ; DeclNo : FM3Base . DeclNoTyp )
+    ( ParentScopeRef : FM3Scopes . ScopeRefTyp
+    ; DeclNo : FM3Globals . DeclNoTyp
+    )
   : DeclRefTyp
   (* Allocate a DeclRef and initialize a couple of fields. *)
 

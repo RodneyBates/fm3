@@ -20,7 +20,8 @@ INTERFACE FM3Units
 ; IMPORT FM3Atom_Text
 ; IMPORT FM3Base
 ; IMPORT FM3CLOptions
-; IMPORT FM3ExpImpProxy 
+; IMPORT FM3ExpImpProxy
+; IMPORT FM3Globals 
 ; IMPORT FM3OpenArray_Char
 ; IMPORT RdBackFile
 
@@ -72,8 +73,8 @@ INTERFACE FM3Units
         }
 
 ; CONST UnitRefBrand = "UnitRef0.1"
-; REVEAL FM3Base . UnitRefTyp = BRANDED UnitRefBrand REF UnitTyp 
-; TYPE UnitRefTyp = FM3Base . UnitRefTyp 
+; REVEAL FM3Globals . UnitRefTyp = BRANDED UnitRefBrand REF UnitTyp 
+; TYPE UnitRefTyp = FM3Globals . UnitRefTyp 
 
 ; TYPE UnitTyp
     = RECORD
@@ -136,14 +137,14 @@ INTERFACE FM3Units
           *)
           (* INVARIANT: Atom is in UntExpImpMap IFF in UntExpImpIdSet. *) 
       ; UntExpImpRefSet : IntSets . T := NIL (* IntSets . Empty ( ) *) 
-      ; UntScopeRef : FM3Base . ScopeRefTyp := NIL  
+      ; UntScopeRef : FM3Globals . ScopeRefTyp := NIL  
           (* ^Contains Atoms of [ex|im]ports and decls known at unit's top level *)
-      ; UntExpImpCt : FM3Base . DeclNoTyp := FM3Base . DeclNoNull 
+      ; UntExpImpCt : FM3Globals . DeclNoTyp := FM3Globals . DeclNoNull 
       ; UntSkipStackBase : INTEGER := 0 
           (* TOS Subscript at beginning and end of unit compile. *) 
       ; UntStackDepth : INTEGER := 0
           (* ^Where on the units stack this UnitRef is. *) 
-      ; UntSelfUnitNo : FM3Base . UnitNoTyp := FM3Base . UnitNoNull
+      ; UntSelfUnitNo : FM3Globals . UnitNoTyp := FM3Globals . UnitNoNull
           (* ^Self-referential. *) 
       ; UntScanResult : INTEGER 
       ; UntParseResult : INTEGER 
@@ -171,9 +172,9 @@ INTERFACE FM3Units
 
 ; CONST ExpImpProxyNull
     = FM3ExpImpProxy . T
-        { EipUnitNo := FM3Base . UnitNoNull (* Null means present but not usable. *)
-        , EipDeclNo := FM3Base . DeclNoNull
-        , EipImportingUnitNo := FM3Base . UnitNoNull 
+        { EipUnitNo := FM3Globals . UnitNoNull (* Null means present but not usable. *)
+        , EipDeclNo := FM3Globals . DeclNoNull
+        , EipImportingUnitNo := FM3Globals . UnitNoNull 
         , EipImportingUnitPosition := FM3Base . PositionNull
         } 
 

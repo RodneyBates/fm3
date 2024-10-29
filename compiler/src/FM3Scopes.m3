@@ -21,7 +21,7 @@ MODULE FM3Scopes
 ; IMPORT Ranges_Int
 
 (*EXPORTED*) 
-; PROCEDURE NewScopeMap ( ScopeCt : FM3Base . ScopeNoTyp ) : ScopeMapTyp
+; PROCEDURE NewScopeMap ( ScopeCt : FM3Globals . ScopeNoTyp ) : ScopeMapTyp
   (* One of these per unit. *) 
 
   = BEGIN
@@ -41,14 +41,14 @@ MODULE FM3Scopes
 
   = VAR LUnitScopeMap : FM3Base . MapTyp
   ; VAR LScopeRef : ScopeRefTyp
-  ; VAR LScopeNo : FM3Base . ScopeNoTyp
+  ; VAR LScopeNo : FM3Globals . ScopeNoTyp
   ; VAR LRange : Ranges_Int . RangeTyp  
 
   ; BEGIN
       LUnitScopeMap := OwningUnitRef ^ . UntScopeMap 
     ; LRange := VarArray_Int_Refany . TouchedRange ( LUnitScopeMap )
     ; IF Ranges_Int . RangeIsEmpty ( LRange ) 
-      THEN LScopeNo := FM3Base . ScopeNoFirstReal
+      THEN LScopeNo := FM3Globals . ScopeNoFirstReal
       ELSE LScopeNo := LRange . Hi + 1
       END (* IF *) 
     ; LScopeRef := NEW ( ScopeRefTyp )
@@ -65,15 +65,15 @@ MODULE FM3Scopes
     ; LScopeRef ^ . ScpFormalIdSet := IntSets . Empty ( )  
     ; LScopeRef ^ . ScpRefIdSet := IntSets . Empty ( )  
     ; LScopeRef ^ . ScpDuplDeclIdSet := IntSets . Empty ( )
-    ; LScopeRef ^ . ScpDeclCt := FM3Base . DeclNoNull  
+    ; LScopeRef ^ . ScpDeclCt := FM3Globals . DeclNoNull  
     ; LScopeRef ^ . ScpOwningUnitRef := OwningUnitRef 
-    ; LScopeRef ^ . ScpOwningDeclNo := FM3Base . DeclNoNull
+    ; LScopeRef ^ . ScpOwningDeclNo := FM3Globals . DeclNoNull
     ; VarArray_Int_Refany . Assign ( LUnitScopeMap , LScopeNo , LScopeRef )
     ; RETURN LScopeRef 
     END NewScopeRef
 
 (*EXPORTED.*)
-; PROCEDURE ScopeRefOfScopeNo ( ScopeNo : FM3Base . ScopeNoTyp ) : ScopeRefTyp
+; PROCEDURE ScopeRefOfScopeNo ( ScopeNo : FM3Globals . ScopeNoTyp ) : ScopeRefTyp
   (* In the current unit. *) 
 
   = VAR LScopeMap : ScopeMapTyp 

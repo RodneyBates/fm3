@@ -188,10 +188,10 @@ MODULE FM3Scanner
     END PopState 
 
 (* EXPORTED: *) 
-; PROCEDURE CurrentUnitNo ( ) : FM3Base . UnitNoTyp  
+; PROCEDURE CurrentUnitNo ( ) : FM3Globals . UnitNoTyp  
 
   = BEGIN 
-      IF GTopSsRef = NIL THEN RETURN FM3Base . UnitNoNull END (*IF*) 
+      IF GTopSsRef = NIL THEN RETURN FM3Globals . UnitNoNull END (*IF*) 
     ; RETURN GTopSsRef . SsUnitRef ^ . UntSelfUnitNo  
     END CurrentUnitNo 
 
@@ -418,7 +418,7 @@ MODULE FM3Scanner
                  ( GCurRwLexTable , FM3LexTable . NullChar , GCurRwState ) 
         END (*IF*)
 
-      ; IF ScAtBegOfPragma (* expecting a pragma id? *) 
+      ; IF ScAtBegOfPragma (* Expecting a pragma id? *) 
         THEN (* GCurRwValue will be pragma id or nothing. *)
           CASE GCurRwValue 
           OF FM3LexTable . ValueUnrecognized , FM3LexTable . ValueNull 
@@ -446,9 +446,6 @@ MODULE FM3Scanner
               Attribute . SaIsReservedId := TRUE 
             ; Attribute . SaAtom := GCurRwValue 
             ; Attribute . SaTok := FM3SrcToks . StkIdent
-; IF Attribute . SaChars = NIL 
-  THEN EVAL IdentSuffix 
-  END (*IF*) 
           | FM3LexTable . ValueUnrecognized , FM3LexTable . ValueNull 
           => (* Plain ol' identifier. *)
               Attribute . SaIsReservedId := FALSE (* NOT predeclared. *)
@@ -459,9 +456,6 @@ MODULE FM3Scanner
                      , ScHash 
                      ) 
             ; Attribute . SaTok := FM3SrcToks . StkIdent
-; IF Attribute . SaChars = NIL 
-  THEN EVAL IdentSuffix 
-  END (*IF*) 
           ELSE (* Reserved word. *) 
             Attribute . SaIsReservedId := TRUE 
           ; Attribute . SaTok := GCurRwValue 

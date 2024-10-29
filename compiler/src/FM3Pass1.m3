@@ -44,7 +44,8 @@ MODULE FM3Pass1
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars
 ; IMPORT FM3Base 
-; FROM FM3Base IMPORT tPosition 
+; FROM FM3Base IMPORT tPosition
+; IMPORT FM3Builtins 
 ; IMPORT FM3CLArgs
 ; IMPORT FM3CLOptions
 ; IMPORT FM3CLToks AS Clt 
@@ -538,7 +539,7 @@ MODULE FM3Pass1
               , UnitRef ^ . UntUnitIdent 
               , "\" does not agree with file name \""
               , UnitRef ^ . UntSrcFileSimpleName
-              , "\"." 
+              , "\" (FM3 requirement)." 
               }
           , IdScanAttribute . Position
           )
@@ -1096,6 +1097,32 @@ MODULE FM3Pass1
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
       END (*WITH*) 
     END PutBwd_LCIP_rip
+
+(*EXPORTED:*)
+; PROCEDURE PutBwd_LCIIP_riip
+    ( T : Itk . TokTyp 
+    ; C : LONGINT 
+    ; I1 , I2 : INTEGER 
+    ; READONLY Position : tPosition 
+    )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I2 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I1 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) )
+      
+      ; PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I2 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I1 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , C ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END PutBwd_LCIIP_riip
 
 (*EXPORTED:*)
 ; PROCEDURE PutBwd_LCNP_rnp
@@ -1731,7 +1758,7 @@ MODULE FM3Pass1
     END FromImport
 
 (*EXPORTED:*)
-; PROCEDURE BeginBlock ( ) : FM3Base . ScopeNoTyp (* Created. *) 
+; PROCEDURE BeginBlock ( ) : FM3Globals . ScopeNoTyp (* Created. *) 
 
   = BEGIN (*BeginBlock*)
     END BeginBlock
@@ -1772,7 +1799,7 @@ MODULE FM3Pass1
     ; READONLY SepPosition : tPosition := FM3Base . PositionNull 
     ; PriorIdCt : INTEGER := 0 (* Number of ids to left of this one. *)
     )
-  : BOOLEAN (* Use this declared id.  (It's not predefined and not a duplicate
+  : BOOLEAN (* Use this declared id.  (It's not builtin and not a duplicate
                in current scope.) *)
   (* PRE: IdAttribute is for an identifier in a declaring context. *) 
 
@@ -1792,11 +1819,11 @@ MODULE FM3Pass1
         THEN
           ErrorArr
             ( ARRAY OF REFANY
-                { PosImage ( IdAttribute . Scan . Position )
-                , " Identifier \""
+                { "Builtin identifier \""
                 , FM3SrcToks . Image ( LAtom )
-                , "\" is predefined and cannot be redeclared (2.8.2)."
-                } 
+                , "\" cannot be redeclared (2.8.2)."
+                }
+            , IdAttribute . Scan . Position 
             )
           (* No output. *)
         ; RETURN FALSE (* Caller, Don't use this Id. *)
@@ -1930,25 +1957,26 @@ MODULE FM3Pass1
       END (*WITH*) 
     END OverrideIdentRefL2R
 
-; PROCEDURE CheckQualNotReserved ( READONLY StkIdAttribute : tParsAttribute )
+; PROCEDURE CheckIdNotReserved ( READONLY IdAttribute : tParsAttribute )
   : BOOLEAN (* It's OK. *) 
 
   = BEGIN
-      IF StkIdAttribute . Scan . SaIsReservedId 
+      IF IdAttribute . Scan . SaIsReservedId 
       THEN
         ErrorArr
           ( ARRAY OF REFANY
-              { PosImage ( StkIdAttribute . Scan . Position )
-              , " Identifier \""
-              , FM3SrcToks . Image ( StkIdAttribute . Scan . SaAtom )
-              , "\" is predefined and cannot be used"
-              , " in a qualified identifier (2.10)."
-              } 
+              { "Builtin identifier \""
+              , FM3SrcToks . Image ( IdAttribute . Scan . SaAtom )
+              , "\" cannot be used as part of a qualified identifier "
+           (* , SectionOfBuiltin ( IdAttribute . Scan . SaAtom ) *)  
+              , "(2.10)."
+              }
+          , IdAttribute . Scan . Position 
           )
       ; RETURN FALSE 
       ELSE RETURN TRUE
       END (*IF*)
-    END CheckQualNotReserved 
+    END CheckIdNotReserved 
 
 (*EXPORTED.*)
 ; PROCEDURE QualIdentL2R
@@ -1960,8 +1988,8 @@ MODULE FM3Pass1
 
   ; BEGIN (*QualIdentL2R*)
       WITH WunRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
-      DO IF CheckQualNotReserved ( LtIdAttribute )
-            AND CheckQualNotReserved ( RtIdAttribute )
+      DO IF CheckIdNotReserved ( LtIdAttribute )
+            AND CheckIdNotReserved ( RtIdAttribute )
         THEN (* All OK. *) 
           LLtAtom  
            := FM3Atom_OAChars . MakeAtom 
@@ -2011,6 +2039,118 @@ MODULE FM3Pass1
         END (*IF*)
       END (*WITH*)
     END QualIdentL2R
+
+(*EXPORTED.*)
+; PROCEDURE NoSelectorAllowed
+    ( IdAttribute , ActualsAttribute : tParsAttribute ; SelectedTag : TEXT )
+
+  = BEGIN
+      ErrorArr
+        ( ARRAY OF REFANY
+            { "Builtin identifier \""
+            , FM3SrcToks . Image ( IdAttribute . Scan . SaAtom )
+            , "\" cannot be "
+            , SelectedTag
+         (* , SectionOfBuiltin ( IdAttribute . Scan . SaAtom ) *)  
+            , " (2.10)."
+(* FIXME --------- ^ *) 
+            }
+        , IdAttribute . Scan . Position 
+        )
+    ; PutBwd ( WunRdBack , VAL ( IdAttribute . Position . Column , LONGINT ) ) 
+    ; PutBwd ( WunRdBack , VAL ( IdAttribute . Position . Line , LONGINT ) ) 
+    ; PutBwd ( WunRdBack , VAL ( FM3Base . AtomNull , LONGINT ) ) 
+    ; PutBwd ( WunRdBack , VAL ( Itk . ItkIdRefAtomNotUsable , LONGINT ) ) 
+    ; PutBwd_LCI_ri (* The Id is already skipped. *) 
+        ( Itk . ItkSkipLt
+        , ActualsAttribute . PaPass1Coord
+        , FM3Globals . NextSkipNo  
+        ) 
+    ; INC ( FM3Globals . NextSkipNo )
+    END NoSelectorAllowed 
+
+; PROCEDURE CheckBuiltinProcActualsCt
+    ( READONLY IdAttribute , ActualsAttribute : tParsAttribute
+    ; ExpectedCt : INTEGER
+    )
+  : BOOLEAN (* It's OK and taken care of. *)
+  (* PRE: IdAttribute is a builtin ident of a procedure/function that
+          requires ExpectedCt actual parameters. *) 
+
+  = BEGIN
+      IF ActualsAttribute . PaInt (* Actual count *) = ExpectedCt 
+      THEN
+        PutBwd_LCIIP_riip
+          ( Itk . ItkBuiltinCallLt 
+          , ActualAttribute . PaPass1Coord
+          , ActualsAttribute . PaInt 
+          , IdAttribute . Scan . SaAtom 
+          , ActualsAttribute . Scan . Position
+          ) 
+      ; RETURN TRUE
+      ELSE 
+        ErrorArr
+          ( ARRAY OF REFANY
+              { "Builtin identifier \""
+              , FM3SrcToks . Image ( IdAttribute . Scan . SaAtom )
+              , "\" is a function requiring "
+              , Fmt . Int ( ExpectedCt ) 
+              , " actual parameter"
+              , FM3SharedUtils . PluralSuffix ( ExpectedCt )
+              , ", not "
+              , Fmt , Int ( ActualsAttribute . PaInt )
+              , " " 
+           (* , SectionOfBuiltin ( IdAttribute . Scan . SaAtom ) *)  
+              , " (2.10)."
+(* FIXME --------- ^ *) 
+              }
+          , IdAttribute . Scan . Position 
+          )
+      ; PutBwd
+          ( WunRdBack , VAL ( IdAttribute . Position . Column , LONGINT ) ) 
+      ; PutBwd
+          ( WunRdBack , VAL ( IdAttribute . Position . Line , LONGINT ) ) 
+      ; PutBwd ( WunRdBack , VAL ( FM3Base . AtomNull , LONGINT ) ) 
+      ; PutBwd
+          ( WunRdBack , VAL ( Itk . ItkIdRefAtomNotUsable , LONGINT ) ) 
+      ; PutBwd_LCI_ri 
+          ( Itk . ItkSkipLt
+          , ActualsAttribute . PaPass1Coord (* Skip the actuals. *) 
+          , FM3Globals . NextSkipNo  
+          ) 
+      ; INC ( FM3Globals . NextSkipNo )
+      ; RETURN FALSE 
+      END (*IF*) 
+    END CheckBuiltinProcActualsCt
+
+(*EXPORTED.*)
+; PROCEDURE BuiltinIdentActualsL2R
+    ( READONLY IdAttribute , ActualsAttribute : tParsAttribute )
+  (* PRE: IdAttibute is for a lone builtin ident. *) 
+  (* PRE: ActualsAttribute is for an actual parameter list. *) 
+
+  = BEGIN 
+      IF IdAttribute . Scan . SaReservedId
+      THEN
+        IF IdAttribute . Scan . SaReservedId IN FM3Builtins . OneParam
+        THEN 
+          EVAL CheckBuiltinProcActualsCt ( IdAttribute , ActualsAttribute , 1 )
+        ELSIF IdAttribute . Scan . SaReservedId IN FM3Builtins . TwopParams
+        THEN 
+          EVAL CheckBuiltinProcActualsCt ( IdAttribute , ActualsAttribute , 2 )
+        ELSIF IdAttribute . Scan . SaReservedId IN FM3Builtins . TwoParams
+        THEN 
+          EVAL CheckBuiltinProcActualsCt ( IdAttribute , ActualsAttribute , 2 )
+        ELSIF IdAttribute . Scan . SaReservedId IN FM3Builtins . ThreeParams
+        THEN 
+          EVAL CheckBuiltinProcActualsCt ( IdAttribute , ActualsAttribute , 3 )
+        ELSE (* Others take no parameter list, not even parentheses. *)
+          NoSelectorAllowed ( IdAttribute , ActualsAttribute , "called" ) 
+        END (*CASE*) 
+      ELSE (* Currently, parser will prevent this from happening *)
+        <* ASSERT FALSE , "BuiltinIdentActualsL2R, not a builtin ident." *> 
+      END (*IF*) 
+    END BuiltinIdentActualsL2R 
 
 (*EXPORTED.*)
 ; PROCEDURE DeclScopeRtL2R ( ScopeRef : FM3Scopes . ScopeRefTyp )

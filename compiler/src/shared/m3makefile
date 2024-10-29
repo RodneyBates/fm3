@@ -6,5 +6,5 @@
 %(* Licensed under the MIT License.                                           *)
 %(* -----------------------------------------------------------------------2- *)
 
-interface("FM3LexTableRep")
-module("FM3LexTable")
+%interface("FM3LexTableRep")
+%module("FM3LexTable")

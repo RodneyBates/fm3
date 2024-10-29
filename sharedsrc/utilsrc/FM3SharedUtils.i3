@@ -27,6 +27,8 @@ INTERFACE FM3SharedUtils
 ; <*IMPLICIT*>
   EXCEPTION FatalError ( TEXT )
 
+; PROCEDURE PluralSuffix ( Value : INTEGER ) : TEXT 
+
 ; PROCEDURE StandaloneFatalError ( Msg : TEXT )
   (* Convenience procedure for catchers of FatalError.
      Just write to stderror.

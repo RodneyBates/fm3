@@ -6,44 +6,15 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-INTERFACE FM3Base 
 (* Widely used stuff for FM3. *)
+
+INTERFACE FM3Base 
 
 ; IMPORT VarArray_Int_Refany 
 
 ; TYPE TokTyp = CARDINAL
 ; CONST TokNull = FIRST ( CARDINAL )
 ; CONST TokFirstReal = TokNull + 1 
-
-; TYPE AtomTyp = CARDINAL 
-; CONST AtomNull = FIRST ( CARDINAL )
-; CONST AtomFirstReal = AtomNull + 1 
-
-; TYPE UnitRefTyp <: REFANY 
-; TYPE UnitNoTyp = CARDINAL
-; CONST UnitNoNull = FIRST ( CARDINAL )
-; CONST UnitNoMax = LAST ( CARDINAL ) 
-; CONST UnitNoFirstReal = UnitNoNull + 1 
-
-; TYPE ScopeRefTyp <: REFANY 
-; TYPE ScopeNoTyp = CARDINAL
-; CONST ScopeNoNull = FIRST ( CARDINAL )
-; CONST ScopeNoMax = LAST ( CARDINAL ) 
-; CONST ScopeNoFirstReal = ScopeNoNull + 1
-
-; TYPE DeclRefTyp <: REFANY 
-; TYPE DeclNoTyp = CARDINAL
-; CONST DeclNoNull = FIRST ( CARDINAL )
-; CONST DeclNoMax = LAST ( CARDINAL )
-; CONST DeclNoNotUseable = DeclNoNull + 1 
-; CONST DeclNoFirstReal = DeclNoNotUseable + 1
-
-; TYPE ExprTyp <: ROOT 
-; TYPE ExprNoTyp = CARDINAL
-; CONST ExprNoNull = FIRST ( CARDINAL )
-; CONST ExprNoMax = LAST ( CARDINAL )
-; CONST ExprNoNotUseable = ExprNoNull + 1 
-; CONST ExprNoFirstReal = ExprNoNotUseable + 1
 
 (* Note lack of periods, for Pathname.Join. *)  
 ; CONST InterfaceFileNameSuffix = "i3" 
@@ -56,8 +27,9 @@ INTERFACE FM3Base
    intended to be the same size regardless of a 
    particular compiler's representation choices. 
    It is intended to provide portability.  Change 
-   the declarations here and programs that use 
-   them will continue to work as before. 
+   compilers or compiler options and the programs
+   that use these declarations will continue to work
+   as before. 
 *) 
 
 ; TYPE Card8Typ = [ 0 .. 255 ] 
@@ -143,6 +115,13 @@ INTERFACE FM3Base
       END (*tPosition*)
 
 ; CONST PositionNull = tPosition { LAST ( PosIntTyp ) , LAST ( PosIntTyp ) }
+
+; TYPE SizeTyp = LONGINT (* Runtime sizes. *) 
+; TYPE AlignTyp = [ 0 .. 64 ]
+
+; TYPE AtomTyp = CARDINAL 
+; CONST AtomNull = FIRST ( CARDINAL )
+; CONST AtomFirstReal = AtomNull + 1 
 
 (* 
 

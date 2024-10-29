@@ -39,6 +39,14 @@ MODULE FM3SharedUtils
         , VAL ( 16_9F , CHAR ) , VAL ( 16_D9 , CHAR )
         }
 
+(*EXPORTED*) 
+; PROCEDURE PluralSuffix ( Value : INTEGER ) : TEXT 
+
+  = BEGIN
+      IF Value = 1 THEN RETURN "" END (*IF*)
+    ; RETURN "s"
+    END PluralSuffix
+
 ; PROCEDURE RaiseFatal ( Msg : TEXT ) RAISES { FatalError } 
   (* Code herein needs to note fatal errors, but they need to be
      reported differently in standalone metaprograms and the compiler.
