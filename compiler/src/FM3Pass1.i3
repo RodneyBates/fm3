@@ -387,15 +387,25 @@ INTERFACE FM3Pass1
   (* Handles either/both idents reserved (error msg). *) 
     
 ; PROCEDURE NoSelectorAllowed
-    ( IdAttribute : tParsAttribute ; SelectedTag : TEXT )
+    ( READONLY IdAttribute , SelectorAttribute : tParsAttribute
+    ; SelectedTag : TEXT
+    )
+
+; PROCEDURE BuiltinNoSelector ( READONLY IdAttribute : tParsAttribute )
+  (* PRE: IdAttribute . Scan . SaIsPredefId. *) 
+  (* Builtin ident that has no selector. *) 
 
 ; PROCEDURE BuiltinIdentActualsL2R
     ( READONLY IdAttribute , ActualsAttribute : tParsAttribute )
-  (* PRE: IdAttibute is for a lone builtin ident. *) 
+  (* PRE: IdAttribute . Scan . SaIsPredefId. *) 
+  (* PRE: IdAttibute is for the builtin ident only. *) 
   (* PRE: ActualsAttribute is for an actual parameter list. *) 
 
-; PROCEDURE IdentCallL2R
-    ( READONLY IdAttribute , ActualsAttribute : tParsAttribute ) 
+; PROCEDURE BuiltinOtherSelector
+    ( READONLY IdAttribute , SelectorAttribute : tParsAttribute ; Tag : TEXT )
+  (* A builtin id with either a dot-selection or subscript(s).
+     No builtin allows either of these. *)
+  (* PRE: IdAttribute . Scan . SaIsReservedId. *) 
 
 ; PROCEDURE DeclScopeRtL2R ( ScopeRef : FM3Scopes . ScopeRefTyp )
   (* Create an IdAtom-to-declNo, fixed-size dictionary for the scope, of

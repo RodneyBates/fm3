@@ -1,4 +1,4 @@
-
+ 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2023..2024 Rodney M. Bates.                                     *)
@@ -239,8 +239,8 @@ TOKEN
    or terminators fails to apply to imports, exports, or declarations,
    where they can only be terminators.  And commas are always separators.
    Regardless of the source syntax, in the internal token streams, a list
-   always has separator tokens, never element terminators. (But there is
-   a *list* terminator, "Rt".) 
+   always has separator tokens, never element terminators that are not part
+   of the element itself. (But there is a *list* terminator, "*Rt".) 
 *) 
 
 (* --------------------- Precedence and associativity ---------------------- *)
@@ -592,13 +592,13 @@ RULE
 
    IdentRef : StkIdent
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
-       $$ . Scan . SaIsReservedId := $1 . Scan . SaIsReservedId ;
+       $$ . Scan . SaIsPredefId := $1 . Scan . SaIsPredefId ;
        FM3Pass1 . IdentRefL2R ( $1 ) ;
      } .
 
    QualIdentRef : StkIdent StkDot StkIdent   
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
-       $$ . Scan . SaIsReservedId := $1 . Scan . SaIsReservedId ;
+       $$ . Scan . SaIsPredefId := $1 . Scan . SaIsPredefId ;
        FM3Pass1 . QualIdentL2R ( $1 , $3 ) ;
      } .
 
@@ -645,7 +645,7 @@ RULE
          $$ . PaInt := $1 . PaInt + 1 ;
          $$ . PaRefany
            := IntSets . Include
-                ( NARROW ( $3 . PaRefany , IntSets . T ) , $3 . Scan . SaAtom ) ;  
+                ( NARROW ( $3 . PaRefany , IntSets . T ) , $3 . Scan . SaAtom ) ;
        ELSE
          $$ . PaInt := $3 . PaInt (* Valid Id count, no increase. *) ;
          $$ . PaRefany := $3 . PaRefany ; 
@@ -662,16 +662,16 @@ RULE
 
    MaybeQualIdent : IdentRef
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
-       $$ . Scan . SaIsReservedId := $1 . Scan . SaIsReservedId ;
+       $$ . Scan . SaIsPredefId := $1 . Scan . SaIsPredefId ;
      } . 
    MaybeQualIdent : QualIdent 
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
-       $$ . Scan . SaIsReservedId := $1 . Scan . SaIsReservedId ;
+       $$ . Scan . SaIsPredefId := $1 . Scan . SaIsPredefId ;
      } . 
    
    QualIdent : StkIdent
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
-       $$ . Scan . SaIsReservedId := $1 . Scan . SaIsReservedId ;
+       $$ . Scan . SaIsPredefId := $1 . Scan . SaIsPredefId ;
        FM3Pass1 . IdentRefL2R ( $1 ) ;
      } .
 
@@ -1090,7 +1090,7 @@ RULE
    Type : StkRidINTEGER . 
    Type : StkRidLONGCARD . 
    Type : StkRidLONGINT . 
-   Type : StkRiDLONGREAL . 
+   Type : StkRidLONGREAL . 
    Type : StkRidMUTEX . 
    Type : StkRidNULL . 
    Type : StkRidREAL . 
@@ -2058,6 +2058,9 @@ RULE
    E7 : IdentRef /* No selector */
      { FM3Pass1 . IdentRefL2R ( $1 ) ; } .
 
+   E7 : BuiltinIdentRef  /* No selector */ 
+     { FM3Pass1 . BuiltinNoSelector ( $1 ) } .
+
    E7: BuiltinIdentRef Actuals 
      { (* This is tricky.  Skip the ident for now.  Very soon,
             BuiltinIdentActualsL2R may either reinsert it, put its atom
@@ -2071,8 +2074,11 @@ RULE
          FM3Pass1 . BuiltinIdentActualsL2R ( $1 , $2 ) ;
      } .
 
-   E7 : BuiltinIdentRef  
-     { FM3Pass1 . BuiltinSelector ( $1 , $2 , "selected" ) } .
+   E7 : BuiltinIdentRef StkDot StkIdent 
+     { FM3Pass1 . BuiltinOtherSelector ( $1 , $2 , "dot-selected" ) } .
+
+   E7 : BuiltinIdentRef Subscripts 
+     { FM3Pass1 . BuiltinOtherSelector ( $1 , $2 , "subscripted" ) } .
 
    E7 : QualIdent /* Special case. */ . 
    

@@ -16,7 +16,7 @@ UNITNAME FM3IntToks
 
 (* WARNING: Do not use single quotes inside a comment in this file. *) 
 
-ABS 160
+ABS 210
 (* ^Be sure not to overlap the source tokens! *) 
 
 (* Being low-numbered, these will read and write either forward
@@ -299,7 +299,9 @@ FIXED
   ItkConstructor INT POS (* Number of values *) .
 
 LONE 
-  ItkBuiltinCall IDENT INT POS (* Builtin source token, actuals count. *) 
+  ItkBuiltinCall IDENT INT POS (* Builtin source token, actuals count. *) .
+  ItkBuiltinIdRef IDENT POS (* IDENT is predefined id code. *) .
+  (*^ Only a builtin Id that takes no parameters. *) 
 
   ItkRange POS
       DotDot POS .

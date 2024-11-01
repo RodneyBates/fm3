@@ -49,7 +49,7 @@ INTERFACE FM3Scanner
            TEXT literal, or . *) 
       ; SaTok : FM3Base . TokTyp := FM3Base . TokNull  
       ; SaWCh : WIDECHAR (* Value of [WIDE]CHAR literal. *)
-      ; SaIsReservedId : BOOLEAN 
+      ; SaIsPredefId : BOOLEAN 
       END (* tScanAttribute *)
 
 ; CONST ScanAttrNull
@@ -62,7 +62,7 @@ INTERFACE FM3Scanner
         , SaChars := NIL
         , SaTok := FM3Base . TokNull  
         , SaWCh := W'\x0000'
-        , SaIsReservedId := FALSE 
+        , SaIsPredefId := FALSE 
         } 
 
 ; PROCEDURE Init ( )

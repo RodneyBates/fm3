@@ -8,10 +8,12 @@
 
 INTERFACE FM3Builtins
 
-; TYPE BuiltinOpTyp = [ FM3SrcToks . TokMinPredef .. FM3SrcToks . TokMaxPredef ] 
+; IMPORT FM3SrcToks AS Stk
+
+; TYPE BuiltinOpTyp = [ Stk . TokMinPredef .. Stk . TokMaxPredef ] 
 
 (* Functions with one parameter: *)
-; CONST OneActual = SET OF BuiltinOpTyp 
+; CONST OneParam = SET OF BuiltinOpTyp 
     { Stk . RidABS 
     , Stk . RidADR 
     , Stk . RidADRSIZE 
@@ -34,7 +36,7 @@ INTERFACE FM3Builtins
     }
     
 (* Functions with two parameters: *)
-; CONST TwoActuals = SET OF BuiltinOpTyp
+; CONST TwoParams = SET OF BuiltinOpTyp
     { Stk . RidLOOPHOLE 
     , Stk . RidMAX 
     , Stk . RidMIN 
@@ -43,14 +45,12 @@ INTERFACE FM3Builtins
     }
 
 (* Functions with three parameters: *)
-; CONST ThreeActuals = SET OF BuiltinOpTyp
-    { Stk . RidSUBARRAY }
+; CONST ThreeParams = SET OF BuiltinOpTyp { Stk . RidSUBARRAY }
 
 (* Functions with a variable number of actuals: *)
-; CONST NActuals = SET OF BuiltinOpTyp
-    { Stk . RidNEW 
+; CONST OneOrMoreParams = SET OF BuiltinOpTyp { Stk . RidNEW } 
 
-
+(****
 
         (* Constants: *) 
         , Stk . RidFALSE 
@@ -132,7 +132,61 @@ INTERFACE FM3Builtins
     , Stk . RidWIDECHAR 
     , Stk . RidROOT 
     , Stk . RidUNTRACEDROOT
-    } 
+    }
+
+****)
+
+
+; CONST Qualifiers
+    = SET OF BuiltinOpTyp
+        { Stk . Word_T 
+        , Stk . Word_Size 
+        , Stk . Word_Plus 
+        , Stk . Word_Times 
+        , Stk . Word_Minus 
+        , Stk . Word_Divide 
+        , Stk . Word_Mod 
+        , Stk . Word_LT 
+        , Stk . Word_LE 
+        , Stk . Word_GT 
+        , Stk . Word_GE 
+        , Stk . Word_And 
+        , Stk . Word_Or 
+        , Stk . Word_Xor 
+        , Stk . Word_Not 
+        , Stk . Word_Shift 
+        , Stk . Word_LeftShift 
+        , Stk . Word_RightShift 
+        , Stk . Word_Rotate 
+        , Stk . Word_LeftRotate 
+        , Stk . Word_RightRotate 
+        , Stk . Word_Extract 
+        , Stk . Word_Insert
+        
+        , Stk . Long_T 
+        , Stk . Long_Size 
+        , Stk . Long_Plus 
+        , Stk . Long_Times 
+        , Stk . Long_Minus 
+        , Stk . Long_Divide 
+        , Stk . Long_Mod 
+        , Stk . Long_LT 
+        , Stk . Long_LE 
+        , Stk . Long_GT 
+        , Stk . Long_GE 
+        , Stk . Long_And 
+        , Stk . Long_Or 
+        , Stk . Long_Xor 
+        , Stk . Long_Not 
+        , Stk . Long_Shift 
+        , Stk . Long_LeftShift 
+        , Stk . Long_RightShift 
+        , Stk . Long_Rotate 
+        , Stk . Long_LeftRotate 
+        , Stk . Long_RightRotate 
+        , Stk . Long_Extract 
+        , Stk . Long_Insert 
+        } 
 
 ; END FM3Builtins
 .
