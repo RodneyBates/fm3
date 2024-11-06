@@ -48,6 +48,7 @@ INTERFACE FM3Scanner
         (* ^Identifier, Numeric literal, or Converted RT memory value of
            TEXT literal, or . *) 
       ; SaTok : FM3Base . TokTyp := FM3Base . TokNull  
+      ; SaPredefTok : FM3Base . TokTyp (* A source token. *) 
       ; SaWCh : WIDECHAR (* Value of [WIDE]CHAR literal. *)
       ; SaIsPredefId : BOOLEAN 
       END (* tScanAttribute *)
@@ -61,6 +62,7 @@ INTERFACE FM3Scanner
         , SaWideChars := NIL
         , SaChars := NIL
         , SaTok := FM3Base . TokNull  
+        , SaPredefTok := FM3Base . TokNull 
         , SaWCh := W'\x0000'
         , SaIsPredefId := FALSE 
         } 

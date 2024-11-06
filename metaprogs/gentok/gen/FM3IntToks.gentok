@@ -267,12 +267,13 @@ LIST ItkIdPlusList
 
 (* ----------------------------- Expressions ------------------------------- *) 
   
-
+(* Unary operators: *) 
 FIXED
-  ItkUnaryPlus POS .
+  ItkUnaryPlus  POS .
   ItkUnaryMinus POS . 
-  ItkNOT POS . 
+  ItkNOT        POS .
 
+(* Binary operators: *) 
 FIXED
   ItkEqual POS        BinOp POS . 
   ItkUnequal POS      BinOp POS . 
@@ -290,6 +291,89 @@ FIXED
   ItkIN POS           BinOp POS . 
   ItkMOD POS          BinOp POS .
   ItkOR POS           BinOp POS .
+
+(* Unary reserved Ident functions: *) 
+FIXED
+  ItkABS        POS .
+  ItkADR        POS .
+  ItkADRSIZE    POS .
+  ItkBITSIZE    POS .
+  ItkBYTESIZE   POS . 
+  ItkCEILING    POS .
+  ItkFIRST      POS .
+  ItkFLOAT      POS .
+  ItkFLOOR      POS .
+  ItkISTYPE     POS .
+  ItkLAST       POS .
+  ItkNUMBER     POS .
+  ItkORD        POS .
+  ItkROUND      POS .
+  ItkTRUNC      POS .
+  ItkTYPECODE   POS .
+  ItkDEC        POS .
+  ItkDISPOSE    POS .
+  ItkINC        POS .
+
+(* Binary reserved Ident functions. *)  
+FIXED
+  ItkLOOPHOLE   POS BinOp POS . 
+  ItkMAX        POS BinOp POS . 
+  ItkMIN        POS BinOp POS . 
+  ItkNARROW     POS BinOp POS . 
+  ItkVAL        POS BinOp POS .
+
+(* Unary imported predefined functions" *) 
+  ItkWord_T     POS .
+  ItkWord_Size  POS .
+  ItkWord_Not   POS .
+  ItkLong_T     POS .
+  ItkLong_Size  POS .
+  ItkLong_Not   POS .
+
+(* Binary imported predefined functions" *)
+  ItkWord_Plus        POS BinOp POS .
+  ItkWord_Times       POS BinOp POS .
+  ItkWord_Minus       POS BinOp POS .
+  ItkWord_Divide      POS BinOp POS .
+  ItkWord_Mod         POS BinOp POS .
+  ItkWord_LT          POS BinOp POS .
+  ItkWord_LE          POS BinOp POS .
+  ItkWord_GT          POS BinOp POS .
+  ItkWord_GE          POS BinOp POS .
+  ItkWord_And         POS BinOp POS .
+  ItkWord_Or          POS BinOp POS .  
+  ItkWord_Xor         POS BinOp POS .
+  ItkWord_Shift       POS BinOp POS .
+  ItkWord_LeftShift   POS BinOp POS .
+  ItkWord_RightShift  POS BinOp POS .
+  ItkWord_Rotate      POS BinOp POS .
+  ItkWord_LeftRotate  POS BinOp POS .
+  ItkWord_RightRotate POS BinOp POS .
+        
+  ItkLong_Plus        POS BinOp POS .
+  ItkLong_Times       POS BinOp POS .
+  ItkLong_Minus       POS BinOp POS .
+  ItkLong_Divide      POS BinOp POS .
+  ItkLong_Mod         POS BinOp POS .
+  ItkLong_LT          POS BinOp POS .
+  ItkLong_LE          POS BinOp POS .
+  ItkLong_GT          POS BinOp POS .
+  ItkLong_GE          POS BinOp POS .
+  ItkLong_And         POS BinOp POS .
+  ItkLong_Or          POS BinOp POS .
+  ItkLong_Xor         POS BinOp POS .
+  ItkLong_Shift       POS BinOp POS .
+  ItkLong_LeftShift   POS BinOp POS .
+  ItkLong_RightShift  POS BinOp POS .
+  ItkLong_Rotate      POS BinOp POS .
+  ItkLong_LeftRotate  POS BinOp POS .
+  ItkLong_RightRotate POS BinOp POS .
+
+(* Ternary imported predefined functions" *)
+  ItkWord_Extract     POS TernOp1 POS TernOp2 POS . 
+  ItkWord_Insert      POS TernOp1 POS TernOp2 POS .
+  ItkLong_Extract     POS TernOp1 POS TernOp2 POS .
+  ItkLong_Insert      POS TernOp1 POS TernOp2 POS .
   
 FIXED
   ItkExprDot IDENT POS . 

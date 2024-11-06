@@ -1463,7 +1463,6 @@ MODULE FM3Pass2
       ELSE 
         WITH Wp2RdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack
         DO 
-        (* Read the following backwards: *) 
           PutBwdP2 ( Wp2RdBack , VAL ( Position . Column , LONGINT ) ) 
         ; PutBwdP2 ( Wp2RdBack , VAL ( Position . Line , LONGINT ) ) 
         ; PutBwdP2 ( Wp2RdBack , VAL ( IdentRefAtom , LONGINT ) ) 
@@ -1616,10 +1615,12 @@ MODULE FM3Pass2
         LRefDeclNo := LookupOpenRef ( LIdentRefAtom )
       ; IF LRefDeclNo # FM3Globals . DeclNoNull 
         THEN 
-          IF AreInsideADecl ( ) 
+          IF AreInsideADecl ( )
+(* CHECK: Is this precluded by syntactic context? *) 
           THEN (* Create an ExprIdNo node. *) 
             CheckRecursiveRef ( LRefDeclNo )
-          ; WITH WExpr = NEW ( FM3Exprs . ExprRefDeclNo , ExpUpKind := Ekt . EkRef )
+          ; WITH WExpr
+                 = NEW ( FM3Exprs . ExprRefDeclNo , ExpUpKind := Ekt . EkRef )
             DO 
               DefExprRt ( WExpr )
             ; WExpr . ExpDeclNo := LRefDeclNo 
@@ -1819,7 +1820,8 @@ MODULE FM3Pass2
                      )
               *>
               IF AreInsideADecl ( )
-              THEN 
+              THEN
+(* TODO: Handle a Word.*, etc. builtin reference. *) 
                 WITH WExpr = NEW ( FM3Exprs . ExprRemoteRef )
                 DO 
                   DefExprRt ( WExpr )

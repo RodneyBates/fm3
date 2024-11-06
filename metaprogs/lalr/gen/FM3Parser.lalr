@@ -593,12 +593,14 @@ RULE
    IdentRef : StkIdent
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
        $$ . Scan . SaIsPredefId := $1 . Scan . SaIsPredefId ;
+       $$ . Scan . SaPredefTok := $1 . Scan . SaPredefTok ;
        FM3Pass1 . IdentRefL2R ( $1 ) ;
      } .
 
    QualIdentRef : StkIdent StkDot StkIdent   
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
        $$ . Scan . SaIsPredefId := $1 . Scan . SaIsPredefId ;
+       $$ . Scan . SaPredefTok := $1 . Scan . SaPredefTok ;
        FM3Pass1 . QualIdentL2R ( $1 , $3 ) ;
      } .
 
@@ -663,15 +665,19 @@ RULE
    MaybeQualIdent : IdentRef
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
        $$ . Scan . SaIsPredefId := $1 . Scan . SaIsPredefId ;
+       $$ . Scan . SaPredefTok := $1 . Scan . SaPredefTok ;
+
      } . 
    MaybeQualIdent : QualIdent 
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
        $$ . Scan . SaIsPredefId := $1 . Scan . SaIsPredefId ;
+       $$ . Scan . SaPredefTok := $1 . Scan . SaPredefTok ;
      } . 
    
    QualIdent : StkIdent
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
        $$ . Scan . SaIsPredefId := $1 . Scan . SaIsPredefId ;
+       $$ . Scan . SaPredefTok := $1 . Scan . SaPredefTok ;
        FM3Pass1 . IdentRefL2R ( $1 ) ;
      } .
 
@@ -1991,7 +1997,7 @@ RULE
          ( $1 . PaTok1 , $1 . PaPass1Coord , $1 . Scan . Position ) ; 
      } .
 
-   (* E7 is a Cartesian product:
+   (* E7 is a partial Cartesian product:
           { E8WOId, Id }
         X { Deref, Subscripts, Actuals, dot-id, absent-selector }
       Not cartesion-factored, because combinations Id-dot-Id and Id-Actuals
@@ -2055,8 +2061,7 @@ RULE
          ) ; 
      } . 
      
-   E7 : IdentRef /* No selector */
-     { FM3Pass1 . IdentRefL2R ( $1 ) ; } .
+   E7 : IdentRef /* No selector */ { } .
 
    E7 : BuiltinIdentRef  /* No selector */ 
      { FM3Pass1 . BuiltinNoSelector ( $1 ) } .
