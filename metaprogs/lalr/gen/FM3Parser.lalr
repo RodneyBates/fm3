@@ -986,8 +986,7 @@ RULE
       } .
 
    VarDeclList : VarDeclPlus  
-     { $$ . PaInt := $1 . PaInt (* Decl count. *) ;
-       $$ . PaPos (* Rt Semicolon. *) := $1 . PaPos ;  
+     { $$ . PaPos (* Rt Semicolon. *) := $1 . PaPos ;  
 
        (*FM3Pass1 . MakeListPos
          ( $$
@@ -1051,7 +1050,6 @@ RULE
 
    VarDeclIds : DeclIdListElems 
      { $$ . Scan . Position := $1 . Scan . Position ;
-       $$ . PaInt := $1 . PaInt (* Valid id count. *) ;
        MakeListPos (* The identifier list. *) 
          ( $$
          , FM3Decls . TopDeclParseInfo ( ) . DiIdListTok
@@ -1731,7 +1729,6 @@ RULE
    (* FormalIds.PaInt > 0 is ident count. *) 
    FormalIds : DeclIdListElems 
      { $$ . Scan . Position  := $1 . Scan . Position ; 
-       $$ .PaInt := $1 . PaInt (* Valid Id Ct. *) ; 
        MakeListPos
          ( $$
          , FM3Decls . TopDeclParseInfo ( ) . DiIdListTok
@@ -2052,7 +2049,7 @@ RULE
          ) ; 
      } .
 
-   E7: IdentRef Actuals 
+   E7 : IdentRef Actuals 
      { FM3Pass1 . PutBwd_LCIP_rip
          ( Itk . ItkCallLt 
          , $1 . PaPass1Coord 
@@ -2067,17 +2064,7 @@ RULE
      { FM3Pass1 . BuiltinNoSelector ( $1 ) } .
 
    E7: BuiltinIdentRef Actuals 
-     { (* This is tricky.  Skip the ident for now.  Very soon,
-            BuiltinIdentActualsL2R may either reinsert it, put its atom
-            into an ItkBuiltinCall, or skip the actuals too. *)
-         FM3Pass1 . PutBwd_LCI_ri 
-           ( Itk . ItkSkipLt
-           , $1 . PaPass1Coord  
-           , FM3Globals . NextSkipNo  
-           ) ;
-         INC ( FM3Globals . NextSkipNo ) ; 
-         FM3Pass1 . BuiltinIdentActualsL2R ( $1 , $2 ) ;
-     } .
+     { FM3Pass1 . BuiltinIdentActualsL2R ( $1 , $2 ) ; } .
 
    E7 : BuiltinIdentRef StkDot StkIdent 
      { FM3Pass1 . BuiltinOtherSelector ( $1 , $2 , "dot-selected" ) } .
@@ -2089,8 +2076,7 @@ RULE
    
   (* Array subscript list. *) 
    Subscripts : StkOpenBracket SsPlusList StkCloseBracket 
-     { $$ . PaInt := $2 . PaInt (* Subscript count. *) ;
-       FM3Pass1 . MakeListPos
+     { FM3Pass1 . MakeListPos
          ( LHSAttr := $$
          , TokLt := Itk . ItkSubscriptsPlusListLt
          , Position := $1 . Scan . Position
@@ -2113,8 +2099,7 @@ RULE
 
   (* Actual parameter list of call. *) 
    Actuals : StkOpenParen ActualList StkCloseParen
-     { $$ . PaInt := $2 . PaInt (* Actuals count. *) ;
-       FM3Pass1 . MakeListPos
+     { FM3Pass1 . MakeListPos
          ( LHSAttr := $$
          , TokLt := Itk . ItkActualsListLt
          , Position := $1 . Scan . Position

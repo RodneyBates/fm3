@@ -2081,59 +2081,52 @@ MODULE FM3Pass1
           requires ExpectedCt actual parameters. *) 
 
   = BEGIN
-      IF ActualsAttr . PaInt (* Actual count *) # ExpectedCt 
-      THEN
-        FM3Messages . ErrorArr
-          ( ARRAY OF REFANY
-              { "Reserved identifier \""
-              , FM3SrcToks . Image ( IdAttr . Scan . SaPredefTok )
-              , "\" is a function requiring "
-              , Fmt . Int ( ExpectedCt ) 
-              , " actual parameter"
-              , FM3SharedUtils . PluralSuffix ( ExpectedCt )
-              , ", not "
-              , Fmt . Int ( ActualsAttr . PaInt )
-              , " " 
-           (* , SectionOfBuiltin ( IdAttr . Scan . SaPredefTok ) *)  
-              , " (2.10)."
-(* FIXME --------- ^ *) 
-              }
-          , IdAttr . Scan . Position 
-          )
-      ; WITH WunRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
-        DO PutBwd
+      WITH WunRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO 
+        PutBwd_LCI_ri 
+          ( Itk . ItkSkipLt
+          , IdAttr . PaPass1Coord 
+          , FM3Globals . NextSkipNo  
+          ) 
+      ; INC ( FM3Globals . NextSkipNo )
+      ; IF ActualsAttr . PaInt (* Actual count *) # ExpectedCt 
+        THEN
+          FM3Messages . ErrorArr
+            ( ARRAY OF REFANY
+                { "Reserved identifier \""
+                , FM3SrcToks . Image ( IdAttr . Scan . SaPredefTok )
+                , "\" is a function requiring "
+                , Fmt . Int ( ExpectedCt ) 
+                , " actual parameter"
+                , FM3SharedUtils . PluralSuffix ( ExpectedCt )
+                , ", not "
+                , Fmt . Int ( ActualsAttr . PaInt )
+                , " " 
+             (* , SectionOfBuiltin ( IdAttr . Scan . SaPredefTok ) *)  
+                , " (2.10)."
+(* FIXME ----------- ^ *) 
+                }
+            , IdAttr . Scan . Position 
+            )
+        ; PutBwd
              ( WunRdBack , VAL ( IdAttr . Scan . Position . Column , LONGINT ) ) 
         ; PutBwd
             ( WunRdBack , VAL ( IdAttr . Scan . Position . Line , LONGINT ) ) 
         ; PutBwd ( WunRdBack , VAL ( FM3Base . AtomNull , LONGINT ) ) 
         ; PutBwd
             ( WunRdBack , VAL ( Itk . ItkIdRefAtomNotUsable , LONGINT ) ) 
-        ; PutBwd_LCI_ri 
-            ( Itk . ItkSkipLt
-            , ActualsAttr . PaPass1Coord (* Skip the actuals. *) 
-            , FM3Globals . NextSkipNo  
+        ; RETURN FALSE
+        ELSE
+          PutBwd_LCIIP_riip
+            ( Itk . ItkBuiltinCallLt
+            , IdAttr . PaPass1Coord 
+            , IdAttr . Scan . SaPredefTok
+            , ExpectedCt
+            , ActualsAttr . Scan . Position
             ) 
-        ; INC ( FM3Globals . NextSkipNo )
-        END (*WITH*) 
-      ; RETURN FALSE
-      ELSE
-        CASE ExpectedCt OF
-        | 1 => PutBwd_LCP_rp 
-                 ( FM3Predefs . Stk2Itk ( IdAttr . Scan . SaPredefTok )
-                 , IdAttr . PaPass1Coord 
-                 , ActualsAttr . Scan . Position
-                 )
-        | 2 => (* PutBwd_LCP_ecp_rp 
-                 ( FM3Predefs . Stk2Itk ( IdAttr . Scan . SaPredefTok )
-                 , IdAttr . PaPass1Coord 
-                 , ActualsAttr . Scan . Position
-                 , 0
-                 )
-               *) 
-        | 3 => 
-        END (*CASE*) 
-      ; RETURN TRUE
-      END (*IF*) 
+        ; RETURN TRUE
+        END (*IF*)
+      END (*WITH*) 
     END CheckBuiltinProcActualsCt
 
 (*EXPORTED.*)
@@ -2157,14 +2150,12 @@ MODULE FM3Pass1
       THEN LParamTag :="three"
       ELSIF IdAttr . Scan . SaPredefTok IN FM3Predefs . RidOneOrMoreParamSet
       THEN LParamTag := "one or more" 
-      ELSE (* It's OK. Convert to ItkBuiltinIdRef *)  
-        WITH WunRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
-        DO PutBwd
-             ( WunRdBack , VAL ( IdAttr . Scan . Position . Column , LONGINT ) ) 
-        ; PutBwd ( WunRdBack , VAL ( IdAttr . Scan . Position . Line , LONGINT ) ) 
-        ; PutBwd ( WunRdBack , VAL ( IdAttr . Scan . SaPredefTok , LONGINT ) ) 
-        ; PutBwd ( WunRdBack , VAL ( Itk . ItkBuiltinIdRef , LONGINT ) ) 
-        END (*WITH*) 
+      ELSE (* It's OK. Convert to ItkBuiltinIdRef *)
+        PutBwd_LIP
+          ( Itk . ItkBuiltinIdRef
+          , IdAttr . Scan . SaPredefTok
+          , IdAttr . Scan . Position
+          ) 
       ; RETURN 
       END (*IF*)
 

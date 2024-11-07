@@ -381,9 +381,10 @@ FIXED
   ItkSubscript INT POS (* Number of subscripts. *) .
   ItkCall INT POS (* Number of actual parameters *) .
   ItkConstructor INT POS (* Number of values *) .
+  ItkBuiltinCall IDENT INT POS (* Builtin source token, actuals count. *) .
+  (* Surrounds a list of actuals. *) 
 
 LONE 
-  ItkBuiltinCall IDENT INT POS (* Builtin source token, actuals count. *) .
   ItkBuiltinIdRef IDENT POS (* IDENT is predefined id code. *) .
   (*^ Only a builtin Id that takes no parameters. *) 
 
