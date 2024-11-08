@@ -87,6 +87,8 @@ EXPORTS Main
 
 ; VAR GNextTokNo : INTEGER
 ; VAR GMinTokNo : INTEGER
+; VAR GMaxTokNo : INTEGER
+; VAR GTokNoIncr : INTEGER 
 ; VAR GInputFileName := "FM3Toks.GenTok" 
 ; VAR GInterfaceName : TEXT  
 ; VAR GModuleName : TEXT 
@@ -628,7 +630,6 @@ EXPORTS Main
   = VAR LNumCount := FIRST ( INTEGER ) 
   ; VAR LKindCt : INTEGER 
   ; VAR LWrT : Wr . T := NIL
-  ; VAR LOperandString : TEXT
   
   ; PROCEDURE AppendCoord ( Suffix : TEXT )
 
@@ -844,12 +845,13 @@ EXPORTS Main
     END PutSimpleTokDecl
 
 ; PROCEDURE MaybePutMinTokNo ( )
+(* TODO: Remove this procedure and its calls. *) 
 
   = BEGIN
-      IF NOT GMinTokDone
+      RETURN (* This now gets called too early. *) 
+    ; IF NOT GMinTokDone
       THEN
-        GMinTokNo := GNextTokNo 
-      ; PutSimpleTokDecl ( "TkMinTok" , GNextTokNo ) 
+        PutSimpleTokDecl ( "TkMinTok" , GMinTokNo ) 
       ; GMinTokDone := TRUE 
       END (*IF*)
     END MaybePutMinTokNo
@@ -911,7 +913,15 @@ EXPORTS Main
   = BEGIN
       (* ArgCt < 0 means it was not specified. *) 
       RETURN MAX ( 0 , ArgCt ) + 1  
-    END ArgCtPlus1 
+    END ArgCtPlus1
+
+; PROCEDURE IncrTokNo ( VAR TokNo : INTEGER ; TokCt : INTEGER := 1 )
+
+  = BEGIN
+      GMaxTokNo := MAX ( GMaxTokNo , TokNo ) 
+    ; GMinTokNo := MIN ( GMinTokNo , TokNo ) 
+    ; INC ( TokNo , TokCt * GTokNoIncr )
+    END IncrTokNo 
 
 ; PROCEDURE EmitTok 
     ( Name : TEXT ; ArgCt : INTEGER ; ArgString , StringVal : TEXT := NIL )
@@ -972,7 +982,7 @@ EXPORTS Main
         ( GOStream , CompressedHex ( VAL ( GNextTokNo , LONGINT ) ) )
     ; Layout . PutText ( GOStream , "*)" )
     ; Layout . PutEol ( GOStream )
-    ; INC ( GNextTokNo ) 
+    ; IncrTokNo ( GNextTokNo ) 
     END EmitTok
 
 ; PROCEDURE EmitLoneTok ( ) 
@@ -998,7 +1008,7 @@ EXPORTS Main
       ; Layout . PutEol ( GOStream )
       ; EmitTok ( LTokName  , LArgCt , LOperandString )
       ELSIF GDoCountIntToks
-      THEN INC ( GNextTokNo ) 
+      THEN IncrTokNo ( GNextTokNo ) 
       END (*IF*) 
     ; IF Text . Equal ( GToken , "." ) THEN GToken := GetSyntTok ( ) END (*IF*)
     END EmitLoneTok 
@@ -1055,7 +1065,7 @@ EXPORTS Main
       ; Layout . PutEol ( GOStream )
 
       ELSIF GDoCountIntToks
-      THEN INC ( GNextTokNo , 8 ) 
+      THEN IncrTokNo ( GNextTokNo , 8 ) 
       END (*IF*) 
     ; IF Text . Equal ( GToken , "." ) THEN GToken := GetSyntTok ( ) END (*IF*)
     END EmitListToks 
@@ -1095,7 +1105,7 @@ EXPORTS Main
       ; EmitTok ( LRootName & "Rt" , LArgCtFixed , LOperandStringFixed )    
       ; Layout . PutEol ( GOStream )
       ELSIF GDoCountIntToks
-      THEN INC ( GNextTokNo , 4 ) 
+      THEN IncrTokNo ( GNextTokNo , 4 ) 
       END (*IF*) 
 
     ; WHILE IsIdent ( GToken ) 
@@ -1121,7 +1131,7 @@ EXPORTS Main
             )
         ; Layout . PutEol ( GOStream )
         ELSIF GDoCountIntToks
-        THEN INC ( GNextTokNo , 3 ) 
+        THEN IncrTokNo ( GNextTokNo , 3 ) 
         END (*IF*) 
       END (*WHILE*)
     ; IF Text . Equal ( GToken , "." ) THEN GToken := GetSyntTok ( ) END (*IF*)
@@ -1173,7 +1183,7 @@ EXPORTS Main
         END (*IF*) 
       ; EmitTok ( LSrcName , - 1 , StringVal := LString )  
       ELSIF GDoCountSrcToks
-      THEN INC ( GNextTokNo ) 
+      THEN IncrTokNo ( GNextTokNo ) 
       END (*IF*) 
     ; IF Text . Equal ( GToken , "." ) THEN GToken := GetSyntTok ( ) END (*IF*)
     END EmitSrcTok
@@ -1553,22 +1563,28 @@ EXPORTS Main
         ; IF GToken = EOFToken THEN RAISE Terminate END (*IF*) 
         ; IF IsIdent ( GToken ) THEN GToken := GetSyntTok ( ) END (*IF*)
  
+        ELSIF TokEq ( GToken , "DECREASING" )
+        THEN
+          MessageLine ( "Too late for a DECREASING, ignored." )
+        ; GToken := GetSyntTok ( ) (* Consume DECREASING. *)
+
       (* Token Numbering commands. *)
         ELSIF TokEq ( GToken , "REL" )
         THEN
           LValue := GetNumber ( )
-        ; IF LValue >= 0 THEN INC ( GNextTokNo , LValue ) END (*IF*)  
+        ; IF LValue >= 0 THEN IncrTokNo ( GNextTokNo , LValue ) END (*IF*)  
 
         ELSIF TokEq ( GToken , "ABS" )
         THEN
           LValue := GetNumber ( )
         ; IF LValue >= 0
           THEN
-            IF LValue < GNextTokNo 
+            IF GTokNoIncr > 0 AND LValue < GNextTokNo   
+               OR GTokNoIncr < 0 AND LValue > GNextTokNo   
             THEN 
               MessageLine 
-                ( "Would-be decreasing token number: "
-                  & Fmt . Int ( LValue ) & " after "
+                ( "Token number would advance the wrong way: "
+                  & Fmt . Int ( LValue ) & " following "
                   & Fmt . Int ( GNextTokNo )
                   & ", retaining current value: " 
                 )
@@ -1621,7 +1637,8 @@ EXPORTS Main
         ; GToken := GetSyntTok ( )  
         END (*IF*) 
       END (*LOOP*) 
-    ; PutSimpleTokDecl ( "TkMaxTok" , GNextTokNo - 1 ) 
+    ; PutSimpleTokDecl ( "TkMinTok" , GMinTokNo ) 
+    ; PutSimpleTokDecl ( "TkMaxTok" , GMaxTokNo ) 
     END GenTokConsts
 
 ; PROCEDURE Pass1 ( )
@@ -1666,7 +1683,11 @@ EXPORTS Main
         END (*IF*)
       ; GCopyingComments := TRUE 
       END (*IF*)
-      
+    ; IF TokEq ( GToken , "DECREASING" )
+      THEN
+        GTokNoIncr := - 1 
+      END (*IF*) 
+
     ; IF GDoGenInterface
       THEN
         GOutputWrT := OpenOutput ( GInterfaceFullName )
@@ -1714,7 +1735,8 @@ EXPORTS Main
     END EmitModuleProlog 
 
 ; PROCEDURE GenTokNoMap
-    ( Min , Max : INTEGER ; FuncName : TEXT ; ArrayRef : IntRefArray . T ) 
+    ( Min , Max : INTEGER ; FuncName : TEXT ; ArrayRef : IntRefArray . T )
+  (* PRE: Min <= Max. *) 
 
   = VAR LName : TEXT
 
@@ -1799,17 +1821,17 @@ EXPORTS Main
       ; IF GDoGenImageFunc
         THEN
           GenTokNoMap
-            ( GMinTokNo , GNextTokNo - 1 , "Image" , GTokImagesArrayRef )
+            ( GMinTokNo , GMaxTokNo , "Image" , GTokImagesArrayRef )
         END (*IF*) 
       ; IF GDoGenNameFunc
         THEN
           GenTokNoMap
-            ( GMinTokNo , GNextTokNo - 1 , "Name" , GTokNamesArrayRef ) 
+            ( GMinTokNo , GMaxTokNo , "Name" , GTokNamesArrayRef ) 
         END (*IF*) 
       ; IF GDoGenIntOperands
         THEN
           GenTokNoMap
-            ( GMinTokNo , GNextTokNo - 1 , "Operands" , GOperandsArrayRef ) 
+            ( GMinTokNo , GMaxTokNo , "Operands" , GOperandsArrayRef ) 
           END (*IF*) 
       ; EmitModuleEpilog ( )
       ; CloseLayout ( GOStream )
@@ -1926,7 +1948,9 @@ EXPORTS Main
     BEGIN 
       GMinTokDone := FALSE
     ; GNextTokNo := 0
-    ; GMinTokNo := 0
+    ; GMinTokNo := LAST ( INTEGER ) 
+    ; GMaxTokNo := FIRST ( INTEGER )
+    ; GTokNoIncr := 1 
     ; GConstTag := "; CONST"
     ; GTokImagesArrayRef := IntRefArray . New ( NIL ) 
     ; GTokNamesArrayRef := IntRefArray . New ( NIL ) 
