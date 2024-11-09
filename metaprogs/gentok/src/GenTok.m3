@@ -727,7 +727,8 @@ EXPORTS Main
 ; PROCEDURE IsNum ( Token : TEXT ; VAR Value : INTEGER ) : BOOLEAN
 
   = VAR LLen , LCharNo , LValue : INTEGER
-  ; VAR LChar : CHAR 
+  ; VAR LChar : CHAR
+  ; VAR LNeg : INTEGER := 1  
 
   ; BEGIN
       IF <*NOWARN*> Token = NIL OR Token = EOFToken THEN RETURN FALSE END (*IF*)
@@ -735,14 +736,22 @@ EXPORTS Main
     ; IF LLen <= 0 THEN RETURN FALSE END (*IF*) 
     ; LValue := 0
     ; LCharNo := 0
-    ; LOOP
-        IF LCharNo >= LLen THEN EXIT END (*IF*)
+    ; LChar := Text . GetChar ( Token , LCharNo ) 
+    ; IF LChar = '-'
+      THEN
+        LNeg := - 1 
+      ; IF LLen <= 1 THEN RETURN FALSE END (*IF*) 
+      ; INC ( LCharNo )
       ; LChar := Text . GetChar ( Token , LCharNo ) 
-      ; IF NOT LChar IN Digits THEN RETURN FALSE END (*IF*)
+      END (*IF*) 
+    ; LOOP
+        IF NOT LChar IN Digits THEN RETURN FALSE END (*IF*)
       ; LValue := LValue * 10 + ORD ( LChar ) - ORD ( '0' )  
       ; INC ( LCharNo ) 
+      ; IF LCharNo >= LLen THEN EXIT END (*IF*)
+      ; LChar := Text . GetChar ( Token , LCharNo ) 
       END (*LOOP*) 
-    ; Value := LValue
+    ; Value := LValue * LNeg 
     ; RETURN TRUE 
     END IsNum
 
@@ -1525,7 +1534,6 @@ EXPORTS Main
           ( "Premature EOF looking for a token number after " & LLabel & "." )
       ; RAISE Terminate
       ELSIF NOT IsNum ( GToken , (*VAR*) LValue )
-            OR LValue < 0 
       THEN 
         MessageLine
           ( "Invalid number: " & GToken & " following " & LLabel & ", ignored.")
@@ -1577,21 +1585,18 @@ EXPORTS Main
         ELSIF TokEq ( GToken , "ABS" )
         THEN
           LValue := GetNumber ( )
-        ; IF LValue >= 0
-          THEN
-            IF GTokNoIncr > 0 AND LValue < GNextTokNo   
-               OR GTokNoIncr < 0 AND LValue > GNextTokNo   
-            THEN 
-              MessageLine 
-                ( "Token number would advance the wrong way: "
-                  & Fmt . Int ( LValue ) & " following "
-                  & Fmt . Int ( GNextTokNo )
-                  & ", retaining current value: " 
-                )
-            ELSE 
-              GNextTokNo := LValue
-            END (*IF*) 
-          END (*IF*)  
+        ; IF GTokNoIncr > 0 AND LValue < GNextTokNo   
+             OR GTokNoIncr < 0 AND LValue > GNextTokNo   
+          THEN 
+            MessageLine 
+              ( "Token number would advance the wrong way: "
+                & Fmt . Int ( LValue ) & " following "
+                & Fmt . Int ( GNextTokNo )
+                & ", retaining current value: " 
+              )
+          ELSE 
+            GNextTokNo := LValue
+          END (*IF*) 
 
         (* Token kind commands. *)
         ELSIF TokEq ( GToken , "LONE" )
@@ -1686,6 +1691,7 @@ EXPORTS Main
     ; IF TokEq ( GToken , "DECREASING" )
       THEN
         GTokNoIncr := - 1 
+      ; GToken := GetSyntTok ( ) (* Consume DECREASING. *)
       END (*IF*) 
 
     ; IF GDoGenInterface
@@ -1702,7 +1708,8 @@ EXPORTS Main
       END (*IF*) 
     ; IF GDoGenSets
       THEN EmitSetsPickle ( ) 
-      END (*IF*) 
+      END (*IF*)
+; RETURN 
     ; IF GDoGenIntFsm
       THEN
         LIntFsm := FM3BuildLexMachine . Build ( )

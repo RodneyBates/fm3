@@ -9,6 +9,7 @@
 (* Input file FM3SrcTok.gentok, to metaprogram GenTok. *)
 
 UNITNAME FM3SrcToks
+DECREASING 
 
 (* Source tokens for FM3 Modula-3 compiler. 
    These are near the high end of 2^14-1.
@@ -27,7 +28,7 @@ ABS 0
    StkUnknown .
    StkBOF . 
    
-ABS 5
+ABS -5
 
    (* These source token codes' declarations have copies in FM3Parser.lalr,
       in lalr's own syntax, which these must remain consistent with.
