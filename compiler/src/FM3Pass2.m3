@@ -1076,7 +1076,7 @@ MODULE FM3Pass2
     ; RETURN LResult 
     END LookupDeclNoInScope
 
-; PROCEDURE LookupExpImp
+; PROCEDURE LookupAtomExpImp
     ( IdAtom : FM3Base . AtomTyp
     ; VAR (*OUT*) UnitNo : FM3Globals . UnitNoTyp
     ; VAR (*OUT*) DeclNo : FM3Globals . DeclNoTyp
@@ -1101,7 +1101,7 @@ MODULE FM3Pass2
       ; DeclNo := FM3Globals . DeclNoNull 
       ; RETURN FALSE 
       END (*IF*)
-    END LookupExpImp 
+    END LookupAtomExpImp 
 
 ; PROCEDURE OpenScopeLt ( ScopeNo : FM3Globals . ScopeNoTyp ) 
 
@@ -1179,14 +1179,15 @@ MODULE FM3Pass2
       END (*WITH*) 
     END OpenScopeLt 
 
-; PROCEDURE LookupOpenRef ( IdAtom : FM3Base . AtomTyp ) : FM3Globals . DeclNoTyp  
+; PROCEDURE LookupAtomInOpenScopes
+    ( IdAtom : FM3Base . AtomTyp ) : FM3Globals . DeclNoTyp  
   (* In nearest enclosing open scope on open scope stack. *) 
 
   = VAR LScopeRef : FM3Scopes . ScopeRefTyp 
   ; VAR LDeclNoInt : INTEGER
   ; VAR LFound : BOOLEAN 
 
-  ; BEGIN (*LookupOpenRef*)
+  ; BEGIN (*LookupAtomInOpenScopes*)
       LScopeRef := FM3Scopes . OpenScopeStackTopRef
     ; LOOP
         IF LScopeRef = NIL THEN RETURN FM3Globals . DeclNoNull END (*IF*) 
@@ -1214,7 +1215,7 @@ MODULE FM3Pass2
           LScopeRef := LScopeRef ^ . ScpOpenScopeStackLink
         END (*IF*) 
       END (*LOOP*) 
-    END LookupOpenRef
+    END LookupAtomInOpenScopes
 
 ; PROCEDURE DuplDeclIdR2L ( READONLY TokResult : TokResultTyp )
   : FM3Globals . DeclNoTyp
@@ -1612,12 +1613,12 @@ MODULE FM3Pass2
       DO
       
         (* Look for a reference to a decl in an enclosing* open scope. *) 
-        LRefDeclNo := LookupOpenRef ( LIdentRefAtom )
+        LRefDeclNo := LookupAtomInOpenScopes ( LIdentRefAtom )
       ; IF LRefDeclNo # FM3Globals . DeclNoNull 
         THEN 
           IF AreInsideADecl ( )
 (* CHECK: Is this precluded by syntactic context? *) 
-          THEN (* Create an ExprIdNo node. *) 
+          THEN (* Create an ExprRefDeclNo node. *) 
             CheckRecursiveRef ( LRefDeclNo )
           ; WITH WExpr
                  = NEW ( FM3Exprs . ExprRefDeclNo , ExpUpKind := Ekt . EkRef )
@@ -1636,7 +1637,7 @@ MODULE FM3Pass2
           END (*IF*)
           
         (* Look for something [ex|im]ported. *) 
-        ELSIF LookupExpImp
+        ELSIF LookupAtomExpImp
                 ( LIdentRefAtom , (*OUT*) LUnitNo , (*OUT*) LRefDeclNo )
         THEN (* Export or import is present. *) 
           IF LUnitNo = FM3Globals . UnitNoNull (* But not usable. *) 
@@ -1648,7 +1649,7 @@ MODULE FM3Pass2
           ; LIsUsable := LExpImpUnitRef ^ . UntState # Ust . UsNotUsable
           END (*IF*)
         ; IF LIsUsable
-          THEN (* LExpImpUnitRef names an interface. *)
+          THEN (* LExpImpUnitRef names a usable interface. *)
             IF LRefDeclNo = FM3Globals . DeclNoNull
             THEN (* Interface name w/o a selection--illegal. *) 
               IF NOT FM3Atom_OAChars . Key
@@ -1724,7 +1725,7 @@ MODULE FM3Pass2
       DO
       
       (* Look for a left reference to a decl in an enclosing open scope. *) 
-        LRefDeclNoLt := LookupOpenRef ( LAtomLt )
+        LRefDeclNoLt := LookupAtomInOpenScopes ( LAtomLt )
       ; IF LRefDeclNoLt # FM3Globals . DeclNoNull
         THEN (* Lt names a local declaration, not an interface. *)
           IF AreInsideADecl ( ) 
@@ -1766,7 +1767,8 @@ MODULE FM3Pass2
           END (*IF*) 
 
         (* Look for something [ex|im]ported. *) 
-        ELSIF LookupExpImp ( LAtomLt , (*OUT*) LUnitNoLt , (*OUT*) LRefDeclNoLt )
+        ELSIF LookupAtomExpImp
+                ( LAtomLt , (*OUT*) LUnitNoLt , (*OUT*) LRefDeclNoLt )
         THEN (* Lt ident is [ex|im]ported. *)  
           IF LUnitNoLt = FM3Globals . UnitNoNull
           THEN (* Unusable. *) 

@@ -20,8 +20,6 @@ INTERFACE FM3CLToks
 
 (* ABS 0: *)
 
-; CONST TkMinTok                                     =     0
-
 ; CONST CltNull                                      =     0 (*16_00 *)
 ; CONST CltVersion                                   =     1 (*16_01 *)
 ; CONST CltHelp                                      =     2 (*16_02 *)
@@ -46,6 +44,8 @@ INTERFACE FM3CLToks
 ; CONST CltUnitLog                                   =    17 (*16_11 *)
 (* Write compiled code messages to unit-specific log file. *)
 (* End of file FM3CLToks.gentok *)
+; CONST TkMinTok                                     =     0
+
 ; CONST TkMaxTok                                     =    17
 
 ; END FM3CLToks

@@ -17,7 +17,7 @@ MODULE FM3CLToks
 
   = BEGIN 
       CASE TokNo OF 
-      | 0 => RETURN "<null>"
+      | 0 => RETURN "a"
       | 1 => RETURN "version"
       | 2 => RETURN "help"
       | 3 => RETURN "src-file"

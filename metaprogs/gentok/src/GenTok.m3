@@ -23,7 +23,6 @@ EXPORTS Main
 ; IMPORT Pickle2 AS Pickle 
 ; IMPORT Rd
 ; IMPORT Stdio
-
 ; IMPORT Text 
 ; IMPORT TextWr
 ; IMPORT Thread 
@@ -1709,14 +1708,27 @@ EXPORTS Main
     ; IF GDoGenSets
       THEN EmitSetsPickle ( ) 
       END (*IF*)
-; RETURN 
     ; IF GDoGenIntFsm
       THEN
-        LIntFsm := FM3BuildLexMachine . Build ( )
+        TRY 
+          LIntFsm := FM3BuildLexMachine . Build ( )
+        EXCEPT FM3BuildLexMachine . Error ( Msg )
+        => Wr . PutText
+             ( Stdio . stderr
+             , "Error building " & GIntFsmFullName & ": " & Msg & Wr . EOL  
+             ) 
+        END (*EXCEPT*) 
       ; EmitFsmPickle ( GIntFsmFullName , FM3FileKindIntPkl , LIntFsm )  
       ELSIF GDoGenSrcFsm
       THEN
-        LSrcFsm := FM3BuildLexMachine . Build ( )
+        TRY 
+          LSrcFsm := FM3BuildLexMachine . Build ( )
+        EXCEPT FM3BuildLexMachine . Error ( Msg )
+        => Wr . PutText
+             ( Stdio . stderr
+             , "Error building " & GSrcFsmFullName & ": " & Msg & Wr . EOL 
+             ) 
+        END (*EXCEPT*) 
       ; EmitFsmPickle ( GSrcFsmFullName , FM3FileKindSrcPkl , LSrcFsm )  
       END (*IF*)
     END Pass1

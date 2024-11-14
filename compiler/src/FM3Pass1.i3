@@ -386,12 +386,13 @@ INTERFACE FM3Pass1
     ( READONLY LtAttribute , RtAttribute : tParsAttribute )
   (* Handles either/both idents reserved (error msg). *) 
     
-; PROCEDURE NoSelectorAllowed
+; PROCEDURE BuiltinNoSelectorAllowed
     ( READONLY IdAttribute , SelectorAttribute : tParsAttribute
     ; SelectedTag : TEXT
     )
 
-; PROCEDURE BuiltinNoSelector ( READONLY IdAttribute : tParsAttribute )
+; PROCEDURE BuiltinWithNoSelector
+( READONLY IdAttribute : tParsAttribute )
   (* PRE: IdAttribute . Scan . SaIsPredefId. *) 
   (* PRE: IdAttribute . Scan . SaPredefTok # FM3Base , TokNull. *) 
   (* Builtin ident that has no selector. *) 

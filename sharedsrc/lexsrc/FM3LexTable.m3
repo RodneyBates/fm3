@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the Flint Hills Modula-3 compiler, FM3.              *)
-(* Copyright 2023        Rodney M. Bates.                                    *)
+(* Copyright 2023..2024  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -14,7 +14,8 @@ MODULE FM3LexTable
    array.
 *)    
 
-; IMPORT Text 
+; IMPORT Text
+; IMPORT Word 
 
 ; IMPORT FM3LexTableRep 
 ; IMPORT FM3Base 
@@ -45,8 +46,8 @@ MODULE FM3LexTable
 
   = VAR LNameSs : INTEGER 
   ; VAR LNameLast : INTEGER 
-  ; VAR LStateNo : StateNoTyp 
-  ; VAR LTransition : StateNoTyp 
+  ; VAR LStateNo : TransitionTyp 
+  ; VAR LTransition : TransitionTyp 
   ; VAR LChar : CHAR 
 
   ; BEGIN 
@@ -57,22 +58,26 @@ MODULE FM3LexTable
       ELSE 
         LNameSs := 0 
       ; LNameLast := LAST ( Name ) 
-      ; LStateNo := 0 
+      ; LStateNo := FM3LexTableRep . LowestStateNo 
       ; LOOP 
           IF LNameSs > LNameLast 
           THEN LChar := NullChar 
           ELSE LChar := Name [ LNameSs ] 
           END (* IF *) 
-        ; WITH WState = Table ^ . StatesRef ^ [ LStateNo ] 
+        ; WITH WState = Table ^ . StatesRef
+                        ^ [ LStateNo - FM3LexTableRep . LowestStateNo ] 
           DO IF LChar < WState . Min OR LChar > WState . Max 
             THEN RETURN ValueUnrecognized 
             ELSE 
               LTransition 
                 := Table ^ . SpaceRef [ ORD ( LChar ) + WState . SpaceBias ] 
-            ; IF LTransition < 0 
-              THEN RETURN LTransition - FM3LexTableRep . FirstNegResultValue 
-              ELSIF LTransition = FM3LexTableRep . NoTransition 
-              THEN RETURN ValueUnrecognized 
+            ; IF LTransition
+                 >= Word . Plus ( Table ^ . MinValue , Table ^ . ValueBias ) 
+              THEN
+                IF LTransition > FM3LexTableRep . HighestBiasedValue
+                THEN RETURN ValueUnrecognized 
+                ELSE RETURN Word . Minus ( LTransition , Table ^ . ValueBias )  
+                END (*IF*) 
               ELSE 
                 LStateNo := LTransition 
               ; INC ( LNameSs ) 
@@ -100,16 +105,16 @@ MODULE FM3LexTable
     END ValueFromText 
 
 (*EXPORTED*)
-; PROCEDURE IncrInit ( <* UNUSED *> Table : T ) : StateNoTyp
+; PROCEDURE IncrInit ( <* UNUSED *> Table : T ) : TransitionTyp
   (* Initialize for char-at-a-time lookup *)
 
   = BEGIN
-      RETURN 0 
+      RETURN FM3LexTableRep . LowestStateNo 
     END IncrInit
     
 (*EXPORTED*)
 ; PROCEDURE IncrNext
-    ( Table : T ; Char : CHAR ; VAR (*IN OUT*) State : StateNoTyp ) 
+    ( Table : T ; Char : CHAR ; VAR (*IN OUT*) State : TransitionTyp ) 
   : ValueTyp
   (* Supply one character to an incremental lookup.  State must be what was
      returned by the last IncrInit or IncrNext, and using the same Table.
@@ -118,29 +123,33 @@ MODULE FM3LexTable
      Caller must call with 
      ValueUnrecognized means, well, unrecognized? *)
      
-  = VAR LTransition : StateNoTyp
+  = VAR LTransition : TransitionTyp
   
   ; BEGIN
-      WITH WState = Table ^ . StatesRef ^ [ State ] 
-      DO 
-        IF Char < WState . Min OR Char > WState . Max 
+      WITH WState = Table ^ . StatesRef
+                    ^ [ State - FM3LexTableRep . LowestStateNo ] 
+      DO IF Char < WState . Min OR Char > WState . Max 
         THEN RETURN ValueUnrecognized 
         ELSE 
           LTransition 
-            := Table ^ . SpaceRef [ ORD ( Char ) + WState . SpaceBias ] 
-        ; IF LTransition < 0 
-          THEN RETURN LTransition - FM3LexTableRep . FirstNegResultValue 
-          ELSIF LTransition = FM3LexTableRep . NoTransition 
-          THEN RETURN ValueUnrecognized 
-          ELSE
+            := Table ^ . SpaceRef
+                 [ ORD ( Char ) - ORD ( WState . Min ) + WState . SpaceBias ]
+        ; IF LTransition
+             >= Word . Plus ( Table ^ . MinValue , Table ^ . ValueBias ) 
+          THEN
+            IF LTransition > FM3LexTableRep . HighestBiasedValue
+            THEN RETURN ValueUnrecognized 
+            ELSE RETURN Word . Minus ( LTransition , Table ^ . ValueBias )  
+            END (*IF*) 
+          ELSE 
             State := LTransition
-          ; RETURN ValueNull 
+          ; RETURN ValueNull (* Request another char. *) 
           END (* IF *) 
         END (* IF *) 
       END (* WITH *) 
     END IncrNext 
 
-; CONST MaxStringLength = 512 
+; CONST MaxStringLength = 1024 
 
 ; BEGIN 
   END FM3LexTable 

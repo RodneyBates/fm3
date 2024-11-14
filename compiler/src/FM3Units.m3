@@ -162,16 +162,16 @@ MODULE FM3Units
              , Ranges_Int . RangeTyp { 0 , FM3Globals . InitImportsCt - 1 } 
              )
     ; VarArray_Int_ExpImpProxy . Touch
-        ( LUnitRef ^ .  UntExpImpMap , Ranges_Int . RangeTyp {  0 , 0 } )
+        ( LUnitRef ^ .  UntExpImpMap , Ranges_Int . RangeTyp { 0 , 0 } )
     ; LUnitRef ^ . UntNextDeclNo := 1 
     ; LUnitRef ^ . UntDeclMap 
         := FM3Decls . NewDeclMap ( FM3Globals . InitDeclCtPerUnit ) 
     ; VarArray_Int_Refany . Touch
-        ( LUnitRef ^ .  UntDeclMap , Ranges_Int . RangeTyp {  0 , 0 } )
+        ( LUnitRef ^ .  UntDeclMap , Ranges_Int . RangeTyp { 0 , 0 } )
     ; LUnitRef ^ . UntExprMap 
         := FM3Exprs . NewExprMap ( FM3Globals . InitDefCtPerUnit ) 
     ; VarArray_Int_Refany . Touch
-        ( LUnitRef ^ .  UntExprMap , Ranges_Int . RangeTyp {  0 , 0 } )
+        ( LUnitRef ^ .  UntExprMap , Ranges_Int . RangeTyp { 0 , 0 } )
     ; LUnitRef ^ . UntNextDeclNo := 1
     ; LUnitRef ^ . UntFirstTrueDeclNo := 1
     ; LUnitRef ^ . UntSkipStackBase

@@ -11,11 +11,12 @@ INTERFACE FM3Predefs
 ; IMPORT FM3SrcToks AS Stk
 ; IMPORT FM3IntToks AS Itk
 
-; TYPE BuiltinOpTyp = [ 0 .. Stk . TkMaxTok ]
+; TYPE BuiltinOpTyp = [ Stk . TokMinPredef .. Stk . TokMaxPredef ]
 (* BEWARE.  cm3 crashed on sets with lower bound not in the 1st word. *) 
 
 (* Functions with one parameter: *)
-; CONST RidOneParamSet = SET OF BuiltinOpTyp 
+; CONST RidOneParamSet = SET OF BuiltinOpTyp { }
+(*
     { Stk . RidABS 
     , Stk . RidADR 
     , Stk . RidADRSIZE 
@@ -36,21 +37,28 @@ INTERFACE FM3Predefs
     , Stk . RidDISPOSE 
     , Stk . RidINC 
     }
-    
+*)     
 (* Functions with two parameters: *)
-; CONST RidTwoParamSet = SET OF BuiltinOpTyp
+; CONST RidTwoParamSet = SET OF BuiltinOpTyp { }
+(*
     { Stk . RidLOOPHOLE 
     , Stk . RidMAX 
     , Stk . RidMIN 
     , Stk . RidNARROW
     , Stk . RidVAL
     }
-
+*)
 (* Functions with three parameters: *)
-; CONST RidThreeParamSet = SET OF BuiltinOpTyp { Stk . RidSUBARRAY }
+; CONST RidThreeParamSet = SET OF BuiltinOpTyp { }
+(*
+    { Stk . RidSUBARRAY }
+*)
 
 (* Functions with a variable number of actuals: *)
-; CONST RidOneOrMoreParamSet = SET OF BuiltinOpTyp { Stk . RidNEW }
+; CONST RidOneOrMoreParamSet = SET OF BuiltinOpTyp { }
+(*
+    { Stk . RidNEW }
+*) 
 
 ; CONST ReservedIdSet
     = RidOneParamSet + RidTwoParamSet + RidThreeParamSet + RidOneOrMoreParamSet

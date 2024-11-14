@@ -12,11 +12,11 @@ INTERFACE FM3Base
 
 ; IMPORT VarArray_Int_Refany 
 
-; TYPE TokTyp = CARDINAL
-; CONST TokNull = FIRST ( CARDINAL )
+; TYPE TokTyp = INTEGER 
+; CONST TokNull = FIRST ( TokTyp )
 ; CONST TokFirstReal = TokNull + 1 
 
-(* Note lack of periods, for Pathname.Join. *)  
+(* Note lack of periods, which Pathname.Join inserts itself. *)  
 ; CONST InterfaceFileNameSuffix = "i3" 
 ; CONST ModuleFileNameSuffix = "m3"
 (* Any need for generics? *) 

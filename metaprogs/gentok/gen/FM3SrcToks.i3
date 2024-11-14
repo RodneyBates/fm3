@@ -140,13 +140,14 @@ INTERFACE FM3SrcToks
 ; CONST StkLexErrChars                               =  -107 (*16_95 7f *)
 ; CONST StkPragmaId                                  =  -108 (*16_94 7f *)
 (* Not a known pragma ident, but found where one is expected. *)
+(* Don't forget, values are negative and decreasing. *)
 (* We want to scan reserved ids and predefined ids in interfaces that
       have to have special treatment by the compiler using the same lex
       machine as reserved words, but treat each as an identifier
       whose atom id is actually the source token code. 
    *)
 (* Reserved identifiers: *)
-; CONST TokMinPredef                                 =  -109 (*16_93 7f *)
+; CONST TokMaxPredef                                 =  -109 (*16_93 7f *)
 ; CONST RidNull                                      =  -110 (*16_92 7f *)
 (* Scanner will never present this. *)
 ; CONST RidABS                                       =  -111 (*16_91 7f *)
@@ -247,7 +248,7 @@ INTERFACE FM3SrcToks
 ; CONST Long_RightRotate                             =  -200 (*16_b8 7e *)
 ; CONST Long_Extract                                 =  -201 (*16_b7 7e *)
 ; CONST Long_Insert                                  =  -202 (*16_b6 7e *)
-; CONST TokMaxPredef                                 =  -203 (*16_b5 7e *)
+; CONST TokMinPredef                                 =  -203 (*16_b5 7e *)
 (* End of FM3SrcToks.gentok. *)
 ; CONST TkMinTok                                     =  -203
 

@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the Flint Hills Modula-3 compiler, FM3.              *)
-(* Copyright 2023        Rodney M. Bates.                                    *)
+(* Copyright 2023..2024  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -11,32 +11,34 @@ INTERFACE FM3LexTableRep
 ; IMPORT FM3Base 
 ; IMPORT FM3LexTable   
 
-; CONST NoTransition = LAST ( FM3LexTable . StateNoTyp ) 
-; CONST LastRealTransition = NoTransition - 1 
-; CONST FirstNegResultValue = FIRST ( FM3LexTable . StateNoTyp ) 
-(* Negative "transitions" are mapped-to values, biased by FirstNegResultValue. 
-   NoTransition means there is none.  
-   Nonnegative transitions < NoTransition are unbiased states to go to. 
-*) 
-
 ; CONST NullChar 
     = VAL ( ORD ( FIRST ( FM3LexTable . ValidCharTyp ) ) - 1 , CHAR ) 
+; TYPE TransitionTyp = FM3Base . Int16Typ
 
-; TYPE SpaceSsTyp = FM3Base . Card32Typ 
-; TYPE SpaceTyp = ARRAY (* SpaceSsTyp *) OF FM3LexTable . StateNoTyp  
-  (* A single array of transitions with concatenated transition subranges for
-     the various states, in no particular order. *) 
+(* A _Transition_ denotes a scanning action.  It is either NoTransition,
+   a state number, or a biased value.  State numbers are generated,
+   starting with LowestState and going upward.  Value transitions are
+   biased from the actual mapped-to values, with the highest at
+   HighestBiasedValue.  It all fails if these two ranges collide in the middle.
+*)
+
+; CONST NoTransition = LAST ( FM3LexTable . TransitionTyp )
+; CONST HighestBiasedValue = NoTransition - 1
+; CONST LowestStateNo = FIRST ( FM3LexTable . TransitionTyp ) 
+
+; TYPE SpaceTyp = ARRAY OF TransitionTyp  
 ; TYPE SpaceRefTyp = REF SpaceTyp 
 
+; TYPE SpaceBiasTyp = BITS 24 FOR [ 0 .. 16_FFFFFF ] 
 ; TYPE StateTyp 
     = RECORD 
-        Min : CHAR := LAST ( CHAR ) 
+        SpaceBias : SpaceBiasTyp 
+        (* ^Add this to ORD of a character to get a Space subscript. *)
+      ; Min : CHAR := LAST ( CHAR ) 
       ; Max : CHAR := FIRST ( CHAR ) 
-      ; SpaceBias : FM3Base . Int32Typ := FIRST ( SpaceSsTyp ) 
-        (* ^Add this to ORD of a character to get a Space subscript. *)    
       END 
 
-; TYPE StatesTyp = ARRAY (* StateNoTyp *) OF StateTyp 
+; TYPE StatesTyp = ARRAY OF StateTyp 
 ; TYPE StatesRefTyp = REF StatesTyp 
 
 ; TYPE NamesTyp 
@@ -47,9 +49,16 @@ INTERFACE FM3LexTableRep
     = RECORD 
         SpaceRef : SpaceRefTyp 
       ; StatesRef : StatesRefTyp
+      ; NamesRef : NamesRefTyp 
       ; MinValue : FM3LexTable . ValueTyp 
       ; MaxValue : FM3LexTable . ValueTyp 
-      ; NamesRef : NamesRefTyp 
+      ; ValueBias : INTEGER 
+        (* ^Add this to a real value to get biased value. *)
+        (* NOTE: [un]biasing can reqire wraparound if TransitionTyp is as big
+                 as ValueBias, which it is not as of 11-13-2024.  But it is
+                 being done with Word.Plus/Minus, as a hedge for the future.
+        *) 
+      ; HighestStateNo : TransitionTyp 
       END 
 
 ; TYPE TableRefTyp = REF TableTyp 

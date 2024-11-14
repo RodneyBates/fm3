@@ -408,7 +408,7 @@ MODULE FM3Scanner
           := FM3Utils . CharVarArrayToOAChar ( ScCharVarArr ) 
       ; IF GCurRwValue = FM3LexTable . ValueNull 
         THEN (* Not recognized, but could be a prefix of longer RW. *) 
-(* NOTE: ^This is a workaround for FM3BuildLexMachine's inconsistent habit
+(* NOTE: ^This is a workaround for FM3BuilLexMachine's inconsistent habit
           of having a transition on NullChar for the end of a string, IFF
           it is a prefix of a longer string. 
    TODO: Regularize FM3BuildLexMachine and FM3LexTable so this distinction
@@ -1385,7 +1385,7 @@ MODULE FM3Scanner
 ; VAR GPgRwLexTable : FM3LexTable . T 
 ; VAR GM3RwLexTable : FM3LexTable . T
 ; VAR GCurRwLexTable : FM3LexTable . T
-; VAR GCurRwState : FM3LexTable . StateNoTyp
+; VAR GCurRwState : FM3LexTable . TransitionTyp
 ; VAR GCurRwValue : FM3LexTable . ValueTyp 
 
 (* EXPORTED: *) 

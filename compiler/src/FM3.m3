@@ -42,24 +42,33 @@ MODULE FM3 EXPORTS Main
       EXCEPT
       | FM3SharedUtils . Terminate ( EMsg ) 
       =>  Wr . PutText ( Stdio . stderr , Wr . EOL )
-        ; Wr . PutText ( Stdio . stderr , EMsg ) 
-        ; Wr . PutText ( Stdio . stderr , Wr . EOL )
+        ; IF EMsg # NIL
+          THEN 
+            Wr . PutText ( Stdio . stderr , EMsg ) 
+          ; Wr . PutText ( Stdio . stderr , Wr . EOL )
+          END (*IF*) 
         ; Wr . Flush ( Stdio . stderr )
         ; LDebug := 13 (* Complete by exception Terminate. *) 
         ; RTProcess . Exit ( 11 ) 
          
       | FM3SharedUtils . AllocationFailure ( EMsg ) 
       =>  Wr . PutText ( Stdio . stderr , Wr . EOL )
-        ; Wr . PutText ( Stdio . stderr , EMsg ) 
-        ; Wr . PutText ( Stdio . stderr , Wr . EOL )
+        ; IF EMsg # NIL
+          THEN 
+            Wr . PutText ( Stdio . stderr , EMsg ) 
+          ; Wr . PutText ( Stdio . stderr , Wr . EOL )
+          END (*IF*) 
         ; Wr . Flush ( Stdio . stderr )
         ; LDebug := 15 (* Complete by exception "AllocationFailure. *) 
         ; RTProcess . Exit ( 15 ) 
          
       | FM3SharedUtils . FatalError ( EMsg ) 
       =>  Wr . PutText ( Stdio . stderr , Wr . EOL )
-        ; Wr . PutText ( Stdio . stderr , EMsg ) 
-        ; Wr . PutText ( Stdio . stderr , Wr . EOL )
+        ; IF EMsg # NIL
+          THEN 
+            Wr . PutText ( Stdio . stderr , EMsg ) 
+          ; Wr . PutText ( Stdio . stderr , Wr . EOL )
+          END (*IF*) 
         ; Wr . Flush ( Stdio . stderr )
         ; LDebug := 17 (* Complete by exception FatalError. *)
         ; RTProcess . Exit ( 17 ) 

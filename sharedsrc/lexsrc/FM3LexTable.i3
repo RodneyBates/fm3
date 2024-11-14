@@ -21,7 +21,7 @@ INTERFACE FM3LexTable
 ; CONST ValueNull = LAST ( ValueTyp )
 ; CONST ValueUnrecognized = ValueNull - 1 
 
-; TYPE StateNoTyp = FM3Base . Int16Typ 
+; TYPE TransitionTyp = FM3Base . Int16Typ 
 
 ; TYPE T <: REFANY
 
@@ -39,11 +39,11 @@ INTERFACE FM3LexTable
 ; PROCEDURE ValueFromText ( Table : T ; Name : TEXT ) : ValueTyp 
   (* ValueNull if Name is not in Table. *) 
 
-; PROCEDURE IncrInit ( Table : T ) : StateNoTyp
+; PROCEDURE IncrInit ( Table : T ) : TransitionTyp
   (* Initialize for char-at-a-time lookup *)
 
 ; PROCEDURE IncrNext
-    ( Table : T ; Char : CHAR ; VAR (*IN OUT*) State : StateNoTyp ) 
+    ( Table : T ; Char : CHAR ; VAR (*IN OUT*) State : TransitionTyp ) 
   : ValueTyp
   (* Supply one character to an incremental lookup.  State must be what was
      returned by the last IncrInit or IncrNext, and using the same Table.

@@ -322,7 +322,7 @@ MODULE FM3CLArgs
     (* PRE: Arg starts with two hyphens, PaArgSs = 2. *) 
 
     = VAR LParam : TEXT
-    ; VAR LLexState : FM3LexTable . StateNoTyp 
+    ; VAR LLexState : FM3LexTable . TransitionTyp 
     ; VAR LLexValue : FM3LexTable . ValueTyp
     ; VAR LChar : CHAR 
     ; VAR LNo : BOOLEAN
@@ -410,7 +410,7 @@ MODULE FM3CLArgs
           ; IF NOT LNo
             THEN (* OK, so this is silly.  But as much on the user's part. *) 
               DisplayVersion ( )
-            ; RAISE FM3SharedUtils . Terminate ( NIL )
+            ; RAISE FM3SharedUtils . Terminate ( "" )
             END (*IF*) 
         
         | Clt . CltHelp 
@@ -419,7 +419,7 @@ MODULE FM3CLArgs
             THEN (* OK, so this is silly.  But as much on the user's part. *) 
               DisplayVersion ( )
             ; DisplayHelp ( ) 
-            ; RAISE FM3SharedUtils . Terminate ( NIL ) 
+            ; RAISE FM3SharedUtils . Terminate ( "" ) 
             END (*IF*) 
         
         | Clt . CltSrcFile  
@@ -519,12 +519,12 @@ MODULE FM3CLArgs
                
           | 'v'
           =>  DisplayVersion ( )
-            ; RAISE FM3SharedUtils . Terminate ( NIL )
+            ; RAISE FM3SharedUtils . Terminate ( "" )
          
           | 'h'
           =>  DisplayVersion ( )
             ; DisplayHelp ( )
-            ; RAISE FM3SharedUtils . Terminate ( NIL )
+            ; RAISE FM3SharedUtils . Terminate ( "" )
            
           | 's' (* Source file. *) 
           =>  PaFindParam ( )

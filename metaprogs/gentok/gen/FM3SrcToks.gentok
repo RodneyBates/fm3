@@ -145,7 +145,8 @@ ABS -5
    StkLexErrChars .
    StkPragmaId . (* Not a known pragma ident, but found where one is expected. *)
    
-   TokMinPredef            "<TokMinPredef>" 
+   TokMaxPredef            "<TokMaxPredef>"
+   (* Don't forget, values are negative and decreasing. *) 
   
    (* We want to scan reserved ids and predefined ids in interfaces that
       have to have special treatment by the compiler using the same lex
@@ -259,6 +260,6 @@ ABS -5
    Long_Extract        "Extract" . 
    Long_Insert         "Insert" . 
 
-   TokMaxPredef        "<TokMaxPredef>" .
+   TokMinPredef        "<TokMinPredef>" .
    
 (* End of FM3SrcToks.gentok. *) 

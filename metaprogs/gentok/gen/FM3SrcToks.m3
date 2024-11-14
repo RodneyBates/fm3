@@ -17,7 +17,7 @@ MODULE FM3SrcToks
 
   = BEGIN 
       CASE TokNo OF 
-      | -203 => RETURN "<TokMaxPredef>"
+      | -203 => RETURN "<TokMinPredef>"
       | -202 => RETURN "Insert"
       | -201 => RETURN "Extract"
       | -200 => RETURN "RightRotate"
@@ -111,7 +111,7 @@ MODULE FM3SrcToks
       | -112 => RETURN "ADDRESS"
       | -111 => RETURN "ABS"
       | -110 => RETURN "<RidNull>"
-      | -109 => RETURN "<TokMinPredef>"
+      | -109 => RETURN "<TokMaxPredef>"
       | -108 => RETURN "StkPragmaId"
       | -107 => RETURN "StkLexErrChars"
       | -106 => RETURN "StkWideCharLit"
@@ -228,7 +228,7 @@ MODULE FM3SrcToks
 
   = BEGIN 
       CASE TokNo OF 
-      | -203 => RETURN "TokMaxPredef"
+      | -203 => RETURN "TokMinPredef"
       | -202 => RETURN "Long_Insert"
       | -201 => RETURN "Long_Extract"
       | -200 => RETURN "Long_RightRotate"
@@ -322,7 +322,7 @@ MODULE FM3SrcToks
       | -112 => RETURN "RidADDRESS"
       | -111 => RETURN "RidABS"
       | -110 => RETURN "RidNull"
-      | -109 => RETURN "TokMinPredef"
+      | -109 => RETURN "TokMaxPredef"
       | -108 => RETURN "StkPragmaId"
       | -107 => RETURN "StkLexErrChars"
       | -106 => RETURN "StkWideCharLit"

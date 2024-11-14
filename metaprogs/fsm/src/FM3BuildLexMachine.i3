@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the Flint Hills Modula-3 compiler, FM3.              *)
-(* Copyright 2023        Rodney M. Bates.                                    *)
+(* Copyright 2023..2024  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -15,6 +15,8 @@ INTERFACE FM3BuildLexMachine
 *) 
 
 ; IMPORT FM3LexTable 
+
+; EXCEPTION Error ( TEXT ) 
 
 (* VISIBLE *) 
 ; PROCEDURE MakeEmpty ( ) 
@@ -33,7 +35,7 @@ INTERFACE FM3BuildLexMachine
 *) 
 
 (* VISIBLE *) 
-; PROCEDURE Build ( ) : FM3LexTable . T
+; PROCEDURE Build ( ) : FM3LexTable . T RAISES { Error } 
 
 ; END FM3BuildLexMachine 
 . 
