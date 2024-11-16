@@ -28,7 +28,8 @@ MODULE FM3Scanner
 ; IMPORT FM3Globals
 ; IMPORT FM3LexTable
 ; IMPORT FM3Messages
-; IMPORT FM3OpenArray_Char 
+; IMPORT FM3OpenArray_Char
+; IMPORT FM3PgToks
 ; IMPORT FM3SharedGlobals 
 ; IMPORT FM3SharedUtils 
 ; IMPORT FM3SrcToks 
@@ -100,10 +101,12 @@ MODULE FM3Scanner
               in which case, it is just ScanAttributeDefault. *) 
          ; SsUniRd : UniRd . T := NIL 
          ; SsUnitRef : FM3Units . UnitRefTyp 
+         ; SsPragmaDepth : INTEGER := 0  
          ; SsWCh : WIDECHAR 
          ; SsCh : CHAR 
          ; SsAtBegOfPragma := FALSE 
-           (* ^The immediately-preceding token was "<*". *)
+           (* ^The immediately-preceding token was "<*". *) 
+         ; SsAtEndOfPragma := FALSE (* Similarly for "*>". *)  
          END (* ScanStateTyp *) 
 
 ; CONST ScanAttributeDefault = tScanAttribute 
@@ -136,6 +139,8 @@ MODULE FM3Scanner
     ; LSsRef ^ . Position . Line := TopmostLineNo 
     ; LSsRef ^ . Position . Column := LeftmostColumnNo 
     ; LSsRef ^ . SsAtBegOfPragma := FALSE  
+    ; LSsRef ^ . SsAtEndOfPragma := FALSE  
+    ; LSsRef ^ . SsPragmaDepth := 0   
 
     ; TRY 
         LSsRef ^ . SsWCh := UnsafeUniRd . FastGetWideChar( LSsRef ^ . SsUniRd ) 
@@ -278,6 +283,7 @@ MODULE FM3Scanner
   ; VAR ScHash : FM3Utils . HashTyp 
   ; VAR ScCh : CHAR 
   ; VAR ScAtBegOfPragma := FALSE 
+  ; VAR ScInsidePragma := TRUE 
 
   ; PROCEDURE BegOfPlainTok ( ) 
 
@@ -421,8 +427,8 @@ MODULE FM3Scanner
 
       ; IF ScAtBegOfPragma (* Expecting a pragma id? *) 
         THEN (* GCurRwValue will be pragma id or nothing. *)
-          CASE GCurRwValue 
-          OF FM3LexTable . ValueUnrecognized , FM3LexTable . ValueNull 
+          CASE GCurRwValue OF
+          | FM3LexTable . ValueUnrecognized , FM3LexTable . ValueNull 
           => Attribute . SaAtom 
               := FM3Atom_OAChars . MakeAtom 
                    ( GTopSsRef . SsUnitRef ^ . UntIdentAtomDict
@@ -433,33 +439,59 @@ MODULE FM3Scanner
           ; Attribute . SaTok := FM3SrcToks . StkPragmaId 
           ; Attribute . SaPredefTok := FM3Base . TokNull 
 (* TODO: Handle this as an unrecognized pragma and skip the entire thing. *) 
-          ELSE 
+
+          | FM3PgToks . PgFm3PredefUnit 
+          => GTopSsRef . SsUnitRef ^ . UntIsPredefUnit := TRUE 
+
+          ELSE (* It's a pragma ident. *) 
             Attribute . SaTok 
               := GCurRwValue (* A recognized reserved pragma name. *) 
           ; Attribute . SaPredefTok := GCurRwValue 
           ; Attribute . SaIsPredefId := TRUE 
           END (*CASE*) 
 
-        ELSE (* Looking for a reserved word, predefined, or plain identifier. *) 
-          Attribute . SaAtom 
-            := FM3Atom_OAChars . MakeAtom 
-                 ( GTopSsRef . SsUnitRef ^ . UntIdentAtomDict
-                 , Attribute . SaChars 
-                 , ScHash 
-                 ) 
-        ; CASE GCurRwValue 
-          OF FM3SrcToks . TokMinPredef .. FM3SrcToks . TokMaxPredef
-          => (* Predefined identifier.  Make this a StkIdent with the 
-                specific predefined ident's code.
+        ELSE (* Expecting a reserved word, predefined, or plain identifier. *) 
+          CASE GCurRwValue OF 
+          | FM3SrcToks . TokMinReservedId .. FM3SrcToks . TokMaxReservedId 
+          => (* Reserved identifier.  Make this an StkIdent whose SaAtom
+                is negated lex code. 
              *) 
-              Attribute . SaIsPredefId := TRUE 
-            ; Attribute . SaTok := FM3SrcToks . StkIdent
+              Attribute . SaTok := FM3SrcToks . StkIdent
+            ; Attribute . SaAtom := - GCurRwValue 
+            ; Attribute . SaIsPredefId := TRUE 
             ; Attribute . SaPredefTok := GCurRwValue 
+
+          | FM3SrcToks . TokMinPredef .. FM3SrcToks . TokMaxPredef
+          => (* Predefined identifier. *) 
+              Attribute . SaTok := FM3SrcToks . StkIdent
+            ; IF GTopSsRef . SsUnitRef ^ . UntIsPredefUnit 
+              THEN (* Treat like a reserved Ident. *)  
+                Attribute . SaAtom := - GCurRwValue 
+              ; Attribute . SaIsPredefId := TRUE 
+              ; Attribute . SaPredefTok := GCurRwValue 
+              ELSE (* Treat like a plain Ident. *) 
+                Attribute . SaAtom 
+                  := FM3Atom_OAChars . MakeAtom 
+                       ( GTopSsRef . SsUnitRef ^ . UntIdentAtomDict
+                       , Attribute . SaChars 
+                       , ScHash 
+                       ) 
+              ; Attribute . SaIsPredefId := FALSE  
+              ; Attribute . SaPredefTok := FM3Base . TokNull  
+              END (*IF*) 
+
           | FM3LexTable . ValueUnrecognized , FM3LexTable . ValueNull 
           => (* Plain ol' identifier. *)
               Attribute . SaIsPredefId := FALSE 
             ; Attribute . SaTok := FM3SrcToks . StkIdent
+            ; Attribute . SaAtom 
+                := FM3Atom_OAChars . MakeAtom 
+                     ( GTopSsRef . SsUnitRef ^ . UntIdentAtomDict
+                     , Attribute . SaChars 
+                     , ScHash 
+                     ) 
             ; Attribute . SaPredefTok := FM3Base . TokNull  
+
           ELSE (* Reserved word. *) 
             Attribute . SaIsPredefId := FALSE  
           ; Attribute . SaTok := GCurRwValue 
@@ -1081,245 +1113,249 @@ MODULE FM3Scanner
       END CommentSuffix 
 
   ; BEGIN (* GetToken *) 
-      ScAtBegOfPragma := GTopSsRef ^ . SsAtBegOfPragma (* From prev. token. *)
-    ; GTopSsRef ^ . SsAtBegOfPragma := FALSE 
-    ; Attribute . SaArgValue := 0L 
-    ; Attribute . SaWCh := WNUL  
-    ; Attribute . SaAtom := FM3Base . AtomNull 
-    ; LOOP (* Skip non-token chars. *) 
-        IF GTopSsRef . SsWCh = WEOF 
-        THEN 
-          Attribute . SaTok := FM3SrcToks . StkEOF 
-        ; RETURN FM3SrcToks . StkEOF 
-        ELSIF GTopSsRef . SsWCh > WLastOfChar 
-        THEN 
-          IF GTopSsRef . SsWCh = WLS OR GTopSsRef . SsWCh = WPS 
-             (* ^Unicode end-of-line code points, *)  
+      LOOP 
+        ScAtBegOfPragma := GTopSsRef ^ . SsAtBegOfPragma (* From prev. token. *)
+      ; INC ( GTopSsRef ^ . SsPragmaDepth , ORD ( ScAtBegOfPragma ) )   
+      ; GTopSsRef ^ . SsAtBegOfPragma := FALSE (* For next time. *)  
+      ; DEC ( GTopSsRef ^ . SsPragmaDepth 
+            , ORD ( GTopSsRef ^ . SsAtEndOfPragma (* From prev. token. *) )  
+            ) 
+      ; GTopSsRef ^ . SsAtEndOfPragma := FALSE (* For next time. *)
+      ; Attribute . SaArgValue := 0L 
+      ; Attribute . SaWCh := WNUL  
+      ; Attribute . SaAtom := FM3Base . AtomNull 
+      ; LOOP (* Skip non-token chars. *) 
+          IF GTopSsRef . SsWCh = WEOF 
+          THEN 
+            Attribute . SaTok := FM3SrcToks . StkEOF 
+          ; RETURN FM3SrcToks . StkEOF 
+          ELSIF GTopSsRef . SsWCh > WLastOfChar 
+          THEN 
+            IF GTopSsRef . SsWCh = WLS OR GTopSsRef . SsWCh = WPS 
+               (* ^Unicode end-of-line code points, *)  
+            THEN NextChar ( ) 
+            ELSE LexErrorChars ( ) 
+            END (*IF*) 
+          ELSIF GTopSsRef . SsCh 
+                IN SET OF CHAR { ' ' , CR , LF , FF , VT , TAB }  
           THEN NextChar ( ) 
+          ELSIF GTopSsRef . SsCh IN M3Chars  
+          THEN EXIT  
           ELSE LexErrorChars ( ) 
           END (*IF*) 
-        ELSIF GTopSsRef . SsCh 
-              IN SET OF CHAR { ' ' , CR , LF , FF , VT , TAB }  
-        THEN NextChar ( ) 
-        ELSIF GTopSsRef . SsCh IN M3Chars  
-        THEN EXIT  
-        ELSE LexErrorChars ( ) 
-        END (*IF*) 
-      END (*LOOP*) 
+        END (*LOOP*) 
 
-    ; Attribute . Position := GTopSsRef ^ . Position 
+      ; Attribute . Position := GTopSsRef ^ . Position 
 
-    ; CASE GTopSsRef . SsCh 
-      OF 'w' , 'W'
-      => ScCh := GTopSsRef . SsCh
-      ; NextChar ( )
-      ; IF GTopSsRef . SsCh = '\''
-        THEN (* WIDECHAR literal. *) 
-          CharLit ( Wide := TRUE ) 
-        ; Attribute . SaTok := FM3SrcToks . StkWideCharLit  
-        ELSIF GTopSsRef . SsCh = '\"'
-        THEN (* Wide TEXT literal. *)
-          WideTextLit ( )
-        ELSE (* An identifier starting with w or W. *)
-          Attribute . SaWCh := WNUL  
+      ; CASE GTopSsRef . SsCh 
+        OF 'w' , 'W'
+        => ScCh := GTopSsRef . SsCh
+        ; NextChar ( )
+        ; IF GTopSsRef . SsCh = '\''
+          THEN (* WIDECHAR literal. *) 
+            CharLit ( Wide := TRUE ) 
+          ; Attribute . SaTok := FM3SrcToks . StkWideCharLit  
+          ELSIF GTopSsRef . SsCh = '\"'
+          THEN (* Wide TEXT literal. *)
+            WideTextLit ( )
+          ELSE (* An identifier starting with w or W. *)
+            Attribute . SaWCh := WNUL  
+          ; ScHash := FM3Utils . GroundHash ( ) 
+          ; ScCharVarArr 
+              := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 160 } ) 
+          ; ScWCharVarArr := NIL 
+          ; StartIdent ( ) 
+          ; ContribToFsm ( ScCh ) (* The 'w' or 'W'. *)  
+          ; FM3Utils . ContribToHash 
+              ( (*IN OUT*) ScHash 
+              , VAL ( ORD ( ScCh ) , FM3Utils . HashTyp ) 
+              )  
+          ; VarArr_Char . Assign ( ScCharVarArr , 0 , ScCh ) 
+          ; IdentSuffix ( ) 
+          END (*IF*)
+
+        | 'a' .. 'v' , 'x' .. 'z' , 'A' .. 'V' , 'X' .. 'Z' 
+          (* Other identifier. *) 
+        => Attribute . SaWCh := WNUL  
         ; ScHash := FM3Utils . GroundHash ( ) 
-        ; ScCharVarArr 
-            := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 160 } ) 
+        ; ScCharVarArr := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 160 } ) 
         ; ScWCharVarArr := NIL 
         ; StartIdent ( ) 
-        ; ContribToFsm ( ScCh ) (* The 'w' or 'W'. *)  
-        ; FM3Utils . ContribToHash 
-            ( (*IN OUT*) ScHash 
-            , VAL ( ORD ( ScCh ) , FM3Utils . HashTyp ) 
-            )  
-        ; VarArr_Char . Assign ( ScCharVarArr , 0 , ScCh ) 
-        ; IdentSuffix ( ) 
-        END (*IF*)
+        ; IdentSuffix ( )
 
-      | 'a' .. 'v' , 'x' .. 'z' , 'A' .. 'V' , 'X' .. 'Z' 
-        (* Other identifier. *) 
-      => Attribute . SaWCh := WNUL  
-      ; ScHash := FM3Utils . GroundHash ( ) 
-      ; ScCharVarArr := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 160 } ) 
-      ; ScWCharVarArr := NIL 
-      ; StartIdent ( ) 
-      ; IdentSuffix ( )
+        | '0' .. '9' 
+        => Number ( ) 
 
-      | '0' .. '9' 
-      => Number ( ) 
+        | '\'' (* CHAR literal. *)
+        => CharLit ( Wide := FALSE )  
+        ; Attribute . SaTok := FM3SrcToks . StkCharLit  
 
-      | '\'' (* CHAR literal. *)
-      => CharLit ( Wide := FALSE )  
-      ; Attribute . SaTok := FM3SrcToks . StkCharLit  
+        | '"' (* TEXT literal. *)  
+        => TextLit ( ) 
 
-      | '"' (* TEXT literal. *)  
-      => TextLit ( ) 
+        | '(' 
+        => BegOfPlainTok ( ) 
+        ; NextChar ( ) 
+        ; IF GTopSsRef . SsCh = '*' (* Opening comment delimiter. *)  
+          THEN 
+            NextChar ( ) 
+          ; CommentSuffix ( )
+          ; RETURN GetToken ( )
+  (* TOTO: ^Skip comments interatively instead of recursively. *) 
+          ELSE 
+            Attribute . SaTok := FM3SrcToks . StkOpenParen
+          END (* IF *) 
 
-      | '(' 
-      => BegOfPlainTok ( ) 
-      ; NextChar ( ) 
-      ; IF GTopSsRef . SsCh = '*' (* Opening comment delimiter. *)  
-        THEN 
-          NextChar ( ) 
-        ; CommentSuffix ( )
-        ; RETURN GetToken ( )
-(* TOTO: ^Skip comments interatively instead of recursively. *) 
-        ELSE 
-          Attribute . SaTok := FM3SrcToks . StkOpenParen
-        END (* IF *) 
+        | '<' 
+        => BegOfPlainTok ( ) 
+        ; NextChar ( ) 
+        ; CASE GTopSsRef . SsCh 
+          OF '=' 
+          => NextChar ( ) 
+          ; Attribute . SaTok := FM3SrcToks . StkLessEqual  
+          | ':' 
+          => NextChar ( ) 
+          ; Attribute . SaTok := FM3SrcToks . StkSubtype  
+          | '*' 
+          => (* Opening pragma delimiter. *)
+            NextChar ( )
+          ; GTopSsRef ^ . SsAtBegOfPragma := TRUE 
+          ; Attribute . SaTok := FM3SrcToks . StkOpenPragma 
+          ELSE 
+            Attribute . SaTok := FM3SrcToks . StkLess
+          END (* CASE *) 
 
-      | '<' 
-      => BegOfPlainTok ( ) 
-      ; NextChar ( ) 
-      ; CASE GTopSsRef . SsCh 
-        OF '=' 
-        => NextChar ( ) 
-        ; Attribute . SaTok := FM3SrcToks . StkLessEqual  
-        | ':' 
-        => NextChar ( ) 
-        ; Attribute . SaTok := FM3SrcToks . StkSubtype  
         | '*' 
-        => (* Opening pragma delimiter. *)
-          NextChar ( )
-        ; GTopSsRef ^ . SsAtBegOfPragma := TRUE 
-        ; Attribute . SaTok := FM3SrcToks . StkOpenPragma 
-        ELSE 
-          Attribute . SaTok := FM3SrcToks . StkLess
-        END (* CASE *) 
+        => BegOfPlainTok ( )
+        ; NextChar ( )
+        ; IF GTopSsRef . SsCh = '>'
+          THEN (* Closing pragma delimiter. *) 
+            NextChar ( )
+          ; GTopSsRef ^ . SsAtEndOfPragma := TRUE 
+          ; Attribute . SaTok := FM3SrcToks . StkClosePragma
+          ELSE Attribute . SaTok := FM3SrcToks . StkStar
+          END (*IF*) 
 
-      | '*' 
-      => BegOfPlainTok ( )
-      ; NextChar ( )
-      ; IF GTopSsRef . SsCh = '>'
-        THEN (* Closing pragma delimiter. *) 
-          NextChar ( )
-        ; Attribute . SaTok := FM3SrcToks . StkClosePragma
-        ELSE Attribute . SaTok := FM3SrcToks . StkStar
+        | ':' 
+        => BegOfPlainTok ( ) 
+        ; NextChar ( ) 
+        ; IF GTopSsRef . SsCh = '=' 
+          THEN
+            NextChar ( )
+          ; Attribute . SaTok := FM3SrcToks . StkBecomes  
+          ELSE Attribute . SaTok := FM3SrcToks . StkColon  
+          END (* IF *) 
+
+        | '.' 
+        => BegOfPlainTok ( ) 
+        ; NextChar ( ) 
+        ; IF GTopSsRef . SsCh = '.' 
+          THEN
+            NextChar ( )
+          ; Attribute . SaTok := FM3SrcToks . StkEllipsis  
+          ELSE Attribute . SaTok := FM3SrcToks . StkDot 
+          END (* IF *) 
+
+        | '=' 
+        => BegOfPlainTok ( ) 
+        ; NextChar ( ) 
+        ; IF GTopSsRef . SsCh = '>' 
+          THEN
+            NextChar ( )
+          ; Attribute . SaTok := FM3SrcToks . StkArrow 
+          ELSE Attribute . SaTok := FM3SrcToks . StkEqual  
+          END (* IF *) 
+
+        | '>' 
+        => BegOfPlainTok ( ) 
+        ; NextChar ( ) 
+        ; IF GTopSsRef . SsCh = '=' 
+          THEN
+            NextChar ( )
+          ; Attribute . SaTok := FM3SrcToks . StkGreaterEqual 
+          ELSE Attribute . SaTok := FM3SrcToks . StkGreater 
+          END (* IF *) 
+
+        | '+' 
+        => BegOfPlainTok ( ) 
+        ; NextChar ( )
+        ; Attribute . SaTok := FM3SrcToks . StkPlus  
+
+        | '-' 
+        => BegOfPlainTok ( ) 
+        ; NextChar ( )
+        ; Attribute . SaTok := FM3SrcToks . StkMinus  
+
+        | '^' 
+        => BegOfPlainTok ( ) 
+        ; NextChar ( )
+        ; Attribute . SaTok := FM3SrcToks . StkDeref  
+
+        | '#' 
+        => BegOfPlainTok ( ) 
+        ; NextChar ( )
+        ; Attribute . SaTok := FM3SrcToks . StkUnequal  
+
+        | ';' 
+        => BegOfPlainTok ( ) 
+        ; NextChar ( )
+        ; Attribute . SaTok := FM3SrcToks . StkSemicolon  
+
+        | '[' 
+        => BegOfPlainTok ( ) 
+        ; NextChar ( )
+        ; Attribute . SaTok := FM3SrcToks . StkOpenBracket  
+
+        | ']' 
+        => BegOfPlainTok ( ) 
+        ; NextChar ( )
+        ; Attribute . SaTok := FM3SrcToks . StkCloseBracket  
+
+        | '{' 
+        => BegOfPlainTok ( ) 
+        ; NextChar ( )
+        ; Attribute . SaTok := FM3SrcToks . StkOpenBrace  
+
+        | '}' 
+        => BegOfPlainTok ( ) 
+        ; NextChar ( )
+        ; Attribute . SaTok := FM3SrcToks . StkCloseBrace  
+
+        | ')' 
+        => BegOfPlainTok ( ) 
+        ; NextChar ( )
+        ; Attribute . SaTok := FM3SrcToks . StkCloseParen  
+
+        | ',' 
+        => BegOfPlainTok ( ) 
+        ; NextChar ( )
+        ; Attribute . SaTok := FM3SrcToks . StkComma  
+
+        | '&' 
+        => BegOfPlainTok ( ) 
+        ; NextChar ( )
+        ; Attribute . SaTok := FM3SrcToks . StkAmpersand  
+
+        | '|' 
+        => BegOfPlainTok ( ) 
+        ; NextChar ( )
+        ; Attribute . SaTok := FM3SrcToks . StkStroke  
+
+        | '/' 
+        => BegOfPlainTok ( ) 
+        ; NextChar ( )
+        ; Attribute . SaTok := FM3SrcToks . StkSlash  
+
+     (* ELSE Can't happen.  (Other values ruled out earlier). *)  
+        END (* CASE *)
+        
+      ; IF GTopSsRef ^ . SsAtBegOfPragma
+           OR GTopSsRef ^ . SsAtEndOfPragma
+           OR GTopSsRef ^ . SsPragmaDepth > 0
+        THEN (* Don't deliver this token.  Loop for another. *)
+        ELSE RETURN Attribute . SaTok 
         END (*IF*) 
-
-      | ':' 
-      => BegOfPlainTok ( ) 
-      ; NextChar ( ) 
-      ; IF GTopSsRef . SsCh = '=' 
-        THEN
-          NextChar ( )
-        ; Attribute . SaTok := FM3SrcToks . StkBecomes  
-        ELSE Attribute . SaTok := FM3SrcToks . StkColon  
-        END (* IF *) 
-
-      | '.' 
-      => BegOfPlainTok ( ) 
-      ; NextChar ( ) 
-      ; IF GTopSsRef . SsCh = '.' 
-        THEN
-          NextChar ( )
-        ; Attribute . SaTok := FM3SrcToks . StkEllipsis  
-        ELSE Attribute . SaTok := FM3SrcToks . StkDot 
-        END (* IF *) 
-
-      | '=' 
-      => BegOfPlainTok ( ) 
-      ; NextChar ( ) 
-      ; IF GTopSsRef . SsCh = '>' 
-        THEN
-          NextChar ( )
-        ; Attribute . SaTok := FM3SrcToks . StkArrow 
-        ELSE Attribute . SaTok := FM3SrcToks . StkEqual  
-        END (* IF *) 
-
-      | '>' 
-      => BegOfPlainTok ( ) 
-      ; NextChar ( ) 
-      ; IF GTopSsRef . SsCh = '=' 
-        THEN
-          NextChar ( )
-        ; Attribute . SaTok := FM3SrcToks . StkGreaterEqual 
-        ELSE Attribute . SaTok := FM3SrcToks . StkGreater 
-        END (* IF *) 
-
-      | '+' 
-      => BegOfPlainTok ( ) 
-      ; NextChar ( )
-      ; Attribute . SaTok := FM3SrcToks . StkPlus  
-
-      | '-' 
-      => BegOfPlainTok ( ) 
-      ; NextChar ( )
-      ; Attribute . SaTok := FM3SrcToks . StkMinus  
-
-      | '^' 
-      => BegOfPlainTok ( ) 
-      ; NextChar ( )
-      ; Attribute . SaTok := FM3SrcToks . StkDeref  
-
-      | '#' 
-      => BegOfPlainTok ( ) 
-      ; NextChar ( )
-      ; Attribute . SaTok := FM3SrcToks . StkUnequal  
-
-      | ';' 
-      => BegOfPlainTok ( ) 
-      ; NextChar ( )
-      ; Attribute . SaTok := FM3SrcToks . StkSemicolon  
-
-      | '[' 
-      => BegOfPlainTok ( ) 
-      ; NextChar ( )
-      ; Attribute . SaTok := FM3SrcToks . StkOpenBracket  
-
-      | ']' 
-      => BegOfPlainTok ( ) 
-      ; NextChar ( )
-      ; Attribute . SaTok := FM3SrcToks . StkCloseBracket  
-
-      | '{' 
-      => BegOfPlainTok ( ) 
-      ; NextChar ( )
-      ; Attribute . SaTok := FM3SrcToks . StkOpenBrace  
-
-      | '}' 
-      => BegOfPlainTok ( ) 
-      ; NextChar ( )
-      ; Attribute . SaTok := FM3SrcToks . StkCloseBrace  
-
-      | ')' 
-      => BegOfPlainTok ( ) 
-      ; NextChar ( )
-      ; Attribute . SaTok := FM3SrcToks . StkCloseParen  
-
-      | ',' 
-      => BegOfPlainTok ( ) 
-      ; NextChar ( )
-      ; Attribute . SaTok := FM3SrcToks . StkComma  
-
-      | '&' 
-      => BegOfPlainTok ( ) 
-      ; NextChar ( )
-      ; Attribute . SaTok := FM3SrcToks . StkAmpersand  
-
-      | '|' 
-      => BegOfPlainTok ( ) 
-      ; NextChar ( )
-      ; Attribute . SaTok := FM3SrcToks . StkStroke  
-
-      | '/' 
-      => BegOfPlainTok ( ) 
-      ; NextChar ( )
-      ; Attribute . SaTok := FM3SrcToks . StkSlash  
-
-   (* ELSE Can't happen.  (Other values ruled out earlier). *)  
-      END (* CASE *)
-
-; IF Attribute . Position . Line = 12
-     AND Attribute . Position . Column = 6
-  THEN
-    VAR VVV : INTEGER := 3
-  ; BEGIN VVV := 5
-    END 
-  END
-
-
-    ; RETURN Attribute . SaTok 
+      END (*LOOP*) (* A very long one. *) 
     END GetToken
 
 ; PROCEDURE ErrorAttribute
@@ -1396,8 +1432,8 @@ MODULE FM3Scanner
     ; InitDigitCharMap ( ) 
     ; GM3RwLexTable
         := FM3Files . ReadFsm ( "M3" , FM3SharedGlobals . FM3FileKindM3RwPkl )
-(*  ; GPgRwLexTable
-        := FM3Files . ReadFsm ( "Pg" , FM3SharedGlobals . FM3FileKindPgRwPkl ) *)
+    ; GPgRwLexTable
+        := FM3Files . ReadFsm ( "Pg" , FM3SharedGlobals . FM3FileKindPgRwPkl ) 
     END Init 
 
 ; BEGIN (* FM3Scanner *)

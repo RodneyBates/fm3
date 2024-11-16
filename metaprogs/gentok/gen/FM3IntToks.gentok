@@ -9,7 +9,7 @@
 (* Input file FM3IntToks.gentok, to metaprogram GenTok. *)
 
 UNITNAME FM3IntToks
-DECREASING 
+(* DECREASING No need for this now. *)  
 
 (* Internal tokens for FM3 Modula-3 compiler, 
    used in intermediate token streams.  
@@ -17,8 +17,10 @@ DECREASING
 
 (* WARNING: Do not use single quotes inside a comment in this file. *) 
 
-ABS -210
-(* ^Be sure not to overlap the source tokens! *) 
+ABS 210
+(* ^I think source tokens and internal tokens never occur in the same context,
+    but to simplify debugging, give then disjoint ranges.
+*) 
 
 (* Being low-numbered, these will read and write either forward
    or backward, without value change.

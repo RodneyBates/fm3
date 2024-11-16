@@ -156,7 +156,8 @@ INTERFACE FM3Units
       ; UntKind := UnitKindTyp . UkNull 
       ; UntState := UnitStateTyp . UsNull
       ; UntUnsafe : BOOLEAN := FALSE  
-      ; UntInExpImpCycle : BOOLEAN := FALSE  
+      ; UntInExpImpCycle : BOOLEAN := FALSE
+      ; UntIsPredefUnit : BOOLEAN := FALSE 
       END (*UnitTyp*)
 
 ; VAR UnitsAtomDict : FM3Atom_Text . T
@@ -183,7 +184,7 @@ INTERFACE FM3Units
 
 ; PROCEDURE AllocateDeclNos ( Count : INTEGER ) : INTEGER 
   (* Allocate a contiguous range of Count Decl numbers, unique
-     within the current unit, and return the lowest number.
+     within the current unit, and return thxe lowest number.
   *) 
 
 ; PROCEDURE TextOfIdAtom ( IdAtom : FM3Base . AtomTyp ) : TEXT

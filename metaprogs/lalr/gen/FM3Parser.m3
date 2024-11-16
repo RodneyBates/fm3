@@ -65,9 +65,9 @@ CONST
 (* -------------------------------------------------------------------------- *)
                         (* Lalr-generated constants: *) 
 
-   yyFirstTerminal          = -108;
-   yyLastTerminal           = 0;
-   yyFirstSymbol            = -108;
+   yyFirstTerminal          = 0;
+   yyLastTerminal           = 108;
+   yyFirstSymbol            = 0;
    yyLastSymbol             = 267;
    yyTableMax               = 994;
    yyNTableMax              = 1289;

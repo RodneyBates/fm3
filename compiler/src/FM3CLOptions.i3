@@ -33,6 +33,7 @@ INTERFACE FM3CLOptions
       (* ^Relative to where the current unit's source file lives. *)
 
 ; VAR ResourceDirName : TEXT := "."
+; VAR ResourceDirNameList : REF ARRAY OF TEXT := NIL 
 
 (* ------------------- Boolean options are kept in a set -------------------- *)
 

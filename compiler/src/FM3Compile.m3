@@ -82,7 +82,16 @@ MODULE  FM3Compile
         FM3Messages . NLIndent
         & "Search directories for source files are:"
         & FM3CLOptions . SrcDirMsg 
-    END SrcSearchPathOnce 
+    END SrcSearchPathOnce
+
+; PROCEDURE IsPredefinedUnitName  ( UnitName : TEXT ) : BOOLEAN 
+
+  = BEGIN
+      IF Text . Equal ( UnitName , "Main.i3" ) THEN RETURN TRUE END (*IF*) 
+    ; IF Text . Equal ( UnitName , "Word.i3" ) THEN RETURN TRUE END (*IF*) 
+    ; IF Text . Equal ( UnitName , "Word.m3" ) THEN RETURN TRUE END (*IF*) 
+    ; RETURN FALSE 
+   END IsPredefinedUnitName  
 
 (*EXPORTED*) 
 ; PROCEDURE FindAndOpenUnitSrcFile
@@ -103,9 +112,14 @@ MODULE  FM3Compile
 
   ; BEGIN
       IF UnitRef = NIL THEN RETURN FALSE END (*IF*) 
-    ; IF UnitRef . UntSrcFileSimpleName = NIL THEN RETURN FALSE END (*IF*) 
-    ; IF UnitRef . UntState # Us . UsNull THEN RETURN FALSE END (*IF*)
-    ; LSrcDirList := FM3CLOptions . SrcDirList
+    ; IF UnitRef ^ . UntSrcFileSimpleName = NIL THEN RETURN FALSE END (*IF*) 
+    ; IF UnitRef ^ . UntState # Us . UsNull THEN RETURN FALSE END (*IF*)
+    ; IF IsPredefinedUnitName ( UnitRef ^ . UntSrcFileSimpleName )
+      THEN
+        LSrcDirList := FM3CLOptions . ResourceDirNameList
+      ; UnitRef ^ . UntIsPredefUnit := TRUE 
+      ELSE LSrcDirList := FM3CLOptions . SrcDirList 
+      END (*IF*) 
     ; IF LSrcDirList = NIL THEN RETURN FALSE END (*IF*)
     ; LDirNumber := NUMBER ( LSrcDirList ^ ) 
     ; LDirSs := 0
@@ -302,6 +316,7 @@ MODULE  FM3Compile
     ; FM3Messages . EndUnit ( UnitRef . UntSrcFileSimpleName ) 
     END CompileUnitFromSrc
 
+(*EXPORTED*)
 ; PROCEDURE CompileOrLoadCLUnit ( SrcFileName : TEXT )
   (* Compile or load the top unit, as named on the command line. *) 
 
@@ -390,11 +405,14 @@ MODULE  FM3Compile
   ; VAR LToAtom : FM3Base . AtomTyp 
 
   ; BEGIN
-      IF NOT FM3Atom_OAChars . Key
-               ( FromUnitRef ^ . UntIdentAtomDict
-               , FromAtom
-               , (*OUT*) LIdentChars
-               )
+      IF FromUnitRef ^ . UntIsPredefUnit
+         AND TRUE  
+      THEN RETURN FromAtom 
+      ELSIF NOT FM3Atom_OAChars . Key
+                  ( FromUnitRef ^ . UntIdentAtomDict
+                  , FromAtom
+                  , (*OUT*) LIdentChars
+                  )
       THEN RETURN FM3Base . AtomNull
       END (*IF*) 
     ; LToAtom (* Lookup/create the ident among the to-unit's atoms. *) 

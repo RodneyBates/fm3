@@ -9,7 +9,7 @@
 (* Input file FM3SrcTok.gentok, to metaprogram GenTok. *)
 
 UNITNAME FM3SrcToks
-DECREASING 
+(* DECREASING BAck to positive tokens, so lalr can handle them *) 
 
 (* Source tokens for FM3 Modula-3 compiler. 
    These are near the high end of 2^14-1.
@@ -28,7 +28,7 @@ ABS 0
    StkUnknown .
    StkBOF . 
    
-ABS -5
+ABS 5
 
    (* These source token codes' declarations have copies in FM3Parser.lalr,
       in lalr's own syntax, which these must remain consistent with.
@@ -145,14 +145,13 @@ ABS -5
    StkLexErrChars .
    StkPragmaId . (* Not a known pragma ident, but found where one is expected. *)
    
-   TokMaxPredef            "<TokMaxPredef>"
-   (* Don't forget, values are negative and decreasing. *) 
-  
-   (* We want to scan reserved ids and predefined ids in interfaces that
-      have to have special treatment by the compiler using the same lex
-      machine as reserved words, but treat each as an identifier
-      whose atom id is actually the source token code. 
+   (* The scanner will recognize predefined ids in interfaces that have special
+      treatment by the compiler and reserved ids using the same lex machine as
+      reserved words, but treat each as an identifier whose atom id is actually
+      the negated source token code. 
    *) 
+
+   TokMinReservedId    "<TokMinPredef>"
 
    (* Reserved identifiers: *)
    RidNull             "<RidNull>" . (* Scanner will never present this. *) 
@@ -210,7 +209,19 @@ ABS -5
    RidROOT             "<ROOT>" .
    RidUNTRACEDROOT     "<UNTRACED_ROOT>" .
 
-   (* Idents in Word and Long. *)
+   TokMaxReservedId    "<MaxReservedId>"
+
+   TokMinPredef         "<TokMinPredef>"
+   
+   (* Idents in Word and Long. *) 
+   (* These, when negated, serve as pseudo-identifier atoms and
+      pseudo-declaration numbers in both Word and Long interfaces.
+      They are also context-independent operation codes in Word, but Long
+      has a separate but parallel operation code numbering, generated
+      by FM3LongToks. 
+      These must be equivalent names in the same order as corresponding names
+      in FM3SrcToks.gentok.
+   *)
 
    Word_T              "T" . 
    Word_Size           "Size" . 
@@ -236,30 +247,32 @@ ABS -5
    Word_Extract        "Extract" . 
    Word_Insert         "Insert" . 
 
-   Long_T              "T" . 
-   Long_Size           "Size" . 
-   Long_Plus           "Plus" . 
-   Long_Times          "Times" . 
-   Long_Minus          "Minus" . 
-   Long_Divide         "Divide" . 
-   Long_Mod            "Mod" . 
-   Long_LT             "LT" . 
-   Long_LE             "LE" . 
-   Long_GT             "GT" . 
-   Long_GE             "GE" . 
-   Long_And            "And" . 
-   Long_Or             "Or" . 
-   Long_Xor            "Xor" . 
-   Long_Not            "Not" . 
-   Long_Shift          "Shift" . 
-   Long_LeftShift      "LeftShift" . 
-   Long_RightShift     "RightShift" . 
-   Long_Rotate         "Rotate" . 
-   Long_LeftRotate     "LeftRotate" . 
-   Long_RightRotate    "RightRotate" . 
-   Long_Extract        "Extract" . 
-   Long_Insert         "Insert" . 
+   (* Decl numbers and operation numbers in Long only. *)
+   REL 5
+   Long_T              "Long.T" . 
+   Long_Size           "Long.Size" . 
+   Long_Plus           "Long.Plus" . 
+   Long_Times          "Long.Times" . 
+   Long_Minus          "Long.Minus" . 
+   Long_Divide         "Long.Divide" . 
+   Long_Mod            "Long.Mod" . 
+   Long_LT             "Long.LT" . 
+   Long_LE             "Long.LE" . 
+   Long_GT             "Long.GT" . 
+   Long_GE             "Long.GE" . 
+   Long_And            "Long.And" . 
+   Long_Or             "Long.Or" . 
+   Long_Xor            "Long.Xor" . 
+   Long_Not            "Long.Not" . 
+   Long_Shift          "Long.Shift" . 
+   Long_LeftShift      "Long.LeftShift" . 
+   Long_RightShift     "Long.RightShift" . 
+   Long_Rotate         "Long.Rotate" . 
+   Long_LeftRotate     "Long.LeftRotate" . 
+   Long_RightRotate    "Long.RightRotate" . 
+   Long_Extract        "Long.Extract" . 
+   Long_Insert         "Long.Insert" . 
 
-   TokMinPredef        "<TokMinPredef>" .
-   
+   TokMaxPredef        "<TokMaxPredef>" .
+
 (* End of FM3SrcToks.gentok. *) 

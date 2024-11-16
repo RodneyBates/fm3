@@ -500,7 +500,6 @@ MODULE FM3CLArgs
     (* PRE: Arg starts with one hyphen only. *) 
 
     = VAR LParam : TEXT
-    ; VAR LArgLength : INTEGER 
     ; VAR LPassNo : INTEGER 
     ; VAR LArgChar : CHAR 
 
@@ -837,6 +836,9 @@ MODULE FM3CLArgs
       (* Push this out so FM3SharedUtils need not import FM3CLOptions and thus
          can be used in other main programs that get their options other ways.
       *)
+    ; FM3CLOptions . ResourceDirNameList := NEW ( REF ARRAY OF TEXT , 1 )
+    ; FM3CLOptions . ResourceDirNameList ^ [ 0 ]
+        := FM3CLOptions . ResourceDirName 
 
     ; FM3CLOptions . SrcDirList := DerivedDirs ( )
     ; FM3CLOptions . SrcDirMsg := DerivedDirsMsg ( FM3CLOptions . SrcDirList )  

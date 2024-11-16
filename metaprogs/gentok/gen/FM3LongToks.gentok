@@ -1,16 +1,6 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024  Rodney M. Bates.                                    *)
-(* rodney.m.bates@acm.org                                                    *)
-(* Licensed under the MIT License.                                           *)
-(* -----------------------------------------------------------------------2- *)
-
-(* Input file FM3SrcTok.gentok, to metaprogram GenTok. *)
-
-
-(* -----------------------------------------------------------------------1- *)
-(* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2024        Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
@@ -31,11 +21,14 @@ UNITNAME FM3LongToks
 
 SRC 
 
+(* These must be equivalent names in the same order as corresponding names
+   in FM3SrcToks.gentok.
+*) 
 ABS 187 (* Leave a little space after SrcToks. *) 
 
 (* These strings ----- V  are unused. *) 
    TokMinLong         "<TokMinLong>"
-   
+
    Long_T              "Long.T" . 
    Long_Size           "Long.Size" . 
    Long_Plus           "Long.Plus" . 

@@ -59,6 +59,9 @@ INTERFACE FM3Compile
 
 ; PROCEDURE CompileUnitFromSrc ( UnitRef : FM3Units . UnitRefTyp )
 
+; PROCEDURE CompileOrLoadCLUnit ( SrcFileName : TEXT )
+  (* Compile or load the top unit, as named on the command line. *) 
+
 ; PROCEDURE CompileCLUnits ( )
   (* Compile the units specified on the command line. *) 
 

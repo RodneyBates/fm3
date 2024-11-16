@@ -23,7 +23,7 @@ SRC
 
 ABS 0
 
-CltNull                  "a" . 
+CltNull                  "null" . 
 
 CltVersion               "version" .
 CltHelp                  "help" .

@@ -8,8 +8,11 @@
 
 MODULE FM3Predefs 
 
+; IMPORT IntSets 
+
 ; IMPORT FM3SrcToks AS Stk
 ; IMPORT FM3IntToks AS Itk
+
 
 (*EXPORTED:*)
 ; PROCEDURE Stk2Itk ( StkTok : Stk . TokTyp ) : Itk . TokTyp 
@@ -105,6 +108,15 @@ MODULE FM3Predefs
     ; RETURN LResult 
     END Stk2Itk 
 
+
 ; BEGIN
+    ReservedIdSet := IntSets . FromArray ( ReservedIdValues ) 
+  ; WordLongQualifierSet := IntSets . FromArray ( WordLongQualifierValues ) 
+  ; OneParamSet := IntSets . FromArray ( OneParamValues ) 
+  ; TwoParamSet := IntSets . FromArray ( TwoParamValues ) 
+  ; ThreeParamSet := IntSets . FromArray ( ThreeParamValues )  
+  ; OneOrMoreParamSet := IntSets . FromArray ( OneOrMoreParamValues )  
+  ; ConstantSet := IntSets . FromArray ( ConstantValues )  
+  ; TypeSet := IntSets . FromArray ( TypeValues )  
   END FM3Predefs
 . 

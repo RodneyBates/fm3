@@ -1821,7 +1821,8 @@ MODULE FM3Pass1
   = VAR LAtom : FM3Base . AtomTyp 
 
   ; BEGIN (*DeclIdL2R*)
-      IF IdAttr . Scan . SaPredefTok IN FM3Predefs . ReservedIdSet
+      IF IntSets . IsElement
+           ( IdAttr . Scan . SaPredefTok , FM3Predefs . ReservedIdSet ) 
       THEN 
         FM3Messages . ErrorArr
           ( ARRAY OF REFANY
@@ -1904,7 +1905,8 @@ MODULE FM3Pass1
 
   ; BEGIN (*IdentRefL2R*)
       WITH WScan = IdAttr . Scan
-      DO IF WScan . SaPredefTok IN FM3Predefs . ReservedIdSet 
+      DO IF IntSets . IsElement
+              ( WScan . SaPredefTok , FM3Predefs . ReservedIdSet ) 
         THEN
           PutBwd_LIP
             ( Itk . ItkReservedId , WScan . SaPredefTok , WScan . Position ) 
@@ -1932,7 +1934,8 @@ MODULE FM3Pass1
   
   ; BEGIN (*OverrideIdentRefL2R*)
       WITH WScan = IdAttr . Scan
-      DO IF WScan . SaPredefTok IN FM3Predefs . ReservedIdSet
+      DO IF IntSets . IsElement
+              ( WScan . SaPredefTok , FM3Predefs . ReservedIdSet )
         THEN RETURN FALSE 
         ELSE
           LAtom  
@@ -1951,7 +1954,8 @@ MODULE FM3Pass1
   : BOOLEAN (* It's OK. *) 
 
   = BEGIN
-      IF IdAttr . Scan . SaPredefTok IN FM3Predefs . ReservedIdSet 
+      IF IntSets . IsElement
+           ( IdAttr . Scan . SaPredefTok , FM3Predefs . ReservedIdSet ) 
       THEN
         FM3Messages . ErrorArr
           ( ARRAY OF REFANY
@@ -2106,24 +2110,32 @@ MODULE FM3Pass1
 
 (*EXPORTED.*)
 ; PROCEDURE BuiltinWithNoSelector ( READONLY IdAttr : tParsAttribute )
-  (* PRE: IdAttr . Scan . SaPredefTok IN FM3Predefs . ReservedIdSet. *) 
+  (* PRE: IntSets . IsElement
+            ( IdAttr . Scan . SaPredefTok , FM3Predefs . ReservedIdSet ).
+  *) 
   (* Builtin ident that has no selector in source code. *) 
 
   = VAR LParamTag : TEXT
   ; VAR LPluralSuffix : TEXT 
 
   ; BEGIN
-      <* ASSERT IdAttr . Scan . SaPredefTok IN FM3Predefs . ReservedIdSet *>
+      <* ASSERT IntSets . IsElement
+                  ( IdAttr . Scan . SaPredefTok , FM3Predefs . ReservedIdSet )
+      *>
       LPluralSuffix := "s "
-    ; IF IdAttr . Scan . SaPredefTok IN FM3Predefs . RidOneParamSet
+    ; IF IntSets . IsElement
+           ( IdAttr . Scan . SaPredefTok , FM3Predefs . OneParamSet )
       THEN
         LParamTag := "one"
       ; LPluralSuffix := " "
-      ELSIF IdAttr . Scan . SaPredefTok IN FM3Predefs . RidTwoParamSet
+      ELSIF IntSets . IsElement
+              ( IdAttr . Scan . SaPredefTok , FM3Predefs . TwoParamSet )
       THEN LParamTag := "two" 
-      ELSIF IdAttr . Scan . SaPredefTok IN FM3Predefs . RidThreeParamSet
+      ELSIF IntSets . IsElement
+              ( IdAttr . Scan . SaPredefTok , FM3Predefs . ThreeParamSet )
       THEN LParamTag :="three"
-      ELSIF IdAttr . Scan . SaPredefTok IN FM3Predefs . RidOneOrMoreParamSet
+      ELSIF IntSets . IsElement
+              ( IdAttr . Scan . SaPredefTok , FM3Predefs . OneOrMoreParamSet )
       THEN LParamTag := "one or more" 
       ELSE (* It's OK. Convert to ItkBuiltinIdRef *)
         PutBwd_LIP
@@ -2158,19 +2170,26 @@ MODULE FM3Pass1
 (*EXPORTED.*)
 ; PROCEDURE BuiltinIdentActualsL2R
     ( READONLY IdAttr , ActualsAttr : tParsAttribute )
-  (* PRE: IdAttr . Scan . SaPredefTok IN FM3Predefs . ReservedIdSet. *) 
+  (* PRE: IntSets . IsElement
+            ( IdAttr . Scan . SaPredefTok , FM3Predefs . ReservedIdSet ).
+  *) 
   (* PRE: IdAttr is for the builtin ident only, not the actuals. *) 
   (* PRE: ActualsAttr is for an actual parameter list. *) 
 
   = BEGIN 
-      <* ASSERT IdAttr . Scan . SaPredefTok IN FM3Predefs . ReservedIdSet *>
-      IF IdAttr . Scan . SaPredefTok IN FM3Predefs . RidOneParamSet
+      <* ASSERT IntSets . IsElement
+                  ( IdAttr . Scan . SaPredefTok , FM3Predefs . ReservedIdSet )
+      *>
+      IF IntSets . IsElement
+           ( IdAttr . Scan . SaPredefTok , FM3Predefs . OneParamSet )
       THEN 
         EVAL CheckBuiltinProcActualsCt ( IdAttr , ActualsAttr , 1 )
-      ELSIF IdAttr . Scan . SaPredefTok IN FM3Predefs . RidTwoParamSet
+      ELSIF IntSets . IsElement
+              ( IdAttr . Scan . SaPredefTok , FM3Predefs . TwoParamSet )
       THEN 
         EVAL CheckBuiltinProcActualsCt ( IdAttr , ActualsAttr , 2 )
-      ELSIF IdAttr . Scan . SaPredefTok IN FM3Predefs . RidThreeParamSet
+      ELSIF IntSets . IsElement
+              ( IdAttr . Scan . SaPredefTok , FM3Predefs . ThreeParamSet )
       THEN 
         EVAL CheckBuiltinProcActualsCt ( IdAttr , ActualsAttr , 3 )
 
@@ -2185,10 +2204,14 @@ MODULE FM3Pass1
     ( READONLY IdAttr , SelectorAttr : tParsAttribute ; Tag : TEXT )
   (* A builtin id with either a dot-selection or subscript(s).
      There is no builtin that allows either of these. *)
-  (* PRE: IdAttr . Scan . SaPredefTok IN FM3Predefs . ReservedIdSet. *) 
+  (* PRE: IntSets . IsElement
+            ( IdAttr . Scan . SaPredefTok , FM3Predefs . ReservedIdSet ).
+  *) 
 
   = BEGIN
-      <* ASSERT IdAttr . Scan . SaPredefTok IN FM3Predefs . ReservedIdSet *>
+      <* ASSERT IntSets . IsElement
+                  ( IdAttr . Scan . SaPredefTok , FM3Predefs . ReservedIdSet )
+      *>
       BuiltinNoSelectorAllowed ( IdAttr , SelectorAttr , Tag )
     ; SkipFrom ( IdAttr . PaPass1Coord )
     ; PutBwd_LIP
