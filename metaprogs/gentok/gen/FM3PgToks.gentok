@@ -1,0 +1,27 @@
+
+(* -----------------------------------------------------------------------1- *)
+(* This file is part of the FM3 Modula-3 compiler.                           *)
+(* Copyright 2024        Rodney M. Bates.                                    *)
+(* rodney.m.bates@acm.org                                                    *)
+(* Licensed under the MIT License.                                           *)
+(* -----------------------------------------------------------------------2- *)
+
+(* Input file FM3PgToks.gentok, to metaprogram GenTok. *)
+
+(* Generate files FM3PgToks.i3, FM3PgToks.m3, and FM3PgToksSrcFsm.pkl
+   with the command line:
+   "./gentok -S -L -i -n FM3PgToks.gentok".
+*)
+
+UNITNAME FM3PgToks
+
+(* Pragma tokens for FM3 Modula-3 compiler. *)
+
+SRC 
+
+ABS 220 (* Avoid overlap of source tokens. *) 
+
+   PgFm3PredefUnit     "FM3_PREDEFUNIT" .
+   PgInline            "INLINE" . 
+   
+(* End of FM3PgToks.gentok. *) 

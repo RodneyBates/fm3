@@ -1,0 +1,65 @@
+
+(* -----------------------------------------------------------------------1- *)
+(* This file is part of the FM3 Modula-3 compiler.                           *)
+(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+(* rodney.m.bates@acm.org                                                    *)
+(* Licensed under the MIT License.                                           *)
+(* -----------------------------------------------------------------------2- *)
+
+(* Input file FM3SrcTok.gentok, to metaprogram GenTok. *)
+
+
+(* -----------------------------------------------------------------------1- *)
+(* This file is part of the FM3 Modula-3 compiler.                           *)
+(* Copyright 2024        Rodney M. Bates.                                    *)
+(* rodney.m.bates@acm.org                                                    *)
+(* Licensed under the MIT License.                                           *)
+(* -----------------------------------------------------------------------2- *)
+
+(* Input file FM3LongToks.gentok, to metaprogram GenTok. *)
+
+(* Generate file FM3LongToks.i3 with the command line:
+   "./gentok -S FM3PgToks.gentok".
+*)
+
+UNITNAME FM3LongToks
+
+(* These are used only as decl numbers and operation numbers for things
+   in interface Long.  We don't need or want scanning or reverse on them,
+   so they are in a separate generation with different options. 
+*)
+
+SRC 
+
+ABS 187 (* Leave a little space after SrcToks. *) 
+
+(* These strings ----- V  are unused. *) 
+   TokMinLong         "<TokMinLong>"
+   
+   Long_T              "Long.T" . 
+   Long_Size           "Long.Size" . 
+   Long_Plus           "Long.Plus" . 
+   Long_Times          "Long.Times" . 
+   Long_Minus          "Long.Minus" . 
+   Long_Divide         "Long.Divide" . 
+   Long_Mod            "Long.Mod" . 
+   Long_LT             "Long.LT" . 
+   Long_LE             "Long.LE" . 
+   Long_GT             "Long.GT" . 
+   Long_GE             "Long.GE" . 
+   Long_And            "Long.And" . 
+   Long_Or             "Long.Or" . 
+   Long_Xor            "Long.Xor" . 
+   Long_Not            "Long.Not" . 
+   Long_Shift          "Long.Shift" . 
+   Long_LeftShift      "Long.LeftShift" . 
+   Long_RightShift     "Long.RightShift" . 
+   Long_Rotate         "Long.Rotate" . 
+   Long_LeftRotate     "Long.LeftRotate" . 
+   Long_RightRotate    "Long.RightRotate" . 
+   Long_Extract        "Long.Extract" . 
+   Long_Insert         "Long.Insert" . 
+
+   TokMaxLong          "<TokMaxLong>" .
+
+(* End of FM3SrcToks.gentok. *) 
