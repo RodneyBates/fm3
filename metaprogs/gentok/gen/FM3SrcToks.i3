@@ -202,7 +202,14 @@ INTERFACE FM3SrcToks
 ; CONST RidUNTRACEDROOT                              =   156 (*16_9c 01 *)
 ; CONST TokMaxReservedId                             =   157 (*16_9d 01 *)
 (* Idents in Word and Long. *)
-(* These also serve as Decl numbers and operation numbers in Word *)
+(* These, when negated, serve as pseudo-identifier atoms and
+      pseudo-declaration numbers in both Word and Long interfaces.
+      They are also context-independent operation codes in Word, but Long
+      has a separate but parallel operation code numbering, generated
+      by FM3LongToks. 
+      These must be equivalent names in the same order as corresponding names
+      in FM3SrcToks.gentok.
+   *)
 ; CONST TokMinPredef                                 =   158 (*16_9e 01 *)
 ; CONST Word_T                                       =   159 (*16_9f 01 *)
 ; CONST Word_Size                                    =   160 (*16_a0 01 *)
@@ -254,10 +261,14 @@ INTERFACE FM3SrcToks
 ; CONST Long_Extract                                 =   208 (*16_d0 01 *)
 ; CONST Long_Insert                                  =   209 (*16_d1 01 *)
 ; CONST TokMaxPredef                                 =   210 (*16_d2 01 *)
+(* These are only used as operator codes.  Scanner won't deliver them
+      and parser wouldn't parse them if it did. *)
+; CONST StkUnaryPlus                                 =   211 (*16_d3 01 *)
 (* End of FM3SrcToks.gentok. *)
+; CONST StkUnaryMinus                                =   212 (*16_d4 01 *)
 ; CONST TkMinTok                                     =     0
 
-; CONST TkMaxTok                                     =   210
+; CONST TkMaxTok                                     =   212
 
 ; END FM3SrcToks
 .

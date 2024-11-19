@@ -119,9 +119,12 @@ INTERFACE FM3Base
 ; TYPE SizeTyp = LONGINT (* Runtime sizes. *) 
 ; TYPE AlignTyp = [ 0 .. 64 ]
 
-; TYPE AtomTyp = CARDINAL 
-; CONST AtomNull = FIRST ( CARDINAL )
-; CONST AtomFirstReal = AtomNull + 1 
+; TYPE AtomTyp = INTEGER
+    (* Negative values are used as pseudo-atoms for certain predefined
+       identifiers, and also operation codes.
+    *) 
+; CONST AtomNull = FIRST ( AtomTyp ) 
+; CONST AtomFirstReal = 1 (* For use as a true atom in a dictionary. *) 
 
 (* 
 

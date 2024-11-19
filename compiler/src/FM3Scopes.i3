@@ -102,7 +102,7 @@ INTERFACE FM3Scopes
            Atom is in one IFF or the other.
         *)
       ; ScpDeclGraph : FM3Graph . GraphTyp 
-        (* Arcs are intra-scope RefId to declId.  Only those that would
+        (* Arcs are intra-scope RefId to DeclId.  Only those that would
            contribute to an illegal recursive decl cycle.
         *) 
       ; ScpCurDeclRefNoSet : IntSets . T (*1*)
@@ -111,9 +111,11 @@ INTERFACE FM3Scopes
            recursive declarations.
         *)
       ; ScpCurDefExprs
-          := ARRAY BOOLEAN (*Is value expr*) OF REFANY { NIL , .. } (*1*) 
+          := ARRAY BOOLEAN (*Is value expr*) OF REFANY { NIL , .. } (*1*)
+(****
       ; ScpCurTypeExpr : REFANY := NIL (* FM3Defs . DeclDefTyp. *) (*1*) 
-      ; ScpCurValueExpr : REFANY := NIL (* FM3Defs . DeclDefTyp. *) (*1*) 
+      ; ScpCurValueExpr : REFANY := NIL (* FM3Defs . DeclDefTyp. *) (*1*)
+****) 
       ; ScpDeclCt : FM3Globals . DeclNoTyp := FM3Globals . DeclNoNull
       ; ScpMinDeclNo := FM3Globals . DeclNoNull
       ; ScpSelfScopeNo : FM3Globals . ScopeNoTyp (* A self-reference. *)

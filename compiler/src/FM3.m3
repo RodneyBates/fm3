@@ -35,9 +35,11 @@ MODULE FM3 EXPORTS Main
         ; FM3SharedUtils . LoadSets ( )
         ; FM3Globals . Init ( ) 
         ; FM3Scanner . Init ( )
-        ; FM3Compile . CompileOrLoadCLUnit ( "Main.i3" ) 
+        ; FM3Compile . CompileOrLoadCLUnit ( "Main.i3" )
+(*        
         ; FM3Compile . CompileOrLoadCLUnit ( "Word.i3" ) 
-        ; FM3Compile . CompileOrLoadCLUnit ( "Word.m3" ) 
+        ; FM3Compile . CompileOrLoadCLUnit ( "Word.m3" )
+*) 
         ; FM3Compile . CompileCLUnits ( )
         ; FM3Globals . Finalize ( ) 
         FINALLY FM3CLArgs . Cleanup ( ) 

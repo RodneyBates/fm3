@@ -470,7 +470,7 @@ MODULE FM3Scanner
               ; Attribute . SaIsPredefId := TRUE 
               ; Attribute . SaPredefTok := GCurRwValue 
               ELSE (* Treat like a plain Ident. *) 
-                Attribute . SaAtom 
+                Attribute . SaAtom (* Will be > 0. *)
                   := FM3Atom_OAChars . MakeAtom 
                        ( GTopSsRef . SsUnitRef ^ . UntIdentAtomDict
                        , Attribute . SaChars 

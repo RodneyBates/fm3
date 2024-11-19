@@ -275,4 +275,9 @@ ABS 5
 
    TokMaxPredef        "<TokMaxPredef>" .
 
+   (* These are only used as operator codes.  Scanner won't deliver them
+      and parser wouldn't parse them if it did. *) 
+   StkUnaryPlus        "\XFF"
+   StkUnaryMinus       "\XFF"
+
 (* End of FM3SrcToks.gentok. *) 

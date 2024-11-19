@@ -67,7 +67,7 @@ INTERFACE FM3Decls
       ; DclIsUsable : BOOLEAN 
       END (*DeclObjBaseTyp*)
 
-; TYPE DeclMapTyp = FM3Base . MapTyp
+; TYPE DeclMapTyp = FM3Base . MapTyp  
     (* Map DeclNoTyp to DeclRefTyp. One of these per Unit. *)
 
 ; PROCEDURE NewDeclMap ( InitDeclCt : FM3Globals . DeclNoTyp ) : DeclMapTyp 

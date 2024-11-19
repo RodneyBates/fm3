@@ -36,9 +36,9 @@ INTERFACE FM3Globals
 ; CONST ScopeNoFirstReal = ScopeNoNull + 1
 
 ; TYPE DeclRefTyp <: REFANY 
-; TYPE DeclNoTyp = CARDINAL
-; CONST DeclNoNull = FIRST ( CARDINAL )
-; CONST DeclNoMax = LAST ( CARDINAL )
+; TYPE DeclNoTyp = INTEGER 
+; CONST DeclNoNull = FIRST ( DeclNoTyp )
+; CONST DeclNoMax = LAST ( DeclNoTyp )
 ; CONST DeclNoNotUseable = DeclNoNull + 1 
 ; CONST DeclNoFirstReal = DeclNoNotUseable + 1
 

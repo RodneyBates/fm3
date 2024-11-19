@@ -12,6 +12,9 @@
 
 INTERFACE FM3LongToks
 
+(* These must be equivalent names in the same order as corresponding names
+   in FM3SrcToks.gentok.
+*)
 (* Leave a little space after SrcToks. *)
 (* These strings ----- V  are unused. *)
 (* ABS 187: *)

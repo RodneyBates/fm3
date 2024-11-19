@@ -2375,33 +2375,35 @@ yyNonterminal := 130;
                 DEC (yyStackPtr, 1); yyNonterminal := 146;
                 (* line 598 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . SaChars := yyAttributeStack^[yyStackPtr+1] . Scan . SaChars ;
+                       yySynAttribute . Scan . SaAtom := yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom ;
                        yySynAttribute . Scan . SaIsPredefId := yyAttributeStack^[yyStackPtr+1] . Scan . SaIsPredefId ;
                        yySynAttribute . Scan . SaPredefTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaPredefTok ;
                        FM3Pass1 . IdentRefL2R ( yyAttributeStack^[yyStackPtr+1] ) ;
                      
               | 451 => (* P50 QualIdentRef (147): StkIdent StkDot StkIdent .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 147;
-                (* line 605 of "FM3Parser.lalr" *)
+                (* line 606 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . SaChars := yyAttributeStack^[yyStackPtr+1] . Scan . SaChars ;
+                       yySynAttribute . Scan . SaAtom := yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom ;  
                        yySynAttribute . Scan . SaIsPredefId := yyAttributeStack^[yyStackPtr+1] . Scan . SaIsPredefId ;
                        yySynAttribute . Scan . SaPredefTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaPredefTok ;
                        FM3Pass1 . QualIdentL2R ( yyAttributeStack^[yyStackPtr+1] , yyAttributeStack^[yyStackPtr+3] ) ;
                      
               | 452 => (* P51 IdPlusList (148): IdentRef .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 148;
-                (* line 613 of "FM3Parser.lalr" *)
+                (* line 615 of "FM3Parser.lalr" *)
                  (* PaPass1Coord copied from yyAttributeStack^[yyStackPtr+1] by parser. *) 
                        yySynAttribute . PaInt := 1 ;
                      
               | 453 => (* P52 IdPlusList (148): IdPlusList StkComma IdentRef .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 148;
-                (* line 617 of "FM3Parser.lalr" *)
+                (* line 619 of "FM3Parser.lalr" *)
                  (* PaPass1Coord copied from yyAttributeStack^[yyStackPtr+1] by parser. *) 
                        yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt + 1 ;
                      
               | 454,227 => (* P53 DeclIdListElems (149): StkIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 149;
-                (* line 629 of "FM3Parser.lalr" *)
+                (* line 631 of "FM3Parser.lalr" *)
                  IF FM3Pass1 . DeclIdL2R
                             ( Itk . ItkDeclId 
                             , FM3Decls . TopDeclParseInfo ( ) . DiKind
@@ -2417,7 +2419,7 @@ yyNonterminal := 130;
                      
               | 455,228 => (* P54 DeclIdListElems (149): DeclIdListElems StkComma StkIdent .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 149;
-                (* line 644 of "FM3Parser.lalr" *)
+                (* line 646 of "FM3Parser.lalr" *)
                  IF FM3Pass1 . DeclIdL2R
                             ( Itk . ItkDeclId 
                             , FM3Decls . TopDeclParseInfo ( ) . DiKind
@@ -2436,33 +2438,36 @@ yyNonterminal := 130;
                      
               | 456,307 => (* P55 IdStarList (138): IdStarList StkComma IdentRef .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 138;
-                (* line 663 of "FM3Parser.lalr" *)
+                (* line 665 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt + 1 ; 
               | 457 => (* P56 IdStarList (138): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 138;
-                (* line 665 of "FM3Parser.lalr" *)
+                (* line 667 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := 0 ; 
               | 458,309 => (* P57 MaybeQualIdent (150): IdentRef .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 150;
-                (* line 670 of "FM3Parser.lalr" *)
+                (* line 672 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . SaChars := yyAttributeStack^[yyStackPtr+1] . Scan . SaChars ;
+                       yySynAttribute . Scan . SaAtom := yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom ;
                        yySynAttribute . Scan . SaIsPredefId := yyAttributeStack^[yyStackPtr+1] . Scan . SaIsPredefId ;
                        yySynAttribute . Scan . SaPredefTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaPredefTok ;
                 
                      
               | 459,311 => (* P58 MaybeQualIdent (150): QualIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 150;
-                (* line 676 of "FM3Parser.lalr" *)
+                (* line 679 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . SaChars := yyAttributeStack^[yyStackPtr+1] . Scan . SaChars ;
+                       yySynAttribute . Scan . SaAtom := yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom ;
                        yySynAttribute . Scan . SaIsPredefId := yyAttributeStack^[yyStackPtr+1] . Scan . SaIsPredefId ;
                        yySynAttribute . Scan . SaPredefTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaPredefTok ;
                      
               | 460 => (* P59 QualIdent (151): StkIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 151;
-                (* line 682 of "FM3Parser.lalr" *)
+                (* line 686 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . SaChars := yyAttributeStack^[yyStackPtr+1] . Scan . SaChars ;
+                       yySynAttribute . Scan . SaAtom := yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom ;
                        yySynAttribute . Scan . SaIsPredefId := yyAttributeStack^[yyStackPtr+1] . Scan . SaIsPredefId ;
                        yySynAttribute . Scan . SaPredefTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaPredefTok ;
                        FM3Pass1 . IdentRefL2R ( yyAttributeStack^[yyStackPtr+1] ) ;
@@ -2471,32 +2476,32 @@ yyNonterminal := 138;
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 152;
-                (* line 690 of "FM3Parser.lalr" *)
+                (* line 695 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := 0 ; 
               | 462 => (* P61 MaybeQualIdentStarList (152): MaybeQualIdentPlusList .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 152;
-                (* line 692 of "FM3Parser.lalr" *)
+                (* line 697 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt ; 
               | 463 => (* P62 MaybeQualIdentPlusList (153): MaybeQualIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 153;
-                (* line 694 of "FM3Parser.lalr" *)
+                (* line 699 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := 1 
               | 464 => (* P63 MaybeQualIdentPlusList (153): MaybeQualIdentPlusList StkComma MaybeQualIdent .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 153;
-                (* line 696 of "FM3Parser.lalr" *)
+                (* line 701 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt + 1 ; 
               | 465,310 => (* P64 TypeId (154): MaybeQualIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 154;
 
               | 466,221 => (* P65 TypeId (154): StkRwROOT .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 154;
-                (* line 706 of "FM3Parser.lalr" *)
+                (* line 711 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LIP
                          ( Itk . ItkReservedId , Stk . RidROOT , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ; 
                      
               | 467,222 => (* P66 TypeId (154): StkRwUNTRACED StkRwROOT .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 154;
-                (* line 711 of "FM3Parser.lalr" *)
+                (* line 716 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LIP
                          ( Itk . ItkReservedId
                          , Stk . RidUNTRACEDROOT
@@ -2505,21 +2510,21 @@ yyNonterminal := 152;
                      
               | 468 => (* P67 OptConstType (156): StkColon Type .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 156;
-                (* line 721 of "FM3Parser.lalr" *)
+                (* line 726 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Present. *) := TRUE ; 
               | 469 => (* P68 OptConstType (156): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 156;
-                (* line 723 of "FM3Parser.lalr" *)
+                (* line 728 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Present. *) := FALSE (* Absent. *) ; 
               | 470,211 => (* P69 ConstDeclGroupLt (157): StkRwCONST .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 157;
-                (* line 732 of "FM3Parser.lalr" *)
+                (* line 737 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position; 
               | 471,308 => (* P70 ConstDeclGroup (159): ConstDeclGroupLt ConstDeclList .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 159;
-                (* line 735 of "FM3Parser.lalr" *)
+                (* line 740 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *) := yyAttributeStack^[yyStackPtr+2] . PaInt ;
                         yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+2] . PaPos ; 
                       
@@ -2527,26 +2532,26 @@ yyNonterminal := 156;
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 158;
-                (* line 740 of "FM3Parser.lalr" *)
+                (* line 745 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := 0 ;
                        yySynAttribute . PaPos (* No trailing semicolon exists *)
                          := FM3Scanner . Attribute . Position ; 
                      
               | 473 => (* P72 ConstDeclList (158): ConstDeclPlus .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 158;
-                (* line 746 of "FM3Parser.lalr" *)
+                (* line 751 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon.*) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                      
               | 474,275 => (* P73 ConstDeclPlus (160): ConstDecl StkSemicolon .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 160;
-                (* line 751 of "FM3Parser.lalr" *)
+                (* line 756 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *) := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon.*) := yyAttributeStack^[yyStackPtr+2] . Scan . Position ; 
                      
               | 475,218 => (* P74 ConstDeclPlus (160): ConstDeclPlus ConstDecl StkSemicolon .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 160;
-                (* line 756 of "FM3Parser.lalr" *)
+                (* line 761 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *):= yyAttributeStack^[yyStackPtr+1] . PaInt + yyAttributeStack^[yyStackPtr+2] . PaInt ;
                        IF yyAttributeStack^[yyStackPtr+2] . PaInt > 0
                        THEN  
@@ -2563,7 +2568,7 @@ yyNonterminal := 158;
                      
               | 476,217 => (* P75 ConstDeclId (162): StkIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 162;
-                (* line 774 of "FM3Parser.lalr" *)
+                (* line 779 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Ident count, 0 or 1. *) 
                          := ORD ( FM3Pass1 . DeclIdL2R
                                     ( Itk . ItkDeclId , Dkt . DkConst , yyAttributeStack^[yyStackPtr+1] )
@@ -2571,7 +2576,7 @@ yyNonterminal := 158;
                      
               | 477,379 => (* P76 ConstDecl (161): ConstDeclId OptDeclType StkEqual Expr .*)
                 DEC (yyStackPtr, 4); yyNonterminal := 161;
-                (* line 781 of "FM3Parser.lalr" *)
+                (* line 786 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt (* Contribution to BlockDecl count. *) ;
                        IF yySynAttribute . PaInt > 0 
                        THEN 
@@ -2597,19 +2602,19 @@ yyNonterminal := 158;
                      
               | 478,278 => (* P77 TypeRelation (165): StkEqual .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 165;
-                (* line 807 of "FM3Parser.lalr" *)
+                (* line 812 of "FM3Parser.lalr" *)
                  yySynAttribute . PaTok1 := Itk . ItkTypeDeclLt ; 
               | 479,279 => (* P78 TypeRelation (165): StkSubtype .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 165;
-                (* line 809 of "FM3Parser.lalr" *)
+                (* line 814 of "FM3Parser.lalr" *)
                  yySynAttribute . PaTok1 := Itk . ItkSubtypeDeclLt ; 
               | 480,214 => (* P79 TypeDeclGroupLt (166): StkRwTYPE .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 166;
-                (* line 820 of "FM3Parser.lalr" *)
+                (* line 825 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position; 
               | 481,381 => (* P80 TypeDeclGroup (168): TypeDeclGroupLt TypeDeclList .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 168;
-                (* line 823 of "FM3Parser.lalr" *)
+                (* line 828 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *) := yyAttributeStack^[yyStackPtr+2] . PaInt ;
                         yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+2] . PaPos ; 
                       
@@ -2617,26 +2622,26 @@ yyNonterminal := 158;
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 167;
-                (* line 828 of "FM3Parser.lalr" *)
+                (* line 833 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := 0 ;
                        yySynAttribute . PaPos (* No trailing semicolon exists *)
                          := FM3Scanner . Attribute . Position ; 
                      
               | 483 => (* P82 TypeDeclList (167): TypeDeclPlus .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 167;
-                (* line 834 of "FM3Parser.lalr" *)
+                (* line 839 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon.*) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                      
               | 484,280 => (* P83 TypeDeclPlus (169): TypeDecl StkSemicolon .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 169;
-                (* line 839 of "FM3Parser.lalr" *)
+                (* line 844 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *) := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon.*) := yyAttributeStack^[yyStackPtr+2] . Scan . Position ; 
                      
               | 485,277 => (* P84 TypeDeclPlus (169): TypeDeclPlus TypeDecl StkSemicolon .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 169;
-                (* line 844 of "FM3Parser.lalr" *)
+                (* line 849 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *):= yyAttributeStack^[yyStackPtr+1] . PaInt + yyAttributeStack^[yyStackPtr+2] . PaInt ;
                        IF yyAttributeStack^[yyStackPtr+2] . PaInt > 0
                        THEN  
@@ -2653,7 +2658,7 @@ yyNonterminal := 167;
                      
               | 486,276 => (* P85 TypeDeclId (171): StkIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 171;
-                (* line 860 of "FM3Parser.lalr" *)
+                (* line 865 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Ident count, 0 or 1. *) 
                          := ORD ( FM3Pass1 . DeclIdL2R
                                     ( Itk . ItkDeclId , Dkt . DkType , yyAttributeStack^[yyStackPtr+1] )
@@ -2661,7 +2666,7 @@ yyNonterminal := 167;
                      
               | 487,382 => (* P86 TypeDecl (170): TypeDeclId TypeRelation Type .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 170;
-                (* line 867 of "FM3Parser.lalr" *)
+                (* line 872 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt (* Contribution to BlockDecl count. *) ;
                        IF yySynAttribute . PaInt > 0 
                        THEN 
@@ -2681,19 +2686,19 @@ yyNonterminal := 167;
                      
               | 488,281 => (* P87 RevelationRelation (172): StkEqual .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 172;
-                (* line 887 of "FM3Parser.lalr" *)
+                (* line 892 of "FM3Parser.lalr" *)
                  yySynAttribute . PaTok1 := Itk . ItkFullRevealLt ; 
               | 489,282 => (* P88 RevelationRelation (172): StkSubtype .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 172;
-                (* line 889 of "FM3Parser.lalr" *)
+                (* line 894 of "FM3Parser.lalr" *)
                  yySynAttribute . PaTok1 := Itk . ItkPartialRevealLt ; 
               | 490,213 => (* P89 RevelationGroupLt (173): StkRwREVEAL .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 173;
-                (* line 900 of "FM3Parser.lalr" *)
+                (* line 905 of "FM3Parser.lalr" *)
                   yySynAttribute. Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position  
               | 491,385 => (* P90 RevelationGroup (175): RevelationGroupLt RevelationList .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 175;
-                (* line 903 of "FM3Parser.lalr" *)
+                (* line 908 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *) := yyAttributeStack^[yyStackPtr+2] . PaInt ;
                         yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+2] . PaPos ; 
                       
@@ -2701,26 +2706,26 @@ yyNonterminal := 167;
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 174;
-                (* line 908 of "FM3Parser.lalr" *)
+                (* line 913 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := 0 ;
                        yySynAttribute . PaPos (* No trailing semicolon exists. *)
                          := FM3Scanner . Attribute . Position ; 
                      
               | 493 => (* P92 RevelationList (174): RevelationPlus .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 174;
-                (* line 914 of "FM3Parser.lalr" *)
+                (* line 919 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                      
               | 494,284 => (* P93 RevelationPlus (176): Revelation StkSemicolon .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 176;
-                (* line 919 of "FM3Parser.lalr" *)
+                (* line 924 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *) := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+2] . Scan . Position ; 
                      
               | 495,283 => (* P94 RevelationPlus (176): RevelationPlus Revelation StkSemicolon .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 176;
-                (* line 924 of "FM3Parser.lalr" *)
+                (* line 929 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *):= yyAttributeStack^[yyStackPtr+1] . PaInt + yyAttributeStack^[yyStackPtr+2] . PaInt ;
                        IF yyAttributeStack^[yyStackPtr+2] . PaInt > 0
                        THEN 
@@ -2737,7 +2742,7 @@ yyNonterminal := 174;
                      
               | 496,384 => (* P95 Revelation (177): TypeId RevelationRelation Type .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 177;
-                (* line 940 of "FM3Parser.lalr" *)
+                (* line 945 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := 1 (* BlockDecl count. *) ;
                 (* CHECK^ Do we really want to count this as a block decl?  It occupies a 
                           space in the Blockdecl list, but does not introduce a new identifier,
@@ -2754,7 +2759,7 @@ yyNonterminal := 174;
                      
               | 497,215 => (* P96 VarDeclGroupLt (178): StkRwVAR .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 178;
-                (* line 967 of "FM3Parser.lalr" *)
+                (* line 972 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* DeclParseInfoDepth *) 
                          := FM3Decls . PushDeclParseInfo
                               ( FM3Decls . DeclParseInfoTyp
@@ -2769,7 +2774,7 @@ yyNonterminal := 174;
                      
               | 498,387 => (* P97 VarDeclGroup (180): VarDeclGroupLt VarDeclList .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 180;
-                (* line 981 of "FM3Parser.lalr" *)
+                (* line 986 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *) := yyAttributeStack^[yyStackPtr+2] . PaInt ;
                         yySynAttribute . PaPos (* Rt Semicolon. *) := yyAttributeStack^[yyStackPtr+2] . PaPos ;  
                         <* ASSERT FM3Decls . PopDeclParseInfo ( ) = yyAttributeStack^[yyStackPtr+1] . PaInt *>
@@ -2778,14 +2783,14 @@ yyNonterminal := 174;
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 179;
-                (* line 987 of "FM3Parser.lalr" *)
+                (* line 992 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := 0 (* Decl count. *) ;
                         yySynAttribute . PaPos (* No trailing semicolon exists. *)
                           := FM3Scanner.Attribute . Position ; 
                       
               | 500 => (* P99 VarDeclList (179): VarDeclPlus .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 179;
-                (* line 993 of "FM3Parser.lalr" *)
+                (* line 998 of "FM3Parser.lalr" *)
                  yySynAttribute . PaPos (* Rt Semicolon. *) := yyAttributeStack^[yyStackPtr+1] . PaPos ;  
                 
                        (*FM3Pass1 . MakeListPos
@@ -2798,13 +2803,13 @@ yyNonterminal := 179;
                      
               | 501,286 => (* P100 VarDeclPlus (181): VarDecl StkSemicolon .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 181;
-                (* line 1005 of "FM3Parser.lalr" *)
+                (* line 1010 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *) := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt Semicolon. *) := yyAttributeStack^[yyStackPtr+2] . Scan . Position ;  
                      
               | 502,285 => (* P101 VarDeclPlus (181): VarDeclPlus VarDecl StkSemicolon .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 181;
-                (* line 1010 of "FM3Parser.lalr" *)
+                (* line 1015 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *):= yyAttributeStack^[yyStackPtr+1] . PaInt + yyAttributeStack^[yyStackPtr+2] . PaInt ;
                        IF yyAttributeStack^[yyStackPtr+2] . PaInt > 0
                        THEN 
@@ -2821,7 +2826,7 @@ yyNonterminal := 179;
                      
               | 503,356 => (* P102 VarDecl (182): VarDeclIds OptDeclType OptDeclValue .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 182;
-                (* line 1028 of "FM3Parser.lalr" *)
+                (* line 1033 of "FM3Parser.lalr" *)
                  IF FM3Pass1 . RequireTypeAndOrValue
                              ( yyAttributeStack^[yyStackPtr+1] . Scan . Position , yyAttributeStack^[yyStackPtr+2] . PaBool , yyAttributeStack^[yyStackPtr+3] . PaBool ) 
                        (* ^Check this even if there are no valid ids. *)
@@ -2850,7 +2855,7 @@ yyNonterminal := 179;
                      
               | 504 => (* P103 VarDeclIds (183): DeclIdListElems .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 183;
-                (* line 1056 of "FM3Parser.lalr" *)
+                (* line 1061 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ;
                        MakeListPos (* The identifier list. *) 
                          ( yySynAttribute
@@ -2862,7 +2867,7 @@ yyNonterminal := 179;
                      
               | 505,378 => (* P104 OptDeclType (163): StkColon Type .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 163;
-                (* line 1067 of "FM3Parser.lalr" *)
+                (* line 1072 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Present. *) := TRUE ;
                        yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ; 
                      
@@ -2870,7 +2875,7 @@ yyNonterminal := 179;
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 163;
-                (* line 1071 of "FM3Parser.lalr" *)
+                (* line 1076 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Present. *) := FALSE (* Absent. *) ;
                        yySynAttribute . Scan . Position := FM3Scanner . Attribute . Position ;
                        FM3Pass1 . PutBwd_LP
@@ -2878,7 +2883,7 @@ yyNonterminal := 163;
                      
               | 507,355 => (* P106 OptDeclValue (184): StkBecomes Expr .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 184;
-                (* line 1077 of "FM3Parser.lalr" *)
+                (* line 1082 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Present. *) := TRUE ;
                        yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ; 
                      
@@ -2886,7 +2891,7 @@ yyNonterminal := 163;
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 184;
-                (* line 1081 of "FM3Parser.lalr" *)
+                (* line 1086 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Present. *) := FALSE (* Absent. *) ;
                        yySynAttribute . Scan . Position := FM3Scanner . Attribute . Position ; 
                        FM3Pass1 . PutBwd_LP
@@ -2945,7 +2950,7 @@ yyNonterminal := 184;
 
               | 526,312 => (* P125 Type (155): StkRwREF Type .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 155;
-                (* line 1113 of "FM3Parser.lalr" *)
+                (* line 1118 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LCP_rp
                          ( Itk . ItkREFTypeLt
                          , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
@@ -2954,7 +2959,7 @@ yyNonterminal := 184;
                      
               | 527,329 => (* P126 Type (155): StkUNTRACED StkRwREF Type .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 155;
-                (* line 1121 of "FM3Parser.lalr" *)
+                (* line 1126 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LCP_rp
                          ( Itk . ItkUNTRACEDREFTypeLt
                          , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
@@ -2966,7 +2971,7 @@ yyNonterminal := 184;
 
               | 529,377 => (* P128 OpenArrayType (202): StkRwARRAY StkRwOF Type .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 202;
-                (* line 1133 of "FM3Parser.lalr" *)
+                (* line 1138 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LCP_rp
                          ( Itk . ItkOpenArrayTypeLt
                          , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
@@ -2983,7 +2988,7 @@ yyNonterminal := 203;
 
               | 532,223 => (* P131 EnumTypeLt (204): StkOpenBrace .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 204;
-                (* line 1148 of "FM3Parser.lalr" *)
+                (* line 1153 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN
                          LScopeRef 
@@ -2999,7 +3004,7 @@ yyNonterminal := 203;
                      
               | 533,226 => (* P132 EnumType (206): EnumTypeLt EnumLitList StkCloseBrace .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 206;
-                (* line 1163 of "FM3Parser.lalr" *)
+                (* line 1168 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN
                          LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
@@ -3019,23 +3024,23 @@ yyNonterminal := 203;
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 205;
-                (* line 1180 of "FM3Parser.lalr" *)
+                (* line 1185 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *) := 0 ; 
               | 535 => (* P134 EnumLitList (205): EnumLitPlus .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 205;
-                (* line 1183 of "FM3Parser.lalr" *)
+                (* line 1188 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *) := yyAttributeStack^[yyStackPtr+1] . PaInt ; 
               | 536,333 => (* P135 EnumLitPlus (207): EnumLit .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 207;
-                (* line 1186 of "FM3Parser.lalr" *)
+                (* line 1191 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *) := yyAttributeStack^[yyStackPtr+1] . PaInt ; 
               | 537,332 => (* P136 EnumLitPlus (207): EnumLitPlus StkComma EnumLit .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 207;
-                (* line 1189 of "FM3Parser.lalr" *)
+                (* line 1194 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *):= yyAttributeStack^[yyStackPtr+1] . PaInt + yyAttributeStack^[yyStackPtr+3] . PaInt ; 
               | 538,225 => (* P137 EnumLit (208): StkIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 208;
-                (* line 1192 of "FM3Parser.lalr" *)
+                (* line 1197 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Ident count, 0 or 1. *) 
                          := ORD ( FM3Pass1 . DeclIdL2R
                                     ( Itk . ItkDeclId
@@ -3057,7 +3062,7 @@ yyNonterminal := 205;
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 209;
-                (* line 1215 of "FM3Parser.lalr" *)
+                (* line 1220 of "FM3Parser.lalr" *)
                  FM3Pass1 . MakeListEmpty
                           ( yySynAttribute
                           , Itk . ItkFieldDeclListLt
@@ -3066,7 +3071,7 @@ yyNonterminal := 209;
                       
               | 541,358 => (* P140 FieldDeclList (209): FieldDeclPlus OptSemicolon .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 209;
-                (* line 1223 of "FM3Parser.lalr" *)
+                (* line 1228 of "FM3Parser.lalr" *)
                  FM3Pass1 . MakeListPos
                          ( yySynAttribute
                          , Itk . ItkFieldDeclListLt
@@ -3076,11 +3081,11 @@ yyNonterminal := 209;
                      
               | 542,335 => (* P141 FieldDeclPlus (210): VarDecl .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 210;
-                (* line 1232 of "FM3Parser.lalr" *)
+                (* line 1237 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *) := yyAttributeStack^[yyStackPtr+1] . PaInt ; 
               | 543,357 => (* P142 FieldDeclPlus (210): FieldDeclPlus StkSemicolon VarDecl .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 210;
-                (* line 1235 of "FM3Parser.lalr" *)
+                (* line 1240 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *):= yyAttributeStack^[yyStackPtr+1] . PaInt + yyAttributeStack^[yyStackPtr+3] . PaInt ;
                        FM3Pass1 . PutBwd_ECIP
                          ( Itk . ItkFieldDeclListLt
@@ -3091,7 +3096,7 @@ yyNonterminal := 209;
                      
               | 544,220 => (* P143 RecTypeLt (211): StkRwRECORD .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 211;
-                (* line 1247 of "FM3Parser.lalr" *)
+                (* line 1252 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN 
                          yySynAttribute . PaPass1Coord := FM3Pass1 . Coord ( ) ;
@@ -3120,7 +3125,7 @@ yyNonterminal := 209;
                      
               | 545,264 => (* P144 Type (155): RecTypeLt FieldDeclList StkRwEND .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 155;
-                (* line 1275 of "FM3Parser.lalr" *)
+                (* line 1280 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN
                          LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
@@ -3143,7 +3148,7 @@ yyNonterminal := 209;
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 212;
-                (* line 1297 of "FM3Parser.lalr" *)
+                (* line 1302 of "FM3Parser.lalr" *)
                  FM3Pass1 . MakeListEmpty 
                           ( yySynAttribute
                           , Itk . ItkMethodDeclListLt
@@ -3152,13 +3157,13 @@ yyNonterminal := 212;
                       
               | 547 => (* P146 MethodDeclList (212): StkRwMETHODS .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 212;
-                (* line 1305 of "FM3Parser.lalr" *)
+                (* line 1310 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LIP_rip
                           ( Itk . ItkMethodDeclListLt , 0 , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ; 
                       
               | 548,371 => (* P147 MethodDeclList (212): StkRwMETHODS MethodDeclPlus OptSemicolon .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 212;
-                (* line 1310 of "FM3Parser.lalr" *)
+                (* line 1315 of "FM3Parser.lalr" *)
                  FM3Pass1 . MakeListPos
                          ( yySynAttribute
                          , Itk . ItkMethodDeclListLt
@@ -3168,11 +3173,11 @@ yyNonterminal := 212;
                      
               | 549,372 => (* P148 MethodDeclPlus (213): MethodDecl .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 213;
-                (* line 1319 of "FM3Parser.lalr" *)
+                (* line 1324 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *) := yyAttributeStack^[yyStackPtr+1] . PaInt ; 
               | 550,360 => (* P149 MethodDeclPlus (213): MethodDeclPlus StkSemicolon MethodDecl .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 213;
-                (* line 1322 of "FM3Parser.lalr" *)
+                (* line 1327 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *):= yyAttributeStack^[yyStackPtr+1] . PaInt + yyAttributeStack^[yyStackPtr+3] . PaInt ;
                        FM3Pass1 . PutBwd_ECIP
                          ( Itk . ItkMethodDeclListLt
@@ -3183,7 +3188,7 @@ yyNonterminal := 212;
                      
               | 551,266 => (* P150 MethodDeclLt (215): StkIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 215;
-                (* line 1334 of "FM3Parser.lalr" *)
+                (* line 1339 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
                        BEGIN
                          yySynAttribute . Scan . SaAtom := yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom ; 
@@ -3207,7 +3212,7 @@ yyNonterminal := 212;
                      
               | 552,370 => (* P151 MethodDecl (214): MethodDeclLt Signature .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 214;
-                (* line 1357 of "FM3Parser.lalr" *)
+                (* line 1362 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
                        BEGIN
                          yySynAttribute . PaInt (* Valid method count. *) := yyAttributeStack^[yyStackPtr+1] . PaInt ; 
@@ -3238,7 +3243,7 @@ yyNonterminal := 212;
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 217;
-                (* line 1387 of "FM3Parser.lalr" *)
+                (* line 1392 of "FM3Parser.lalr" *)
                  FM3Pass1 . MakeListEmpty 
                           ( yySynAttribute
                           , Itk . ItkOverrideListLt
@@ -3247,13 +3252,13 @@ yyNonterminal := 217;
                       
               | 554 => (* P153 OverrideList (217): StkRwOVERRIDES .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 217;
-                (* line 1395 of "FM3Parser.lalr" *)
+                (* line 1400 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LIP_rip
                           ( Itk . ItkOverrideListLt , 0 , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ; 
                       
               | 555,374 => (* P154 OverrideList (217): StkRwOVERRIDES OverridePlus OptSemicolon .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 217;
-                (* line 1400 of "FM3Parser.lalr" *)
+                (* line 1405 of "FM3Parser.lalr" *)
                  FM3Pass1 . MakeListPos
                          ( yySynAttribute
                          , Itk . ItkOverrideListLt
@@ -3263,11 +3268,11 @@ yyNonterminal := 217;
                      
               | 556,375 => (* P155 OverridePlus (218): Override .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 218;
-                (* line 1409 of "FM3Parser.lalr" *)
+                (* line 1414 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Override count. *) := yyAttributeStack^[yyStackPtr+1] . PaInt ; 
               | 557,373 => (* P156 OverridePlus (218): OverridePlus StkSemicolon VarDecl .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 218;
-                (* line 1412 of "FM3Parser.lalr" *)
+                (* line 1417 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Override count. *):= yyAttributeStack^[yyStackPtr+1] . PaInt + yyAttributeStack^[yyStackPtr+3] . PaInt ;
                        FM3Pass1 . PutBwd_ECIP
                          ( Itk . ItkOverrideListLt
@@ -3278,14 +3283,14 @@ yyNonterminal := 217;
                      
               | 558,273 => (* P157 OverrideLt (220): StkIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 220;
-                (* line 1424 of "FM3Parser.lalr" *)
+                (* line 1429 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* override count, 0 or 1. *) 
                          := ORD ( FM3Pass1 . OverrideIdentRefL2R ( yyAttributeStack^[yyStackPtr+1] ) ) ;
                        (* ^Full legality requires looking through supertypes -- do it later. *) 
                      
               | 559,376 => (* P158 Override (219): OverrideLt StkEqual Expr .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 219;
-                (* line 1430 of "FM3Parser.lalr" *)
+                (* line 1435 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Override count. *) := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        FM3Pass1 . PutBwd_LCP_eCp_rp
                          ( Itk . ItkOverrideLt
@@ -3298,19 +3303,19 @@ yyNonterminal := 217;
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 221;
-                (* line 1442 of "FM3Parser.lalr" *)
+                (* line 1447 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LP
                          ( Itk . ItkAbsentBrand , FM3Scanner . Attribute . Position ) ;
                      
               | 561 => (* P160 Brand (221): StkRwBRANDED .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 221;
-                (* line 1447 of "FM3Parser.lalr" *)
+                (* line 1452 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LP 
                          ( Itk . ItkBrandAnon , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ;
                      
               | 562,359 => (* P161 Brand (221): StkRwBRANDED Expr .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 221;
-                (* line 1452 of "FM3Parser.lalr" *)
+                (* line 1457 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LP_rp 
                          ( Itk . ItkBrandLt , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ;
                      
@@ -3318,14 +3323,14 @@ yyNonterminal := 221;
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 222;
-                (* line 1459 of "FM3Parser.lalr" *)
+                (* line 1464 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . Position := FM3Scanner . Attribute . Position ;
                        FM3Pass1 . PutBwd_LP
                          ( Itk . ItkAbsentSupertype , FM3Scanner . Attribute . Position ) ;
                      
               | 564 => (* P163 Supertype (222): TypeId .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 222;
-                (* line 1465 of "FM3Parser.lalr" *)
+                (* line 1470 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ;
                        FM3Pass1 . PutBwd_LCP_rp
                          ( Itk . ItkSupertypeLt
@@ -3335,7 +3340,7 @@ yyNonterminal := 222;
                      
               | 565 => (* P164 Supertype (222): ObjType .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 222;
-                (* line 1474 of "FM3Parser.lalr" *)
+                (* line 1479 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ;
                        (* ^The supertype will be nested within this object tyhpe. *) 
                        FM3Pass1 . PutBwd_LCP_rp
@@ -3346,7 +3351,7 @@ yyNonterminal := 222;
                      
               | 566,265 => (* P165 ObjTypeLt (224): Supertype Brand StkRwOBJECT .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 224;
-                (* line 1485 of "FM3Parser.lalr" *)
+                (* line 1490 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN 
                          yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ;
@@ -3375,7 +3380,7 @@ yyNonterminal := 222;
                      
               | 567,274 => (* P166 ObjType (223): ObjTypeLt FieldDeclList MethodDeclList OverrideList StkRwEND .*)
                 DEC (yyStackPtr, 5); yyNonterminal := 223;
-                (* line 1513 of "FM3Parser.lalr" *)
+                (* line 1518 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN
                          yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ;
@@ -3399,7 +3404,7 @@ yyNonterminal := 222;
 
               | 569,219 => (* P168 ProcTypeLt (225): StkRwPROCEDURE .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 225;
-                (* line 1537 of "FM3Parser.lalr" *)
+                (* line 1542 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN
                          LScopeRef 
@@ -3415,13 +3420,13 @@ yyNonterminal := 222;
                      
               | 570,363 => (* P169 Type (155): ProcTypeLt Signature .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 155;
-                (* line 1552 of "FM3Parser.lalr" *)
+                (* line 1557 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LCP_rp
                          ( Itk . ItkProcTypeLt , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ;
                      
               | 571,365 => (* P170 Signature (216): Formals ResultType Raises .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 216;
-                (* line 1560 of "FM3Parser.lalr" *)
+                (* line 1565 of "FM3Parser.lalr" *)
                  VAR LToken : Itk . TokTyp ;
                        BEGIN
                          IF yyAttributeStack^[yyStackPtr+2] . PaBool (* Is present. *) 
@@ -3437,7 +3442,7 @@ yyNonterminal := 222;
                      
               | 572,270 => (* P171 Formals (226): StkOpenParen FormalsList StkCloseParen .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 226;
-                (* line 1580 of "FM3Parser.lalr" *)
+                (* line 1585 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
                        BEGIN
                          yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ;
@@ -3459,14 +3464,14 @@ yyNonterminal := 222;
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 229;
-                (* line 1599 of "FM3Parser.lalr" *)
+                (* line 1604 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := 0 ; 
               | 574,368 => (* P173 FormalsList (229): FormalPlus OptSemicolon .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 229;
 
               | 575,361 => (* P174 FormalPlus (230): FormalPlus StkSemicolon Formal .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 230;
-                (* line 1604 of "FM3Parser.lalr" *)
+                (* line 1609 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt + yyAttributeStack^[yyStackPtr+3] . PaInt ;
                        FM3Pass1 . PutBwd_ECIP
                          ( Itk . ItkFormalsListLt 
@@ -3477,13 +3482,13 @@ yyNonterminal := 229;
                      
               | 576,369 => (* P175 FormalPlus (230): Formal .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 230;
-                (* line 1614 of "FM3Parser.lalr" *)
+                (* line 1619 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt ; 
               | 577 => (* P176 FormalLt (232): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 232;
-                (* line 1618 of "FM3Parser.lalr" *)
+                (* line 1623 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . Position := FM3Scanner . Attribute . Position ;
                        yySynAttribute . PaByte := ORD ( Dkt . DkVALUEFormal ) ;  
                        yySynAttribute . PaInt (* DeclParseInfoDepth after push. *) 
@@ -3500,7 +3505,7 @@ yyNonterminal := 232;
                      
               | 578,268 => (* P177 FormalLt (232): StkRwVALUE .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 232;
-                (* line 1633 of "FM3Parser.lalr" *)
+                (* line 1638 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ;
                        yySynAttribute . PaByte := ORD ( Dkt . DkVALUEFormal ) ;
                        yySynAttribute . PaInt (* DeclParseInfoDepth after push. *) 
@@ -3517,7 +3522,7 @@ yyNonterminal := 232;
                      
               | 579,269 => (* P178 FormalLt (232): StkRwVAR .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 232;
-                (* line 1649 of "FM3Parser.lalr" *)
+                (* line 1654 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ; 
                        yySynAttribute . PaByte := ORD ( Dkt . DkVARFormal ) ;
                        yySynAttribute . PaInt (* DeclParseInfoDepth after push. *) 
@@ -3533,7 +3538,7 @@ yyNonterminal := 232;
                      
               | 580,267 => (* P179 FormalLt (232): StkRwREADONLY .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 232;
-                (* line 1663 of "FM3Parser.lalr" *)
+                (* line 1668 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ; 
                        yySynAttribute . PaByte := ORD ( Dkt . DkROFormal ) ;
                        yySynAttribute . PaInt (* DeclParseInfoDepth after push. *) 
@@ -3549,7 +3554,7 @@ yyNonterminal := 232;
                      
               | 581,367 => (* P180 Formal (231): FormalLt FormalIds FormalType FormalExpr .*)
                 DEC (yyStackPtr, 4); yyNonterminal := 231;
-                (* line 1680 of "FM3Parser.lalr" *)
+                (* line 1685 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ; 
                        VAR LOk := TRUE ; 
                        BEGIN (* Do these checks even if no valid ids. *) 
@@ -3604,7 +3609,7 @@ yyNonterminal := 232;
                      
               | 582 => (* P181 FormalIds (233): DeclIdListElems .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 233;
-                (* line 1735 of "FM3Parser.lalr" *)
+                (* line 1740 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . Position  := yyAttributeStack^[yyStackPtr+1] . Scan . Position ; 
                        MakeListPos
                          ( yySynAttribute
@@ -3615,7 +3620,7 @@ yyNonterminal := 232;
                      
               | 583,362 => (* P182 FormalType (234): StkColon Type .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 234;
-                (* line 1746 of "FM3Parser.lalr" *)
+                (* line 1751 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Type is present. *) := TRUE;
                        yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position;
                 (* This looks redundant to Itk<mode>FormalType & Itk<mode>FormalVal,
@@ -3628,7 +3633,7 @@ yyNonterminal := 232;
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 234;
-                (* line 1755 of "FM3Parser.lalr" *)
+                (* line 1760 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Type is present. *) := FALSE (* Absent. *) ;
                        yySynAttribute . Scan . Position := FM3Scanner . Attribute . Position; 
                        FM3Pass1 . PutBwd_LP
@@ -3636,7 +3641,7 @@ yyNonterminal := 234;
                      
               | 585,366 => (* P184 FormalExpr (235): StkBecomes Expr .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 235;
-                (* line 1763 of "FM3Parser.lalr" *)
+                (* line 1768 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Expr is present. *) := TRUE;
                        yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position; 
                 (* This looks redundant to Itk<mode>FormalVal & Itk<mode>FormalRt,
@@ -3649,7 +3654,7 @@ yyNonterminal := 234;
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 235;
-                (* line 1772 of "FM3Parser.lalr" *)
+                (* line 1777 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Expr is present. *) := FALSE (* Absent. *) ;
                        yySynAttribute . Scan . Position := FM3Scanner . Attribute . Position; 
                        FM3Pass1 . PutBwd_LP
@@ -3657,7 +3662,7 @@ yyNonterminal := 235;
                      
               | 587,364 => (* P186 ResultType (227): StkColon Type .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 227;
-                (* line 1780 of "FM3Parser.lalr" *)
+                (* line 1785 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Result type is present. *) := TRUE;
                        yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position;
                        yySynAttribute . PaTok1 := Itk . ItkSignatureFuncLt ; 
@@ -3668,7 +3673,7 @@ yyNonterminal := 235;
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 227;
-                (* line 1787 of "FM3Parser.lalr" *)
+                (* line 1792 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Result type is present. *) := FALSE (* Absent. *) ;
                        yySynAttribute . Scan . Position := FM3Scanner . Attribute . Position; 
                        yySynAttribute . PaTok1 := Itk . ItkSignatureProperLt ; 
@@ -3680,14 +3685,14 @@ yyNonterminal := 227;
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 228;
-                (* line 1797 of "FM3Parser.lalr" *)
+                (* line 1802 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Raises set is present. *) := FALSE (* Absent. *) ;
                        FM3Pass1 . MakeListEmpty
                          ( yySynAttribute , Itk . ItkRaisesSetLt , FM3Scanner . Attribute . Position ) ; 
                      
               | 590,271 => (* P189 Raises (228): StkRwRAISES StkRwANY .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 228;
-                (* line 1803 of "FM3Parser.lalr" *)
+                (* line 1808 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Raises set is present. *) := TRUE ;
                        yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ; 
                        FM3Pass1 . PutBwd_LP_rp
@@ -3695,14 +3700,14 @@ yyNonterminal := 228;
                      
               | 591,272 => (* P190 Raises (228): StkRwRAISES StkOpenBrace QualIdentStarList StkCloseBrace .*)
                 DEC (yyStackPtr, 4); yyNonterminal := 228;
-                (* line 1810 of "FM3Parser.lalr" *)
+                (* line 1815 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Raises set is present. *) := TRUE ;
                        yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ; 
                        MakeListPos ( yySynAttribute , Itk . ItkRaisesSetLt , yyAttributeStack^[yyStackPtr+1] . Scan . Position , yyAttributeStack^[yyStackPtr+3] ) ;
                      
               | 592,212 => (* P191 ProcDeclLt (237): StkRwPROCEDURE StkIdent .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 237;
-                (* line 1817 of "FM3Parser.lalr" *)
+                (* line 1822 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
                        VAR LScopeKind : Skt ;
                        BEGIN
@@ -3734,7 +3739,7 @@ yyNonterminal := 228;
                      
               | 593,389 => (* P192 ProcDecl (239): ProcDeclLt Signature OptProcBody .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 239;
-                (* line 1848 of "FM3Parser.lalr" *)
+                (* line 1853 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
                        VAR LProcTok : Itk . TokTyp ; 
                        BEGIN
@@ -3779,14 +3784,14 @@ yyNonterminal := 228;
                      
               | 594,287 => (* P193 OptProcBody (238): StkSemicolon .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 238;
-                (* line 1892 of "FM3Parser.lalr" *)
+                (* line 1897 of "FM3Parser.lalr" *)
                  yySynAttribute . PaBool (* Procedure has a body. *) := FALSE (* Absent. *) ; 
                        FM3Pass1 . PutBwd_LP
                          ( Itk . ItkProcBodyAbsent , yyAttributeStack^[yyStackPtr+1] . Scan . Position ); 
                      
               | 595,288 => (* P194 ProcBodyLt (240): StkEqual .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 240;
-                (* line 1901 of "FM3Parser.lalr" *)
+                (* line 1906 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN
                          yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ;
@@ -3800,7 +3805,7 @@ yyNonterminal := 228;
                      
               | 596,289 => (* P195 OptProcBody (238): ProcBodyLt Block StkIdent StkSemicolon .*)
                 DEC (yyStackPtr, 4); yyNonterminal := 238;
-                (* line 1914 of "FM3Parser.lalr" *)
+                (* line 1919 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN
                          yySynAttribute . PaBool (* Procedure has a body. *) := TRUE ; 
@@ -3821,10 +3826,11 @@ yyNonterminal := 228;
 
               | 599 => (* P198 E0 (241): E0 StkRwOR E1 .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 241;
-                (* line 1938 of "FM3Parser.lalr" *)
-                 FM3Pass1 . PutBwd_LCP_eCp_rp
-                         ( Itk . ItkORLt
+                (* line 1943 of "FM3Parser.lalr" *)
+                 FM3Pass1 . PutBwd_LCIP_eCip_rip
+                         ( Itk . ItkBinOpLt
                          , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
+                         , - Stk . StkRwOR
                          , yyAttributeStack^[yyStackPtr+2]  . Scan . Position
                          , yyAttributeStack^[yyStackPtr+2] . PaPass1Coord 
                          ) ; 
@@ -3834,10 +3840,11 @@ yyNonterminal := 228;
 
               | 601,338 => (* P200 E1 (242): E1 StkRwAND E2 .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 242;
-                (* line 1948 of "FM3Parser.lalr" *)
-                 FM3Pass1 . PutBwd_LCP_eCp_rp
-                         ( Itk . ItkANDLt
+                (* line 1954 of "FM3Parser.lalr" *)
+                 FM3Pass1 . PutBwd_LCIP_eCip_rip
+                         ( Itk . ItkBinOpLt
                          , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
+                         , - Stk . StkRwAND 
                          , yyAttributeStack^[yyStackPtr+2]  . Scan . Position
                          , yyAttributeStack^[yyStackPtr+2] . PaPass1Coord 
                          ) ; 
@@ -3847,19 +3854,24 @@ yyNonterminal := 228;
 
               | 603 => (* P202 E2 (243): StkRwNOT E3 .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 243;
-                (* line 1958 of "FM3Parser.lalr" *)
-                 FM3Pass1 . PutBwd_LCP_rp
-                         ( Itk . ItkNOTLt , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ; 
+                (* line 1965 of "FM3Parser.lalr" *)
+                 FM3Pass1 . PutBwd_LCIP_rip
+                         ( Itk . ItkUnaryOpLt
+                         , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
+                         , - Stk . StkRwNOT
+                         , yyAttributeStack^[yyStackPtr+1] . Scan . Position
+                         ) ; 
                      
               | 604 => (* P203 E3 (244): E4 .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 244;
 
               | 605 => (* P204 E3 (244): E3 ExprRelOp E4 .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 244;
-                (* line 1964 of "FM3Parser.lalr" *)
-                 FM3Pass1 . PutBwd_LCP_eCp_rp
-                         ( yyAttributeStack^[yyStackPtr+2] . PaTok1 
+                (* line 1975 of "FM3Parser.lalr" *)
+                 FM3Pass1 . PutBwd_LCIP_eCip_rip
+                         ( Itk .ItkBinOpLt
                          , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
+                         , - yyAttributeStack^[yyStackPtr+2] . PaTok1 
                          , yyAttributeStack^[yyStackPtr+2]  . Scan . Position
                          , yyAttributeStack^[yyStackPtr+2] . PaPass1Coord 
                          ) ; 
@@ -3869,10 +3881,11 @@ yyNonterminal := 228;
 
               | 607 => (* P206 E4 (245): E4 ExprAddOp E5 .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 245;
-                (* line 1974 of "FM3Parser.lalr" *)
-                 FM3Pass1 . PutBwd_LCP_eCp_rp
-                         ( yyAttributeStack^[yyStackPtr+2] . PaTok1 
+                (* line 1986 of "FM3Parser.lalr" *)
+                 FM3Pass1 . PutBwd_LCIP_eCip_rip
+                         ( Itk .ItkBinOpLt
                          , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
+                         , - yyAttributeStack^[yyStackPtr+2] . PaTok1 
                          , yyAttributeStack^[yyStackPtr+2]  . Scan . Position
                          , yyAttributeStack^[yyStackPtr+2] . PaPass1Coord 
                          ) ; 
@@ -3882,10 +3895,11 @@ yyNonterminal := 228;
 
               | 609,339 => (* P208 E5 (247): E5 ExprMulOp E6 .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 247;
-                (* line 1984 of "FM3Parser.lalr" *)
-                 FM3Pass1 . PutBwd_LCP_eCp_rp
-                         ( yyAttributeStack^[yyStackPtr+2] . PaTok1 
+                (* line 1997 of "FM3Parser.lalr" *)
+                 FM3Pass1 . PutBwd_LCIP_eCip_rip
+                         ( Itk .ItkBinOpLt
                          , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
+                         , - yyAttributeStack^[yyStackPtr+2] . PaTok1 
                          , yyAttributeStack^[yyStackPtr+2]  . Scan . Position
                          , yyAttributeStack^[yyStackPtr+2] . PaPass1Coord 
                          ) ; 
@@ -3895,22 +3909,26 @@ yyNonterminal := 228;
 
               | 611,341 => (* P210 E6 (249): ExprUnaryAddOp E7 .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 249;
-                (* line 1994 of "FM3Parser.lalr" *)
+                (* line 2008 of "FM3Parser.lalr" *)
                  (* Let's leave the unary + in there, just in case there is a need
                           to note its position, for some reason.
                        *) 
-                       FM3Pass1 . PutBwd_LCP_rp
-                         ( yyAttributeStack^[yyStackPtr+1] . PaTok1 , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ; 
+                       FM3Pass1 . PutBwd_LCIP_rip
+                         ( Itk . ItkUnaryOpLt
+                         , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
+                         , - yyAttributeStack^[yyStackPtr+1] . PaTok1
+                         , yyAttributeStack^[yyStackPtr+1] . Scan . Position
+                         ) ; 
                      
               | 612,260 => (* P211 E7 (251): E8WOId StkDeref .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 251;
-                (* line 2009 of "FM3Parser.lalr" *)
+                (* line 2027 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LCP_rp
                          ( Itk . ItkDerefLt , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord , yyAttributeStack^[yyStackPtr+2] . Scan . Position ) ; 
                      
               | 613,348 => (* P212 E7 (251): E8WOId Subscripts .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 251;
-                (* line 2014 of "FM3Parser.lalr" *)
+                (* line 2032 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LCIP_rip
                          ( Itk . ItkSubscriptLt 
                          , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord 
@@ -3920,7 +3938,7 @@ yyNonterminal := 228;
                      
               | 614,349 => (* P213 E7 (251): E8WOId Actuals .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 251;
-                (* line 2023 of "FM3Parser.lalr" *)
+                (* line 2041 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LCIP_rip
                          ( Itk . ItkCallLt 
                          , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
@@ -3930,7 +3948,7 @@ yyNonterminal := 228;
                      
               | 615,257 => (* P214 E7 (251): E8WOId StkDot StkIdent .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 251;
-                (* line 2032 of "FM3Parser.lalr" *)
+                (* line 2050 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LCIP_rip
                          ( Itk . ItkExprDotLt 
                          , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
@@ -3943,13 +3961,13 @@ yyNonterminal := 228;
 
               | 617,262 => (* P216 E7 (251): IdentRef StkDeref .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 251;
-                (* line 2043 of "FM3Parser.lalr" *)
+                (* line 2061 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LCP_rp
                          ( Itk . ItkDerefLt , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord , yyAttributeStack^[yyStackPtr+2] . Scan . Position ) ;
                      
               | 618,353 => (* P217 E7 (251): IdentRef Subscripts .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 251;
-                (* line 2048 of "FM3Parser.lalr" *)
+                (* line 2066 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LCIP_rip
                          ( Itk . ItkSubscriptLt 
                          , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord 
@@ -3959,7 +3977,7 @@ yyNonterminal := 228;
                      
               | 619,354 => (* P218 E7 (251): IdentRef Actuals .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 251;
-                (* line 2057 of "FM3Parser.lalr" *)
+                (* line 2075 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LCIP_rip
                          ( Itk . ItkCallLt 
                          , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord 
@@ -3969,30 +3987,30 @@ yyNonterminal := 228;
                      
               | 620 => (* P219 E7 (251): IdentRef .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 251;
-                (* line 2065 of "FM3Parser.lalr" *)
+                (* line 2083 of "FM3Parser.lalr" *)
                  
               | 621 => (* P220 E7 (251): BuiltinIdentRef .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 251;
-                (* line 2068 of "FM3Parser.lalr" *)
+                (* line 2086 of "FM3Parser.lalr" *)
                  FM3Pass1 . BuiltinWithNoSelector ( yyAttributeStack^[yyStackPtr+1] ) 
               | 622,346 => (* P221 E7 (251): BuiltinIdentRef Actuals .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 251;
-                (* line 2071 of "FM3Parser.lalr" *)
+                (* line 2089 of "FM3Parser.lalr" *)
                  FM3Pass1 . BuiltinIdentActualsL2R ( yyAttributeStack^[yyStackPtr+1] , yyAttributeStack^[yyStackPtr+2] ) ; 
               | 623,258 => (* P222 E7 (251): BuiltinIdentRef StkDot StkIdent .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 251;
-                (* line 2074 of "FM3Parser.lalr" *)
+                (* line 2092 of "FM3Parser.lalr" *)
                  FM3Pass1 . BuiltinOtherSelector ( yyAttributeStack^[yyStackPtr+1] , yyAttributeStack^[yyStackPtr+2] , "dot-selected" ) 
               | 624,345 => (* P223 E7 (251): BuiltinIdentRef Subscripts .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 251;
-                (* line 2077 of "FM3Parser.lalr" *)
+                (* line 2095 of "FM3Parser.lalr" *)
                  FM3Pass1 . BuiltinOtherSelector ( yyAttributeStack^[yyStackPtr+1] , yyAttributeStack^[yyStackPtr+2] , "subscripted" ) 
               | 625,336 => (* P224 E7 (251): QualIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 251;
 
               | 626,259 => (* P225 Subscripts (254): StkOpenBracket SsPlusList StkCloseBracket .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 254;
-                (* line 2083 of "FM3Parser.lalr" *)
+                (* line 2101 of "FM3Parser.lalr" *)
                  FM3Pass1 . MakeListPos
                          ( LHSAttr := yySynAttribute
                          , TokLt := Itk . ItkSubscriptsPlusListLt
@@ -4002,11 +4020,11 @@ yyNonterminal := 228;
                      
               | 627,342 => (* P226 SsPlusList (257): Expr .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 257;
-                (* line 2092 of "FM3Parser.lalr" *)
+                (* line 2110 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Expression count *) :=  1 ; 
               | 628,347 => (* P227 SsPlusList (257): SsPlusList StkComma Expr .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 257;
-                (* line 2095 of "FM3Parser.lalr" *)
+                (* line 2113 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Expression count *) := yyAttributeStack^[yyStackPtr+1] . PaInt + 1 ;
                        FM3Pass1 . PutBwd_ECIP
                          ( Itk . ItkSubscriptsPlusListLt
@@ -4017,7 +4035,7 @@ yyNonterminal := 228;
                      
               | 629,261 => (* P228 Actuals (255): StkOpenParen ActualList StkCloseParen .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 255;
-                (* line 2106 of "FM3Parser.lalr" *)
+                (* line 2124 of "FM3Parser.lalr" *)
                  FM3Pass1 . MakeListPos
                          ( LHSAttr := yySynAttribute
                          , TokLt := Itk . ItkActualsListLt
@@ -4029,15 +4047,15 @@ yyNonterminal := 228;
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 258;
-                (* line 2115 of "FM3Parser.lalr" *)
+                (* line 2133 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Actual count *) :=  0 ; 
               | 631,352 => (* P230 ActualList (258): Actual .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 258;
-                (* line 2118 of "FM3Parser.lalr" *)
+                (* line 2136 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Actual count *) :=  1 ; 
               | 632,351 => (* P231 ActualList (258): ActualList StkComma Actual .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 258;
-                (* line 2121 of "FM3Parser.lalr" *)
+                (* line 2139 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Actual count *) := yyAttributeStack^[yyStackPtr+1] . PaInt + 1 ;
                        FM3Pass1 . PutBwd_ECIP
                          ( Itk . ItkActualsListLt
@@ -4048,13 +4066,13 @@ yyNonterminal := 258;
                      
               | 633,350 => (* P232 Actual (259): Expr .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 259;
-                (* line 2131 of "FM3Parser.lalr" *)
+                (* line 2149 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LCP_rp
                         ( Itk . ItkAnonActualLt , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ;
                      
               | 634,337 => (* P233 Actual (259): StkIdent StkBecomes Expr .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 259;
-                (* line 2136 of "FM3Parser.lalr" *)
+                (* line 2154 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LCIP_rip
                          ( Itk . ItkNamedExprLt
                          , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
@@ -4064,11 +4082,11 @@ yyNonterminal := 258;
                      
               | 635,231 => (* P234 E8WOId (253): StkIdent StkDot StkIdent .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 253;
-                (* line 2151 of "FM3Parser.lalr" *)
+                (* line 2169 of "FM3Parser.lalr" *)
                  FM3Pass1 . QualIdentL2R ( yyAttributeStack^[yyStackPtr+1] , yyAttributeStack^[yyStackPtr+3] ) ; 
               | 636,232 => (* P235 E8WOId (253): StkIntLit .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 253;
-                (* line 2156 of "FM3Parser.lalr" *)
+                (* line 2174 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LNP
                          ( Itk . ItkIntLit
                          , yyAttributeStack^[yyStackPtr+1] . Scan . SaArgValue 
@@ -4077,7 +4095,7 @@ yyNonterminal := 258;
                      
               | 637,233 => (* P236 E8WOId (253): StkLongIntLit .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 253;
-                (* line 2163 of "FM3Parser.lalr" *)
+                (* line 2181 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LNP 
                          ( Itk . ItkLongIntLit
                          , yyAttributeStack^[yyStackPtr+1] . Scan . SaArgValue 
@@ -4086,7 +4104,7 @@ yyNonterminal := 258;
                      
               | 638,234 => (* P237 E8WOId (253): StkBasedLit .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 253;
-                (* line 2170 of "FM3Parser.lalr" *)
+                (* line 2188 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LNNP 
                          ( Itk . ItkBasedLit
                          , yyAttributeStack^[yyStackPtr+1] . Scan . SaArgValue 
@@ -4098,7 +4116,7 @@ yyNonterminal := 258;
                      
               | 639,235 => (* P238 E8WOId (253): StkLongBasedLit .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 253;
-                (* line 2180 of "FM3Parser.lalr" *)
+                (* line 2198 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LNNP 
                          ( Itk . ItkLongBasedLit
                          , yyAttributeStack^[yyStackPtr+1] . Scan . SaArgValue 
@@ -4110,7 +4128,7 @@ yyNonterminal := 258;
                      
               | 640,236 => (* P239 E8WOId (253): StkRealLit .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 253;
-                (* line 2190 of "FM3Parser.lalr" *)
+                (* line 2208 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LNP 
                          ( Itk . ItkRealLit
                          , yyAttributeStack^[yyStackPtr+1] . Scan . SaArgValue 
@@ -4119,7 +4137,7 @@ yyNonterminal := 258;
                      
               | 641,237 => (* P240 E8WOId (253): StkLongRealLit .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 253;
-                (* line 2197 of "FM3Parser.lalr" *)
+                (* line 2215 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LNP 
                          ( Itk . ItkLongRealLit
                          , yyAttributeStack^[yyStackPtr+1] . Scan . SaArgValue 
@@ -4128,7 +4146,7 @@ yyNonterminal := 258;
                      
               | 642,238 => (* P241 E8WOId (253): StkExtendedLit .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 253;
-                (* line 2204 of "FM3Parser.lalr" *)
+                (* line 2222 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LNP 
                          ( Itk . ItkExtendedLit
                          , yyAttributeStack^[yyStackPtr+1] . Scan . SaArgValue 
@@ -4137,7 +4155,7 @@ yyNonterminal := 258;
                      
               | 643,241 => (* P242 E8WOId (253): StkCharLit .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 253;
-                (* line 2212 of "FM3Parser.lalr" *)
+                (* line 2230 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LNP 
                          ( Itk . ItkCharLit
                          , yyAttributeStack^[yyStackPtr+1] . Scan . SaArgValue 
@@ -4146,7 +4164,7 @@ yyNonterminal := 258;
                      
               | 644,242 => (* P243 E8WOId (253): StkWideCharLit .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 253;
-                (* line 2219 of "FM3Parser.lalr" *)
+                (* line 2237 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LNP 
                          ( Itk . ItkWideCharLit
                          , yyAttributeStack^[yyStackPtr+1] . Scan . SaArgValue 
@@ -4155,124 +4173,124 @@ yyNonterminal := 258;
                      
               | 645,239 => (* P244 E8WOId (253): StkTextLit .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 253;
-                (* line 2226 of "FM3Parser.lalr" *)
+                (* line 2244 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_TextLit ( yyAttributeStack^[yyStackPtr+1] ) ; 
               | 646,240 => (* P245 E8WOId (253): StkWideTextLit .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 253;
-                (* line 2228 of "FM3Parser.lalr" *)
+                (* line 2246 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_WideTextLit ( yyAttributeStack^[yyStackPtr+1] ) ; 
               | 647,263 => (* P246 E8WOId (253): StkOpenParen E0 StkCloseParen .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 253;
 
               | 648,244 => (* P247 ExprRelOp (246): StkEqual .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 246;
-                (* line 2232 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaTok1 := Itk . ItkEqualLt ; 
+                (* line 2250 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaTok1 := Stk . StkEqual ; 
               | 649,245 => (* P248 ExprRelOp (246): StkUnequal .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 246;
-                (* line 2233 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaTok1 := Itk . ItkUnequalLt ; 
+                (* line 2251 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaTok1 := Stk . StkUnequal ; 
               | 650,246 => (* P249 ExprRelOp (246): StkLess .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 246;
-                (* line 2234 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaTok1 := Itk . ItkLessLt ; 
+                (* line 2252 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaTok1 := Stk . StkLess ; 
               | 651,247 => (* P250 ExprRelOp (246): StkGreater .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 246;
-                (* line 2235 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaTok1 := Itk . ItkGreaterLt ; 
+                (* line 2253 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaTok1 := Stk . StkGreater ; 
               | 652,248 => (* P251 ExprRelOp (246): StkLessEqual .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 246;
-                (* line 2236 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaTok1 := Itk . ItkLessEqualLt ; 
+                (* line 2254 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaTok1 := Stk . StkLessEqual ; 
               | 653,249 => (* P252 ExprRelOp (246): StkGreaterEqual .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 246;
-                (* line 2237 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaTok1 := Itk . ItkGreaterEqualLt ; 
+                (* line 2255 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaTok1 := Stk . StkGreaterEqual ; 
               | 654,243 => (* P253 ExprRelOp (246): StkRwIN .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 246;
-                (* line 2238 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaTok1 := Itk . ItkINLt ; 
+                (* line 2256 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaTok1 := Stk . StkRwIN ; 
               | 655,250 => (* P254 ExprAddOp (248): StkPlus .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 248;
-                (* line 2241 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaTok1 := Itk . ItkBinaryPlusLt ; 
+                (* line 2259 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaTok1 := Stk . StkPlus ; 
               | 656,251 => (* P255 ExprAddOp (248): StkMinus .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 248;
-                (* line 2242 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaTok1 := Itk . ItkBinaryMinusLt ; 
+                (* line 2260 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaTok1 := Stk . StkMinus ; 
               | 657,252 => (* P256 ExprAddOp (248): StkAmpersand .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 248;
-                (* line 2243 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaTok1 := Itk . ItkAmpersandLt ; 
+                (* line 2261 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaTok1 := Stk . StkAmpersand ; 
               | 658,255 => (* P257 ExprMulOp (250): StkStar .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 250;
-                (* line 2245 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaTok1 := Itk . ItkStarLt ; 
+                (* line 2263 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaTok1 := Stk . StkStar ; 
               | 659,256 => (* P258 ExprMulOp (250): StkSlash .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 250;
-                (* line 2246 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaTok1 := Itk . ItkSlashLt ; 
+                (* line 2264 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaTok1 := Stk . StkSlash ; 
               | 660,253 => (* P259 ExprMulOp (250): StkRwDIV .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 250;
-                (* line 2247 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaTok1 := Itk . ItkDIVLt ; 
+                (* line 2265 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaTok1 := Stk . StkRwDIV ; 
               | 661,254 => (* P260 ExprMulOp (250): StkRwMOD .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 250;
-                (* line 2248 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaTok1 := Itk . ItkMODLt ; 
+                (* line 2266 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaTok1 := Stk . StkRwMOD ; 
               | 662,229 => (* P261 ExprUnaryAddOp (252): StkPlus .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 252;
-                (* line 2250 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaTok1 := Itk . ItkUnaryPlusLt ; 
+                (* line 2268 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaTok1 := Stk . StkUnaryPlus ; 
               | 663,230 => (* P262 ExprUnaryAddOp (252): StkMinus .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 252;
-                (* line 2251 of "FM3Parser.lalr" *)
-                 yySynAttribute . PaTok1 := Itk . ItkUnaryMinusLt ; 
+                (* line 2269 of "FM3Parser.lalr" *)
+                 yySynAttribute . PaTok1 := Stk . StkUnaryMinus ; 
               | 664 => (* P263 BlockLt (260): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 260;
-                (* line 2256 of "FM3Parser.lalr" *)
+                (* line 2274 of "FM3Parser.lalr" *)
                 
                      
               | 665,290 => (* P264 Block (136): BlockLt OpenDeclList StkRwBEGIN StmtList StkRwEND .*)
                 DEC (yyStackPtr, 5); yyNonterminal := 136;
-                (* line 2260 of "FM3Parser.lalr" *)
+                (* line 2278 of "FM3Parser.lalr" *)
                 
                      
               | 666,380 => (* P265 BlockDecl (261): ConstDeclGroup .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 261;
-                (* line 2266 of "FM3Parser.lalr" *)
+                (* line 2284 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                      
               | 667,383 => (* P266 BlockDecl (261): TypeDeclGroup .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 261;
-                (* line 2270 of "FM3Parser.lalr" *)
+                (* line 2288 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                      
               | 668,397 => (* P267 BlockDecl (261): ExceptDeclGroup .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 261;
-                (* line 2274 of "FM3Parser.lalr" *)
+                (* line 2292 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                      
               | 669,388 => (* P268 BlockDecl (261): VarDeclGroup .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 261;
-                (* line 2278 of "FM3Parser.lalr" *)
+                (* line 2296 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                      
               | 670,395 => (* P269 BlockDecl (261): ProcDecl .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 261;
-                (* line 2282 of "FM3Parser.lalr" *)
+                (* line 2300 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                      
               | 671,386 => (* P270 BlockDecl (261): RevelationGroup .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 261;
-                (* line 2286 of "FM3Parser.lalr" *)
+                (* line 2304 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt ;
                        yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                      
@@ -4280,7 +4298,7 @@ yyNonterminal := 260;
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 128;
-                (* line 2294 of "FM3Parser.lalr" *)
+                (* line 2312 of "FM3Parser.lalr" *)
                  FM3Pass1 . MakeListEmpty 
                          ( yySynAttribute
                          , Itk . ItkOpenDeclListLt
@@ -4289,7 +4307,7 @@ yyNonterminal := 128;
                      
               | 673 => (* P272 OpenDeclList (128): BlockDeclPlus .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 128;
-                (* line 2302 of "FM3Parser.lalr" *)
+                (* line 2320 of "FM3Parser.lalr" *)
                  MakeListPos
                          ( yySynAttribute
                          , Itk . ItkOpenDeclListLt
@@ -4299,13 +4317,13 @@ yyNonterminal := 128;
                      
               | 674,396 => (* P273 BlockDeclPlus (263): BlockDecl .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 263;
-                (* line 2311 of "FM3Parser.lalr" *)
+                (* line 2329 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt (* Decl count. *) ;
                        yySynAttribute . PaPos (* Rt semicolon. *) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                      
               | 675,398 => (* P274 BlockDeclPlus (263): BlockDeclPlus BlockDecl .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 263;
-                (* line 2316 of "FM3Parser.lalr" *)
+                (* line 2334 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt + yyAttributeStack^[yyStackPtr+2] . PaInt (* Decl count. *) ;
                 
                        IF yyAttributeStack^[yyStackPtr+2] . PaInt > 0
@@ -4325,7 +4343,7 @@ yyNonterminal := 128;
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 132;
-                (* line 2335 of "FM3Parser.lalr" *)
+                (* line 2353 of "FM3Parser.lalr" *)
                  FM3Pass1 . MakeListEmpty 
                          ( yySynAttribute
                          , Itk . ItkStmtListLt
@@ -4334,7 +4352,7 @@ yyNonterminal := 132;
                      
               | 677,393 => (* P276 StmtList (132): StmtPlus OptSemicolon .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 132;
-                (* line 2343 of "FM3Parser.lalr" *)
+                (* line 2361 of "FM3Parser.lalr" *)
                  MakeListPos
                          ( yySynAttribute
                          , Itk . ItkStmtListLt
@@ -4344,11 +4362,11 @@ yyNonterminal := 132;
                      
               | 678,394 => (* P277 StmtPlus (264): Stmt .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 264;
-                (* line 2351 of "FM3Parser.lalr" *)
+                (* line 2369 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := 0 ; 
               | 679,391 => (* P278 StmtPlus (264): StmtPlus StkSemicolon Stmt .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 264;
-                (* line 2354 of "FM3Parser.lalr" *)
+                (* line 2372 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt + 1 (* Stmt count. *) ;
                        FM3Pass1 . PutBwd_ECIP (* Internal separator. *)
                          ( Itk . ItkStmtListLt
@@ -4362,7 +4380,7 @@ yyNonterminal := 132;
 
               | 681,390 => (* P280 AssignStmt (266): Expr StkBecomes Expr .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 266;
-                (* line 2368 of "FM3Parser.lalr" *)
+                (* line 2386 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LCPeCprp
                          ( Itk . ItkBecomesLt
                          , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord

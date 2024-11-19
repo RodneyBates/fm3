@@ -1901,26 +1901,17 @@ MODULE FM3Pass1
 ; PROCEDURE IdentRefL2R ( READONLY IdAttr : tParsAttribute )
   (* Including a reserved Id. *) 
 
-  = VAR LAtom : FM3Base . AtomTyp 
-
-  ; BEGIN (*IdentRefL2R*)
+  = BEGIN (*IdentRefL2R*)
       WITH WScan = IdAttr . Scan
-      DO IF IntSets . IsElement
-              ( WScan . SaPredefTok , FM3Predefs . ReservedIdSet ) 
+      DO IF WScan . SaAtom < 0 
         THEN
           PutBwd_LIP
-            ( Itk . ItkReservedId , WScan . SaPredefTok , WScan . Position ) 
+            ( Itk . ItkReservedId , WScan . SaAtom, WScan . Position ) 
         ELSE 
           WITH WIdentRefSet = FM3Scopes . OpenScopeStackTopRef ^ . ScpRefIdSet
-          DO WIdentRefSet := IntSets . Include ( WIdentRefSet , LAtom )
+          DO WIdentRefSet := IntSets . Include ( WIdentRefSet , WScan . SaAtom )
           END (*WITH*) 
-        ; LAtom  
-           := FM3Atom_OAChars . MakeAtom 
-                ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict
-                , IdAttr . Scan . SaChars 
-                , IdAttr . Scan . SaHash 
-                ) 
-        ; PutBwd_LIP ( Itk . ItkIdRefAtom , LAtom , WScan . Position ) 
+        ; PutBwd_LIP ( Itk . ItkIdRefAtom , WScan . SaAtom , WScan . Position ) 
         END (*IF*) 
       END (*WITH*) 
     END IdentRefL2R
@@ -1930,21 +1921,19 @@ MODULE FM3Pass1
   : BOOLEAN (* It's OK so far. *) 
   (* Disallows reserved Id. *) 
 
-  = VAR LAtom : FM3Base . AtomTyp
-  
-  ; BEGIN (*OverrideIdentRefL2R*)
+  = BEGIN (*OverrideIdentRefL2R*)
       WITH WScan = IdAttr . Scan
-      DO IF IntSets . IsElement
-              ( WScan . SaPredefTok , FM3Predefs . ReservedIdSet )
-        THEN RETURN FALSE 
+      DO IF WScan . SaAtom < 0
+        THEN
+          FM3Messages . ErrorArr
+            ( ARRAY OF REFANY
+                { "Predefined identifier is not an overridable method." 
+                }
+            , IdAttr . Scan . Position 
+            )
+        ; RETURN FALSE 
         ELSE
-          LAtom  
-            := FM3Atom_OAChars . MakeAtom 
-                 ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict
-                 , IdAttr . Scan . SaChars 
-                 , IdAttr . Scan . SaHash 
-                 )
-        ; PutBwd_LIP ( Itk . ItkIdRefAtom , LAtom , WScan . Position ) 
+          PutBwd_LIP ( Itk . ItkIdRefAtom , WScan . SaAtom , WScan . Position ) 
         ; RETURN TRUE 
         END (*IF*) 
       END (*WITH*) 

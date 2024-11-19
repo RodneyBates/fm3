@@ -221,6 +221,8 @@ MODULE FM3SrcToks
       | 208 => RETURN "Long.Extract"
       | 209 => RETURN "Long.Insert"
       | 210 => RETURN "<TokMaxPredef>"
+      | 211 => RETURN "\XFF"
+      | 212 => RETURN "\XFF"
       ELSE RETURN "<Undef>"
       END (*CASE*) 
     END Image
@@ -434,6 +436,8 @@ MODULE FM3SrcToks
       | 208 => RETURN "Long_Extract"
       | 209 => RETURN "Long_Insert"
       | 210 => RETURN "TokMaxPredef"
+      | 211 => RETURN "StkUnaryPlus"
+      | 212 => RETURN "StkUnaryMinus"
       ELSE RETURN "<Undef>"
       END (*CASE*) 
     END Name

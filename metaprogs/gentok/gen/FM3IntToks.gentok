@@ -272,28 +272,12 @@ LIST ItkIdPlusList
   
 (* Unary operators: *) 
 FIXED
+  ItkUnaryOp INT POS    (* Operation code. *) . 
+(**** 
   ItkUnaryPlus  POS .
   ItkUnaryMinus POS . 
   ItkNOT        POS .
-
-(* Binary operators: *) 
-FIXED
-  ItkEqual POS        BinOp POS . 
-  ItkUnequal POS      BinOp POS . 
-  ItkLess POS         BinOp POS . 
-  ItkGreater POS      BinOp POS . 
-  ItkLessEqual POS    BinOp POS . 
-  ItkGreaterEqual POS BinOp POS . 
-  ItkBinaryPlus POS   BinOp POS . 
-  ItkBinaryMinus POS  BinOp POS . 
-  ItkAmpersand POS    BinOp POS . 
-  ItkStar POS         BinOp POS .
-  ItkSlash POS        BinOp POS . 
-  ItkAND POS          BinOp POS . 
-  ItkDIV POS          BinOp POS . 
-  ItkIN POS           BinOp POS . 
-  ItkMOD POS          BinOp POS .
-  ItkOR POS           BinOp POS .
+***)
 
 (* Unary reserved Ident functions: *) 
 FIXED
@@ -317,14 +301,6 @@ FIXED
   ItkDISPOSE    POS .
   ItkINC        POS .
 
-(* Binary reserved Ident functions. *)  
-FIXED
-  ItkLOOPHOLE   POS BinOp POS . 
-  ItkMAX        POS BinOp POS . 
-  ItkMIN        POS BinOp POS . 
-  ItkNARROW     POS BinOp POS . 
-  ItkVAL        POS BinOp POS .
-
 (* Unary imported predefined functions" *) 
   ItkWord_T     POS .
   ItkWord_Size  POS .
@@ -332,6 +308,35 @@ FIXED
   ItkLong_T     POS .
   ItkLong_Size  POS .
   ItkLong_Not   POS .
+
+(* Binary operators: *) 
+FIXED
+  ItkBinOp INT POS    OpCode INT POS (* Operation code. *) . 
+(*  
+  ItkEqual POS        BinOp POS . 
+  ItkUnequal POS      BinOp POS . 
+  ItkLess POS         BinOp POS . 
+  ItkGreater POS      BinOp POS . 
+  ItkLessEqual POS    BinOp POS . 
+  ItkGreaterEqual POS BinOp POS . 
+  ItkBinaryPlus POS   BinOp POS . 
+  ItkBinaryMinus POS  BinOp POS . 
+  ItkAmpersand POS    BinOp POS . 
+  ItkStar POS         BinOp POS .
+  ItkSlash POS        BinOp POS . 
+  ItkAND POS          BinOp POS . 
+  ItkDIV POS          BinOp POS . 
+  ItkIN POS           BinOp POS . 
+  ItkMOD POS          BinOp POS .
+  ItkOR POS           BinOp POS .
+*)
+(* Binary reserved Ident functions. *)  
+FIXED
+  ItkLOOPHOLE   POS BinOp POS . 
+  ItkMAX        POS BinOp POS . 
+  ItkMIN        POS BinOp POS . 
+  ItkNARROW     POS BinOp POS . 
+  ItkVAL        POS BinOp POS .
 
 (* Binary imported predefined functions" *)
   ItkWord_Plus        POS BinOp POS .
@@ -372,7 +377,10 @@ FIXED
   ItkLong_LeftRotate  POS BinOp POS .
   ItkLong_RightRotate POS BinOp POS .
 
-(* Ternary imported predefined functions" *)
+(* Ternary imported predefined functions" *) 
+
+  ItkTernOp INT POS   INT POS OpCode1 INT POS OpCode2 .
+
   ItkWord_Extract     POS TernOp1 POS TernOp2 POS . 
   ItkWord_Insert      POS TernOp1 POS TernOp2 POS .
   ItkLong_Extract     POS TernOp1 POS TernOp2 POS .

@@ -1,4 +1,3 @@
-
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2024        Rodney M. Bates.                                    *)
@@ -244,7 +243,7 @@ MODULE FM3Pass2
               ; IF OpndCt >= 5
                 THEN LOpnd5 := FM3Compress . GetBwd ( FromRdBack )
                 ; IF OpndCt >= 6
-                   THEN LOpnd6 := FM3Compress . GetBwd ( FromRdBack )
+                  THEN LOpnd6 := FM3Compress . GetBwd ( FromRdBack )
                   ; FM3Compress . PutBwd ( ToRdBack , LOpnd6 ) 
                   END (*IF*) 
                 ; FM3Compress . PutBwd ( ToRdBack , LOpnd5 ) 
@@ -480,7 +479,8 @@ MODULE FM3Pass2
   ; BEGIN
       LUnitRef := FM3Units . UnitStackTopRef
     ; LScopeRef := FM3Scopes . DeclScopeStackTopRef
-    ; WITH WCurDef = LScopeRef ^ . ScpCurDefExprs [ LScopeRef . ScpCurDefIsValue ]
+    ; WITH WCurDef
+           = LScopeRef ^ . ScpCurDefExprs [ LScopeRef . ScpCurDefIsValue ]
       DO IF WCurDef = NIL
         THEN (* NewExprObj is root of expression tree. *) WCurDef := NewExprObj
         ELSE (* Inherit some things from parent expr node. *) 
@@ -512,15 +512,12 @@ MODULE FM3Pass2
 
 ; PROCEDURE HandleTok ( READONLY TokResult : TokResultTyp ) 
 
-  = VAR HtDeclNo : FM3Globals . DeclNoTyp 
-
-  ; VAR LUnitRef : FM3Units . UnitRefTyp
+  = VAR LUnitRef : FM3Units . UnitRefTyp
   ; VAR LScopeRef : FM3Scopes . ScopeRefTyp
   ; VAR HtPass1RdBack : RdBackFile . T 
   ; VAR HtPass2RdBack : RdBackFile . T
   ; VAR LLongInt : LONGINT 
   ; VAR LScopeNo : FM3Globals . ScopeNoTyp
-  ; VAR LCount : INTEGER 
   ; VAR LPosition : tPosition
   ; VAR HtSkipping : BOOLEAN
 
@@ -632,7 +629,7 @@ MODULE FM3Pass2
         END (*IF*) 
       END HtPassTokenThru 
 
-  ; PROCEDURE HtMaybePassTokenThru ( ) : BOOLEAN (* Handled it. *)
+  ; PROCEDURE HtMaybePassTokenThru ( ) : BOOLEAN (* Handled it somehow. *)
     (* Use this only for writing to pass 2 output. *) 
 
     = BEGIN 
@@ -828,10 +825,9 @@ MODULE FM3Pass2
 (* FIXME: We now use different tokens for different declkinds, eg.
     ItkVALUEFormalIdListElem.  But is that necessary? *) 
 
-      | Itk . ItkReservedId
-      => ReservedIdR2L ( TokResult ) 
-
       | Itk . ItkIdRefAtom
+      , Itk . ItkReservedId
+(* TODO: Do we really have any need for these two Itk tokens? *) 
       => IdentRefR2L ( TokResult )
 
       | Itk . ItkQualIdAtoms 
@@ -952,77 +948,34 @@ MODULE FM3Pass2
         ; HtExprOpnd2 ( )
 
       (* Unary operators: *) 
-      | Itk . ItkUnaryPlusRt 
-      , Itk . ItkUnaryMinusRt
-      , Itk . ItkNOTRt 
-      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
+      | Itk . ItkUnaryOpRt 
+      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*)
         ; HtExprRt
-            ( NEW ( FM3Exprs . ExprBinOpTyp , ExpBinOpTok := TokResult . TrTok ) ) 
+            ( NEW ( FM3Exprs . ExprBinOpTyp
+                  , ExpBinOpOp := GetBwdInt ( TokResult . TrRdBack )
+                  )
+            ) 
  
-      | Itk . ItkUnaryPlusLt 
-      , Itk . ItkUnaryMinusLt
-      , Itk . ItkNOTLt 
+      | Itk . ItkUnaryOpLt 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; HtExprOpnd1 ( ) (* Only operand. *)
 
       (* Binary Operators: *) 
-      | Itk . ItkEqualRt 
-      , Itk . ItkUnequalRt 
-      , Itk . ItkLessRt 
-      , Itk . ItkGreaterRt 
-      , Itk . ItkLessEqualRt 
-      , Itk . ItkGreaterEqualRt 
-      , Itk . ItkBinaryPlusRt 
-      , Itk . ItkBinaryMinusRt 
-      , Itk . ItkAmpersandRt 
-      , Itk . ItkStarRt 
-      , Itk . ItkSlashRt 
-      , Itk . ItkANDRt 
-      , Itk . ItkDIVRt 
-      , Itk . ItkINRt 
-      , Itk . ItkMODRt 
-      , Itk . ItkORRt 
+      | Itk . ItkBinOpRt 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; HtExprRt
-            ( NEW ( FM3Exprs . ExprBinOpTyp , ExpBinOpTok := TokResult . TrTok ) ) 
+            ( NEW ( FM3Exprs . ExprBinOpTyp
+                  , ExpBinOpOp := GetBwdInt ( TokResult . TrRdBack )
+                  )
+            ) 
 
-      | Itk . ItkEqualBinOp 
-      , Itk . ItkUnequalBinOp 
-      , Itk . ItkLessBinOp 
-      , Itk . ItkGreaterBinOp 
-      , Itk . ItkLessEqualBinOp 
-      , Itk . ItkGreaterEqualBinOp 
-      , Itk . ItkBinaryPlusBinOp 
-      , Itk . ItkBinaryMinusBinOp 
-      , Itk . ItkAmpersandBinOp 
-      , Itk . ItkStarBinOp 
-      , Itk . ItkSlashBinOp 
-      , Itk . ItkANDBinOp 
-      , Itk . ItkDIVBinOp 
-      , Itk . ItkINBinOp 
-      , Itk . ItkMODBinOp 
-      , Itk . ItkORBinOp
+      | Itk . ItkBinOpOpCode 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
-        ; HtExprOpnd2 ( ) (* Right. *) 
+        ; HtExprOpnd2 ( ) (* Right operand. *) 
 
-      | Itk . ItkEqualLt 
-      , Itk . ItkUnequalLt 
-      , Itk . ItkLessLt 
-      , Itk . ItkGreaterLt 
-      , Itk . ItkLessEqualLt 
-      , Itk . ItkGreaterEqualLt 
-      , Itk . ItkBinaryPlusLt 
-      , Itk . ItkBinaryMinusLt 
-      , Itk . ItkAmpersandLt 
-      , Itk . ItkStarLt 
-      , Itk . ItkSlashLt 
-      , Itk . ItkANDLt 
-      , Itk . ItkDIVLt 
-      , Itk . ItkINLt 
-      , Itk . ItkMODLt 
-      , Itk . ItkORLt 
+      | Itk . ItkBinOpLt 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
-        ; HtExprOpnd1 ( ) (* Left. *)
+        ; HtExprOpnd1 ( ) (* Left operand. *)
 
       ELSE (* No special pass2 handling. *)
         HtPassTokenThru ( ) 
@@ -1058,21 +1011,23 @@ MODULE FM3Pass2
 
   ; BEGIN (*LookupDeclNoInScope*)
       LResult := FM3Globals . DeclNoNull
-    ; TRY
-        LFound 
-          := FM3Dict_Int_Int . LookupFixed
-               ( Scope . ScpDeclDict
-               , IdAtom
-               , FM3Base . HashNull
-               , (*OUT*) LDeclNoInt
-               )
-      ; IF LFound
-        THEN LResult := VAL ( LDeclNoInt , FM3Globals . DeclNoTyp )
-        END (*IF*) 
-      EXCEPT FM3Dict_Int_Int . Error ( <*UNUSED*> EMsg )
-      => LResult := FM3Globals . DeclNoNull 
-      ELSE LResult := FM3Globals . DeclNoNull 
-      END (*EXCEPT*)
+    ; IF IdAtom > 0 THEN  
+        TRY
+          LFound 
+            := FM3Dict_Int_Int . LookupFixed
+                 ( Scope . ScpDeclDict
+                 , IdAtom
+                 , FM3Base . HashNull
+                 , (*OUT*) LDeclNoInt
+                 )
+        ; IF LFound
+          THEN LResult := VAL ( LDeclNoInt , FM3Globals . DeclNoTyp )
+          END (*IF*) 
+        EXCEPT FM3Dict_Int_Int . Error ( <*UNUSED*> EMsg )
+        => LResult := FM3Globals . DeclNoNull 
+        ELSE LResult := FM3Globals . DeclNoNull 
+        END (*EXCEPT*)
+      END (*IF*) 
     ; RETURN LResult 
     END LookupDeclNoInScope
 
@@ -1082,7 +1037,7 @@ MODULE FM3Pass2
     ; VAR (*OUT*) DeclNo : FM3Globals . DeclNoTyp
     )
   : BOOLEAN (* It's present. *) 
-  (* Look in the current unit.  *) 
+  (* Look in the current unit.  *)
 
   = VAR LExpImpProxy : FM3ExpImpProxy . T
 
@@ -1347,7 +1302,7 @@ MODULE FM3Pass2
             *>
             (* This must have a type and/or a value expr. *)
             <* ASSERT LDeclRef ^. DclDefType # NIL 
-                      OR LDeclRef ^. DclDefType # NIL *> 
+                      OR LDeclRef ^. DclDefValue # NIL *> 
 
         | Dkt . DkConst
         =>  <* ASSERT FM3Scopes . DeclScopeStackTopRef ^. ScpKind
@@ -1488,7 +1443,8 @@ MODULE FM3Pass2
   ; VAR LScopeMinDeclNo : FM3Globals . DeclNoTyp 
 
   ; BEGIN
-      LOpenScopeRef := FM3Scopes . OpenScopeStackTopRef
+      IF RefDeclNo < 0 THEN RETURN END (*IF*) 
+    ; LOpenScopeRef := FM3Scopes . OpenScopeStackTopRef
     ; IF LOpenScopeRef = NIL THEN RETURN END (*IF*)
     ; LScopeMinDeclNo := LOpenScopeRef . ScpMinDeclNo
     ; IF RefDeclNo < LScopeMinDeclNo THEN RETURN END (*IF*) 
@@ -1613,7 +1569,10 @@ MODULE FM3Pass2
       DO
       
         (* Look for a reference to a decl in an enclosing* open scope. *) 
-        LRefDeclNo := LookupAtomInOpenScopes ( LIdentRefAtom )
+        IF LIdentRefAtom < 0
+        THEN LRefDeclNo := LIdentRefAtom
+        ELSE LRefDeclNo := LookupAtomInOpenScopes ( LIdentRefAtom )
+        END (*IF*) 
       ; IF LRefDeclNo # FM3Globals . DeclNoNull 
         THEN 
           IF AreInsideADecl ( )

@@ -596,6 +596,7 @@ RULE
 
    IdentRef : StkIdent
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
+       $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
        $$ . Scan . SaIsPredefId := $1 . Scan . SaIsPredefId ;
        $$ . Scan . SaPredefTok := $1 . Scan . SaPredefTok ;
        FM3Pass1 . IdentRefL2R ( $1 ) ;
@@ -603,6 +604,7 @@ RULE
 
    QualIdentRef : StkIdent StkDot StkIdent   
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
+       $$ . Scan . SaAtom := $1 . Scan . SaAtom ;  
        $$ . Scan . SaIsPredefId := $1 . Scan . SaIsPredefId ;
        $$ . Scan . SaPredefTok := $1 . Scan . SaPredefTok ;
        FM3Pass1 . QualIdentL2R ( $1 , $3 ) ;
@@ -668,18 +670,21 @@ RULE
 
    MaybeQualIdent : IdentRef
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
+       $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
        $$ . Scan . SaIsPredefId := $1 . Scan . SaIsPredefId ;
        $$ . Scan . SaPredefTok := $1 . Scan . SaPredefTok ;
 
      } . 
    MaybeQualIdent : QualIdent 
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
+       $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
        $$ . Scan . SaIsPredefId := $1 . Scan . SaIsPredefId ;
        $$ . Scan . SaPredefTok := $1 . Scan . SaPredefTok ;
      } . 
    
    QualIdent : StkIdent
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
+       $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
        $$ . Scan . SaIsPredefId := $1 . Scan . SaIsPredefId ;
        $$ . Scan . SaPredefTok := $1 . Scan . SaPredefTok ;
        FM3Pass1 . IdentRefL2R ( $1 ) ;
@@ -1935,9 +1940,10 @@ RULE
 
    E0 : E1 . 
    E0 : E0 StkRwOR E1
-     { FM3Pass1 . PutBwd_LCP_eCp_rp
-         ( Itk . ItkORLt
+     { FM3Pass1 . PutBwd_LCIP_eCip_rip
+         ( Itk . ItkBinOpLt
          , $1 . PaPass1Coord
+         , - Stk . StkRwOR
          , $2  . Scan . Position
          , $2 . PaPass1Coord 
          ) ; 
@@ -1945,9 +1951,10 @@ RULE
    
    E1 : E2 . 
    E1 : E1 StkRwAND E2
-     { FM3Pass1 . PutBwd_LCP_eCp_rp
-         ( Itk . ItkANDLt
+     { FM3Pass1 . PutBwd_LCIP_eCip_rip
+         ( Itk . ItkBinOpLt
          , $1 . PaPass1Coord
+         , - Stk . StkRwAND 
          , $2  . Scan . Position
          , $2 . PaPass1Coord 
          ) ; 
@@ -1955,15 +1962,20 @@ RULE
    
    E2 : E3 . 
    E2 : StkRwNOT E3
-     { FM3Pass1 . PutBwd_LCP_rp
-         ( Itk . ItkNOTLt , $1 . PaPass1Coord , $1 . Scan . Position ) ; 
+     { FM3Pass1 . PutBwd_LCIP_rip
+         ( Itk . ItkUnaryOpLt
+         , $1 . PaPass1Coord
+         , - Stk . StkRwNOT
+         , $1 . Scan . Position
+         ) ; 
      } . 
    
    E3 : E4 . 
    E3 : E3 ExprRelOp E4
-     { FM3Pass1 . PutBwd_LCP_eCp_rp
-         ( $2 . PaTok1 
+     { FM3Pass1 . PutBwd_LCIP_eCip_rip
+         ( Itk .ItkBinOpLt
          , $1 . PaPass1Coord
+         , - $2 . PaTok1 
          , $2  . Scan . Position
          , $2 . PaPass1Coord 
          ) ; 
@@ -1971,9 +1983,10 @@ RULE
    
    E4 : E5 . 
    E4 : E4 ExprAddOp E5
-     { FM3Pass1 . PutBwd_LCP_eCp_rp
-         ( $2 . PaTok1 
+     { FM3Pass1 . PutBwd_LCIP_eCip_rip
+         ( Itk .ItkBinOpLt
          , $1 . PaPass1Coord
+         , - $2 . PaTok1 
          , $2  . Scan . Position
          , $2 . PaPass1Coord 
          ) ; 
@@ -1981,9 +1994,10 @@ RULE
    
    E5 : E6 . 
    E5 : E5 ExprMulOp E6
-     { FM3Pass1 . PutBwd_LCP_eCp_rp
-         ( $2 . PaTok1 
+     { FM3Pass1 . PutBwd_LCIP_eCip_rip
+         ( Itk .ItkBinOpLt
          , $1 . PaPass1Coord
+         , - $2 . PaTok1 
          , $2  . Scan . Position
          , $2 . PaPass1Coord 
          ) ; 
@@ -1994,8 +2008,12 @@ RULE
      { (* Let's leave the unary + in there, just in case there is a need
           to note its position, for some reason.
        *) 
-       FM3Pass1 . PutBwd_LCP_rp
-         ( $1 . PaTok1 , $1 . PaPass1Coord , $1 . Scan . Position ) ; 
+       FM3Pass1 . PutBwd_LCIP_rip
+         ( Itk . ItkUnaryOpLt
+         , $1 . PaPass1Coord
+         , - $1 . PaTok1
+         , $1 . Scan . Position
+         ) ; 
      } .
 
    (* E7 is a partial Cartesian product:
@@ -2229,26 +2247,26 @@ RULE
 
    E8WOId : StkOpenParen E0 StkCloseParen . 
 
-   ExprRelOp : StkEqual        { $$ . PaTok1 := Itk . ItkEqualLt ; } . 
-   ExprRelOp : StkUnequal      { $$ . PaTok1 := Itk . ItkUnequalLt ; } . 
-   ExprRelOp : StkLess         { $$ . PaTok1 := Itk . ItkLessLt ; } . 
-   ExprRelOp : StkGreater      { $$ . PaTok1 := Itk . ItkGreaterLt ; } . 
-   ExprRelOp : StkLessEqual    { $$ . PaTok1 := Itk . ItkLessEqualLt ; } . 
-   ExprRelOp : StkGreaterEqual { $$ . PaTok1 := Itk . ItkGreaterEqualLt ; } .
-   ExprRelOp : StkRwIN         { $$ . PaTok1 := Itk . ItkINLt ; } .
+   ExprRelOp : StkEqual        { $$ . PaTok1 := Stk . StkEqual ; } . 
+   ExprRelOp : StkUnequal      { $$ . PaTok1 := Stk . StkUnequal ; } . 
+   ExprRelOp : StkLess         { $$ . PaTok1 := Stk . StkLess ; } . 
+   ExprRelOp : StkGreater      { $$ . PaTok1 := Stk . StkGreater ; } . 
+   ExprRelOp : StkLessEqual    { $$ . PaTok1 := Stk . StkLessEqual ; } . 
+   ExprRelOp : StkGreaterEqual { $$ . PaTok1 := Stk . StkGreaterEqual ; } .
+   ExprRelOp : StkRwIN         { $$ . PaTok1 := Stk . StkRwIN ; } .
 
 
-   ExprAddOp : StkPlus         { $$ . PaTok1 := Itk . ItkBinaryPlusLt ; } . 
-   ExprAddOp : StkMinus        { $$ . PaTok1 := Itk . ItkBinaryMinusLt ; } . 
-   ExprAddOp : StkAmpersand    { $$ . PaTok1 := Itk . ItkAmpersandLt ; } .
+   ExprAddOp : StkPlus         { $$ . PaTok1 := Stk . StkPlus ; } . 
+   ExprAddOp : StkMinus        { $$ . PaTok1 := Stk . StkMinus ; } . 
+   ExprAddOp : StkAmpersand    { $$ . PaTok1 := Stk . StkAmpersand ; } .
  
-   ExprMulOp : StkStar         { $$ . PaTok1 := Itk . ItkStarLt ; } . 
-   ExprMulOp : StkSlash        { $$ . PaTok1 := Itk . ItkSlashLt ; } . 
-   ExprMulOp : StkRwDIV        { $$ . PaTok1 := Itk . ItkDIVLt ; } .
-   ExprMulOp : StkRwMOD        { $$ . PaTok1 := Itk . ItkMODLt ; } . 
+   ExprMulOp : StkStar         { $$ . PaTok1 := Stk . StkStar ; } . 
+   ExprMulOp : StkSlash        { $$ . PaTok1 := Stk . StkSlash ; } . 
+   ExprMulOp : StkRwDIV        { $$ . PaTok1 := Stk . StkRwDIV ; } .
+   ExprMulOp : StkRwMOD        { $$ . PaTok1 := Stk . StkRwMOD ; } . 
    
-   ExprUnaryAddOp : StkPlus    { $$ . PaTok1 := Itk . ItkUnaryPlusLt ; } . 
-   ExprUnaryAddOp : StkMinus   { $$ . PaTok1 := Itk . ItkUnaryMinusLt ; } . 
+   ExprUnaryAddOp : StkPlus    { $$ . PaTok1 := Stk . StkUnaryPlus ; } . 
+   ExprUnaryAddOp : StkMinus   { $$ . PaTok1 := Stk . StkUnaryMinus ; } . 
  
 (* ------------------------------ Blocks ------------------------------- *)
 
