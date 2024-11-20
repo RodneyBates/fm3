@@ -482,14 +482,14 @@ MODULE FM3Scanner
 
           | FM3LexTable . ValueUnrecognized , FM3LexTable . ValueNull 
           => (* Plain ol' identifier. *)
-              Attribute . SaIsPredefId := FALSE 
-            ; Attribute . SaTok := FM3SrcToks . StkIdent
+              Attribute . SaTok := FM3SrcToks . StkIdent
             ; Attribute . SaAtom 
                 := FM3Atom_OAChars . MakeAtom 
                      ( GTopSsRef . SsUnitRef ^ . UntIdentAtomDict
                      , Attribute . SaChars 
                      , ScHash 
                      ) 
+            ; Attribute . SaIsPredefId := FALSE 
             ; Attribute . SaPredefTok := FM3Base . TokNull  
 
           ELSE (* Reserved word. *) 

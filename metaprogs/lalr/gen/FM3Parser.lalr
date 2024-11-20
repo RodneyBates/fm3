@@ -995,7 +995,8 @@ RULE
       } .
 
    VarDeclList : VarDeclPlus  
-     { $$ . PaPos (* Rt Semicolon. *) := $1 . PaPos ;  
+     { $$ . PaInt := $1 . PaInt ;
+       $$ . PaPos (* Rt Semicolon. *) := $1 . PaPos ; 
 
        (*FM3Pass1 . MakeListPos
          ( $$

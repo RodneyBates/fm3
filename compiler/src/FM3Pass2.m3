@@ -463,10 +463,10 @@ MODULE FM3Pass2
 
   = VAR LNewObj : FM3Exprs . ExprTyp 
 
-  ; BEGIN
+  ; BEGIN 
       LNewObj := NEW ( FM3Exprs . ExprTyp )
     ; LNewObj . ExpPosition := Position
-    ; FM3Exprs . PushExprStack ( LNewObj )
+    ; FM3Exprs . PushExprStack ( LNewObj ) 
     END PushExprIgnore 
 
 ; PROCEDURE DefExprRt ( NewExprObj : FM3Exprs . ExprCommon )
@@ -479,10 +479,24 @@ MODULE FM3Pass2
   ; BEGIN
       LUnitRef := FM3Units . UnitStackTopRef
     ; LScopeRef := FM3Scopes . DeclScopeStackTopRef
+    ; NewExprObj . ExpSelfExprNo 
+        := VarArray_Int_Refany . TouchedRange ( LUnitRef ^ . UntExprMap ) . Hi
+           + 1
+    ; VarArray_Int_Refany . Assign
+        ( LUnitRef . UntExprMap , NewExprObj . ExpSelfExprNo , NewExprObj )
     ; WITH WCurDef
            = LScopeRef ^ . ScpCurDefExprs [ LScopeRef . ScpCurDefIsValue ]
       DO IF WCurDef = NIL
-        THEN (* NewExprObj is root of expression tree. *) WCurDef := NewExprObj
+        THEN (* NewExprObj is root of expression tree. *)
+          WCurDef := NewExprObj
+        ; WITH WP2RdBack = LUnitRef . UntPass2OutRdBack
+          DO PutBwdP2
+              ( WP2RdBack , VAL ( NewExprObj . ExpPosition . Column , LONGINT ) )
+          ; PutBwdP2
+              ( WP2RdBack , VAL ( NewExprObj . ExpPosition . Line , LONGINT ) ) 
+          ; PutBwdP2 ( WP2RdBack , VAL ( NewExprObj . ExpSelfExprNo , LONGINT ) )
+          ; PutBwdP2 ( WP2RdBack , VAL ( Itk . ItkDefTopExprNo , LONGINT ) )
+          END (*WITH*) 
         ELSE (* Inherit some things from parent expr node. *) 
           TYPECASE FM3Exprs . ExprStackTopObj OF 
           | NULL => <* ASSERT FALSE , "Orphan expr node" *> 
@@ -494,11 +508,6 @@ MODULE FM3Pass2
           END (*TYPECASE*)
         END (*IF*)
       END (*WITH*) 
-    ; NewExprObj . ExpSelfExprNo 
-        := VarArray_Int_Refany . TouchedRange ( LUnitRef ^ . UntExprMap ) . Hi
-           + 1
-    ; VarArray_Int_Refany . Assign
-        ( LUnitRef . UntExprMap , NewExprObj . ExpSelfExprNo , NewExprObj )
     ; FM3Exprs . PushExprStack ( NewExprObj )
     END DefExprRt 
 
@@ -537,12 +546,12 @@ MODULE FM3Pass2
             WITH LExpr
               = NEW ( FM3Exprs . ExprConstValue , ExpUpKind := Ekt . EkConst ) 
             DO 
-              DefExprRt ( LExpr )
-            ; LExpr . ExpValueL := LLongInt
+              LExpr . ExpValueL := LLongInt
             ; LExpr . ExpValueLoType := LoType  
             ; LExpr . ExpPosition := LPosition
             ; LExpr . ExpUpKind := Ekt . EkConst
             ; LExpr . ExpIsLegalRecursive := TRUE
+            ; DefExprRt ( LExpr )
             END (*WITH*)
           ELSE
 (* DECIDE: Do we want just one token code with a LoTyp operand here? *) 
@@ -561,8 +570,8 @@ MODULE FM3Pass2
         DO IF HtSkipping 
           THEN (* NewExpr becomes immediate garbage. *) 
           ELSE 
-            DefExprRt ( NewExpr )
-          ; NewExpr . ExpPosition := WPosition
+            NewExpr . ExpPosition := WPosition
+          ; DefExprRt ( NewExpr )
           END (*IF*)
         END (*WITH*)
       END HtExprRt 
@@ -1300,16 +1309,11 @@ MODULE FM3Pass2
         =>  <* ASSERT FM3Scopes . DeclScopeStackTopRef ^. ScpKind
                       IN FM3Scopes . ScopeKindSetOpen
             *>
-            (* This must have a type and/or a value expr. *)
-            <* ASSERT LDeclRef ^. DclDefType # NIL 
-                      OR LDeclRef ^. DclDefValue # NIL *> 
 
         | Dkt . DkConst
         =>  <* ASSERT FM3Scopes . DeclScopeStackTopRef ^. ScpKind
                       IN FM3Scopes . ScopeKindSetOpen
             *>
-            (* This has an optional type and a required value expr. *)
-            <* ASSERT LDeclRef ^. DclDefType # NIL *> 
 
         | Dkt . DkType                        
         , Dkt . DkMethod
@@ -1329,17 +1333,12 @@ MODULE FM3Pass2
         =>  <* ASSERT NOT FM3Scopes . DeclScopeStackTopRef ^. ScpKind
                           IN FM3Scopes . ScopeKindSetOpen
             *>
-            (* These must have a type and/or a value expr. *)
-            <* ASSERT LDeclRef ^. DclDefType # NIL 
-                      OR LDeclRef ^. DclDefType # NIL *> 
 
         | Dkt . DkExc
         , Dkt . DkEnumLit
         =>  <* ASSERT NOT FM3Scopes . DeclScopeStackTopRef ^. ScpKind
                           IN FM3Scopes . ScopeKindSetOpen
             *>
-            <* ASSERT LDeclRef ^. DclDefType = NIL 
-                      AND LDeclRef ^. DclDefType = NIL *> 
 (* COMPLETEME *)
             
         | Dkt . DkNull
@@ -1581,12 +1580,12 @@ MODULE FM3Pass2
             CheckRecursiveRef ( LRefDeclNo )
           ; WITH WExpr
                  = NEW ( FM3Exprs . ExprRefDeclNo , ExpUpKind := Ekt . EkRef )
-            DO 
-              DefExprRt ( WExpr )
-            ; WExpr . ExpDeclNo := LRefDeclNo 
+            DO
+              WExpr . ExpDeclNo := LRefDeclNo 
             ; WExpr . ExpPosition := LPosition
             ; WExpr . ExpUpKind := Ekt . EkRef
             ; WExpr . ExpIsUsable := TRUE
+            ; DefExprRt ( WExpr )
             END (*WITH*)
           ELSE (* Change to a reference token with DeclNo instead of Atom. *)
             PutBwdP2 ( Wp2RdBack , VAL ( LPosition . Column , LONGINT ) ) 
@@ -1632,12 +1631,12 @@ MODULE FM3Pass2
               THEN (* Create an ExprIdNo node. *) 
                 WITH WExpr = NEW ( FM3Exprs . ExprRemoteRef )
                 DO 
-                  DefExprRt ( WExpr )
-                ; WExpr . ExpRemoteUnitNo := LUnitNo 
+                  WExpr . ExpRemoteUnitNo := LUnitNo 
                 ; WExpr . ExpRemoteDeclNo := LRefDeclNo 
                 ; WExpr . ExpPosition := LPosition
                 ; WExpr . ExpUpKind := Ekt . EkRef
                 ; WExpr . ExpIsUsable := TRUE
+                ; DefExprRt ( WExpr )
                 END (*WITH*)
               ELSE (* Emit a token. *)  
               (* Read the following backwards: *) 
@@ -1693,17 +1692,17 @@ MODULE FM3Pass2
           ; WITH WDotExpr = NEW ( FM3Exprs . ExprDot )
                  , WLtExpr = NEW ( FM3Exprs . ExprRefDeclNo )
             DO 
-              DefExprRt ( WDotExpr )
-            ; WDotExpr . ExpOpnd1 := WLtExpr 
+              WDotExpr . ExpOpnd1 := WLtExpr 
             ; WDotExpr . ExpDotIdAtom := LAtomRt
             ; WDotExpr . ExpPosition := LPosRt
             ; WDotExpr . ExpUpKind := Ekt . EkRef
             ; WDotExpr . ExpIsUsable := TRUE
-            ; DefExprRt ( WLtExpr )
+            ; DefExprRt ( WDotExpr )
             ; WLtExpr . ExpDeclNo := LRefDeclNoLt 
             ; WLtExpr . ExpPosition := LPosLt
             ; WLtExpr . ExpUpKind := Ekt . EkRef
             ; WLtExpr . ExpIsUsable := TRUE
+            ; DefExprRt ( WLtExpr )
             END (*WITH*)
           ; EVAL FM3Exprs . PopExprStack ( ) (* The expr *) 
           ELSE (* Emit tokens for a dot Id applied to a DeclNo Id reference. *)
@@ -1785,12 +1784,12 @@ MODULE FM3Pass2
 (* TODO: Handle a Word.*, etc. builtin reference. *) 
                 WITH WExpr = NEW ( FM3Exprs . ExprRemoteRef )
                 DO 
-                  DefExprRt ( WExpr )
-                ; WExpr . ExpRemoteUnitNo := LIntfUnitRef ^ . UntSelfUnitNo 
+                  WExpr . ExpRemoteUnitNo := LIntfUnitRef ^ . UntSelfUnitNo 
                 ; WExpr . ExpRemoteDeclNo := LIntfDeclNoInt 
                 ; WExpr . ExpPosition := LPosLt
                 ; WExpr . ExpUpKind := Ekt . EkRef
                 ; WExpr . ExpIsUsable := TRUE
+                ; DefExprRt ( WExpr )
                 END (*WITH*)
               ELSE 
                 PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
@@ -1831,18 +1830,18 @@ MODULE FM3Pass2
               WITH WDotExpr = NEW ( FM3Exprs . ExprDot )
               , WLtExpr = NEW ( FM3Exprs . ExprRemoteRef )
               DO 
-                DefExprRt ( WDotExpr ) (* Which pushes. *) 
-              ; WDotExpr . ExpDotIdAtom := LAtomRt
+                WDotExpr . ExpDotIdAtom := LAtomRt
               ; WDotExpr . ExpOpnd1 := WLtExpr 
               ; WDotExpr . ExpPosition := LPosRt
               ; WDotExpr . ExpUpKind := Ekt . EkRef
               ; WDotExpr . ExpIsUsable := TRUE
-              ; DefExprRt ( WLtExpr ) (* Which pushes. *)
+              ; DefExprRt ( WDotExpr ) (* Which pushes. *) 
               ; WLtExpr . ExpRemoteUnitNo := LUnitNoLt 
               ; WLtExpr . ExpRemoteDeclNo := LRefDeclNoLt 
               ; WLtExpr . ExpPosition := LPosLt
               ; WLtExpr . ExpUpKind := Ekt . EkRef
               ; WLtExpr . ExpIsUsable := TRUE
+              ; DefExprRt ( WLtExpr ) (* Which pushes. *)
               END (*WITH*)
             ; EVAL FM3Exprs . PopExprStack ( ) (* The LtExpr. *) 
             ELSE 

@@ -1906,7 +1906,10 @@ MODULE FM3Pass1
       DO IF WScan . SaAtom < 0 
         THEN
           PutBwd_LIP
-            ( Itk . ItkReservedId , WScan . SaAtom, WScan . Position ) 
+            ( Itk . ItkReservedId , WScan . SaAtom, WScan . Position )
+(* TODO ----------- ^ Probably make this ItkIdRefAtom too, as Pass2 is
+                      now treating them identically.
+*)
         ELSE 
           WITH WIdentRefSet = FM3Scopes . OpenScopeStackTopRef ^ . ScpRefIdSet
           DO WIdentRefSet := IntSets . Include ( WIdentRefSet , WScan . SaAtom )
