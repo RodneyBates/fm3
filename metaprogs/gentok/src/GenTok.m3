@@ -114,8 +114,9 @@ EXPORTS Main
 ; VAR GDoGenSrcFsm : BOOLEAN := FALSE
 ; VAR GDoOverrideUNITNAME : BOOLEAN := FALSE
 
-; TYPE TokKindTyp = { TkNull , TkLone , TkList , TkFixed , TkSrc }
+; TYPE TokKindTyp = { TkNull , TkLone , TkList , TkFixed , TkSrc , TkNext }
 ; VAR GTokKind := TokKindTyp . TkNull  
+; VAR GSavedTokKind := TokKindTyp . TkNull  
 ; CONST TokKindSetInt
     = SET OF TokKindTyp { TokKindTyp . TkList , TokKindTyp . TkFixed } 
 ; CONST TokKindSetSrc
@@ -932,7 +933,11 @@ EXPORTS Main
     END IncrTokNo 
 
 ; PROCEDURE EmitTok 
-    ( Name : TEXT ; ArgCt : INTEGER ; ArgString , StringVal : TEXT := NIL )
+    ( Name : TEXT
+    ; ArgCt : INTEGER
+    ; ArgString , StringVal : TEXT := NIL
+    ; DoIncr := TRUE 
+    )
   (* PRE: Are generating this token. *) 
   (* No parsing or input consuming done.
      ArgCt < 0 => arg count not emitted.
@@ -990,7 +995,7 @@ EXPORTS Main
         ( GOStream , CompressedHex ( VAL ( GNextTokNo , LONGINT ) ) )
     ; Layout . PutText ( GOStream , "*)" )
     ; Layout . PutEol ( GOStream )
-    ; IncrTokNo ( GNextTokNo ) 
+    ; IF DoIncr THEN IncrTokNo ( GNextTokNo ) END (*IF*)  
     END EmitTok
 
 ; PROCEDURE EmitLoneTok ( ) 
@@ -1195,6 +1200,35 @@ EXPORTS Main
       END (*IF*) 
     ; IF Text . Equal ( GToken , "." ) THEN GToken := GetSyntTok ( ) END (*IF*)
     END EmitSrcTok
+
+; PROCEDURE EmitNextTok ( )
+
+  = VAR LSrcName : TEXT
+  ; VAR LString : TEXT 
+  ; VAR LStringLen : INTEGER 
+  ; VAR LNoQuoteString : TEXT 
+
+  ; BEGIN
+      LSrcName := GToken 
+    ; GToken := GetSyntTok ( ) (* Consume the source token name. *) 
+    ; IF GDoGenSrcToks OR GDoGenIntToks 
+      THEN 
+        IF GDoEmitSrcComments 
+        THEN 
+          Layout . PadAbs ( GOStream , GSemiTab )
+        ; Layout . PutText ( GOStream , "(* NEXT: *)" )
+        ; Layout . PutEol ( GOStream )
+        END (*IF*) 
+      ; EmitTok
+          ( LSrcName
+          , ArgCt := - 1
+          , ArgString := NIL
+          , StringVal := NIL
+          , DoIncr := FALSE
+          )
+      END (*IF*) 
+    ; IF Text . Equal ( GToken , "." ) THEN GToken := GetSyntTok ( ) END (*IF*)
+    END EmitNextTok
 
 ; PROCEDURE EmitCopyright ( )
 
@@ -1614,6 +1648,12 @@ EXPORTS Main
         THEN 
           GTokKind := TokKindTyp . TkSrc 
         ; GToken := GetSyntTok ( )
+        ELSIF TokEq ( GToken , "NEXT" )  
+        THEN
+          GSavedTokKind := GTokKind 
+        ; GTokKind := TokKindTyp . TkNext 
+        ; GToken := GetSyntTok ( )
+        
         ELSIF IsIdent ( GToken )
         THEN
           CASE GTokKind OF
@@ -1633,6 +1673,11 @@ EXPORTS Main
 
           | TokKindTyp . TkSrc (* Source token. *)
           => EmitSrcTok ( ) 
+
+          | TokKindTyp . TkNext (* Next token. Token constant only. *)
+          => EmitNextTok ( )
+          ; GTokKind := GSavedTokKind
+ 
           END (*CASE*)
           
         ; IF TokEq ( GToken , "." ) THEN GToken := GetSyntTok ( ) END (*IF*) 

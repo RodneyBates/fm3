@@ -151,9 +151,9 @@ ABS 5
       the negated source token code. 
    *) 
 
-   TokMinReservedId    "<TokMinPredef>"
 
    (* Reserved identifiers: *)
+NEXT StkMinRid . 
    RidNull             "<RidNull>" . (* Scanner will never present this. *) 
    RidABS              "ABS" . 
    RidADDRESS          "ADDRESS" . 
@@ -198,6 +198,7 @@ ABS 5
    RidTRUNC            "TRUNC" . 
    RidTYPECODE         "TYPECODE" . 
    RidVAL              "VAL" .
+NEXT StkMaxRid . 
    RidWIDECHAR         "WIDECHAR" .
 
    (* These behave semantically like reserved identifiers, but each occurs in
@@ -209,10 +210,6 @@ ABS 5
    RidROOT             "<ROOT>" .
    RidUNTRACEDROOT     "<UNTRACED_ROOT>" .
 
-   TokMaxReservedId    "<MaxReservedId>"
-
-   TokMinPredef         "<TokMinPredef>"
-   
    (* Idents in Word and Long. *) 
    (* These, when negated, serve as pseudo-identifier atoms and
       pseudo-declaration numbers in both Word and Long interfaces.
@@ -222,7 +219,7 @@ ABS 5
       These must be equivalent names in the same order as corresponding names
       in FM3SrcToks.gentok.
    *)
-
+NEXT StkMinPredef . 
    Word_T              "T" . 
    Word_Size           "Size" . 
    Word_Plus           "Plus" . 
@@ -271,9 +268,8 @@ ABS 5
    Long_LeftRotate     "Long.LeftRotate" . 
    Long_RightRotate    "Long.RightRotate" . 
    Long_Extract        "Long.Extract" . 
+NEXT StkMaxPredef . 
    Long_Insert         "Long.Insert" . 
-
-   TokMaxPredef        "<TokMaxPredef>" .
 
    (* These are only used as operator codes.  Scanner won't deliver them
       and parser wouldn't parse them if it did. *) 
