@@ -139,9 +139,7 @@ MODULE  FM3Compile
         ; UnitRef . UntState := Us . UsNotUsable
         ; RETURN FALSE
         END (*IF*) 
-      ; LSearchDir
-          := FM3SharedUtils . AbsFileName
-               ( FM3CLOptions . SrcDirList ^ [ LDirSs ] )
+      ; LSearchDir := FM3SharedUtils . AbsFileName ( LSrcDirList ^ [ LDirSs ] )
       ; LUniRdT := NIL 
       ; TRY 
           LUniRdT
