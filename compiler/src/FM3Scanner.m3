@@ -283,7 +283,6 @@ MODULE FM3Scanner
   ; VAR ScHash : FM3Utils . HashTyp 
   ; VAR ScCh : CHAR 
   ; VAR ScAtBegOfPragma := FALSE 
-  ; VAR ScInsidePragma := TRUE 
 
   ; PROCEDURE BegOfPlainTok ( ) 
 
@@ -435,15 +434,15 @@ MODULE FM3Scanner
                    , Attribute . SaChars 
                    , ScHash 
                    ) 
-          ; Attribute . SaIsPredefId := FALSE (* NOT predeclared. *)  
           ; Attribute . SaTok := FM3SrcToks . StkPragmaId 
           ; Attribute . SaPredefTok := FM3Base . TokNull 
+          ; Attribute . SaIsPredefId := FALSE (* NOT predeclared. *)  
 (* TODO: Handle this as an unrecognized pragma and skip the entire thing. *) 
 
           | FM3PgToks . PgFm3PredefUnit 
           => GTopSsRef . SsUnitRef ^ . UntIsPredefUnit := TRUE 
 
-          ELSE (* It's a pragma ident. *) 
+          ELSE (* It's another pragma ident. *) 
             Attribute . SaTok 
               := GCurRwValue (* A recognized reserved pragma name. *) 
           ; Attribute . SaPredefTok := GCurRwValue 
@@ -452,23 +451,23 @@ MODULE FM3Scanner
 
         ELSE (* Expecting a reserved word, predefined, or plain identifier. *) 
           CASE GCurRwValue OF 
-          | FM3SrcToks . TokMinReservedId .. FM3SrcToks . TokMaxReservedId 
+          | FM3SrcToks . StkMinRid .. FM3SrcToks . StkMaxRid 
           => (* Reserved identifier.  Make this an StkIdent whose SaAtom
                 is negated lex code. 
              *) 
               Attribute . SaTok := FM3SrcToks . StkIdent
             ; Attribute . SaAtom := - GCurRwValue 
-            ; Attribute . SaIsPredefId := TRUE 
             ; Attribute . SaPredefTok := GCurRwValue 
+            ; Attribute . SaIsPredefId := TRUE 
 
-          | FM3SrcToks . TokMinPredef .. FM3SrcToks . TokMaxPredef
+          | FM3SrcToks . StkMinPredef .. FM3SrcToks . StkMaxPredef
           => (* Predefined identifier. *) 
               Attribute . SaTok := FM3SrcToks . StkIdent
             ; IF GTopSsRef . SsUnitRef ^ . UntIsPredefUnit 
               THEN (* Treat like a reserved Ident. *)  
                 Attribute . SaAtom := - GCurRwValue 
-              ; Attribute . SaIsPredefId := TRUE 
               ; Attribute . SaPredefTok := GCurRwValue 
+              ; Attribute . SaIsPredefId := TRUE 
               ELSE (* Treat like a plain Ident. *) 
                 Attribute . SaAtom (* Will be > 0. *)
                   := FM3Atom_OAChars . MakeAtom 
@@ -476,8 +475,8 @@ MODULE FM3Scanner
                        , Attribute . SaChars 
                        , ScHash 
                        ) 
-              ; Attribute . SaIsPredefId := FALSE  
               ; Attribute . SaPredefTok := FM3Base . TokNull  
+              ; Attribute . SaIsPredefId := FALSE  
               END (*IF*) 
 
           | FM3LexTable . ValueUnrecognized , FM3LexTable . ValueNull 
@@ -489,13 +488,13 @@ MODULE FM3Scanner
                      , Attribute . SaChars 
                      , ScHash 
                      ) 
-            ; Attribute . SaIsPredefId := FALSE 
             ; Attribute . SaPredefTok := FM3Base . TokNull  
+            ; Attribute . SaIsPredefId := FALSE 
 
           ELSE (* Reserved word. *) 
-            Attribute . SaIsPredefId := FALSE  
-          ; Attribute . SaTok := GCurRwValue 
+            Attribute . SaTok := GCurRwValue 
           ; Attribute . SaPredefTok := FM3Base . TokNull  
+          ; Attribute . SaIsPredefId := FALSE  
           END (*CASE*) 
         END (*IF*) 
       END IdentSuffix 

@@ -1667,8 +1667,8 @@ MODULE FM3Pass2
   ; VAR LRefDeclNoLt : FM3Globals . DeclNoTyp
   ; VAR LRefDeclNo : FM3Globals . DeclNoTyp
   ; VAR LAtomLt , LAtomRt : FM3Base . AtomTyp
-  ; VAR LIntfAtomRt : FM3Base . AtomTyp
-  ; VAR LIntfDeclNoInt : INTEGER 
+  ; VAR LRemoteAtom : FM3Base . AtomTyp
+  ; VAR LRemoteDeclNoInt : INTEGER 
   ; VAR LPosLt , LPosRt : FM3Base . tPosition
 
   ; BEGIN (*QualIdentR2L*)
@@ -1736,14 +1736,14 @@ MODULE FM3Pass2
             LIntfUnitRef (*Implicit NARROW*) 
               := VarArray_Int_Refany . Fetch ( FM3Units . UnitsMap , LUnitNoLt )
           ; <* ASSERT LIntfUnitRef # NIL *>
-            LIntfAtomRt
+            LRemoteAtom
               := FM3Compile . ConvertIdentAtom
                    ( LAtomRt
                    , FromUnitRef := FM3Units . UnitStackTopRef
                    , ToUnitRef := LIntfUnitRef
                    )
           ; IF IntSets . IsElement
-                 ( LIntfAtomRt , LIntfUnitRef ^ . UntExpImpIdSet )
+                 ( LRemoteAtom , LIntfUnitRef ^ . UntExpImpIdSet )
             THEN (* Rt ident is imported into the remote interface,
                     not transitively importable.
                  *)
@@ -1767,16 +1767,16 @@ MODULE FM3Pass2
                 )
             ; PutNotUsable ( LAtomRt , LPosRt )
             ELSIF IntSets . IsElement
-                    ( LIntfAtomRt
+                    ( LRemoteAtom
                     , LIntfUnitRef ^ . UntScopeRef ^ . ScpDeclIdSet
                     )
             THEN (* Right ident is declared in LIntfUnitRef. *) 
               <* ASSERT
                    FM3Dict_Int_Int . LookupFixed 
                      ( LIntfUnitRef ^ . UntScopeRef ^ . ScpDeclDict
-                     , LIntfAtomRt
+                     , LRemoteAtom
                      , FM3Base . HashNull
-                     , (*OUT*) LIntfDeclNoInt 
+                     , (*OUT*) LRemoteDeclNoInt 
                      )
               *>
               IF AreInsideADecl ( )
@@ -1785,7 +1785,7 @@ MODULE FM3Pass2
                 WITH WExpr = NEW ( FM3Exprs . ExprRemoteRef )
                 DO 
                   WExpr . ExpRemoteUnitNo := LIntfUnitRef ^ . UntSelfUnitNo 
-                ; WExpr . ExpRemoteDeclNo := LIntfDeclNoInt 
+                ; WExpr . ExpRemoteDeclNo := LRemoteDeclNoInt 
                 ; WExpr . ExpPosition := LPosLt
                 ; WExpr . ExpUpKind := Ekt . EkRef
                 ; WExpr . ExpIsUsable := TRUE
@@ -1796,7 +1796,7 @@ MODULE FM3Pass2
               ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
               ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Column , LONGINT ) ) 
               ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Line , LONGINT ) ) 
-              ; PutBwdP2 ( Wp2RdBack , VAL ( LIntfDeclNoInt , LONGINT ) ) 
+              ; PutBwdP2 ( Wp2RdBack , VAL ( LRemoteDeclNoInt , LONGINT ) ) 
               ; PutBwdP2
                   ( Wp2RdBack , VAL ( LIntfUnitRef ^ . UntSelfUnitNo , LONGINT ) ) 
               ; PutBwdP2
@@ -1827,6 +1827,7 @@ MODULE FM3Pass2
                *)
             IF AreInsideADecl ( )
             THEN 
+            (* Turn it into separate QualId ref and dot Id *) 
               WITH WDotExpr = NEW ( FM3Exprs . ExprDot )
               , WLtExpr = NEW ( FM3Exprs . ExprRemoteRef )
               DO 
@@ -1845,7 +1846,6 @@ MODULE FM3Pass2
               END (*WITH*)
             ; EVAL FM3Exprs . PopExprStack ( ) (* The LtExpr. *) 
             ELSE 
-            (* Turn it into separate QualId ref and dot Id *) 
               PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
             ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
             ; PutBwdP2 ( Wp2RdBack , VAL ( LAtomRt , LONGINT ) ) 

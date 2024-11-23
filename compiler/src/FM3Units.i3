@@ -109,7 +109,7 @@ INTERFACE FM3Units
       ; UntPass2OutEmptyCoord : LONGINT := 0L
       ; UntPassNosDisAsmed : FM3CLOptions . PassNoSetTyp
       ; UntIdentAtomDict : FM3Atom_OAChars . T := NIL
-          (* ^All Identifiers occurring in the unit. *)   
+          (* ^Identifiers occurring in the unit, except reserved ids. *)   
       ; UntNumLitAtomDict : FM3Atom_OAChars . T := NIL (* Numeric literals. *)  
       ; UntCharsLitAtomDict : FM3Atom_OAChars . T := NIL (* TEXT literals. *) 
       ; UntWCharsLitAtomDict : FM3Atom_OAWideChars . T := NIL

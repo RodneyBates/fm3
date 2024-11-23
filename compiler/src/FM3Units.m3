@@ -23,7 +23,8 @@ MODULE FM3Units
 ; IMPORT FM3Globals 
 ; IMPORT FM3Messages 
 ; IMPORT FM3Scopes
-; IMPORT FM3SharedUtils 
+; IMPORT FM3SharedUtils
+; IMPORT FM3SrcToks 
 ; IMPORT FM3Utils 
 ; IMPORT Ranges_Int
 ; IMPORT VarArray_Int_ExpImpProxy  
@@ -204,15 +205,20 @@ MODULE FM3Units
   ; VAR LIdentText : TEXT 
 
   ; BEGIN (*TextOfIdAtom*)
-      IF NOT FM3Atom_OAChars . Key 
-               ( UnitStackTopRef ^ . UntIdentAtomDict
-               , IdAtom
-               , (*OUT*) LCharsRef
-               )
-      THEN LIdentText := "<NotFound>"
-      ELSIF LCharsRef = NIL
-      THEN LIdentText := "<NIL>"
-      ELSE LIdentText := Text . FromChars ( LCharsRef ^ )
+      IF IdAtom < 0
+      THEN
+        LIdentText := FM3SrcToks . Image ( - IdAtom ) 
+      ELSE 
+        IF NOT FM3Atom_OAChars . Key 
+                 ( UnitStackTopRef ^ . UntIdentAtomDict
+                 , IdAtom
+                 , (*OUT*) LCharsRef
+                 )
+        THEN LIdentText := "<NotFound>"
+        ELSIF LCharsRef = NIL
+        THEN LIdentText := "<NIL>"
+        ELSE LIdentText := Text . FromChars ( LCharsRef ^ )
+        END (*IF*)
       END (*IF*)
     ; RETURN LIdentText 
     END TextOfIdAtom

@@ -13,7 +13,7 @@ INTERFACE FM3Predefs
 ; IMPORT FM3SrcToks AS Stk
 ; IMPORT FM3IntToks AS Itk
 
-; TYPE BuiltinOpTyp = [ Stk . TokMinReservedId .. Stk . TokMaxPredef ]
+; TYPE BuiltinOpTyp = [ Stk . StkMinRid .. Stk . StkMaxPredef ]
 
 ; PROCEDURE Stk2Itk ( StkTok : Stk . TokTyp ) : Itk . TokTyp 
   (* Translate source tokens for reserved idents and predefined imported idents

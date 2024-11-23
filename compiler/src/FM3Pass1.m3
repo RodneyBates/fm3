@@ -1919,6 +1919,22 @@ MODULE FM3Pass1
       END (*WITH*) 
     END IdentRefL2R
 
+
+; PROCEDURE PutNotUsable 
+    ( IdentRefAtom : FM3Base . AtomTyp
+    ; READONLY Position : FM3Base . tPosition
+    )
+
+  = BEGIN 
+      WITH Wp1RdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO 
+        PutBwd ( Wp1RdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( Wp1RdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( Wp1RdBack , VAL ( IdentRefAtom , LONGINT ) ) 
+      ; PutBwd ( Wp1RdBack , VAL ( Itk . ItkIdRefAtomNotUsable , LONGINT ) )
+      END (*WITH*)
+    END PutNotUsable 
+
 (*EXPORTED.*)
 ; PROCEDURE OverrideIdentRefL2R ( READONLY IdAttr : tParsAttribute )
   : BOOLEAN (* It's OK so far. *) 
@@ -1927,13 +1943,20 @@ MODULE FM3Pass1
   = BEGIN (*OverrideIdentRefL2R*)
       WITH WScan = IdAttr . Scan
       DO IF WScan . SaAtom < 0
+            AND IntSets . IsElement
+                  ( - WScan . SaAtom , FM3Predefs . ReservedIdSet ) 
         THEN
           FM3Messages . ErrorArr
             ( ARRAY OF REFANY
-                { "Predefined identifier is not an overridable method." 
-                }
+                { "Identifier \""
+                , FM3SrcToks . Image ( - WScan . SaAtom ) 
+                , "\" is reserved and cannot denote an overridable method." 
+             (* , SectionOfBuiltin ( IdAttr . Scan . SaPredefTok ) *)  
+                , "(2.10)."
+                } 
             , IdAttr . Scan . Position 
             )
+        ; PutNotUsable ( WScan . SaAtom , WScan . Position )  
         ; RETURN FALSE 
         ELSE
           PutBwd_LIP ( Itk . ItkIdRefAtom , WScan . SaAtom , WScan . Position ) 
@@ -1960,6 +1983,7 @@ MODULE FM3Pass1
               }
           , IdAttr . Scan . Position 
           )
+      ; PutNotUsable ( IdAttr . Scan . SaAtom , IdAttr . Scan . Position )  
       ; RETURN FALSE 
       ELSE RETURN TRUE
       END (*IF*)
@@ -1970,57 +1994,31 @@ MODULE FM3Pass1
     ( READONLY LtIdAttr , RtIdAttr : tParsAttribute )
   (* Handles either/both idents reserved (error msg). *) 
 
-  = VAR LLtAtom : FM3Base . AtomTyp
-  ; VAR LRtAtom : FM3Base . AtomTyp
-
-  ; BEGIN (*QualIdentL2R*)
+  = BEGIN (*QualIdentL2R*)
       WITH WunRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
       DO IF CheckIdNotReserved ( LtIdAttr )
             AND CheckIdNotReserved ( RtIdAttr )
         THEN (* Neither is reserved. *) 
-          LLtAtom  
-           := FM3Atom_OAChars . MakeAtom 
-                ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict
-                , LtIdAttr . Scan . SaChars 
-                , LtIdAttr . Scan . SaHash 
-                ) 
-        ; LRtAtom  
-           := FM3Atom_OAChars . MakeAtom 
-                ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict
-                , RtIdAttr . Scan . SaChars 
-                , RtIdAttr . Scan . SaHash 
-                ) 
-        ; WITH WIdentRefSet = FM3Scopes . DeclScopeStackTopRef ^ . ScpRefIdSet
-          DO WIdentRefSet := IntSets . Include ( WIdentRefSet , LLtAtom )
+          WITH WIdentRefSet = FM3Scopes . DeclScopeStackTopRef ^ . ScpRefIdSet
+          DO WIdentRefSet
+               := IntSets . Include ( WIdentRefSet , LtIdAttr . Scan . SaAtom )
           END (*WITH*) 
         ; PutBwd
-            ( WunRdBack
-            , VAL ( RtIdAttr . Scan . Position . Column , LONGINT )
-            )
+            ( WunRdBack , VAL ( RtIdAttr . Scan . Position . Column , LONGINT ) )
         ; PutBwd
-            ( WunRdBack
-            , VAL ( RtIdAttr . Scan . Position . Line , LONGINT ) 
-            ) 
+            ( WunRdBack , VAL ( RtIdAttr . Scan . Position . Line , LONGINT ) ) 
         ; PutBwd
-            ( WunRdBack
-            , VAL ( LtIdAttr . Scan . Position . Column , LONGINT )
-            ) 
+            ( WunRdBack , VAL ( LtIdAttr . Scan . Position . Column , LONGINT ) )
         ; PutBwd
-            ( WunRdBack
-            , VAL ( LtIdAttr . Scan . Position . Line , LONGINT ) 
-            )
-        ; PutBwd ( WunRdBack , VAL ( LRtAtom , LONGINT ) ) 
-        ; PutBwd ( WunRdBack , VAL ( LLtAtom , LONGINT ) ) 
+            ( WunRdBack , VAL ( LtIdAttr . Scan . Position . Line , LONGINT ) )
+        ; PutBwd ( WunRdBack , VAL ( RtIdAttr . Scan . SaAtom , LONGINT ) ) 
+        ; PutBwd ( WunRdBack , VAL ( LtIdAttr . Scan . SaAtom , LONGINT ) ) 
         ; PutBwd ( WunRdBack , VAL ( Itk . ItkQualIdAtoms , LONGINT ) )
         ELSE 
           PutBwd 
-            ( WunRdBack
-            , VAL ( LtIdAttr . Scan . Position . Column , LONGINT )
-            )
+            ( WunRdBack , VAL ( LtIdAttr . Scan . Position . Column , LONGINT ) )
         ; PutBwd 
-            ( WunRdBack
-            , VAL ( LtIdAttr . Scan . Position . Line , LONGINT )
-            )
+            ( WunRdBack , VAL ( LtIdAttr . Scan . Position . Line , LONGINT ) )
         ; PutBwd ( WunRdBack , VAL ( Itk . ItkInvalidRef , LONGINT ) )
         END (*IF*)
       END (*WITH*)
