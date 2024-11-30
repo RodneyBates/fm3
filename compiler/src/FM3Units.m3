@@ -253,6 +253,7 @@ MODULE FM3Units
         FM3Globals . P1RdBack := UnitStackTopRef . UntPass1OutRdBack 
       ; FM3Globals . PatchRdBack := UnitStackTopRef . UntPatchStackRdBack 
       ; FM3Globals . P2RdBack := UnitStackTopRef . UntPass2OutRdBack
+      ; FM3Globals . P3RdBack := UnitStackTopRef . UntPass3OutRdBack
       END (*IF*)    
     END CacheTopUnitValues 
 

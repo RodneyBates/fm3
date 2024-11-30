@@ -51,6 +51,8 @@ INTERFACE FM3CLArgs
 
 ; CONST CcPatchStackNotEmpty = 1 
 ; CONST CcPass1OutNotEmpty = 2 
+; CONST CcPass2OutNotEmpty = 3 
+; CONST CcPass3OutNotEmpty = 4
 
 ; END FM3CLArgs
 .

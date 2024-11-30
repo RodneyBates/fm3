@@ -107,6 +107,12 @@ INTERFACE FM3Units
       ; UntPass2OutRdBack : RdBackFile . T := NIL
       ; UntMaxPass2OutLength : LONGINT := 0L 
       ; UntPass2OutEmptyCoord : LONGINT := 0L
+
+      ; UntPass3OutSimpleName : TEXT := NIL (* Parse pass output file. *) 
+      ; UntPass3OutRdBack : RdBackFile . T := NIL
+      ; UntMaxPass3OutLength : LONGINT := 0L 
+      ; UntPass3OutEmptyCoord : LONGINT := 0L
+
       ; UntPassNosDisAsmed : FM3CLOptions . PassNoSetTyp
       ; UntIdentAtomDict : FM3Atom_OAChars . T := NIL
           (* ^Identifiers occurring in the unit, except reserved ids. *)   
@@ -149,6 +155,7 @@ INTERFACE FM3Units
       ; UntScanResult : INTEGER 
       ; UntParseResult : INTEGER 
       ; UntPass2Result : INTEGER
+      ; UntPass3Result : INTEGER
       ; UntFirstTrueDeclNo : INTEGER := 1 
         (* ^In the unit's top-level scope.  As opposed to imported proxies,
             which are all lower-numbered. *) 

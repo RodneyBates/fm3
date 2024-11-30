@@ -56,8 +56,9 @@ INTERFACE FM3Globals
       (* The patch stack, used and emptied during parse pass 1. *)
 ; CONST PatchSackEmptySentinal = -1L
         (* ^An artificial coordinate to the pass 1 output file. *) 
-; CONST Pass2OutSuffix = "FM3Pass2" (* Output of pass 1. *) 
 ; CONST Pass1OutSuffix = "FM3Pass1" (* Output of pass 2. *)
+; CONST Pass2OutSuffix = "FM3Pass2" (* Output of pass 1. *) 
+; CONST Pass3OutSuffix = "FM3Pass3" (* Output of pass 2. *)
 ; CONST CopyFileSuffix = "Copy" 
 ; CONST DisAsmFileSuffix = "DisAsm"
 ; CONST UnitLogSuffix = "Log" 
@@ -68,6 +69,7 @@ INTERFACE FM3Globals
 ; VAR P1RdBack : RdBackFile . T := NIL 
 ; VAR PatchRdBack : RdBackFile . T := NIL
 ; VAR P2RdBack : RdBackFile . T := NIL
+; VAR P3RdBack : RdBackFile . T := NIL
 
 (* One set of skip numbering should suffice for all units. *)
 ; VAR InitSkipStackCt := 255 (* Sometimes many compile errors? *) 

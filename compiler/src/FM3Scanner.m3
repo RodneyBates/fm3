@@ -442,7 +442,7 @@ MODULE FM3Scanner
           | FM3PgToks . PgFm3PredefUnit 
           => GTopSsRef . SsUnitRef ^ . UntIsPredefUnit := TRUE 
 
-          ELSE (* It's another pragma ident. *) 
+          ELSE (* It's some other pragma ident. *) 
             Attribute . SaTok 
               := GCurRwValue (* A recognized reserved pragma name. *) 
           ; Attribute . SaPredefTok := GCurRwValue 

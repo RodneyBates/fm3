@@ -319,7 +319,6 @@ MODULE  FM3Compile
   (* Compile or load the top unit, as named on the command line. *) 
 
   = VAR LUnitRef : FM3Units . UnitRefTyp
-
   ; BEGIN 
       LUnitRef := GetUnitRefOfFileName ( SrcFileName )
     ; IF LUnitRef . UntState = Us . UsNull 

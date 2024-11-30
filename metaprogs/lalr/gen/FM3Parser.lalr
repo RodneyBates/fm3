@@ -306,7 +306,7 @@ RULE
    InstModuleKind : /*Empty*/ 
        { FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstModule ; } . 
 
-   InterfaceLt : OptUnsafe StkRwINTERFACE StkIdent 
+   InterfaceLt : OptUnsafe StkRwINTERFACE StkIdent IntfPragmas
      { VAR LUnitRef : FM3Units . UnitRefTyp ; 
        VAR LScopeRef : FM3Scopes . ScopeRefTyp ;  
        BEGIN

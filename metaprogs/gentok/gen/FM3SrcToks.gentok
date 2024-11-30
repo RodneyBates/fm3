@@ -9,7 +9,7 @@
 (* Input file FM3SrcTok.gentok, to metaprogram GenTok. *)
 
 UNITNAME FM3SrcToks
-(* DECREASING BAck to positive tokens, so lalr can handle them *) 
+(* DECREASING Back to positive tokens, so lalr can handle them *) 
 
 (* Source tokens for FM3 Modula-3 compiler. 
    These are near the high end of 2^14-1.
@@ -201,79 +201,45 @@ NEXT StkMinRid .
 NEXT StkMaxRid . 
    RidWIDECHAR         "WIDECHAR" .
 
-   (* These behave semantically like reserved identifiers, but each occurs in
-      a different set of syntactic contexts from identifiers, so they are
-      source-code reserved words.  We convert those after parsing into
-      reserved idents with the following Rid atoms.
+   (* ROOT and UNTRACED behave semantically like reserved identifiers, but
+      each occurs in a different set of syntactic contexts from identifiers,
+      so they are source-code reserved words.  We convert those after parsing
+      into reserved idents with the following Rid atoms.  The scanner
+      will not recognize them.
    *)
    
-   RidROOT             "<ROOT>" .
-   RidUNTRACEDROOT     "<UNTRACED_ROOT>" .
+   RidROOT             "%ROOT" .
+   RidUNTRACEDROOT     "%UNTRACED_ROOT" .
 
-   (* Idents in Word and Long. *) 
-   (* These, when negated, serve as pseudo-identifier atoms and
-      pseudo-declaration numbers in both Word and Long interfaces.
-      They are also context-independent operation codes in Word, but Long
-      has a separate but parallel operation code numbering, generated
-      by FM3LongToks. 
-      These must be equivalent names in the same order as corresponding names
-      in FM3SrcToks.gentok.
-   *)
+   (* Predefined identifiers.  Scanner will treat these as ordinary
+      identifiers, except within a language-mandated interface they
+      are declared in, in which case scanner treats them like
+      reserved identifers.
+   *) 
 NEXT StkMinPredef . 
-   Word_T              "T" . 
-   Word_Size           "Size" . 
-   Word_Plus           "Plus" . 
-   Word_Times          "Times" . 
-   Word_Minus          "Minus" . 
-   Word_Divide         "Divide" . 
-   Word_Mod            "Mod" . 
-   Word_LT             "LT" . 
-   Word_LE             "LE" . 
-   Word_GT             "GT" . 
-   Word_GE             "GE" . 
-   Word_And            "And" . 
-   Word_Or             "Or" . 
-   Word_Xor            "Xor" . 
-   Word_Not            "Not" . 
-   Word_Shift          "Shift" . 
-   Word_LeftShift      "LeftShift" . 
-   Word_RightShift     "RightShift" . 
-   Word_Rotate         "Rotate" . 
-   Word_LeftRotate     "LeftRotate" . 
-   Word_RightRotate    "RightRotate" . 
-   Word_Extract        "Extract" . 
-   Word_Insert         "Insert" . 
-
-   (* Decl numbers and operation numbers in Long only. *)
-   REL 5
-   Long_T              "Long.T" . 
-   Long_Size           "Long.Size" . 
-   Long_Plus           "Long.Plus" . 
-   Long_Times          "Long.Times" . 
-   Long_Minus          "Long.Minus" . 
-   Long_Divide         "Long.Divide" . 
-   Long_Mod            "Long.Mod" . 
-   Long_LT             "Long.LT" . 
-   Long_LE             "Long.LE" . 
-   Long_GT             "Long.GT" . 
-   Long_GE             "Long.GE" . 
-   Long_And            "Long.And" . 
-   Long_Or             "Long.Or" . 
-   Long_Xor            "Long.Xor" . 
-   Long_Not            "Long.Not" . 
-   Long_Shift          "Long.Shift" . 
-   Long_LeftShift      "Long.LeftShift" . 
-   Long_RightShift     "Long.RightShift" . 
-   Long_Rotate         "Long.Rotate" . 
-   Long_LeftRotate     "Long.LeftRotate" . 
-   Long_RightRotate    "Long.RightRotate" . 
-   Long_Extract        "Long.Extract" . 
+   StkPdT              "T" . 
+   StkPdSize           "Size" . 
+   StkPdPlus           "Plus" . 
+   StkPdTimes          "Times" . 
+   StkPdMinus          "Minus" . 
+   StkPdDivide         "Divide" . 
+   StkPdMod            "Mod" . 
+   StkPdLT             "LT" . 
+   StkPdLE             "LE" . 
+   StkPdGT             "GT" . 
+   StkPdGE             "GE" . 
+   StkPdAnd            "And" . 
+   StkPdOr             "Or" . 
+   StkPdXor            "Xor" . 
+   StkPdNot            "Not" . 
+   StkPdShift          "Shift" . 
+   StkPdLeftShift      "LeftShift" . 
+   StkPdRightShift     "RightShift" . 
+   StkPdRotate         "Rotate" . 
+   StkPdLeftRotate     "LeftRotate" . 
+   StkPdRightRotate    "RightRotate" . 
+   StkPdExtract        "Extract" . 
 NEXT StkMaxPredef . 
-   Long_Insert         "Long.Insert" . 
-
-   (* These are only used as operator codes.  Scanner won't deliver them
-      and parser wouldn't parse them if it did. *) 
-   StkUnaryPlus        "\XFF"
-   StkUnaryMinus       "\XFF"
+   StkPdInsert         "Insert" . 
 
 (* End of FM3SrcToks.gentok. *) 

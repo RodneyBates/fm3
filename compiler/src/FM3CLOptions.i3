@@ -62,6 +62,7 @@ INTERFACE FM3CLOptions
 ; CONST PassNoNull = 0  
 ; CONST PassNo1 = 1 
 ; CONST PassNo2 = 2
+; CONST PassNo3 = 3
 ; CONST PassNoMax = PassNo2 + 1
 ; TYPE PassNoTyp = [ PassNoNull .. PassNoMax ]
 
