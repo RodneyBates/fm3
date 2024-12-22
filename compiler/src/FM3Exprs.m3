@@ -11,9 +11,7 @@ MODULE FM3Exprs
 ; IMPORT IntRanges 
 ; IMPORT VarArray_Int_Refany
 
-; IMPORT FM3Base
-; IMPORT FM3Globals 
-; IMPORT FM3Units
+; IMPORT FM3Globals
 
 ; TYPE Es = ExprStateTyp
 
@@ -124,11 +122,9 @@ MODULE FM3Exprs
       | NULL => RETURN FALSE
       | ExprSubrTypeTyp ( TSubr )
       => RETURN IsNumericType ( TSubr . ExpRangeBase )
-      | ExprLongTypeTyp
-      , ExprIntTypeTyp
-      , ExprRealTypeTyp
-      , ExprLongRealTypeTyp
-      , ExprExtendedTypeTyp
+      | ExprIntTypeTyp
+      , ExprAddrTypeTyp (* Can happen in UNSAFE units. *) 
+      , ExprFloatTypeTyp
       => RETURN TRUE
       ELSE RETURN FALSE
       END (* TYPECASE*)
