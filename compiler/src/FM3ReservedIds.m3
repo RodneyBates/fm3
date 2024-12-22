@@ -452,7 +452,7 @@ MODULE FM3ReservedIds
       END InitRes  
 
   ; BEGIN (*Init*)
-      InitRes ( Stk . RidABS , NEW ( Ex . ExprUnBinOp ) , Ekt . EkFunc )
+      InitRes ( Stk . RidABS , NEW ( Ex . Expr1OpndTyp ) , Ekt . EkFunc )
     ; InitRidABS ( )
 
     ; InitRes ( Stk . RidADDRESS , NEW ( Ex . ExprAddrTypeTyp ) , Ekt . EkType )
@@ -482,10 +482,10 @@ MODULE FM3ReservedIds
     ; InitRes ( Stk . RidCHAR , NEW ( Ex . ExprIntTypeTyp ) , Ekt . EkType )
     ; InitRidCHAR ( )
 
-    ; InitRes ( Stk . RidDEC , NEW ( Ex . ExprTyp ) , Ekt . EkProc )
+    ; InitRes ( Stk . RidDEC , NEW ( Ex . ExprUnBinOp ) , Ekt . EkProc )
     ; InitRidDEC ( )
 
-    ; InitRes ( Stk . RidDISPOSE , NEW ( Ex . ExprTyp ) , Ekt . EkProc )
+    ; InitRes ( Stk . RidDISPOSE , NEW ( Ex . ExprUnBinOp ) , Ekt . EkProc )
     ; InitRidDISPOSE ( )
 
     ; InitRes ( Stk . RidEXTENDED , NEW ( Ex . ExprFloatTypeTyp ) , Ekt . EkType )
@@ -503,7 +503,7 @@ MODULE FM3ReservedIds
     ; InitRes ( Stk . RidFLOOR , NEW ( Ex . ExprUnBinOp ) , Ekt . EkFunc )
     ; InitRidFLOOR ( )
 
-    ; InitRes ( Stk . RidINC , NEW ( Ex . ExprTyp ) , Ekt . EkProc )
+    ; InitRes ( Stk . RidINC , NEW ( Ex . ExprUnBinOp ) , Ekt . EkProc )
     ; InitRidINC ( )
 
     ; InitRes ( Stk . RidINTEGER , NEW ( Ex . ExprIntTypeTyp ) , Ekt . EkType )
@@ -539,7 +539,7 @@ MODULE FM3ReservedIds
     ; InitRes ( Stk . RidNARROW , NEW ( Ex . ExprUnBinOp ) , Ekt . EkFunc )
     ; InitRidNARROW ( )
 
-    ; InitRes ( Stk . RidNEW , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidNEW , NEW ( Ex . ExprMultiOpndTyp ) , Ekt . EkFunc )
     ; InitRidNEW ( )
 
     ; InitRes ( Stk . RidNIL , NEW ( Ex . ExprAddrTypeTyp ) , Ekt . EkConst )
@@ -563,7 +563,7 @@ MODULE FM3ReservedIds
     ; InitRes ( Stk . RidROUND , NEW ( Ex . ExprUnBinOp ) , Ekt . EkFunc )
     ; InitRidROUND ( )
 
-    ; InitRes ( Stk . RidSUBARRAY , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidSUBARRAY , NEW ( Ex . Expr3OpndTyp) , Ekt . EkFunc )
     ; InitRidSUBARRAY ( )
 
     ; InitRes ( Stk . RidTEXT , NEW ( Ex . ExprAddrTypeTyp ) , Ekt . EkType )
@@ -572,7 +572,7 @@ MODULE FM3ReservedIds
     ; InitRes ( Stk . RidTRUE , NEW ( Ex . ExprTyp ) , Ekt . EkConst )
     ; InitRidTRUE ( )
 
-    ; InitRes ( Stk . RidTRUNC , NEW ( Ex . ExprUnBinOp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidTRUNC , NEW ( Ex . Expr2OpndTyp ) , Ekt . EkFunc )
     ; InitRidTRUNC ( )
 
     ; InitRes ( Stk . RidTYPECODE , NEW ( Ex . ExprUnBinOp ) , Ekt . EkFunc )
