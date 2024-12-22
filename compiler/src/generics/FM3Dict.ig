@@ -19,7 +19,7 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
 *) 
 
 (* TODO: Consider using KeyGenFormal.Hash , rather than 
-         requirinmg it to be passed to the procedures.
+         requiring it to be passed to the procedures.
          Not only would it simplify calls, but ensure a
          consistent function.
 *) 

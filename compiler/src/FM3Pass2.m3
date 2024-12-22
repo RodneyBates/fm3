@@ -24,7 +24,7 @@ MODULE FM3Pass2
 
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Base 
-; FROM   FM3Base IMPORT tPosition 
+; FROM   FM3Base IMPORT tPosition  
 ; IMPORT FM3CLArgs
 ; IMPORT FM3CLOptions  
 ; IMPORT FM3Compile
@@ -40,6 +40,7 @@ MODULE FM3Pass2
 ; FROM   FM3Globals IMPORT P2RdBack 
 ; IMPORT FM3Graph 
 ; IMPORT FM3IntToks AS Itk
+; IMPORT FM3LoTypes
 ; IMPORT FM3SrcToks AS Stk
 ; FROM   FM3StreamUtils
     IMPORT GetBwdInt , GetBwdAtom , GetBwdDeclKind , GetBwdPos , GetBwdScopeNo 
@@ -56,7 +57,6 @@ MODULE FM3Pass2
 ; TYPE Ekt = FM3Exprs . ExprKindTyp 
 ; TYPE Ust = FM3Units . UnitStateTyp
 ; TYPE Dkt = FM3Decls . DeclKindTyp 
-; TYPE Lot = FM3Base . LoTypeTyp 
 
 ; PROCEDURE PutBwdP2 ( RdBack : RdBackFile . T ; ValueL : LONGINT )
   (* Wrap FM3Compress . PutBwd for pass 2 output file. 
@@ -468,7 +468,7 @@ MODULE FM3Pass2
     ; FM3Exprs . PushExprStack ( LNewObj ) 
     END PushExprIgnore 
 
-; PROCEDURE DefExprRt ( NewExprObj : FM3Exprs . ExprCommon )
+; PROCEDURE DefExprRt ( NewExprObj : FM3Exprs . ExprTyp )
   (* PRE: NOT Skipping. *)
   (* Expressions that are contained in definitions. *) 
 
@@ -497,11 +497,12 @@ MODULE FM3Pass2
         ELSE (* Inherit some things from parent expr node. *) 
           TYPECASE FM3Exprs . ExprStackTopObj OF 
           | NULL => <* ASSERT FALSE , "Orphan expr node" *> 
-          | FM3Exprs . ExprCommon ( TParentExpr ) 
+          | FM3Exprs . ExprTyp ( TParentExpr ) 
           =>  NewExprObj . ExpDownKind := TParentExpr . ExpDownKind
             ; NewExprObj . ExpIsLegalRecursive
                 := NewExprObj . ExpIsLegalRecursive
                    OR TParentExpr . ExpIsLegalRecursive
+          ELSE <* ASSERT FALSE , "Orphan expr node" *>
           END (*TYPECASE*)
         END (*IF*)
       END (*WITH*) 
@@ -527,7 +528,7 @@ MODULE FM3Pass2
   ; VAR LPosition : tPosition
   ; VAR HtSkipping : BOOLEAN
 
-  ; PROCEDURE HtIntLit ( LoType : Lot )
+  ; PROCEDURE HtIntLit ( LoTypeNo : FM3LoTypes . LoTypeNoTyp )
     (* Both INTEGER and LONGINT. *)
 
     = VAR LLongInt : LONGINT 
@@ -541,12 +542,15 @@ MODULE FM3Pass2
           IF AreInsideADecl ( )
           THEN 
             WITH LExpr
-              = NEW ( FM3Exprs . ExprConstValue , ExpUpKind := Ekt . EkConst ) 
+              = NEW ( FM3Exprs . ExprConstValue , ExpUpKind := Ekt . EkValue ) 
             DO 
               LExpr . ExpValueL := LLongInt
-            ; LExpr . ExpValueLoType := LoType  
+            ; LExpr . ExpLoTypeInfoRef
+                := VarArray_Int_Refany . Fetch
+                     ( FM3LoTypes . LoTypeMap , LoTypeNo )  
             ; LExpr . ExpPosition := LPosition
-            ; LExpr . ExpUpKind := Ekt . EkConst
+            ; LExpr . ExpUpKind := Ekt . EkValue 
+            ; LExpr . ExpIsConst := TRUE 
             ; LExpr . ExpIsLegalRecursive := TRUE
             ; DefExprRt ( LExpr )
             END (*WITH*)
@@ -560,7 +564,7 @@ MODULE FM3Pass2
         END (*IF*)
       END HtIntLit 
 
-  ; PROCEDURE HtExprRt ( NewExpr : FM3Exprs . ExprCommon )
+  ; PROCEDURE HtExprRt ( NewExpr : FM3Exprs . ExprTyp )
 
     = BEGIN 
         WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
@@ -832,8 +836,6 @@ MODULE FM3Pass2
     ItkVALUEFormalIdListElem.  But is that necessary? *) 
 
       | Itk . ItkIdRefAtom
-      , Itk . ItkReservedId
-(* TODO: Do we really have any need for these two Itk tokens? *) 
       => IdentRefR2L ( TokResult )
 
       | Itk . ItkQualIdAtoms 
@@ -864,10 +866,10 @@ MODULE FM3Pass2
         ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
 
       | Itk . ItkIntLit
-      => HtIntLit ( Lot . LotInt ) 
+      => HtIntLit ( FM3LoTypes . LoTypeNoInt ) 
 
       | Itk . ItkLongIntLit
-      => HtIntLit ( Lot . LotLongInt ) 
+      => HtIntLit ( FM3LoTypes . LoTypeNoLong ) 
 
       | Itk . ItkTextLitRt
       , Itk . ItkWideTextLitRt
@@ -934,7 +936,7 @@ MODULE FM3Pass2
       | Itk . ItkOpenArrayTypeRt 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; HtExprRt
-            ( NEW ( FM3Exprs . ExprOpenArrayTypeTyp , ExpUpKind := Ekt . EkConst) )
+            ( NEW ( FM3Exprs . ExprOpenArrayTypeTyp , ExpUpKind := Ekt . EkValue ) )
 
       | Itk . ItkOpenArrayTypeLt
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
@@ -1069,7 +1071,8 @@ MODULE FM3Pass2
   = VAR OslScopeRef : FM3Scopes . ScopeRefTyp
 
   ; PROCEDURE VisitSCC
-      ( READONLY SCC : ARRAY OF INTEGER (* DeclNo, biased relative to the scope. *) )
+      ( READONLY SCC : ARRAY OF INTEGER
+                             (* ^ DeclNo, biased relative to the scope. *) )
     (* A callback. *) 
 
     = VAR LWrT : Wr . T 
@@ -1451,7 +1454,7 @@ MODULE FM3Pass2
     (* The ref is to the current open scope.  Would it be legal in a recursion? *) 
     ; TYPECASE FM3Exprs . ExprStackTopObj OF 
       NULL => 
-      | FM3Exprs . ExprCommon ( TRefExpr ) 
+      | FM3Exprs . ExprTyp ( TRefExpr ) 
       => IF NOT TRefExpr . ExpIsLegalRecursive
          THEN 
            WITH WRefIdNoSet
@@ -1574,12 +1577,12 @@ MODULE FM3Pass2
         THEN 
           IF AreInsideADecl ( )
 (* CHECK: Is this precluded by syntactic context? *) 
-          THEN (* Create an ExprRefDeclNo node. *) 
+          THEN (* Create an ExprIdentReference node. *) 
             CheckRecursiveRef ( LRefDeclNo )
           ; WITH WExpr
-                 = NEW ( FM3Exprs . ExprRefDeclNo , ExpUpKind := Ekt . EkRef )
+                 = NEW ( FM3Exprs . ExprIdentReference , ExpUpKind := Ekt . EkRef )
             DO
-              WExpr . ExpDeclNo := LRefDeclNo 
+              WExpr . ExpIdentDeclNo := LRefDeclNo 
             ; WExpr . ExpPosition := LPosition
             ; WExpr . ExpUpKind := Ekt . EkRef
             ; WExpr . ExpIsUsable := TRUE
@@ -1688,7 +1691,7 @@ MODULE FM3Pass2
           THEN (* Create an ExprIdNo node. *) 
             CheckRecursiveRef ( LRefDeclNo )
           ; WITH WDotExpr = NEW ( FM3Exprs . ExprDot )
-                 , WLtExpr = NEW ( FM3Exprs . ExprRefDeclNo )
+                 , WLtExpr = NEW ( FM3Exprs . ExprIdentReference )
             DO 
               WDotExpr . ExpOpnd1 := WLtExpr 
             ; WDotExpr . ExpDotIdAtom := LAtomRt
@@ -1696,7 +1699,7 @@ MODULE FM3Pass2
             ; WDotExpr . ExpUpKind := Ekt . EkRef
             ; WDotExpr . ExpIsUsable := TRUE
             ; DefExprRt ( WDotExpr )
-            ; WLtExpr . ExpDeclNo := LRefDeclNoLt 
+            ; WLtExpr . ExpIdentDeclNo := LRefDeclNoLt 
             ; WLtExpr . ExpPosition := LPosLt
             ; WLtExpr . ExpUpKind := Ekt . EkRef
             ; WLtExpr . ExpIsUsable := TRUE

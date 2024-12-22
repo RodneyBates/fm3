@@ -15,7 +15,6 @@ MODULE FM3Pass3
 ; IMPORT Pathname
 ; IMPORT TextWr 
 ; IMPORT Thread 
-; IMPORT UniRd
 ; IMPORT Wr 
 
 ; IMPORT RangeUtils 
@@ -25,7 +24,7 @@ MODULE FM3Pass3
 
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Base 
-; FROM   FM3Base IMPORT tPosition 
+; FROM   FM3Base IMPORT PositionNull , tPosition 
 ; IMPORT FM3CLArgs
 ; IMPORT FM3CLOptions  
 ; IMPORT FM3Compile
@@ -41,25 +40,26 @@ MODULE FM3Pass3
 ; IMPORT FM3Globals
 ; FROM   FM3Globals IMPORT P2RdBack 
 ; FROM   FM3Globals IMPORT P3RdBack 
-; IMPORT FM3Graph 
+; IMPORT FM3Graph
+; IMPORT FM3CTIntArith 
 ; IMPORT FM3IntToks AS Itk
 ; IMPORT FM3SrcToks AS Stk
 ; FROM   FM3StreamUtils
     IMPORT GetBwdInt , GetBwdAtom , GetBwdDeclKind , GetBwdPos , GetBwdScopeNo 
 ; IMPORT FM3Messages 
 ; FROM   FM3Messages IMPORT FatalArr , ErrorArr , FM3LogArr
-; IMPORT FM3Scanner
+; IMPORT FM3Predefs
 ; IMPORT FM3Scopes
-; IMPORT FM3SharedGlobals 
-; IMPORT FM3SharedUtils 
+; IMPORT FM3SharedUtils
+; IMPORT FM3Target
 ; IMPORT FM3Units 
 ; IMPORT FM3Utils
 ; IMPORT RdBackFile
 
 ; TYPE Ekt = FM3Exprs . ExprKindTyp 
+; TYPE Est = FM3Exprs . ExprStateTyp 
 ; TYPE Ust = FM3Units . UnitStateTyp
 ; TYPE Dkt = FM3Decls . DeclKindTyp 
-; TYPE Lot = FM3Base . LoTypeTyp 
 
 ; PROCEDURE PutBwdP3 ( RdBack : RdBackFile . T ; ValueL : LONGINT )
   (* Wrap FM3Compress . PutBwd for pass 3 output file. 
@@ -86,27 +86,6 @@ MODULE FM3Pass3
       END (*EXCEPT*) 
     END PutBwdP3
 
-; PROCEDURE PutBwdPatch ( RdBack : RdBackFile . T ; ValueL : LONGINT )
-  (* Wrap FM3Compress . PutBwd for patch stack 
-     Catch OSError.E.
-  *)
-
-  = BEGIN (*PutBwdPatch*) 
-      <* ASSERT RdBack = FM3Globals . PatchRdBack *>
-      TRY
-        FM3Compress . PutBwd ( RdBack , ValueL ) 
-      EXCEPT OSError . E ( EMsg )
-      => FM3Messages . FatalArr
-           ( ARRAY OF REFANY
-               { "Unable to write to patch file \""
-               , RdBackFile . FileName ( RdBack )
-               , "\", " 
-               , FM3Messages . AtomListToOSError ( EMsg ) , "."  
-               }
-           ) 
-      END (*EXCEPT*) 
-    END PutBwdPatch
-
 ; PROCEDURE SkipLt ( SkipNo : INTEGER )
   (* pass 3, initial (left) end of a range of conditionally skipped tokens. *)
 
@@ -122,7 +101,7 @@ MODULE FM3Pass3
       END (*WITH*)
     END SkipLt 
 
-; PROCEDURE SkipRt ( SkipNo : INTEGER )
+ ; PROCEDURE SkipRt ( SkipNo : INTEGER )
   (* pass 3 final (right) end of a range of conditionally skipped tokens. *)
 
   = BEGIN 
@@ -168,10 +147,7 @@ MODULE FM3Pass3
 
 ; <*UNUSED*> PROCEDURE CopyOperandsReverse
 
-    ( OpndCt : [ 0 .. 6 ] 
-    ; FromRdBack , ToRdBack : RdBackFile . T
-    ; MaybeSkip : BOOLEAN (* ToRdBack is conditional on SkipNoStack. *) 
-    )
+    ( OpndCt : [ 0 .. 6 ] ; FromRdBack , ToRdBack : RdBackFile . T )
   (* Copy operands, up to 6. This is could be confusing.  One-at-a-time pop,
      push temporally reverses them left-to-right.  But if the caller is copying
      to a RdBack that is to be read in the opposite direction, that will
@@ -180,9 +156,8 @@ MODULE FM3Pass3
   *)
   
   = BEGIN
-      IF MaybeSkip
-         AND VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi
-             > 0 
+      IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi
+         > 0 
       THEN DiscardOperands ( OpndCt , FromRdBack )
       ELSE (* Actually copy. *) 
       (* The obvious loop is unrolled. *) 
@@ -215,10 +190,7 @@ MODULE FM3Pass3
     END CopyOperandsReverse
 
 ; PROCEDURE CopyOperandsInOrder
-    ( OpndCt : [ 0 .. 6 ] 
-    ; FromRdBack , ToRdBack : RdBackFile . T
-    ; MaybeSkip : BOOLEAN (* ToRdBack is conditional on SkipNoStack. *) 
-    )
+    ( OpndCt : [ 0 .. 6 ] ; FromRdBack , ToRdBack : RdBackFile . T )
   (* This is tricky.  Pop, push reverses them, but this procedure does
      a compensating reverse, for net same order. 
   *)
@@ -226,10 +198,8 @@ MODULE FM3Pass3
   = VAR LOpnd1 , LOpnd2 , LOpnd3 , LOpnd4 , LOpnd5 , LOpnd6 : LONGINT
   
   ; BEGIN (*CopyOperandsInOrder*)
-<* ASSERT MaybeSkip = ( ToRdBack = FM3Globals . P3RdBack ) *> 
-      IF MaybeSkip
-         AND VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi
-             > 0 
+      IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi
+         > 0 
       THEN DiscardOperands ( OpndCt , FromRdBack ) 
       ELSE (* Actually copy, with net reversal. *) 
         (* The obvious loop is unrolled, not so obviously. *) 
@@ -298,21 +268,16 @@ MODULE FM3Pass3
 ; PROCEDURE Pass3Tokens ( LMPass2Depth : LONGINT )
 
   = VAR LUnitRef : FM3Units . UnitRefTyp
-  ; VAR LPass2RdBack : RdBackFile . T 
-  ; VAR LPass3RdBack : RdBackFile . T 
   ; VAR LToken : Itk . TokTyp 
 
   ; BEGIN (* Pass3Tokens *) 
       LUnitRef := FM3Units . UnitStackTopRef
-    ; LPass2RdBack := LUnitRef ^ . UntPass2OutRdBack 
-    ; LPass3RdBack := LUnitRef ^ . UntPass3OutRdBack
     ; LMPass2Depth := MAX ( LMPass2Depth , LUnitRef ^ . UntPass2OutEmptyCoord )
-    ; <* ASSERT GetBwd ( LPass2RdBack ) = VAL ( Itk . ItkEOF , LONGINT ) *> 
-      <* ASSERT GetBwd ( LPass2RdBack ) = VAL ( Itk . ItkRightEnd , LONGINT )*> 
-
+    ; <* ASSERT GetBwd ( P2RdBack ) = VAL ( Itk . ItkBOF , LONGINT ) *> 
+      <* ASSERT GetBwd ( P2RdBack ) = VAL ( Itk . ItkLeftEnd , LONGINT )*> 
       LOOP
         LToken := GetTokCode ( LMPass2Depth )
-      ; IF LToken = Itk . ItkBOF
+      ; IF LToken = Itk . ItkEOF
         THEN EXIT
         ELSE HandleTok ( LToken )
         END (*IF*)
@@ -388,9 +353,22 @@ MODULE FM3Pass3
       LNewObj := NEW ( FM3Exprs . ExprTyp )
     ; LNewObj . ExpPosition := Position
     ; FM3Exprs . PushExprStack ( LNewObj ) 
-    END PushExprIgnore 
+    END PushExprIgnore
 
-; PROCEDURE DefExprRt ( NewExprObj : FM3Exprs . ExprCommon )
+; REVEAL FM3Exprs . Expr1OpndTyp
+   = FM3Exprs . Expr1OpndPublic BRANDED "FM3Exprs.Expr1OpndTyp"
+     OBJECT OVERRIDES resolve := ResolveOperand
+     END 
+
+; PROCEDURE ResolveOperand
+    ( Expr1Opnd : FM3Exprs . Expr1OpndTyp
+    ; ExprKind : FM3Exprs . ExprKindTyp
+    )
+  : FM3Exprs . ExprStateTyp
+  = BEGIN
+    END ResolveOperand 
+
+; PROCEDURE DefExprLt ( NewExprObj : FM3Exprs . ExprTyp )
   (* PRE: NOT Skipping. *)
   (* Expressions that are contained in definitions. *) 
 
@@ -419,16 +397,18 @@ MODULE FM3Pass3
         ELSE (* Inherit some things from parent expr node. *) 
           TYPECASE FM3Exprs . ExprStackTopObj OF 
           | NULL => <* ASSERT FALSE , "Orphan expr node" *> 
-          | FM3Exprs . ExprCommon ( TParentExpr ) 
+          | FM3Exprs . ExprTyp ( TParentExpr ) 
           =>  NewExprObj . ExpDownKind := TParentExpr . ExpDownKind
             ; NewExprObj . ExpIsLegalRecursive
                 := NewExprObj . ExpIsLegalRecursive
                    OR TParentExpr . ExpIsLegalRecursive
+
+          ELSE <* ASSERT FALSE , "Orphan expr node" *>
           END (*TYPECASE*)
         END (*IF*)
       END (*WITH*) 
     ; FM3Exprs . PushExprStack ( NewExprObj )
-    END DefExprRt 
+    END DefExprLt 
 
 ; PROCEDURE DefExprRt ( )
   (* PRE NOT Skipping. *)
@@ -449,7 +429,7 @@ MODULE FM3Pass3
   ; VAR LPosition : tPosition
   ; VAR HtSkipping : BOOLEAN
 
-  ; PROCEDURE HtIntLit ( LoType : Lot )
+  ; PROCEDURE HtIntLit ( LoTypeNo : FM3LoTypes . LoTypeNoTyp  )
     (* Both INTEGER and LONGINT. *)
 
     = VAR LLongInt : LONGINT 
@@ -463,12 +443,15 @@ MODULE FM3Pass3
           IF AreInsideADecl ( )
           THEN 
             WITH LExpr
-              = NEW ( FM3Exprs . ExprConstValue , ExpUpKind := Ekt . EkConst ) 
+              = NEW ( FM3Exprs . ExprConstValue , ExpUpKind := Ekt . EkValue ) 
             DO 
               LExpr . ExpValueL := LLongInt
-            ; LExpr . ExpValueLoType := LoType  
+            ; LExpr . ExpLoTypeInfoRef
+                := VarArray_Int_Refany . Fetch
+                     ( FM3LoTypes . LoTypeMap , LoTypeNo )  
             ; LExpr . ExpPosition := LPosition
-            ; LExpr . ExpUpKind := Ekt . EkConst
+            ; LExpr . ExpUpKind := Ekt . EkValue
+            ; LExpr . ExpIsConst := TRUE 
             ; LExpr . ExpIsLegalRecursive := TRUE
             ; DefExprLt ( LExpr )
             END (*WITH*)
@@ -482,7 +465,7 @@ MODULE FM3Pass3
         END (*IF*)
       END HtIntLit 
 
-  ; PROCEDURE HtExprLt ( NewExpr : FM3Exprs . ExprCommon )
+  ; PROCEDURE HtExprLt ( NewExpr : FM3Exprs . ExprTyp )
 
     = BEGIN 
         WITH WPosition = GetBwdPos ( HtPass2RdBack )
@@ -551,7 +534,6 @@ MODULE FM3Pass3
             ( FM3Utils . TokenOpndCt ( Token )
             , HtPass2RdBack 
             , HtPass3RdBack
-            , MaybeSkip := TRUE 
             ) 
         ; PutBwdP3 ( HtPass3RdBack , VAL ( Token , LONGINT ) )
         END (*IF*) 
@@ -575,7 +557,6 @@ MODULE FM3Pass3
               ( FM3Utils . TokenOpndCt ( Token )
               , HtPass2RdBack 
               , HtPass3RdBack
-              , MaybeSkip := TRUE 
               ) 
           ; PutBwdP3 ( HtPass3RdBack , VAL ( Token , LONGINT ) )
           ; RETURN TRUE
@@ -643,14 +624,14 @@ MODULE FM3Pass3
       | Itk . ItkOpenScopeLt 
       =>  LScopeNo := GetBwdScopeNo ( HtPass2RdBack ) 
         ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo )
-        ; LScopeRef ^ . ScpDeclGraph
-            := FM3Graph . NewEmpty ( MaxNodeCt := LScopeRef ^ . ScpDeclCt ) 
-        ; FM3Scopes . PushOpenScopeRef ( LScopeRef ) 
+        ; FM3Scopes . PushOpenScopeRef ( LScopeRef )
+        ; OpenScopeLt ( LScopeRef ) 
 
-      | Itk . ItkOpenScopeRt 
-      =>  LScopeNo := GetBwdScopeNo ( HtPass2RdBack )
-        ; OpenScopeRt ( LScopeNo ) 
-
+      | Itk . ItkOpenScopeRt  
+      =>  LScopeNo := GetBwdScopeNo ( HtPass2RdBack ) 
+        ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo )
+        ;  OpenScopeRt ( LScopeRef )
+  
       | Itk . ItkOpenDeclListLt
       =>  FM3Scopes . OpenScopeStackTopRef ^ . ScpInsideDecl := TRUE 
         ; HtPassTokenThru ( ) 
@@ -745,21 +726,19 @@ MODULE FM3Pass3
 
 (* CONSISTIFY: For some of these, fetch the operands inside the called proc. *) 
       | Itk . ItkDuplDeclId
-      => EVAL DuplDeclIdR2L ( Token )
+      => EVAL DuplDeclIdL2R ( )
 
       | Itk . ItkDeclId
-      => EVAL DeclIdR2L ( Token )
+      => EVAL DeclIdL2R ( )
 
 (* FIXME: We now use different tokens for different declkinds, eg.
     ItkVALUEFormalIdListElem.  But is that necessary? *) 
 
       | Itk . ItkIdRefAtom
-      , Itk . ItkReservedId
-(* TODO: Do we really have any need for these two Itk tokens? *) 
-      => IdentRefR2L ( Token )
+      => IdentRefL2R ( )
 
       | Itk . ItkQualIdAtoms 
-      => QualIdentR2L ( HtPass2RdBack )
+      => QualIdentL2R ( HtPass2RdBack )
 
       | Itk . ItkBlockLt
       => LScopeNo := GetBwdScopeNo ( HtPass2RdBack ) 
@@ -767,11 +746,7 @@ MODULE FM3Pass3
 
      *) 
         ; CopyOperandsInOrder
-           ( 2 (*Position*)
-           , HtPass2RdBack
-           , HtPass3RdBack
-           , MaybeSkip := TRUE 
-           )
+           ( 2 (*Position*) , HtPass2RdBack , HtPass3RdBack )
         ; PutBwdP3 ( HtPass3RdBack , VAL ( LScopeNo , LONGINT ) ) 
         ; PutBwdP3 ( HtPass3RdBack , VAL ( Itk . ItkBlockLt , LONGINT ) )
 
@@ -781,31 +756,26 @@ MODULE FM3Pass3
            ( FM3Utils . TokenOpndCt ( Token ) 
            , HtPass2RdBack
            , HtPass3RdBack
-           , MaybeSkip := TRUE 
            )
         ; PutBwdP3 ( HtPass3RdBack , VAL ( Token , LONGINT ) )
 
       | Itk . ItkIntLit
-      => HtIntLit ( Lot . LotInt ) 
+      => HtIntLit ( FM3LoTypes . LoTypeNoInt ) 
 
       | Itk . ItkLongIntLit
-      => HtIntLit ( Lot . LotLongInt ) 
+      => HtIntLit ( FM3LoTypes . LoTypeNoLong ) 
 
       | Itk . ItkTextLitLt
       , Itk . ItkWideTextLitLt
       => CopyOperandsInOrder
-           ( 3 (* Atom, position. *)
-           , HtPass2RdBack
-           , HtPass3RdBack
-           , MaybeSkip := TRUE 
-           )
+           ( 3 (* Atom, position. *) , HtPass2RdBack , HtPass3RdBack )
         ; PutBwdP3 ( HtPass3RdBack , VAL ( Token , LONGINT ) )
         ; HtReverseVariableValues ( MaybeSkip := TRUE ) 
 
       | Itk . ItkTextLitRt
       , Itk . ItkWideTextLitRt
       => CopyOperandsInOrder
-           ( 3 (* Atom, position. *) , P2RdBack , P3RdBack , MaybeSkip := TRUE )
+           ( 3 (* Atom, position. *) , P2RdBack , P3RdBack )
         ; PutBwdP3 ( HtPass3RdBack , VAL ( Token , LONGINT ) )
 
       (* Enumeration type: *) 
@@ -852,7 +822,7 @@ MODULE FM3Pass3
       | Itk . ItkOpenArrayTypeLt 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; HtExprLt
-            ( NEW ( FM3Exprs . ExprOpenArrayTypeTyp , ExpUpKind := Ekt . EkConst) )
+            ( NEW ( FM3Exprs . ExprOpenArrayTypeTyp , ExpUpKind := Ekt . EkValue) )
 
       | Itk . ItkOpenArrayTypeRt
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
@@ -906,21 +876,6 @@ MODULE FM3Pass3
       END (*CASE*)
     END HandleTok
 
-(* TODO: There must be more places this could be used. *) 
-; PROCEDURE CharsOfIdentAtom
-    ( UnitRef : FM3Units . UnitRefTyp ; Atom : FM3Base . AtomTyp )
-  : FM3Atom_OAChars . KeyTyp
-
-  = VAR LIdentChars : FM3Atom_OAChars . KeyTyp 
-
-  ; BEGIN 
-      IF NOT FM3Atom_OAChars . Key 
-               ( UnitRef ^ . UntIdentAtomDict , Atom , (*OUT*) LIdentChars )
-      THEN LIdentChars := NIL
-      END (*IF*)
-    ; RETURN LIdentChars
-    END CharsOfIdentAtom 
-    
 (* Right-to-left scope handling.  Call sites read the Itk and its operands,
    and pass the operands in. *) 
 
@@ -982,78 +937,314 @@ MODULE FM3Pass3
       END (*IF*)
     END LookupAtomExpImp 
 
-; PROCEDURE OpenScopeRt ( ScopeNo : FM3Globals . ScopeNoTyp ) 
+; PROCEDURE OpenScopeLt ( ScopeRef : FM3Scopes . ScopeRefTyp ) 
 
-  = VAR OslScopeRef : FM3Scopes . ScopeRefTyp
+  = VAR LScopeNo : FM3Scopes . ScopeNoTyp
+  ; VAR LUnitRef : FM3Units . UnitRefTyp
+  ; VAR LDeclRef : FM3Decls . DeclRefTyp 
 
-  ; PROCEDURE VisitSCC
-      ( READONLY SCC : ARRAY OF INTEGER (* DeclNo, biased relative to the scope. *) )
-    (* A callback. *) 
-
-    = VAR LWrT : Wr . T 
-    ; VAR LDeclRef0 , LDeclRefn : FM3Decls . DeclRefTyp
-    ; VAR LDeclNo : FM3Globals . DeclNoTyp 
-    ; VAR LIdentCt : INTEGER
-
-    ; BEGIN
-        LIdentCt := NUMBER ( SCC ) 
-      ; IF LIdentCt < 1 THEN RETURN END (*IF*)
-      ; LWrT := TextWr . New (  )
-      ; Wr . PutText ( LWrT , "Illegal recursive declaration" )
-      ; IF LIdentCt > 1 THEN Wr . PutChar ( LWrT , 's' ) END (*IF*) 
-      ; Wr . PutText ( LWrT , ": \"" )
-      ; LDeclNo := SCC [ 0 ] + OslScopeRef ^ . ScpMinDeclNo (* Remove bias. *) 
-      ; LDeclRef0 (* Implicit NARROW. *) 
-          := VarArray_Int_Refany . Fetch
-               ( FM3Units . UnitStackTopRef ^ . UntDeclMap , LDeclNo )
-      ; FM3Utils . PutOACharsWr
-          ( LWrT
-          , FM3Utils . CharsOfAtom
-              ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict
-              , LDeclRef0 ^ . DclIdAtom
-              )
-          ) 
-      ; Wr . PutChar ( LWrT , '\"' ) 
-      ; LDeclRef0 ^ . DclIsUsable := FALSE 
-      ; IF LIdentCt > 1
-        THEN
-          Wr . PutText ( LWrT , ", also involving")
-        ; FOR RI := 1 TO LIdentCt - 1
-          DO 
-            Wr . PutText ( LWrT , FM3Messages . NLIndent )
-          ; Wr . PutChar ( LWrT , '\"' )
-          ; LDeclNo := SCC [ RI ] + OslScopeRef ^ . ScpMinDeclNo (* Remove bias. *) 
-          ; LDeclRefn (* Implicit NARROW. *) 
-              := VarArray_Int_Refany . Fetch
-                   ( FM3Units . UnitStackTopRef ^ . UntDeclMap , LDeclNo )  
-          ; FM3Utils . PutOACharsWr
-              ( LWrT
-              , FM3Utils . CharsOfAtom
-                  ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict
-                  , LDeclRefn ^ . DclIdAtom
-                  )
-              ) 
-          ; Wr . PutText ( LWrT , "\" " ) 
-          ; Wr . PutText ( LWrT , FM3Utils . PositionImage ( LDeclRefn . DclPos ) )
-          ; LDeclRefn ^ . DclIsUsable := FALSE 
-          END (*FOR*) 
-        END (*IF*) 
-      ; FM3Messages . ErrorArr
-          ( ARRAY OF REFANY { TextWr . ToText ( LWrT ) } , LDeclRef0 . DclPos ) 
-      END VisitSCC
-
-  ; BEGIN (* OpenScopeRt *) 
-      OslScopeRef := FM3Scopes . OpenScopeStackTopRef
-    ; IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi <= 0
+  ; BEGIN (* OpenScopeLt *) 
+      IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi <= 0
       THEN (* Not skipping. *) 
-        FM3Graph . SCCs ( OslScopeRef ^ . ScpDeclGraph , VisitSCC ) 
-      ; <* ASSERT FM3Scopes . PopOpenScopeRef ( )
-                  = FM3Scopes . ScopeRefOfScopeNo ( ScopeNo )
-        *>
+        FM3Scopes . PushOpenScopeRef ( ScopeRef )
+      ; PutBwdP3 ( P3RdBack , VAL ( ScopeRef ^ . ScpSelfScopeNo , LONGINT ) ) 
+      ; PutBwdP3 ( P3RdBack , VAL ( Itk . ItkOpenScopeLt, LONGINT ) )
+      ; LUnitRef := FM3Units . UnitStackTopRef
+      ; FOR RDeclNo := ScopeRef . ScpMinDeclNo TO ScopeRef . ScpDeclCt - 1
+        DO
+          LDeclRef (* Implied NARROW *) 
+            := VarArray_Int_Refany . Fetch ( LUnitRef ^ . UntDeclMap , RDeclNo )
+        ; IF LDeclRef ^ . DclIsUsable
+          THEN
+            <* ASSERT FM3Exprs . ResolveNow
+                        ( LDeclRef ^ . DclDefType , Ekt . EkType  )
+                      = Est . EsResolved
+            *>
+            <* ASSERT FM3Exprs . ResolveNow
+                        ( LDeclRef ^ . DclDefValue , Ekt . EkValue ) 
+                      = Est . EsResolved
+            *>
+          END (*IF*) 
+        END (*FOR*) 
       END (*IF*)
-    ; PutBwdP3 ( P3RdBack , VAL ( ScopeNo , LONGINT ) ) 
-    ; PutBwdP3 ( P3RdBack , VAL ( Itk . ItkOpenScopeRt, LONGINT ) )
-    END OpenScopeRt 
+    END OpenScopeLt 
+
+; PROCEDURE OpenScopeRt ( ScopeRef : FM3Scopes . ScopeRefTyp ) 
+
+  = VAR LScopeNo : FM3Scopes . ScopeNoTyp
+
+  ; BEGIN
+      IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi <= 0
+      THEN (* Not skipping. *) 
+          LScopeNo := ScopeRef ^ . ScpSelfScopeNo  
+        ; PutBwdP3 ( P3RdBack , VAL ( LScopeNo , LONGINT ) ) 
+        ; PutBwdP3 ( P3RdBack , VAL ( Itk . ItkOpenScopeRt, LONGINT ) )
+        ; <* ASSERT FM3Scopes . PopOpenScopeRef ( ) = ScopeRef *>
+    END (*IF*)
+  END OpenScopeRt
+
+; PROCEDURE ResolveNot ( NotExpr : FM3Exprs  . Expr1OpndTyp )
+
+  = BEGIN
+      WITH WOpnd = NotExpr . ExpOpnd1
+      DO 
+        EVAL FM3Exprs . ResolveNow ( WOpnd , Ekt . EkValue )
+      ; IF WOpnd . ExpOpcode = Stk . RidBOOLEAN
+        THEN
+          NotExpr . ExpType := FM3Predefs . BoolType  
+        ; NotExpr . ExpKind := WOpnd . ExpKind
+        ; NotExpr . ExpIsUsable := TRUE 
+        ; NotExpr . ExpIsLegalRecursive := TRUE
+        ; NotExpr . ExpIsDesignator := FALSE 
+        ; NotExpr . ExpIsWritable := FALSE 
+        ; NotExpr . ExpState := Est . EsResolved
+        ; IF WOpnd . ExpIsConst
+          THEN
+            NotExpr . ExpIsConst := TRUE 
+          ; NotExpr . ExpScalarConstVal
+              := FM3CTIntArith . Not ( WOpnd . ExpScalarConstVal ) 
+          ELSE NotExpr . ExpIsConst := FALSE
+          END (*IF*) 
+        ELSE 
+          FM3Messages  . ErrorArr
+            ( ARRAY OF REFANY 
+                { "Operand of \"NOT\"  must have type BOOLEAN." }
+            , WOpnd . ExpPosition  
+            ) 
+        ; NotExpr . ExpIsUsable := FALSE 
+        END (*IF*) 
+      END (*WITH*)
+    END ResolveNot
+
+; PROCEDURE ResolveBoolBinOp
+    ( OpExpr : FM3Exprs . Expr2OpndTyp
+    ; Opcode : FM3Exprs . OpcodeTyp
+    ; ReqdConstPos : tPosition
+    )
+
+  = VAR LOk : BOOLEAN := FALSE
+  ; VAR LExprState1 , LExprState2 : FM3Exprs . ExprStateTyp
+
+  ; BEGIN
+      TYPECASE OpExpr OF
+      | NULL => RETURN
+      ELSE RETURN 
+      END (*TYPECASE*)
+    ; WITH WOpnd1= OpExpr . ExpOpnd1
+           , WOpnd2= OpExpr . ExpOpnd2
+      DO 
+        LExprState1 := FM3Exprs . ResolveNow ( WOpnd1 , WOpnd1 . ExpKind )
+      ; LExprState2 := FM3Exprs . ResolveNow ( WOpnd2 , WOpnd2 . ExpKind )
+      ; IF NOT WOpnd1 . ExpIsUsable
+        THEN LOk := FALSE 
+        ELSIF WOpnd1 . ExpOpcode # Stk . RidBOOLEAN
+        THEN 
+          FM3Messages . ErrorArr
+            ( ARRAY OF REFANY 
+                { "Left operand of \""
+                , FM3SrcToks . Image ( Opcode )
+                , "\" must have type BOOLEAN." 
+                }
+            , WOpnd1 . ExpPosition 
+            ) 
+        ; LOk := FALSE
+        END (*IF*)  
+
+      ; IF NOT WOpnd2 . ExpIsUsable
+        THEN LOk := FALSE 
+        ELSIF WOpnd2 . ExpOpcode # Stk . RidBOOLEAN
+        THEN 
+          FM3Messages . ErrorArr
+            ( ARRAY OF REFANY 
+                { "Right operand of \""
+                , FM3SrcToks . Image ( Opcode )
+                , "\" must have type BOOLEAN." 
+                }
+            , WOpnd2 . ExpPosition 
+            ) 
+        ; LOk := FALSE
+        END (*IF*)
+
+      ; OpExpr . ExpIsUsable := LOk 
+      ; IF LOk THEN 
+          OpExpr . ExpType := FM3Predefs . BoolType
+        ; OpExpr . ExpOpcode := Stk . RidBOOLEAN 
+        ; OpExpr . ExpKind := Ekt . EkValue 
+        ; OpExpr . ExpIsUsable := TRUE 
+        ; OpExpr . ExpIsLegalRecursive := TRUE
+        ; OpExpr . ExpIsDesignator := FALSE 
+        ; OpExpr . ExpIsWritable := FALSE 
+        ; OpExpr . ExpState := Est . EsResolved
+
+        ; IF WOpnd1 . ExpIsConst AND WOpnd2 . ExpIsConst
+          THEN
+            OpExpr . ExpIsConst := TRUE
+          ; IF Opcode = Stk . StkRwOR
+            THEN 
+              OpExpr . ExpScalarConstVal
+                := FM3CTIntArith . Or
+                     ( WOpnd1 . ExpScalarConstVal
+                     , WOpnd2 . ExpScalarConstVal
+                     )
+            ELSE 
+              OpExpr . ExpScalarConstVal
+                := FM3CTIntArith . And
+                     ( WOpnd1 . ExpScalarConstVal
+                     , WOpnd2 . ExpScalarConstVal
+                     )
+            END (*IF*) 
+          ELSIF ReqdConstPos # PositionNull 
+          THEN
+            FM3Messages . ErrorArr
+              ( ARRAY OF REFANY
+                  { "Expression at "
+                  , FM3Utils . PositionImage ( ReqdConstPos )
+                  , " must be constant/ "
+                  }
+                , OpExpr . ExpPosition 
+              )
+          ELSE OpExpr . ExpIsConst := FALSE
+          END (*IF*) 
+        END (*IF*) 
+      END (*WITH*)
+    END ResolveBoolBinOp
+
+; PROCEDURE ResolveNumBinOp
+    ( OpExpr : FM3Exprs . Expr2OpndTyp
+    ; Opcode : FM3Exprs . OpcodeTyp
+    ; ReqdConstPos : tPosition 
+    )
+
+  = VAR LOk : BOOLEAN := FALSE
+  ; VAR LLeftAssignableType : FM3Exprs . ExprTyp 
+  ; VAR LRightAssignableType : FM3Exprs . ExprTyp
+  ; VAR LExprState1 : FM3Exprs . ExprStateTyp 
+  ; VAR LExprState2 : FM3Exprs . ExprStateTyp 
+
+  ; BEGIN
+      WITH WOpnd1= OpExpr . ExpOpnd1
+           , WOpnd2= OpExpr . ExpOpnd2
+      DO 
+        LExprState1 := FM3Exprs . ResolveNow ( WOpnd1 , WOpnd1 . ExpKind )
+      ; LExprState2 := FM3Exprs . ResolveNow ( WOpnd2 , WOpnd2 . ExpKind )
+      ; IF NOT WOpnd1 . ExpIsUsable
+        THEN LOk := FALSE 
+        ELSIF NOT FM3Exprs . IsNumType ( WOpnd1 . ExpType )
+        THEN 
+          FM3Messages . ErrorArr
+            ( ARRAY OF REFANY 
+                { "Left operand of \""
+                , FM3SrcToks . Image ( Opcode )
+                , "\" must have a numeric type." 
+                }
+            , WOpnd1 . ExpPosition 
+            ) 
+        ; LOk := FALSE
+        ELSE LLeftAssignableType := MaxAssignableType ( WOpnd1 . ExpType ) 
+        END (*IF*)  
+
+      ; IF NOT WOpnd2 . ExpIsUsable
+        THEN LOk := FALSE 
+        ELSIF NOT IsNumType ( WOpnd2 . ExpType )
+        THEN 
+          FM3Messages . ErrorArr
+            ( ARRAY OF REFANY 
+                { "Right operand of \""
+                , FM3Predefs . Image ( Opcode )
+                , "\" must have a numeric type." 
+                }
+            , WOpnd2 . ExpPosition 
+            ) 
+        ; LOk := FALSE
+        ELSE LRightAssignableType
+             := FM3TypeUtils . MaxAssignableType ( WOpnd2 . ExpType ) 
+        END (*IF*)
+
+      ; IF NOT FM3TypeUtils . EqualTypes
+                 ( LLeftAssignableType , LRightAssignableType )
+        THEN
+          FM3Messages . ErrorArr
+            ( ARRAY OF REFANY
+                { "Operands of "
+                , FM3Predefs . Image ( Opcode )
+                , " must be assignable to a common type." 
+                }
+           , OpExpr . ExpPosition
+           ) 
+        ; LOk := FALSE
+        END (*IF*) 
+      ; OpExpr . ExpIsUsable := LOk
+      ; IF LOk
+        THEN 
+          OpExpr . ExpType := LLeftAssignableType
+        ; OpExpr . ExpKind := Ekt . EkValue
+        ; OpExpr . ExpIsUsable := TRUE 
+        ; OpExpr . ExpIsLegalRecursive := TRUE
+        ; OpExpr . ExpIsDesignator := FALSE 
+        ; OpExpr . ExpIsWritable := FALSE 
+        ; OpExpr . ExpState := Est . EsResolved
+
+        ; IF WOpnd1 . ExpIsConst AND WOpnd2 . ExpIsConst
+          THEN
+            OpExpr . ExpIsConst := TRUE
+          ; IF Opcode = FM3SrcToks . StkRwOR
+            THEN 
+              OpExpr . ExpScalarConstVal
+                := FM3CTIntArith . Or
+                     ( WOpnd1 . ExpScalarConstVal
+                     , WOpnd2 . ExpScalarConstVal
+                     )
+            ELSE 
+              OpExpr . ExpScalarConstVal
+                := FM3CTIntArith . And
+                     ( WOpnd1 . ExpScalarConstVal
+                     , WOpnd2 . ExpScalarConstVal
+                     )
+            END (*IF*) 
+          ELSIF NOT OpExpr . ExpIsConst AND ReqdConstPos # PositionNull 
+          THEN
+            FM3Messages . ErrorArr
+              ( ARRAY OF REFANY
+                  { "Expression at "
+                  , FM3Utils . PositionImage ( ReqdConstPos )
+                  , " must be constant/ "
+                  }
+              , OpExpr . ExpPosition 
+              )
+          ; OpExpr . ExpIsUsable := FALSE
+          ELSE OpExpr . ExpIsConst := FALSE
+          END (*IF*) 
+        END (*IF*) 
+      END (*WITH*)
+    END ResolveNumBinOp
+
+; PROCEDURE Resolve1Opnd
+    ( Expr : FM3Exprs . Expr1OpndTyp ; ExprKind : FM3Exprs . ExprKindTyp )
+
+  = VAR LExprState : FM3Exprs . ExprStateTyp
+
+  ; BEGIN
+      WITH WOpnd = Expr . ExpOpnd1
+      DO 
+        FM3Exprs . ResolveNow ( WOpnd , ExprKind )
+      ; CASE Expr . ExpOpcode OF
+        | Stk . StkRwNOT
+        => ResolveNot ( Expr , WOpnd )
+        | Stk . StkUnaryPlus 
+        , Stk . StkUnaryMinus 
+        => LExprState := Expr . ExpOpnd1 . resolve ( ExprKind )  
+        END (*CASE*)
+      END (*WITH*)
+    END Resolve1Opnd
+
+
+
+
+
+
+
+
+
 
 ; PROCEDURE LookupAtomInOpenScopes
     ( IdAtom : FM3Base . AtomTyp ) : FM3Globals . DeclNoTyp  
@@ -1093,7 +1284,7 @@ MODULE FM3Pass3
       END (*LOOP*) 
     END LookupAtomInOpenScopes
 
-; PROCEDURE DuplDeclIdR2L ( Token : Itk . TokTyp )
+; PROCEDURE DuplDeclIdL2R ( )
   : FM3Globals . DeclNoTyp
   (* Append a temporary, pseudo-decl node to the linked list rooted at
      the decl number.  The position of the original declaration of
@@ -1134,7 +1325,7 @@ MODULE FM3Pass3
       *) 
       END Visit
 
-  ; BEGIN (* DuplDeclIdR2L *) 
+  ; BEGIN (* DuplDeclIdL2R *) 
       VAR LDeclNo : FM3Globals . DeclNoTyp
     ; BEGIN (* Block. *)
         DdiAtom := GetBwdAtom ( P3RdBack )
@@ -1147,9 +1338,9 @@ MODULE FM3Pass3
           ( FM3Units . UnitStackTopRef ^ . UntDeclMap , LDeclNo , Visit )
       ; RETURN LDeclNo
       END (* Block. *) 
-    END DuplDeclIdR2L
+    END DuplDeclIdL2R
     
-; PROCEDURE DeclIdR2L ( Token : Itk . TokTyp ) : FM3Globals . DeclNoTyp
+; PROCEDURE DeclIdL2R ( ) : FM3Globals . DeclNoTyp
   (* ^This will be the only decl of DeclIdAtom in its scope. *) 
 
   = VAR DidAtom : FM3Base . AtomTyp
@@ -1188,7 +1379,7 @@ MODULE FM3Pass3
         ; LIdentText := FM3Units . TextOfIdAtom ( DidAtom ) 
         ; WHILE LDeclRef # NIL
           DO
-            ErrorArr
+            FM3Messages . ErrorArr
               ( ARRAY OF REFANY
                   { "Duplicate declaration of \""
                   , LIdentText
@@ -1277,7 +1468,7 @@ MODULE FM3Pass3
       ; DeclRefany := LDeclRef 
       END DidVisitDecl
 
-  ; BEGIN (*DeclIdR2L*)
+  ; BEGIN (*DeclIdL2R*)
       DidDeclKind := GetBwdDeclKind ( P3RdBack )
     ; DidAtom := GetBwdAtom ( P3RdBack )
     ; DidPosition := GetBwdPos ( P3RdBack )
@@ -1299,7 +1490,7 @@ MODULE FM3Pass3
     ; PutBwdP3 ( P3RdBack , VAL ( DidOpenDeclNo , LONGINT ) ) 
     ; PutBwdP3 ( P3RdBack , VAL ( Itk . ItkDeclNo , LONGINT ) )
     ; RETURN DidOpenDeclNo
-    END DeclIdR2L
+    END DeclIdL2R
 
 ; PROCEDURE BadIdentMessage
     ( Msg : TEXT
@@ -1360,7 +1551,7 @@ MODULE FM3Pass3
     (* The ref is to the current open scope.  Would it be legal in a recursion? *) 
     ; TYPECASE FM3Exprs . ExprStackTopObj OF 
       NULL => 
-      | FM3Exprs . ExprCommon ( TRefExpr ) 
+      | FM3Exprs . ExprTyp ( TRefExpr ) 
       => IF NOT TRefExpr . ExpIsLegalRecursive
          THEN 
            WITH WRefIdNoSet
@@ -1372,7 +1563,7 @@ MODULE FM3Pass3
       END (*TYPECASE*) 
     END CheckRecursiveRef
 
-; PROCEDURE ReservedIdR2L ( Token : Itk . TokTyp )
+; PROCEDURE ReservedIdL2R ( )
 
   = VAR LReservedId : Stk . TokTyp 
   ; VAR LPosition : FM3Base . tPosition 
@@ -1450,9 +1641,9 @@ MODULE FM3Pass3
       => 
 
       END (*CASE*) 
-    END ReservedIdR2L 
+    END ReservedIdL2R 
 
-; PROCEDURE IdentRefR2L ( Token : Itk . TokTyp )
+; PROCEDURE IdentRefL2R ( )
   (* PRE: The ident is not followed by dot Ident. (The parser has gone
           to some trouble to ensure this.)
   *) 
@@ -1467,7 +1658,7 @@ MODULE FM3Pass3
   ; VAR LIntfNameChars : FM3Atom_OAChars . KeyTyp
   ; VAR LIsUsable : BOOLEAN 
 
-  ; BEGIN (*IdentRefR2L*)
+  ; BEGIN (*IdentRefL2R*)
       LUnitRef := FM3Units . UnitStackTopRef
     ; LPass2RdBack := LUnitRef ^ . UntPass2OutRdBack 
     ; LIdentRefAtom := GetBwdAtom ( LPass2RdBack )
@@ -1485,12 +1676,12 @@ MODULE FM3Pass3
       THEN 
         IF AreInsideADecl ( )
 (* CHECK: Is this precluded by syntactic context? *) 
-        THEN (* Create an ExprRefDeclNo node. *) 
+        THEN (* Create an ExprIdentReference node. *) 
           CheckRecursiveRef ( LRefDeclNo )
         ; WITH WExpr
-               = NEW ( FM3Exprs . ExprRefDeclNo , ExpUpKind := Ekt . EkRef )
+               = NEW ( FM3Exprs . ExprIdentReference , ExpUpKind := Ekt . EkRef )
           DO
-            WExpr . ExpDeclNo := LRefDeclNo 
+            WExpr . ExpIdentDeclNo := LRefDeclNo 
           ; WExpr . ExpPosition := LPosition
           ; WExpr . ExpUpKind := Ekt . EkRef
           ; WExpr . ExpIsUsable := TRUE
@@ -1564,9 +1755,9 @@ MODULE FM3Pass3
       ; PutNotUsable( LIdentRefAtom , LPosition ) 
       END (*IF*)
     ; DefExprRt ( ) 
-    END IdentRefR2L
+    END IdentRefL2R
 
-; PROCEDURE QualIdentR2L ( Pass2RdBack : RdBackFile . T )
+; PROCEDURE QualIdentL2R ( Pass2RdBack : RdBackFile . T )
   (* (NON)PRE: No operands have been read. *) 
 
   = VAR LIntfUnitRef : FM3Units . UnitRefTyp
@@ -1579,7 +1770,7 @@ MODULE FM3Pass3
   ; VAR LRemoteDeclNoInt : INTEGER 
   ; VAR LPosRt , LPosLt : FM3Base . tPosition
 
-  ; BEGIN (*QualIdentR2L*)
+  ; BEGIN (*QualIdentL2R*)
       LAtomRt := GetBwdAtom ( Pass2RdBack ) 
     ; LAtomLt := GetBwdAtom ( Pass2RdBack ) 
     ; LPosRt := GetBwdPos ( Pass2RdBack ) 
@@ -1595,7 +1786,7 @@ MODULE FM3Pass3
         THEN (* Create an ExprIdNo node. *) 
           CheckRecursiveRef ( LRefDeclNo )
         ; WITH WDotExpr = NEW ( FM3Exprs . ExprDot )
-               , WRtExpr = NEW ( FM3Exprs . ExprRefDeclNo )
+               , WRtExpr = NEW ( FM3Exprs . ExprIdentReference )
           DO 
             WDotExpr . ExpOpnd1 := WRtExpr 
           ; WDotExpr . ExpDotIdAtom := LAtomLt
@@ -1603,7 +1794,7 @@ MODULE FM3Pass3
           ; WDotExpr . ExpUpKind := Ekt . EkRef
           ; WDotExpr . ExpIsUsable := TRUE
           ; DefExprLt ( WDotExpr )
-          ; WRtExpr . ExpDeclNo := LRefDeclNoRt 
+          ; WRtExpr . ExpIdentDeclNo := LRefDeclNoRt 
           ; WRtExpr . ExpPosition := LPosRt
           ; WRtExpr . ExpUpKind := Ekt . EkRef
           ; WRtExpr . ExpIsUsable := TRUE
@@ -1776,7 +1967,11 @@ MODULE FM3Pass3
         BadIdentMessage ( "Undeclared identifier", LAtomRt , LPosRt ) 
       ; PutNotUsable ( LAtomLt , LPosLt ) 
       END (*IF*)
-    END QualIdentR2L
+    END QualIdentL2R
+
+(***********************************************************
+    
+*********************************************************************)
 
 (*EXPORTED*) 
 ; PROCEDURE RunPass3 ( ) 
@@ -1797,7 +1992,7 @@ MODULE FM3Pass3
       IF NOT FM3CLOptions . PassNo3 IN UnitRef ^ . UntPassNosDisAsmed 
       THEN (* Disassembly file is not already written. *) 
         FM3Compile . DisAsmPassFile
-          ( UnitRef , FM3Globals . Pass3OutSuffix , L2R := FALSE )
+          ( UnitRef , FM3Globals . Pass3OutSuffix , L2R := TRUE )
       ; FM3CLOptions . InclPassNo
           ( UnitRef ^ . UntPassNosDisAsmed , FM3CLOptions . PassNo3 ) 
       END (*IF*) 
@@ -1861,9 +2056,7 @@ MODULE FM3Pass3
 
       (* Write final successful pass 3 output tokens. *)
       ; PutBwdP3
-          ( UnitRef ^ . UntPass3OutRdBack
-          , VAL ( Itk . ItkRightEnd , LONGINT )
-          )
+          ( UnitRef ^ . UntPass3OutRdBack , VAL ( Itk . ItkRightEnd , LONGINT ) )
       ; PutBwdP3
           ( UnitRef ^ . UntPass3OutRdBack , VAL ( Itk . ItkEOF , LONGINT ) )
 
@@ -1916,11 +2109,9 @@ MODULE FM3Pass3
   
 ; PROCEDURE FinishPass3 ( UnitRef : FM3Units . UnitRefTyp )
 
-  = VAR LPatchFullFileName : TEXT
-  ; VAR LPass3FullFileName : TEXT 
+  = VAR LPass3FullFileName : TEXT 
   ; VAR LLengthImage : TEXT
   ; VAR LLengthL : LONGINT 
-  ; VAR LCoordSentinalL : LONGINT 
 
   ; BEGIN (*FinishPass3*)
     (* Close pass 3. *) 

@@ -9,12 +9,6 @@
 (* Input file FM3SrcTok.gentok, to metaprogram GenTok. *)
 
 UNITNAME FM3SrcToks
-(* DECREASING Back to positive tokens, so lalr can handle them *) 
-
-(* Source tokens for FM3 Modula-3 compiler. 
-   These are near the high end of 2^14-1.
-   They will not occur in intermediate streams.  
-*)
 
 SRC 
 
@@ -26,7 +20,9 @@ ABS 0
               
 (* Not used in FM3Scanner or FM3Parser: *)
    StkUnknown .
-   StkBOF . 
+   StkBOF .
+
+(* Leave a little space. *)
    
 ABS 5
 
@@ -129,7 +125,7 @@ ABS 5
    StkOpenPragma       "<*" . 
    StkClosePragma      "*>" .
 
-   (* Variable tokens: *) 
+   (* Variable tokens: *)
    StkIdent .
    StkIntLit . 
    StkLongIntLit . 
@@ -145,16 +141,24 @@ ABS 5
    StkLexErrChars .
    StkPragmaId . (* Not a known pragma ident, but found where one is expected. *)
    
-   (* The scanner will recognize predefined ids in interfaces that have special
-      treatment by the compiler and reserved ids using the same lex machine as
-      reserved words, but treat each as an identifier whose atom id is actually
-      the negated source token code. 
+   (* The scanner will recognize predefined ids declared in interfaces that
+      have special treatment by the compiler and reserved ids, all using the
+      same lex machine as reserved words. 
    *) 
 
+   (* The parser will convert '+' and '-' into StkUnary* when they really are
+      unary.  Theywill be used later as operation codes.  The scanner will
+      not recognize them.
+   *)
+
+   StkUnaryPlus        "%UnaryPlus" . 
+   StkUnaryMinus       "%UnaryMinus" . 
 
    (* Reserved identifiers: *)
 NEXT StkMinRid . 
-   RidNull             "<RidNull>" . (* Scanner will never present this. *) 
+   RidNull             "<RidNull>" .
+   (* ^Scanner will never present this, but parsing may convert to it in a
+       context where a reserved ident is illegal. *) 
    RidABS              "ABS" . 
    RidADDRESS          "ADDRESS" . 
    RidADR              "ADR" . 
@@ -198,7 +202,6 @@ NEXT StkMinRid .
    RidTRUNC            "TRUNC" . 
    RidTYPECODE         "TYPECODE" . 
    RidVAL              "VAL" .
-NEXT StkMaxRid . 
    RidWIDECHAR         "WIDECHAR" .
 
    (* ROOT and UNTRACED behave semantically like reserved identifiers, but
@@ -209,6 +212,7 @@ NEXT StkMaxRid .
    *)
    
    RidROOT             "%ROOT" .
+NEXT StkMaxRid . 
    RidUNTRACEDROOT     "%UNTRACED_ROOT" .
 
    (* Predefined identifiers.  Scanner will treat these as ordinary
@@ -217,7 +221,28 @@ NEXT StkMaxRid .
       reserved identifers.
    *) 
 NEXT StkMinPredef . 
-   StkPdT              "T" . 
+(* Predefined interface names.  These values are used as unique unit numbers.
+   Keep them low in the unit number space. *)
+
+(* Predefined standard interface names: *) 
+   StkPdMain           "Main" .
+   StkPdText           "Text" .
+   StkThread           "Thread" . 
+   StkPdWord           "Word" .
+   StkPdLong           "Long" .
+   StkPdReal           "Real" .
+   StkPdLongReal       "LongReal" .
+   StkPdExtended       "Extended" .
+   StkPdRealFloat      "RealFloat" .
+   StkPdLongRealFloat  "LongRealFloat" .
+   StkPdExtendeFloat   "ExtendedFloat" .
+   StkPdFloatMode      "FloatMode" .
+   StkPdLex            "Lex" .
+   StkPdFmt            "Fmt" .
+
+   StkPdT              "T" (* In many standard i9nterfaces: *) 
+
+(* In Word and Long: *) 
    StkPdSize           "Size" . 
    StkPdPlus           "Plus" . 
    StkPdTimes          "Times" . 
@@ -240,6 +265,8 @@ NEXT StkMinPredef .
    StkPdRightRotate    "RightRotate" . 
    StkPdExtract        "Extract" . 
 NEXT StkMaxPredef . 
-   StkPdInsert         "Insert" . 
+   StkPdInsert         "Insert" .
+
+(* COMPLETEME: Idents declared in other staandard interfaces. *) 
 
 (* End of FM3SrcToks.gentok. *) 

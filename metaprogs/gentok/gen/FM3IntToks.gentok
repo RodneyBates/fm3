@@ -24,6 +24,8 @@ ABS 210
 
 (* Being low-numbered, these will read and write either forward
    or backward, without value change.
+FIXME: Not so. must be < 64.  This clashes with src tokens that
+       are copied into FM3Parser.lalr. 
 *) 
 LONE
      ItkNull .
@@ -63,7 +65,7 @@ LONE
   ItkDeclScopeRt INT (* ScopeNo. *) . 
   ItkOpenScopeLt INT (* ScopeNo. *) .
   ItkOpenScopeRt INT (* ScopeNo. *) . 
-  ItkReservedId IDENT POS 3 (* Rid*, Position. *). 
+  ItkReservedIdRef IDENT POS 3 (* Rid*, Position. *). 
   ItkDuplDeclId IDENT POS 3 (* IdAtom, position *) . 
   ItkDeclId INT IDENT POS 4 (* DeclKind, IdAtom, position *) .
   ItkDeclNo DECL POS 3 (* DeclNo, position *) .
@@ -71,7 +73,8 @@ LONE
 
 (* Identifier references. *) 
 
-ItkIdRefAtom IDENT POS 3 (* IdAtom, position. Occurs before pass2. *). 
+ItkIdRefAtom IDENT POS 3
+  (* IdAtom, position. Only non-reserved. Occurs before pass2. *). 
 ItkIdRefDeclNo DECL POS (* DeclNo, position. Occurs after pass2. *) .
 ItkIdRefUnitNoDeclNo INT DECL POS (* UnitNo, DeclNo, position. *)
                                   (* Occurs after pass2. *) .

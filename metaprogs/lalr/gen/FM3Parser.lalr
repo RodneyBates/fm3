@@ -95,7 +95,6 @@ BEGIN
   
 /* Parser module final cleanup. */ 
 CLOSE { }
-
 (* Source code terminal tokens. *)
 (* Copied in from GenTok output and edited. *) 
 TOKEN
@@ -229,7 +228,7 @@ TOKEN
     StkCharLit                                   =    105 (*16_e9 00 *)
     StkWideCharLit                               =    106 (*16_ea 00 *)
     StkLexErrChars                               =    107 (*16_eb 00 *)
-    StkPragmaId                                  =    108
+    StkPragmaId                                  =    108 (*16_ec 00 *)
 
 (* END of copied-in token decls from FM3SrcToks.i3. *)
 
@@ -241,7 +240,7 @@ TOKEN
 
 (* NOTE: Modula-3's idea that semicolons can optionally be separators
    or terminators fails to apply to imports, exports, or declarations,
-   where they can only be terminators.  And commas are always separators.
+   where they can only be terminators.  And BTW, commas are always separators.
    Regardless of the source syntax, in the internal token streams, a list
    always has separator tokens, never element terminators that are not part
    of the element itself. (But there is a *list* terminator, "*Rt".) 
@@ -306,7 +305,7 @@ RULE
    InstModuleKind : /*Empty*/ 
        { FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstModule ; } . 
 
-   InterfaceLt : OptUnsafe StkRwINTERFACE StkIdent IntfPragmas
+   InterfaceLt : OptUnsafe StkRwINTERFACE UnreservedIdent IntfPragmas
      { VAR LUnitRef : FM3Units . UnitRefTyp ; 
        VAR LScopeRef : FM3Scopes . ScopeRefTyp ;  
        BEGIN
@@ -325,7 +324,7 @@ RULE
      } .
 
    InstInterface :
-     InterfaceLt StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot 
+     InterfaceLt StkEqual UnreservedIdent GenActualList StkRwEND UnreservedIdent StkDot 
      { FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstInterface ;
 (*INCOMPLETE.*)
        FM3Pass1 . CheckUnitFinalId
@@ -343,7 +342,7 @@ RULE
        END ; 
      } . 
 
-   Interface : InterfaceMiddle OpenDeclList StkRwEND StkIdent StkDot
+   Interface : InterfaceMiddle OpenDeclList StkRwEND UnreservedIdent StkDot
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN
          LScopeRef := FM3Scopes . OpenScopeStackTopRef ;
@@ -366,7 +365,7 @@ RULE
        END ; 
      } .
 
-   ModuleLt : OptUnsafe StkRwMODULE StkIdent 
+   ModuleLt : OptUnsafe StkRwMODULE UnreservedIdent 
      { VAR LUnitRef : FM3Units . UnitRefTyp ; 
        VAR LScopeRef : FM3Scopes . ScopeRefTyp ;  
        BEGIN
@@ -387,7 +386,7 @@ RULE
      } .
 
    InstModule :
-     ModuleLt StkEqual StkIdent GenActualList StkRwEND StkIdent StkDot 
+     ModuleLt StkEqual UnreservedIdent GenActualList StkRwEND UnreservedIdent StkDot 
      { FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstModule ;
 (*INCOMPLETE.*)
        FM3Pass1 . CheckUnitFinalId
@@ -406,7 +405,7 @@ RULE
      } . 
 
    Module : ModuleMiddle OpenDeclList
-            StkRwBEGIN StmtList StkRwEND StkIdent StkDot
+            StkRwBEGIN StmtList StkRwEND UnreservedIdent StkDot
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN
          LScopeRef := FM3Scopes . OpenScopeStackTopRef ; 
@@ -432,7 +431,7 @@ RULE
        END ; 
      } .
 
-   GenInterfaceLt : StkRwGENERIC StkRwINTERFACE StkIdent 
+   GenInterfaceLt : StkRwGENERIC StkRwINTERFACE UnreservedIdent 
      { VAR LUnitRef : FM3Units . UnitRefTyp ; 
        VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN 
@@ -452,7 +451,7 @@ RULE
 
    GenInterface :
        GenInterfaceLt GenInterfaceKind GenFormalList
-       StkSemicolon ImportList ExpImpDone OpenDeclList StkRwEND StkIdent StkDot 
+       StkSemicolon ImportList ExpImpDone OpenDeclList StkRwEND UnreservedIdent StkDot 
      { (* Scope ref:
         FM3Pass1 . PutBwd_LI ( Itk . ItkDeclScopeLt , $1 . PaConstructNo ) ;
        *)
@@ -460,7 +459,7 @@ RULE
          ( FM3Units . UnitStackTopRef , $8 . Scan , Ukt . UkGenInterface ) ; 
      } .
 
-   GenModuleLt : StkRwGENERIC StkRwMODULE StkIdent  
+   GenModuleLt : StkRwGENERIC StkRwMODULE UnreservedIdent  
      { VAR LUnitRef : FM3Units . UnitRefTyp ; 
        VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN 
@@ -480,13 +479,13 @@ RULE
 
    GenModule :
        GenModuleLt GenModuleKind GenFormalList
-       StkSemicolon ImportList ExpImpDone Block StkIdent StkDot 
+       StkSemicolon ImportList ExpImpDone Block UnreservedIdent StkDot 
      { (* scope ref
           FM3Pass1 . PutBwd_LI ( Itk . ItkDeclScopeLt , $1 . PaConstructNo ) ;
        *) 
        FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkGenModule ; 
        FM3Pass1 . CheckUnitFinalId
-         ( FM3Units . UnitStackTopRef , $7 . Scan , Ukt . UkGenModule ) ;
+         ( FM3Units . UnitStackTopRef , $8 . Scan , Ukt . UkGenModule ) ;
      } .
 
 
@@ -524,14 +523,14 @@ RULE
    ImportItemPlusList : ImportItem .
    ImportItemPlusList : ImportItemPlusList StkComma ImportItem . 
 
-   ImportItem : StkIdent
+   ImportItem : UnreservedIdent
       { FM3ExpImp . ImportAS ( $1 . Scan , $1 . Scan ) } .
      
-   ImportItem : StkIdent StkRwAS StkIdent
+   ImportItem : UnreservedIdent StkRwAS UnreservedIdent
      { FM3ExpImp . ImportAS ( $1 . Scan , $3 . Scan ) } .
      
    (* FROM Id IMPORT ... *)
-   FromImportLt : StkRwFROM StkIdent StkRwIMPORT
+   FromImportLt : StkRwFROM UnreservedIdent StkRwIMPORT
      { $$ . PaRefany 
          := FM3ExpImp . GetInterface
               ( $2 . Scan . SaChars
@@ -542,12 +541,12 @@ RULE
  
    Import : FromImportLt FromImportIdPlusList StkSemicolon . 
 
-   FromImportIdPlusList : StkIdent
+   FromImportIdPlusList : UnreservedIdent
      { EVAL FM3ExpImp . ImportDeclByIdent
               ( $0 . PaRefany (* Implied NARROW *) , $1 . Scan ) ; 
      } . 
    
-   FromImportIdPlusList : FromImportIdPlusList StkComma StkIdent
+   FromImportIdPlusList : FromImportIdPlusList StkComma UnreservedIdent
      { EVAL FM3ExpImp . ImportDeclByIdent
               ( $0 . PaRefany (* Implied NARROW *) , $3 . Scan ) ; 
      } .
@@ -579,7 +578,7 @@ RULE
 
    ExportIdPlusList : ExportIdPlusList StkComma ExportIdent . 
 
-   ExportIdent : StkIdent 
+   ExportIdent : UnreservedIdent 
      { VAR LUnitRef : FM3Units . UnitRefTyp ;
        BEGIN
           LUnitRef
@@ -594,18 +593,21 @@ RULE
 
 (* ----------------------------- Identifiers ---------------------------- *)
 
-   IdentRef : StkIdent
+   UnreservedIdent : StkIdent .
+
+   UnreservedIdent : StkReservedIdent
+     { FM3Pass1 . FlagReservedIdent ( $1 ) ; } .  
+
+   IdentRef : UnreservedIdent
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
        $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
-       $$ . Scan . SaIsPredefId := $1 . Scan . SaIsPredefId ;
        $$ . Scan . SaPredefTok := $1 . Scan . SaPredefTok ;
        FM3Pass1 . IdentRefL2R ( $1 ) ;
      } .
 
-   QualIdentRef : StkIdent StkDot StkIdent   
+   QualIdentRef : UnreservedIdent StkDot UnreservedIdent   
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
        $$ . Scan . SaAtom := $1 . Scan . SaAtom ;  
-       $$ . Scan . SaIsPredefId := $1 . Scan . SaIsPredefId ;
        $$ . Scan . SaPredefTok := $1 . Scan . SaPredefTok ;
        FM3Pass1 . QualIdentL2R ( $1 , $3 ) ;
      } .
@@ -627,7 +629,7 @@ RULE
       the entire declaration is removed after issuing error messages.
    *) 
 
-   DeclIdListElems : StkIdent
+   DeclIdListElems : UnreservedIdent
      { IF FM3Pass1 . DeclIdL2R
             ( Itk . ItkDeclId 
             , FM3Decls . TopDeclParseInfo ( ) . DiKind
@@ -642,7 +644,7 @@ RULE
        END (*IF*) ; 
      } . 
      
-   DeclIdListElems : DeclIdListElems StkComma StkIdent
+   DeclIdListElems : DeclIdListElems StkComma UnreservedIdent
      { IF FM3Pass1 . DeclIdL2R
             ( Itk . ItkDeclId 
             , FM3Decls . TopDeclParseInfo ( ) . DiKind
@@ -671,21 +673,18 @@ RULE
    MaybeQualIdent : IdentRef
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
        $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
-       $$ . Scan . SaIsPredefId := $1 . Scan . SaIsPredefId ;
        $$ . Scan . SaPredefTok := $1 . Scan . SaPredefTok ;
 
      } . 
    MaybeQualIdent : QualIdent 
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
        $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
-       $$ . Scan . SaIsPredefId := $1 . Scan . SaIsPredefId ;
        $$ . Scan . SaPredefTok := $1 . Scan . SaPredefTok ;
      } . 
    
-   QualIdent : StkIdent
+   QualIdent : UnreservedIdent
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
        $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
-       $$ . Scan . SaIsPredefId := $1 . Scan . SaIsPredefId ;
        $$ . Scan . SaPredefTok := $1 . Scan . SaPredefTok ;
        FM3Pass1 . IdentRefL2R ( $1 ) ;
      } .
@@ -709,12 +708,12 @@ RULE
 
    TypeId : StkRwROOT
      { FM3Pass1 . PutBwd_LIP
-         ( Itk . ItkReservedId , Stk . RidROOT , $1 . Scan . Position ) ; 
+         ( Itk . ItkReservedIdRef , Stk . RidROOT , $1 . Scan . Position ) ; 
      } . 
 
    TypeId : StkRwUNTRACED StkRwROOT
      { FM3Pass1 . PutBwd_LIP
-         ( Itk . ItkReservedId
+         ( Itk . ItkReservedIdRef
          , Stk . RidUNTRACEDROOT
          , $1 . Scan . Position
          ) ; 
@@ -775,7 +774,7 @@ RULE
 
 (* TODO:Maybe combine this with TypeDeclId and others, which differ
          only in Dkt. *) 
-   ConstDeclId : StkIdent
+   ConstDeclId : UnreservedIdent
      { $$ . PaInt (* Ident count, 0 or 1. *) 
          := ORD ( FM3Pass1 . DeclIdL2R
                     ( Itk . ItkDeclId , Dkt . DkConst , $1 )
@@ -861,7 +860,7 @@ RULE
        END (*IF*) ;  
      } .
  
-   TypeDeclId : StkIdent
+   TypeDeclId : UnreservedIdent
      { $$ . PaInt (* Ident count, 0 or 1. *) 
          := ORD ( FM3Pass1 . DeclIdL2R
                     ( Itk . ItkDeclId , Dkt . DkType , $1 )
@@ -1194,7 +1193,7 @@ RULE
    EnumLitPlus : EnumLitPlus StkComma EnumLit
      { $$ . PaInt (* Decl count. *):= $1 . PaInt + $3 . PaInt ; } .
      
-   EnumLit : StkIdent
+   EnumLit : UnreservedIdent
      { $$ . PaInt (* Ident count, 0 or 1. *) 
          := ORD ( FM3Pass1 . DeclIdL2R
                     ( Itk . ItkDeclId
@@ -1336,7 +1335,7 @@ RULE
 
 (* ----------------------------- Method Signatures -------------------------- *)
 
-   MethodDeclLt : StkIdent 
+   MethodDeclLt : UnreservedIdent 
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN
          $$ . Scan . SaAtom := $1 . Scan . SaAtom ; 
@@ -1426,7 +1425,7 @@ RULE
 
 (* -------------------------------- Overrides ------------------------------- *)
 
-   OverrideLt : StkIdent 
+   OverrideLt : UnreservedIdent 
      { $$ . PaInt (* override count, 0 or 1. *) 
          := ORD ( FM3Pass1 . OverrideIdentRefL2R ( $1 ) ) ;
        (* ^Full legality requires looking through supertypes -- do it later. *) 
@@ -1819,7 +1818,7 @@ RULE
      } . 
 (* ------------------------------ Procedures ------------------------------ *)
 
-   ProcDeclLt : StkRwPROCEDURE StkIdent 
+   ProcDeclLt : StkRwPROCEDURE UnreservedIdent 
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
        VAR LScopeKind : Skt ;
        BEGIN
@@ -1916,7 +1915,7 @@ RULE
        END (*Block*) ; 
      } .
 
-   OptProcBody : ProcBodyLt Block StkIdent StkSemicolon 
+   OptProcBody : ProcBodyLt Block UnreservedIdent StkSemicolon 
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN
          $$ . PaBool (* Procedure has a body. *) := TRUE ; 
@@ -2047,7 +2046,7 @@ RULE
          ) ; 
      } .
      
-   E7 : E8WOId StkDot StkIdent 
+   E7 : E8WOId StkDot UnreservedIdent 
      { FM3Pass1 . PutBwd_LCIP_rip
          ( Itk . ItkExprDotLt 
          , $1 . PaPass1Coord
@@ -2063,7 +2062,7 @@ RULE
          ( Itk . ItkDerefLt , $1 . PaPass1Coord , $2 . Scan . Position ) ;
      } .
      
-   E7 : IdentRef Subscripts 
+   E7 : StkIdent Subscripts 
      { FM3Pass1 . PutBwd_LCIP_rip
          ( Itk . ItkSubscriptLt 
          , $1 . PaPass1Coord 
@@ -2081,21 +2080,10 @@ RULE
          ) ; 
      } . 
      
-   E7 : IdentRef /* No selector */ { } .
+   E7 : StkIdent /* No selector */
+     { FM3Pass1 . IdentRefL2R ( $1 ) ; } .
 
-   E7 : BuiltinIdentRef  /* No selector */ 
-     { FM3Pass1 . BuiltinWithNoSelector ( $1 ) } .
-
-   E7: BuiltinIdentRef Actuals 
-     { FM3Pass1 . BuiltinIdentActualsL2R ( $1 , $2 ) ; } .
-
-   E7 : BuiltinIdentRef StkDot StkIdent 
-     { FM3Pass1 . BuiltinOtherSelector ( $1 , $2 , "dot-selected" ) } .
-
-   E7 : BuiltinIdentRef Subscripts 
-     { FM3Pass1 . BuiltinOtherSelector ( $1 , $2 , "subscripted" ) } .
-
-   E7 : QualIdent /* Special case. */ . 
+   E7 : QualIdent /* Special case. Ident dot Ident. Can occur in other contexts. */ . 
    
   (* Array subscript list. *) 
    Subscripts : StkOpenBracket SsPlusList StkCloseBracket 
@@ -2151,7 +2139,7 @@ RULE
         ( Itk . ItkAnonActualLt , $1 . PaPass1Coord , $1 . Scan . Position ) ;
      } .
 
-   Actual : StkIdent StkBecomes Expr
+   Actual : UnreservedIdent StkBecomes Expr
      { FM3Pass1 . PutBwd_LCIP_rip
          ( Itk . ItkNamedExprLt
          , $1 . PaPass1Coord
@@ -2164,9 +2152,9 @@ RULE
      some kinds of selectors:
   *) 
 
-  (* Qualified ident. *) 
+  (* Qualified (non-ident) expression . *) 
    E8WOId /* This is not a single ident.  It can have additional selectors. */ 
-     : StkIdent StkDot StkIdent
+     : E8WOId StkDot UnreservedIdent
      { FM3Pass1 . QualIdentL2R ( $1 , $3 ) ; } .
 
   (* Literals.  *) 

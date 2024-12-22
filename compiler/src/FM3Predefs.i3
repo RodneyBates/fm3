@@ -22,8 +22,8 @@ INTERFACE FM3Predefs
 
 ; TYPE ConstructorTyp = ARRAY OF INTEGER 
 
-(* SIGH. Cm3 crashes on some of these sets when ConstructorTyp
-         = SET FO BuiltinOpTyp.
+(* SIGH. CM3 crashes on some of these sets when ConstructorTyp
+         = SET OF BuiltinOpTyp.
    So we use IntSets instead of Modula-3's SET OF.  Heavier weight
    than desirable, but I don't want to go off on the tangent right now
    of fixing CM3.  IntSet calls are in the module.  Editing shouldn't
@@ -82,29 +82,29 @@ INTERFACE FM3Predefs
 (* Qualifier idents in Word and Long: *)
 ; VAR WordLongQualifierSet : IntSets . T 
 ; CONST WordLongQualifierValues = ConstructorTyp
-    { Stk . Word_T 
-    , Stk . Word_Size 
-    , Stk . Word_Plus 
-    , Stk . Word_Times 
-    , Stk . Word_Minus 
-    , Stk . Word_Divide 
-    , Stk . Word_Mod 
-    , Stk . Word_LT 
-    , Stk . Word_LE 
-    , Stk . Word_GT 
-    , Stk . Word_GE 
-    , Stk . Word_And 
-    , Stk . Word_Or 
-    , Stk . Word_Xor 
-    , Stk . Word_Not 
-    , Stk . Word_Shift 
-    , Stk . Word_LeftShift 
-    , Stk . Word_RightShift 
-    , Stk . Word_Rotate 
-    , Stk . Word_LeftRotate 
-    , Stk . Word_RightRotate 
-    , Stk . Word_Extract 
-    , Stk . Word_Insert
+    { Stk . StkPdT 
+    , Stk . StkPdSize 
+    , Stk . StkPdPlus 
+    , Stk . StkPdTimes 
+    , Stk . StkPdMinus 
+    , Stk . StkPdDivide 
+    , Stk . StkPdMod 
+    , Stk . StkPdLT 
+    , Stk . StkPdLE 
+    , Stk . StkPdGT 
+    , Stk . StkPdGE 
+    , Stk . StkPdAnd 
+    , Stk . StkPdOr 
+    , Stk . StkPdXor 
+    , Stk . StkPdNot 
+    , Stk . StkPdShift 
+    , Stk . StkPdLeftShift 
+    , Stk . StkPdRightShift 
+    , Stk . StkPdRotate 
+    , Stk . StkPdLeftRotate 
+    , Stk . StkPdRightRotate 
+    , Stk . StkPdExtract 
+    , Stk . StkPdInsert
     } 
 
 (* Predefined functions with one parameter: *)
@@ -129,7 +129,7 @@ INTERFACE FM3Predefs
     , Stk . RidDEC 
     , Stk . RidDISPOSE 
     , Stk . RidINC 
-    , Stk . Word_Not 
+    , Stk . StkPdNot 
     }
 
 (* Predefined functions with two parameters: *)
@@ -140,32 +140,32 @@ INTERFACE FM3Predefs
     , Stk . RidMIN 
     , Stk . RidNARROW
     , Stk . RidVAL
-    , Stk . Word_Plus 
-    , Stk . Word_Times 
-    , Stk . Word_Minus 
-    , Stk . Word_Divide 
-    , Stk . Word_Mod 
-    , Stk . Word_LT 
-    , Stk . Word_LE 
-    , Stk . Word_GT 
-    , Stk . Word_GE 
-    , Stk . Word_And 
-    , Stk . Word_Or 
-    , Stk . Word_Xor 
-    , Stk . Word_Shift 
-    , Stk . Word_LeftShift 
-    , Stk . Word_RightShift 
-    , Stk . Word_Rotate 
-    , Stk . Word_LeftRotate 
-    , Stk . Word_RightRotate 
+    , Stk . StkPdPlus 
+    , Stk . StkPdTimes 
+    , Stk . StkPdMinus 
+    , Stk . StkPdDivide 
+    , Stk . StkPdMod 
+    , Stk . StkPdLT 
+    , Stk . StkPdLE 
+    , Stk . StkPdGT 
+    , Stk . StkPdGE 
+    , Stk . StkPdAnd 
+    , Stk . StkPdOr 
+    , Stk . StkPdXor 
+    , Stk . StkPdShift 
+    , Stk . StkPdLeftShift 
+    , Stk . StkPdRightShift 
+    , Stk . StkPdRotate 
+    , Stk . StkPdLeftRotate 
+    , Stk . StkPdRightRotate 
     }
 
 (* Predefined functions with three parameters: *)
 ; VAR ThreeParamSet : IntSets . T 
 ; CONST ThreeParamValues = ConstructorTyp 
     { Stk . RidSUBARRAY
-    , Stk . Word_Extract 
-    , Stk . Word_Insert
+    , Stk . StkPdExtract 
+    , Stk . StkPdInsert
     }
 
 (* Predefined functions with a variable number of actuals: *)
@@ -179,7 +179,7 @@ INTERFACE FM3Predefs
     { Stk . RidFALSE 
     , Stk . RidNIL 
     , Stk . RidTRUE
-    , Stk . Word_Size 
+    , Stk . StkPdSize 
     } 
 
 (* Predefined type names: *) 
@@ -202,7 +202,7 @@ INTERFACE FM3Predefs
     , Stk . RidWIDECHAR 
     , Stk . RidROOT 
     , Stk . RidUNTRACEDROOT
-    , Stk . Word_T 
+    , Stk . StkPdT 
     } 
 
 (* Modula-3 language definition sections: *) 

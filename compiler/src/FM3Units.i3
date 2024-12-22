@@ -168,9 +168,9 @@ INTERFACE FM3Units
       END (*UnitTyp*)
 
 ; VAR UnitsAtomDict : FM3Atom_Text . T
-        (* ^Just one in entire compler run.  Map source file simple names as TEXTS
-            directly to unit numbers, which will be compact. See comments
-            in FM3Scope.i3.
+        (* ^Just one in entire compler run.  Map source file simple names as 
+            TEXTS directly to unit numbers, which will be compact. See
+            comments in FM3Scope.i3.
         *) 
 ; VAR UnitsAtomInitSize := 50
 ; VAR UnitsMap : VarArray_Int_Refany . T 

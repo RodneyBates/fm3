@@ -119,7 +119,6 @@ MODULE FM3Scanner
       , SaTok := FM3Base . TokNull  
       , SaPredefTok := FM3Base . TokNull 
       , SaWCh := W'\X0000'
-      , SaIsPredefId := FALSE 
       } 
 
 (* EXPORTED: *) 
@@ -436,7 +435,6 @@ MODULE FM3Scanner
                    ) 
           ; Attribute . SaTok := FM3SrcToks . StkPragmaId 
           ; Attribute . SaPredefTok := FM3Base . TokNull 
-          ; Attribute . SaIsPredefId := FALSE (* NOT predeclared. *)  
 (* TODO: Handle this as an unrecognized pragma and skip the entire thing. *) 
 
           | FM3PgToks . PgFm3PredefUnit 
@@ -446,55 +444,46 @@ MODULE FM3Scanner
             Attribute . SaTok 
               := GCurRwValue (* A recognized reserved pragma name. *) 
           ; Attribute . SaPredefTok := GCurRwValue 
-          ; Attribute . SaIsPredefId := TRUE 
           END (*CASE*) 
 
-        ELSE (* Expecting a reserved word, predefined, or plain identifier. *) 
-          CASE GCurRwValue OF 
+        ELSE (* Expecting a reserved ident, predefined, or plain identifier. *) 
+          Attribute . SaTok := FM3SrcToks . StkIdent
+        ; CASE GCurRwValue OF 
           | FM3SrcToks . StkMinRid .. FM3SrcToks . StkMaxRid 
-          => (* Reserved identifier.  Make this an StkIdent whose SaAtom
-                is negated lex code. 
+          => (* Reserved identifier.  It has its builtin meaning and only that
+                in every context.  Make this an StkIdent with nul SaAtom
+                and SaPredefTok set to the reserved Id's code.
              *) 
-              Attribute . SaTok := FM3SrcToks . StkIdent
-            ; Attribute . SaAtom := - GCurRwValue 
+              Attribute . SaAtom := FM3Base . AtomNull 
             ; Attribute . SaPredefTok := GCurRwValue 
-            ; Attribute . SaIsPredefId := TRUE 
 
           | FM3SrcToks . StkMinPredef .. FM3SrcToks . StkMaxPredef
-          => (* Predefined identifier. *) 
-              Attribute . SaTok := FM3SrcToks . StkIdent
-            ; IF GTopSsRef . SsUnitRef ^ . UntIsPredefUnit 
-              THEN (* Treat like a reserved Ident. *)  
-                Attribute . SaAtom := - GCurRwValue 
-              ; Attribute . SaPredefTok := GCurRwValue 
-              ; Attribute . SaIsPredefId := TRUE 
-              ELSE (* Treat like a plain Ident. *) 
-                Attribute . SaAtom (* Will be > 0. *)
-                  := FM3Atom_OAChars . MakeAtom 
-                       ( GTopSsRef . SsUnitRef ^ . UntIdentAtomDict
-                       , Attribute . SaChars 
-                       , ScHash 
-                       ) 
-              ; Attribute . SaPredefTok := FM3Base . TokNull  
-              ; Attribute . SaIsPredefId := FALSE  
-              END (*IF*) 
+          => (* Not reserved but predefined identifier.  It can be an ordinary 
+                identifier or, in certain contexts, have a predefined meaning. 
+                Give it both an atom and a value of SaPredefTok.  FM3 will
+                decide later which to use. 
+             *) 
+              Attribute . SaAtom 
+                := FM3Atom_OAChars . MakeAtom 
+                     ( GTopSsRef . SsUnitRef ^ . UntIdentAtomDict
+                     , Attribute . SaChars 
+                     , ScHash 
+                     ) 
+            ; Attribute . SaPredefTok := GCurRwValue 
 
           | FM3LexTable . ValueUnrecognized , FM3LexTable . ValueNull 
           => (* Plain ol' identifier. *)
-              Attribute . SaTok := FM3SrcToks . StkIdent
-            ; Attribute . SaAtom 
+              Attribute . SaAtom 
                 := FM3Atom_OAChars . MakeAtom 
                      ( GTopSsRef . SsUnitRef ^ . UntIdentAtomDict
                      , Attribute . SaChars 
                      , ScHash 
                      ) 
             ; Attribute . SaPredefTok := FM3Base . TokNull  
-            ; Attribute . SaIsPredefId := FALSE 
 
           ELSE (* Reserved word. *) 
             Attribute . SaTok := GCurRwValue 
           ; Attribute . SaPredefTok := FM3Base . TokNull  
-          ; Attribute . SaIsPredefId := FALSE  
           END (*CASE*) 
         END (*IF*) 
       END IdentSuffix 

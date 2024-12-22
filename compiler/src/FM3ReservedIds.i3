@@ -6,20 +6,18 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
 
-INTERFACE FM3Pass3
+(* Expressions for things named by Modula-3 reserved identifiers. *) 
 
-; IMPORT FM3Base
+INTERFACE FM3ReservedIds
+
 ; IMPORT FM3Exprs 
-; IMPORT FM3Scopes 
-; IMPORT FM3Units 
+; IMPORT FM3SrcToks
 
-; PROCEDURE RunPass3 ( )
+; TYPE ReservedIdTyp = [ FM3SrcToks . StkMinRid .. FM3SrcToks . StkMaxRid ]
 
-; PROCEDURE ResolveOperand
-    ( Expr1Opnd : FM3Exprs . Expr1OpndTyp
-    ; ExprKind : FM3Exprs . ExprKindTyp
-    )
-  : FM3Exprs . ExprStateTyp
+; TYPE ExprRefsTyp = ARRAY ReservedIdTyp OF FM3Exprs . ExprTyp
 
-; END FM3Pass3
+; VAR ExprRefs : ExprRefsTyp 
+
+; END FM3ReservedIds
 .

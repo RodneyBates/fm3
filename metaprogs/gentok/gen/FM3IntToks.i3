@@ -62,6 +62,8 @@ INTERFACE FM3IntToks
 *)
 (* Being low-numbered, these will read and write either forward
    or backward, without value change.
+FIXME: Not so. must be < 64.  This clashes with src tokens that
+       are copied into FM3Parser.lalr. 
 *)
 (* ABS 210: *)
 
@@ -144,8 +146,8 @@ INTERFACE FM3IntToks
 (* LONE ItkOpenScopeRt: *)
 ; CONST ItkOpenScopeRt                  (*ArgCt: 1*) =   244 (*16_f4 01 *)
 (* Rid*, Position. *)
-(* LONE ItkReservedId: *)
-; CONST ItkReservedId                   (*ArgCt: 3*) =   245 (*16_f5 01 *)
+(* LONE ItkReservedIdRef: *)
+; CONST ItkReservedIdRef                (*ArgCt: 3*) =   245 (*16_f5 01 *)
 (* IdAtom, position *)
 (* LONE ItkDuplDeclId: *)
 ; CONST ItkDuplDeclId                   (*ArgCt: 3*) =   246 (*16_f6 01 *)
@@ -159,7 +161,7 @@ INTERFACE FM3IntToks
 (* Identifier references. *)
 (* LONE ItkDefTopExprNo: *)
 ; CONST ItkDefTopExprNo                 (*ArgCt: 3*) =   249 (*16_f9 01 *)
-(* IdAtom, position. Occurs before pass2. *)
+(* IdAtom, position. Only non-reserved. Occurs before pass2. *)
 (* LONE ItkIdRefAtom: *)
 ; CONST ItkIdRefAtom                    (*ArgCt: 3*) =   250 (*16_fa 01 *)
 (* DeclNo, position. Occurs after pass2. *)

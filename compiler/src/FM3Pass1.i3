@@ -362,6 +362,9 @@ INTERFACE FM3Pass1
     ( ScopeKind : FM3Scopes . ScopeKindTyp ; Position : FM3Base . tPosition )
   : FM3Scopes . ScopeRefTyp 
 
+; PROCEDURE FlagReservedIdent
+    ( READONLY IdAttr : tParsAttribute ; ContextTag := "used in this context" )
+
 ; PROCEDURE DeclIdL2R 
     ( DeclIdTok : Itk . TokTyp
     ; DeclKind : FM3Decls . DeclKindTyp  
@@ -371,12 +374,12 @@ INTERFACE FM3Pass1
     ; READONLY SepPosition : tPosition := FM3Base . PositionNull 
     ; PriorIdCt : INTEGER := 0 (* Number of ids to left of this one. *)
     )
-  : BOOLEAN (* Use this declared id.  (It's not builtin and not a duplicate
+  : BOOLEAN (* Use this declared id.  (It's not reserved and not a duplicate
                in current scope.) *)
   (* PRE: IdAttribute is for an identifier in a declaration context. *) 
 
 ; PROCEDURE IdentRefL2R ( READONLY IdAttribute : tParsAttribute )
-  (* Including a reserved Id. *) 
+  (* Possibly a reserved Id. *) 
 
 ; PROCEDURE OverrideIdentRefL2R ( READONLY IdAttribute : tParsAttribute )
   : BOOLEAN (* It's OK so far. *) 
@@ -384,7 +387,7 @@ INTERFACE FM3Pass1
 
 ; PROCEDURE QualIdentL2R
     ( READONLY LtAttribute , RtAttribute : tParsAttribute )
-  (* Handles either/both idents reserved (error msg). *) 
+  (* Handles either/both idents reserved. *) 
     
 ; PROCEDURE BuiltinNoSelectorAllowed
     ( READONLY IdAttribute , SelectorAttribute : tParsAttribute
@@ -393,13 +396,11 @@ INTERFACE FM3Pass1
 
 ; PROCEDURE BuiltinWithNoSelector
 ( READONLY IdAttribute : tParsAttribute )
-  (* PRE: IdAttribute . Scan . SaIsPredefId. *) 
   (* PRE: IdAttribute . Scan . SaPredefTok # FM3Base , TokNull. *) 
   (* Builtin ident that has no selector. *) 
 
 ; PROCEDURE BuiltinIdentActualsL2R
     ( READONLY IdAttribute , ActualsAttribute : tParsAttribute )
-  (* PRE: IdAttribute . Scan . SaIsPredefId. *) 
   (* PRE: IdAttribute . Scan . SaPredefTok # FM3Base , TokNull. *) 
   (* PRE: IdAttribute is for the builtin ident only. *) 
   (* PRE: ActualsAttribute is for an actual parameter list. *) 
@@ -408,7 +409,6 @@ INTERFACE FM3Pass1
     ( READONLY IdAttribute , SelectorAttribute : tParsAttribute ; Tag : TEXT )
   (* A builtin id with either a dot-selection or subscript(s).
      No builtin allows either of these. *)
-  (* PRE: IdAttribute . Scan . SaIsPredefId. *) 
   (* PRE: IdAttribute . Scan . SaPredefTok # FM3Base , TokNull. *) 
 
 ; PROCEDURE DeclScopeRtL2R ( ScopeRef : FM3Scopes . ScopeRefTyp )

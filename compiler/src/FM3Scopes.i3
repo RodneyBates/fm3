@@ -78,8 +78,9 @@ INTERFACE FM3Scopes
     { ScopeKindTyp . SkWith
     , ScopeKindTyp . SkTypecase
     , ScopeKindTyp . SkExcept 
-    } 
+    }
 
+; TYPE ScopeNoTyp = FM3Globals . ScopeNoTyp 
 
 ; TYPE ScopeTyp
     = RECORD
@@ -133,8 +134,9 @@ INTERFACE FM3Scopes
       (* NOTE 1: This field retains meaning only during handling of a single
                  declaration within the scope.  It is reinitialized and reused in
                  later declarations.  It is NIL when not working in a declaration.
-                 It would more naturally be in a Decl object, but we don't have
-                 one when needed, and when we finally do, there can be >1.
+                 It would more naturally be in a Decl object, but in Pass 2, we
+                 don't have one when needed, and when we finally do, there can
+                 be >1.
       *) 
 
 ; CONST ScopeRefBrand = "ScopeRef0.1" 

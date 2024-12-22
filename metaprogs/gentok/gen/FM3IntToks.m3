@@ -54,7 +54,7 @@ MODULE FM3IntToks
       | 242 => RETURN "ItkDeclScopeRt"
       | 243 => RETURN "ItkOpenScopeLt"
       | 244 => RETURN "ItkOpenScopeRt"
-      | 245 => RETURN "ItkReservedId"
+      | 245 => RETURN "ItkReservedIdRef"
       | 246 => RETURN "ItkDuplDeclId"
       | 247 => RETURN "ItkDeclId"
       | 248 => RETURN "ItkDeclNo"
