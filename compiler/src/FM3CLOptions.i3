@@ -23,6 +23,9 @@ INTERFACE FM3CLOptions
 ; VAR SourceFileCt : INTEGER := 0 
 ; VAR ImportDirCt : INTEGER := 0
 
+
+; VAR IsInitialized := FALSE 
+
 ; VAR SourceDirDict : FM3Atom_Text . T
       (* Full path names of directories.  Has reverse map. *) 
 

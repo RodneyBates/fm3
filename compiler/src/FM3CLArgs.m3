@@ -846,7 +846,7 @@ MODULE FM3CLArgs
 (* TOTO: remove any leftover old versions of files not to be generated
          by this run.  Keep pass files, disasm files, logs.
 *) 
-
+    ; FM3CLOptions . IsInitialized := TRUE 
     END ComputeDerivedInfo
 
 (*EXPORTED*)

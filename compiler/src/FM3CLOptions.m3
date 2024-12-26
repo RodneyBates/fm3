@@ -77,6 +77,7 @@ MODULE FM3CLOptions
     END ExclPassNo
 
 ; BEGIN
+    IsInitialized := FALSE 
   END FM3CLOptions 
 .
 

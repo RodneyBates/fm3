@@ -206,7 +206,7 @@ INTERFACE FM3Exprs
     = ExprTyp OBJECT
         ExpValueType : ExprTyp
       ; ExpValueL : LONGINT
-      ; ExpValueQ : REFANY 
+      ; ExpValueR : REFANY 
       END
 
 (* References: *) 

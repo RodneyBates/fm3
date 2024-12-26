@@ -39,6 +39,7 @@ CltDisAsmVerbose         "disasm-verbose" .
 CltDisAsm                "disasm" .
 CltKeepPasses            "keep-passes" .
 CltKeep                  "keep" .
+CltOvflo                 "check-overflow" . 
 (* Keep intermediate files. *)
 CltRemoveUnusedDecls     "remove-unused-decls" .
       
