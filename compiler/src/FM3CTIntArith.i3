@@ -26,9 +26,20 @@ INTERFACE FM3CTIntArith
 ; PROCEDURE ToCTInt ( Value : T ; Signed : BOOLEAN ) : INTEGER
   RAISES { ArithError } (* If the value won't fit. *) 
 
-; PROCEDURE FromLong ( LongVal : LONGINT ) : T
-; PROCEDURE ToLong ( Value : T ) : LONGINT
-(* Just in case T ever changes. *) 
+; PROCEDURE UnOp
+    ( Arg : T ; Opcode : FM3Exprs . OpcodeTyp ; IsInt : BOOLEAN ) : T
+
+; PROCEDURE BinOp
+    ( Lt , Rt : T ; Opcode : FM3Exprs . OpcodeTyp ; IsInt : BOOLEAN ) : T
+  RAISES { ArithError }
+
+; PROCEDURE Extract
+    ( x , i , n : T ) : T
+  RAISES { ArithError }
+
+; PROCEDURE Insert
+    ( x , y, i , n : T ) : T 
+  RAISES { ArithError }
 
 ; PROCEDURE Unary
     ( Opnd : T ; Opcode : FM3SrcToks . TokTyp ; Integer  : BOOLEAN ) : T
