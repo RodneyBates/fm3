@@ -17,7 +17,6 @@ MODULE FM3CTIntArith
 ; IMPORT FM3CLToks 
 ; IMPORT FM3Exprs
 ; IMPORT FM3LoTypes 
-; IMPORT FM3Predefs
 ; IMPORT FM3SrcToks 
 ; IMPORT FM3SrcToks AS Stk
 ; IMPORT FM3Target
@@ -91,8 +90,7 @@ MODULE FM3CTIntArith
   = BEGIN
       RETURN Long . Or ( Long . LeftShift ( Pair . Hi , 32 ) , Pair . Lo ) 
     END Join
-
-; PROCEDURE CheckOvflo32 ( Value : T ) : T RAISES { ArithError } 
+; PROCEDURE RaiseOnOvflo32 ( Value : T ) : T RAISES { ArithError } 
 
   = VAR LSignBits : LONGINT
 
@@ -104,9 +102,24 @@ MODULE FM3CTIntArith
       THEN RETURN Value
       ELSE RAISE ArithError ( "32-bit overflow" )
       END (*IF*) 
-    END CheckOvflo32
+    END RaiseOnOvflo32
 
-; PROCEDURE Plus64WOvflo ( Lt , Rt : LONGINT ) : LONGINT
+; PROCEDURE IsOvflo32 ( Value : T ) : BOOLEAN 
+
+  = VAR LSignBits : LONGINT
+
+  ; BEGIN
+      LSignBits := Long . And ( 16_FFFFFFF800000000L , Value )
+    ; IF LSignBits = 16_FFFFFFFF80000000L
+      THEN RETURN FALSE 
+      ELSIF LSignBits = 16_0000000000000000L
+      THEN RETURN FALSE
+      ELSE RETURN TRUE 
+      END (*IF*) 
+    END IsOvflo32
+
+; PROCEDURE Plus64WOvflo
+    ( Lt , Rt , CarryIn : LONGINT ) : LONGINT RAISES { ArithError }
 
   = VAR LPairLt : PairTyp 
   ; VAR LPairRt : PairTyp
@@ -115,62 +128,47 @@ MODULE FM3CTIntArith
   ; BEGIN
       LPairLt := Split ( Lt )
     ; LPairRt := Split ( Rt )
-    ; LLo := Long . Plus ( LPairLt . Lo , LPairRt . Lo )
-    ; (* ASSERT Long . And ( 16_0000000200000000L , LLo ) = 0L ) *)
+    ; LLo := Long . Plus
+               ( Long .Plus ( LPairLt . Lo , LPairRt . Lo )
+               , CarryIn
+               ) 
+    ; (* ASSERT NOT IsOvFlo32 ( LLo ) *) 
       LCarryoutLo (* lsb. *) 
         := Long . RightShift ( Long . And ( 16_0000000100000000L , LLo ), 32 )
     ; LHi := Long . Plus
-               ( Long . Plus ( LPairLt . Hi , LPairRt . Hi ) , LCarryoutLo )
-      (* ASSERT Long . And ( 16_0000000200000000L , LHi ) = 0L *) 
-    ; LCarryoutHi 
-        := Long . RightShift ( Long . And ( 16_0000000100000000L , LHi ) , 32 )
-    ; IF LCarryoutHi # 0L
-      THEN RAISE ArithError ( "Arithmetic overflow" )
-      END (*IF*)
+               ( Long . Plus ( LPairLt . Hi , LPairRt . Hi )
+               , LCarryoutLo
+               )
+    ; (* ASSERT NOT IsOvFlo32 ( LHi ) *)
+      EVAL RaiseOnOvflo32 ( LHi ) 
     ; RETURN Join ( PairTyp { LLo , LHi } )
     END Plus64WOvflo
 
-; PROCEDURE Plus32WOvflo ( Lt , Rt : LONGINT ) : LONGINT
-
-  = VAR LPairLt : PairTyp 
-  ; VAR LPairRt : PairTyp
-  ; VAR LLo , LHi , LCarryoutLo , LCarryoutHi : LONGINT
-  
-  ; BEGIN
-(* IMPLEMENTME *) 
-      LPairLt := Split ( Lt )
-    ; LPairRt := Split ( Rt )
-    ; LLo := Long . Plus ( LPairLt . Lo , LPairRt . Lo )
-    ; (* ASSERT Long . And ( 16_0000000200000000L , LLo ) = 0L ) *)
-      LCarryoutLo (* lsb. *) 
-        := Long . RightShift ( Long . And ( 16_0000000100000000L , LLo ), 32 )
-    ; LHi := Long . Plus
-               ( Long . Plus ( LPairLt . Hi , LPairRt . Hi ) , LCarryoutLo )
-      (* ASSERT Long . And ( 16_0000000200000000L , LHi ) = 0L *) 
-    ; LCarryoutHi 
-        := Long . RightShift ( Long . And ( 16_0000000100000000L , LHi ) , 32 )
-    ; IF LCarryoutHi # 0L
-      THEN RAISE ArithError ( "Arithmetic overflow" )
-      END (*IF*)
-    ; RETURN Join ( PairTyp { LLo , LHi } )
-    END Plus32WOvflo
-
 ; PROCEDURE Add ( Lt , Rt : T ; IsInt : BOOLEAN ) : T
+  (* No overflow detection. *) 
 
   = BEGIN
-      IF IsInt
+      IF IsInt AND IntIs32 
       THEN RETURN Long . And ( 16_00000000FFFFFFFFL , Lt + Rt )   
       ELSE RETURN Lt + Rt 
       END (*IF*) 
     END Add 
 
+; PROCEDURE Subtract ( Lt , Rt : T ; Is32 : BOOLEAN ) : T
+  (* No overflow detection. *) 
+
+  = BEGIN
+      IF Is32 AND IntIs32 
+      THEN RETURN Long . And ( 16_00000000FFFFFFFFL , Lt - Rt )   
+      ELSE RETURN Lt - Rt 
+      END (*IF*) 
+    END Subtract
+
 ; PROCEDURE BinOp
-    ( Lt , Rt : T ; Opcode : FM3Exprs . OpcodeTyp ; IsInt : BOOLEAN ) : T 
+    ( Lt , Rt : T ; Opcode : FM3Exprs . OpcodeTyp ; IsInt : BOOLEAN ) : T
+  RAISES { ArithError }
 
-  = VAR LPairLt , LPairRt : PairTyp
-  ; VAR LCarryuout : LONGINT 
-
-  ; BEGIN
+  = BEGIN
       EnsureInit ( ) 
     ; CASE Opcode OF
       | Stk . StkPdPlus
@@ -179,15 +177,27 @@ MODULE FM3CTIntArith
       | FM3SrcToks . StkPlus
       => IF DoCheckOvflo
          THEN
-           IF IsInt 
-           THEN RETURN Plus32WOvflo ( Lt , Rt ) 
-           ELSE RETURN Plus64WOvflo ( Lt , Rt )
+           IF IsInt AND IntIs32  
+           THEN RETURN RaiseOnOvflo32 ( Long . Plus ( Lt , Rt ) )  
+           ELSE RETURN Plus64WOvflo ( Lt , Rt , CarryIn := 0L )
          END (*IF*)
          ELSE RETURN Add ( Lt , Rt , IsInt )
          END (*IF*)
 
       | Stk . StkPdMinus
-      => RETURN Long . Minus ( Lt , Rt )
+      => RETURN Subtract ( Lt , Rt , IsInt )
+
+      | FM3SrcToks . StkMinus
+      => IF DoCheckOvflo
+         THEN
+           IF IsInt AND IntIs32  
+           THEN RETURN RaiseOnOvflo32 ( Long . Minus ( Lt , Rt ) )  
+           ELSIF Rt = 16_FFFFFFFFFFFFFFFFL
+           THEN RETURN Plus64WOvflo ( Lt , Rt , CarryIn := 1L )
+           ELSE RETURN Plus64WOvflo ( Lt , - Rt , CarryIn := 0L )
+           END (*IF*)
+         ELSE RETURN Subtract ( Lt , Rt , IsInt )
+         END (*IF*)
 
       | Stk . StkPdTimes
       => RETURN Long . Times ( Lt , Rt )
