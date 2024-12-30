@@ -34,6 +34,9 @@ MODULE FM3CTIntArith
 
    Results of 32-bit operations always have the hi 32 bits sign-extended,
    but may be treated as signed or unsigned by subsequent operations.
+
+   This module assumes it is compiled by a workng Modula-3 compiler with
+   LONGINT and Long supported for bootstrapping.
 *) 
 
 ; PROCEDURE IsOvfloI32 ( Value : T ) : BOOLEAN 
@@ -397,6 +400,16 @@ MODULE FM3CTIntArith
          ELSE RETURN Lt * Rt 
          END (*IF*)
 
+      | FM3SrcToks . StkRwDIV 
+      => IF Lt = 0L THEN RAISE ArithError ( "DIV by zero" ) END (*IF*)
+         (* ^Certain RT Error, check this regardless of DoCheckOvflo. *) 
+      ;  RETURN Lt DIV Rt 
+
+      | FM3SrcToks . StkRwMOD  
+      => IF Lt = 0L THEN RAISE ArithError ( "MODzero" ) END (*IF*) 
+         (* ^Certain RT Error, check this regardless of DoCheckOvflo. *) 
+      ;  RETURN Lt MOD Rt 
+
       | Stk . StkRwAND
       => WITH WLt = Long . And ( 1L , Lt ) = 1L
          ,    WRt = Long . And ( 1L , Rt ) = 1L
@@ -425,10 +438,14 @@ MODULE FM3CTIntArith
       => RETURN BinTxT_T ( Lt , Rt , Long . Times , IsInt ) 
 
       | Stk . StkPdDivide
-      => RETURN BinTxT_T ( Lt , Rt , Long . Divide , IsInt ) 
+      => IF Lt = 0L THEN RAISE ArithError ( "Divide by zero" ) END (*IF*) 
+         (* ^Certain RT Error, check this regardless of DoCheckOvflo. *) 
+      ;  RETURN BinTxT_T ( Lt , Rt , Long . Divide , IsInt ) 
 
       | Stk . StkPdMod
-      => RETURN BinTxT_T ( Lt , Rt , Long . Mod , IsInt ) 
+      => IF Lt = 0L THEN RAISE ArithError ( "Mod zero" ) END (*IF*) 
+         (* ^Certain RT Error, check this regardless of DoCheckOvflo. *) 
+      ;  RETURN BinTxT_T ( Lt , Rt , Long . Mod , IsInt ) 
 
       (* Relations: *) 
 
