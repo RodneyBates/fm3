@@ -10,7 +10,6 @@ MODULE FM3CTIntArith
 
 ; IMPORT Fmt  
 ; IMPORT Long
-
 ; IMPORT VarArray_Int_Refany 
 
 ; IMPORT FM3CLOptions 
@@ -24,16 +23,48 @@ MODULE FM3CTIntArith
 ; CONST Lo32Mask = 16_00000000FFFFFFFFL
 ; CONST Hi32Mask = 16_FFFFFFFF00000000L
 
+(* There is a 2x2x2 cartesian product of versions of arithmetic operations.
+   1) Signed or unsigned. Ascertained by the opcode,
+   2) 64 or 32-bit arithmetic. Ascertained by combination of a parameter
+      specifying INTEGER or LONGINT and global setting on the size of INTEGER.
+   3) Overflow check or not. Ascertained by the opcode,
+   
+   Detected ovflows are signalled by raising ArithOvflo.  Caller can choose
+   what to do about it.
+
+   Results of 32-bit operations always have the hi 32 bits sign-extended,
+   but may be treated as signed or unsigned by subsequent operations.
+*) 
+
+; PROCEDURE IsOvfloI32 ( Value : T ) : BOOLEAN 
+  (* Treat as signed. *) 
+
+  = VAR LSignBits : LONGINT
+
+  ; BEGIN
+      LSignBits := Long . And ( 16_FFFFFFFF80000000L , Value )
+    ; IF LSignBits = 16_FFFFFFFF80000000L
+      THEN RETURN FALSE
+      ELSIF LSignBits = 16_0000000000000000L
+      THEN RETURN FALSE 
+      ELSE RETURN TRUE 
+      END (*IF*) 
+    END IsOvfloI32
+
 ; PROCEDURE RaiseOnOvfloU32 ( Value : T ) : T RAISES { ArithError } 
   (* Treat as unsigned. *) 
 
   = VAR LHiBits : LONGINT
   
   ; BEGIN
-      LHiBits := Long . And ( Hi32Mask , Value ) 
-    ; IF LHiBits = 0L THEN RETURN Value 
-      ELSE RAISE ArithError ( "32-bit unsigned overflow" )
-      END (*IF*) 
+      EnsureInit ( )
+    ; IF DoCheckOvflo
+      THEN 
+        LHiBits := Long . And ( Hi32Mask , Value ) 
+      ; IF LHiBits = 0L THEN RETURN Value 
+        ELSE RAISE ArithError ( "32-bit unsigned overflow" )
+        END (*IF*) 
+       END (*IF*) 
     END RaiseOnOvfloU32
 
 ; PROCEDURE RaiseOnOvfloI32 ( Value : T ) : T RAISES { ArithError }
@@ -42,12 +73,16 @@ MODULE FM3CTIntArith
   = VAR LSignBits : LONGINT
 
   ; BEGIN
-      LSignBits := Long . And ( 16_FFFFFFFF80000000L , Value )
-    ; IF LSignBits = 16_FFFFFFFF80000000L
-      THEN RETURN Value 
-      ELSIF LSignBits = 16_0000000000000000L
-      THEN RETURN Value
-      ELSE RAISE ArithError ( "32-bit signed overflow" )
+      EnsureInit ( )
+    ; IF DoCheckOvflo
+      THEN 
+        LSignBits := Long . And ( 16_FFFFFFFF80000000L , Value )
+      ; IF LSignBits = 16_FFFFFFFF80000000L
+        THEN RETURN Value 
+        ELSIF LSignBits = 16_0000000000000000L
+        THEN RETURN Value
+        ELSE RAISE ArithError ( "32-bit signed overflow" )
+        END (*IF*) 
       END (*IF*) 
     END RaiseOnOvfloI32
 
@@ -68,7 +103,10 @@ MODULE FM3CTIntArith
 ; PROCEDURE Join ( READONLY Pair : PairTyp ) : LONGINT
 
   = BEGIN
-      RETURN Long . Or ( Long . LeftShift ( Pair . Hi , 32 ) , Pair . Lo ) 
+      RETURN Long . Or
+               ( Long . LeftShift ( Pair . Hi , 32 )
+               , Long . And ( Lo32Mask , Pair . Lo ) 
+               ) 
     END Join
 
 ; PROCEDURE Plus64WOvflo
@@ -85,7 +123,7 @@ MODULE FM3CTIntArith
                ( Long .Plus ( LPairLt . Lo , LPairRt . Lo )
                , CarryIn
                ) 
-    ; (* ASSERT NOT IsOvFlo32 ( LLo ) *) 
+    ; (* ASSERT NOT IsOvFloI32 ( LLo ) *) 
       LCarryoutLo (* lsb. *) 
         := Long . RightShift ( Long . And ( 16_0000000100000000L , LLo ), 32 )
     ; LHi := Long . Plus
@@ -96,32 +134,119 @@ MODULE FM3CTIntArith
     ; RETURN Join ( PairTyp { LLo , LHi } )
     END Plus64WOvflo
 
-; PROCEDURE Add ( Lt , Rt : T ; IsInt : BOOLEAN ) : T
-  (* No overflow detection. *) 
+; PROCEDURE Times64WOvflo
+    ( Lt , Rt : LONGINT ) : LONGINT RAISES { ArithError }
 
-  = BEGIN
-      IF IsInt AND IntIs32 
-      THEN RETURN Long . And ( Lo32Mask , Lt + Rt )   
-      ELSE RETURN Lt + Rt 
+  = VAR LPairLt : PairTyp 
+  ; VAR LPairRt : PairTyp
+  ; VAR LSum : LONGINT 
+  ; VAR LHiTimesLo , LLoTimesHi , LLoTimesLo : LONGINT 
+  ; VAR LLtNeg , LRtNeg : BOOLEAN 
+
+  ; BEGIN
+      LLtNeg := Lt < 0L 
+    ; IF LLtNeg THEN Lt := - Lt END (*IF*) 
+      (* Works for 16_8000000000000000L because we treat result as unsigned. *) 
+    ; LRtNeg := Rt < 0L
+    ; IF LRtNeg THEN Rt := - Rt END (*IF*) 
+    ; LPairLt := Split ( Lt )
+    ; LPairRt := Split ( Rt )
+    ; IF LPairLt . Hi > 0L AND LPairRt . Hi > 0L
+      THEN (* The Hi*Hi Term, > 0L, after left shift by 64, would be >= 2^64 *)
+        RAISE ArithError ( "Overflow in 64-bit multiply" )
+      END (*IF*)
+    ; LHiTimesLo := Long . Times ( LPairLt . Hi , LPairRt . Lo ) 
+    ; IF Long . And ( Hi32Mask , LHiTimesLo ) # 0L 
+      THEN (* LHiTimesLo, after left shift by 32, would be >= 2^64 *)
+        RAISE ArithError ( "Overflow in 64-bit multiply" )
       END (*IF*) 
-    END Add 
+    ; LLoTimesHi := Long . Times ( LPairLt . Lo , LPairRt . Hi )
+    ; IF Long . And ( Hi32Mask , LLoTimesHi ) # 0L 
+      THEN (* LLoTimesHi, after left shift by 32, would be >= 2^64 *)
+        RAISE ArithError ( "Overflow in 64-bit multiply" )
+      END (*IF*)
+    ; LSum := Long . Plus ( LHiTimesLo , LLoTimesHi ) 
+    ; IF Long . And ( 16_8000000000000000L , LSum ) # 0L 
+      THEN (* LSum >= 2^64 *)
+        RAISE ArithError ( "Overflow in 64-bit multiply" )
+      END (*IF*)
+    ; LLoTimesLo := Long . Times ( LPairLt . Lo , LPairRt . Lo )
+    ; LSum := Long . Plus ( LSum , LLoTimesLo )
+    ; IF Long . GT ( LSum , 16_8000000000000000L )
+      (* If LSum = 16_8000000000000000L, negating it below will give
+         the maximally negative value.
+      *) 
+      THEN (* LSum > 2^63 *)
+        RAISE ArithError ( "Overflow in 64-bit multiply" )
+      END (*IF*)
+    ; IF LLtNeg # LRtNeg THEN LSum := - LSum END (*IF*)
+    ; RETURN LSum 
+    END Times64WOvflo 
 
-; PROCEDURE Subtract ( Lt , Rt : T ; Is32 : BOOLEAN ) : T
-  (* No overflow detection. *) 
+; PROCEDURE Times32WOvflo
+    ( Lt , Rt : LONGINT ) : LONGINT RAISES { ArithError }
 
-  = BEGIN
-      IF Is32 AND IntIs32 
-      THEN RETURN Long . And ( Lo32Mask , Lt - Rt )   
-      ELSE RETURN Lt - Rt 
+  = VAR LProduct : LONGINT 
+  ; VAR LtNeg , RtNeg : BOOLEAN 
+
+  ; BEGIN
+      Lt := Long . And ( Lo32Mask , Lt ) 
+    ; LtNeg := Lt < 0L 
+    ; IF LtNeg THEN Lt := - Lt END (*IF*)  
+    ; Rt := Long . And ( Lo32Mask , Rt ) 
+    ; RtNeg := Rt < 0L 
+    ; IF RtNeg THEN Rt := - Rt END (*IF*)
+    ; LProduct := RaiseOnOvfloI32 ( Long . Times ( Lt , Rt ) )  
+    ; IF LtNeg # RtNeg THEN LProduct := - LProduct END (*IF*)
+    ; RETURN LProduct 
+    END Times32WOvflo
+
+; TYPE TxT_TProcTyp = PROCEDURE ( Lt , Rt : LONGINT ) : LONGINT  
+
+; PROCEDURE BinTxT_T
+    ( Lt , Rt : LONGINT ; OpProc : TxT_TProcTyp ; IsInt : BOOLEAN ) : T  
+
+  = VAR LLt , LRt , LResult : LONGINT
+
+  ; BEGIN
+      EnsureInit ( )
+    ; IF IsInt AND IntIs32
+      THEN
+        LLt := Long . And ( Lo32Mask , Lt ) 
+      ; LRt := Long . And ( Lo32Mask , Rt )
+      ; LResult := OpProc ( LLt , LRt )
+      ; RETURN Long . And ( Lo32Mask , LResult ) 
+      ELSE RETURN OpProc ( Lt , Rt ) 
       END (*IF*) 
-    END Subtract
+    END BinTxT_T 
+
+; TYPE TxT_BoolProcTyp = PROCEDURE ( Lt , Rt : LONGINT ) : BOOLEAN 
+
+; PROCEDURE BinTxT_Bool
+    ( Lt , Rt : LONGINT ; OpProc : TxT_BoolProcTyp ; IsInt : BOOLEAN ) : LONGINT 
+
+  = VAR LLt , LRt : LONGINT
+  ; VAR LResult : BOOLEAN 
+
+  ; BEGIN
+      EnsureInit ( )
+    ; IF IsInt AND IntIs32
+      THEN
+        LLt := Long . And ( Lo32Mask , Lt ) 
+      ; LRt := Long . And ( Lo32Mask , Rt )
+      ; LResult := OpProc ( LLt , LRt )
+      ELSE LResult := OpProc ( Lt , Rt ) 
+      END (*IF*)
+    ; RETURN VAL ( ORD ( LResult ) , LONGINT ) 
+    END BinTxT_Bool 
 
 ; PROCEDURE LeftShift ( Arg , Ct : LONGINT ) : LONGINT 
 
    = VAR LCtI : INTEGER 
 
    ; BEGIN
-       LCtI := VAL ( Ct , INTEGER ) 
+       EnsureInit ( )
+     ; LCtI := VAL ( Ct , INTEGER ) 
      ; IF LCtI >= IntBitsizeI THEN RETURN 0L END (*IF*)
      ; RETURN Long . And ( IntMask , Long . LeftShift ( Arg , LCtI ) )  
      END LeftShift
@@ -131,7 +256,8 @@ MODULE FM3CTIntArith
    = VAR LCtI : INTEGER 
 
    ; BEGIN
-       LCtI := VAL ( Ct , INTEGER ) 
+       EnsureInit ( )
+     ; LCtI := VAL ( Ct , INTEGER ) 
      ; IF LCtI >= IntBitsizeI THEN RETURN 0L END (*IF*)
      ; RETURN Long . RightShift ( Long . And ( IntMask , Arg ) , LCtI )   
      END RightShift
@@ -158,7 +284,7 @@ MODULE FM3CTIntArith
        LCtI := VAL ( Ct MOD 32L , INTEGER )
      ; LLo := Long . And ( Lo32Mask , Arg  )
      ; LDouble := Long . Or ( Long . LeftShift ( LLo , 32 ) , LLo )
-     ; LShifted := Long . RightShift ( LDouble , 32 )
+     ; LShifted := Long . RightShift ( LDouble , LCtI )
      ; RETURN Long . And ( Lo32Mask , LShifted )
      END RightRotate32 
   
@@ -166,7 +292,8 @@ MODULE FM3CTIntArith
 ; PROCEDURE FromCTInt ( IntVal : INTEGER ; Signed : BOOLEAN ) : T
 
   = BEGIN
-      IF Signed
+      EnsureInit ( )
+    ; IF Signed
       THEN RETURN VAL ( IntVal , LONGINT ) (* Should sign extend. *) 
       ELSE RETURN Long . And ( IntMask , VAL ( IntVal , LONGINT ) ) 
       END (*IF*) 
@@ -186,6 +313,7 @@ MODULE FM3CTIntArith
 (*EXPORTED:*) 
 ; PROCEDURE UnOp
     ( Arg : T ; Opcode : FM3Exprs . OpcodeTyp ; IsInt : BOOLEAN ) : T
+  RAISES { ArithError , Unimplemented } 
 
   = VAR LResult : LONGINT
 
@@ -193,76 +321,114 @@ MODULE FM3CTIntArith
       EnsureInit ( ) 
     ; CASE Opcode OF
       | Stk . RidABS
-      => RETURN ABS ( Arg )  
+      => EnsureInit ( )
+      ;  IF IsInt AND IntIs32
+         THEN
+           IF Long . And ( Lo32Mask , Arg ) = 16_00000000FFFFFFFFL
+           THEN RAISE ArithError ( "Overflow in ABS" ) 
+           END (*IF*) 
+         ELSE
+           IF Arg  = 16_FFFFFFFFFFFFFFFFL
+           THEN RAISE ArithError ( "Overflow in ABS" ) 
+           END (*IF*) 
+         END (*IF*) 
+      ;  RETURN ABS ( Arg )
+
+      | Stk . StkRwNOT
+      => WITH WArg = Long . And ( 1L , Arg ) = 1L
+         DO RETURN VAL ( ORD ( NOT WArg  ) , LONGINT )
+         END (*WITH*) 
 
       | Stk . StkPdNot
-      => LResult := Long . Not ( Arg ) 
+      => EnsureInit ( )
+      ;  LResult := Long . Not ( Arg ) 
       ;  IF IsInt AND IntIs32
-         THEN LResult := Long . And ( 0L , LResult ) 
+         THEN LResult := Long . And ( Lo32Mask , LResult ) 
          END (*IF*)
       ;  RETURN LResult 
 
-      ELSE <* ASSERT FALSE
-           , "Unimplemented CT Int Opcode: " & Stk . Image ( Opcode ) & "."
-           *>
+      ELSE RAISE Unimplemented ( Stk . Image ( Opcode ) ) 
       END (*CASE*)      
     END UnOp
 
 (*EXPORTED:*) 
 ; PROCEDURE BinOp
     ( Lt , Rt : T ; Opcode : FM3Exprs . OpcodeTyp ; IsInt : BOOLEAN ) : T
-  RAISES { ArithError }
+  RAISES { ArithError , Unimplemented }
 
-  = VAR LResult : LONGINT
-
-  ; BEGIN
+  = BEGIN
       EnsureInit ( ) 
     ; CASE Opcode OF
 
       (* Full-fledged arithmetic: *)
       
-      | Stk . StkPdPlus
-      => RETURN Add ( Lt , Rt , IsInt ) 
-
       | FM3SrcToks . StkPlus
-      => IF DoCheckOvflo
+      => EnsureInit ( )
+      ;  IF DoCheckOvflo
          THEN
            IF IsInt AND IntIs32  
            THEN RETURN RaiseOnOvfloI32 ( Long . Plus ( Lt , Rt ) )  
            ELSE RETURN Plus64WOvflo ( Lt , Rt , CarryIn := 0L )
          END (*IF*)
-         ELSE RETURN Add ( Lt , Rt , IsInt )
+         ELSE RETURN Lt + Rt 
          END (*IF*)
 
-      | Stk . StkPdMinus
-      => RETURN Subtract ( Lt , Rt , IsInt )
-
       | FM3SrcToks . StkMinus
-      => IF DoCheckOvflo
+      => EnsureInit ( )
+      ;  IF DoCheckOvflo
          THEN
            IF IsInt AND IntIs32  
            THEN RETURN RaiseOnOvfloI32 ( Long . Minus ( Lt , Rt ) )  
            ELSIF Rt = 16_FFFFFFFFFFFFFFFFL
-           THEN RETURN Plus64WOvflo ( Lt , Rt , CarryIn := 1L )
+           THEN RETURN Plus64WOvflo ( Lt , 16_00000000FFFFFFFFL , CarryIn := 1L )
            ELSE RETURN Plus64WOvflo ( Lt , - Rt , CarryIn := 0L )
            END (*IF*)
-         ELSE RETURN Subtract ( Lt , Rt , IsInt )
+         ELSE RETURN Lt - Rt 
          END (*IF*)
 
-      | Stk . StkPdTimes
-      => RETURN Long . Times ( Lt , Rt )
+      | FM3SrcToks . StkStar
+      => EnsureInit ( )
+      ;  IF DoCheckOvflo
+         THEN
+           IF IsInt AND IntIs32
+           THEN RETURN Times32WOvflo ( Lt , Rt ) 
+           ELSE RETURN Times64WOvflo ( Lt , Rt )
+           END (*IF*) 
+         ELSE RETURN Lt * Rt 
+         END (*IF*)
 
-      | Stk . StkPdDivide
-      => RETURN Long . Divide ( Lt , Rt )
+      | Stk . StkRwAND
+      => WITH WLt = Long . And ( 1L , Lt ) = 1L
+         ,    WRt = Long . And ( 1L , Rt ) = 1L
+         DO RETURN VAL ( ORD ( WLt AND WRt ) , LONGINT )
+         END (*WITH*) 
 
-      | Stk . StkPdMod
-      => RETURN Long . Mod ( Lt , Rt )
+      | Stk . StkRwOR
+      => WITH WLt = Long . And ( 1L , Lt ) = 1L
+         ,    WRt = Long . And ( 1L , Rt ) = 1L
+         DO RETURN VAL ( ORD ( WLt OR WRt ) , LONGINT )
+         END (*WITH*) 
 
       | Stk . RidMIN 
       => RETURN MIN ( Lt , Rt )  
 
       | Stk . RidMAX 
       => RETURN MAX ( Lt , Rt )  
+
+      | Stk . StkPdPlus
+      => RETURN BinTxT_T ( Lt , Rt , Long . Plus, IsInt )  
+
+      | Stk . StkPdMinus
+      => RETURN BinTxT_T ( Lt , Rt , Long . Minus , IsInt ) 
+
+      | Stk . StkPdTimes
+      => RETURN BinTxT_T ( Lt , Rt , Long . Times , IsInt ) 
+
+      | Stk . StkPdDivide
+      => RETURN BinTxT_T ( Lt , Rt , Long . Divide , IsInt ) 
+
+      | Stk . StkPdMod
+      => RETURN BinTxT_T ( Lt , Rt , Long . Mod , IsInt ) 
 
       (* Relations: *) 
 
@@ -285,39 +451,27 @@ MODULE FM3CTIntArith
       => RETURN VAL ( ORD ( Lt >= Rt ) , LONGINT ) 
 
       | Stk . StkPdLT 
-      => RETURN VAL ( ORD ( Long . LT ( Lt , Rt ) ) , LONGINT ) 
+      => RETURN BinTxT_Bool ( Lt , Rt , Long . LT , IsInt ) 
 
       | Stk . StkPdGT 
-      => RETURN VAL ( ORD ( Long . GE ( Lt , Rt ) ) , LONGINT ) 
+      => RETURN BinTxT_Bool ( Lt , Rt , Long . GT , IsInt ) 
 
       | Stk . StkPdLE
-      => RETURN VAL ( ORD ( Long . GE ( Lt , Rt ) ) , LONGINT ) 
+      => RETURN BinTxT_Bool ( Lt , Rt , Long . LE , IsInt ) 
 
       | Stk . StkPdGE
-      => RETURN VAL ( ORD ( Long . GE ( Lt , Rt ) ) , LONGINT ) 
+      => RETURN BinTxT_Bool ( Lt , Rt , Long . GE , IsInt ) 
 
       (* Bitwise booleans: *)
 
       | Stk . StkPdAnd
-      => LResult := Long . And ( Lt , Rt ) 
-      ;  IF IsInt AND IntIs32
-         THEN LResult := Long . And ( 0L , LResult ) 
-         END (*IF*)
-      ;  RETURN LResult 
+      => RETURN BinTxT_T ( Lt , Rt , Long . And ,IsInt ) 
 
       | Stk . StkPdOr
-      => LResult := Long . Or ( Lt , Rt ) 
-      ;  IF IsInt AND IntIs32
-         THEN LResult := Long . And ( 0L , LResult ) 
-         END (*IF*)
-      ;  RETURN LResult 
+      => RETURN BinTxT_T ( Lt , Rt , Long . Or , IsInt ) 
 
       | Stk . StkPdXor
-      => LResult := Long . Xor ( Lt , Rt ) 
-      ;  IF IsInt AND IntIs32
-         THEN LResult := Long . And ( 0L , LResult ) 
-         END (*IF*)
-      ;  RETURN LResult
+      => RETURN BinTxT_T ( Lt , Rt , Long . Xor , IsInt )  
 
       (* Shifts: *)
 
@@ -336,7 +490,8 @@ MODULE FM3CTIntArith
           END (*IF*) 
 
       | Stk . StkPdRotate
-      =>  IF IntIs32
+      =>  EnsureInit ( )
+      ;   IF IsInt AND IntIs32
           THEN
             IF Rt > 0L
             THEN RETURN LeftRotate32 ( Lt , Rt ) 
@@ -347,9 +502,7 @@ MODULE FM3CTIntArith
           ELSE RETURN Long . Rotate ( Lt , VAL ( Rt , INTEGER ) )
           END (*IF*) 
 
-      ELSE <* ASSERT FALSE
-           , "Unimplemented CT Int Opcode: " & Stk . Image ( Opcode ) & "."
-           *>
+      ELSE RAISE Unimplemented ( Stk . Image ( Opcode ) ) 
       END (*CASE*)      
     END BinOp
 
@@ -428,5 +581,3 @@ MODULE FM3CTIntArith
     IsInitialized := FALSE 
   END FM3CTIntArith
 .
-
-

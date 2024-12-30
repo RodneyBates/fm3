@@ -19,7 +19,9 @@ INTERFACE FM3CTIntArith
      use more bits and other techniques.
   *)      
 
-; EXCEPTION ArithError ( TEXT ) 
+; EXCEPTION ArithError ( TEXT )
+
+; EXCEPTION Unimplemented ( TEXT )
 
 ; PROCEDURE FromCTInt ( IntVal : INTEGER ; Signed : BOOLEAN ) : T 
 
@@ -28,10 +30,11 @@ INTERFACE FM3CTIntArith
 
 ; PROCEDURE UnOp
     ( Arg : T ; Opcode : FM3Exprs . OpcodeTyp ; IsInt : BOOLEAN ) : T
+  RAISES { ArithError , Unimplemented } 
 
 ; PROCEDURE BinOp
     ( Lt , Rt : T ; Opcode : FM3Exprs . OpcodeTyp ; IsInt : BOOLEAN ) : T
-  RAISES { ArithError }
+  RAISES { Unimplemented , ArithError }
 
 ; PROCEDURE Extract
     ( x , i , n : T ) : T
@@ -41,15 +44,7 @@ INTERFACE FM3CTIntArith
     ( x , y, i , n : T ) : T 
   RAISES { ArithError }
 
-; PROCEDURE Unary
-    ( Opnd : T ; Opcode : FM3SrcToks . TokTyp ; Integer  : BOOLEAN ) : T
-  RAISES { ArithError }
-  
-; PROCEDURE Binary
-    ( Lt , Rt : T ; Opcode : FM3SrcToks . TokTyp ; Integer : BOOLEAN ) : T
-  RAISES { ArithError }
-
-  (* For Unary and Binary, Integer means do the arithmetic in the size of
+  (* For UnOp and BinOp, Integer means do the arithmetic in the size of
      RT INTEGER, which will be be taken from CT Target options.  Opcodes
      of functions in  Word or Long will do Modula-3 overflow-less modulo
      INTEGER or LONGINT. Opcodes for operator symbols will raise ArithError
