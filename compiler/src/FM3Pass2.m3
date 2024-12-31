@@ -511,6 +511,17 @@ MODULE FM3Pass2
     ; FM3Exprs . PushExprStack ( NewExprObj )
     END DefExprRt 
 
+;  PROCEDURE WrongKindMsg
+     ( Operand , Opcode , Expected : TEXT ; Position : tPosition )
+
+  = BEGIN
+      FM3Messages . ErrorArr
+        ( ARRAY OF REFANY
+            { Operand , " of \"" , Opcode  , "\" must be " , Expected , "." }
+        , Position
+        )
+    END WrongKindMsg
+
 ; PROCEDURE DefExprLt ( )
   (* PRE NOT Skipping. *)
   (* Expressions that are contained in definitions. *) 
@@ -617,18 +628,34 @@ MODULE FM3Pass2
         END (*WITH*)
       END HtExprOpnd2
 
-  ;  PROCEDURE WrongKindMsg
-       ( Operand , Opcode , Expected : TEXT ; Position : tPosition )
-       
-    = BEGIN
-        FM3Messages . ErrorArr
-          ( ARRAY OF REFANY
-              { Operand , " of \"" , Opcode  , "\" must be " , Expected , "." }
-          , Position
-          )
-      END WrongKindMsg
-      
-  ; PROCEDURE HtBinOp ( )
+  ; PROCEDURE HtUnaryOp ( )
+  
+    = VAR LUnOpExpr : FM3Exprs . Expr2OpndTyp
+    ; VAR LOpcode : FM3Exprs . OpcodeTyp
+    
+    ; BEGIN
+        LOpcode := GetBwdInt ( TokResult . TrRdBack ) 
+      ; IF NOT HtSkipping 
+        THEN
+          LUnOpExpr
+            := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . Expr2OpndTyp )
+        ; IF NOT LUnOpExpr . ExpOpnd1 . ExpUpKind
+                 IN EkSetTyp { Ekt . EkValue , Ekt . EkConst }
+          THEN
+            WrongKindMsg
+              ( "Operand"
+              , FM3SrcToks . Image ( LOpcode ) 
+              , "a value expression"
+              , LUnOpExpr . ExpPosition
+              )
+          ; LUnOpExpr . ExpIsUsable :=FALSE
+          ELSE  
+            LUnOpExpr . ExpIsConst := LUnOpExpr . ExpOpnd1 . ExpIsConst
+          END (*IF*) 
+        END (*IF*) 
+      END HtUnaryOp  
+
+  ; PROCEDURE HtBinaryOp ( )
   
     = VAR LBinOpExpr : FM3Exprs . Expr2OpndTyp
     ; VAR LOpcode : FM3Exprs . OpcodeTyp
@@ -668,7 +695,7 @@ MODULE FM3Pass2
                  AND LBinOpExpr . ExpOpnd2 . ExpIsConst  
           END (*IF*) 
         END (*IF*) 
-      END HtBinOp  
+      END HtBinaryOp  
 
   ; PROCEDURE HtPassTokenThru ( )
 
@@ -1019,6 +1046,7 @@ MODULE FM3Pass2
       | Itk . ItkUnaryOpLt 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; HtExprOpnd1 ( ) (* Only operand. *)
+        ; HtUnaryOp ( ) 
 
       (* Binary Operators: *) 
       | Itk . ItkBinOpRt 
@@ -1038,7 +1066,7 @@ MODULE FM3Pass2
       | Itk . ItkBinOpLt 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; HtExprOpnd1 ( ) (* Left operand. *)
-        ; HtBinOp ( ) 
+        ; HtBinaryOp ( ) 
 
       ELSE (* No special pass2 handling. *)
         HtPassTokenThru ( ) 

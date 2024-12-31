@@ -141,8 +141,8 @@ INTERFACE FM3Exprs
     = Expr2OpndTyp OBJECT
         ExpBinOpOp : INTEGER 
         (* Certain values from FM3SrcToks.i3 or FM3LongToks.i3.
-           can be a unary operator, in which case the 2nd operand
-           field just goes unused.
+           can be a unary operator, in which case we use this type
+           with the 2nd operand field just going unused.
         *) 
       END 
 
