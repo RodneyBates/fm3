@@ -601,7 +601,7 @@ MODULE FM3Pass2
           THEN
             LOpnd := FM3Exprs . PopExprStack ( )
           ; LParentExpr
-              := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . Expr1OpndTyp ) 
+              := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . Expr2OpndTyp ) 
           ; <*ASSERT WPosition = LParentExpr . ExpPosition *>
             LParentExpr . ExpOpnd1 := LOpnd
           ; DefExprLt ( ) 
@@ -1025,13 +1025,14 @@ MODULE FM3Pass2
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; HtExprRt
             ( NEW ( FM3Exprs . ExprSubrTypeTyp , ExpUpKind := Ekt . EkType ) ) 
+        ; HtExprOpnd2 ( )
 
       | Itk . ItkSubrTypeDotDot 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
 
       | Itk . ItkSubrTypeLt 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*)
-        ; HtExprOpnd2 ( )
+        ; HtExprOpnd1 ( )
 
       (* Unary operators: *) 
       | Itk . ItkUnaryOpRt 

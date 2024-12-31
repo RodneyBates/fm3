@@ -92,13 +92,13 @@ INTERFACE FM3Exprs
 (* Add some operand links. *)
 ; TYPE Expr1OpndPublic
     = ExprTyp OBJECT
-         ExpOpnd1 : ExprTyp
+         ExpOpnd1 : ExprTyp (* Left operand when binary. *) 
       END 
 ; TYPE Expr1OpndTyp <: Expr1OpndPublic
 
 ; TYPE Expr2OpndTyp
     <: Expr1OpndTyp OBJECT
-         ExpOpnd2 : ExprTyp 
+         ExpOpnd2 : ExprTyp (* Right Operand when binary. *) 
      END 
 
 ; TYPE Expr3OpndTyp
