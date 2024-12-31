@@ -235,12 +235,13 @@ NEXT StkMinPredef .
    StkPdExtended       "Extended" .
    StkPdRealFloat      "RealFloat" .
    StkPdLongRealFloat  "LongRealFloat" .
-   StkPdExtendeFloat   "ExtendedFloat" .
+   StkPdExtendedFloat  "ExtendedFloat" .
    StkPdFloatMode      "FloatMode" .
    StkPdLex            "Lex" .
    StkPdFmt            "Fmt" .
 
    StkPdT              "T" (* In many standard interfaces: *) 
+
 
 (* In Word and Long: *) 
    StkPdSize           "Size" . 

@@ -385,7 +385,7 @@ MODULE FM3SrcToks
       | 165 => RETURN "StkPdExtended"
       | 166 => RETURN "StkPdRealFloat"
       | 167 => RETURN "StkPdLongRealFloat"
-      | 168 => RETURN "StkPdExtendeFloat"
+      | 168 => RETURN "StkPdExtendedFloat"
       | 169 => RETURN "StkPdFloatMode"
       | 170 => RETURN "StkPdLex"
       | 171 => RETURN "StkPdFmt"

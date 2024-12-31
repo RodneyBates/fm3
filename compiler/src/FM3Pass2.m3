@@ -41,6 +41,7 @@ MODULE FM3Pass2
 ; IMPORT FM3Graph 
 ; IMPORT FM3IntToks AS Itk
 ; IMPORT FM3LoTypes
+; IMPORT FM3SrcToks 
 ; IMPORT FM3SrcToks AS Stk
 ; FROM   FM3StreamUtils
     IMPORT GetBwdInt , GetBwdAtom , GetBwdDeclKind , GetBwdPos , GetBwdScopeNo 
@@ -54,7 +55,8 @@ MODULE FM3Pass2
 ; IMPORT FM3Utils
 ; IMPORT RdBackFile
 
-; TYPE Ekt = FM3Exprs . ExprKindTyp 
+; TYPE Ekt = FM3Exprs . ExprKindTyp
+; TYPE EkSetTyp = FM3Exprs . EkSetTyp 
 ; TYPE Ust = FM3Units . UnitStateTyp
 ; TYPE Dkt = FM3Decls . DeclKindTyp 
 
@@ -542,9 +544,9 @@ MODULE FM3Pass2
           IF AreInsideADecl ( )
           THEN 
             WITH LExpr
-              = NEW ( FM3Exprs . ExprConstValue , ExpUpKind := Ekt . EkValue ) 
+              = NEW ( FM3Exprs . ExprConstValue ) 
             DO 
-              LExpr . ExpValueL := LLongInt
+              LExpr . ExpScalarConstVal := LLongInt
             ; LExpr . ExpLoTypeInfoRef
                 := VarArray_Int_Refany . Fetch
                      ( FM3LoTypes . LoTypeMap , LoTypeNo )  
@@ -577,22 +579,20 @@ MODULE FM3Pass2
         END (*WITH*)
       END HtExprRt 
 
-  ; PROCEDURE HtExprOpnd1  ( )
+  ; PROCEDURE HtExprOpnd1 ( )
       (* PRE: TOS is 1st (LM) operand, TOS-1 is parent. *) 
     = VAR LOpnd : FM3Exprs . ExprTyp
+    ; VAR LParentExpr : FM3Exprs . Expr1OpndTyp 
 
     ; BEGIN 
         WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
         DO IF NOT HtSkipping 
           THEN
             LOpnd := FM3Exprs . PopExprStack ( )
-          ; TYPECASE FM3Exprs . ExprStackTopObj
-            OF NULL => <*ASSERT FALSE*>
-            | FM3Exprs . Expr1OpndTyp ( TParentExpr ) 
-            => <*ASSERT WPosition = TParentExpr . ExpPosition *>
-               TParentExpr . ExpOpnd1 := LOpnd
-            ELSE <*ASSERT FALSE*>
-            END (*TYPECASE*)
+          ; LParentExpr
+              := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . Expr1OpndTyp ) 
+          ; <*ASSERT WPosition = LParentExpr . ExpPosition *>
+            LParentExpr . ExpOpnd1 := LOpnd
           ; DefExprLt ( ) 
           END (*IF*) 
         END (*WITH*)
@@ -601,23 +601,74 @@ MODULE FM3Pass2
   ; PROCEDURE HtExprOpnd2  ( )
       (* PRE: TOS is 2nd operand, TOS-1 is parent. *) 
     = VAR LOpnd : FM3Exprs . ExprTyp
+    ; VAR LParentExpr : FM3Exprs . Expr2OpndTyp 
 
     ; BEGIN 
         WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
         DO IF NOT HtSkipping 
           THEN
             LOpnd := FM3Exprs . PopExprStack ( )
-          ; TYPECASE FM3Exprs . ExprStackTopObj
-            OF NULL => <*ASSERT FALSE*>
-            | FM3Exprs . Expr2OpndTyp ( TParentExpr ) 
-            => <*ASSERT WPosition = TParentExpr . ExpPosition *>
-               TParentExpr . ExpOpnd2 := LOpnd
-            ELSE <*ASSERT FALSE*>
-            END (*TYPECASE*)
+          ; LParentExpr
+              := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . Expr2OpndTyp ) 
+          ; <*ASSERT WPosition = LParentExpr . ExpPosition *>
+            LParentExpr . ExpOpnd2 := LOpnd
           ; DefExprLt ( ) 
           END (*IF*) 
         END (*WITH*)
       END HtExprOpnd2
+
+  ;  PROCEDURE WrongKindMsg
+       ( Operand , Opcode , Expected : TEXT ; Position : tPosition )
+       
+    = BEGIN
+        FM3Messages . ErrorArr
+          ( ARRAY OF REFANY
+              { Operand , " of \"" , Opcode  , "\" must be " , Expected , "." }
+          , Position
+          )
+      END WrongKindMsg
+      
+  ; PROCEDURE HtBinOp ( )
+  
+    = VAR LBinOpExpr : FM3Exprs . Expr2OpndTyp
+    ; VAR LOpcode : FM3Exprs . OpcodeTyp
+    
+    ; BEGIN
+        LOpcode := GetBwdInt ( TokResult . TrRdBack ) 
+      ; IF NOT HtSkipping 
+        THEN
+          LBinOpExpr
+            := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . Expr2OpndTyp )
+        ; IF NOT LBinOpExpr . ExpOpnd1 . ExpUpKind
+                 IN EkSetTyp { Ekt . EkValue , Ekt . EkConst }
+          THEN
+            WrongKindMsg
+              ( "Left operand"
+              , FM3SrcToks . Image ( LOpcode ) 
+              , "a value expression"
+              , LBinOpExpr . ExpPosition
+              )
+          ; LBinOpExpr . ExpIsUsable :=FALSE
+          END (*IF*) 
+        ; IF NOT LBinOpExpr . ExpOpnd2 . ExpUpKind
+                 IN EkSetTyp { Ekt . EkValue , Ekt . EkConst } 
+          THEN
+            WrongKindMsg
+              ( "Right operand"
+              , FM3SrcToks . Image ( LOpcode ) 
+              , "a value expression"
+              , LBinOpExpr . ExpPosition
+              )
+          ; LBinOpExpr . ExpIsUsable :=FALSE
+          END (*IF*)
+        ; IF LBinOpExpr . ExpIsUsable
+          THEN
+            LBinOpExpr . ExpIsConst
+              := LBinOpExpr . ExpOpnd1 . ExpIsConst
+                 AND LBinOpExpr . ExpOpnd2 . ExpIsConst  
+          END (*IF*) 
+        END (*IF*) 
+      END HtBinOp  
 
   ; PROCEDURE HtPassTokenThru ( )
 
@@ -960,7 +1011,8 @@ MODULE FM3Pass2
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*)
         ; HtExprRt
             ( NEW ( FM3Exprs . ExprBinOpTyp
-                  , ExpBinOpOp := GetBwdInt ( TokResult . TrRdBack )
+                  , ExpBinOpOp := - GetBwdInt ( TokResult . TrRdBack )
+                  , ExpPosition := GetBwdPos ( TokResult . TrRdBack )
                   )
             ) 
  
@@ -973,17 +1025,20 @@ MODULE FM3Pass2
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; HtExprRt
             ( NEW ( FM3Exprs . ExprBinOpTyp
-                  , ExpBinOpOp := GetBwdInt ( TokResult . TrRdBack )
+                  , ExpBinOpOp := - GetBwdInt ( TokResult . TrRdBack )
+                  , ExpPosition := GetBwdPos ( TokResult . TrRdBack )
                   )
-            ) 
+            )
 
-      | Itk . ItkBinOpOpCode 
+      | Itk . ItkBinOpOperator
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
-        ; HtExprOpnd2 ( ) (* Right operand. *) 
+        ; HtExprOpnd2 ( ) (* Right operand. *)
+        ; EVAL GetBwdInt ( TokResult . TrRdBack ) (* Opcode. *) 
 
       | Itk . ItkBinOpLt 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; HtExprOpnd1 ( ) (* Left operand. *)
+        ; HtBinOp ( ) 
 
       ELSE (* No special pass2 handling. *)
         HtPassTokenThru ( ) 
@@ -993,7 +1048,7 @@ MODULE FM3Pass2
 (* TODO: There must be more places this could be used. *) 
 ; PROCEDURE CharsOfIdentAtom
     ( UnitRef : FM3Units . UnitRefTyp ; Atom : FM3Base . AtomTyp )
-  : FM3Atom_OAChars . KeyTyp
+  : FM3Atom_OAChars . KeyTyp (* Which is ARRAY OF CHAR. *) 
 
   = VAR LIdentChars : FM3Atom_OAChars . KeyTyp 
 

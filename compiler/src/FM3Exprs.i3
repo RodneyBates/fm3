@@ -43,6 +43,8 @@ INTERFACE FM3Exprs
      }
 ; TYPE Ekt = ExprKindTyp
 
+; TYPE EkSetTyp = SET OF ExprKindTyp 
+
 ; TYPE ExprStateTyp
     = { EsUnknown 
       , EsUnresolved
@@ -71,6 +73,7 @@ INTERFACE FM3Exprs
       ; ExpKind : ExprKindTyp := Ekt . EkNull
       ; ExpState : ExprStateTyp := Est . EsUnresolved
       ; ExpIsConst : BOOLEAN := FALSE
+      ; ExpConstValIsKnown : BOOLEAN := FALSE
       ; ExpIsUsable : BOOLEAN := TRUE
       ; ExpIsLegalRecursive : BOOLEAN := FALSE
         (* ^Self or any containing def could make it legal. *) 
@@ -85,11 +88,6 @@ INTERFACE FM3Exprs
 
 ; PROCEDURE ResolveEventually
     ( Expr : ExprTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp
-
-; TYPE ExprIntConst
-    = ExprTyp OBJECT
-        ExpLongVal : LONGINT
-      END 
 
 (* Add some operand links. *)
 ; TYPE Expr1OpndPublic
@@ -138,11 +136,12 @@ INTERFACE FM3Exprs
         ExpDotIdAtom : FM3Base . AtomTyp
       END
 
+(* Either a constant expression or one whose type is of interest. *) 
 ; TYPE ExprBinOpTyp
     = Expr2OpndTyp OBJECT
         ExpBinOpOp : INTEGER 
         (* Certain values from FM3SrcToks.i3 or FM3LongToks.i3.
-           May be a unary operator, in which case the 2nd operand
+           can be a unary operator, in which case the 2nd operand
            field just goes unused.
         *) 
       END 
@@ -203,16 +202,13 @@ INTERFACE FM3Exprs
 
 (* Constant values: *)
 ; TYPE ExprConstValue
-    = ExprTyp OBJECT
-        ExpValueType : ExprTyp
-      ; ExpValueL : LONGINT
-      ; ExpValueR : REFANY 
-      END
+    = ExprTyp OBJECT END
+(*CHECK: Any need for this? ExpIsConst should suffice. *) 
 
 (* References: *) 
 ; TYPE ExprDeclIdTyp (* Reference to something declared in this unit. *)
     = ExprTyp OBJECT
-        DefDeclNo : FM3Globals . DeclNoTyp := FM3Globals . DeclNoNull
+        ExpDefDeclNo : FM3Globals . DeclNoTyp := FM3Globals . DeclNoNull
       END 
 
 ; TYPE ExprExpImpDeclIdTyp (* Reference to something declared in another unit. *) 
@@ -223,12 +219,6 @@ INTERFACE FM3Exprs
 
 (* Expression operations: *)
 (* Either a constant expression or one whose type is of interest. *) 
-; TYPE ExprUnBinOp (* Unary or binary operator. *) 
-    = ExprTyp OBJECT
-        ExpLeft : ExprTyp 
-      ; ExpRight : ExprTyp
-      ; ExpOperator : FM3SrcToks . TokTyp (* Only a subset. *)
-      END 
 
 ; TYPE ExprMapTyp = FM3Base . MapTyp
     (* Map ExprNoTyp to ExprTyp. One of these per Unit. *)

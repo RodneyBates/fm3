@@ -445,7 +445,7 @@ MODULE FM3Pass3
             WITH LExpr
               = NEW ( FM3Exprs . ExprConstValue , ExpUpKind := Ekt . EkValue ) 
             DO 
-              LExpr . ExpValueL := LLongInt
+              LExpr . ExpScalarConstVal := LLongInt
             ; LExpr . ExpLoTypeInfoRef
                 := VarArray_Int_Refany . Fetch
                      ( FM3LoTypes . LoTypeMap , LoTypeNo )  

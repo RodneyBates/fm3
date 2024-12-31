@@ -228,7 +228,7 @@ INTERFACE FM3SrcToks
 ; CONST StkPdExtended                                =   165 (*16_a5 01 *)
 ; CONST StkPdRealFloat                               =   166 (*16_a6 01 *)
 ; CONST StkPdLongRealFloat                           =   167 (*16_a7 01 *)
-; CONST StkPdExtendeFloat                            =   168 (*16_a8 01 *)
+; CONST StkPdExtendedFloat                           =   168 (*16_a8 01 *)
 ; CONST StkPdFloatMode                               =   169 (*16_a9 01 *)
 ; CONST StkPdLex                                     =   170 (*16_aa 01 *)
 ; CONST StkPdFmt                                     =   171 (*16_ab 01 *)

@@ -294,7 +294,6 @@ FIXED
   ItkFIRST      POS .
   ItkFLOAT      POS .
   ItkFLOOR      POS .
-  ItkISTYPE     POS .
   ItkLAST       POS .
   ItkNUMBER     POS .
   ItkORD        POS .
@@ -315,7 +314,7 @@ FIXED
 
 (* Binary operators: *) 
 FIXED
-  ItkBinOp INT POS    OpCode INT POS (* Operation code. *) . 
+  ItkBinOp INT POS    Operator INT POS (* Operation code. *) . 
 (*  
   ItkEqual POS        BinOp POS . 
   ItkUnequal POS      BinOp POS . 
@@ -336,6 +335,7 @@ FIXED
 *)
 (* Binary reserved Ident functions. *)  
 FIXED
+  ItkISTYPE     POS BinOp POS .
   ItkLOOPHOLE   POS BinOp POS . 
   ItkMAX        POS BinOp POS . 
   ItkMIN        POS BinOp POS . 
