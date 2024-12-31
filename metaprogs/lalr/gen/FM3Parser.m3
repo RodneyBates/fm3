@@ -3827,7 +3827,7 @@ yyNonterminal := 231;
                  FM3Pass1 . PutBwd_LCIP_eCip_rip
                          ( Itk . ItkBinaryOpLt
                          , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
-                         , - Stk . StkRwOR
+                         , Stk . StkRwOR
                          , yyAttributeStack^[yyStackPtr+2]  . Scan . Position
                          , yyAttributeStack^[yyStackPtr+2] . PaPass1Coord 
                          ) ; 
@@ -3841,7 +3841,7 @@ yyNonterminal := 231;
                  FM3Pass1 . PutBwd_LCIP_eCip_rip
                          ( Itk . ItkBinaryOpLt
                          , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
-                         , - Stk . StkRwAND 
+                         , Stk . StkRwAND 
                          , yyAttributeStack^[yyStackPtr+2]  . Scan . Position
                          , yyAttributeStack^[yyStackPtr+2] . PaPass1Coord 
                          ) ; 
@@ -3855,7 +3855,7 @@ yyNonterminal := 231;
                  FM3Pass1 . PutBwd_LCIP_rip
                          ( Itk . ItkUnaryOpLt
                          , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
-                         , - Stk . StkRwNOT
+                         , Stk . StkRwNOT
                          , yyAttributeStack^[yyStackPtr+1] . Scan . Position
                          ) ; 
                      
@@ -3866,9 +3866,9 @@ yyNonterminal := 231;
                 DEC (yyStackPtr, 3); yyNonterminal := 247;
                 (* line 1975 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LCIP_eCip_rip
-                         ( Itk .ItkBinaryOpLt
+                         ( Itk . ItkBinaryOpLt
                          , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
-                         , - yyAttributeStack^[yyStackPtr+2] . PaTok1 
+                         , yyAttributeStack^[yyStackPtr+2] . PaTok1 
                          , yyAttributeStack^[yyStackPtr+2]  . Scan . Position
                          , yyAttributeStack^[yyStackPtr+2] . PaPass1Coord 
                          ) ; 
@@ -3880,9 +3880,9 @@ yyNonterminal := 231;
                 DEC (yyStackPtr, 3); yyNonterminal := 248;
                 (* line 1986 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LCIP_eCip_rip
-                         ( Itk .ItkBinaryOpLt
+                         ( Itk . ItkBinaryOpLt
                          , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
-                         , - yyAttributeStack^[yyStackPtr+2] . PaTok1 
+                         , yyAttributeStack^[yyStackPtr+2] . PaTok1 
                          , yyAttributeStack^[yyStackPtr+2]  . Scan . Position
                          , yyAttributeStack^[yyStackPtr+2] . PaPass1Coord 
                          ) ; 
@@ -3894,9 +3894,9 @@ yyNonterminal := 231;
                 DEC (yyStackPtr, 3); yyNonterminal := 250;
                 (* line 1997 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LCIP_eCip_rip
-                         ( Itk .ItkBinaryOpLt
+                         ( Itk . ItkBinaryOpLt
                          , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
-                         , - yyAttributeStack^[yyStackPtr+2] . PaTok1 
+                         , yyAttributeStack^[yyStackPtr+2] . PaTok1 
                          , yyAttributeStack^[yyStackPtr+2]  . Scan . Position
                          , yyAttributeStack^[yyStackPtr+2] . PaPass1Coord 
                          ) ; 
@@ -3913,7 +3913,7 @@ yyNonterminal := 231;
                        FM3Pass1 . PutBwd_LCIP_rip
                          ( Itk . ItkUnaryOpLt
                          , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
-                         , - yyAttributeStack^[yyStackPtr+1] . PaTok1
+                         , yyAttributeStack^[yyStackPtr+1] . PaTok1
                          , yyAttributeStack^[yyStackPtr+1] . Scan . Position
                          ) ; 
                      

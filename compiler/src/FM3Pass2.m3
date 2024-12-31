@@ -1039,7 +1039,7 @@ MODULE FM3Pass2
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*)
         ; HtExprRt
             ( NEW ( FM3Exprs . ExprBinOpTyp
-                  , ExpBinOpOp := - GetBwdInt ( TokResult . TrRdBack )
+                  , ExpBinOpOp := GetBwdInt ( TokResult . TrRdBack )
                   , ExpPosition := GetBwdPos ( TokResult . TrRdBack )
                   )
             ) 
@@ -1054,7 +1054,7 @@ MODULE FM3Pass2
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; HtExprRt
             ( NEW ( FM3Exprs . ExprBinOpTyp
-                  , ExpBinOpOp := - GetBwdInt ( TokResult . TrRdBack )
+                  , ExpBinOpOp := GetBwdInt ( TokResult . TrRdBack )
                   , ExpPosition := GetBwdPos ( TokResult . TrRdBack )
                   )
             )
