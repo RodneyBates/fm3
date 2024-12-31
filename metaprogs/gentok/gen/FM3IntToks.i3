@@ -979,16 +979,16 @@ LIST ItkIdPlusList
 ; CONST ItkLong_NotRt                   (*ArgCt: 2*) =   709 (*16_c5 05 *)
 
 (* Binary operators: *)
-(* FIXED ItkBinOp: *)
-; CONST ItkBinOpLt                      (*ArgCt: 3*) =   710 (*16_c6 05 *)
-; CONST ItkBinOpLtTemp                  (*ArgCt: 3*) =   711 (*16_c7 05 *)
-; CONST ItkBinOpLtPatch                 (*ArgCt: 3*) =   712 (*16_c8 05 *)
-; CONST ItkBinOpRt                      (*ArgCt: 3*) =   713 (*16_c9 05 *)
+(* FIXED ItkBinaryOp: *)
+; CONST ItkBinaryOpLt                   (*ArgCt: 3*) =   710 (*16_c6 05 *)
+; CONST ItkBinaryOpLtTemp               (*ArgCt: 3*) =   711 (*16_c7 05 *)
+; CONST ItkBinaryOpLtPatch              (*ArgCt: 3*) =   712 (*16_c8 05 *)
+; CONST ItkBinaryOpRt                   (*ArgCt: 3*) =   713 (*16_c9 05 *)
 
 (* Operation code. *)
-; CONST ItkBinOpOperator                (*ArgCt: 3*) =   714 (*16_ca 05 *)
-; CONST ItkBinOpOperatorTemp            (*ArgCt: 3*) =   715 (*16_cb 05 *)
-; CONST ItkBinOpOperatorPatch           (*ArgCt: 3*) =   716 (*16_cc 05 *)
+; CONST ItkBinaryOpOperator             (*ArgCt: 3*) =   714 (*16_ca 05 *)
+; CONST ItkBinaryOpOperatorTemp         (*ArgCt: 3*) =   715 (*16_cb 05 *)
+; CONST ItkBinaryOpOperatorPatch        (*ArgCt: 3*) =   716 (*16_cc 05 *)
 
 (*  
   ItkEqual POS        BinOp POS . 

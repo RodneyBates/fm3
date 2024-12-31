@@ -855,7 +855,7 @@ MODULE FM3Pass3
         ; HtExprOpnd1 ( ) (* Only operand. *)
 
       (* Binary Operators: *) 
-      | Itk . ItkBinOpLt 
+      | Itk . ItkBinaryOpLt 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; HtExprLt
             ( NEW ( FM3Exprs . ExprBinOpTyp
@@ -863,11 +863,11 @@ MODULE FM3Pass3
                   )
             ) 
 
-      | Itk . ItkBinOpOpCode 
+      | Itk . ItkBinaryOpOpCode 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; HtExprOpnd2 ( ) (* Right operand. *) 
 
-      | Itk . ItkBinOpRt 
+      | Itk . ItkBinaryOpRt 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; HtExprOpnd1 ( ) (* Left operand. *)
 

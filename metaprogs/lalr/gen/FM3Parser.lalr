@@ -1941,7 +1941,7 @@ RULE
    E0 : E1 . 
    E0 : E0 StkRwOR E1
      { FM3Pass1 . PutBwd_LCIP_eCip_rip
-         ( Itk . ItkBinOpLt
+         ( Itk . ItkBinaryOpLt
          , $1 . PaPass1Coord
          , - Stk . StkRwOR
          , $2  . Scan . Position
@@ -1952,7 +1952,7 @@ RULE
    E1 : E2 . 
    E1 : E1 StkRwAND E2
      { FM3Pass1 . PutBwd_LCIP_eCip_rip
-         ( Itk . ItkBinOpLt
+         ( Itk . ItkBinaryOpLt
          , $1 . PaPass1Coord
          , - Stk . StkRwAND 
          , $2  . Scan . Position
@@ -1973,7 +1973,7 @@ RULE
    E3 : E4 . 
    E3 : E3 ExprRelOp E4
      { FM3Pass1 . PutBwd_LCIP_eCip_rip
-         ( Itk .ItkBinOpLt
+         ( Itk .ItkBinaryOpLt
          , $1 . PaPass1Coord
          , - $2 . PaTok1 
          , $2  . Scan . Position
@@ -1984,7 +1984,7 @@ RULE
    E4 : E5 . 
    E4 : E4 ExprAddOp E5
      { FM3Pass1 . PutBwd_LCIP_eCip_rip
-         ( Itk .ItkBinOpLt
+         ( Itk .ItkBinaryOpLt
          , $1 . PaPass1Coord
          , - $2 . PaTok1 
          , $2  . Scan . Position
@@ -1995,7 +1995,7 @@ RULE
    E5 : E6 . 
    E5 : E5 ExprMulOp E6
      { FM3Pass1 . PutBwd_LCIP_eCip_rip
-         ( Itk .ItkBinOpLt
+         ( Itk .ItkBinaryOpLt
          , $1 . PaPass1Coord
          , - $2 . PaTok1 
          , $2  . Scan . Position
@@ -2253,7 +2253,8 @@ RULE
    ExprMulOp : StkSlash        { $$ . PaTok1 := Stk . StkSlash ; } . 
    ExprMulOp : StkRwDIV        { $$ . PaTok1 := Stk . StkRwDIV ; } .
    ExprMulOp : StkRwMOD        { $$ . PaTok1 := Stk . StkRwMOD ; } . 
-   
+
+   (* These are distinguished syntactically by the parser. *) 
    ExprUnaryAddOp : StkPlus    { $$ . PaTok1 := Stk . StkUnaryPlus ; } . 
    ExprUnaryAddOp : StkMinus   { $$ . PaTok1 := Stk . StkUnaryMinus ; } . 
  
