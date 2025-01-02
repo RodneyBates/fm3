@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2024        Rodney M. Bates.                                    *)
+(* Copyright 2024..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
@@ -63,8 +63,11 @@ MODULE FM3Predefs
   ; OneParamSet := IntSets . FromArray ( OneParamValues ) 
   ; TwoParamSet := IntSets . FromArray ( TwoParamValues ) 
   ; ThreeParamSet := IntSets . FromArray ( ThreeParamValues )  
-  ; OneOrMoreParamSet := IntSets . FromArray ( OneOrMoreParamValues )  
+  ; OneOrMoreParamSet := IntSets . FromArray ( OneOrMoreParamValues )
   ; ConstantSet := IntSets . FromArray ( ConstantValues )  
-  ; TypeSet := IntSets . FromArray ( TypeValues )  
+  ; TypeSet := IntSets . FromArray ( TypeValues )
+  ; ProcSet := IntSets . Union ( OneParamSet , TwoParamSet )  
+  ; ProcSet := IntSets . Union ( ProcSet , ThreeParamSet )  
+  ; ProcSet := IntSets . Union ( ProcSet , OneOrMoreParamSet )  
   END FM3Predefs
 . 

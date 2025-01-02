@@ -10,7 +10,7 @@ INTERFACE FM3ExpImpProxy
 (* For instantiating. *)
 (* A way to refer to a declaration [ex|im]ported from a remote unit. *) 
 
-; IMPORT FM3Base 
+; IMPORT FM3Base
 ; IMPORT FM3Globals
 
 ; CONST Brand = "FM3ExpImpProxy-1.0" 

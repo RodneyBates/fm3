@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024 Rodney M. Bates.                                     *)
+(* Copyright 2023..2025 Rodney M. Bates.                                     *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -67,7 +67,7 @@ LONE
   ItkOpenScopeRt INT (* ScopeNo. *) . 
   ItkReservedIdRef IDENT POS 3 (* Rid*, Position. *). 
   ItkDuplDeclId IDENT POS 3 (* IdAtom, position *) . 
-  ItkDeclId INT IDENT POS 4 (* DeclKind, IdAtom, position *) .
+  ItkDeclId INT IDENT INT POS 5 (* DeclKind, IdAtom, IdPredef, position *) .
   ItkDeclNo DECL POS 3 (* DeclNo, position *) .
   ItkDefTopExprNo INT POS (* ExprNo. *)  
 

@@ -985,7 +985,7 @@ MODULE FM3IntToks
       | 244 => RETURN "_L"
       | 245 => RETURN "_I_P"
       | 246 => RETURN "_I_P"
-      | 247 => RETURN "_L_I_P"
+      | 247 => RETURN "_L_I_L_P"
       | 248 => RETURN "_D_P"
       | 249 => RETURN "_L_P"
       | 250 => RETURN "_I_P"

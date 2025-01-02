@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2024        Rodney M. Bates.                                    *)
+(* Copyright 2024..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
@@ -366,8 +366,7 @@ INTERFACE FM3Pass1
     ( READONLY IdAttr : tParsAttribute ; ContextTag := "used in this context" )
 
 ; PROCEDURE DeclIdL2R 
-    ( DeclIdTok : Itk . TokTyp
-    ; DeclKind : FM3Decls . DeclKindTyp  
+    ( DeclKind : FM3Decls . DeclKindTyp  
     ; READONLY IdAttribute : tParsAttribute
     ; SepTok : Itk . TokTyp := Itk . ItkNull
                             (* ^Implies single decl id, not in a list. *)  

@@ -23,6 +23,7 @@ INTERFACE FM3Units
 ; IMPORT FM3ExpImpProxy
 ; IMPORT FM3Globals 
 ; IMPORT FM3OpenArray_Char
+; IMPORT FM3SrcToks 
 ; IMPORT RdBackFile
 
 ; TYPE UnitKindTyp
@@ -160,6 +161,7 @@ INTERFACE FM3Units
         (* ^In the unit's top-level scope.  As opposed to imported proxies,
             which are all lower-numbered. *) 
       ; UntNextDeclNo : INTEGER := 1
+      ; UntPredefTok : FM3SrcToks . TokTyp := FM3SrcToks . StkUnknown 
       ; UntKind := UnitKindTyp . UkNull 
       ; UntState := UnitStateTyp . UsNull
       ; UntUnsafe : BOOLEAN := FALSE  
@@ -180,7 +182,8 @@ INTERFACE FM3Units
 
 ; CONST ExpImpProxyNull
     = FM3ExpImpProxy . T
-        { EipUnitNo := FM3Globals . UnitNoNull (* Null means present but not usable. *)
+        { EipUnitNo := FM3Globals . UnitNoNull
+          (* ^Null means present but not usable. *)
         , EipDeclNo := FM3Globals . DeclNoNull
         , EipImportingUnitNo := FM3Globals . UnitNoNull 
         , EipImportingUnitPosition := FM3Base . PositionNull

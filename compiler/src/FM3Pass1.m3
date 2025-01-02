@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2024        Rodney M. Bates.                                    *)
+(* Copyright 2024..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -526,6 +526,7 @@ MODULE FM3Pass1
   ; BEGIN (* InterfaceId *)
       UnitRef ^ . UntUnitIdent := IdScanAttr . SaChars 
     ; UnitRef ^ . UntUnitIdentPos := IdScanAttr . Position
+    ; UnitRef ^ . UntPredefTok := IdScanAttr . SaPredefTok 
     ; IF UnitRef ^ . UntUnitIdent = NIL THEN RETURN END (*IF*) 
     ; LNameFromFileName := UnitNameTFromFileName ( UnitRef ) 
     ; IF LNameFromFileName = NIL THEN RETURN END (*IF*) 
@@ -1806,16 +1807,14 @@ MODULE FM3Pass1
 
 (*EXPORTED.*)
 ; PROCEDURE DeclIdL2R 
-    ( DeclIdTok : Itk . TokTyp
-(*FIXME ^ This is always passed in as ItkDeclId. Remove the formal. *) 
-    ; DeclKind : Dkt 
+    ( DeclKind : Dkt 
     ; READONLY IdAttr : tParsAttribute
     ; SepTok : Itk . TokTyp := Itk . ItkNull
                             (* ^Implies single decl id, not in a list. *)  
     ; READONLY SepPosition : tPosition := FM3Base . PositionNull 
     ; PriorIdCt : INTEGER := 0 (* Number of ids to left of this one. *)
     )
-  : BOOLEAN (* Use this declared id.  (It's not builtin and not a duplicate
+  : BOOLEAN (* Use this declared id.  (It's not reserved and not a duplicate
                in current scope.) *)
   (* PRE: IdAttr is for an identifier in a declaring context. *) 
 
@@ -1854,7 +1853,7 @@ MODULE FM3Pass1
             := IntSets . Include ( WScope . ScpDuplDeclIdSet , LAtom )
 (* CHECK^ Do we need ScpDuplDeclIdSet? *) 
         (* Write a duplicate Ident token.  The only effect will be to
-           emit an error later, during R2L, when the position of the original
+           emit an error later, during Pass2, when the position of the original
            declaring occurence is known. *) 
         ; PutBwd
             ( WunRdBack
@@ -1883,13 +1882,10 @@ MODULE FM3Pass1
 
         (* Id is valid.  Write Ident token: *)
         ; PutBwd
-            ( WunRdBack
-            , VAL ( IdAttr . Scan . Position . Column , LONGINT )
-            ) 
+            ( WunRdBack , VAL ( IdAttr . Scan . Position . Column , LONGINT ) ) 
         ; PutBwd
-            ( WunRdBack
-            , VAL ( IdAttr . Scan . Position . Line , LONGINT )
-            )
+            ( WunRdBack , VAL ( IdAttr . Scan . Position . Line , LONGINT ) )
+        ; PutBwd ( WunRdBack , VAL ( IdAttr . Scan . SaPredefTok , LONGINT ) ) 
         ; PutBwd ( WunRdBack , VAL ( LAtom , LONGINT ) ) 
         ; PutBwd ( WunRdBack , VAL ( ORD ( DeclKind ) , LONGINT ) )
         ; PutBwd ( WunRdBack , VAL ( Itk . ItkDeclId , LONGINT ) )

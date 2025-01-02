@@ -1,7 +1,7 @@
  
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024 Rodney M. Bates.                                     *)
+(* Copyright 2023..2025 Rodney M. Bates.                                     *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -625,16 +625,13 @@ RULE
    (* DeclIdListElems . PaInt > 0 is count of valid Idents. *)
    (* In source syntax, one of these is never empty and always
       comma-separated.  Internally, invalid (reserved or repeated)
-      idents may be removed, which could leave it empty.  But then
+      idents may be removed, which could leave it empty.  If so,
       the entire declaration is removed after issuing error messages.
    *) 
 
    DeclIdListElems : UnreservedIdent
      { IF FM3Pass1 . DeclIdL2R
-            ( Itk . ItkDeclId 
-            , FM3Decls . TopDeclParseInfo ( ) . DiKind
-            , IdAttribute := $1
-            )
+            ( FM3Decls . TopDeclParseInfo ( ) . DiKind , IdAttribute := $1 )
        THEN (* Use this ident. *) 
          $$ . PaInt := 1 ;
          $$ . PaRefany := IntSets . Singleton ( $1 . Scan . SaAtom ) 
@@ -646,10 +643,7 @@ RULE
      
    DeclIdListElems : DeclIdListElems StkComma UnreservedIdent
      { IF FM3Pass1 . DeclIdL2R
-            ( Itk . ItkDeclId 
-            , FM3Decls . TopDeclParseInfo ( ) . DiKind
-            , IdAttribute := $3
-            )
+            ( FM3Decls . TopDeclParseInfo ( ) . DiKind , IdAttribute := $3 )
        (* ^No Itk separators here.  It would be kinda silly. *) 
        THEN (* Use this ident. *)
          $$ . PaInt := $1 . PaInt + 1 ;
@@ -776,9 +770,7 @@ RULE
          only in Dkt. *) 
    ConstDeclId : UnreservedIdent
      { $$ . PaInt (* Ident count, 0 or 1. *) 
-         := ORD ( FM3Pass1 . DeclIdL2R
-                    ( Itk . ItkDeclId , Dkt . DkConst , $1 )
-                ) 
+         := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkConst , $1 ) ) ;
      } .
 
    ConstDecl : ConstDeclId OptDeclType StkEqual Expr   
@@ -862,9 +854,7 @@ RULE
  
    TypeDeclId : UnreservedIdent
      { $$ . PaInt (* Ident count, 0 or 1. *) 
-         := ORD ( FM3Pass1 . DeclIdL2R
-                    ( Itk . ItkDeclId , Dkt . DkType , $1 )
-                ) 
+         := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkType , $1 ) ) ; 
      } .
 
    TypeDecl : TypeDeclId TypeRelation Type  
@@ -973,7 +963,6 @@ RULE
               ( FM3Decls . DeclParseInfoTyp
                   { DiDeclTok := Itk . ItkVarDeclLt
                   , DiIdListTok := Itk . ItkVarDeclIdListLt
-                  , DiIdTok := Itk . ItkDeclId
                   , DiIdSepTok := Itk . ItkVarDeclIdListLt + Itk . LtToListSep
                   , DiKind := Dkt . DkVar
                   }
@@ -1196,8 +1185,7 @@ RULE
    EnumLit : UnreservedIdent
      { $$ . PaInt (* Ident count, 0 or 1. *) 
          := ORD ( FM3Pass1 . DeclIdL2R
-                    ( Itk . ItkDeclId
-                    , Dkt . DkEnumLit
+                    ( Dkt . DkEnumLit
                     , $1
                     , SepTok := Itk . ItkEnumLitListSep
                     , SepPosition := $0 . Scan . Position
@@ -1257,9 +1245,7 @@ RULE
                 ( FM3Decls . DeclParseInfoTyp
                     { DiDeclTok := Itk . ItkFieldDeclLt
                     , DiIdListTok := Itk . ItkFieldDeclIdListLt
-                    , DiIdTok := Itk . ItkDeclId
-                    , DiIdSepTok
-                        := Itk . ItkFieldDeclIdListLt + Itk . LtToListSep
+                    , DiIdSepTok := Itk . ItkFieldDeclIdListLt + Itk . LtToListSep
                     , DiKind := Dkt . DkRecField 
                     }
                 ) ;
@@ -1340,9 +1326,7 @@ RULE
        BEGIN
          $$ . Scan . SaAtom := $1 . Scan . SaAtom ; 
          $$ . PaInt (* Ident count, 0 or 1. *) 
-           := ORD ( FM3Pass1 . DeclIdL2R
-                      ( Itk . ItkDeclId , Dkt . DkMethod , $1 )
-                  ) ;
+           := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkMethod , $1 ) ) ;
          IF $$ . PaInt > 0
          THEN 
            LScopeRef
@@ -1495,9 +1479,7 @@ RULE
                 ( FM3Decls . DeclParseInfoTyp
                     { DiDeclTok := Itk . ItkFieldDeclLt
                     , DiIdListTok := Itk . ItkFieldDeclIdListLt
-                    , DiIdTok := Itk . ItkDeclId
-                    , DiIdSepTok
-                        := Itk . ItkFieldDeclIdListLt + Itk . LtToListSep
+                    , DiIdSepTok := Itk . ItkFieldDeclIdListLt + Itk . LtToListSep
                     , DiKind := Dkt . DkObjField 
                     }
                 ) ;
@@ -1627,9 +1609,7 @@ RULE
               ( FM3Decls . DeclParseInfoTyp
                   { DiDeclTok := Itk . ItkVALUEFormalLt
                   , DiIdListTok := Itk . ItkVALUEFormalIdListLt 
-                  , DiIdTok := Itk . ItkDeclId
-                  , DiIdSepTok
-                      := Itk . ItkVALUEFormalIdListLt + Itk . LtToListSep
+                  , DiIdSepTok := Itk . ItkVALUEFormalIdListLt + Itk . LtToListSep
                   , DiKind := Dkt . DkVALUEFormal
                   }
               ) ;
@@ -1642,9 +1622,7 @@ RULE
               ( FM3Decls . DeclParseInfoTyp
                   { DiDeclTok := Itk . ItkVALUEFormalLt
                   , DiIdListTok := Itk . ItkVALUEFormalIdListLt 
-                  , DiIdTok := Itk . ItkDeclId
-                  , DiIdSepTok
-                      := Itk . ItkVALUEFormalIdListLt + Itk . LtToListSep
+                  , DiIdSepTok := Itk . ItkVALUEFormalIdListLt + Itk . LtToListSep
                   , DiKind := Dkt . DkVALUEFormal
                   }
               ) ;
@@ -1658,7 +1636,6 @@ RULE
               ( FM3Decls . DeclParseInfoTyp
                   { DiDeclTok := Itk . ItkVARFormalLt
                   , DiIdListTok := Itk . ItkVARFormalIdListLt 
-                  , DiIdTok := Itk . ItkDeclId
                   , DiIdSepTok := Itk . ItkVARFormalIdListLt + Itk . LtToListSep
                   , DiKind := Dkt . DkVARFormal
                   }
@@ -1672,7 +1649,6 @@ RULE
               ( FM3Decls . DeclParseInfoTyp
                   { DiDeclTok := Itk . ItkROFormalLt
                   , DiIdListTok := Itk . ItkROFormalIdListLt 
-                  , DiIdTok := Itk . ItkDeclId
                   , DiIdSepTok := Itk . ItkROFormalIdListLt + Itk . LtToListSep
                   , DiKind := Dkt . DkROFormal
                   }
@@ -1824,9 +1800,7 @@ RULE
        BEGIN
          $$ . Scan . SaAtom := $2 . Scan . SaAtom ; 
          $$ . PaInt (* Ident count, 0 or 1. *) 
-           := ORD ( FM3Pass1 . DeclIdL2R
-                      ( Itk . ItkDeclId , Dkt . DkProc , $2 )
-                  ) ;
+           := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkProc , $2 ) ) ;
          IF FM3Units . CurrentUnitIsModule ( )
          THEN (* Body scope.*) 
            LScopeRef

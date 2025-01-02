@@ -1,6 +1,6 @@
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2024        Rodney M. Bates.                                    *)
+(* Copyright 2024..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -41,6 +41,7 @@ MODULE FM3Pass2
 ; IMPORT FM3Graph 
 ; IMPORT FM3IntToks AS Itk
 ; IMPORT FM3LoTypes
+; IMPORT FM3Predefs
 ; IMPORT FM3SrcToks 
 ; IMPORT FM3SrcToks AS Stk
 ; FROM   FM3StreamUtils
@@ -648,12 +649,25 @@ MODULE FM3Pass2
               , "a value expression"
               , LUnOpExpr . ExpPosition
               )
-          ; LUnOpExpr . ExpIsUsable :=FALSE
+          ; LUnOpExpr . ExpIsUsable := FALSE
           ELSE  
             LUnOpExpr . ExpIsConst := LUnOpExpr . ExpOpnd1 . ExpIsConst
+          ; LUnOpExpr . ExpReachedDeclNoSet
+              := LUnOpExpr . ExpOpnd1 . ExpReachedDeclNoSet 
           END (*IF*) 
         END (*IF*) 
-      END HtUnaryOp  
+      END HtUnaryOp
+      
+  ; PROCEDURE IntUnionSelf
+      ( VAR (*IN OUT*) Self : IntSets . T ; Opnd1 , Opnd2 : IntSets . T )  
+
+    = VAR LResult : IntSets . T 
+
+    ; BEGIN
+        LResult := IntSets . Union ( Self , Opnd1 ) 
+      ; LResult := IntSets . Union ( LResult , Opnd2 )
+      ; Self := LResult 
+      END IntUnionSelf
 
   ; PROCEDURE HtBinaryOp ( )
   
@@ -686,13 +700,18 @@ MODULE FM3Pass2
               , "a value expression"
               , LBinOpExpr . ExpPosition
               )
-          ; LBinOpExpr . ExpIsUsable :=FALSE
+          ; LBinOpExpr . ExpIsUsable := FALSE
           END (*IF*)
         ; IF LBinOpExpr . ExpIsUsable
           THEN
             LBinOpExpr . ExpIsConst
               := LBinOpExpr . ExpOpnd1 . ExpIsConst
-                 AND LBinOpExpr . ExpOpnd2 . ExpIsConst  
+                 AND LBinOpExpr . ExpOpnd2 . ExpIsConst
+          ; LBinOpExpr . ExpReachedDeclNoSet
+              := IntSets . Union
+                   ( LBinOpExpr . ExpOpnd1 . ExpReachedDeclNoSet 
+                   , LBinOpExpr . ExpOpnd2 . ExpReachedDeclNoSet
+                   ) 
           END (*IF*) 
         END (*IF*) 
       END HtBinaryOp  
@@ -1325,6 +1344,7 @@ MODULE FM3Pass2
   (* ^This will be the only decl of DeclIdAtom in its scope. *) 
 
   = VAR DidAtom : FM3Base . AtomTyp
+  ; VAR DidPredefTok : FM3SrcToks . TokTyp 
   ; VAR DidOpenDeclNo : FM3Globals . DeclNoTyp
   ; VAR DidPosition : tPosition
   ; VAR DidDeclKind : FM3Decls . DeclKindTyp
@@ -1387,7 +1407,8 @@ MODULE FM3Pass2
       ; LDeclRef ^ . DclDefValue
           := FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefExprs [ TRUE ]  
       ; LDeclRef ^ . DclDefType 
-          := FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefExprs [ FALSE ] 
+          := FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefExprs [ FALSE ]
+      ; LDeclRef ^ . DclPredefTok := DidPredefTok 
           
       ; CASE DidDeclKind OF
         | Dkt . DkVar
@@ -1452,6 +1473,7 @@ MODULE FM3Pass2
   ; BEGIN (*DeclIdR2L*)
       DidDeclKind := GetBwdDeclKind ( TokResult . TrRdBack )
     ; DidAtom := GetBwdAtom ( TokResult . TrRdBack )
+    ; DidPredefTok := GetBwdInt ( TokResult . TrRdBack )
     ; DidPosition := GetBwdPos ( TokResult . TrRdBack )
     ; IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
       THEN (* We are skipping output. *) RETURN FM3Globals . DeclNoNull 
@@ -1628,7 +1650,39 @@ MODULE FM3Pass2
       => 
 
       END (*CASE*) 
-    END ReservedIdR2L 
+    END ReservedIdR2L
+
+; PROCEDURE PredefOpDeclRef
+    ( UnitNo : FM3Globals . UnitNoTyp
+    ; UnitPredef : FM3SrcToks . TokTyp 
+    ; DeclNo :FM3Globals . DeclNoTyp
+    ; DeclPredef : FM3SrcToks . TokTyp 
+    ; IsCall : BOOLEAN (* Relevant only if it turns out to a procedure. *)
+    )
+  : FM3Decls . DeclRefTyp 
+    (* ^NIL unless it's a predefined ref and, if a proc, a call. *) 
+
+  = VAR LUnitRef : FM3Units . UnitRefTyp
+  ; VAR LDeclRef : FM3Decls . DeclRefTyp
+
+  ; BEGIN
+      IF UnitNo = FM3Globals . UnitNoNull THEN RETURN NIL END (*IF*)
+    ; LUnitRef := VarArray_Int_Refany . Fetch ( FM3Units . UnitsMap , UnitNo )
+    ; IF LUnitRef = NIL THEN RETURN NIL END (*IF*)
+    ; IF DeclNo = FM3Globals . DeclNoNull THEN RETURN NIL END (*IF*)  
+    ; LDeclRef
+        := VarArray_Int_Refany . Fetch
+             ( LUnitRef . UntDeclMap , DeclNo ) 
+    ; IF LDeclRef = NIL THEN RETURN NIL END (*IF*)
+    ; IF LUnitRef . UntPredefTok # UnitPredef THEN RETURN NIL END (*IF*)
+    ; IF LDeclRef . DclPredefTok # DeclPredef THEN RETURN NIL END (*IF*)
+    (* UnitNo.DeclNo refer to predefined UnitPredef.DeclPredef. *)  
+    ; IF ( NOT IntSets . IsElement ( DeclPredef , FM3Predefs . ProcSet ) )
+         OR IsCall
+      THEN RETURN LDeclRef
+      ELSE RETURN NIL
+      END (*IF*) 
+    END PredefOpDeclRef 
 
 ; PROCEDURE IdentRefR2L ( READONLY TokResult : TokResultTyp )
   (* PRE: The ident is not followed by dot Ident. (The parser has gone

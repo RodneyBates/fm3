@@ -25,6 +25,7 @@ INTERFACE FM3SrcToks
                "EndOfToken wird immer mit 0 codiert"
             *)
 (* Not used in FM3Scanner or FM3Parser: *)
+(* Use as a Null Opcode. *)
 ; CONST StkUnknown                                   =     1 (*16_01 *)
 ; CONST StkBOF                                       =     2 (*16_02 *)
 (* Leave a little space. *)

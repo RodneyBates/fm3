@@ -1,7 +1,7 @@
         
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2024        Rodney M. Bates.                                    *)
+(* Copyright 2024..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -30,7 +30,8 @@ MODULE  FM3Compile
 ; IMPORT FM3Messages 
 ; IMPORT FM3Pass1 
 ; IMPORT FM3Pass2
-; IMPORT FM3SharedUtils 
+; IMPORT FM3SharedUtils
+; IMPORT FM3SrcToks 
 ; IMPORT FM3Units
 ; IMPORT FM3Utils
 ; IMPORT RdBackFile
@@ -93,6 +94,19 @@ MODULE  FM3Compile
     ; RETURN FALSE 
    END IsPredefinedUnitName  
 
+; PROCEDURE PredefUnitTok ( UnitName : TEXT ) : FM3SrcToks . TokTyp  
+
+  = BEGIN
+(* COMPLETEME: 
+      IF Text . Equal ( UnitName , "Main.i3" ) THEN RETURN TRUE END (*IF*) 
+    ; IF Text . Equal ( UnitName , "Word.i3" ) THEN RETURN TRUE END (*IF*) 
+    ; IF Text . Equal ( UnitName , "Word.m3" ) THEN RETURN TRUE END (*IF*) 
+    ; RETURN FM3SrcToks . StkUnknown 
+*)
+
+     RETURN FM3SrcToks . StkUnknown 
+   END PredefUnitTok
+
 (*EXPORTED*) 
 ; PROCEDURE FindAndOpenUnitSrcFile
     ( UnitRef : FM3Units . UnitRefTyp
@@ -109,11 +123,18 @@ MODULE  FM3Compile
   ; VAR LSearchDir : TEXT 
   ; VAR LDirNumber : INTEGER
   ; VAR LDirSs : INTEGER
+  ; VAR LPredefUnit : FM3SrcToks . TokTyp 
 
   ; BEGIN
       IF UnitRef = NIL THEN RETURN FALSE END (*IF*) 
     ; IF UnitRef ^ . UntSrcFileSimpleName = NIL THEN RETURN FALSE END (*IF*) 
     ; IF UnitRef ^ . UntState # Us . UsNull THEN RETURN FALSE END (*IF*)
+    ; UnitRef ^ . UntPredefTok
+        := PredefUnitTok ( UnitRef ^ . UntSrcFileSimpleName ) 
+
+(*  ; IF UnitRef ^ . UntPredefTok # FM3SrcToks . StkUnknown
+      Use ^this instead of below when PredefUnitTok is completed.*) 
+    
     ; IF IsPredefinedUnitName ( UnitRef ^ . UntSrcFileSimpleName )
       THEN
         LSrcDirList := FM3CLOptions . ResourceDirNameList

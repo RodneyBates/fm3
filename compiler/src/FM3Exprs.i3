@@ -15,14 +15,16 @@ INTERFACE FM3Exprs
    and rigthward.  So we build in-memory, linked data structure for them.
 *)
 
+; IMPORT IntSets 
+
 ; IMPORT FM3Base
-; FROM   FM3Base IMPORT tPosition
+; FROM   FM3Base IMPORT tPosition 
 ; IMPORT FM3Globals
 ; IMPORT FM3LoTypes 
 ; IMPORT FM3Scopes
 ; IMPORT FM3SrcToks
 
-; TYPE OpcodeTyp = FM3Base . Int32Typ (* Narrow this down. *) 
+; TYPE OpcodeTyp = FM3Base .OpcodeTyp 
 
 (* Types in the compiled code, not in the compiler. *)
 
@@ -61,15 +63,19 @@ INTERFACE FM3Exprs
         ExpStackLink : ExprTyp := NIL
         (* Deeper on stack is parent expression.*)
         (* NIL in root expression of a tree. *) 
-      ; ExpPosition : tPosition := FM3Base . PositionNull
-      ; ExpDownKind := Ekt . EkNull (* Inherited. *) 
-      ; ExpUpKind := Ekt . EkNull (* Synthesized. *) 
       ; ExpType : ExprTyp := NIL
       ; ExpRefConstVal : REFANY := NIL
       ; ExpScalarConstVal : LONGINT 
+      ; ExpLoTypeInfoRef : FM3LoTypes . LoTypeInfoRefTyp := NIL
+      ; ExpReachedDeclNoSet : IntSets . T
+        (* ^DeclNos of ids declared in the same open scope and reached on
+            paths that do not allow recursive declaration .
+        *) 
       ; ExpSelfExprNo : FM3Globals . ExprNoTyp
-      ; ExpLoTypeInfoRef : FM3LoTypes . LoTypeInfoRefTyp := NIL 
+      ; ExpPosition : tPosition := FM3Base . PositionNull
       ; ExpOpcode : OpcodeTyp := FM3SrcToks . RidNull
+      ; ExpDownKind := Ekt . EkNull (* Inherited. *) 
+      ; ExpUpKind := Ekt . EkNull (* Synthesized. *) 
       ; ExpKind : ExprKindTyp := Ekt . EkNull
       ; ExpState : ExprStateTyp := Est . EsUnresolved
       ; ExpIsConst : BOOLEAN := FALSE

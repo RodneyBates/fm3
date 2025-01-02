@@ -19,7 +19,7 @@ ABS 0
             *)
               
 (* Not used in FM3Scanner or FM3Parser: *)
-   StkUnknown .
+   StkUnknown (* Use as a Null Opcode. *) .
    StkBOF .
 
 (* Leave a little space. *)

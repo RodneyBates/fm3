@@ -1,19 +1,17 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+(* Copyright 2023..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
 INTERFACE FM3Decls
 
-; IMPORT IntSets
-
 ; IMPORT FM3Base
 ; IMPORT FM3Exprs
 ; IMPORT FM3Globals 
-; IMPORT FM3Scopes
+; IMPORT FM3SrcToks
 
 ; TYPE DeclKindTyp
     = { DkNull
@@ -62,7 +60,8 @@ INTERFACE FM3Decls
       ; DclIdCt : INTEGER
       ; DclIdNo : INTEGER (* Counts up while going thru' multiple idents. *) 
       ; DclSelfDeclNo : FM3Globals . DeclNoTyp (* A self-reference. *)
-      ; DclPos : FM3Base . tPosition 
+      ; DclPos : FM3Base . tPosition
+      ; DclPredefTok : FM3SrcToks . TokTyp := FM3SrcToks . StkUnknown 
       ; DclKind : DeclKindTyp
       ; DclIsUsable : BOOLEAN 
       END (*DeclObjBaseTyp*)
@@ -89,7 +88,6 @@ INTERFACE FM3Decls
     = RECORD
         DiDeclTok : FM3Base . TokTyp 
       ; DiIdListTok : FM3Base . TokTyp
-      ; DiIdTok : FM3Base . TokTyp
       ; DiIdSepTok : FM3Base . TokTyp 
       ; DiKind : DeclKindTyp 
       END 

@@ -166,6 +166,7 @@ MODULE FM3Units
     ; VarArray_Int_ExpImpProxy . Touch
         ( LUnitRef ^ .  UntExpImpMap , Ranges_Int . RangeTyp { 0 , 0 } )
     ; LUnitRef ^ . UntNextDeclNo := 1 
+    ; LUnitRef ^ . UntPredefTok := FM3SrcToks . StkUnknown 
     ; LUnitRef ^ . UntDeclMap 
         := FM3Decls . NewDeclMap ( FM3Globals . InitDeclCtPerUnit ) 
     ; VarArray_Int_Refany . Touch

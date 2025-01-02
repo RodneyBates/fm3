@@ -88,9 +88,9 @@ INTERFACE FM3Base
 ; CONST HashNull = 0L
 
 (*FIXME: M2SHORTCARD is for compatibility with reusem3/Positions.tPosition.
-         These are probably adequate, but maybe 32 bits would be better
-         here.  Exactly how to do this without undue
-         dependency of cocktail m3 on FM3 is unclear.
+         These are probably adequate, but maybe 32 bits would be better here.
+         Exactly how to do this without undue dependency of cocktail m3
+         on FM3 is unclear.
 *) 
 ; TYPE M2SHORTCARD = [ 0 .. 16_FFFF ]
 
@@ -104,12 +104,13 @@ INTERFACE FM3Base
 
 ; CONST PositionNull = tPosition { LAST ( PosIntTyp ) , LAST ( PosIntTyp ) }
 
+; TYPE OpcodeTyp = Int32Typ (* Narrow this down. *) 
 ; TYPE SizeTyp = LONGINT (* Runtime sizes. *) 
 ; TYPE AlignTyp = [ 0 .. 64 ]
 
 ; TYPE AtomTyp = INTEGER
-    (* Negative values are used as pseudo-atoms for certain predefined
-       identifiers, and also operation codes.
+    (* Negative values are sonetimes used as pseudo-atoms for certain
+       predefined identifiers, and also certain operation codes.
     *) 
 ; CONST AtomNull = FIRST ( AtomTyp ) 
 ; CONST AtomFirstReal = 1 (* For use as a true atom in a dictionary. *) 
