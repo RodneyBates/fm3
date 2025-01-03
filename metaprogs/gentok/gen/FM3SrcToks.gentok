@@ -238,6 +238,7 @@ NEXT StkMinPredef .
    StkPdExtendedFloat  "ExtendedFloat" .
    StkPdFloatMode      "FloatMode" .
    StkPdLex            "Lex" .
+NEXT   StkMaxPredefIntf .
    StkPdFmt            "Fmt" .
 
    StkPdT              "T" (* In many standard interfaces: *) 

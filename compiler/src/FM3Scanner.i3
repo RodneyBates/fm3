@@ -12,13 +12,18 @@ INTERFACE FM3Scanner
 ; IMPORT UniRd 
 
 ; IMPORT FM3Base
-; IMPORT FM3Globals 
+; IMPORT FM3Globals
+; IMPORT FM3LexTable
 ; IMPORT FM3OpenArray_Char
 ; IMPORT FM3OpenArray_WideChar
 ; IMPORT FM3Units 
 
 (* Things expected from a scanner by an lalr-generated parser: *)
 (* Accomodate lalr-generated parser's spellings. *)
+
+(* So other code can use these: *) 
+; VAR GPgRwLexTable : FM3LexTable . T 
+; VAR GM3RwLexTable : FM3LexTable . T
 
 ; TYPE tPosition = FM3Base . tPosition 
 

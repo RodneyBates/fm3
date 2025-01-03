@@ -45,11 +45,11 @@ goes back at least as far as Simula-67.)  While streams are kept on
 external files, I expect that a modern operating system will actually
 keep much of their contents in memory.
 
-So far, small examples have resulted in streams comparable in b yte
+So far, small examples have resulted in streams comparable in byte
 size to source code.  This is far smaller that typical data stuctures,
 which in my experience, run 5X to 10X over source code.
 
 Coding has sometimes been difficult, but this seems related more to
 handling semantic attributes of LALR-reduced productions than to the
-limitations of sequential streams.  I has not seemed clearly any more
+limitations of sequential streams.  It has not seemed clearly any more
 difficult than in a tree compiler.

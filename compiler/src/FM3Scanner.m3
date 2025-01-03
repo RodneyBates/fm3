@@ -1406,8 +1406,6 @@ MODULE FM3Scanner
     ; GDigitCharMap [ 'F' ] := 15 
     END InitDigitCharMap
 
-; VAR GPgRwLexTable : FM3LexTable . T 
-; VAR GM3RwLexTable : FM3LexTable . T
 ; VAR GCurRwLexTable : FM3LexTable . T
 ; VAR GCurRwState : FM3LexTable . TransitionTyp
 ; VAR GCurRwValue : FM3LexTable . ValueTyp 

@@ -232,6 +232,7 @@ INTERFACE FM3SrcToks
 ; CONST StkPdExtendedFloat                           =   168 (*16_a8 01 *)
 ; CONST StkPdFloatMode                               =   169 (*16_a9 01 *)
 ; CONST StkPdLex                                     =   170 (*16_aa 01 *)
+; CONST StkMaxPredefIntf                             =   171 (*16_ab 01 *)
 ; CONST StkPdFmt                                     =   171 (*16_ab 01 *)
 (* In many standard interfaces: *)
 (* In Word and Long: *)
