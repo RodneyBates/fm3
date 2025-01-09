@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+(* Copyright 2023..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -147,7 +147,7 @@ ABS 5
    *) 
 
    (* The parser will convert '+' and '-' into StkUnary* when they really are
-      unary.  Theywill be used later as operation codes.  The scanner will
+      unary.  They will be used later as operation codes.  The scanner will
       not recognize them.
    *)
 
@@ -207,7 +207,7 @@ NEXT StkMinRid .
    (* ROOT and UNTRACED behave semantically like reserved identifiers, but
       each occurs in a different set of syntactic contexts from identifiers,
       so they are source-code reserved words.  We convert those after parsing
-      into reserved idents with the following Rid atoms.  The scanner
+      into reserved idents with the following Rid atoms.  FM3Scanner
       will not recognize them.
    *)
    
@@ -216,9 +216,9 @@ NEXT StkMaxRid .
    RidUNTRACEDROOT     "%UNTRACED_ROOT" .
 
    (* Predefined identifiers.  Scanner will treat these as ordinary
-      identifiers, except within a language-mandated interface they
-      are declared in, in which case scanner treats them like
-      reserved identifers.
+      identifiers, except it adds their codes as a separate field.
+      Later semantic processsing will decide whether the predefined
+      meaning should  be used. 
    *) 
 NEXT StkMinPredef . 
 (* Predefined interface names.  These values are used as unique unit numbers.
@@ -229,7 +229,7 @@ NEXT StkMinPredef .
    StkPdText           "Text" .
    StkThread           "Thread" . 
    StkPdWord           "Word" .
-   StkPdLong           "Long" .
+   StkPdLong           "Long" . (* For LONGINT. *)
    StkPdReal           "Real" .
    StkPdLongReal       "LongReal" .
    StkPdExtended       "Extended" .
@@ -243,8 +243,8 @@ NEXT   StkMaxPredefIntf .
 
    StkPdT              "T" (* In many standard interfaces: *) 
 
-
-(* In Word and Long: *) 
+(* In Word and Long: *)
+NEXT StkMinWordLong .
    StkPdSize           "Size" . 
    StkPdPlus           "Plus" . 
    StkPdTimes          "Times" . 
@@ -266,6 +266,7 @@ NEXT   StkMaxPredefIntf .
    StkPdLeftRotate     "LeftRotate" . 
    StkPdRightRotate    "RightRotate" . 
    StkPdExtract        "Extract" . 
+NEXT StkMaxWordLong .
 NEXT StkMaxPredef . 
    StkPdInsert         "Insert" .
 

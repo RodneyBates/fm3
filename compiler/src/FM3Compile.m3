@@ -130,8 +130,8 @@ MODULE  FM3Compile
     ; IF UnitRef ^ . UntSrcFileSimpleName = NIL THEN RETURN FALSE END (*IF*) 
     ; IF UnitRef ^ . UntState # Us . UsNull THEN RETURN FALSE END (*IF*)
     ; UnitRef ^ . UntPredefTok
-        := PredefUnitTok ( UnitRef ^ . UntSrcFileSimpleName ) 
-
+(* COMPARE        ^ To FM3Pass2.  *)
+        := PredefUnitTok ( UnitRef ^ . UntSrcFileSimpleName )
 (*  ; IF UnitRef ^ . UntPredefTok # FM3SrcToks . StkUnknown
       Use ^this instead of below when PredefUnitTok is completed.*) 
     

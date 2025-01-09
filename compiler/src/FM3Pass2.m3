@@ -1,3 +1,4 @@
+
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2024..2025  Rodney M. Bates.                                    *)
@@ -531,6 +532,77 @@ MODULE FM3Pass2
 (* TODO: Anything? *) 
     END DefExprLt
 
+; PROCEDURE UnaryOp ( Opcode : FM3Exprs . OpcodeTyp )
+  (* PRE: Not skipping, *) 
+
+  = VAR LUnOpExpr : FM3Exprs . Expr2OpndTyp
+
+  ; BEGIN
+      LUnOpExpr
+        := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . Expr2OpndTyp )
+    ; IF NOT LUnOpExpr . ExpOpnd1 . ExpUpKind
+             IN EkSetTyp { Ekt . EkValue , Ekt . EkConst }
+      THEN
+        WrongKindMsg
+          ( "Operand"
+          , FM3SrcToks . Image ( Opcode ) 
+          , "a value expression"
+          , LUnOpExpr . ExpPosition
+          )
+      ; LUnOpExpr . ExpIsUsable := FALSE
+      ELSE  
+        LUnOpExpr . ExpIsConst := LUnOpExpr . ExpOpnd1 . ExpIsConst
+      ; LUnOpExpr . ExpReachedDeclNoSet
+          := LUnOpExpr . ExpOpnd1 . ExpReachedDeclNoSet 
+      END (*IF*) 
+    END UnaryOp
+      
+; PROCEDURE BinaryOp ( Opcode : FM3Exprs . OpcodeTyp )
+  (* PRE: Not skipping, *) 
+
+  = VAR LBinOpExpr : FM3Exprs . Expr2OpndTyp
+  ; VAR LOpnd1 , LOpnd2 , LNewExpr : FM3Exprs . ExprTyp 
+
+  ; BEGIN
+      LBinOpExpr
+        := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . Expr2OpndTyp )
+    ; LOpnd1 := LBinOpExpr . ExpOpnd1 
+    ; LOpnd2 := LBinOpExpr . ExpOpnd2 
+    ; IF NOT LOpnd1 . ExpUpKind
+             IN EkSetTyp { Ekt . EkValue , Ekt . EkConst }
+      THEN
+        WrongKindMsg
+          ( "Left operand"
+          , FM3SrcToks . Image ( Opcode ) 
+          , "a value expression"
+          , LOpnd1 . ExpPosition
+          )
+      ; LBinOpExpr . ExpIsUsable :=FALSE
+      END (*IF*) 
+    ; IF NOT LOpnd2 . ExpUpKind
+             IN EkSetTyp { Ekt . EkValue , Ekt . EkConst } 
+      THEN
+        WrongKindMsg
+          ( "Right operand"
+          , FM3SrcToks . Image ( Opcode ) 
+          , "a value expression"
+          , LOpnd2 . ExpPosition
+          )
+      ; LBinOpExpr . ExpIsUsable := FALSE
+      END (*IF*)
+    ; IF LBinOpExpr . ExpIsUsable
+      THEN
+        LBinOpExpr . ExpIsConst
+          := LOpnd1 . ExpIsConst
+               AND LOpnd2 . ExpIsConst
+               AND IntSets . IsElem
+                     ( LBinOpExpr . ExpOpcode , FM3Predefs . ConstOps )
+      ; LBinOpExpr . ExpReachedDeclNoSet
+          := IntSets . Union
+               ( LOpnd1 . ExpReachedDeclNoSet , LOpnd2 . ExpReachedDeclNoSet )
+      END (*IF*) 
+    END BinaryOp 
+
 ; PROCEDURE HandleTok ( READONLY TokResult : TokResultTyp ) 
 
   = VAR LUnitRef : FM3Units . UnitRefTyp
@@ -629,35 +701,6 @@ MODULE FM3Pass2
         END (*WITH*)
       END HtExprOpnd2
 
-  ; PROCEDURE HtUnaryOp ( )
-  
-    = VAR LUnOpExpr : FM3Exprs . Expr2OpndTyp
-    ; VAR LOpcode : FM3Exprs . OpcodeTyp
-    
-    ; BEGIN
-        LOpcode := GetBwdInt ( TokResult . TrRdBack ) 
-      ; IF NOT HtSkipping 
-        THEN
-          LUnOpExpr
-            := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . Expr2OpndTyp )
-        ; IF NOT LUnOpExpr . ExpOpnd1 . ExpUpKind
-                 IN EkSetTyp { Ekt . EkValue , Ekt . EkConst }
-          THEN
-            WrongKindMsg
-              ( "Operand"
-              , FM3SrcToks . Image ( LOpcode ) 
-              , "a value expression"
-              , LUnOpExpr . ExpPosition
-              )
-          ; LUnOpExpr . ExpIsUsable := FALSE
-          ELSE  
-            LUnOpExpr . ExpIsConst := LUnOpExpr . ExpOpnd1 . ExpIsConst
-          ; LUnOpExpr . ExpReachedDeclNoSet
-              := LUnOpExpr . ExpOpnd1 . ExpReachedDeclNoSet 
-          END (*IF*) 
-        END (*IF*) 
-      END HtUnaryOp
-      
   ; PROCEDURE IntUnionSelf
       ( VAR (*IN OUT*) Self : IntSets . T ; Opnd1 , Opnd2 : IntSets . T )  
 
@@ -668,53 +711,6 @@ MODULE FM3Pass2
       ; LResult := IntSets . Union ( LResult , Opnd2 )
       ; Self := LResult 
       END IntUnionSelf
-
-  ; PROCEDURE HtBinaryOp ( )
-  
-    = VAR LBinOpExpr : FM3Exprs . Expr2OpndTyp
-    ; VAR LOpcode : FM3Exprs . OpcodeTyp
-    
-    ; BEGIN
-        LOpcode := GetBwdInt ( TokResult . TrRdBack ) 
-      ; IF NOT HtSkipping 
-        THEN
-          LBinOpExpr
-            := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . Expr2OpndTyp )
-        ; IF NOT LBinOpExpr . ExpOpnd1 . ExpUpKind
-                 IN EkSetTyp { Ekt . EkValue , Ekt . EkConst }
-          THEN
-            WrongKindMsg
-              ( "Left operand"
-              , FM3SrcToks . Image ( LOpcode ) 
-              , "a value expression"
-              , LBinOpExpr . ExpPosition
-              )
-          ; LBinOpExpr . ExpIsUsable :=FALSE
-          END (*IF*) 
-        ; IF NOT LBinOpExpr . ExpOpnd2 . ExpUpKind
-                 IN EkSetTyp { Ekt . EkValue , Ekt . EkConst } 
-          THEN
-            WrongKindMsg
-              ( "Right operand"
-              , FM3SrcToks . Image ( LOpcode ) 
-              , "a value expression"
-              , LBinOpExpr . ExpPosition
-              )
-          ; LBinOpExpr . ExpIsUsable := FALSE
-          END (*IF*)
-        ; IF LBinOpExpr . ExpIsUsable
-          THEN
-            LBinOpExpr . ExpIsConst
-              := LBinOpExpr . ExpOpnd1 . ExpIsConst
-                 AND LBinOpExpr . ExpOpnd2 . ExpIsConst
-          ; LBinOpExpr . ExpReachedDeclNoSet
-              := IntSets . Union
-                   ( LBinOpExpr . ExpOpnd1 . ExpReachedDeclNoSet 
-                   , LBinOpExpr . ExpOpnd2 . ExpReachedDeclNoSet
-                   ) 
-          END (*IF*) 
-        END (*IF*) 
-      END HtBinaryOp  
 
   ; PROCEDURE HtPassTokenThru ( )
 
@@ -858,10 +854,30 @@ MODULE FM3Pass2
       , Itk . ItkVARFormalValue
       , Itk . ItkROFormalValue
       , Itk . ItkFieldDeclValue (* Of either record or object. *) 
-      =>  EVAL FM3Exprs . PopExprStack ( ) 
-        ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := FALSE
-            (* ^Now type def coming up. *)
+      =>  LValueExpr := FM3Exprs . PopExprStack ( )
+        ; IF LValueExpr . ExpUpKind # EktValue
+          THEN
+            FM3Messages . Error 
+              ( "Value of CONST declaration must be a value expression."
+              , LValueExpr . ExpPosition
+              )
+          ; LValueExpr . ExpIsUsable := FALSE
+          ; LValueExpr . ExpIsLegalRecursive := TRUE (* Necessary?*)
+          ; FM3Exprs . ExprStsckTopObj , ExpIsUsable := FALSE
+          ELSIF NOT LValueExpr . IsConst 
+          THEN
+            FM3Messages . Error 
+              ( "Value of CONST declaration must be constant."
+              , LValueExpr . ExpPosition
+              )
+          ; LValueExpr . ExpIsUsable := FALSE
+          ; LValueExpr . ExpIsLegalRecursive := TRUE (* Necessary?*)
+          ; FM3Exprs . ExprStsckTopObj , ExpIsUsable := FALSE
+          ELSE
+            FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := FALSE
+          END (*IF*)  
         ; HtPassTokenThru ( )
+        (* ^Now type def, if any, is coming up. *)
 
       | Itk . ItkConstDeclType 
       , Itk . ItkVarDeclType 
@@ -869,9 +885,20 @@ MODULE FM3Pass2
       , Itk . ItkVARFormalType
       , Itk . ItkROFormalType
       , Itk . ItkFieldDeclType (* Of either record or object. *) 
-      =>  EVAL  FM3Exprs . PopExprStack ( )  
-        ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := TRUE
-            (* ^Done with type, value is next. *) 
+      =>  LValueExpr :=  FM3Exprs . PopExprStack ( )  
+        ; IF LValueExpr . ExpUpKind # EktType
+          THEN
+            FM3Messages . Error 
+              ( "Type of CONST declaration must be a type expression."
+              , LValueExpr . ExpPosition
+              )
+          ; LValueExpr . ExpIsUsable := FALSE
+          ; LValueExpr . ExpIsLegalRecursive := TRUE (* Necessary?*)
+          ; FM3Exprs . ExprStsckTopObj , ExpIsUsable := FALSE
+          ELSE 
+            FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := TRUE
+          END (*IF*)
+          (* ^Done with type, ident is next. *) 
         ; HtPassTokenThru ( )
 
       | Itk . ItkConstDeclLt 
@@ -1066,7 +1093,8 @@ MODULE FM3Pass2
       | Itk . ItkUnaryOpLt 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; HtExprOpnd1 ( ) (* Only operand. *)
-        ; HtUnaryOp ( ) 
+        ; LOpcode := GetBwdInt ( TokResult . TrRdBack ) 
+        ; IF NOT HtSkipping THEN UnaryOp ( LOpcode ) END (*IF*)
 
       (* Binary Operators: *) 
       | Itk . ItkBinaryOpRt 
@@ -1086,7 +1114,8 @@ MODULE FM3Pass2
       | Itk . ItkBinaryOpLt 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; HtExprOpnd1 ( ) (* Left operand. *)
-        ; HtBinaryOp ( ) 
+        ; LOpcode := GetBwdInt ( TokResult . TrRdBack ) 
+        ; IF NOT HtSkipping THEN BinaryOp ( LOpcode ) END (*IF*)
 
       ELSE (* No special pass2 handling. *)
         HtPassTokenThru ( ) 
@@ -1652,6 +1681,174 @@ MODULE FM3Pass2
       END (*CASE*) 
     END ReservedIdR2L
 
+; PROCEDURE BinaryCall
+    ( OrigExpr : FM3Exprs . ExprTyp
+    ; DeclPredefTok : FM3SrcToks . TokTyp
+    ; UnitPredefTok : FM3SrcToks . TokTyp 
+    ; DeclPredefTok : FM3SrcToks . TokTyp 
+    ; Type : FM3Exprs . ExprTyp
+    ; Opcode : FM3SrcToks . TokTyp
+    )
+  FM3Exprs . Expr2OpndTyp
+  (* If all is OK, return an ExpOpnd2-rooted subtree that is the
+     conversion of OrigExpr.
+  *) 
+
+  ; VAR LCallExpr : FM3Exprs . CallExprObj 
+  ; VAR LOpnd1 , LOpnd2 : FM3Exprs . ExprTyp 
+  ; VAR LNewExpr : FM3Exprs . Expr2OpndTyp 
+
+  ; BEGIN
+      IF OrigExpr = NIL THEN RETURN NIL END (*IF*)
+    ; IF NOT OrigExpr . IsUseable THEN RETURN NIL END (*IF*)
+    ; TYPECASE OrigExpr OF
+      | NULL => RETURN NIL
+      | FM3Exprs . ExprCall ( TCallExpr ) LCallExpr := TCallExpr 
+      ELSE RETURN NIL
+      END (*TYPECASE*) 
+    ; IF LCallExpr . ExpActualsRef = NIL THEN RETURN NIL END (*IF*)
+    ; IF NUMBER ( CallExpr . ExpActualsRef ^ # 2
+      THEN
+        FM3Messages . ErrorArr
+          ( ARRAY OF REFANY
+              { FM3SrcToks . Image ( UnitPredefTok )
+              , "."
+              , FM3SrcToks . Image ( DeclPredefTok )
+              ,"requires exactly two parameters."
+              }
+          , CallExpr . ExpPosition 
+          )
+      ; CallExpr . IsUseable := FALSE
+      ; RETURN NIL
+      END (*IF*)
+    ; IF NOT LOpnd1 . ExpUpKind
+         IN EkSetTyp { Ekt . EkValue , Ekt . EkConst }
+      THEN
+        WrongKindMsg
+          ( "Left operand"
+          , FM3SrcToks . Image ( UnitPredefTok )
+            & "."
+            & FM3SrcToks . Image ( DeclPredefTok )
+          , "a value expression"
+          , LLOpnd1 . ExpPosition
+          )
+      ; OrigExpr . ExpIsUsable := FALSE
+      END (*IF*) 
+    ; LOpnd2 := LCallExpr . ExpOpnd12
+    ; IF NOT LOpnd2 . ExpUpKind
+         IN EkSetTyp { Ekt . EkValue , Ekt . EkConst }
+      THEN
+        WrongKindMsg
+          ( "Right operand"
+          , FM3SrcToks . Image ( UnitPredefTok )
+            & "."
+            & FM3SrcToks . Image ( DeclPredefTok )
+          , "a value expression"
+          , LLOpnd2 . ExpPosition
+          )
+      ; OrigExpr . ExpIsUsable := FALSE
+      END (*IF*)
+    ; IF NOT OrigExpr . ExpIsUsable
+      THEN RETURN NIL 
+      END (*IF*)
+    ; LNewExpr := NEW ( FM3Exprs . Expr2OpndTyp )
+    ; LNewExpr . ExpType := Type 
+    ; LNewExpr . ExpOpcode := Opcode
+    ; LNewExpr . ExpUpkind := Ekt . EkVaLUE 
+    ; LNewExpr . ExpIsUsable := CallExpr . IsUseable
+    ; LNewExpr . ExpPosition := CallExpr . Position 
+    ; LNewExpr . ExpIsConst
+        := LOpnd1 . ExpIsConst
+           AND LOpnd2 . ExpIsConst
+           AND IntSets . IsElem
+                 ( LBinOpExpr . ExpOpcode , FM3Predefs . ConstOps )
+    ; LNewExpr . ExpReachedDeclNoSet
+        := IntSets . Union
+             ( LOpnd1 . ExpReachedDeclNoSet 
+             , LOpnd2 . ExpReachedDeclNoSet
+             ) 
+    ; RETURN LNewExpr
+    END BinaryCall
+
+; PROCEDURE WordLongExpr
+    ( CallExpr : FM3Exprs . ExprCallTyp
+    ; DeclPredefTok : FM3SrcToks . TokTyp
+    ; Type : FM3Exprs . ExprTyp 
+    ; IsCall : BOOLEAN (* Relevant only if it turns out to a procedure. *)
+    )
+  : Exprs . ExprTyp
+
+  = VAR
+
+  ; BEGIN
+      CASE DeclPredefTok OF
+      | FM3SrcToks . StkPdPlus
+      =>  IF NOT IsCall THEN RETURN NIL END (*IF*)
+      
+      | FM3SrcToks . StkPdPAdd
+      => IF NOT IsCall THEN RETURN NIL END (*IF*)
+      
+      
+      ELSE RETURN NIL
+      END (*CASE*) 
+    END WordLongExpr
+
+; PROCEDURE MaybePredefDeclRef
+    ( UnitNo : FM3Globals . UnitNoTyp
+    ; DeclNo : FM3Globals . DeclNoTyp
+    ; IsCall : BOOLEAN (* Relevant only if it turns out to a procedure. *)
+    )
+  : Exprs . ExprTyp
+  (* Return an expression tree for the reference. *) 
+  (* PRE: The reference is known to lie in an imported interface, so if it
+          has predefined idents, it will be to a true predefined delaration.
+  *) 
+
+  = VAR LUnitRef : FM3Units . UnitRefTyp
+  ; VAR LDeclRef : FM3Decls . DeclRefTyp
+  ; VAR LUnitPredefTok : FM3SrcToks . TokTyp 
+  ; VAR LDeclPredefTok : FM3SrcToks . TokTyp 
+ 
+  ; BEGIN
+      IF UnitNo = FM3Globals . UnitNoNull THEN RETURN NIL END (*IF*)
+    ; LUnitRef := VarArray_Int_Refany . Fetch ( FM3Units . UnitsMap , UnitNo )
+    ; IF LUnitRef = NIL THEN RETURN NIL END (*IF*)
+    ; LUnitPredefTok := LUnitRef . UntPredefTok
+    ; IF DeclNo = FM3Globals . DeclNoNull THEN RETURN NIL END (*IF*)  
+    ; LDeclRef
+        := VarArray_Int_Refany . Fetch
+             ( LUnitRef . UntDeclMap , DeclNo ) 
+    ; IF LDeclRef = NIL THEN RETURN NIL END (*IF*)
+    ; LDeclPredefTok := LDeclRef . DclPredefTok
+    ; IF LDeclPredefTok = FM3SrcToks . TokNull THEN RETURN NIL END (*IF*)
+    ; IF NOT IntSets . IsElement ( LUnitPredefTok , FM3Predefs . UnitSet ) 
+      THEN RETURN NIL
+      END (*IF*)
+    ; CASE LUnitPredefTok OF
+      | FM3SrcToks . StkPdWord
+      => RETURN WordLongExpr
+                  ( Expr , LUnitPredefTok , LDeclPredefTok , Is¢all )
+
+
+
+Expr
+           ( LDeclPredefTok
+           , FM3Builtins . ExprRefs [ FM3SrcToks . RidINTEGER  ]
+           , IsCall
+           )
+      | FM3SrcToks . StkPdLong
+      => RETURN WordLongExpr
+           ( LDeclPredefTok
+           , FM3Builtins . ExprRefs [ FM3SrcToks . RidLONGINT ]
+           , IsCall
+           )
+
+(* COMPLETEME: Add more predef units *)
+
+      ELSE RETURN NIL
+      END (*CASE*)
+    END MaybePredefDeclRef
+
 ; PROCEDURE PredefOpDeclRef
     ( UnitNo : FM3Globals . UnitNoTyp
     ; UnitPredef : FM3SrcToks . TokTyp 
@@ -1714,7 +1911,7 @@ MODULE FM3Pass2
       ; IF LRefDeclNo # FM3Globals . DeclNoNull 
         THEN 
           IF AreInsideADecl ( )
-(* CHECK: Is this precluded by syntactic context? *) 
+(* CHECK: Is this ensured by syntactic context? *) 
           THEN (* Create an ExprIdentReference node. *) 
             CheckRecursiveRef ( LRefDeclNo )
           ; WITH WExpr

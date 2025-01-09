@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2024        Rodney M. Bates.                                    *)
+(* Copyright 2024..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -861,7 +861,21 @@ MODULE FM3Pass3
             ( NEW ( FM3Exprs . ExprBinOpTyp
                   , ExpBinOpOp := GetBwdInt ( HtPass2RdBack )
                   )
-            ) 
+            )
+
+            TRY
+              LConst
+                := FM3CTIntArith . BinOp
+                     ( LOpnd1 , LOpnd2 , LOpcode , IsConst := )
+            ; EVAL FM3Exprs . PopExprStack ( )
+            ; LNewExpr := NewScalarConst ( ) 
+            ; FM3Exprs . PushExprStack ( LNewEexpr )
+            EXCEPT FM3CTIntRITH . ArithError
+            => 
+            END (* EXCEPT *) 
+
+
+
 
       | Itk . ItkBinaryOpOpCode 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 

@@ -526,7 +526,8 @@ MODULE FM3Pass1
   ; BEGIN (* InterfaceId *)
       UnitRef ^ . UntUnitIdent := IdScanAttr . SaChars 
     ; UnitRef ^ . UntUnitIdentPos := IdScanAttr . Position
-    ; UnitRef ^ . UntPredefTok := IdScanAttr . SaPredefTok 
+    ; UnitRef ^ . UntPredefTok := IdScanAttr . SaPredefTok
+(*                ^Compare to Compile.m3. *)     
     ; IF UnitRef ^ . UntUnitIdent = NIL THEN RETURN END (*IF*) 
     ; LNameFromFileName := UnitNameTFromFileName ( UnitRef ) 
     ; IF LNameFromFileName = NIL THEN RETURN END (*IF*) 
@@ -1905,7 +1906,7 @@ MODULE FM3Pass1
                 distinguish reserved from non-.
              *) 
           PutBwd_LIP
-            ( Itk . ItkReservedIdRef , WScan . SaPredefTok, WScan . Position )
+            ( Itk . ItkReservedIdRef , WScan . SaPredefTok , WScan . Position )
         ELSE 
           WITH WIdentRefSet = FM3Scopes . OpenScopeStackTopRef ^ . ScpRefIdSet
           DO WIdentRefSet := IntSets . Include ( WIdentRefSet , WScan . SaAtom )
