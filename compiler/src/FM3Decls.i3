@@ -61,7 +61,7 @@ INTERFACE FM3Decls
       ; DclIdNo : INTEGER (* Counts up while going thru' multiple idents. *) 
       ; DclSelfDeclNo : FM3Globals . DeclNoTyp (* A self-reference. *)
       ; DclPos : FM3Base . tPosition
-      ; DclPredefTok : FM3SrcToks . TokTyp := FM3SrcToks . StkUnknown 
+      ; DclStdTok : FM3SrcToks . TokTyp := FM3SrcToks . StkUnknown 
       ; DclKind : DeclKindTyp
       ; DclIsUsable : BOOLEAN 
       END (*DeclObjBaseTyp*)

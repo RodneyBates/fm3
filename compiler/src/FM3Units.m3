@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+(* Copyright 2023..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
@@ -126,7 +126,7 @@ MODULE FM3Units
     ; LUnitRef ^ . UntState := UnitStateTyp . UsNull
     ; LUnitRef ^ . UntUnsafe := FALSE 
     ; LUnitRef ^ . UntInExpImpCycle := FALSE
-    ; LUnitRef ^ . UntIsPredefUnit := FALSE 
+    ; LUnitRef ^ . UntIsStdUnit := FALSE 
     ; LUnitRef ^ . UntIdentAtomDict 
         := FM3Atom_OAChars . New
              ( FM3Globals . IdentAtomInitSize
@@ -166,7 +166,7 @@ MODULE FM3Units
     ; VarArray_Int_ExpImpProxy . Touch
         ( LUnitRef ^ .  UntExpImpMap , Ranges_Int . RangeTyp { 0 , 0 } )
     ; LUnitRef ^ . UntNextDeclNo := 1 
-    ; LUnitRef ^ . UntPredefTok := FM3SrcToks . StkUnknown 
+    ; LUnitRef ^ . UntStdTok := FM3SrcToks . StkUnknown 
     ; LUnitRef ^ . UntDeclMap 
         := FM3Decls . NewDeclMap ( FM3Globals . InitDeclCtPerUnit ) 
     ; VarArray_Int_Refany . Touch

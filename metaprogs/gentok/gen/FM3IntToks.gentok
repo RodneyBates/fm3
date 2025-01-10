@@ -67,7 +67,7 @@ LONE
   ItkOpenScopeRt INT (* ScopeNo. *) . 
   ItkReservedIdRef IDENT POS 3 (* Rid*, Position. *). 
   ItkDuplDeclId IDENT POS 3 (* IdAtom, position *) . 
-  ItkDeclId INT IDENT INT POS 5 (* DeclKind, IdAtom, IdPredef, position *) .
+  ItkDeclId INT IDENT INT POS 5 (* DeclKind, IdAtom, IdStd, position *) .
   ItkDeclNo DECL POS 3 (* DeclNo, position *) .
   ItkDefTopExprNo INT POS (* ExprNo. *)  
 
@@ -304,7 +304,7 @@ FIXED
   ItkDISPOSE    POS .
   ItkINC        POS .
 
-(* Unary imported predefined functions" *) 
+(* Unary imported standard functions" *) 
   ItkWord_T     POS .
   ItkWord_Size  POS .
   ItkWord_Not   POS .
@@ -342,7 +342,7 @@ FIXED
   ItkNARROW     POS BinOp POS . 
   ItkVAL        POS BinOp POS .
 
-(* Binary imported predefined functions" *)
+(* Binary imported standard functions" *)
   ItkWord_Plus        POS BinOp POS .
   ItkWord_Times       POS BinOp POS .
   ItkWord_Minus       POS BinOp POS .
@@ -381,7 +381,7 @@ FIXED
   ItkLong_LeftRotate  POS BinOp POS .
   ItkLong_RightRotate POS BinOp POS .
 
-(* Ternary imported predefined functions" *) 
+(* Ternary imported standard functions" *) 
 
   ItkTernOp INT POS   INT POS OpCode1 INT POS OpCode2 .
 
@@ -400,7 +400,7 @@ FIXED
   (* Surrounds a list of actuals. *) 
 
 LONE 
-  ItkBuiltinIdRef IDENT POS (* IDENT is predefined id code. *) .
+  ItkBuiltinIdRef IDENT POS (* IDENT is standard id code. *) .
   (*^ Only a builtin Id that takes no parameters. *) 
 
   ItkRange POS

@@ -2377,7 +2377,7 @@ yyNonterminal := 132;
                 (* line 602 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . SaChars := yyAttributeStack^[yyStackPtr+1] . Scan . SaChars ;
                        yySynAttribute . Scan . SaAtom := yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom ;
-                       yySynAttribute . Scan . SaPredefTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaPredefTok ;
+                       yySynAttribute . Scan . SaStdTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaStdTok ;
                        FM3Pass1 . IdentRefL2R ( yyAttributeStack^[yyStackPtr+1] ) ;
                      
               | 450 => (* P52 QualIdentRef (150): UnreservedIdent StkDot UnreservedIdent .*)
@@ -2385,7 +2385,7 @@ yyNonterminal := 132;
                 (* line 609 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . SaChars := yyAttributeStack^[yyStackPtr+1] . Scan . SaChars ;
                        yySynAttribute . Scan . SaAtom := yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom ;  
-                       yySynAttribute . Scan . SaPredefTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaPredefTok ;
+                       yySynAttribute . Scan . SaStdTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaStdTok ;
                        FM3Pass1 . QualIdentL2R ( yyAttributeStack^[yyStackPtr+1] , yyAttributeStack^[yyStackPtr+3] ) ;
                      
               | 451 => (* P53 IdPlusList (151): IdentRef .*)
@@ -2444,7 +2444,7 @@ yyNonterminal := 140;
                 (* line 668 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . SaChars := yyAttributeStack^[yyStackPtr+1] . Scan . SaChars ;
                        yySynAttribute . Scan . SaAtom := yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom ;
-                       yySynAttribute . Scan . SaPredefTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaPredefTok ;
+                       yySynAttribute . Scan . SaStdTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaStdTok ;
                 
                      
               | 458,303 => (* P60 MaybeQualIdent (153): QualIdent .*)
@@ -2452,14 +2452,14 @@ yyNonterminal := 140;
                 (* line 674 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . SaChars := yyAttributeStack^[yyStackPtr+1] . Scan . SaChars ;
                        yySynAttribute . Scan . SaAtom := yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom ;
-                       yySynAttribute . Scan . SaPredefTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaPredefTok ;
+                       yySynAttribute . Scan . SaStdTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaStdTok ;
                      
               | 459 => (* P61 QualIdent (154): UnreservedIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 154;
                 (* line 680 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . SaChars := yyAttributeStack^[yyStackPtr+1] . Scan . SaChars ;
                        yySynAttribute . Scan . SaAtom := yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom ;
-                       yySynAttribute . Scan . SaPredefTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaPredefTok ;
+                       yySynAttribute . Scan . SaStdTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaStdTok ;
                        FM3Pass1 . IdentRefL2R ( yyAttributeStack^[yyStackPtr+1] ) ;
                      
               | 460 => (* P62 MaybeQualIdentStarList (155): .*)

@@ -42,7 +42,7 @@ MODULE FM3Pass2
 ; IMPORT FM3Graph 
 ; IMPORT FM3IntToks AS Itk
 ; IMPORT FM3LoTypes
-; IMPORT FM3Predefs
+; IMPORT FM3Std
 ; IMPORT FM3ReservedIds
 ; IMPORT FM3SrcToks 
 ; IMPORT FM3SrcToks AS Stk
@@ -597,9 +597,9 @@ MODULE FM3Pass2
           := LOpnd1 . ExpIsConst
                AND LOpnd2 . ExpIsConst
                AND IntSets . IsElement
-                     ( LBinOpExpr . ExpOpcode , FM3Predefs . TwoParamSet )
+                     ( LBinOpExpr . ExpOpcode , FM3Std . TwoParamSet )
                AND IntSets . IsElement
-                     ( LBinOpExpr . ExpOpcode , FM3Predefs . WordLongQualifierSet )
+                     ( LBinOpExpr . ExpOpcode , FM3Std . WordLongQualifierSet )
       ; LBinOpExpr . ExpReachedDeclNoSet
           := IntSets . Union
                ( LOpnd1 . ExpReachedDeclNoSet , LOpnd2 . ExpReachedDeclNoSet )
@@ -1381,7 +1381,7 @@ MODULE FM3Pass2
   (* ^This will be the only decl of DeclIdAtom in its scope. *) 
 
   = VAR DidAtom : FM3Base . AtomTyp
-  ; VAR DidPredefTok : FM3SrcToks . TokTyp 
+  ; VAR DidStdTok : FM3SrcToks . TokTyp 
   ; VAR DidOpenDeclNo : FM3Globals . DeclNoTyp
   ; VAR DidPosition : tPosition
   ; VAR DidDeclKind : FM3Decls . DeclKindTyp
@@ -1445,7 +1445,7 @@ MODULE FM3Pass2
           := FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefExprs [ TRUE ]  
       ; LDeclRef ^ . DclDefType 
           := FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefExprs [ FALSE ]
-      ; LDeclRef ^ . DclPredefTok := DidPredefTok 
+      ; LDeclRef ^ . DclStdTok := DidStdTok 
           
       ; CASE DidDeclKind OF
         | Dkt . DkVar
@@ -1510,7 +1510,7 @@ MODULE FM3Pass2
   ; BEGIN (*DeclIdR2L*)
       DidDeclKind := GetBwdDeclKind ( TokResult . TrRdBack )
     ; DidAtom := GetBwdAtom ( TokResult . TrRdBack )
-    ; DidPredefTok := GetBwdInt ( TokResult . TrRdBack )
+    ; DidStdTok := GetBwdInt ( TokResult . TrRdBack )
     ; DidPosition := GetBwdPos ( TokResult . TrRdBack )
     ; IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
       THEN (* We are skipping output. *) RETURN FM3Globals . DeclNoNull 
@@ -1691,8 +1691,8 @@ MODULE FM3Pass2
 
 ; PROCEDURE BinaryCall
     ( OrigExpr : FM3Exprs . ExprTyp
-    ; UnitPredefTok : FM3SrcToks . TokTyp 
-    ; DeclPredefTok : FM3SrcToks . TokTyp 
+    ; UnitStdTok : FM3SrcToks . TokTyp 
+    ; DeclStdTok : FM3SrcToks . TokTyp 
     ; Type : FM3Exprs . ExprTyp
     ; Opcode : FM3SrcToks . TokTyp
     )
@@ -1719,9 +1719,9 @@ MODULE FM3Pass2
       THEN
         FM3Messages . ErrorArr
           ( ARRAY OF REFANY
-              { FM3SrcToks . Image ( UnitPredefTok )
+              { FM3SrcToks . Image ( UnitStdTok )
               , "."
-              , FM3SrcToks . Image ( DeclPredefTok )
+              , FM3SrcToks . Image ( DeclStdTok )
               ,"requires exactly two parameters."
               }
           , LCallExpr . ExpPosition 
@@ -1735,9 +1735,9 @@ MODULE FM3Pass2
       THEN
         WrongKindMsg
           ( "Left operand"
-          , FM3SrcToks . Image ( UnitPredefTok )
+          , FM3SrcToks . Image ( UnitStdTok )
             & "."
-            & FM3SrcToks . Image ( DeclPredefTok )
+            & FM3SrcToks . Image ( DeclStdTok )
           , "a value expression"
           , LOpnd1 . ExpPosition
           )
@@ -1749,9 +1749,9 @@ MODULE FM3Pass2
       THEN
         WrongKindMsg
           ( "Right operand"
-          , FM3SrcToks . Image ( UnitPredefTok )
+          , FM3SrcToks . Image ( UnitStdTok )
             & "."
-            & FM3SrcToks . Image ( DeclPredefTok )
+            & FM3SrcToks . Image ( DeclStdTok )
           , "a value expression"
           , LOpnd2 . ExpPosition
           )
@@ -1770,9 +1770,9 @@ MODULE FM3Pass2
         := LOpnd1 . ExpIsConst
            AND LOpnd2 . ExpIsConst
            AND IntSets . IsElement
-                 ( LNewExpr . ExpOpcode , FM3Predefs . TwoParamSet )
+                 ( LNewExpr . ExpOpcode , FM3Std . TwoParamSet )
            AND IntSets . IsElement
-                 ( LNewExpr . ExpOpcode , FM3Predefs . WordLongQualifierSet )
+                 ( LNewExpr . ExpOpcode , FM3Std . WordLongQualifierSet )
     ; LNewExpr . ExpReachedDeclNoSet
         := IntSets . Union
              ( LOpnd1 . ExpReachedDeclNoSet 
@@ -1783,7 +1783,7 @@ MODULE FM3Pass2
 
 ; PROCEDURE WordLongExpr
     ( CallExpr : FM3Exprs . ExprCallTyp
-    ; DeclPredefTok : FM3SrcToks . TokTyp
+    ; DeclStdTok : FM3SrcToks . TokTyp
     ; Type : FM3Exprs . ExprTyp 
     ; IsCall : BOOLEAN (* Relevant only if it turns out to a procedure. *)
     )
@@ -1792,7 +1792,7 @@ MODULE FM3Pass2
   = VAR I : INTEGER
 
   ; BEGIN
-      CASE DeclPredefTok OF
+      CASE DeclStdTok OF
       | FM3SrcToks . StkPdPlus
       =>  IF NOT IsCall THEN RETURN NIL END (*IF*)
       
@@ -1804,7 +1804,7 @@ MODULE FM3Pass2
       END (*CASE*) 
     END WordLongExpr
 
-; PROCEDURE MaybePredefDeclRef
+; PROCEDURE MaybeStdDeclRef
     ( Expr : FM3Exprs . ExprTyp
     ; UnitNo : FM3Globals . UnitNoTyp
     ; DeclNo : FM3Globals . DeclNoTyp
@@ -1813,35 +1813,35 @@ MODULE FM3Pass2
   : FM3Exprs . ExprTyp
   (* Return an expression tree for the reference. *) 
   (* PRE: The reference is known to lie in an imported interface, so if it
-          has predefined idents, it will be to a true predefined delaration.
+          has standard idents, it will be to a true standard delaration.
   *) 
 
   = VAR LUnitRef : FM3Units . UnitRefTyp
   ; VAR LDeclRef : FM3Decls . DeclRefTyp
-  ; VAR LUnitPredefTok : FM3SrcToks . TokTyp 
-  ; VAR LDeclPredefTok : FM3SrcToks . TokTyp 
+  ; VAR LUnitStdTok : FM3SrcToks . TokTyp 
+  ; VAR LDeclStdTok : FM3SrcToks . TokTyp 
  
   ; BEGIN
       IF UnitNo = FM3Globals . UnitNoNull THEN RETURN NIL END (*IF*)
     ; LUnitRef := VarArray_Int_Refany . Fetch ( FM3Units . UnitsMap , UnitNo )
     ; IF LUnitRef = NIL THEN RETURN NIL END (*IF*)
-    ; LUnitPredefTok := LUnitRef . UntPredefTok
+    ; LUnitStdTok := LUnitRef . UntStdTok
     ; IF DeclNo = FM3Globals . DeclNoNull THEN RETURN NIL END (*IF*)  
     ; LDeclRef
         := VarArray_Int_Refany . Fetch
              ( LUnitRef . UntDeclMap , DeclNo ) 
     ; IF LDeclRef = NIL THEN RETURN NIL END (*IF*)
-    ; LDeclPredefTok := LDeclRef . DclPredefTok
-    ; IF LDeclPredefTok = FM3Base . TokNull THEN RETURN NIL END (*IF*)
-    ; IF NOT IntSets . IsElement ( LUnitPredefTok , FM3Predefs . StdIntfSet ) 
+    ; LDeclStdTok := LDeclRef . DclStdTok
+    ; IF LDeclStdTok = FM3Base . TokNull THEN RETURN NIL END (*IF*)
+    ; IF NOT IntSets . IsElement ( LUnitStdTok , FM3Std . StdIntfSet ) 
       THEN RETURN NIL
       END (*IF*)
-    ; CASE LUnitPredefTok OF
+    ; CASE LUnitStdTok OF
       | FM3SrcToks . StkPdWord
       => RETURN
            WordLongExpr
              ( Expr
-             , LDeclPredefTok
+             , LDeclStdTok
              , FM3ReservedIds . ExprRefs [ FM3SrcToks . RidINTEGER ] 
              , IsCall
              )
@@ -1850,7 +1850,7 @@ MODULE FM3Pass2
 (*
         ; Expr
            ( Expr
-           , LDeclPredefTok
+           , LDeclStdTok
            , FM3ReservedIds . ExprRefs [ FM3SrcToks . RidINTEGER ]
            , IsCall
            )
@@ -1858,25 +1858,25 @@ MODULE FM3Pass2
       | FM3SrcToks . StkPdLong
       => RETURN WordLongExpr
            ( Expr
-           , LDeclPredefTok
+           , LDeclStdTok
            , FM3ReservedIds . ExprRefs [ FM3SrcToks . RidLONGINT ]
            , IsCall
            )
 
-(* COMPLETEME: Add more predef units *)
+(* COMPLETEME: Add more standard units *)
       ELSE RETURN NIL
       END (*CASE*)
-    END MaybePredefDeclRef
+    END MaybeStdDeclRef
 
-; PROCEDURE PredefOpDeclRef
+; PROCEDURE StdOpDeclRef
     ( UnitNo : FM3Globals . UnitNoTyp
-    ; UnitPredef : FM3SrcToks . TokTyp 
+    ; UnitStd : FM3SrcToks . TokTyp 
     ; DeclNo :FM3Globals . DeclNoTyp
-    ; DeclPredef : FM3SrcToks . TokTyp 
+    ; DeclStd : FM3SrcToks . TokTyp 
     ; IsCall : BOOLEAN (* Relevant only if it turns out to a procedure. *)
     )
   : FM3Decls . DeclRefTyp 
-    (* ^NIL unless it's a predefined ref and, if a proc, a call. *) 
+    (* ^NIL unless it's a standard ref and, if a proc, a call. *) 
 
   = VAR LUnitRef : FM3Units . UnitRefTyp
   ; VAR LDeclRef : FM3Decls . DeclRefTyp
@@ -1890,15 +1890,15 @@ MODULE FM3Pass2
         := VarArray_Int_Refany . Fetch
              ( LUnitRef . UntDeclMap , DeclNo ) 
     ; IF LDeclRef = NIL THEN RETURN NIL END (*IF*)
-    ; IF LUnitRef . UntPredefTok # UnitPredef THEN RETURN NIL END (*IF*)
-    ; IF LDeclRef . DclPredefTok # DeclPredef THEN RETURN NIL END (*IF*)
-    (* UnitNo.DeclNo refer to predefined UnitPredef.DeclPredef. *)  
-    ; IF ( NOT IntSets . IsElement ( DeclPredef , FM3Predefs . ProcSet ) )
+    ; IF LUnitRef . UntStdTok # UnitStd THEN RETURN NIL END (*IF*)
+    ; IF LDeclRef . DclStdTok # DeclStd THEN RETURN NIL END (*IF*)
+    (* UnitNo.DeclNo refer to standard UnitStd.DeclStd. *)  
+    ; IF ( NOT IntSets . IsElement ( DeclStd , FM3Std . ProcSet ) )
          OR IsCall
       THEN RETURN LDeclRef
       ELSE RETURN NIL
       END (*IF*) 
-    END PredefOpDeclRef 
+    END StdOpDeclRef 
 
 ; PROCEDURE IdentRefR2L ( READONLY TokResult : TokResultTyp )
   (* PRE: The ident is not followed by dot Ident. (The parser has gone

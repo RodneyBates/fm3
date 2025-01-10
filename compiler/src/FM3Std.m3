@@ -6,7 +6,7 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
 
-MODULE FM3Predefs 
+MODULE FM3Std 
 
 ; IMPORT IntSets 
 
@@ -70,5 +70,5 @@ MODULE FM3Predefs
   ; ProcSet := IntSets . Union ( OneParamSet , TwoParamSet )  
   ; ProcSet := IntSets . Union ( ProcSet , ThreeParamSet )  
   ; ProcSet := IntSets . Union ( ProcSet , OneOrMoreParamSet )  
-  END FM3Predefs
+  END FM3Std
 . 

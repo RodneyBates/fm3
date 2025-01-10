@@ -142,7 +142,7 @@ INTERFACE FM3SrcToks
 ; CONST StkLexErrChars                               =   107 (*16_eb 00 *)
 ; CONST StkPragmaId                                  =   108 (*16_ec 00 *)
 (* Not a known pragma ident, but found where one is expected. *)
-(* The scanner will recognize predefined ids declared in interfaces that
+(* The scanner will recognize standard ids declared in interfaces that
       have special treatment by the compiler and reserved ids, all using the
       same lex machine as reserved words. 
    *)
@@ -210,15 +210,15 @@ INTERFACE FM3SrcToks
 ; CONST RidROOT                                      =   156 (*16_9c 01 *)
 ; CONST StkMaxRid                                    =   157 (*16_9d 01 *)
 ; CONST RidUNTRACEDROOT                              =   157 (*16_9d 01 *)
-(* Predefined identifiers.  Scanner will treat these as ordinary
+(* Standard identifiers.  Scanner will treat these as ordinary
       identifiers, except it adds their codes as a separate field.
-      Later semantic processsing will decide whether the predefined
+      Later semantic processsing will decide whether the standard
       meaning should  be used. 
    *)
-; CONST StkMinPredef                                 =   158 (*16_9e 01 *)
-(* Predefined interface names.  These values are used as unique unit numbers.
+; CONST StkMinStd                                    =   158 (*16_9e 01 *)
+(* Standard interface names.  These values are used as unique unit numbers.
    Keep them low in the unit number space. *)
-(* Predefined standard interface names: *)
+(* Standard interface names: *)
 ; CONST StkPdMain                                    =   158 (*16_9e 01 *)
 ; CONST StkPdText                                    =   159 (*16_9f 01 *)
 ; CONST StkThread                                    =   160 (*16_a0 01 *)
@@ -233,7 +233,7 @@ INTERFACE FM3SrcToks
 ; CONST StkPdExtendedFloat                           =   168 (*16_a8 01 *)
 ; CONST StkPdFloatMode                               =   169 (*16_a9 01 *)
 ; CONST StkPdLex                                     =   170 (*16_aa 01 *)
-; CONST StkMaxPredefIntf                             =   171 (*16_ab 01 *)
+; CONST StkMaxStdIntf                                =   171 (*16_ab 01 *)
 ; CONST StkPdFmt                                     =   171 (*16_ab 01 *)
 (* In many standard interfaces: *)
 (* In Word and Long: *)
@@ -265,7 +265,7 @@ INTERFACE FM3SrcToks
 ; CONST StkPdRightRotate                             =   192 (*16_c0 01 *)
 ; CONST StkPdExtract                                 =   193 (*16_c1 01 *)
 ; CONST StkMaxWordLong                               =   194 (*16_c2 01 *)
-; CONST StkMaxPredef                                 =   194 (*16_c2 01 *)
+; CONST StkMaxStd                                    =   194 (*16_c2 01 *)
 ; CONST StkPdInsert                                  =   194 (*16_c2 01 *)
 (* COMPLETEME: Idents declared in other standard interfaces. *)
 (* End of FM3SrcToks.gentok. *)

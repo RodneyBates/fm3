@@ -117,7 +117,7 @@ MODULE FM3Scanner
       , SaWideChars := NIL 
       , SaChars := NIL 
       , SaTok := FM3Base . TokNull  
-      , SaPredefTok := FM3Base . TokNull 
+      , SaStdTok := FM3Base . TokNull 
       , SaWCh := W'\X0000'
       } 
 
@@ -434,33 +434,33 @@ MODULE FM3Scanner
                    , ScHash 
                    ) 
           ; Attribute . SaTok := FM3SrcToks . StkPragmaId 
-          ; Attribute . SaPredefTok := FM3Base . TokNull 
+          ; Attribute . SaStdTok := FM3Base . TokNull 
 (* TODO: Handle this as an unrecognized pragma and skip the entire thing. *) 
 
-          | FM3PgToks . PgFm3PredefUnit 
-          => GTopSsRef . SsUnitRef ^ . UntIsPredefUnit := TRUE 
+          | FM3PgToks . PgFm3StdUnit 
+          => GTopSsRef . SsUnitRef ^ . UntIsStdUnit := TRUE 
 
           ELSE (* It's some other pragma ident. *) 
             Attribute . SaTok 
               := GCurRwValue (* A recognized reserved pragma name. *) 
-          ; Attribute . SaPredefTok := GCurRwValue 
+          ; Attribute . SaStdTok := GCurRwValue 
           END (*CASE*) 
 
-        ELSE (* Expecting a reserved ident, predefined, or plain identifier. *) 
+        ELSE (* Expecting a reserved ident, standard, or plain identifier. *) 
           Attribute . SaTok := FM3SrcToks . StkIdent
         ; CASE GCurRwValue OF 
           | FM3SrcToks . StkMinRid .. FM3SrcToks . StkMaxRid 
           => (* Reserved identifier.  It has its builtin meaning and only that
                 in every context.  Make this an StkIdent with Null SaAtom
-                and SaPredefTok set to the reserved Id's lex code.
+                and SaStdTok set to the reserved Id's lex code.
              *) 
               Attribute . SaAtom := FM3Base . AtomNull 
-            ; Attribute . SaPredefTok := GCurRwValue 
+            ; Attribute . SaStdTok := GCurRwValue 
 
-          | FM3SrcToks . StkMinPredef .. FM3SrcToks . StkMaxPredef
-          => (* Not reserved but predefined identifier.  It can be an ordinary 
-                identifier or, in certain contexts, have a predefined meaning. 
-                Give it both an atom and the lex value of SaPredefTok.  
+          | FM3SrcToks . StkMinStd .. FM3SrcToks . StkMaxStd
+          => (* Not reserved but standard identifier.  It can be an ordinary 
+                identifier or, in certain contexts, have a standard meaning. 
+                Give it both an atom and the lex value of SaStdTok.  
                 FM3 will decide later which to use. 
              *) 
               Attribute . SaAtom 
@@ -469,7 +469,7 @@ MODULE FM3Scanner
                      , Attribute . SaChars 
                      , ScHash 
                      ) 
-            ; Attribute . SaPredefTok := GCurRwValue 
+            ; Attribute . SaStdTok := GCurRwValue 
 
           | FM3LexTable . ValueUnrecognized , FM3LexTable . ValueNull 
           => (* Plain ol' identifier. Give it an atom in the current unit,
@@ -481,12 +481,12 @@ MODULE FM3Scanner
                      , Attribute . SaChars 
                      , ScHash 
                      ) 
-            ; Attribute . SaPredefTok := FM3Base . TokNull  
+            ; Attribute . SaStdTok := FM3Base . TokNull  
 
           ELSE (* Reserved word.  Lex value is the token code. *) 
             Attribute . SaTok := GCurRwValue 
           ; Attribute . SaAtom := FM3Base . TokNull  
-          ; Attribute . SaPredefTok := FM3Base . TokNull  
+          ; Attribute . SaStdTok := FM3Base . TokNull  
           END (*CASE*) 
         END (*IF*) 
       END IdentSuffix 

@@ -151,7 +151,7 @@ FIXME: Not so. must be < 64.  This clashes with src tokens that
 (* IdAtom, position *)
 (* LONE ItkDuplDeclId: *)
 ; CONST ItkDuplDeclId                   (*ArgCt: 3*) =   246 (*16_f6 01 *)
-(* DeclKind, IdAtom, IdPredef, position *)
+(* DeclKind, IdAtom, IdStd, position *)
 (* LONE ItkDeclId: *)
 ; CONST ItkDeclId                       (*ArgCt: 5*) =   247 (*16_f7 01 *)
 (* DeclNo, position *)
@@ -941,7 +941,7 @@ LIST ItkIdPlusList
 ; CONST ItkINCLtPatch                   (*ArgCt: 2*) =   684 (*16_ac 05 *)
 ; CONST ItkINCRt                        (*ArgCt: 2*) =   685 (*16_ad 05 *)
 
-(* Unary imported predefined functions" *)
+(* Unary imported standard functions" *)
 (* FIXED ItkWord_T: *)
 ; CONST ItkWord_TLt                     (*ArgCt: 2*) =   686 (*16_ae 05 *)
 ; CONST ItkWord_TLtTemp                 (*ArgCt: 2*) =   687 (*16_af 05 *)
@@ -1069,7 +1069,7 @@ LIST ItkIdPlusList
 ; CONST ItkVALBinOpTemp                 (*ArgCt: 2*) =   757 (*16_f5 05 *)
 ; CONST ItkVALBinOpPatch                (*ArgCt: 2*) =   758 (*16_f6 05 *)
 
-(* Binary imported predefined functions" *)
+(* Binary imported standard functions" *)
 (* FIXED ItkWord_Plus: *)
 ; CONST ItkWord_PlusLt                  (*ArgCt: 2*) =   759 (*16_f7 05 *)
 ; CONST ItkWord_PlusLtTemp              (*ArgCt: 2*) =   760 (*16_f8 05 *)
@@ -1430,7 +1430,7 @@ LIST ItkIdPlusList
 ; CONST ItkLong_RightRotateBinOpTemp    (*ArgCt: 2*) =  1009 (*16_f1 07 *)
 ; CONST ItkLong_RightRotateBinOpPatch   (*ArgCt: 2*) =  1010 (*16_f2 07 *)
 
-(* Ternary imported predefined functions" *)
+(* Ternary imported standard functions" *)
 (* FIXED ItkTernOp: *)
 ; CONST ItkTernOpLt                     (*ArgCt: 6*) =  1011 (*16_f3 07 *)
 ; CONST ItkTernOpLtTemp                 (*ArgCt: 6*) =  1012 (*16_f4 07 *)
@@ -1542,7 +1542,7 @@ LIST ItkIdPlusList
 ; CONST ItkBuiltinCallRt                (*ArgCt: 4*) =  1084 (*16_bc 08 *)
 
 (* Surrounds a list of actuals. *)
-(* IDENT is predefined id code. *)
+(* IDENT is standard id code. *)
 (* LONE ItkBuiltinIdRef: *)
 ; CONST ItkBuiltinIdRef                 (*ArgCt: 3*) =  1085 (*16_bd 08 *)
 (*^ Only a builtin Id that takes no parameters. *)

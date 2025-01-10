@@ -40,7 +40,7 @@ INTERFACE FM3Scopes
 (*TODO: Review these when more is implemented. *) 
 ; TYPE ScopeKindTyp
     = { SkNull
-      , SkUniverse (* {Predefined, interfaces? *)
+      , SkUniverse (* {Standard, interfaces? *)
       , SkComp (* Interfaces touched by a compilation.  Only one such scope. *)
       , SkUnit (* Exports & Imports of a single compilation unit. *) 
       , SkInterface (* Including generic and instantiation. *) 

@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+(* Copyright 2023..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -53,7 +53,7 @@ INTERFACE FM3Scanner
         (* ^Identifier, Numeric literal, or Converted RT memory value of
            TEXT literal, or . *) 
       ; SaTok : FM3Base . TokTyp := FM3Base . TokNull  
-      ; SaPredefTok : FM3Base . TokTyp (* A source token. *) 
+      ; SaStdTok : FM3Base . TokTyp (* A source token. *) 
       ; SaWCh : WIDECHAR (* Value of [WIDE]CHAR literal. *)
       END (* tScanAttribute *)
 
@@ -66,7 +66,7 @@ INTERFACE FM3Scanner
         , SaWideChars := NIL
         , SaChars := NIL
         , SaTok := FM3Base . TokNull  
-        , SaPredefTok := FM3Base . TokNull 
+        , SaStdTok := FM3Base . TokNull 
         , SaWCh := W'\x0000'
         } 
 

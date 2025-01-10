@@ -395,12 +395,12 @@ INTERFACE FM3Pass1
 
 ; PROCEDURE BuiltinWithNoSelector
 ( READONLY IdAttribute : tParsAttribute )
-  (* PRE: IdAttribute . Scan . SaPredefTok # FM3Base , TokNull. *) 
+  (* PRE: IdAttribute . Scan . SaStdTok # FM3Base , TokNull. *) 
   (* Builtin ident that has no selector. *) 
 
 ; PROCEDURE BuiltinIdentActualsL2R
     ( READONLY IdAttribute , ActualsAttribute : tParsAttribute )
-  (* PRE: IdAttribute . Scan . SaPredefTok # FM3Base , TokNull. *) 
+  (* PRE: IdAttribute . Scan . SaStdTok # FM3Base , TokNull. *) 
   (* PRE: IdAttribute is for the builtin ident only. *) 
   (* PRE: ActualsAttribute is for an actual parameter list. *) 
 
@@ -408,7 +408,7 @@ INTERFACE FM3Pass1
     ( READONLY IdAttribute , SelectorAttribute : tParsAttribute ; Tag : TEXT )
   (* A builtin id with either a dot-selection or subscript(s).
      No builtin allows either of these. *)
-  (* PRE: IdAttribute . Scan . SaPredefTok # FM3Base , TokNull. *) 
+  (* PRE: IdAttribute . Scan . SaStdTok # FM3Base , TokNull. *) 
 
 ; PROCEDURE DeclScopeRtL2R ( ScopeRef : FM3Scopes . ScopeRefTyp )
   (* Create an IdAtom-to-declNo, fixed-size dictionary for the scope, of

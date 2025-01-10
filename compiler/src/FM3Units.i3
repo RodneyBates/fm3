@@ -161,12 +161,12 @@ INTERFACE FM3Units
         (* ^In the unit's top-level scope.  As opposed to imported proxies,
             which are all lower-numbered. *) 
       ; UntNextDeclNo : INTEGER := 1
-      ; UntPredefTok : FM3SrcToks . TokTyp := FM3SrcToks . StkUnknown 
+      ; UntStdTok : FM3SrcToks . TokTyp := FM3SrcToks . StkUnknown 
       ; UntKind := UnitKindTyp . UkNull 
       ; UntState := UnitStateTyp . UsNull
       ; UntUnsafe : BOOLEAN := FALSE  
       ; UntInExpImpCycle : BOOLEAN := FALSE
-      ; UntIsPredefUnit : BOOLEAN := FALSE 
+      ; UntIsStdUnit : BOOLEAN := FALSE 
       END (*UnitTyp*)
 
 ; VAR UnitsAtomDict : FM3Atom_Text . T

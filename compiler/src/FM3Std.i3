@@ -6,17 +6,17 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
 
-INTERFACE FM3Predefs
+INTERFACE FM3Std
 
 ; IMPORT IntSets
 
 ; IMPORT FM3SrcToks AS Stk
 ; IMPORT FM3IntToks AS Itk
 
-; TYPE BuiltinOpTyp = [ Stk . StkMinRid .. Stk . StkMaxPredef ]
+; TYPE BuiltinOpTyp = [ Stk . StkMinRid .. Stk . StkMaxStd ]
 
 ; PROCEDURE Stk2Itk ( StkTok : Stk . TokTyp ) : Itk . TokTyp 
-  (* Translate source tokens for reserved idents and predefined imported idents
+  (* Translate source tokens for reserved idents and standard imported idents
      into equivalent internal LEFToperator codes.
   *) 
 
@@ -126,7 +126,7 @@ INTERFACE FM3Predefs
     , Stk . StkPdInsert
     } 
 
-(* Predefined functions with one parameter: *)
+(* Standard functions with one parameter: *)
 ; VAR OneParamSet : IntSets . T 
 ; CONST OneParamValues = ConstructorTyp
     { Stk . RidABS 
@@ -151,7 +151,7 @@ INTERFACE FM3Predefs
     , Stk . StkPdNot 
     }
 
-(* Predefined functions with two parameters: *)
+(* Standard functions with two parameters: *)
 ; VAR TwoParamSet : IntSets . T 
 ; CONST TwoParamValues = ConstructorTyp
     { Stk . RidLOOPHOLE 
@@ -179,7 +179,7 @@ INTERFACE FM3Predefs
     , Stk . StkPdRightRotate 
     }
 
-(* Predefined functions with three parameters: *)
+(* Standard functions with three parameters: *)
 ; VAR ThreeParamSet : IntSets . T 
 ; CONST ThreeParamValues = ConstructorTyp 
     { Stk . RidSUBARRAY
@@ -187,7 +187,7 @@ INTERFACE FM3Predefs
     , Stk . StkPdInsert
     }
 
-(* Predefined functions with a variable number of actuals: *)
+(* Standard functions with a variable number of actuals: *)
 ; VAR OneOrMoreParamSet : IntSets . T 
 ; CONST OneOrMoreParamValues = ConstructorTyp 
     { Stk . RidNEW }
@@ -195,7 +195,7 @@ INTERFACE FM3Predefs
 (* Procedures, any number of parameters: *) 
 ; VAR ProcSet : IntSets . T 
 
-(* Predefined constant names: *) 
+(* Standard constant names: *) 
 ; VAR ConstantSet : IntSets . T
 ; CONST ConstantValues = ConstructorTyp 
     { Stk . RidFALSE 
@@ -204,7 +204,7 @@ INTERFACE FM3Predefs
     , Stk . StkPdSize 
     } 
 
-(* Predefined type names: *) 
+(* Standard type names: *) 
 ; VAR TypeSet : IntSets . T
 ; CONST TypeValues = ConstructorTyp 
     { Stk . RidADDRESS 
@@ -265,6 +265,6 @@ INTERFACE FM3Predefs
     , Stk . RidTRUE
 ****) 
 
-; END FM3Predefs
+; END FM3Std
 .
 

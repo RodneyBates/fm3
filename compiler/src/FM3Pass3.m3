@@ -48,7 +48,7 @@ MODULE FM3Pass3
     IMPORT GetBwdInt , GetBwdAtom , GetBwdDeclKind , GetBwdPos , GetBwdScopeNo 
 ; IMPORT FM3Messages 
 ; FROM   FM3Messages IMPORT FatalArr , ErrorArr , FM3LogArr
-; IMPORT FM3Predefs
+; IMPORT FM3Std
 ; IMPORT FM3Scopes
 ; IMPORT FM3SharedUtils
 ; IMPORT FM3Target
@@ -1005,7 +1005,7 @@ MODULE FM3Pass3
         EVAL FM3Exprs . ResolveNow ( WOpnd , Ekt . EkValue )
       ; IF WOpnd . ExpOpcode = Stk . RidBOOLEAN
         THEN
-          NotExpr . ExpType := FM3Predefs . BoolType  
+          NotExpr . ExpType := FM3Std . BoolType  
         ; NotExpr . ExpKind := WOpnd . ExpKind
         ; NotExpr . ExpIsUsable := TRUE 
         ; NotExpr . ExpIsLegalRecursive := TRUE
@@ -1081,7 +1081,7 @@ MODULE FM3Pass3
 
       ; OpExpr . ExpIsUsable := LOk 
       ; IF LOk THEN 
-          OpExpr . ExpType := FM3Predefs . BoolType
+          OpExpr . ExpType := FM3Std . BoolType
         ; OpExpr . ExpOpcode := Stk . RidBOOLEAN 
         ; OpExpr . ExpKind := Ekt . EkValue 
         ; OpExpr . ExpIsUsable := TRUE 
@@ -1164,7 +1164,7 @@ MODULE FM3Pass3
           FM3Messages . ErrorArr
             ( ARRAY OF REFANY 
                 { "Right operand of \""
-                , FM3Predefs . Image ( Opcode )
+                , FM3Std . Image ( Opcode )
                 , "\" must have a numeric type." 
                 }
             , WOpnd2 . ExpPosition 
@@ -1180,7 +1180,7 @@ MODULE FM3Pass3
           FM3Messages . ErrorArr
             ( ARRAY OF REFANY
                 { "Operands of "
-                , FM3Predefs . Image ( Opcode )
+                , FM3Std . Image ( Opcode )
                 , " must be assignable to a common type." 
                 }
            , OpExpr . ExpPosition

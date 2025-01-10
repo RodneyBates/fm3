@@ -65,7 +65,7 @@ MODULE FM3Pass1
 ; IMPORT FM3Messages 
 ; FROM FM3Messages IMPORT FatalArr , ErrorArr , FM3LogArr
 ; IMPORT FM3Parser
-; IMPORT FM3Predefs 
+; IMPORT FM3Std 
 ; IMPORT FM3Scanner
 ; IMPORT FM3Scopes
 ; IMPORT FM3SharedGlobals 
@@ -526,7 +526,7 @@ MODULE FM3Pass1
   ; BEGIN (* InterfaceId *)
       UnitRef ^ . UntUnitIdent := IdScanAttr . SaChars 
     ; UnitRef ^ . UntUnitIdentPos := IdScanAttr . Position
-    ; UnitRef ^ . UntPredefTok := IdScanAttr . SaPredefTok
+    ; UnitRef ^ . UntStdTok := IdScanAttr . SaStdTok
 (*                ^Compare to Compile.m3. *)     
     ; IF UnitRef ^ . UntUnitIdent = NIL THEN RETURN END (*IF*) 
     ; LNameFromFileName := UnitNameTFromFileName ( UnitRef ) 
@@ -1795,7 +1795,7 @@ MODULE FM3Pass1
 
 (* Left-to-right scope handling.  These are called by the parser. *)
 
-; PROCEDURE AtomOfPredefId
+; PROCEDURE AtomOfStdId
     ( READONLY IdAttr : tParsAttribute ) : FM3Base . AtomTyp
 
   = BEGIN
@@ -1804,7 +1804,7 @@ MODULE FM3Pass1
                 , IdAttr . Scan . SaChars 
                 , IdAttr . Scan . SaHash 
                 ) 
-    END AtomOfPredefId 
+    END AtomOfStdId 
 
 (*EXPORTED.*)
 ; PROCEDURE DeclIdL2R 
@@ -1823,12 +1823,12 @@ MODULE FM3Pass1
 
   ; BEGIN (*DeclIdL2R*)
       IF IntSets . IsElement
-           ( IdAttr . Scan . SaPredefTok , FM3Predefs . ReservedIdSet ) 
+           ( IdAttr . Scan . SaStdTok , FM3Std . ReservedIdSet ) 
       THEN 
         FM3Messages . ErrorArr
           ( ARRAY OF REFANY
               { "Identifier \""
-              , FM3SrcToks . Image ( IdAttr . Scan . SaPredefTok )
+              , FM3SrcToks . Image ( IdAttr . Scan . SaStdTok )
               , "\" is reserved and cannot be declared (2.8.2)." 
               }
           , IdAttr . Scan . Position 
@@ -1886,7 +1886,7 @@ MODULE FM3Pass1
             ( WunRdBack , VAL ( IdAttr . Scan . Position . Column , LONGINT ) ) 
         ; PutBwd
             ( WunRdBack , VAL ( IdAttr . Scan . Position . Line , LONGINT ) )
-        ; PutBwd ( WunRdBack , VAL ( IdAttr . Scan . SaPredefTok , LONGINT ) ) 
+        ; PutBwd ( WunRdBack , VAL ( IdAttr . Scan . SaStdTok , LONGINT ) ) 
         ; PutBwd ( WunRdBack , VAL ( LAtom , LONGINT ) ) 
         ; PutBwd ( WunRdBack , VAL ( ORD ( DeclKind ) , LONGINT ) )
         ; PutBwd ( WunRdBack , VAL ( Itk . ItkDeclId , LONGINT ) )
@@ -1906,7 +1906,7 @@ MODULE FM3Pass1
                 distinguish reserved from non-.
              *) 
           PutBwd_LIP
-            ( Itk . ItkReservedIdRef , WScan . SaPredefTok , WScan . Position )
+            ( Itk . ItkReservedIdRef , WScan . SaStdTok , WScan . Position )
         ELSE 
           WITH WIdentRefSet = FM3Scopes . OpenScopeStackTopRef ^ . ScpRefIdSet
           DO WIdentRefSet := IntSets . Include ( WIdentRefSet , WScan . SaAtom )
@@ -1940,14 +1940,14 @@ MODULE FM3Pass1
       WITH WScan = IdAttr . Scan
       DO IF WScan . SaAtom < 0
             AND IntSets . IsElement
-                  ( - WScan . SaAtom , FM3Predefs . ReservedIdSet ) 
+                  ( - WScan . SaAtom , FM3Std . ReservedIdSet ) 
         THEN
           FM3Messages . ErrorArr
             ( ARRAY OF REFANY
                 { "Identifier \""
                 , FM3SrcToks . Image ( - WScan . SaAtom ) 
                 , "\" is reserved and cannot denote an overridable method." 
-             (* , SectionOfBuiltin ( IdAttr . Scan . SaPredefTok ) *)  
+             (* , SectionOfBuiltin ( IdAttr . Scan . SaStdTok ) *)  
                 , "(2.10)."
                 } 
             , IdAttr . Scan . Position 
@@ -1972,7 +1972,7 @@ MODULE FM3Pass1
       THEN RETURN FALSE
       END (*IF*)
     ; <* ASSERT IntSets . IsElement
-                  ( IdAttr . Scan . SaPredefTok , FM3Predefs . ReservedIdSet )
+                  ( IdAttr . Scan . SaStdTok , FM3Std . ReservedIdSet )
       *>
       RETURN TRUE 
     END AttrIsReservedId
@@ -1987,7 +1987,7 @@ MODULE FM3Pass1
         FM3Messages . ErrorArr
           ( ARRAY OF REFANY
               { "Identifier \""
-              , FM3SrcToks . Image ( IdAttr . Scan . SaPredefTok )
+              , FM3SrcToks . Image ( IdAttr . Scan . SaStdTok )
               , "\" is reserved and cannot be "
               , ContextTag 
               , "(2.8.2)."
@@ -2042,10 +2042,10 @@ MODULE FM3Pass1
       FM3Messages . ErrorArr
         ( ARRAY OF REFANY
             { "Identifier \""
-            , FM3SrcToks . Image ( IdAttr . Scan . SaPredefTok )
+            , FM3SrcToks . Image ( IdAttr . Scan . SaStdTok )
             , "\" is reserved and cannot be "
             , SelectedTag
-         (* , SectionOfBuiltin ( IdAttr . Scan . SaPredefTok ) *)  
+         (* , SectionOfBuiltin ( IdAttr . Scan . SaStdTok ) *)  
             , " (2.10)."
 (* FIXME --------- ^ *) 
             }
@@ -2074,7 +2074,7 @@ MODULE FM3Pass1
         FM3Messages . ErrorArr
           ( ARRAY OF REFANY
               { "\""
-              , FM3SrcToks . Image ( IdAttr . Scan . SaPredefTok )
+              , FM3SrcToks . Image ( IdAttr . Scan . SaStdTok )
               , "\" is a function requiring "
               , Fmt . Int ( ExpectedCt ) 
               , " actual parameter"
@@ -2082,7 +2082,7 @@ MODULE FM3Pass1
               , ", not "
               , Fmt . Int ( ActualsAttr . PaInt )
               , " " 
-           (* , SectionOfBuiltin ( IdAttr . Scan . SaPredefTok ) *)  
+           (* , SectionOfBuiltin ( IdAttr . Scan . SaStdTok ) *)  
               , " (2.10)."
 (* FIXME ----------- ^ *) 
               }
@@ -2098,7 +2098,7 @@ MODULE FM3Pass1
         PutBwd_LCIIP_riip
           ( Itk . ItkBuiltinCallLt
           , IdAttr . PaPass1Coord 
-          , IdAttr . Scan . SaPredefTok
+          , IdAttr . Scan . SaStdTok
           , ExpectedCt
           , ActualsAttr . Scan . Position
           ) 
@@ -2109,7 +2109,7 @@ MODULE FM3Pass1
 (*EXPORTED.*)
 ; PROCEDURE BuiltinWithNoSelector ( READONLY IdAttr : tParsAttribute )
   (* PRE: IntSets . IsElement
-            ( IdAttr . Scan . SaPredefTok , FM3Predefs . ReservedIdSet ).
+            ( IdAttr . Scan . SaStdTok , FM3Std . ReservedIdSet ).
   *) 
   (* Builtin ident that has no selector in source code. *) 
 
@@ -2118,27 +2118,27 @@ MODULE FM3Pass1
 
   ; BEGIN
       <* ASSERT IntSets . IsElement
-                  ( IdAttr . Scan . SaPredefTok , FM3Predefs . ReservedIdSet )
+                  ( IdAttr . Scan . SaStdTok , FM3Std . ReservedIdSet )
       *>
       LPluralSuffix := "s "
     ; IF IntSets . IsElement
-           ( IdAttr . Scan . SaPredefTok , FM3Predefs . OneParamSet )
+           ( IdAttr . Scan . SaStdTok , FM3Std . OneParamSet )
       THEN
         LParamTag := "one"
       ; LPluralSuffix := " "
       ELSIF IntSets . IsElement
-              ( IdAttr . Scan . SaPredefTok , FM3Predefs . TwoParamSet )
+              ( IdAttr . Scan . SaStdTok , FM3Std . TwoParamSet )
       THEN LParamTag := "two" 
       ELSIF IntSets . IsElement
-              ( IdAttr . Scan . SaPredefTok , FM3Predefs . ThreeParamSet )
+              ( IdAttr . Scan . SaStdTok , FM3Std . ThreeParamSet )
       THEN LParamTag :="three"
       ELSIF IntSets . IsElement
-              ( IdAttr . Scan . SaPredefTok , FM3Predefs . OneOrMoreParamSet )
+              ( IdAttr . Scan . SaStdTok , FM3Std . OneOrMoreParamSet )
       THEN LParamTag := "one or more" 
       ELSE (* It's OK. Convert to ItkBuiltinIdRef *)
         PutBwd_LIP
           ( Itk . ItkBuiltinIdRef
-          , IdAttr . Scan . SaPredefTok
+          , IdAttr . Scan . SaStdTok
           , IdAttr . Scan . Position
           ) 
       ; RETURN 
@@ -2148,12 +2148,12 @@ MODULE FM3Pass1
     ; FM3Messages . ErrorArr
         ( ARRAY OF REFANY
             { "Reserved identifier \""
-            , FM3SrcToks . Image ( IdAttr . Scan . SaPredefTok )
+            , FM3SrcToks . Image ( IdAttr . Scan . SaStdTok )
             , "\" requires a list of "
             , LParamTag
             , " parameter"
             , LPluralSuffix 
-         (* , SectionOfBuiltin ( IdAttr . Scan . SaPredefTok ) *)  
+         (* , SectionOfBuiltin ( IdAttr . Scan . SaStdTok ) *)  
             }
         , IdAttr . Scan . Position 
         )
@@ -2169,25 +2169,25 @@ MODULE FM3Pass1
 ; PROCEDURE BuiltinIdentActualsL2R
     ( READONLY IdAttr , ActualsAttr : tParsAttribute )
   (* PRE: IntSets . IsElement
-            ( IdAttr . Scan . SaPredefTok , FM3Predefs . ReservedIdSet ).
+            ( IdAttr . Scan . SaStdTok , FM3Std . ReservedIdSet ).
   *) 
   (* PRE: IdAttr is for the builtin ident only, not the actuals. *) 
   (* PRE: ActualsAttr is for an actual parameter list. *) 
 
   = BEGIN 
       <* ASSERT IntSets . IsElement
-                  ( IdAttr . Scan . SaPredefTok , FM3Predefs . ReservedIdSet )
+                  ( IdAttr . Scan . SaStdTok , FM3Std . ReservedIdSet )
       *>
       IF IntSets . IsElement
-           ( IdAttr . Scan . SaPredefTok , FM3Predefs . OneParamSet )
+           ( IdAttr . Scan . SaStdTok , FM3Std . OneParamSet )
       THEN 
         EVAL CheckBuiltinProcActualsCt ( IdAttr , ActualsAttr , 1 )
       ELSIF IntSets . IsElement
-              ( IdAttr . Scan . SaPredefTok , FM3Predefs . TwoParamSet )
+              ( IdAttr . Scan . SaStdTok , FM3Std . TwoParamSet )
       THEN 
         EVAL CheckBuiltinProcActualsCt ( IdAttr , ActualsAttr , 2 )
       ELSIF IntSets . IsElement
-              ( IdAttr . Scan . SaPredefTok , FM3Predefs . ThreeParamSet )
+              ( IdAttr . Scan . SaStdTok , FM3Std . ThreeParamSet )
       THEN 
         EVAL CheckBuiltinProcActualsCt ( IdAttr , ActualsAttr , 3 )
 
@@ -2203,12 +2203,12 @@ MODULE FM3Pass1
   (* A builtin id with either a dot-selection or subscript(s).
      There is no builtin that allows either of these. *)
   (* PRE: IntSets . IsElement
-            ( IdAttr . Scan . SaPredefTok , FM3Predefs . ReservedIdSet ).
+            ( IdAttr . Scan . SaStdTok , FM3Std . ReservedIdSet ).
   *) 
 
   = BEGIN
       <* ASSERT IntSets . IsElement
-                  ( IdAttr . Scan . SaPredefTok , FM3Predefs . ReservedIdSet )
+                  ( IdAttr . Scan . SaStdTok , FM3Std . ReservedIdSet )
       *>
       BuiltinNoSelectorAllowed ( IdAttr , SelectorAttr , Tag )
     ; SkipFrom ( IdAttr . PaPass1Coord )

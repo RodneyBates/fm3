@@ -141,7 +141,7 @@ ABS 5
    StkLexErrChars .
    StkPragmaId . (* Not a known pragma ident, but found where one is expected. *)
    
-   (* The scanner will recognize predefined ids declared in interfaces that
+   (* The scanner will recognize standard ids declared in interfaces that
       have special treatment by the compiler and reserved ids, all using the
       same lex machine as reserved words. 
    *) 
@@ -215,16 +215,16 @@ NEXT StkMinRid .
 NEXT StkMaxRid . 
    RidUNTRACEDROOT     "%UNTRACED_ROOT" .
 
-   (* Predefined identifiers.  Scanner will treat these as ordinary
+   (* Standard identifiers.  Scanner will treat these as ordinary
       identifiers, except it adds their codes as a separate field.
-      Later semantic processsing will decide whether the predefined
+      Later semantic processsing will decide whether the standard
       meaning should  be used. 
    *) 
-NEXT StkMinPredef . 
-(* Predefined interface names.  These values are used as unique unit numbers.
+NEXT StkMinStd . 
+(* Standard interface names.  These values are used as unique unit numbers.
    Keep them low in the unit number space. *)
 
-(* Predefined standard interface names: *) 
+(* Standard interface names: *) 
    StkPdMain           "Main" .
    StkPdText           "Text" .
    StkThread           "Thread" . 
@@ -238,7 +238,7 @@ NEXT StkMinPredef .
    StkPdExtendedFloat  "ExtendedFloat" .
    StkPdFloatMode      "FloatMode" .
    StkPdLex            "Lex" .
-NEXT   StkMaxPredefIntf .
+NEXT   StkMaxStdIntf .
    StkPdFmt            "Fmt" .
 
    StkPdT              "T" (* In many standard interfaces: *) 
@@ -267,7 +267,7 @@ NEXT StkMinWordLong .
    StkPdRightRotate    "RightRotate" . 
    StkPdExtract        "Extract" . 
 NEXT StkMaxWordLong .
-NEXT StkMaxPredef . 
+NEXT StkMaxStd . 
    StkPdInsert         "Insert" .
 
 (* COMPLETEME: Idents declared in other standard interfaces. *) 

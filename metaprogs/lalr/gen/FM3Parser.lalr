@@ -601,14 +601,14 @@ RULE
    IdentRef : UnreservedIdent
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
        $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
-       $$ . Scan . SaPredefTok := $1 . Scan . SaPredefTok ;
+       $$ . Scan . SaStdTok := $1 . Scan . SaStdTok ;
        FM3Pass1 . IdentRefL2R ( $1 ) ;
      } .
 
    QualIdentRef : UnreservedIdent StkDot UnreservedIdent   
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
        $$ . Scan . SaAtom := $1 . Scan . SaAtom ;  
-       $$ . Scan . SaPredefTok := $1 . Scan . SaPredefTok ;
+       $$ . Scan . SaStdTok := $1 . Scan . SaStdTok ;
        FM3Pass1 . QualIdentL2R ( $1 , $3 ) ;
      } .
 
@@ -667,19 +667,19 @@ RULE
    MaybeQualIdent : IdentRef
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
        $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
-       $$ . Scan . SaPredefTok := $1 . Scan . SaPredefTok ;
+       $$ . Scan . SaStdTok := $1 . Scan . SaStdTok ;
 
      } . 
    MaybeQualIdent : QualIdent 
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
        $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
-       $$ . Scan . SaPredefTok := $1 . Scan . SaPredefTok ;
+       $$ . Scan . SaStdTok := $1 . Scan . SaStdTok ;
      } . 
    
    QualIdent : UnreservedIdent
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
        $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
-       $$ . Scan . SaPredefTok := $1 . Scan . SaPredefTok ;
+       $$ . Scan . SaStdTok := $1 . Scan . SaStdTok ;
        FM3Pass1 . IdentRefL2R ( $1 ) ;
      } .
 

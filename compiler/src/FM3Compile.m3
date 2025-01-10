@@ -85,16 +85,16 @@ MODULE  FM3Compile
         & FM3CLOptions . SrcDirMsg 
     END SrcSearchPathOnce
 
-; PROCEDURE IsPredefinedUnitName  ( UnitName : TEXT ) : BOOLEAN 
+; PROCEDURE IsStdUnitName  ( UnitName : TEXT ) : BOOLEAN 
 
   = BEGIN
       IF Text . Equal ( UnitName , "Main.i3" ) THEN RETURN TRUE END (*IF*) 
     ; IF Text . Equal ( UnitName , "Word.i3" ) THEN RETURN TRUE END (*IF*) 
     ; IF Text . Equal ( UnitName , "Word.m3" ) THEN RETURN TRUE END (*IF*) 
     ; RETURN FALSE 
-   END IsPredefinedUnitName  
+   END IsStdUnitName  
 
-; PROCEDURE PredefUnitTok ( UnitName : TEXT ) : FM3SrcToks . TokTyp  
+; PROCEDURE StdUnitTok ( UnitName : TEXT ) : FM3SrcToks . TokTyp  
 
   = BEGIN
 (* COMPLETEME: 
@@ -105,7 +105,7 @@ MODULE  FM3Compile
 *)
 
      RETURN FM3SrcToks . StkUnknown 
-   END PredefUnitTok
+   END StdUnitTok
 
 (*EXPORTED*) 
 ; PROCEDURE FindAndOpenUnitSrcFile
@@ -123,22 +123,22 @@ MODULE  FM3Compile
   ; VAR LSearchDir : TEXT 
   ; VAR LDirNumber : INTEGER
   ; VAR LDirSs : INTEGER
-  ; VAR LPredefUnit : FM3SrcToks . TokTyp 
+  ; VAR LStdUnit : FM3SrcToks . TokTyp 
 
   ; BEGIN
       IF UnitRef = NIL THEN RETURN FALSE END (*IF*) 
     ; IF UnitRef ^ . UntSrcFileSimpleName = NIL THEN RETURN FALSE END (*IF*) 
     ; IF UnitRef ^ . UntState # Us . UsNull THEN RETURN FALSE END (*IF*)
-    ; UnitRef ^ . UntPredefTok
+    ; UnitRef ^ . UntStdTok
 (* COMPARE        ^ To FM3Pass2.  *)
-        := PredefUnitTok ( UnitRef ^ . UntSrcFileSimpleName )
-(*  ; IF UnitRef ^ . UntPredefTok # FM3SrcToks . StkUnknown
-      Use ^this instead of below when PredefUnitTok is completed.*) 
+        := StdUnitTok ( UnitRef ^ . UntSrcFileSimpleName )
+(*  ; IF UnitRef ^ . UntStdTok # FM3SrcToks . StkUnknown
+      Use ^this instead of below when StdUnitTok is completed.*) 
     
-    ; IF IsPredefinedUnitName ( UnitRef ^ . UntSrcFileSimpleName )
+    ; IF IsStdUnitName ( UnitRef ^ . UntSrcFileSimpleName )
       THEN
         LSrcDirList := FM3CLOptions . ResourceDirNameList
-      ; UnitRef ^ . UntIsPredefUnit := TRUE 
+      ; UnitRef ^ . UntIsStdUnit := TRUE 
       ELSE LSrcDirList := FM3CLOptions . SrcDirList 
       END (*IF*) 
     ; IF LSrcDirList = NIL THEN RETURN FALSE END (*IF*)
@@ -423,7 +423,7 @@ MODULE  FM3Compile
   ; VAR LToAtom : FM3Base . AtomTyp 
 
   ; BEGIN
-      IF FromUnitRef ^ . UntIsPredefUnit
+      IF FromUnitRef ^ . UntIsStdUnit
          AND TRUE  
       THEN RETURN FromAtom 
       ELSIF NOT FM3Atom_OAChars . Key

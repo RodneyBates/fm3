@@ -17,7 +17,7 @@ MODULE FM3PgToks
 
   = BEGIN 
       CASE TokNo OF 
-      | 220 => RETURN "FM3_PREDEFUNIT"
+      | 220 => RETURN "FM3_STDUNIT"
       | 221 => RETURN "INLINE"
       ELSE RETURN "<Undef>"
       END (*CASE*) 
@@ -28,7 +28,7 @@ MODULE FM3PgToks
 
   = BEGIN 
       CASE TokNo OF 
-      | 220 => RETURN "PgFm3PredefUnit"
+      | 220 => RETURN "PgFm3StdUnit"
       | 221 => RETURN "PgInline"
       ELSE RETURN "<Undef>"
       END (*CASE*) 
