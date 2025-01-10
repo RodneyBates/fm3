@@ -149,6 +149,12 @@ INTERFACE FM3Exprs
            can be a unary operator, in which case we use this type
            with the 2nd operand field just going unused.
         *) 
+      END
+
+; TYPE ExprCallTyp
+    = ExprTyp OBJECT
+        ExpCallProc : ExprTyp 
+      ; ExpActualsRef : REF ARRAY OF ExprTyp
       END 
 
 (* Constants: *)

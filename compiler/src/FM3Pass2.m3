@@ -43,6 +43,7 @@ MODULE FM3Pass2
 ; IMPORT FM3IntToks AS Itk
 ; IMPORT FM3LoTypes
 ; IMPORT FM3Predefs
+; IMPORT FM3ReservedIds
 ; IMPORT FM3SrcToks 
 ; IMPORT FM3SrcToks AS Stk
 ; FROM   FM3StreamUtils
@@ -561,7 +562,7 @@ MODULE FM3Pass2
   (* PRE: Not skipping, *) 
 
   = VAR LBinOpExpr : FM3Exprs . Expr2OpndTyp
-  ; VAR LOpnd1 , LOpnd2 , LNewExpr : FM3Exprs . ExprTyp 
+  ; VAR LOpnd1 , LOpnd2 : FM3Exprs . ExprTyp 
 
   ; BEGIN
       LBinOpExpr
@@ -595,8 +596,10 @@ MODULE FM3Pass2
         LBinOpExpr . ExpIsConst
           := LOpnd1 . ExpIsConst
                AND LOpnd2 . ExpIsConst
-               AND IntSets . IsElem
-                     ( LBinOpExpr . ExpOpcode , FM3Predefs . ConstOps )
+               AND IntSets . IsElement
+                     ( LBinOpExpr . ExpOpcode , FM3Predefs . TwoParamSet )
+               AND IntSets . IsElement
+                     ( LBinOpExpr . ExpOpcode , FM3Predefs . WordLongQualifierSet )
       ; LBinOpExpr . ExpReachedDeclNoSet
           := IntSets . Union
                ( LOpnd1 . ExpReachedDeclNoSet , LOpnd2 . ExpReachedDeclNoSet )
@@ -609,8 +612,10 @@ MODULE FM3Pass2
   ; VAR LScopeRef : FM3Scopes . ScopeRefTyp
   ; VAR HtPass1RdBack : RdBackFile . T 
   ; VAR HtPass2RdBack : RdBackFile . T
+  ; VAR LValueExpr : FM3Exprs . ExprTyp
   ; VAR LLongInt : LONGINT 
   ; VAR LScopeNo : FM3Globals . ScopeNoTyp
+  ; VAR LOpcode : FM3SrcToks . TokTyp 
   ; VAR LPosition : tPosition
   ; VAR HtSkipping : BOOLEAN
 
@@ -855,24 +860,26 @@ MODULE FM3Pass2
       , Itk . ItkROFormalValue
       , Itk . ItkFieldDeclValue (* Of either record or object. *) 
       =>  LValueExpr := FM3Exprs . PopExprStack ( )
-        ; IF LValueExpr . ExpUpKind # EktValue
+        ; IF LValueExpr . ExpUpKind # Ekt . EkValue
           THEN
-            FM3Messages . Error 
-              ( "Value of CONST declaration must be a value expression."
+            FM3Messages . ErrorArr 
+              ( ARRAY OF REFANY
+                  { "Value of CONST declaration must be a value expression." } 
               , LValueExpr . ExpPosition
               )
           ; LValueExpr . ExpIsUsable := FALSE
           ; LValueExpr . ExpIsLegalRecursive := TRUE (* Necessary?*)
-          ; FM3Exprs . ExprStsckTopObj , ExpIsUsable := FALSE
-          ELSIF NOT LValueExpr . IsConst 
+          ; FM3Exprs . ExprStackTopObj . ExpIsUsable := FALSE
+          ELSIF NOT LValueExpr . ExpIsConst 
           THEN
-            FM3Messages . Error 
-              ( "Value of CONST declaration must be constant."
+            FM3Messages . ErrorArr 
+              ( ARRAY OF REFANY
+                  { "Value of CONST declaration must be constant." }
               , LValueExpr . ExpPosition
               )
           ; LValueExpr . ExpIsUsable := FALSE
           ; LValueExpr . ExpIsLegalRecursive := TRUE (* Necessary?*)
-          ; FM3Exprs . ExprStsckTopObj , ExpIsUsable := FALSE
+          ; FM3Exprs . ExprStackTopObj . ExpIsUsable := FALSE
           ELSE
             FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := FALSE
           END (*IF*)  
@@ -886,15 +893,16 @@ MODULE FM3Pass2
       , Itk . ItkROFormalType
       , Itk . ItkFieldDeclType (* Of either record or object. *) 
       =>  LValueExpr :=  FM3Exprs . PopExprStack ( )  
-        ; IF LValueExpr . ExpUpKind # EktType
+        ; IF LValueExpr . ExpUpKind # Ekt . EkType
           THEN
-            FM3Messages . Error 
-              ( "Type of CONST declaration must be a type expression."
+            FM3Messages . ErrorArr 
+              ( ARRAY OF REFANY
+                  { "Type of CONST declaration must be a type expression." } 
               , LValueExpr . ExpPosition
               )
           ; LValueExpr . ExpIsUsable := FALSE
           ; LValueExpr . ExpIsLegalRecursive := TRUE (* Necessary?*)
-          ; FM3Exprs . ExprStsckTopObj , ExpIsUsable := FALSE
+          ; FM3Exprs . ExprStackTopObj . ExpIsUsable := FALSE
           ELSE 
             FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := TRUE
           END (*IF*)
@@ -1683,31 +1691,31 @@ MODULE FM3Pass2
 
 ; PROCEDURE BinaryCall
     ( OrigExpr : FM3Exprs . ExprTyp
-    ; DeclPredefTok : FM3SrcToks . TokTyp
     ; UnitPredefTok : FM3SrcToks . TokTyp 
     ; DeclPredefTok : FM3SrcToks . TokTyp 
     ; Type : FM3Exprs . ExprTyp
     ; Opcode : FM3SrcToks . TokTyp
     )
-  FM3Exprs . Expr2OpndTyp
+  : FM3Exprs . Expr2OpndTyp
   (* If all is OK, return an ExpOpnd2-rooted subtree that is the
      conversion of OrigExpr.
   *) 
 
-  ; VAR LCallExpr : FM3Exprs . CallExprObj 
+  = VAR LCallExpr : FM3Exprs . ExprCallTyp 
   ; VAR LOpnd1 , LOpnd2 : FM3Exprs . ExprTyp 
   ; VAR LNewExpr : FM3Exprs . Expr2OpndTyp 
 
   ; BEGIN
-      IF OrigExpr = NIL THEN RETURN NIL END (*IF*)
-    ; IF NOT OrigExpr . IsUseable THEN RETURN NIL END (*IF*)
+      IF NOT OrigExpr . ExpIsUsable THEN RETURN NIL END (*IF*)
     ; TYPECASE OrigExpr OF
       | NULL => RETURN NIL
-      | FM3Exprs . ExprCall ( TCallExpr ) LCallExpr := TCallExpr 
+      | FM3Exprs . ExprCallTyp ( TCallExpr )
+      =>  IF NOT TCallExpr . ExpIsUsable THEN RETURN NIL END (*IF*)
+        ; LCallExpr := TCallExpr 
       ELSE RETURN NIL
       END (*TYPECASE*) 
     ; IF LCallExpr . ExpActualsRef = NIL THEN RETURN NIL END (*IF*)
-    ; IF NUMBER ( CallExpr . ExpActualsRef ^ # 2
+    ; IF NUMBER ( LCallExpr . ExpActualsRef ^ ) # 2
       THEN
         FM3Messages . ErrorArr
           ( ARRAY OF REFANY
@@ -1716,11 +1724,12 @@ MODULE FM3Pass2
               , FM3SrcToks . Image ( DeclPredefTok )
               ,"requires exactly two parameters."
               }
-          , CallExpr . ExpPosition 
+          , LCallExpr . ExpPosition 
           )
-      ; CallExpr . IsUseable := FALSE
+      ; LCallExpr . ExpIsUsable := FALSE
       ; RETURN NIL
       END (*IF*)
+    ; LOpnd1 := LCallExpr . ExpActualsRef ^ [ 0 ] 
     ; IF NOT LOpnd1 . ExpUpKind
          IN EkSetTyp { Ekt . EkValue , Ekt . EkConst }
       THEN
@@ -1730,11 +1739,11 @@ MODULE FM3Pass2
             & "."
             & FM3SrcToks . Image ( DeclPredefTok )
           , "a value expression"
-          , LLOpnd1 . ExpPosition
+          , LOpnd1 . ExpPosition
           )
       ; OrigExpr . ExpIsUsable := FALSE
       END (*IF*) 
-    ; LOpnd2 := LCallExpr . ExpOpnd12
+    ; LOpnd2 := LCallExpr . ExpActualsRef ^ [ 1 ] 
     ; IF NOT LOpnd2 . ExpUpKind
          IN EkSetTyp { Ekt . EkValue , Ekt . EkConst }
       THEN
@@ -1744,7 +1753,7 @@ MODULE FM3Pass2
             & "."
             & FM3SrcToks . Image ( DeclPredefTok )
           , "a value expression"
-          , LLOpnd2 . ExpPosition
+          , LOpnd2 . ExpPosition
           )
       ; OrigExpr . ExpIsUsable := FALSE
       END (*IF*)
@@ -1754,14 +1763,16 @@ MODULE FM3Pass2
     ; LNewExpr := NEW ( FM3Exprs . Expr2OpndTyp )
     ; LNewExpr . ExpType := Type 
     ; LNewExpr . ExpOpcode := Opcode
-    ; LNewExpr . ExpUpkind := Ekt . EkVaLUE 
-    ; LNewExpr . ExpIsUsable := CallExpr . IsUseable
-    ; LNewExpr . ExpPosition := CallExpr . Position 
+    ; LNewExpr . ExpUpKind := Ekt . EkValue 
+    ; LNewExpr . ExpIsUsable := LCallExpr . ExpIsUsable
+    ; LNewExpr . ExpPosition := LCallExpr . ExpPosition 
     ; LNewExpr . ExpIsConst
         := LOpnd1 . ExpIsConst
            AND LOpnd2 . ExpIsConst
-           AND IntSets . IsElem
-                 ( LBinOpExpr . ExpOpcode , FM3Predefs . ConstOps )
+           AND IntSets . IsElement
+                 ( LNewExpr . ExpOpcode , FM3Predefs . TwoParamSet )
+           AND IntSets . IsElement
+                 ( LNewExpr . ExpOpcode , FM3Predefs . WordLongQualifierSet )
     ; LNewExpr . ExpReachedDeclNoSet
         := IntSets . Union
              ( LOpnd1 . ExpReachedDeclNoSet 
@@ -1776,16 +1787,16 @@ MODULE FM3Pass2
     ; Type : FM3Exprs . ExprTyp 
     ; IsCall : BOOLEAN (* Relevant only if it turns out to a procedure. *)
     )
-  : Exprs . ExprTyp
+  : FM3Exprs . ExprTyp
 
-  = VAR
+  = VAR I : INTEGER
 
   ; BEGIN
       CASE DeclPredefTok OF
       | FM3SrcToks . StkPdPlus
       =>  IF NOT IsCall THEN RETURN NIL END (*IF*)
       
-      | FM3SrcToks . StkPdPAdd
+      | FM3SrcToks . StkPdMinus
       => IF NOT IsCall THEN RETURN NIL END (*IF*)
       
       
@@ -1794,11 +1805,12 @@ MODULE FM3Pass2
     END WordLongExpr
 
 ; PROCEDURE MaybePredefDeclRef
-    ( UnitNo : FM3Globals . UnitNoTyp
+    ( Expr : FM3Exprs . ExprTyp
+    ; UnitNo : FM3Globals . UnitNoTyp
     ; DeclNo : FM3Globals . DeclNoTyp
     ; IsCall : BOOLEAN (* Relevant only if it turns out to a procedure. *)
     )
-  : Exprs . ExprTyp
+  : FM3Exprs . ExprTyp
   (* Return an expression tree for the reference. *) 
   (* PRE: The reference is known to lie in an imported interface, so if it
           has predefined idents, it will be to a true predefined delaration.
@@ -1820,31 +1832,38 @@ MODULE FM3Pass2
              ( LUnitRef . UntDeclMap , DeclNo ) 
     ; IF LDeclRef = NIL THEN RETURN NIL END (*IF*)
     ; LDeclPredefTok := LDeclRef . DclPredefTok
-    ; IF LDeclPredefTok = FM3SrcToks . TokNull THEN RETURN NIL END (*IF*)
-    ; IF NOT IntSets . IsElement ( LUnitPredefTok , FM3Predefs . UnitSet ) 
+    ; IF LDeclPredefTok = FM3Base . TokNull THEN RETURN NIL END (*IF*)
+    ; IF NOT IntSets . IsElement ( LUnitPredefTok , FM3Predefs . StdIntfSet ) 
       THEN RETURN NIL
       END (*IF*)
     ; CASE LUnitPredefTok OF
       | FM3SrcToks . StkPdWord
-      => RETURN WordLongExpr
-                  ( Expr , LUnitPredefTok , LDeclPredefTok , Is¢all )
+      => RETURN
+           WordLongExpr
+             ( Expr
+             , LDeclPredefTok
+             , FM3ReservedIds . ExprRefs [ FM3SrcToks . RidINTEGER ] 
+             , IsCall
+             )
 
 
-
-Expr
-           ( LDeclPredefTok
-           , FM3Builtins . ExprRefs [ FM3SrcToks . RidINTEGER  ]
+(*
+        ; Expr
+           ( Expr
+           , LDeclPredefTok
+           , FM3ReservedIds . ExprRefs [ FM3SrcToks . RidINTEGER ]
            , IsCall
            )
+*) 
       | FM3SrcToks . StkPdLong
       => RETURN WordLongExpr
-           ( LDeclPredefTok
-           , FM3Builtins . ExprRefs [ FM3SrcToks . RidLONGINT ]
+           ( Expr
+           , LDeclPredefTok
+           , FM3ReservedIds . ExprRefs [ FM3SrcToks . RidLONGINT ]
            , IsCall
            )
 
 (* COMPLETEME: Add more predef units *)
-
       ELSE RETURN NIL
       END (*CASE*)
     END MaybePredefDeclRef

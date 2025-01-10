@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+(* Copyright 2023..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -451,8 +451,8 @@ MODULE FM3Scanner
         ; CASE GCurRwValue OF 
           | FM3SrcToks . StkMinRid .. FM3SrcToks . StkMaxRid 
           => (* Reserved identifier.  It has its builtin meaning and only that
-                in every context.  Make this an StkIdent with nul SaAtom
-                and SaPredefTok set to the reserved Id's code.
+                in every context.  Make this an StkIdent with Null SaAtom
+                and SaPredefTok set to the reserved Id's lex code.
              *) 
               Attribute . SaAtom := FM3Base . AtomNull 
             ; Attribute . SaPredefTok := GCurRwValue 
@@ -460,8 +460,8 @@ MODULE FM3Scanner
           | FM3SrcToks . StkMinPredef .. FM3SrcToks . StkMaxPredef
           => (* Not reserved but predefined identifier.  It can be an ordinary 
                 identifier or, in certain contexts, have a predefined meaning. 
-                Give it both an atom and a value of SaPredefTok.  FM3 will
-                decide later which to use. 
+                Give it both an atom and the lex value of SaPredefTok.  
+                FM3 will decide later which to use. 
              *) 
               Attribute . SaAtom 
                 := FM3Atom_OAChars . MakeAtom 
@@ -472,7 +472,9 @@ MODULE FM3Scanner
             ; Attribute . SaPredefTok := GCurRwValue 
 
           | FM3LexTable . ValueUnrecognized , FM3LexTable . ValueNull 
-          => (* Plain ol' identifier. *)
+          => (* Plain ol' identifier. Give it an atom in the current unit,
+                but Null lex value. 
+             *)
               Attribute . SaAtom 
                 := FM3Atom_OAChars . MakeAtom 
                      ( GTopSsRef . SsUnitRef ^ . UntIdentAtomDict
@@ -481,8 +483,9 @@ MODULE FM3Scanner
                      ) 
             ; Attribute . SaPredefTok := FM3Base . TokNull  
 
-          ELSE (* Reserved word. *) 
+          ELSE (* Reserved word.  Lex value is the token code. *) 
             Attribute . SaTok := GCurRwValue 
+          ; Attribute . SaAtom := FM3Base . TokNull  
           ; Attribute . SaPredefTok := FM3Base . TokNull  
           END (*CASE*) 
         END (*IF*) 

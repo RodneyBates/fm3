@@ -77,6 +77,25 @@ INTERFACE FM3Predefs
     , Stk . RidTYPECODE 
     , Stk . RidVAL
     , Stk . RidWIDECHAR 
+    }
+
+(* Standard interface idents: *) 
+; VAR StdIntfSet : IntSets . T 
+; CONST StdIntfValues = ConstructorTyp
+    { Stk . StkPdMain 
+    , Stk . StkPdText 
+    , Stk . StkThread 
+    , Stk . StkPdWord 
+    , Stk . StkPdLong 
+    , Stk . StkPdReal 
+    , Stk . StkPdLongReal 
+    , Stk . StkPdExtended 
+    , Stk . StkPdRealFloat 
+    , Stk . StkPdLongRealFloat 
+    , Stk . StkPdExtendedFloat 
+    , Stk . StkPdFloatMode 
+    , Stk . StkPdLex 
+    , Stk . StkPdFmt 
     } 
 
 (* Qualifier idents in Word and Long: *)

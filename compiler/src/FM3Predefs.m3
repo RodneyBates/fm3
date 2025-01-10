@@ -58,7 +58,8 @@ MODULE FM3Predefs
 
 
 ; BEGIN
-    ReservedIdSet := IntSets . FromArray ( ReservedIdValues ) 
+    ReservedIdSet := IntSets . FromArray ( ReservedIdValues )
+  ; StdIntfSet := IntSets . FromArray ( StdIntfValues ) 
   ; WordLongQualifierSet := IntSets . FromArray ( WordLongQualifierValues ) 
   ; OneParamSet := IntSets . FromArray ( OneParamValues ) 
   ; TwoParamSet := IntSets . FromArray ( TwoParamValues ) 

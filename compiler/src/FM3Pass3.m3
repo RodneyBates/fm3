@@ -863,7 +863,7 @@ MODULE FM3Pass3
                   )
             )
 
-            TRY
+          ; TRY
               LConst
                 := FM3CTIntArith . BinOp
                      ( LOpnd1 , LOpnd2 , LOpcode , IsConst := )

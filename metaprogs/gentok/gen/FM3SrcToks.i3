@@ -147,7 +147,7 @@ INTERFACE FM3SrcToks
       same lex machine as reserved words. 
    *)
 (* The parser will convert '+' and '-' into StkUnary* when they really are
-      unary.  Theywill be used later as operation codes.  The scanner will
+      unary.  They will be used later as operation codes.  The scanner will
       not recognize them.
    *)
 ; CONST StkUnaryPlus                                 =   109 (*16_ed 00 *)
@@ -204,16 +204,16 @@ INTERFACE FM3SrcToks
 (* ROOT and UNTRACED behave semantically like reserved identifiers, but
       each occurs in a different set of syntactic contexts from identifiers,
       so they are source-code reserved words.  We convert those after parsing
-      into reserved idents with the following Rid atoms.  The scanner
+      into reserved idents with the following Rid atoms.  FM3Scanner
       will not recognize them.
    *)
 ; CONST RidROOT                                      =   156 (*16_9c 01 *)
 ; CONST StkMaxRid                                    =   157 (*16_9d 01 *)
 ; CONST RidUNTRACEDROOT                              =   157 (*16_9d 01 *)
 (* Predefined identifiers.  Scanner will treat these as ordinary
-      identifiers, except within a language-mandated interface they
-      are declared in, in which case scanner treats them like
-      reserved identifers.
+      identifiers, except it adds their codes as a separate field.
+      Later semantic processsing will decide whether the predefined
+      meaning should  be used. 
    *)
 ; CONST StkMinPredef                                 =   158 (*16_9e 01 *)
 (* Predefined interface names.  These values are used as unique unit numbers.
@@ -224,6 +224,7 @@ INTERFACE FM3SrcToks
 ; CONST StkThread                                    =   160 (*16_a0 01 *)
 ; CONST StkPdWord                                    =   161 (*16_a1 01 *)
 ; CONST StkPdLong                                    =   162 (*16_a2 01 *)
+(* For LONGINT. *)
 ; CONST StkPdReal                                    =   163 (*16_a3 01 *)
 ; CONST StkPdLongReal                                =   164 (*16_a4 01 *)
 ; CONST StkPdExtended                                =   165 (*16_a5 01 *)
@@ -237,6 +238,7 @@ INTERFACE FM3SrcToks
 (* In many standard interfaces: *)
 (* In Word and Long: *)
 ; CONST StkPdT                                       =   172 (*16_ac 01 *)
+; CONST StkMinWordLong                               =   173 (*16_ad 01 *)
 ; CONST StkPdSize                                    =   173 (*16_ad 01 *)
 ; CONST StkPdPlus                                    =   174 (*16_ae 01 *)
 ; CONST StkPdTimes                                   =   175 (*16_af 01 *)
@@ -262,6 +264,7 @@ INTERFACE FM3SrcToks
 ; CONST StkPdLeftRotate                              =   191 (*16_bf 01 *)
 ; CONST StkPdRightRotate                             =   192 (*16_c0 01 *)
 ; CONST StkPdExtract                                 =   193 (*16_c1 01 *)
+; CONST StkMaxWordLong                               =   194 (*16_c2 01 *)
 ; CONST StkMaxPredef                                 =   194 (*16_c2 01 *)
 ; CONST StkPdInsert                                  =   194 (*16_c2 01 *)
 (* COMPLETEME: Idents declared in other standard interfaces. *)

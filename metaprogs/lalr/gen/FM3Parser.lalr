@@ -233,9 +233,9 @@ TOKEN
 (* END of copied-in token decls from FM3SrcToks.i3. *)
 
 
-(* Reserved identifiers need not be known to lalr for parsing, thus embedded
-   semantic actions can refer to them directly as FM3SrcToks . Rid*, and
-   no copying into here is necessary.
+(* Reserved identifier numeric lex codes need not be known to lalr for parsing,
+   thus embedded semantic actions can refer to them directly as FM3SrcToks.Rid*,
+   and no copying into here is necessary.
 *) 
 
 (* NOTE: Modula-3's idea that semicolons can optionally be separators
