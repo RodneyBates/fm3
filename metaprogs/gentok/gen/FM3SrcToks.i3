@@ -265,13 +265,45 @@ INTERFACE FM3SrcToks
 ; CONST StkPdRightRotate                             =   192 (*16_c0 01 *)
 ; CONST StkPdExtract                                 =   193 (*16_c1 01 *)
 ; CONST StkMaxWordLong                               =   194 (*16_c2 01 *)
-; CONST StkMaxStd                                    =   194 (*16_c2 01 *)
 ; CONST StkPdInsert                                  =   194 (*16_c2 01 *)
+(* Translated to unique builtin decl codes in Long: *)
+(* These must remain in the same order as their Word counterparts.
+   See FM3Pass2 . FixDeclTok.
+*)
+; CONST StkMinLong                                   =   195 (*16_c3 01 *)
+; CONST StkPd_Long_Size                              =   195 (*16_c3 01 *)
+; CONST StkPd_Long_Plus                              =   196 (*16_c4 01 *)
+; CONST StkPd_Long_Times                             =   197 (*16_c5 01 *)
+; CONST StkPd_Long_Minus                             =   198 (*16_c6 01 *)
+; CONST StkPd_Long_Divide                            =   199 (*16_c7 01 *)
+; CONST StkPd_Long_Mod                               =   200 (*16_c8 01 *)
+; CONST StkPd_Long_LT                                =   201 (*16_c9 01 *)
+; CONST StkPd_Long_LE                                =   202 (*16_ca 01 *)
+; CONST StkPd_Long_GT                                =   203 (*16_cb 01 *)
+; CONST StkPd_Long_GE                                =   204 (*16_cc 01 *)
+(* Bitwise *)
+; CONST StkPd_Long_And                               =   205 (*16_cd 01 *)
+(* Bitwise *)
+; CONST StkPd_Long_Or                                =   206 (*16_ce 01 *)
+(* Bitwise *)
+; CONST StkPd_Long_Xor                               =   207 (*16_cf 01 *)
+(* Bitwise *)
+; CONST StkPd_Long_Not                               =   208 (*16_d0 01 *)
+; CONST StkPd_Long_Shift                             =   209 (*16_d1 01 *)
+; CONST StkPd_Long_LeftShift                         =   210 (*16_d2 01 *)
+; CONST StkPd_Long_RightShift                        =   211 (*16_d3 01 *)
+; CONST StkPd_Long_Rotate                            =   212 (*16_d4 01 *)
+; CONST StkPd_Long_LeftRotate                        =   213 (*16_d5 01 *)
+; CONST StkPd_Long_RightRotate                       =   214 (*16_d6 01 *)
+; CONST StkPd_Long_Extract                           =   215 (*16_d7 01 *)
+; CONST StkMaxLong                                   =   216 (*16_d8 01 *)
+; CONST StkMaxStd                                    =   216 (*16_d8 01 *)
+; CONST StkPd_Long_Insert                            =   216 (*16_d8 01 *)
 (* COMPLETEME: Idents declared in other standard interfaces. *)
 (* End of FM3SrcToks.gentok. *)
 ; CONST TkMinTok                                     =     0
 
-; CONST TkMaxTok                                     =   194
+; CONST TkMaxTok                                     =   216
 
 ; END FM3SrcToks
 .

@@ -1705,7 +1705,7 @@ MODULE FM3Pass3
           PutBwdP3 ( P3RdBack , VAL ( LPosition . Column , LONGINT ) ) 
         ; PutBwdP3 ( P3RdBack , VAL ( LPosition . Line , LONGINT ) ) 
         ; PutBwdP3 ( P3RdBack , VAL ( LRefDeclNo , LONGINT ) ) 
-        ; PutBwdP3 ( P3RdBack , VAL ( Itk . ItkIdRefDeclNo , LONGINT ) )
+        ; PutBwdP3 ( P3RdBack , VAL ( Itk . ItkIdentRefWDeclNo , LONGINT ) )
         END (*IF*)
 
       (* Look for something [ex|im]ported. *) 
@@ -1826,7 +1826,7 @@ MODULE FM3Pass3
         ; PutBwdP3 ( P3RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
         ; PutBwdP3 ( P3RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
         ; PutBwdP3 ( P3RdBack , VAL ( LRefDeclNoRt , LONGINT ) ) 
-        ; PutBwdP3 ( P3RdBack , VAL ( Itk . ItkIdRefDeclNo , LONGINT ) )
+        ; PutBwdP3 ( P3RdBack , VAL ( Itk . ItkIdentRefWDeclNo , LONGINT ) )
 
         ; PutBwdP3 ( P3RdBack , VAL ( LPosLt . Column , LONGINT ) ) 
         ; PutBwdP3 ( P3RdBack , VAL ( LPosLt . Line , LONGINT ) ) 

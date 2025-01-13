@@ -267,8 +267,37 @@ NEXT StkMinWordLong .
    StkPdRightRotate    "RightRotate" . 
    StkPdExtract        "Extract" . 
 NEXT StkMaxWordLong .
-NEXT StkMaxStd . 
    StkPdInsert         "Insert" .
+
+(* Translated to unique builtin decl codes in Long: *)
+(* These must remain in the same order as their Word counterparts.
+   See FM3Pass2 . FixDeclTok.
+*)
+NEXT StkMinLong .
+   StkPd_Long_Size           "Size" . 
+   StkPd_Long_Plus           "Plus" . 
+   StkPd_Long_Times          "Times" . 
+   StkPd_Long_Minus          "Minus" . 
+   StkPd_Long_Divide         "Divide" . 
+   StkPd_Long_Mod            "Mod" . 
+   StkPd_Long_LT             "LT" . 
+   StkPd_Long_LE             "LE" . 
+   StkPd_Long_GT             "GT" . 
+   StkPd_Long_GE             "GE" . 
+   StkPd_Long_And            "And" (* Bitwise *) . 
+   StkPd_Long_Or             "Or" (* Bitwise *) . 
+   StkPd_Long_Xor            "Xor" (* Bitwise *) . 
+   StkPd_Long_Not            "Not" (* Bitwise *) . 
+   StkPd_Long_Shift          "Shift" . 
+   StkPd_Long_LeftShift      "LeftShift" . 
+   StkPd_Long_RightShift     "RightShift" . 
+   StkPd_Long_Rotate         "Rotate" . 
+   StkPd_Long_LeftRotate     "LeftRotate" . 
+   StkPd_Long_RightRotate    "RightRotate" . 
+   StkPd_Long_Extract        "Extract" . 
+NEXT StkMaxLong .
+NEXT StkMaxStd . 
+   StkPd_Long_Insert         "Insert" .
 
 (* COMPLETEME: Idents declared in other standard interfaces. *) 
 

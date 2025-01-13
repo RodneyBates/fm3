@@ -35,17 +35,26 @@ INTERFACE FM3Exprs
 *)
 
 ; TYPE ExprKindTyp (* What kind of definition are we expanding? *) 
-   = { EkNull     
-     , EkType
-     , EkValue
+   = { EkNull 
+     , EkType 
+     , EkProc 
+     , EkFunc 
+     , EkValue 
+     , EkConst (* A Subcategory of EkValue *)     
      , EkRef 
-     , EkFunc     
-     , EkConst    
-     , EkProc     
      }
 ; TYPE Ekt = ExprKindTyp
 
-; TYPE EkSetTyp = SET OF ExprKindTyp 
+; PROCEDURE ExprKindMessage ( Kind : ExprKindTyp ) : TEXT
+  (* These are for constructing user messages. *) 
+
+; TYPE ExprKindSetTyp = SET OF ExprKindTyp
+
+; TYPE EkSetTyp = ExprKindSetTyp 
+
+; PROCEDURE KindSetCard ( KindSet : ExprKindSetTyp ) : INTEGER 
+
+; PROCEDURE ExprKindSetMessage ( KindSet : ExprKindSetTyp ) : TEXT 
 
 ; TYPE ExprStateTyp
     = { EsUnknown 
@@ -154,7 +163,8 @@ INTERFACE FM3Exprs
 ; TYPE ExprCallTyp
     = ExprTyp OBJECT
         ExpCallProc : ExprTyp 
-      ; ExpActualsRef : REF ARRAY OF ExprTyp
+      ; ExpActualsList : REF ARRAY OF ExprTyp
+      ; ExpActualNo : INTEGER (* # of actuals still to be linked in. *) 
       END 
 
 (* Constants: *)

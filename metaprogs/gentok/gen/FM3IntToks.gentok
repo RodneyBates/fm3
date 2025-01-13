@@ -75,8 +75,8 @@ LONE
 
 ItkIdRefAtom IDENT POS 3
   (* IdAtom, position. Only non-reserved. Occurs before pass2. *). 
-ItkIdRefDeclNo DECL POS (* DeclNo, position. Occurs after pass2. *) .
-ItkIdRefUnitNoDeclNo INT DECL POS (* UnitNo, DeclNo, position. *)
+ItkIdentRefWDeclNo    DECL POS (* DeclNo, position. Occurs after pass2. *) .
+ItkIdRefUnitNoDeclNo  INT DECL POS (* UnitNo, DeclNo, position. *)
                                   (* Occurs after pass2. *) .
 ItkExpImpRef INT DECL POS (* UnitNo, DeclNo, Position.  Occurs after pass 2. *) 
 
@@ -394,7 +394,8 @@ FIXED
   ItkExprDot IDENT POS . 
   ItkDeref POS . 
   ItkSubscript INT POS (* Number of subscripts. *) .
-  ItkCall INT POS (* Number of actual parameters *) .
+  ItkCall INT POS (* Number of actual parameters *) 
+     Actuals POS . 
   ItkConstructor INT POS (* Number of values *) .
   ItkBuiltinCall IDENT INT POS (* Builtin source token, actuals count. *) .
   (* Surrounds a list of actuals. *) 

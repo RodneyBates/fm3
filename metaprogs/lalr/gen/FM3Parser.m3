@@ -26,7 +26,7 @@ IMPORT FM3SharedUtils;
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024 Rodney M. Bates.                                     *)
+(* Copyright 2023..2025 Rodney M. Bates.                                     *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -2049,7 +2049,7 @@ yyNonterminal := 120;
 yyNonterminal := 121;
                 (* line 306 of "FM3Parser.lalr" *)
                  FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstModule ; 
-              | 412,286 => (* P14 InterfaceLt (125): OptUnsafe StkRwINTERFACE UnreservedIdent IntfPragmas .*)
+              | 412,286 => (* P14 InterfaceLt (125): OptUnsafe StkRwINTERFACE NonreservedIdent IntfPragmas .*)
                 DEC (yyStackPtr, 4); yyNonterminal := 125;
                 (* line 309 of "FM3Parser.lalr" *)
                  VAR LUnitRef : FM3Units . UnitRefTyp ; 
@@ -2068,7 +2068,7 @@ yyNonterminal := 121;
                            ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
                        END ; 
                      
-              | 413,203 => (* P15 InstInterface (114): InterfaceLt StkEqual UnreservedIdent GenActualList StkRwEND UnreservedIdent StkDot .*)
+              | 413,203 => (* P15 InstInterface (114): InterfaceLt StkEqual NonreservedIdent GenActualList StkRwEND NonreservedIdent StkDot .*)
                 DEC (yyStackPtr, 7); yyNonterminal := 114;
                 (* line 328 of "FM3Parser.lalr" *)
                  FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstInterface ;
@@ -2088,7 +2088,7 @@ yyNonterminal := 121;
                            ( Itk . ItkOpenScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
                        END ; 
                      
-              | 415,208 => (* P17 Interface (109): InterfaceMiddle OpenDeclList StkRwEND UnreservedIdent StkDot .*)
+              | 415,208 => (* P17 Interface (109): InterfaceMiddle OpenDeclList StkRwEND NonreservedIdent StkDot .*)
                 DEC (yyStackPtr, 5); yyNonterminal := 109;
                 (* line 346 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
@@ -2112,7 +2112,7 @@ yyNonterminal := 121;
                            ) ; 
                        END ; 
                      
-              | 416,287 => (* P18 ModuleLt (131): OptUnsafe StkRwMODULE UnreservedIdent .*)
+              | 416,287 => (* P18 ModuleLt (131): OptUnsafe StkRwMODULE NonreservedIdent .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 131;
                 (* line 369 of "FM3Parser.lalr" *)
                  VAR LUnitRef : FM3Units . UnitRefTyp ; 
@@ -2133,7 +2133,7 @@ yyNonterminal := 121;
                            ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ; 
                        END ; 
                      
-              | 417,272 => (* P19 InstModule (115): ModuleLt StkEqual UnreservedIdent GenActualList StkRwEND UnreservedIdent StkDot .*)
+              | 417,272 => (* P19 InstModule (115): ModuleLt StkEqual NonreservedIdent GenActualList StkRwEND NonreservedIdent StkDot .*)
                 DEC (yyStackPtr, 7); yyNonterminal := 115;
                 (* line 390 of "FM3Parser.lalr" *)
                  FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstModule ;
@@ -2153,7 +2153,7 @@ yyNonterminal := 121;
                            ( Itk . ItkOpenScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
                        END ; 
                      
-              | 419,273 => (* P21 Module (111): ModuleMiddle OpenDeclList StkRwBEGIN StmtList StkRwEND UnreservedIdent StkDot .*)
+              | 419,273 => (* P21 Module (111): ModuleMiddle OpenDeclList StkRwBEGIN StmtList StkRwEND NonreservedIdent StkDot .*)
                 DEC (yyStackPtr, 7); yyNonterminal := 111;
                 (* line 409 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
@@ -2180,7 +2180,7 @@ yyNonterminal := 121;
                            ) ; 
                        END ; 
                      
-              | 420,277 => (* P22 GenInterfaceLt (135): StkRwGENERIC StkRwINTERFACE UnreservedIdent .*)
+              | 420,277 => (* P22 GenInterfaceLt (135): StkRwGENERIC StkRwINTERFACE NonreservedIdent .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 135;
                 (* line 435 of "FM3Parser.lalr" *)
                  VAR LUnitRef : FM3Units . UnitRefTyp ; 
@@ -2199,7 +2199,7 @@ yyNonterminal := 121;
                          LUnitRef ^ . UntScopeRef := LScopeRef ;
                        END ; 
                      
-              | 421,275 => (* P23 GenInterface (112): GenInterfaceLt GenInterfaceKind GenFormalList StkSemicolon ImportList ExpImpDone OpenDeclList StkRwEND UnreservedIdent StkDot .*)
+              | 421,275 => (* P23 GenInterface (112): GenInterfaceLt GenInterfaceKind GenFormalList StkSemicolon ImportList ExpImpDone OpenDeclList StkRwEND NonreservedIdent StkDot .*)
                 DEC (yyStackPtr, 10); yyNonterminal := 112;
                 (* line 455 of "FM3Parser.lalr" *)
                  (* Scope ref:
@@ -2208,7 +2208,7 @@ yyNonterminal := 121;
                        FM3Pass1 . CheckUnitFinalId
                          ( FM3Units . UnitStackTopRef , yyAttributeStack^[yyStackPtr+8] . Scan , Ukt . UkGenInterface ) ; 
                      
-              | 422,279 => (* P24 GenModuleLt (137): StkRwGENERIC StkRwMODULE UnreservedIdent .*)
+              | 422,279 => (* P24 GenModuleLt (137): StkRwGENERIC StkRwMODULE NonreservedIdent .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 137;
                 (* line 463 of "FM3Parser.lalr" *)
                  VAR LUnitRef : FM3Units . UnitRefTyp ; 
@@ -2227,7 +2227,7 @@ yyNonterminal := 121;
                          LUnitRef ^ . UntScopeRef := LScopeRef  ; 
                        END ; 
                      
-              | 423,276 => (* P25 GenModule (113): GenModuleLt GenModuleKind GenFormalList StkSemicolon ImportList ExpImpDone Block UnreservedIdent StkDot .*)
+              | 423,276 => (* P25 GenModule (113): GenModuleLt GenModuleKind GenFormalList StkSemicolon ImportList ExpImpDone Block NonreservedIdent StkDot .*)
                 DEC (yyStackPtr, 9); yyNonterminal := 113;
                 (* line 483 of "FM3Parser.lalr" *)
                  (* scope ref
@@ -2286,15 +2286,15 @@ yyNonterminal := 127;
               | 434,289 => (* P36 ImportItemPlusList (142): ImportItemPlusList StkComma ImportItem .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 142;
 
-              | 435 => (* P37 ImportItem (143): UnreservedIdent .*)
+              | 435 => (* P37 ImportItem (143): NonreservedIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 143;
                 (* line 527 of "FM3Parser.lalr" *)
                  FM3ExpImp . ImportAS ( yyAttributeStack^[yyStackPtr+1] . Scan , yyAttributeStack^[yyStackPtr+1] . Scan ) 
-              | 436,288 => (* P38 ImportItem (143): UnreservedIdent StkRwAS UnreservedIdent .*)
+              | 436,288 => (* P38 ImportItem (143): NonreservedIdent StkRwAS NonreservedIdent .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 143;
                 (* line 530 of "FM3Parser.lalr" *)
                  FM3ExpImp . ImportAS ( yyAttributeStack^[yyStackPtr+1] . Scan , yyAttributeStack^[yyStackPtr+3] . Scan ) 
-              | 437,199 => (* P39 FromImportLt (144): StkRwFROM UnreservedIdent StkRwIMPORT .*)
+              | 437,199 => (* P39 FromImportLt (144): StkRwFROM NonreservedIdent StkRwIMPORT .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 144;
                 (* line 534 of "FM3Parser.lalr" *)
                  yySynAttribute . PaRefany 
@@ -2307,13 +2307,13 @@ yyNonterminal := 127;
               | 438,201 => (* P40 Import (141): FromImportLt FromImportIdPlusList StkSemicolon .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 141;
 
-              | 439,293 => (* P41 FromImportIdPlusList (145): UnreservedIdent .*)
+              | 439,293 => (* P41 FromImportIdPlusList (145): NonreservedIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 145;
                 (* line 545 of "FM3Parser.lalr" *)
                  EVAL FM3ExpImp . ImportDeclByIdent
                               ( yyAttributeStack^[yyStackPtr] . PaRefany (* Implied NARROW *) , yyAttributeStack^[yyStackPtr+1] . Scan ) ; 
                      
-              | 440,294 => (* P42 FromImportIdPlusList (145): FromImportIdPlusList StkComma UnreservedIdent .*)
+              | 440,294 => (* P42 FromImportIdPlusList (145): FromImportIdPlusList StkComma NonreservedIdent .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 145;
                 (* line 550 of "FM3Parser.lalr" *)
                  EVAL FM3ExpImp . ImportDeclByIdent
@@ -2351,7 +2351,7 @@ yyNonterminal := 132;
               | 445,396 => (* P47 ExportIdPlusList (146): ExportIdPlusList StkComma ExportIdent .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 146;
 
-              | 446,395 => (* P48 ExportIdent (147): UnreservedIdent .*)
+              | 446,395 => (* P48 ExportIdent (147): NonreservedIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 147;
                 (* line 582 of "FM3Parser.lalr" *)
                  VAR LUnitRef : FM3Units . UnitRefTyp ;
@@ -2365,27 +2365,27 @@ yyNonterminal := 132;
                          FM3ExpImp . ImportAllDecls ( LUnitRef , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ;
                        END (* Block. *) ;  
                      
-              | 447,197 => (* P49 UnreservedIdent (123): StkIdent .*)
+              | 447,197 => (* P49 NonreservedIdent (123): StkIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 123;
 
-              | 448,278 => (* P50 UnreservedIdent (123): StkReservedIdent .*)
+              | 448,278 => (* P50 NonreservedIdent (123): StkReservedIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 123;
                 (* line 599 of "FM3Parser.lalr" *)
                  FM3Pass1 . FlagReservedIdent ( yyAttributeStack^[yyStackPtr+1] ) ; 
-              | 449,295,300 => (* P51 IdentRef (149): UnreservedIdent .*)
+              | 449,295,300 => (* P51 IdentRef (149): NonreservedIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 149;
                 (* line 602 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . SaChars := yyAttributeStack^[yyStackPtr+1] . Scan . SaChars ;
                        yySynAttribute . Scan . SaAtom := yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom ;
-                       yySynAttribute . Scan . SaStdTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaStdTok ;
+                       yySynAttribute . Scan . SaBuiltinTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaBuiltinTok ;
                        FM3Pass1 . IdentRefL2R ( yyAttributeStack^[yyStackPtr+1] ) ;
                      
-              | 450 => (* P52 QualIdentRef (150): UnreservedIdent StkDot UnreservedIdent .*)
+              | 450 => (* P52 QualIdentRef (150): NonreservedIdent StkDot NonreservedIdent .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 150;
                 (* line 609 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . SaChars := yyAttributeStack^[yyStackPtr+1] . Scan . SaChars ;
                        yySynAttribute . Scan . SaAtom := yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom ;  
-                       yySynAttribute . Scan . SaStdTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaStdTok ;
+                       yySynAttribute . Scan . SaBuiltinTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaBuiltinTok ;
                        FM3Pass1 . QualIdentL2R ( yyAttributeStack^[yyStackPtr+1] , yyAttributeStack^[yyStackPtr+3] ) ;
                      
               | 451 => (* P53 IdPlusList (151): IdentRef .*)
@@ -2400,7 +2400,7 @@ yyNonterminal := 132;
                  (* PaPass1Coord copied from yyAttributeStack^[yyStackPtr+1] by parser. *) 
                        yySynAttribute . PaInt := yyAttributeStack^[yyStackPtr+1] . PaInt + 1 ;
                      
-              | 453,328 => (* P55 DeclIdListElems (152): UnreservedIdent .*)
+              | 453,328 => (* P55 DeclIdListElems (152): NonreservedIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 152;
                 (* line 633 of "FM3Parser.lalr" *)
                  IF FM3Pass1 . DeclIdL2R
@@ -2413,7 +2413,7 @@ yyNonterminal := 132;
                          yySynAttribute . PaRefany := IntSets . Empty ( ) 
                        END (*IF*) ; 
                      
-              | 454,329 => (* P56 DeclIdListElems (152): DeclIdListElems StkComma UnreservedIdent .*)
+              | 454,329 => (* P56 DeclIdListElems (152): DeclIdListElems StkComma NonreservedIdent .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 152;
                 (* line 645 of "FM3Parser.lalr" *)
                  IF FM3Pass1 . DeclIdL2R
@@ -2444,7 +2444,7 @@ yyNonterminal := 140;
                 (* line 668 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . SaChars := yyAttributeStack^[yyStackPtr+1] . Scan . SaChars ;
                        yySynAttribute . Scan . SaAtom := yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom ;
-                       yySynAttribute . Scan . SaStdTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaStdTok ;
+                       yySynAttribute . Scan . SaBuiltinTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaBuiltinTok ;
                 
                      
               | 458,303 => (* P60 MaybeQualIdent (153): QualIdent .*)
@@ -2452,14 +2452,14 @@ yyNonterminal := 140;
                 (* line 674 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . SaChars := yyAttributeStack^[yyStackPtr+1] . Scan . SaChars ;
                        yySynAttribute . Scan . SaAtom := yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom ;
-                       yySynAttribute . Scan . SaStdTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaStdTok ;
+                       yySynAttribute . Scan . SaBuiltinTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaBuiltinTok ;
                      
-              | 459 => (* P61 QualIdent (154): UnreservedIdent .*)
+              | 459 => (* P61 QualIdent (154): NonreservedIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 154;
                 (* line 680 of "FM3Parser.lalr" *)
                  yySynAttribute . Scan . SaChars := yyAttributeStack^[yyStackPtr+1] . Scan . SaChars ;
                        yySynAttribute . Scan . SaAtom := yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom ;
-                       yySynAttribute . Scan . SaStdTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaStdTok ;
+                       yySynAttribute . Scan . SaBuiltinTok := yyAttributeStack^[yyStackPtr+1] . Scan . SaBuiltinTok ;
                        FM3Pass1 . IdentRefL2R ( yyAttributeStack^[yyStackPtr+1] ) ;
                      
               | 460 => (* P62 MaybeQualIdentStarList (155): .*)
@@ -2556,7 +2556,7 @@ yyNonterminal := 161;
                          yySynAttribute . PaPos (* Rt semicolon.*) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                        END (*IF*) ;  
                      
-              | 475,298 => (* P77 ConstDeclId (165): UnreservedIdent .*)
+              | 475,298 => (* P77 ConstDeclId (165): NonreservedIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 165;
                 (* line 772 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Ident count, 0 or 1. *) 
@@ -2644,7 +2644,7 @@ yyNonterminal := 170;
                          yySynAttribute . PaPos (* Rt semicolon.*) := yyAttributeStack^[yyStackPtr+1] . PaPos ; 
                        END (*IF*) ;  
                      
-              | 485,376 => (* P87 TypeDeclId (174): UnreservedIdent .*)
+              | 485,376 => (* P87 TypeDeclId (174): NonreservedIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 174;
                 (* line 856 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Ident count, 0 or 1. *) 
@@ -3024,7 +3024,7 @@ yyNonterminal := 208;
                 DEC (yyStackPtr, 3); yyNonterminal := 210;
                 (* line 1183 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Decl count. *):= yyAttributeStack^[yyStackPtr+1] . PaInt + yyAttributeStack^[yyStackPtr+3] . PaInt ; 
-              | 537,324 => (* P139 EnumLit (211): UnreservedIdent .*)
+              | 537,324 => (* P139 EnumLit (211): NonreservedIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 211;
                 (* line 1186 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* Ident count, 0 or 1. *) 
@@ -3169,7 +3169,7 @@ yyNonterminal := 215;
                          , yyAttributeStack^[yyStackPtr+2] . Scan . Position
                          ) ; 
                      
-              | 550,353 => (* P152 MethodDeclLt (218): UnreservedIdent .*)
+              | 550,353 => (* P152 MethodDeclLt (218): NonreservedIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 218;
                 (* line 1325 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
@@ -3262,7 +3262,7 @@ yyNonterminal := 220;
                          , yyAttributeStack^[yyStackPtr+2] . Scan . Position
                          ) ; 
                      
-              | 557,367 => (* P159 OverrideLt (223): UnreservedIdent .*)
+              | 557,367 => (* P159 OverrideLt (223): NonreservedIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 223;
                 (* line 1413 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt (* override count, 0 or 1. *) 
@@ -3678,7 +3678,7 @@ yyNonterminal := 231;
                        yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+1] . Scan . Position ; 
                        MakeListPos ( yySynAttribute , Itk . ItkRaisesSetLt , yyAttributeStack^[yyStackPtr+1] . Scan . Position , yyAttributeStack^[yyStackPtr+3] ) ;
                      
-              | 591,297 => (* P193 ProcDeclLt (240): StkRwPROCEDURE UnreservedIdent .*)
+              | 591,297 => (* P193 ProcDeclLt (240): StkRwPROCEDURE NonreservedIdent .*)
                 DEC (yyStackPtr, 2); yyNonterminal := 240;
                 (* line 1798 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
@@ -3774,7 +3774,7 @@ yyNonterminal := 231;
                            ( Itk . ItkOpenScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ; 
                        END (*Block*) ; 
                      
-              | 595,270 => (* P197 OptProcBody (241): ProcBodyLt Block UnreservedIdent StkSemicolon .*)
+              | 595,270 => (* P197 OptProcBody (241): ProcBodyLt Block NonreservedIdent StkSemicolon .*)
                 DEC (yyStackPtr, 4); yyNonterminal := 241;
                 (* line 1893 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
@@ -3917,7 +3917,7 @@ yyNonterminal := 231;
                          , yyAttributeStack^[yyStackPtr+2] . Scan . Position
                          ) ; 
                      
-              | 614 => (* P216 E7 (254): E8WOId StkDot UnreservedIdent .*)
+              | 614 => (* P216 E7 (254): E8WOId StkDot NonreservedIdent .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 254;
                 (* line 2024 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LCIP_rip
@@ -4025,7 +4025,7 @@ yyNonterminal := 260;
                  FM3Pass1 . PutBwd_LCP_rp
                         ( Itk . ItkAnonActualLt , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ;
                      
-              | 629,332 => (* P231 Actual (261): UnreservedIdent StkBecomes Expr .*)
+              | 629,332 => (* P231 Actual (261): NonreservedIdent StkBecomes Expr .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 261;
                 (* line 2117 of "FM3Parser.lalr" *)
                  FM3Pass1 . PutBwd_LCIP_rip
@@ -4035,7 +4035,7 @@ yyNonterminal := 260;
                          , yyAttributeStack^[yyStackPtr+1] . Scan . Position
                          ) ;
                      
-              | 630 => (* P232 E8WOId (256): E8WOId StkDot UnreservedIdent .*)
+              | 630 => (* P232 E8WOId (256): E8WOId StkDot NonreservedIdent .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 256;
                 (* line 2132 of "FM3Parser.lalr" *)
                  FM3Pass1 . QualIdentL2R ( yyAttributeStack^[yyStackPtr+1] , yyAttributeStack^[yyStackPtr+3] ) ; 

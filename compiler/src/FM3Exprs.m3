@@ -1,19 +1,83 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2024        Rodney M. Bates.                                    *)
+(* Copyright 2024..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
 
 MODULE FM3Exprs
 
-; IMPORT IntRanges 
+; IMPORT IntRanges
+; IMPORT TextWr 
 ; IMPORT VarArray_Int_Refany
+; IMPORT Wr 
 
 ; IMPORT FM3Globals
 
-; TYPE Es = ExprStateTyp
+
+(* EXPORTED.*) 
+; PROCEDURE ExprKindMessage ( Kind : ExprKindTyp ) : TEXT
+  (* These are for constructing user messages. *) 
+
+  = BEGIN
+      CASE Kind OF 
+      | Ekt . EkNull
+       => RETURN "<null>" 
+      | Ekt . EkType 
+       => RETURN "type" 
+      | Ekt . EkProc 
+       => RETURN "procedure" 
+      | Ekt . EkFunc 
+       => RETURN "function" 
+      | Ekt . EkValue 
+       => RETURN "value" 
+      | Ekt . EkConst 
+       => RETURN "constant" 
+      | Ekt . EkRef 
+       => RETURN "reference" 
+      ELSE RETURN "<unknown>"
+      END (*CASE *) 
+    END ExprKindMessage 
+
+(* EXPORTED.*) 
+; PROCEDURE KindSetCard ( KindSet : ExprKindSetTyp ) : INTEGER 
+
+  = VAR LCt : INTEGER
+
+  ; BEGIN
+      LCt := 0 
+    ; FOR RK := FIRST ( ExprKindTyp ) TO LAST ( ExprKindTyp )
+      DO IF RK IN KindSet THEN INC ( LCt ) END (*IF*) 
+      END (*FOR*)
+    ; RETURN LCt
+    END KindSetCard
+
+(* EXPORTED.*) 
+; PROCEDURE ExprKindSetMessage ( KindSet : ExprKindSetTyp ) : TEXT
+
+  = VAR LWrT : Wr . T
+  ; VAR LResult : TEXT 
+  ; VAR LCt , LNo : INTEGER
+
+  ; BEGIN 
+      LCt := KindSetCard ( KindSet ) 
+    ; IF LCt = 0 THEN RETURN "<nothing>" END (*IF*) 
+    ; LWrT := NEW ( TextWr . T )
+    ; Wr . PutText ( LWrT , "one of " ) 
+    ; FOR RK := FIRST ( ExprKindTyp ) TO LAST ( ExprKindTyp )
+      DO IF RK IN KindSet
+        THEN
+          IF LCt = 1 THEN RETURN "a " & ExprKindMessage ( RK ) END (*IF*)
+        ; LNo := ORD ( RK )
+        ; IF LNo + 1 <= LCt THEN Wr . PutText ( LWrT , ", " ) END (*IF*) 
+        ; IF LNo + 1 = LCt THEN Wr . PutText ( LWrT , "or " ) END (*IF*)
+        ; Wr . PutText ( LWrT , ExprKindMessage ( RK ) )
+        END (*IF*) 
+      END (*FOR*)
+    ; LResult := TextWr . ToText ( LWrT)
+    ; RETURN LResult
+    END ExprKindSetMessage 
 
 (* Types in the compiled code, not in the compiler. *)
 
@@ -21,11 +85,11 @@ MODULE FM3Exprs
 ; PROCEDURE ResolveNow
     ( Expr : ExprTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp
   = BEGIN
-      IF Expr = NIL THEN RETURN Es . EsUnknown END (*IF*)
+      IF Expr = NIL THEN RETURN Est . EsUnknown END (*IF*)
     ; CASE Expr . ExpState OF 
-      | Es . EsUnresolved  
+      | Est . EsUnresolved  
       => RETURN Expr . resolve ( ExprKind )
-      | Es . EsResolving
+      | Est . EsResolving
       => <* ASSERT FALSE , "Illegal recursive declaration." *>
       ELSE RETURN Expr . ExpState
       END (*CASE*) 
@@ -36,8 +100,8 @@ MODULE FM3Exprs
     ( Expr : ExprTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp 
 
   = BEGIN
-      IF Expr = NIL THEN RETURN Es . EsUnknown END (*IF*)
-    ; IF Expr . ExpState = Es . EsUnresolved  
+      IF Expr = NIL THEN RETURN Est . EsUnknown END (*IF*)
+    ; IF Expr . ExpState = Est . EsUnresolved  
       THEN RETURN Expr . resolve ( ExprKind )
       ELSE RETURN Expr . ExpState
       END (*IF*) 

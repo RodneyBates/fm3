@@ -53,7 +53,7 @@ INTERFACE FM3Scanner
         (* ^Identifier, Numeric literal, or Converted RT memory value of
            TEXT literal, or . *) 
       ; SaTok : FM3Base . TokTyp := FM3Base . TokNull  
-      ; SaStdTok : FM3Base . TokTyp (* A source token. *) 
+      ; SaBuiltinTok : FM3Base . TokTyp (* Either reserved or standard ident. *) 
       ; SaWCh : WIDECHAR (* Value of [WIDE]CHAR literal. *)
       END (* tScanAttribute *)
 
@@ -66,7 +66,7 @@ INTERFACE FM3Scanner
         , SaWideChars := NIL
         , SaChars := NIL
         , SaTok := FM3Base . TokNull  
-        , SaStdTok := FM3Base . TokNull 
+        , SaBuiltinTok := FM3Base . TokNull 
         , SaWCh := W'\x0000'
         } 
 
