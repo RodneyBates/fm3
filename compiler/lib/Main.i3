@@ -6,9 +6,11 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-<* FM3_PREDEFUNIT *> (* Special handling by FM3 compiler. *)  
-
 INTERFACE Main
+
+<* FM3_STDUNIT *> (* Special handling by FM3 compiler. *)  
+
+; TYPE T = INTEGER 
 
 ; END Main
 .

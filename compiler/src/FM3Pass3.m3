@@ -443,7 +443,7 @@ MODULE FM3Pass3
           IF AreInsideADecl ( )
           THEN 
             WITH LExpr
-              = NEW ( FM3Exprs . ExprConstValue , ExpUpKind := Ekt . EkValue ) 
+              = NEW ( FM3Exprs . ExprConstValueTyp , ExpUpKind := Ekt . EkValue ) 
             DO 
               LExpr . ExpScalarConstVal := LLongInt
             ; LExpr . ExpLoTypeInfoRef
@@ -1743,7 +1743,7 @@ MODULE FM3Pass3
           ELSE (* A remote decl brought in by EXPORTS or FROM I IMPORT. *)
             IF AreInsideADecl ( )   
             THEN (* Create an ExprIdNo node. *) 
-              WITH WExpr = NEW ( FM3Exprs . ExprRemoteRef )
+              WITH WExpr = NEW ( FM3Exprs . ExprRemoteRefTyp )
               DO 
                 WExpr . ExpRemoteUnitNo := LUnitNo 
               ; WExpr . ExpRemoteDeclNo := LRefDeclNo 
@@ -1799,7 +1799,7 @@ MODULE FM3Pass3
         IF AreInsideADecl ( ) 
         THEN (* Create an ExprIdNo node. *) 
           CheckRecursiveRef ( LRefDeclNo )
-        ; WITH WDotExpr = NEW ( FM3Exprs . ExprDot )
+        ; WITH WDotExpr = NEW ( FM3Exprs . ExprDotTyp )
                , WRtExpr = NEW ( FM3Exprs . ExprIdentReference )
           DO 
             WDotExpr . ExpOpnd1 := WRtExpr 
@@ -1892,7 +1892,7 @@ MODULE FM3Pass3
             IF AreInsideADecl ( )
             THEN
 (* TODO: Handle a Word.*, etc. builtin reference. *) 
-              WITH WExpr = NEW ( FM3Exprs . ExprRemoteRef )
+              WITH WExpr = NEW ( FM3Exprs . ExprRemoteRefTyp )
               DO 
                 WExpr . ExpRemoteUnitNo := LIntfUnitRef ^ . UntSelfUnitNo 
               ; WExpr . ExpRemoteDeclNo := LRemoteDeclNoInt 
@@ -1938,8 +1938,8 @@ MODULE FM3Pass3
           IF AreInsideADecl ( )
           THEN 
           (* Turn it into separate QualId ref and dot Id *) 
-            WITH WDotExpr = NEW ( FM3Exprs . ExprDot )
-            , WRtExpr = NEW ( FM3Exprs . ExprRemoteRef )
+            WITH WDotExpr = NEW ( FM3Exprs . ExprDotTyp )
+            , WRtExpr = NEW ( FM3Exprs . ExprRemoteRefTyp )
             DO 
               WDotExpr . ExpDotIdAtom := LAtomLt
             ; WDotExpr . ExpOpnd1 := WRtExpr 

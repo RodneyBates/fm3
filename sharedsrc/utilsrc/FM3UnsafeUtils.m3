@@ -19,10 +19,35 @@ UNSAFE MODULE FM3UnsafeUtils
 ; CONST RealLen = BYTESIZE ( REAL ) 
 ; CONST LongLen = BYTESIZE ( LONGREAL ) 
 ; CONST ExtLen = BYTESIZE ( EXTENDED ) 
+; CONST AddrLen = BYTESIZE ( ADDRESS ) 
 
 ; CONST RealSkip = 4 * ORD ( RealLen < 8 AND IsBE ) 
 ; CONST LongSkip = 4 * ORD ( LongLen < 8 AND IsBE ) 
-; CONST ExtSkip = 4 * ORD ( ExtLen < 8 AND IsBE ) 
+; CONST ExtSkip = 4 * ORD ( ExtLen < 8 AND IsBE )
+; CONST AddrSkip = 4 * ORD ( AddrLen < 8 AND IsBE )
+
+
+(*EXPORTED:*)
+; PROCEDURE AddrToLongInt  ( Arg : ADDRESS ) : LONGINT
+
+  = VAR LBuffer : ARRAY [ 0 .. 7 ] OF CHAR
+
+  ; BEGIN
+      LOOPHOLE ( LBuffer , LONGINT ) := 0L  
+    ; LOOPHOLE ( ADR ( LBuffer [ LongSkip ] ) , UNTRACED REF ADDRESS ) ^ := Arg 
+    ; RETURN LOOPHOLE ( LBuffer , LONGINT ) 
+    END AddrToLongInt 
+
+(*EXPORTED:*)
+; PROCEDURE RefanyToLongInt  ( Arg : REFANY ) : LONGINT
+
+  = VAR LBuffer : ARRAY [ 0 .. 7 ] OF CHAR
+
+  ; BEGIN
+      LOOPHOLE ( LBuffer , LONGINT ) := 0L  
+    ; LOOPHOLE ( ADR ( LBuffer [ LongSkip ] ) , UNTRACED REF REFANY ) ^ := Arg 
+    ; RETURN LOOPHOLE ( LBuffer , LONGINT ) 
+    END RefanyToLongInt 
 
 (*EXPORTED:*)
 ; PROCEDURE RealToLongInt  ( Arg : REAL ) : LONGINT
@@ -56,6 +81,26 @@ UNSAFE MODULE FM3UnsafeUtils
     ; LOOPHOLE ( ADR ( LBuffer [ ExtSkip ] ) , UNTRACED REF EXTENDED ) ^ := Arg 
     ; RETURN LOOPHOLE ( LBuffer , LONGINT ) 
     END ExtendedToLongInt 
+
+(*EXPORTED:*)
+; PROCEDURE LongIntToAddr  ( Arg : LONGINT ) : ADDRESS
+
+  = VAR LBuffer : ARRAY [ 0 .. 7 ] OF CHAR
+
+  ; BEGIN
+      LOOPHOLE ( LBuffer , LONGINT ) := Arg 
+    ; RETURN LOOPHOLE ( ADR ( LBuffer [ AddrSkip ] ) , UNTRACED REF ADDRESS ) ^   
+    END LongIntToAddr
+
+(*EXPORTED:*)
+; PROCEDURE LongIntToRefany  ( Arg : LONGINT ) : REFANY
+
+  = VAR LBuffer : ARRAY [ 0 .. 7 ] OF CHAR
+
+  ; BEGIN
+      LOOPHOLE ( LBuffer , LONGINT ) := Arg 
+    ; RETURN LOOPHOLE ( ADR ( LBuffer [ AddrSkip ] ) , UNTRACED REF REFANY ) ^   
+    END LongIntToRefany 
 
 (*EXPORTED:*)
 ; PROCEDURE LongIntToReal  ( Arg : LONGINT ) : REAL

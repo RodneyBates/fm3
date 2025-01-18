@@ -424,26 +424,23 @@ MODULE FM3Scanner
         END (*IF*)
 
       ; IF ScAtBegOfPragma (* Expecting a pragma id? *) 
-        THEN (* GCurRwValue will be pragma id or nothing. *)
+        THEN (* GCurRwValue will have been recognized only among the pragma id. *)
           CASE GCurRwValue OF
           | FM3LexTable . ValueUnrecognized , FM3LexTable . ValueNull 
-          => Attribute . SaAtom 
+          => (* It's not a pragma ident. Make it an ordinary ident. *) 
+             Attribute . SaAtom 
               := FM3Atom_OAChars . MakeAtom 
                    ( GTopSsRef . SsUnitRef ^ . UntIdentAtomDict
                    , Attribute . SaChars 
                    , ScHash 
                    ) 
-          ; Attribute . SaTok := FM3SrcToks . StkPragmaId 
+          ; Attribute . SaTok := FM3SrcToks . StkIdent  
           ; Attribute . SaBuiltinTok := FM3Base . TokNull 
 (* TODO: Handle this as an unrecognized pragma and skip the entire thing. *) 
 
-          | FM3PgToks . PgFm3StdUnit 
-          => GTopSsRef . SsUnitRef ^ . UntIsStdUnit := TRUE 
-
-          ELSE (* It's some other pragma ident. *) 
-            Attribute . SaTok 
-              := GCurRwValue (* A recognized reserved pragma name. *) 
-          ; Attribute . SaBuiltinTok := GCurRwValue 
+          ELSE (* It's a pragma ident. *) 
+            Attribute . SaBuiltinTok := GCurRwValue (* A recognized pragma name. *) 
+          ; Attribute . SaTok := FM3SrcToks . StkPragmaId 
           END (*CASE*) 
 
         ELSE (* Expecting a reserved ident, standard, or declared identifier. *) 

@@ -133,6 +133,7 @@ GENERIC MODULE FM3Atom ( DictGenformal )
 
   = BEGIN (*Key*)
       IF AtomDict . AtReverseMap = NIL THEN RETURN FALSE END (*IF*) 
+    ; IF Atom < FIRST ( AtomDict . AtReverseMap ^ ) THEN RETURN FALSE END (*IF*) 
     ; IF Atom >= AtomDict . AtNextAtom THEN RETURN FALSE END (*IF*)
     ; Value := AtomDict . AtReverseMap ^ [ Atom ] 
     ; RETURN TRUE 

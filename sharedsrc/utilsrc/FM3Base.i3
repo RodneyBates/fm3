@@ -104,16 +104,16 @@ INTERFACE FM3Base
 
 ; CONST PositionNull = tPosition { LAST ( PosIntTyp ) , LAST ( PosIntTyp ) }
 
-; TYPE OpcodeTyp = Int32Typ (* Narrow this down. *) 
-; TYPE SizeTyp = LONGINT (* Runtime sizes. *) 
-; TYPE AlignTyp = [ 0 .. 64 ]
-
 ; TYPE AtomTyp = INTEGER
-    (* Negative values are sonetimes used as pseudo-atoms for certain
+    (* Negative values are sometimes used as pseudo-atoms for certain
        predefined identifiers, and also certain operation codes.
     *) 
-; CONST AtomNull = FIRST ( AtomTyp ) 
+; CONST AtomNull = 0  
 ; CONST AtomFirstReal = 1 (* For use as a true atom in a dictionary. *) 
+
+; TYPE OpcodeTyp = Int32Typ (* Allow for AtomNull. *) 
+; TYPE SizeTyp = LONGINT (* Runtime sizes. *) 
+; TYPE AlignTyp = [ 0 .. 64 ]
 
 (* 
 

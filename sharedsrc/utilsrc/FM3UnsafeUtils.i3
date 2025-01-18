@@ -12,11 +12,19 @@ INTERFACE FM3UnsafeUtils
    removed, when sizes don't match.
 *) 
 
+; PROCEDURE AddrToLongInt  ( Arg : ADDRESS ) : LONGINT
+
+; PROCEDURE RefanyToLongInt  ( Arg : REFANY ) : LONGINT
+
 ; PROCEDURE RealToLongInt  ( Arg : REAL ) : LONGINT
 
 ; PROCEDURE LongRealToLongInt  ( Arg : LONGREAL ) : LONGINT
 
 ; PROCEDURE ExtendedToLongInt  ( Arg : EXTENDED ) : LONGINT
+
+; PROCEDURE LongIntToAddr  ( Arg : LONGINT ) : ADDRESS
+
+; PROCEDURE LongIntToRefany  ( Arg : LONGINT ) : REFANY
 
 ; PROCEDURE LongIntToReal  ( Arg : LONGINT ) : REAL
 

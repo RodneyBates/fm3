@@ -43,10 +43,10 @@ MODULE FM3Pass2
 ; IMPORT FM3Graph 
 ; IMPORT FM3IntToks AS Itk
 ; IMPORT FM3LoTypes
-; IMPORT FM3Std
 ; IMPORT FM3ReservedIds
 ; IMPORT FM3SrcToks 
 ; IMPORT FM3SrcToks AS Stk
+; IMPORT FM3Std 
 ; FROM   FM3StreamUtils
     IMPORT GetBwdInt , GetBwdAtom , GetBwdDeclKind , GetBwdPos , GetBwdScopeNo 
 ; IMPORT FM3Messages 
@@ -606,7 +606,13 @@ MODULE FM3Pass2
           := IntSets . Union
                ( LOpnd1 . ExpReachedDeclNoSet , LOpnd2 . ExpReachedDeclNoSet )
       END (*IF*) 
-    END BinaryOp 
+    END BinaryOp
+
+; PROCEDURE InsideDecl ( ) : BOOLEAN 
+
+  = BEGIN
+      RETURN TRUE
+    END InsideDecl
 
 ; PROCEDURE HandleTok ( READONLY TokResult : TokResultTyp ) 
 
@@ -614,10 +620,12 @@ MODULE FM3Pass2
   ; VAR LScopeRef : FM3Scopes . ScopeRefTyp
   ; VAR HtPass1RdBack : RdBackFile . T 
   ; VAR HtPass2RdBack : RdBackFile . T
-  ; VAR LValueExpr , LCallExpr , LProcExpr : FM3Exprs . ExprTyp
+  ; VAR LNewExpr , LValueExpr , LProcExpr , LListElem : FM3Exprs . ExprTyp
+  ; VAR LCallExpr : FM3Exprs . ExprCallTyp
   ; VAR LLongInt : LONGINT 
   ; VAR LScopeNo : FM3Globals . ScopeNoTyp
-  ; VAR LOpcode : FM3SrcToks . TokTyp 
+  ; VAR LOpcode : FM3SrcToks . TokTyp
+  ; VAR LCt : INTEGER 
   ; VAR LPosition : tPosition
   ; VAR HtSkipping : BOOLEAN
 
@@ -634,8 +642,7 @@ MODULE FM3Pass2
         THEN
           IF AreInsideADecl ( )
           THEN 
-            WITH LExpr
-              = NEW ( FM3Exprs . ExprConstValue ) 
+            WITH LExpr = NEW ( FM3Exprs . ExprConstValueTyp ) 
             DO 
               LExpr . ExpScalarConstVal := LLongInt
             ; LExpr . ExpLoTypeInfoRef
@@ -681,7 +688,7 @@ MODULE FM3Pass2
           THEN
             LOpnd := FM3Exprs . PopExprStack ( )
           ; LParentExpr
-              := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . Expr2OpndTyp ) 
+              := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . Expr1OpndTyp ) 
           ; <*ASSERT WPosition = LParentExpr . ExpPosition *>
             LParentExpr . ExpOpnd1 := LOpnd
           ; DefExprLt ( ) 
@@ -973,12 +980,12 @@ MODULE FM3Pass2
       =>  IF InsideDecl ()
           THEN
             LNewExpr
-              := NEW ( FM3Exprs . ExprReservedIdentRef ) 
+              := NEW ( FM3Exprs . ExprReservedIdRefTyp ) 
           ; LNewExpr . ExpOpcode := GetBwdAtom ( TokResult . TrRdBack )
           ; LNewExpr . ExpPosition := GetBwdPos ( TokResult . TrRdBack )
           ; LNewExpr . ExpIsLegalRecursive := TRUE
           (* Other properties computed later. *) 
-          ; DefExprRt ( LExpr )
+          ; DefExprRt ( LNewExpr )
           ELSE HtPassTokenThru ( ) 
           END (*IF*) 
 
@@ -1146,7 +1153,7 @@ MODULE FM3Pass2
         ; LCallExpr := NEW ( FM3Exprs . ExprCallTyp )
         ; LCallExpr . ExpActualsList
             := NEW ( REF ARRAY OF FM3Exprs . ExprTyp , LCt )
-        ; LCallExpr . ExpActualCt := LCt
+        ; LCallExpr . ExpActualNo := LCt
         ; LCallExpr . ExpPosition := LPosition
         ; FM3Exprs . PushExprStack ( LCallExpr )
 
@@ -1154,41 +1161,25 @@ MODULE FM3Pass2
       , Itk . ItkActualsListLt
        => LListElem := FM3Exprs . PopExprStack ( )
         ; LCallExpr := FM3Exprs . ExprStackTopObj
-        ; DEC ( LCallExpr . ExpActualCt )  
-        ; LCallExpr . ExpActualsList ^ [ LCallExpr . ExpActualCt ] := LListElem
+        ; DEC ( LCallExpr . ExpActualNo )  
+        ; LCallExpr . ExpActualsList ^ [ LCallExpr . ExpActualNo ] := LListElem
 
       | Itk . ItkCallLt
         => LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; LCt := GetBwdInt ( TokResult . TrRdBack )
         ; LProcExpr := FM3Exprs . PopExprStack ( )
-        ; LCallExpr := FM3Exprs . ExprStackTopObj
+        ; LCallExpr
+            := NARROW ( FM3Exprs . PopExprStack ( ) , FM3Exprs . ExprCallTyp )
         ; <* ASSERT LPosition = LCallExpr . ExpPosition *>
-          <* ASSERT LCallExpr . ExpActualCt = 0 *>
+          <* ASSERT LCallExpr . ExpActualNo = 0 *>
           LCallExpr . ExpCallProc := LProcExpr 
-        ; MaybeConvertCallToOperator
-            ( LCallExpr ) 
-        ; CheckForBuiltinCall ( ) 
+        ; FM3Exprs . PushExprStack ( MaybeConvertCallToOperator ( LCallExpr ) ) 
 
       ELSE (* No special pass2 handling. *)
         HtPassTokenThru ( ) 
       END (*CASE*)
     END HandleTok
 
-(* TODO: There must be more places this could be used. *) 
-; PROCEDURE CharsOfIdentAtom
-    ( UnitRef : FM3Units . UnitRefTyp ; Atom : FM3Base . AtomTyp )
-  : FM3Atom_OAChars . KeyTyp (* Which is ARRAY OF CHAR. *) 
-
-  = VAR LIdentChars : FM3Atom_OAChars . KeyTyp 
-
-  ; BEGIN 
-      IF NOT FM3Atom_OAChars . Key 
-               ( UnitRef ^ . UntIdentAtomDict , Atom , (*OUT*) LIdentChars )
-      THEN LIdentChars := NIL
-      END (*IF*)
-    ; RETURN LIdentChars
-    END CharsOfIdentAtom 
-    
 (* Right-to-left scope handling.  Call sites read the Itk and its operands,
    and pass the operands in. *) 
 
@@ -1734,10 +1725,10 @@ MODULE FM3Pass2
     END ReservedIdR2L
 
 ; PROCEDURE CheckOperand
-    ( OpndExpr : FM3Exprs . exprTyp
+    ( OpndExpr : FM3Exprs . ExprTyp
     ; Opcode : FM3SrcToks . TokTyp 
     ; OpndTag : TEXT 
-    ; AllowedKinds : FM3Exprs . KindSetTyp 
+    ; AllowedKinds : FM3Exprs . ExprKindSetTyp 
     )
   : BOOLEAN (* Check is OK. *) 
 
@@ -1760,17 +1751,63 @@ MODULE FM3Pass2
       END (*IF*) 
     END CheckOperand
 
-; PROCEDURE FixDeclTok ( OrigTok : FM3SrcToks . TokTyp ) : FM3SrcToks . TokTyp
+; PROCEDURE FixDeclTok
+     ( UnitTok , OrigTok : FM3SrcToks . TokTyp ) : FM3SrcToks . TokTyp
   (* Make decl tokens that occur in >1 standard interface unique. *) 
 
   = BEGIN
       IF FM3SrcToks . StkMinWordLong <= OrigTok
-         AND OrigTok <= FM3SrcToks . StkMaxWorkLong
+         AND OrigTok <= FM3SrcToks . StkMaxWordLong
+         AND UnitTok = FM3SrcToks . StkPdLong
       THEN
-        RETURN OrigTok - FM3SrcToks . StkMinWordLong +  FM3SrcToks . StkkMinLong
+        RETURN OrigTok - FM3SrcToks . StkMinWordLong +  FM3SrcToks . StkMinLong
       ELSE RETURN OrigTok
       END (*IF*) 
-    END FixDeclTok 
+    END FixDeclTok
+
+; PROCEDURE CheckOperation ( OpExpr : FM3Exprs . ExprTyp ) : BOOLEAN (* OK *) 
+
+  = VAR LProperties : FM3BuiltinOps . OpPropertiesTyp
+  ; LOpnd1 , LOpnd2 : FM3Exprs . ExprTyp
+  ; LOK : BOOLEAN
+
+  ; BEGIN
+      TYPECASE OpExpr OF
+      | NULL => RETURN TRUE 
+      | FM3Exprs . Expr2OpndTyp ( TOpExpr )
+      =>  LOK := TRUE
+        ; LProperties := FM3BuiltinOps . Properties ( TOpExpr . ExpOpcode )
+        ; LOpnd1 :=TOpExpr . ExpOpnd1 
+        ; IF LOpnd1 = NIL THEN RETURN TRUE END (*IF*)  
+        ; IF NOT CheckOperand
+                   ( LOpnd1
+                   , TOpExpr . ExpOpcode 
+                   , "Left operand "
+                   , LProperties . OpLtExprKindsAllowed
+                   )
+          THEN LOK := FALSE
+          END (*IF*)
+
+        ; LOpnd2 := TOpExpr . ExpOpnd2
+        ; IF LOpnd2 = NIL THEN RETURN TRUE END (*IF*)
+        ; IF NOT CheckOperand
+                   ( LOpnd2
+                   , TOpExpr . ExpOpcode
+                   , "Right operand "
+                   , LProperties . OpRtExprKindsAllowed
+                   )
+          THEN LOK := FALSE
+          END (*IF*)
+
+        ; IF NOT LOK
+          THEN
+            OpExpr . ExpIsUsable := FALSE
+          ; RETURN FALSE 
+          ELSE RETURN TRUE
+          END (*IF*)
+      ELSE RETURN TRUE 
+      END (*TYPECASE*) 
+    END CheckOperation 
 
 ; PROCEDURE MaybeConvertCallToOperator ( OrigExpr : FM3Exprs . ExprTyp )
   : FM3Exprs . Expr2OpndTyp
@@ -1780,27 +1817,31 @@ MODULE FM3Pass2
 
   = VAR LCallExpr : FM3Exprs . ExprCallTyp 
   ; VAR LOpnd1 , LOpnd2 : FM3Exprs . ExprTyp 
-  ; VAR LNewExpr : FM3Exprs . Expr2OpndTyp 
+  ; VAR LNewExpr : FM3Exprs . Expr2OpndTyp
+  ; VAR LPluralSuffix : TEXT
+  ; VAR LActualsCt : INTEGER
+  ; VAR LUnitTok , LDeclTok : FM3SrcToks . TokTyp
+  ; VAR LProperties : FM3BuiltinOps . OpPropertiesTyp
 
   ; BEGIN
-      IF NOT OrigExpr . ExpIsUsable THEN RETURN NIL END (*IF*)
+      IF NOT OrigExpr . ExpIsUsable THEN RETURN OrigExpr END (*IF*)
     ; TYPECASE OrigExpr OF
       | NULL => RETURN NIL
       | FM3Exprs . ExprCallTyp ( TCallExpr )
       =>  LCallExpr := TCallExpr 
-      ELSE RETURN NIL
+      ELSE RETURN OrigExpr
       END (*TYPECASE*) 
-    ; IF LCallExpr . ExpActualsRef = NIL THEN RETURN NIL END (*IF*)
-    ; LActualsCt := NUMBER ( LCallExpr . ExpActualsRef ^ )
-    ; CASE LCallExpr . ExpCallProc OF
+    ; IF LCallExpr . ExpActualsList = NIL THEN RETURN OrigExpr END (*IF*)
+    ; LActualsCt := NUMBER ( LCallExpr . ExpActualsList ^ )
+    ; TYPECASE LCallExpr . ExpCallProc OF
     
       | NULL => <* ASSERT FALSE , "NIL ExpCallProc of ExprCallTyp." *> 
 
-      | FM3Exprs . ExprReservedIdRef 
-       => LUnitTok := FM3SrcToks . TokNull 
-        ; LDeclTok := TReservedIdRef . Opcode  
+      | FM3Exprs . ExprReservedIdRefTyp ( TReservedIdRef )  
+       => LUnitTok := FM3Base . TokNull 
+        ; LDeclTok := TReservedIdRef . ExpOpcode  
 
-      | FM3Exprs . ExprIdentRef ( TExprIdentRef )  
+      | FM3Exprs . ExprIdentRefTyp ( TExprIdentRef )  
        => GetBuiltinToks 
             ( FM3Units . UnitStackTopRef ^ . UntSelfUnitNo 
             , TExprIdentRef . ExpIdentDeclNo 
@@ -1808,7 +1849,7 @@ MODULE FM3Pass2
             , (*OUT*) LDeclTok 
             ) 
 
-      | FM3Exprs . ExprRemoteRef ( TExprRemoteRef ) 
+      | FM3Exprs . ExprRemoteRefTyp ( TExprRemoteRef ) 
        => GetBuiltinToks 
             ( TExprRemoteRef . ExpRemoteUnitNo 
             , TExprRemoteRef . ExpRemoteDeclNo 
@@ -1816,20 +1857,20 @@ MODULE FM3Pass2
             , (*OUT*) LDeclTok 
             ) 
 
-      ELSE (* Called proc is not on a named builtin. *) RETURN NIL 
+      ELSE (* Called proc is not on a named builtin. *) RETURN OrigExpr 
       END (* TYPECASE *)  
-    ; IF LUnitTok = FM3SrcToks . TokNull AND LUnitTok = FM3SrcToks . TokNull 
-      THEN (* Also not on anything builtin. *) RETURN NIL
+    ; IF LUnitTok = FM3Base . TokNull AND LUnitTok = FM3Base . TokNull 
+      THEN (* Also not on anything builtin. *) RETURN OrigExpr
       END (*IF*) 
 
     ; LDeclTok := FixDeclTok ( LUnitTok , LDeclTok ) 
       (* ^LDeclTok now belongs to only one unit. *) 
-    ; LPropertes := FM3BuitinOps . Properties ( LDeclTok ) 
-    ; IF LProperties . OpType = NIL
-      THEN (* A builtin but not an operation. *) RETURN FALSE 
+    ; LProperties := FM3BuiltinOps . Properties ( LDeclTok ) 
+    ; IF LProperties . OpResultType = NIL
+      THEN (* A builtin but not an operation. *) RETURN OrigExpr 
       END (*IF*)
     ; IF LProperties . OpLtExprKindsAllowed = FM3Exprs . ExprKindSetTyp { } 
-      THEN (* It's a non-callable builtin. *) 
+      THEN (* It's a non-callable builtin (type, constant, etc.) . *) 
         FM3Messages . ErrorArr 
           ( ARRAY OF REFANY 
               { FM3SrcToks . Image ( LDeclTok ) 
@@ -1837,8 +1878,8 @@ MODULE FM3Pass2
               }
           , LCallExpr . ExpCallProc . ExpPosition 
           ) 
-      ; OrigExpr . IsUsable := FALSE 
-      ; RETURN NIL 
+      ; OrigExpr . ExpIsUsable := FALSE 
+      ; RETURN OrigExpr 
       END (*IF*)
     ; IF LActualsCt # LProperties . OpOpndCt 
       THEN (* Wrong number of actual paremeters. *) 
@@ -1855,60 +1896,29 @@ MODULE FM3Pass2
               }
           , LCallExpr . ExpPosition 
           ) 
-      ; OrigExpr . IsUsable := FALSE 
-      ; RETURN NIL 
+      ; OrigExpr . ExpIsUsable := FALSE 
+      ; RETURN OrigExpr
       END (*IF*)
 
-    ; LOK := TRUE 
-    ; LOpnd1 := LCallExpr . ExpActualsRef ^ [ 0 ]
-    ; IF NOT CheckOperand
-               ( LOpnd1
-               , LDeclTok
-               , "Left operand "
-               , LProperties . OpLtExprKindsAllowed
-               )
-      THEN LOK := FALSE
-      END (*IF*)
-
-    ; IF LActualsCt >= 2
-      THEN
-        LOpnd2 := LCallExpr . ExpActualsRef ^ [ 1 ]
-      ; IF NOT CheckOperand
-                 ( LOpnd2
-                 , LDeclTok
-                 , "Right operand "
-                 , LProperties . OpRtExprKindsAllowed
-                 )
-        THEN LOK := FALSE
-        END (*IF*)
-      END (*IF*)
-    ; IF NOT LOK
-      THEN OrigExpr . ExpIsUsable := FALSE
-      ELSE
-      
-(* build operator expr or tokens *)  
-
-        LNewExpr := NEW ( FM3Exprs . Expr2OpndTyp )
-      ; LNewExpr . ExpType := LProperties . OpType 
-      ; LNewExpr . ExpOpcode := LDeclTok
-      ; LNewExpr . ExpUpKind := Ekt . EkValue 
-      ; LNewExpr . ExpIsUsable := LCallExpr . ExpIsUsable
-      ; LNewExpr . ExpPosition := LCallExpr . ExpPosition 
-      ; LNewExpr . ExpIsConst
-          := LOpnd1 . ExpIsConst
-             AND LActualCt >= 2 
-             AND LOpnd2 . ExpIsConst
-             AND IntSets . IsElement
-                   ( LNewExpr . ExpOpcode , FM3BuiltinOps . ConstantSet )
-      ; LNewExpr . ExpReachedDeclNoSet
-          := IntSets . Union
-               ( LOpnd1 . ExpReachedDeclNoSet 
-               , LOpnd2 . ExpReachedDeclNoSet
-               ) 
-      ; RETURN LNewExpr
-
-
-      END (*IF*) 
+    ; LNewExpr := NEW ( FM3Exprs . Expr2OpndTyp )
+    ; LNewExpr . ExpType := LProperties . OpResultType 
+    ; LNewExpr . ExpOpcode := LDeclTok
+    ; LNewExpr . ExpUpKind := Ekt . EkValue 
+    ; LNewExpr . ExpIsUsable := LCallExpr . ExpIsUsable
+    ; LNewExpr . ExpPosition := LCallExpr . ExpPosition 
+    ; LNewExpr . ExpIsConst
+        := LOpnd1 . ExpIsConst
+           AND LActualsCt >= 2 
+           AND LOpnd2 . ExpIsConst
+           AND IntSets . IsElement
+                 ( LNewExpr . ExpOpcode , FM3Std . ConstantSet )
+    ; LNewExpr . ExpReachedDeclNoSet
+        := IntSets . Union
+             ( LOpnd1 . ExpReachedDeclNoSet 
+             , LOpnd2 . ExpReachedDeclNoSet
+             )
+    ; EVAL CheckOperation ( LNewExpr ) 
+    ; RETURN LNewExpr
     END MaybeConvertCallToOperator
 
 ; PROCEDURE WordLongExpr
@@ -1998,37 +2008,30 @@ MODULE FM3Pass2
       END (*CASE*)
     END MaybeStdDeclRef
 
-; PROCEDURE StdOpDeclRef
+; PROCEDURE GetBuiltinToks 
     ( UnitNo : FM3Globals . UnitNoTyp
-    ; UnitStd : FM3SrcToks . TokTyp 
     ; DeclNo :FM3Globals . DeclNoTyp
-    ; DeclStd : FM3SrcToks . TokTyp 
-    ; IsCall : BOOLEAN (* Relevant only if it turns out to a procedure. *)
+    ; VAR (*OUT*) UnitTok : FM3SrcToks . TokTyp 
+    ; VAR (*OUT*) DeclTok : FM3SrcToks . TokTyp 
     )
-  : FM3Decls . DeclRefTyp 
-    (* ^NIL unless it's a standard ref and, if a proc, a call. *) 
 
   = VAR LUnitRef : FM3Units . UnitRefTyp
   ; VAR LDeclRef : FM3Decls . DeclRefTyp
 
   ; BEGIN
-      IF UnitNo = FM3Globals . UnitNoNull THEN RETURN NIL END (*IF*)
+      UnitTok := FM3Base . TokNull 
+    ; DeclTok := FM3Base . TokNull 
+    ; IF UnitNo = FM3Globals . UnitNoNull THEN RETURN END (*IF*)
     ; LUnitRef := VarArray_Int_Refany . Fetch ( FM3Units . UnitsMap , UnitNo )
-    ; IF LUnitRef = NIL THEN RETURN NIL END (*IF*)
-    ; IF DeclNo = FM3Globals . DeclNoNull THEN RETURN NIL END (*IF*)  
+    ; IF LUnitRef = NIL THEN RETURN END (*IF*)
+    ; IF DeclNo = FM3Globals . DeclNoNull THEN RETURN END (*IF*)  
     ; LDeclRef
         := VarArray_Int_Refany . Fetch
              ( LUnitRef . UntDeclMap , DeclNo ) 
-    ; IF LDeclRef = NIL THEN RETURN NIL END (*IF*)
-    ; IF LUnitRef . UntStdTok # UnitStd THEN RETURN NIL END (*IF*)
-    ; IF LDeclRef . DclStdTok # DeclStd THEN RETURN NIL END (*IF*)
-    (* UnitNo.DeclNo refer to standard UnitStd.DeclStd. *)  
-    ; IF ( NOT IntSets . IsElement ( DeclStd , FM3Std . ProcSet ) )
-         OR IsCall
-      THEN RETURN LDeclRef
-      ELSE RETURN NIL
-      END (*IF*) 
-    END StdOpDeclRef 
+    ; IF LDeclRef = NIL THEN RETURN END (*IF*)
+    ; UnitTok := LUnitRef . UntStdTok 
+    ; DeclTok := LDeclRef . DclStdTok 
+    END GetBuiltinToks 
 
 ; PROCEDURE IdentRefR2L ( READONLY TokResult : TokResultTyp )
   (* PRE: The ident is not followed by dot Ident. (The parser has gone
@@ -2037,7 +2040,8 @@ MODULE FM3Pass2
   *) 
 
   = VAR LExpImpUnitRef : FM3Units . UnitRefTyp
-  ; VAR LIdentRefAtom : FM3Base . AtomTyp 
+  ; VAR LIdentRefAtom : FM3Base . AtomTyp
+  ; VAR LUnitRef : FM3Units . UnitRefTyp 
   ; VAR LUnitNo : FM3Globals . UnitNoTyp
   ; VAR LRefDeclNo : FM3Globals . DeclNoTyp
   ; VAR LPosition : FM3Base . tPosition 
@@ -2061,8 +2065,7 @@ MODULE FM3Pass2
         ; IF AreInsideADecl ( )
           THEN (* Create an ExprIdentReference node. *) 
             CheckRecursiveRef ( LRefDeclNo )
-          ; WITH WExpr
-                 = NEW ( FM3Exprs . ExprIdentReference )
+          ; WITH WExpr = NEW ( FM3Exprs . ExprIdentRefTyp )
             DO
               WExpr . ExpIdentDeclNo := LRefDeclNo 
             ; WExpr . ExpPosition := LPosition
@@ -2114,7 +2117,7 @@ MODULE FM3Pass2
             ELSE (* A remote decl brought in by EXPORTS or FROM I IMPORT. *)
               IF AreInsideADecl ( )   
               THEN (* Create an ExprIdNo node. *) 
-                WITH WExpr = NEW ( FM3Exprs . ExprRemoteRef )
+                WITH WExpr = NEW ( FM3Exprs . ExprRemoteRefTyp )
                 DO 
                   WExpr . ExpRemoteUnitNo := LUnitNo 
                 ; WExpr . ExpRemoteDeclNo := LRefDeclNo 
@@ -2175,8 +2178,8 @@ MODULE FM3Pass2
           IF AreInsideADecl ( ) 
           THEN (* Create an ExprIdNo node. *) 
             CheckRecursiveRef ( LRefDeclNo )
-          ; WITH WDotExpr = NEW ( FM3Exprs . ExprDot )
-                 , WLtExpr = NEW ( FM3Exprs . ExprIdentReference )
+          ; WITH WDotExpr = NEW ( FM3Exprs . ExprDotTyp )
+                 , WLtExpr = NEW ( FM3Exprs . ExprIdentRefTyp )
             DO 
               WDotExpr . ExpOpnd1 := WLtExpr 
             ; WDotExpr . ExpDotIdAtom := LAtomRt
@@ -2267,7 +2270,7 @@ MODULE FM3Pass2
               *>
               IF AreInsideADecl ( )
               THEN
-                WITH WExpr = NEW ( FM3Exprs . ExprRemoteRef )
+                WITH WExpr = NEW ( FM3Exprs . ExprRemoteRefTyp )
                 DO 
                   WExpr . ExpRemoteUnitNo := LIntfUnitRef ^ . UntSelfUnitNo 
                 ; WExpr . ExpRemoteDeclNo := LRemoteDeclNoInt 
@@ -2312,8 +2315,8 @@ MODULE FM3Pass2
             IF AreInsideADecl ( )
             THEN 
             (* Turn it into separate QualId ref and dot Id *) 
-              WITH WDotExpr = NEW ( FM3Exprs . ExprDot )
-              , WLtExpr = NEW ( FM3Exprs . ExprRemoteRef )
+              WITH WDotExpr = NEW ( FM3Exprs . ExprDotTyp )
+              , WLtExpr = NEW ( FM3Exprs . ExprRemoteRefTyp )
               DO 
                 WDotExpr . ExpDotIdAtom := LAtomRt
               ; WDotExpr . ExpOpnd1 := WLtExpr 
@@ -2412,6 +2415,7 @@ MODULE FM3Pass2
                )
       ; UnitRef ^ . UntPass2OutRdBack
           := RdBackFile . Create ( LPass2FileFullName , Truncate := TRUE )
+      ; FM3Units . CacheTopUnitValues ( )
       EXCEPT
       | OSError . E ( EMsg ) 
       => FM3Messages . FatalArr

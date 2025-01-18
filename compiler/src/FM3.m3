@@ -17,7 +17,8 @@ MODULE FM3 EXPORTS Main
 
 ; IMPORT FM3CLArgs
 ; IMPORT FM3Compile
-; IMPORT FM3Globals 
+; IMPORT FM3Globals
+; IMPORT FM3RTFailures 
 ; IMPORT FM3Scanner
 ; IMPORT FM3SharedUtils
 
@@ -84,8 +85,11 @@ MODULE FM3 EXPORTS Main
     ; LTerminate := 19 
     END Work 
 
-; BEGIN
-    Work ( )
+; BEGIN 
+    TRY 
+      Work ( )
+    EXCEPT FM3RTFailures . Terminate => 
+    END (*EXCEPT*) 
   END FM3
 .
 

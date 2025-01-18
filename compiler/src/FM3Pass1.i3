@@ -64,20 +64,20 @@ INTERFACE FM3Pass1
 
 ; PROCEDURE InterfaceId
     ( UnitRef : FM3Units . UnitRefTyp
-    ; IdScanAttribute : FM3Scanner . tScanAttribute 
+    ; READONLY IdScanAttribute : FM3Scanner . tScanAttribute 
     )
   (*PRE: UnitRef # NIL *) 
 
 ; PROCEDURE ModuleId
     ( UnitRef : FM3Units . UnitRefTyp
-    ; IdScanAttribute : FM3Scanner . tScanAttribute
+    ; READONLY IdScanAttribute : FM3Scanner . tScanAttribute
     )
   (*PRE: UnitRef # NIL *) 
     
 
 ; PROCEDURE CheckUnitFinalId
     ( UnitRef : FM3Units . UnitRefTyp
-    ; EndIdScanAttribute : FM3Scanner . tScanAttribute 
+    ; READONLY EndIdScanAttribute : FM3Scanner . tScanAttribute 
     ; UnitKind : FM3Units . UnitKindTyp
     )
     
@@ -379,6 +379,10 @@ INTERFACE FM3Pass1
 
 ; PROCEDURE IdentRefL2R ( READONLY IdAttribute : tParsAttribute )
   (* Possibly a reserved Id. *) 
+
+; PROCEDURE RecognizedPragma ( READONLY PragmaAttr : tParsAttribute )
+
+; PROCEDURE UnrecognizedPragma ( READONLY IdAttr : tParsAttribute )
 
 ; PROCEDURE OverrideIdentRefL2R ( READONLY IdAttribute : tParsAttribute )
   : BOOLEAN (* It's OK so far. *) 

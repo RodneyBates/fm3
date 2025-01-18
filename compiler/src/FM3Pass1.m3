@@ -65,6 +65,7 @@ MODULE FM3Pass1
 ; IMPORT FM3Messages 
 ; FROM FM3Messages IMPORT FatalArr , ErrorArr , FM3LogArr
 ; IMPORT FM3Parser
+; IMPORT FM3PgToks
 ; IMPORT FM3Std 
 ; IMPORT FM3Scanner
 ; IMPORT FM3Scopes
@@ -517,7 +518,7 @@ MODULE FM3Pass1
 (*EXPORTED:*)
 ; PROCEDURE InterfaceId
     ( UnitRef : FM3Units . UnitRefTyp
-    ; IdScanAttr : FM3Scanner . tScanAttribute 
+    ; READONLY IdScanAttr : FM3Scanner . tScanAttribute 
     )
   (*PRE: UnitRef # NIL *) 
 
@@ -552,7 +553,7 @@ MODULE FM3Pass1
 (*EXPORTED:*)
 ; PROCEDURE ModuleId
     ( UnitRef : FM3Units . UnitRefTyp
-    ; IdScanAttr : FM3Scanner . tScanAttribute 
+    ; READONLY IdScanAttr : FM3Scanner . tScanAttribute 
     )
   (*PRE: UnitRef # NIL *) 
 
@@ -585,7 +586,7 @@ MODULE FM3Pass1
 (*EXPORTED:*)
 ; PROCEDURE CheckUnitFinalId
     ( UnitRef : FM3Units . UnitRefTyp
-    ; EndIdScanAttr : FM3Scanner . tScanAttribute 
+    ; READONLY EndIdScanAttr : FM3Scanner . tScanAttribute 
     ; UnitKind : FM3Units . UnitKindTyp
     )
     
@@ -1915,6 +1916,40 @@ MODULE FM3Pass1
         END (*IF*) 
       END (*WITH*) 
     END IdentRefL2R
+
+(*EXPORTED.*)
+; PROCEDURE RecognizedPragma ( READONLY PragmaAttr : tParsAttribute )
+
+  = BEGIN
+      CASE PragmaAttr . Scan . SaBuiltinTok OF
+      | FM3PgToks . PgFm3StdUnit
+       => FM3Units . UnitStackTopRef ^ . UntIsStdUnit := TRUE 
+      ELSE
+        FM3Messages . WarningArr
+          ( ARRAY OF REFANY
+              { "FM3 unimplemented pragma: \""
+              , FM3PgToks . Image ( PragmaAttr . Scan . SaBuiltinTok )
+              , "\"."
+              }
+          , PragmaAttr . Scan . Position 
+          ) 
+      END (*CASE*) 
+    END RecognizedPragma
+
+(*EXPORTED.*)
+; PROCEDURE UnrecognizedPragma ( READONLY IdAttr : tParsAttribute )
+
+  = BEGIN
+      FM3Messages . WarningArr
+        ( ARRAY OF REFANY
+            { "FM3 unrecognized pragma: \""
+            , FM3Units . CharsOfIdentAtom
+                ( FM3Units . UnitStackTopRef , IdAttr . Scan . SaAtom )
+            , "\"."
+            }
+        , IdAttr . Scan . Position 
+        ) 
+    END UnrecognizedPragma
 
 ; PROCEDURE PutNotUsable 
     ( IdentRefAtom : FM3Base . AtomTyp

@@ -62,7 +62,7 @@ INTERFACE FM3RTFailures
 ; CONST RcProblem = 1 (* Couldn't find files, etc. *)
 ; CONST RcCancelled = 2
 ; CONST RcFailure = 3 (* Assertion failure or runtime error. *)
-(* These are misuse of the failure handling mechanism: *) 
+(* The following result from misuse of the failure handling mechanism: *) 
 ; CONST RcBadTerminate = 4 
 ; CONST RcBadBackout = 5 
 ; CONST RcBadIgnore = 6
@@ -76,12 +76,12 @@ INTERFACE FM3RTFailures
     RAISES ANY
   (* This must match RTException.Backstop, which can't be used
      by name here, because RTException is an UNSAFE interface. *)
-  (* The RTS may make callback calls on procedures of this type when
+  (* The RTS may callback procedures of this type when
      exception 'a' has been raised, but, (if raises,) 'a' is blocked
      by lack of a covering RAISES clause, or, (if NOT raises,) 'a'
      is not handled. *) 
 
-; PROCEDURE RegisterQueryProc ( QueryProc : QueryProcTyp ; FDoGui := FALSE )
+; PROCEDURE RegisterQueryProc ( QueryProc : QueryProcTyp )
   (* Register a query procedure for Thread.Self. *) 
   RAISES { Thread . Alerted } 
 

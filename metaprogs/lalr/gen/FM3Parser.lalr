@@ -365,6 +365,16 @@ RULE
        END ; 
      } .
 
+   IntfPragmas : /* Empty */ . 
+
+   IntfPragmas : IntfPragmas IntfPragma .
+
+   IntfPragma : StkOpenPragma StkPragmaId StkClosePragma
+     { FM3Pass1 . RecognizedPragma ( $2 ) ; } .
+
+   IntfPragma : StkOpenPragma StkIdent StkClosePragma
+     { FM3Pass1 . UnrecognizedPragma ( $2 ) ; } .
+
    ModuleLt : OptUnsafe StkRwMODULE NonreservedIdent 
      { VAR LUnitRef : FM3Units . UnitRefTyp ; 
        VAR LScopeRef : FM3Scopes . ScopeRefTyp ;  
@@ -593,11 +603,15 @@ RULE
 
 (* ----------------------------- Identifiers ---------------------------- *)
 
-   NonreservedIdent : StkIdent .
-
+   NonreservedIdent : StkIdent 
+     { $$ . Scan . SaChars := $1 . Scan . SaChars ;
+       $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
+       $$ . Scan . SaBuiltinTok := $1 . Scan . SaBuiltinTok ;
+     } .
+(*
    NonreservedIdent : StkReservedIdent
      { FM3Pass1 . FlagReservedIdent ( $1 ) ; } .  
-
+*)
    IdentRef : NonreservedIdent
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
        $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
@@ -629,7 +643,7 @@ RULE
       the entire declaration is removed after issuing error messages.
    *) 
 
-   DeclIdListElems : NonreservedIdent
+   DeclIdListElems : StkIdent
      { IF FM3Pass1 . DeclIdL2R
             ( FM3Decls . TopDeclParseInfo ( ) . DiKind , IdAttribute := $1 )
        THEN (* Use this ident. *) 
@@ -641,7 +655,7 @@ RULE
        END (*IF*) ; 
      } . 
      
-   DeclIdListElems : DeclIdListElems StkComma NonreservedIdent
+   DeclIdListElems : DeclIdListElems StkComma StkIdent
      { IF FM3Pass1 . DeclIdL2R
             ( FM3Decls . TopDeclParseInfo ( ) . DiKind , IdAttribute := $3 )
        (* ^No Itk separators here.  It would be kinda silly. *) 

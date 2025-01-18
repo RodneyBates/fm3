@@ -213,7 +213,11 @@ INTERFACE FM3Units
 
 ; PROCEDURE CurrentUnitIsModule ( ) : BOOLEAN 
 
-; END FM3Units
+; PROCEDURE CharsOfIdentAtom
+    ( UnitRef : UnitRefTyp ; Atom : FM3Base . AtomTyp )
+  : FM3Atom_OAChars . KeyTyp (* Which is ARRAY OF CHAR. *) 
+;
+ END FM3Units
 
 
 .

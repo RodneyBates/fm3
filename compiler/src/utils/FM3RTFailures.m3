@@ -67,7 +67,7 @@ UNSAFE MODULE FM3RTFailures
 ; VAR GThreadInfoList : ThreadInfoRefTyp := NIL 
 
 (* EXPORTED *) 
-; PROCEDURE RegisterQueryProc ( QueryProc : QueryProcTyp ; FDoGui := FALSE )
+; PROCEDURE RegisterQueryProc ( QueryProc : QueryProcTyp )
   RAISES { Thread . Alerted } 
   (* Register a query procedure for Thread.Self. *) 
 
@@ -90,7 +90,7 @@ UNSAFE MODULE FM3RTFailures
                  , Thread := LThreadSelf
                  , QueryProc := QueryProc
                  , QueryingActPtr := NIL 
-                 , DoGui := FDoGui 
+                 , DoGui := FALSE 
                  )
       ; IF GThreadInfoList = NIL
            OR GThreadInfoList ^ . Thread = LThreadSelf 
@@ -309,7 +309,7 @@ UNSAFE MODULE FM3RTFailures
     
 (* EXPORTED *) 
 ; PROCEDURE ActivationLocation ( READONLY Act : RT0 . RaiseActivation ) : TEXT
-    (* Code location where the raise denoted by Apt occurred. *) 
+    (* Code location where the raise denoted by Act occurred. *) 
 
   = VAR LResult : TEXT
   ; LWrT : TextWr . T
@@ -463,7 +463,7 @@ UNSAFE MODULE FM3RTFailures
 
     ; LActPtr := LOOPHOLE ( ADR ( Act ) , RT0 . ActivationPtr )
     ; IF Act . exception = GTerminateRef 
-      THEN (* This shouldn't happen.  Terminate is IMPLICT, so won't be blocked
+      THEN (* This shouldn't happen.  Terminate is IMPLICIT, so won't be blocked
               and should always be caught. *)
       (* Pass this one on. *)
         RTIO . PutText ( Wr . EOL )
@@ -593,7 +593,7 @@ UNSAFE MODULE FM3RTFailures
             | FailureActionTyp . FaCrash 
             =>
             (* This duplicates output already produced by Worker.FailureQuery.
-               But what about on threads that don't do that?  
+               But what about on threads that don't do that? *)   
                 RTIO . PutText ( Wr . EOL )
               ; RTIO . PutText ( "##### " )
               ; RTIO . PutText ( StoppedReason ( LPrimaryWasBlocked ) ) 
@@ -610,9 +610,8 @@ UNSAFE MODULE FM3RTFailures
               ; RTIO . PutText ( ActivationLocation ( Act ) ) 
               ; RTIO . PutText ( Wr . EOL )
               ; RTIO . Flush ( )
-            *)
 
-                DoTerminate ( Act )
+              ; DoTerminate ( Act )
             END (* CASE *)
           END (* IF *) 
         END (* IF *)

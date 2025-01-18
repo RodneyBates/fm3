@@ -13,8 +13,10 @@ MODULE FM3LoTypes
 
 ; BEGIN
 
+    LoTypeMap := VarArray_Int_Refany . New ( NIL ) 
+
 (* These are the same for all targets: *) 
-    VarArray_Int_Refany . Assign
+  ; VarArray_Int_Refany . Assign
       ( LoTypeMap , LoTypeNoNull
       , NEW ( LoTypeInfoRefTyp
             , TiLoTypeNo := LoTypeNoNull 

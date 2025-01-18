@@ -287,6 +287,21 @@ MODULE FM3Units
       RETURN UnitStackTopRef ^ . UntKind IN UnitKindSetModule  
     END CurrentUnitIsModule
 
+(*EXPORTED.*)
+; PROCEDURE CharsOfIdentAtom
+    ( UnitRef : UnitRefTyp ; Atom : FM3Base . AtomTyp )
+  : FM3Atom_OAChars . KeyTyp (* Which is ARRAY OF CHAR. *) 
+
+  = VAR LIdentChars : FM3Atom_OAChars . KeyTyp 
+
+  ; BEGIN 
+      IF NOT FM3Atom_OAChars . Key 
+               ( UnitRef ^ . UntIdentAtomDict , Atom , (*OUT*) LIdentChars )
+      THEN LIdentChars := NIL
+      END (*IF*)
+    ; RETURN LIdentChars
+    END CharsOfIdentAtom 
+    
 ; BEGIN
     UnitsAtomDict  
       := FM3Atom_Text . New
