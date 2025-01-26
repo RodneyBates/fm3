@@ -181,14 +181,14 @@ ItkOverrideList .
 FIXED
 (* One field decl, with possibly multiple idents. *) 
 ItkFieldDecl POS 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
-  Type POS 2       (* Position of colon. *) 
-  Value POS 2      (* Position of becomes. *)
+  Type POS             (* Position of colon. *) 
+  Value POS            (* Position of becomes. *)
 . 
 
 (* One variable decl, with possibly multiple idents. *) 
 ItkVarDecl POS 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
-  Type POS 2     (* Position of colon. *) 
-  Value POS 2    (* Position of becomes. *)
+  Type POS             (* Position of colon. *) 
+  Value POS            (* Position of becomes. *) 
 .
 
 LONE
@@ -198,20 +198,20 @@ LONE
 (* One formal, with possibly multiple idents. *)
 FIXED 
   ItkVALUEFormal POS 2 (* Position of LM ident (Lt) or of semicolon (Rt). *)
-    Type POS 2         (* Position of colon. *) 
-    Value POS 2        (* Position of becomes. *) 
+    Type POS           (* Position of colon. *) 
+    Value POS          (* Position of becomes. *) 
 .
 
 (* One formal, with possibly multiple idents. *) 
 ItkVARFormal POS 2     (* Position of LM ident (Lt) or of semicolon (Rt). *)
-  Type   POS 2         (* Position of colon. *) 
-  Value POS 2          (* Position of becomes. *) 
+  Type   POS           (* Position of colon.  *) 
+  Value POS            (* Position of becomes. *) 
 .
 
 (* One formal, with possibly multiple idents. *) 
 ItkROFormal POS 2      (* Position of LM ident (Lt) or of semicolon (Rt). *)
-  Type POS 2           (* Position of colon. *) 
-  Value POS 2          (* Position of becomes, *) 
+  Type POS             (* Position of colon. *) 
+  Value POS            (* Position of becomes. *) 
 .
 
 LIST

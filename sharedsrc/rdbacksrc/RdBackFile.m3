@@ -59,7 +59,7 @@ MODULE RdBackFile
 ; TYPE BlockTyp = ARRAY BlockSsTyp OF File . Byte 
 
 ; REVEAL T
-  = BRANDED "RdBackFile.T" REF RECORD
+  = BRANDED "RdBackFile.T" REF RECORD 
       RbLengthL : LONGCARD := 0L (* Byte count of current abstract contents. *) 
     ; RbMaxLengthL : LONGCARD := 0L (* Max occurring during period of openness. *)
     ; RbDiskLengthL : LONGCARD := 0L (* Byte count of the disk file. *)   
@@ -68,7 +68,12 @@ MODULE RdBackFile
     ; RbBlockNextIn : INTEGER := 0
     ; RbFileName : TEXT := ""
     ; RbFileHandle : RegularFile . T 
-    ; RbIsOpen : BOOLEAN 
+    ; RbIsOpen : BOOLEAN
+    ; RbCheckLastTok : INTEGER
+    ; RbCheckArgCt : INTEGER
+(* TODO: These two fields do not belong in this abstraction, but it's a lot
+   of work to put them into a subtype.
+*) 
     ; RbBuffer : BlockTyp (* In-memory contents of current block. *) 
     END (*T*)
 

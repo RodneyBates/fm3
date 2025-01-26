@@ -589,7 +589,7 @@ ItkROFormalId    IDENT POS .
 ; CONST ItkVARFormalLtPatch             (*ArgCt: 2*) =   489 (*16_e9 03 *)
 ; CONST ItkVARFormalRt                  (*ArgCt: 2*) =   490 (*16_ea 03 *)
 
-(* Position of colon. *)
+(* Position of colon.  *)
 ; CONST ItkVARFormalType                (*ArgCt: 2*) =   491 (*16_eb 03 *)
 ; CONST ItkVARFormalTypeTemp            (*ArgCt: 2*) =   492 (*16_ec 03 *)
 ; CONST ItkVARFormalTypePatch           (*ArgCt: 2*) =   493 (*16_ed 03 *)
@@ -612,7 +612,7 @@ ItkROFormalId    IDENT POS .
 ; CONST ItkROFormalTypeTemp             (*ArgCt: 2*) =   502 (*16_f6 03 *)
 ; CONST ItkROFormalTypePatch            (*ArgCt: 2*) =   503 (*16_f7 03 *)
 
-(* Position of becomes, *)
+(* Position of becomes. *)
 ; CONST ItkROFormalValue                (*ArgCt: 2*) =   504 (*16_f8 03 *)
 ; CONST ItkROFormalValueTemp            (*ArgCt: 2*) =   505 (*16_f9 03 *)
 ; CONST ItkROFormalValuePatch           (*ArgCt: 2*) =   506 (*16_fa 03 *)

@@ -734,8 +734,7 @@ MODULE FM3DisAsm
                           Rd . UnGetChar ( LArgRdT )
                         ; DobLineNoArg ( LArgNo )
                         (* Go around for another arg letter, whose
-                           leading '_' is in this case, already
-                           consumed.
+                           leading '_' is in this case, already consumed.
                         *)  
                         END (*IF*) 
                       END (*IF*)

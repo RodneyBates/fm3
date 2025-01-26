@@ -1,4 +1,3 @@
-
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2024..2025  Rodney M. Bates.                                    *)
@@ -71,7 +70,11 @@ MODULE FM3Pass2
   *)
 
   = BEGIN (*PutBwdP2*) 
-      <* ASSERT RdBack = P2RdBack *> 
+      <* ASSERT RdBack = P2RdBack *>
+
+IF ValueL = 0L
+THEN ValueL := ValueL
+END ; 
       IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0 
       THEN (* We are skipping output. *) RETURN
       END (*IF*) 
@@ -145,6 +148,7 @@ MODULE FM3Pass2
 
 ; PROCEDURE DiscardOperands
     ( OpndCt : [ 0 .. 6 ] ; FromRdBack : RdBackFile . T )
+(*TODO: Derive operand count from Token code. *) 
     
   = BEGIN
       (* The obvious loop is unrolled. *) 
@@ -170,6 +174,7 @@ MODULE FM3Pass2
     END DiscardOperands 
 
 ; <*UNUSED*> PROCEDURE CopyOperandsReverse
+(*TODO: Derive operand count from Token code. *) 
 
     ( OpndCt : [ 0 .. 6 ] 
     ; FromRdBack , ToRdBack : RdBackFile . T
@@ -222,6 +227,7 @@ MODULE FM3Pass2
     ; FromRdBack , ToRdBack : RdBackFile . T
     ; MaybeSkip : BOOLEAN (* ToRdBack is conditional on SkipNoStack. *) 
     )
+(*TODO: Derive operand count from Token code. *) 
   (* This is tricky.  Pop, push reverses them, but this procedure does
      a compensating reverse, for net same order. 
   *)
@@ -316,14 +322,20 @@ MODULE FM3Pass2
         
       (* More to be done.  One of three possible actions. *)
       (* Check first for an already patched token on top of the patch stack. *)
+; IF LPass1Coord = 141L
+  THEN
+    LPass1Coord := 141L
+  END 
       ; IF LPass1Coord <= LPatchStackTopCoord
-       THEN (* Give caller the token off the patch stack. *)
-          <*ASSERT
-            LPass1Coord = LPatchStackTopCoord
-            (* ^Haven't missed a patch stack token. *)
-          *> 
+        THEN (* Give caller the token off the patch stack. *)
+          <* ASSERT LPass1Coord = LPatchStackTopCoord
+             , "Missed a patch stack token."
+          *>
           LPatchedTokenL := FM3Compress . GetBwd ( LPatchRdBack )
-        ; LPatchedToken := VAL ( LPatchedTokenL , Itk . TokTyp ) 
+ ; IF LPatchedTokenL = 0L
+   THEN LPatchedToken := 0
+   END 
+        ; LPatchedToken := VAL ( LPatchedTokenL , INTEGER (*Itk . TokTyp*) )
         ; IF LPatchedToken = Itk . ItkSkipLt
           THEN (* ItkSkipLt will come only from the patch stack.  Handle it
                   here, so multiple token handlers don't have to.
@@ -341,6 +353,9 @@ MODULE FM3Pass2
             (* ^Push the current patch coordinate back on patch stack. *)
         ; LTokenL := FM3Compress . GetBwd ( LPass1RdBack )
         ; LToken := VAL ( LTokenL , Itk . TokTyp ) 
+; IF LTokenL = 461L
+  THEN LTokenL := 461L
+  END 
         ; IF IntSets . IsElement ( LToken , FM3SharedGlobals . GTokSetPatch )
           THEN
 
@@ -358,7 +373,11 @@ MODULE FM3Pass2
 (* FIXME: The patch operation can apply to any non-Rt token.  I think
           the necessary bias is always the same as LtToPatch, but check
           this and then use a better name for it.
-*) 
+*)
+ ; IF LPatchedToken = 0
+   THEN LPatchedToken := 0
+   END 
+
           ; PutBwdPatch ( LPatchRdBack , VAL ( LPatchedToken , LONGINT ) )
           ; PutBwdPatch ( LPatchRdBack , LPatchStackTopCoord )
           (* And loop. *)
@@ -370,6 +389,9 @@ MODULE FM3Pass2
             SkipRt ( GetBwdInt ( LPass1RdBack) ) 
           (* and loop. *) 
           ELSE (* Return it directly. *)
+IF LToken = 0
+THEN LToken := 0
+END ; 
             Result . TrRdBack := LPass1RdBack
           ; Result . TrTok := LToken
           ; RETURN 
@@ -607,6 +629,66 @@ MODULE FM3Pass2
                ( LOpnd1 . ExpReachedDeclNoSet , LOpnd2 . ExpReachedDeclNoSet )
       END (*IF*) 
     END BinaryOp
+
+; PROCEDURE DeclType ( DeclKindTag : TEXT ) 
+  (* PRE: The type expression exists and is on the expression stack. *) 
+
+  = VAR  LTypeExpr : FM3Exprs . ExprTyp 
+
+  ; BEGIN
+      LTypeExpr := FM3Exprs . PopExprStack ( )
+    ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefExprs [ FALSE ] := LTypeExpr
+    ; IF NOT LTypeExpr . ExpIsPresent THEN RETURN END (*IF*) 
+    ; IF NOT LTypeExpr . ExpIsUsable THEN RETURN END (*IF*) 
+    ; IF LTypeExpr . ExpUpKind # Ekt . EkType
+      THEN
+        FM3Messages . ErrorArr 
+          ( ARRAY OF REFANY
+              { "Type of " 
+              , DeclKindTag 
+              , " declaration must be a type expression." 
+              } 
+          , LTypeExpr . ExpPosition
+          )
+      ; LTypeExpr . ExpIsUsable := FALSE
+      ; LTypeExpr . ExpIsLegalRecursive := TRUE (* Necessary?*)
+      ; FM3Exprs . ExprStackTopObj . ExpIsUsable := FALSE 
+      END (*IF*)
+    END DeclType
+
+; PROCEDURE DeclValue ( DeclKindTag : TEXT ; MustBeConst : BOOLEAN ) 
+  (* PRE: The value expression exists and is on the expression stack. *) 
+
+  = VAR  LValueExpr : FM3Exprs . ExprTyp 
+
+  ; BEGIN
+      LValueExpr := FM3Exprs . PopExprStack ( )
+    ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefExprs [ TRUE ] := LValueExpr
+    ; IF NOT LValueExpr . ExpIsPresent THEN RETURN END (*IF*) 
+    ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := FALSE 
+      (* ^Type is coming up next. *) 
+    ; IF NOT LValueExpr . ExpIsUsable THEN RETURN END (*IF*) 
+    ; IF LValueExpr . ExpUpKind # Ekt . EkValue
+      THEN
+        FM3Messages . ErrorArr 
+          ( ARRAY OF REFANY
+              { DeclKindTag , " declaration must be a value expression." } 
+          , LValueExpr . ExpPosition
+          )
+      ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := FALSE  
+      ELSIF MustBeConst AND NOT LValueExpr . ExpIsConst
+      THEN
+        FM3Messages . ErrorArr 
+          ( ARRAY OF REFANY
+              { DeclKindTag , " declaration must be constant." }
+          , LValueExpr . ExpPosition
+          )
+      ELSE RETURN 
+      END (*IF*)
+    ; LValueExpr . ExpIsUsable := FALSE
+    ; LValueExpr . ExpIsLegalRecursive := TRUE (* Necessary?*)
+    ; FM3Exprs . ExprStackTopObj . ExpIsUsable := FALSE
+    END DeclValue 
 
 ; PROCEDURE InsideDecl ( ) : BOOLEAN 
 
@@ -850,73 +932,71 @@ MODULE FM3Pass2
 
       | Itk . ItkConstDeclRt 
       , Itk . ItkVarDeclRt 
+      , Itk . ItkFieldDeclRt (* Of either record or object. *) 
       , Itk . ItkVALUEFormalRt
       , Itk . ItkVARFormalRt
       , Itk . ItkROFormalRt
-      , Itk . ItkFieldDeclRt (* Of either record or object. *) 
       =>  FM3Scopes . DeclScopeStackTopRef ^ .  ScpCurDeclRefNoSet
             := IntSets . Empty ( )
         ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefExprs
             := ARRAY BOOLEAN OF REFANY { NIL , .. }
         ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := TRUE
-            (* ^ Value def coming up. *)
+            (* ^Value def coming up next. *)
         ; HtPassTokenThru ( )
 
-      | Itk . ItkConstDeclValue 
-      , Itk . ItkVarDeclValue 
-      , Itk . ItkVALUEFormalValue
-      , Itk . ItkVARFormalValue
+      | Itk . ItkConstDeclValue (* Parser ensures this exists, no boolean arg. *)
+      =>  DeclValue ( "Value of CONST" , MustBeConst := TRUE )
+        ; DiscardOperands ( 2 , TokResult . TrRdBack )
+      
+      | Itk . ItkFieldDeclValue (* Of either record or object. *)
+      => DeclValue ( "Default value of field" , MustBeConst := FALSE )
+        ; DiscardOperands ( 2 , TokResult . TrRdBack )
+
+      | Itk . ItkVarDeclValue 
+      => DeclValue ( "Default value of variable" , MustBeConst := FALSE )  
+        ; DiscardOperands ( 2 , TokResult . TrRdBack )
+         
+      | Itk . ItkVALUEFormalValue
       , Itk . ItkROFormalValue
-      , Itk . ItkFieldDeclValue (* Of either record or object. *) 
-      =>  LValueExpr := FM3Exprs . PopExprStack ( )
-        ; IF LValueExpr . ExpUpKind # Ekt . EkValue
-          THEN
-            FM3Messages . ErrorArr 
-              ( ARRAY OF REFANY
-                  { "Value of CONST declaration must be a value expression." } 
-              , LValueExpr . ExpPosition
-              )
-          ; LValueExpr . ExpIsUsable := FALSE
-          ; LValueExpr . ExpIsLegalRecursive := TRUE (* Necessary?*)
-          ; FM3Exprs . ExprStackTopObj . ExpIsUsable := FALSE
-          ELSIF NOT LValueExpr . ExpIsConst 
-          THEN
-            FM3Messages . ErrorArr 
-              ( ARRAY OF REFANY
-                  { "Value of CONST declaration must be constant." }
-              , LValueExpr . ExpPosition
-              )
-          ; LValueExpr . ExpIsUsable := FALSE
-          ; LValueExpr . ExpIsLegalRecursive := TRUE (* Necessary?*)
-          ; FM3Exprs . ExprStackTopObj . ExpIsUsable := FALSE
-          ELSE
-            FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := FALSE
-          END (*IF*)  
-        ; HtPassTokenThru ( )
-        (* ^Now type def, if any, is coming up. *)
+      => DeclValue ( "Default value of formal" , MustBeConst := FALSE ) 
+        ; DiscardOperands ( 2 , TokResult . TrRdBack )
 
-      | Itk . ItkConstDeclType 
-      , Itk . ItkVarDeclType 
-      , Itk . ItkVALUEFormalType
-      , Itk . ItkVARFormalType
+      | Itk . ItkVARFormalValue
+      =>  <* ASSERT NOT FM3Exprs . ExprStackTopObj . ExpIsPresent *> 
+          FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := FALSE
+        ; DiscardOperands ( 2 , TokResult . TrRdBack )
+
+       | Itk . ItkDeclTypeAbsent
+       , Itk . ItkDeclValAbsent
+       =>  LPosition := GetBwdPos ( TokResult . TrRdBack )
+         ; FM3Exprs . PushExprStack
+             ( NEW ( FM3Exprs . ExprTyp , ExpIsPresent := FALSE ) ) 
+         ; IF NOT HtSkipping 
+           THEN
+             PushExprIgnore ( LPosition ) 
+           ; PutBwdP2 ( HtPass2RdBack , VAL ( LPosition . Column , LONGINT ) ) 
+           ; PutBwdP2 ( HtPass2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
+           ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
+           END (*IF*) 
+
+       | Itk . ItkConstDeclType
+       =>  DeclType ( "CONST" )
+         ; DiscardOperands ( 2 , TokResult . TrRdBack )
+
+       | Itk . ItkFieldDeclType (* Of either record or object. *)
+       =>  DeclType ( "field" )
+         ; DiscardOperands ( 2 , TokResult . TrRdBack )
+
+       | Itk . ItkVarDeclType 
+       =>  DeclType ( "variable" )  
+         ; DiscardOperands ( 2 , TokResult . TrRdBack )
+
+      | Itk . ItkVALUEFormalType
       , Itk . ItkROFormalType
-      , Itk . ItkFieldDeclType (* Of either record or object. *) 
-      =>  LValueExpr :=  FM3Exprs . PopExprStack ( )  
-        ; IF LValueExpr . ExpUpKind # Ekt . EkType
-          THEN
-            FM3Messages . ErrorArr 
-              ( ARRAY OF REFANY
-                  { "Type of CONST declaration must be a type expression." } 
-              , LValueExpr . ExpPosition
-              )
-          ; LValueExpr . ExpIsUsable := FALSE
-          ; LValueExpr . ExpIsLegalRecursive := TRUE (* Necessary?*)
-          ; FM3Exprs . ExprStackTopObj . ExpIsUsable := FALSE
-          ELSE 
-            FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := TRUE
-          END (*IF*)
-          (* ^Done with type, ident is next. *) 
-        ; HtPassTokenThru ( )
+      , Itk . ItkVARFormalType
+       =>  DeclType ( "formal" ) 
+         ; DiscardOperands ( 2 , TokResult . TrRdBack )
+
 
       | Itk . ItkConstDeclLt 
       , Itk . ItkVarDeclLt 
@@ -953,19 +1033,6 @@ MODULE FM3Pass2
           EVAL FM3Exprs . PopExprStack ( )  
         ; HtPassTokenThru ( )
 
-      | Itk . ItkDeclTypeAbsent 
-      , Itk . ItkDeclValAbsent
-      , Itk . ItkFormalTypeAbsent
-      , Itk . ItkFormalExprAbsent 
-      =>  LPosition := GetBwdPos ( TokResult . TrRdBack )
-        ; IF NOT HtSkipping 
-          THEN
-            PushExprIgnore ( LPosition ) 
-          ; PutBwdP2 ( HtPass2RdBack , VAL ( LPosition . Column , LONGINT ) ) 
-          ; PutBwdP2 ( HtPass2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
-          ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
-          END (*IF*) 
-
 (* CONSISTIFY: For some of these, fetch the operands inside the called proc. *) 
       | Itk . ItkDuplDeclId
       => EVAL DuplDeclIdR2L ( TokResult )
@@ -984,6 +1051,8 @@ MODULE FM3Pass2
           ; LNewExpr . ExpOpcode := GetBwdAtom ( TokResult . TrRdBack )
           ; LNewExpr . ExpPosition := GetBwdPos ( TokResult . TrRdBack )
           ; LNewExpr . ExpIsLegalRecursive := TRUE
+          ; LNewExpr . ExpUpKind
+              := FM3BuiltinOps . Properties ( LNewExpr . ExpOpcode ) . OpExprKind
           (* Other properties computed later. *) 
           ; DefExprRt ( LNewExpr )
           ELSE HtPassTokenThru ( ) 

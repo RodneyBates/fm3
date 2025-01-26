@@ -274,6 +274,19 @@ INTERFACE FM3Pass1
    ; READONLY Pr : tPosition
    )
 
+; PROCEDURE PutBwd_LCP_eCPB_zCPB_rP
+   ( L : Itk . TokTyp
+   ; CL : LONGINT
+   ; READONLY PL : tPosition
+   ; Ce : LONGINT
+   ; READONLY Pe : tPosition
+   ; Be : BOOLEAN 
+   ; Cz : LONGINT
+   ; READONLY Pz : tPosition
+   ; Bz : BOOLEAN 
+   ; READONLY Pr : tPosition
+   )
+
 ; PROCEDURE PutBwd_LCPeCprp
    ( T : Itk . TokTyp
    ; CLt : LONGINT

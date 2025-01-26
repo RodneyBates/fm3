@@ -66,7 +66,7 @@ Boolean options default to FALSE.
        file to be compiled.
 
 --resource-dir[=]<directory>
-       Look in <directory> for various resource files needed by the commpiler.
+       Look in <directory> for various resource files needed by the compiler.
        Defaults to <exeDir>/../lib, where <exeDir> is the directory containing
        the executable for the FM3 compiler.  This help text is one such
        resource, so you might need to specify --resource-dir prior to --help.

@@ -112,6 +112,16 @@ MODULE FM3Pass1
         END (*EXCEPT*) 
       END (*IF*)
     END PutBwd
+(*
+(*EXPORTED.*)
+; PROCEDURE PutBwdTok ( RdBack : RdBackFile . T ; ValueL : LONGINT )
+
+  = BEGIN (*PutBwdTok*)
+      <* ASSERT RdBack ^ . RbCheckArgCt = 0 *>
+      RdBack ^ . RbCheckTTok := ValueL
+    ; PutBwd ( RdBack , ValueL ) 
+    END PutBwdTok
+  *)     
 
 (*EXPORTED*) 
 ; PROCEDURE RunPass1 ( ) 
@@ -1381,6 +1391,45 @@ MODULE FM3Pass1
       ; PutBwd ( WRdBack , VAL ( L + LtToPatch , LONGINT ) ) 
       END (*WITH*) 
     END PutBwd_LCP_eCPB_zCP_rP 
+
+; PROCEDURE PutBwd_LCP_eCPB_zCPB_rP
+   ( L : Itk . TokTyp
+   ; CL : LONGINT
+   ; READONLY PL : tPosition
+   ; Ce : LONGINT
+   ; READONLY Pe : tPosition
+   ; Be : BOOLEAN 
+   ; Cz : LONGINT
+   ; READONLY Pz : tPosition
+   ; Bz : BOOLEAN 
+   ; READONLY Pr : tPosition
+   )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( Pr . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Pr . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( L + LtToRt , LONGINT ) )
+
+      ; PutBwd ( WRdBack , VAL ( ORD ( Bz ) , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Pz . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Pz. Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , Cz ) 
+      ; PutBwd ( WRdBack , VAL ( L + LtToTwoPatch , LONGINT ) ) 
+
+      ; PutBwd ( WRdBack , VAL ( ORD ( Be ) , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Pe . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Pe. Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , Ce ) 
+      ; PutBwd ( WRdBack , VAL ( L + LtToOnePatch , LONGINT ) )
+      
+      ; PutBwd ( WRdBack , VAL ( PL . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( PL . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , CL ) 
+      ; PutBwd ( WRdBack , VAL ( L + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END PutBwd_LCP_eCPB_zCPB_rP 
 
 (*EXPORTED:*)
 ; PROCEDURE PutBwd_LCPeCprp

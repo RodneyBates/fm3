@@ -71,6 +71,12 @@ INTERFACE FM3Exprs
 
 ; PROCEDURE ExprImage ( Expr : ExprTyp ) : TEXT 
 
+; PROCEDURE ResolveNow
+    ( Expr : ExprTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp
+
+; PROCEDURE ResolveEventually
+    ( Expr : ExprTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp
+
 ; CONST ExprBrand = "ExprTyp0.1"
 ; REVEAL FM3Globals . ExprTyp = ExprPublic BRANDED ExprBrand OBJECT END  
 
@@ -101,17 +107,12 @@ INTERFACE FM3Exprs
       ; ExpIsLegalRecursive : BOOLEAN := FALSE
         (* ^Self or any containing def could make it legal. *) 
       ; ExpIsDesignator : BOOLEAN := FALSE
-      ; ExpIsWritable : BOOLEAN := FALSE 
+      ; ExpIsWritable : BOOLEAN := FALSE
+      ; ExpIsPresent : BOOLEAN := TRUE  
       METHODS
         appendDump ( )  
       ; resolve ( ExprKind : ExprKindTyp ) : ExprStateTyp (* final. *) 
       END
-
-; PROCEDURE ResolveNow
-    ( Expr : ExprTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp
-
-; PROCEDURE ResolveEventually
-    ( Expr : ExprTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp
 
 (* Add some operand links. *)
 ; TYPE Expr1OpndTyp <: Expr1OpndPublic
