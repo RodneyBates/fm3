@@ -1,7 +1,7 @@
         
 $Z(* -----------------------------------------------------------------------1- *)
 $Z(* This file is part of the FM3 Modula-3 compiler.                           *)
-$Z(* Copyright 2024        Rodney M. Bates.                                    *)
+$Z(* Copyright 2024..2025  Rodney M. Bates.                                    *)
 $Z(* rodney.m.bates@acm.org                                                    *)
 $Z(* Licensed under the MIT License.                                           *)
 $Z(* -----------------------------------------------------------------------2- *)

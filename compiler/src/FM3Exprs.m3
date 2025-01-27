@@ -119,7 +119,7 @@ MODULE FM3Exprs
     END AppendExprList
 
     
-; VAR GWrT : Wr . T (* Sorry. *)
+; VAR GWrT : Wr . T (* Sorry for the global. *)
 ; VAR GDepth : INTEGER
 ; TYPE IndentStringsTyp = ARRAY [ 0 .. 1 ] OF TEXT
 ; VAR GIndentStrings : IndentStringsTyp 
@@ -173,14 +173,6 @@ MODULE FM3Exprs
     ; AppendNestedExpr ( Expr ) 
     END NestedField
 
-; PROCEDURE BoolImage ( Value : BOOLEAN ) : TEXT
-
-  = BEGIN
-      IF Value THEN RETURN "TRUE"
-      ELSE RETURN "FALSE"
-      END (*IF*) 
-    END BoolImage
-
 ; PROCEDURE LongHexImage ( Value : LONGINT ) : TEXT 
 
   = BEGIN
@@ -208,7 +200,10 @@ MODULE FM3Exprs
   ; BEGIN
       LFound
         := FM3Atom_OAChars . Key 
-             ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict , Value , (*OUT*) LChars )
+             ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict
+             , Value
+             , (*OUT*) LChars
+             )
     ; IF LFound
       THEN LResult := Text . FromChars ( LChars ^ )
       ELSE LResult := "<NotFound>"
@@ -230,23 +225,27 @@ MODULE FM3Exprs
         NestedField ( "ExpStackLink" , Expr . ExpStackLink ) 
       ; NestedField ( "ExpType" , Expr . ExpType ) 
       ; Field ( "ExpRefConstVal" , RefanyImage ( Expr . ExpRefConstVal ) )  
-      ; Field ( "ExpScalarConstVal" , Fmt . LongInt ( Expr . ExpScalarConstVal ) )  
       ; Field
-          ( "ExpLoTypeInfoRef" , "" (* LoTypeInfoRefTypImage ( Expr . ExpLoTypeInfoRef ) *) )
+          ( "ExpScalarConstVal" , Fmt . LongInt ( Expr . ExpScalarConstVal ) )  
+      ; Field
+          ( "ExpLoTypeInfoRef"
+          , "" (* LoTypeInfoRefTypImage ( Expr . ExpLoTypeInfoRef ) *)
+          )
       ; Field ( "ExpReachedDeclNoSet"
               , IntSets . Image ( Expr . ExpReachedDeclNoSet , IntSetsElemImage )
               ) 
       ; Field ( "ExpSelfExprNo" , Fmt . Int ( Expr . ExpSelfExprNo ) ) 
-      ; Field ( "ExpPosition" , FM3Utils . PositionImage ( Expr . ExpPosition ) )  
+      ; Field ( "ExpPosition" , FM3Utils . PositionImage ( Expr . ExpPosition ) )
       ; Field ( "ExpOpcode" , FM3SrcToks . Image ( Expr . ExpOpcode ) )  
       ; Field ( "ExpDownKind" , ExprKindMessage ( Expr . ExpDownKind ) ) 
       ; Field ( "ExpUpKind" , ExprKindMessage ( Expr . ExpUpKind ) ) 
       ; Field ( "ExpKind" , ExprKindMessage ( Expr . ExpKind ) )  
       ; Field ( "ExpState" , ExprStateImage ( Expr . ExpState ) )  
       ; Field ( "ExpIsConst" , Fmt . Bool ( Expr . ExpIsConst ) )  
-      ; Field ( "ExpConstValIsKnown" , Fmt . Bool ( Expr . ExpConstValIsKnown ) ) 
+      ; Field ( "ExpConstValIsKnown" , Fmt . Bool ( Expr . ExpConstValIsKnown ) )
       ; Field ( "ExpIsUsable" , Fmt . Bool ( Expr . ExpIsUsable ) ) 
-      ; Field ( "ExpIsLegalRecursive" , Fmt . Bool ( Expr . ExpIsLegalRecursive ) ) 
+      ; Field
+          ( "ExpIsLegalRecursive" , Fmt . Bool ( Expr . ExpIsLegalRecursive ) )
       ; Field ( "ExpIsDesignator" , Fmt . Bool ( Expr . ExpIsDesignator ) ) 
       ; Field ( "ExpIsWritable" , Fmt . Bool ( Expr . ExpIsWritable ) )  
       END ExprAppend
