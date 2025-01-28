@@ -262,7 +262,7 @@ MODULE FM3Exprs
         LWrT := TextWr . New ( ) 
       ; Wr . PutText ( LWrT , "Scope no " )
       ; Wr . PutText ( LWrT , Fmt . Int ( ScopeRef^ . ScpSelfScopeNo ) )
-      ; Wr . PutText ( LWrT , " at " )
+      ; Wr . PutChar ( LWrT , ':' )
       ; Wr . PutText ( LWrT , RefanyImage ( ScopeRef ) ) 
       ; LResult := TextWr . ToText ( LWrT )
       ; RETURN LResult 
@@ -274,9 +274,7 @@ MODULE FM3Exprs
     
 ; PROCEDURE ExprAppend ( Expr : ExprTyp )
     = BEGIN
-     (* Field ( "This node's address" , RefanyImage ( Expr ) ) 
-      ; Field ( "ExpStackLink" , RefanyImage ( Expr . ExpStackLink ) ) 
-      ; *) NestedField ( "ExpType" , Expr . ExpType ) 
+        NestedField ( "ExpType" , Expr . ExpType ) 
       ; Field ( "ExpRefConstVal" , RefanyImage ( Expr . ExpRefConstVal ) )  
       ; Field
           ( "ExpScalarConstVal" , Fmt . LongInt ( Expr . ExpScalarConstVal ) )  

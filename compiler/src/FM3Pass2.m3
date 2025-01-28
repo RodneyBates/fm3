@@ -641,7 +641,12 @@ END ;
     ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefExprs [ FALSE ] := LTypeExpr
     ; IF NOT LTypeExpr . ExpIsPresent THEN RETURN END (*IF*) 
     ; IF NOT LTypeExpr . ExpIsUsable THEN RETURN END (*IF*) 
-    ; IF LTypeExpr . ExpUpKind # Ekt . EkType
+    ; IF FALSE
+(* FIXME:         LTypeExpr could be an identifier referring to a decl farther
+                  to the left, whose (the decl's) kind we can't get here.
+                  This check will have to be done in Pass3
+*) 
+         AND LTypeExpr . ExpUpKind # Ekt . EkType 
       THEN
         FM3Messages . ErrorArr 
           ( ARRAY OF REFANY
@@ -669,7 +674,12 @@ END ;
     ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := FALSE 
       (* ^Type is coming up next. *) 
     ; IF NOT LValueExpr . ExpIsUsable THEN RETURN END (*IF*) 
-    ; IF LValueExpr . ExpUpKind # Ekt . EkValue
+    ; IF FALSE 
+(* FIXME:         LValusExpr could be an identifier referring to a decl farther
+                  to the left, whose (the decl's) kind we can't get here.
+                  This check will have to be done in Pass3
+*)
+         AND LValueExpr . ExpUpKind # Ekt . EkValue
       THEN
         FM3Messages . ErrorArr 
           ( ARRAY OF REFANY
@@ -677,7 +687,9 @@ END ;
           , LValueExpr . ExpPosition
           )
       ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := FALSE  
-      ELSIF MustBeConst AND NOT LValueExpr . ExpIsConst
+      ELSIF FALSE
+(* FIXME Same problem as above.*) 
+            AND MustBeConst AND NOT LValueExpr . ExpIsConst
       THEN
         FM3Messages . ErrorArr 
           ( ARRAY OF REFANY
