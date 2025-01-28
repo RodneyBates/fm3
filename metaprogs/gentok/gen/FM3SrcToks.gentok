@@ -183,7 +183,7 @@ NEXT StkMinRid .
    RidLONGCARD         "LONGCARD" . 
    RidLONGINT          "LONGINT" . 
    RidLONGREAL         "LONGREAL" . 
-StkStkPd   RidLOOPHOLE         "LOOPHOLE" . 
+   RidLOOPHOLE         "LOOPHOLE" . 
    RidMAX              "MAX" . 
    RidMIN              "MIN" . 
    RidMUTEX            "MUTEX" . 

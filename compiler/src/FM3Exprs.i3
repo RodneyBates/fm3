@@ -15,6 +15,8 @@ INTERFACE FM3Exprs
    and rigthward.  So we build in-memory, linked data structure for them.
 *)
 
+; IMPORT Wr
+
 ; IMPORT IntSets 
 
 ; IMPORT FM3Base
@@ -69,7 +71,9 @@ INTERFACE FM3Exprs
 
 ; TYPE ExprListRefTyp = REF ARRAY OF ExprTyp
 
-; PROCEDURE ExprImage ( Expr : ExprTyp ) : TEXT 
+; PROCEDURE DumpExpr ( Expr : ExprTyp ; WrT : Wr . T )  
+;
+ PROCEDURE ExprImage ( Expr : ExprTyp ) : TEXT 
 
 ; PROCEDURE ResolveNow
     ( Expr : ExprTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp

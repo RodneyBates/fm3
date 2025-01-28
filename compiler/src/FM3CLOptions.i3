@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2024        Rodney M. Bates.                                    *)
+(* Copyright 2024..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -84,6 +84,7 @@ INTERFACE FM3CLOptions
 
 ; VAR PassNosToKeep : PassNoSetTyp := PassNoSetEmpty    
 ; VAR PassNosToDisAsm : PassNoSetTyp := PassNoSetEmpty
+; VAR PassNosToDumpExprs : PassNoSetTyp := PassNoSetEmpty
  
 ; END FM3CLOptions 
 .

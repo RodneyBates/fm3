@@ -42,6 +42,7 @@ MODULE FM3Pass2
 ; IMPORT FM3Graph 
 ; IMPORT FM3IntToks AS Itk
 ; IMPORT FM3LoTypes
+; IMPORT FM3Pass1
 ; IMPORT FM3ReservedIds
 ; IMPORT FM3SrcToks 
 ; IMPORT FM3SrcToks AS Stk
@@ -2453,14 +2454,23 @@ END ;
           ( UnitRef ^ . UntPassNosDisAsmed , FM3CLOptions . PassNo2 ) 
       END (*IF*) 
     ; IF DoEarlierPasses
-      THEN
-(* This is unnecessary, as pass 1 has no earlier pass.  It is here in comment
-   to remind whomever to do this in passes later than pass 2.
- 
-        FM3Pass1 . DisAsmPass1 ( DoEarlierPasses := TRUE )
-*) 
+      THEN FM3Pass1 . DisAsmPass1 (UnitRef )
       END (*IF*) 
     END DisAsmPass2
+
+(*EXPORTED*)
+; PROCEDURE DumpExprsPass2
+    ( UnitRef : FM3Units . UnitRefTyp )
+
+  = BEGIN (*DumpExprsPass2*)
+      IF NOT FM3CLOptions . PassNo2 IN UnitRef ^ . UntPassNosDumped 
+      THEN (* Dump file is not already written. *) 
+        FM3Compile . DumpPassExprs
+          ( UnitRef , FM3Globals . Pass2OutSuffix )
+      ; FM3CLOptions . InclPassNo
+          ( UnitRef ^ . UntPassNosDumped , FM3CLOptions . PassNo2 ) 
+      END (*IF*) 
+    END DumpExprsPass2
 
 ; PROCEDURE InitPass2 ( UnitRef : FM3Units . UnitRefTyp )
 
@@ -2680,6 +2690,10 @@ END ;
         )
     ; IF FM3CLOptions . PassNo2 IN FM3CLOptions . PassNosToDisAsm 
       THEN DisAsmPass2 ( UnitRef , DoEarlierPasses := FALSE )
+      END (*IF*)
+
+    ; IF FM3CLOptions . PassNo2 IN FM3CLOptions . PassNosToDumpExprs 
+      THEN FM3Compile . DumpPassExprs ( UnitRef , FM3Globals . Pass2OutSuffix )
       END (*IF*)
 
     (* Close the source file. *) 

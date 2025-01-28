@@ -27,6 +27,10 @@ INTERFACE FM3SharedUtils
 ; <*IMPLICIT*>
   EXCEPTION FatalError ( TEXT )
 
+; PROCEDURE LongHexImage ( Value : LONGINT ) : TEXT 
+
+; <*INLINE*> PROCEDURE RefanyImage ( Value : REFANY ) : TEXT
+
 ; PROCEDURE PluralSuffix ( Value : INTEGER ) : TEXT 
 
 ; PROCEDURE StandaloneFatalError ( Msg : TEXT )

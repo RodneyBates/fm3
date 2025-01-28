@@ -10,7 +10,7 @@
 (* Store decoded values in FM3CLOptions. *) 
 (* See compiler/lib/FM3HelpText. *)
 (* See metaprogs/gentok/gen/FM3CLToks.gentok and generated
-   files FM3CLToks.[im]3 in the same directory.
+   files FM3CLToks.[im]3 and FM3CLToksSrcFsm.pkl in the same directory.
 *) 
 
 MODULE FM3CLArgs
@@ -472,6 +472,10 @@ MODULE FM3CLArgs
         =>  PaFindParam ( )
           ; PaPassNoSet ( FM3CLOptions . PassNosToDisAsm , NOT LNo ) 
         
+        | Clt . CltExprsPasses 
+        =>  PaFindParam ( )
+          ; PaPassNoSet ( FM3CLOptions . PassNosToDumpExprs , NOT LNo ) 
+        
         | Clt . CltDisAsm 
         =>  PaNoEqualSign ( )
           ; AlterPassNos
@@ -487,7 +491,7 @@ MODULE FM3CLArgs
         , Clt . CltUnitLog 
         , Clt . CltRemoveUnusedDecls
         , Clt . CltDisAsmVerbose
-        , Clt . CltDumpExprs 
+        , Clt . CltExprs 
         =>  PaNoEqualSign ( )
           ; AssignOptionSetElem 
               ( FM3CLOptions . OptionTokSet , LLexValue , Value := NOT LNo ) 
@@ -585,6 +589,24 @@ MODULE FM3CLArgs
           | 'D' (* Disassemble , all passes. *) 
           => AlterPassNos
                ( FM3CLOptions . PassNosToDisAsm
+               , FM3CLOptions . PassNoSetValid
+               , Include := TRUE 
+               ) 
+                
+          | 'e' (* Disassemble one pass. *) 
+          =>  PaFindParam ( )
+            ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs )
+            ; LPassNo := SingleDigitParam ( LParam )
+            ; IF NOT LPassNo IN FM3CLOptions . PassNoSetValid
+              THEN RAISE TerminateCL ( "Invalid pass number." ) 
+              END (*IF*) 
+            ; FM3CLOptions . InclPassNo
+               ( FM3CLOptions . PassNosToDumpExprs , LPassNo )
+            ; EXIT 
+               
+          | 'E' (* Dump expressions , all passes. *) 
+          => AlterPassNos
+               ( FM3CLOptions . PassNosToDumpExprs
                , FM3CLOptions . PassNoSetValid
                , Include := TRUE 
                ) 
@@ -769,6 +791,7 @@ MODULE FM3CLArgs
              
     ; FM3CLOptions . PassNosToKeep := FM3CLOptions . PassNoSetEmpty 
     ; FM3CLOptions . PassNosToDisAsm := FM3CLOptions . PassNoSetEmpty 
+    ; FM3CLOptions . PassNosToDumpExprs := FM3CLOptions . PassNoSetEmpty 
 
   (* TEMPORARY: during development: *)
 
@@ -791,6 +814,13 @@ MODULE FM3CLArgs
     (* Disassemble intermediate files. *)
     ; AlterPassNos
         ( FM3CLOptions . PassNosToDisAsm
+        , FM3CLOptions . PassNoSetValid
+        , Include := TRUE 
+        ) 
+
+    (* Dump Expressions files. *)
+    ; AlterPassNos
+        ( FM3CLOptions . PassNosToDumpExprs
         , FM3CLOptions . PassNoSetValid
         , Include := TRUE 
         ) 

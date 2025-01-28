@@ -31,24 +31,25 @@ INTERFACE FM3CLToks
 ; CONST CltDisAsmPasses                              =     8 (*16_08 *)
 ; CONST CltDisAsmVerbose                             =     9 (*16_09 *)
 ; CONST CltDisAsm                                    =    10 (*16_0a *)
-; CONST CltDumpExprs                                 =    11 (*16_0b *)
-; CONST CltKeepPasses                                =    12 (*16_0c *)
-; CONST CltKeep                                      =    13 (*16_0d *)
-; CONST CltOvflo                                     =    14 (*16_0e *)
+; CONST CltExprs                                     =    11 (*16_0b *)
+; CONST CltExprsPasses                               =    12 (*16_0c *)
+; CONST CltKeepPasses                                =    13 (*16_0d *)
+; CONST CltKeep                                      =    14 (*16_0e *)
+; CONST CltOvflo                                     =    15 (*16_0f *)
 (* Keep intermediate files. *)
-; CONST CltRemoveUnusedDecls                         =    15 (*16_0f *)
-; CONST CltStdErr                                    =    16 (*16_10 *)
+; CONST CltRemoveUnusedDecls                         =    16 (*16_10 *)
+; CONST CltStdErr                                    =    17 (*16_11 *)
 (* Write compilation process messages to stderr. *)
-; CONST CltFM3Log                                    =    17 (*16_11 *)
+; CONST CltFM3Log                                    =    18 (*16_12 *)
 (* Write compilation process messages to compiler log file. *)
-; CONST CltStdOut                                    =    18 (*16_12 *)
+; CONST CltStdOut                                    =    19 (*16_13 *)
 (* Write compiled code messages to stdout. *)
-; CONST CltUnitLog                                   =    19 (*16_13 *)
+; CONST CltUnitLog                                   =    20 (*16_14 *)
 (* Write compiled code messages to unit-specific log file. *)
 (* End of file FM3CLToks.gentok *)
 ; CONST TkMinTok                                     =     0
 
-; CONST TkMaxTok                                     =    19
+; CONST TkMaxTok                                     =    20
 
 ; END FM3CLToks
 .

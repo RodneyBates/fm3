@@ -11,6 +11,7 @@ MODULE  FM3Compile
 (* Overall build and compilation process. *) 
 
 ; IMPORT FileWr
+; IMPORT Fmt 
 ; IMPORT OSError 
 ; IMPORT Pathname
 ; IMPORT Text 
@@ -25,6 +26,7 @@ MODULE  FM3Compile
 ; IMPORT FM3Base
 ; IMPORT FM3CLOptions
 ; IMPORT FM3DisAsm 
+; IMPORT FM3Exprs 
 ; IMPORT FM3Files 
 ; IMPORT FM3Globals
 ; IMPORT FM3Messages 
@@ -263,6 +265,59 @@ MODULE  FM3Compile
     ; FM3SharedUtils . DeleteFile ( LCopyFileFullName )
 
     END DisAsmPassFile
+
+(*EXPORTED*) 
+; PROCEDURE DumpPassExprs
+    ( UnitRef : FM3Units . UnitRefTyp ; PassFileSuffix : TEXT )
+  (* As they are when this is called.  After a particular pass. *) 
+
+  = VAR LPassFileName : TEXT 
+  ; VAR LExprsFileFullName : TEXT
+  ; VAR LDisAsmFileFullName : TEXT
+  ; VAR LExprMap : FM3Base . MapTyp
+  ; VAR LWrT : Wr . T
+  
+  ; BEGIN
+      LPassFileName
+        := Pathname . Join
+             ( UnitRef ^ . UntBuildDirPath
+             , UnitRef ^ . UntSrcFileSimpleName 
+             , PassFileSuffix
+             )
+    ; LExprsFileFullName 
+        := Pathname . Join
+             ( NIL , LPassFileName , FM3Globals . ExprsFileSuffix ) 
+    ; LWrT := FileWr . Open ( LExprsFileFullName )
+    ; LExprMap := UnitRef ^ . UntExprMap
+    ; IF LExprMap = NIL
+      THEN
+        Wr . PutText ( LWrT , "<No expression map>" )
+      ; Wr . PutText ( LWrT , Wr . EOL ) 
+      ELSE 
+        FOR RExprNo
+            := VarArray_Int_Refany . TouchedRange ( LExprMap ) . Lo
+            TO  VarArray_Int_Refany . TouchedRange ( LExprMap ) . Hi
+        DO Wr . PutText ( LWrT , "Expr No " )
+        ; Wr . PutText ( LWrT , Fmt . Int ( RExprNo ) )
+        ; Wr . PutChar ( LWrT , ':' )
+        ; TYPECASE VarArray_Int_Refany . Fetch ( LExprMap , RExprNo ) OF
+          | NULL
+          =>  Wr . PutText ( LWrT , "NIL" )
+            ; Wr . PutText ( LWrT , Wr . EOL )
+            
+          | FM3Exprs . ExprTyp ( TExpr )
+          =>  Wr . PutText ( LWrT , FM3SharedUtils . RefanyImage ( TExpr ) ) 
+            ; Wr . PutText ( LWrT , Wr . EOL ) 
+            ; FM3Exprs . DumpExpr ( TExpr , LWrT )
+
+          ELSE
+            Wr . PutText ( LWrT , "<notExprTyp>" )
+          ; Wr . PutText ( LWrT , Wr . EOL )
+          END (*TYPECASE*) 
+        END (*FOR*)
+      END (*IF*) 
+    ; Wr . Close ( LWrT ) 
+    END DumpPassExprs 
 
 ; CONST PassNoSuffixes
     = ARRAY FM3CLOptions . PassNoTyp OF TEXT

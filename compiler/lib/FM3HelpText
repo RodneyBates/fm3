@@ -8,7 +8,7 @@ $Z(* -----------------------------------------------------------------------2- *
 $Z
 $Z This is the help text for FM3.
 
-$Z Lines like this, starting with "$Z" at the beginningl, are not
+$Z Lines like this, starting with "$Z" at the beginning, are not
 $Z Displayed to the user. 
 
 FM3 arg ..
@@ -107,12 +107,23 @@ Boolean options default to FALSE.
 
 --[no-]disasm-verbose
        When disassembling intermediate files, show displacements and
-       and binary values of token codes. 
+       binary values of token codes. 
        
 -d<passNum>
 --[no-]disasm-passes[=]<passNum> ..
        Disassemble intermediate compilation files for pass number(s)
        <passNum> .. in the build directory.
-       Implies --keep-passes. 
+       Implies --keep-passes with same parameter. 
+       
+-E
+--[no-]exprs
+       Write expression data structure dump files in the build directory. 
+       Implies --keep.
+
+-e<passNum>
+--[no-]exprs-passes[=]<passNum> ..
+       Write expression data structure dump files for pass number(s)
+       <passNum> .. in the build directory.
+       Implies --keep-passes with same parameter. 
        
 

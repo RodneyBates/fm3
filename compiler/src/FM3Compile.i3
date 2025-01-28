@@ -1,7 +1,7 @@
         
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2024        Rodney M. Bates.                                    *)
+(* Copyright 2024..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -56,6 +56,9 @@ INTERFACE FM3Compile
   (* Only after all passes have been run do we know what pass file
      copies are still hanging around.  Delete them. 
   *) 
+
+; PROCEDURE DumpPassExprs
+    ( UnitRef : FM3Units . UnitRefTyp ; PassFileSuffix : TEXT ) 
 
 ; PROCEDURE CompileUnitFromSrc ( UnitRef : FM3Units . UnitRefTyp )
 

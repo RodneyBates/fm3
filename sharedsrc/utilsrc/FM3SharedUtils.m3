@@ -28,7 +28,8 @@ MODULE FM3SharedUtils
 
 ; IMPORT FM3Base
 ; IMPORT FM3LexTable 
-; IMPORT FM3SharedGlobals 
+; IMPORT FM3SharedGlobals
+; IMPORT FM3UnsafeUtils 
 
 ; CONST FM3FileTag = "FM3"
 ; VAR TagLength := Text . Length ( FM3FileTag )  
@@ -38,6 +39,26 @@ MODULE FM3SharedUtils
         { VAL ( 16_A2 , CHAR ) , VAL ( 16_0B , CHAR )
         , VAL ( 16_9F , CHAR ) , VAL ( 16_D9 , CHAR )
         }
+
+(*EXPORTED*) 
+; PROCEDURE LongHexImage ( Value : LONGINT ) : TEXT 
+
+  = BEGIN
+      RETURN
+        "16_" & Fmt . Pad
+                  ( Fmt . LongUnsigned ( Value , base := 16 )
+                  , length := 16
+                  , padChar := '0'
+                  , align:= Fmt . Align . Right
+                  )
+    END LongHexImage 
+
+(*EXPORTED*) 
+; <*INLINE*> PROCEDURE RefanyImage ( Value : REFANY ) : TEXT
+
+  = BEGIN
+      RETURN LongHexImage ( FM3UnsafeUtils . RefanyToLongInt ( Value ) ) 
+    END RefanyImage 
 
 (*EXPORTED*) 
 ; PROCEDURE PluralSuffix ( Value : INTEGER ) : TEXT 

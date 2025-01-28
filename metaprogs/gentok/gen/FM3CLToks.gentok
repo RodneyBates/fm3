@@ -37,7 +37,8 @@ CltBuildDir              "build-dir" .
 CltDisAsmPasses          "disasm-passes" .
 CltDisAsmVerbose         "disasm-verbose" . 
 CltDisAsm                "disasm" .
-CltDumpExprs             "dump-exprs" . 
+CltExprs                 "exprs" . 
+CltExprsPasses           "exprs-passes" . 
 CltKeepPasses            "keep-passes" .
 CltKeep                  "keep" .
 CltOvflo                 "check-overflow" . 

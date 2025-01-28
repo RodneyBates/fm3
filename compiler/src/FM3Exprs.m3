@@ -20,6 +20,7 @@ MODULE FM3Exprs
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Base
 ; IMPORT FM3Globals
+; FROM FM3SharedUtils IMPORT RefanyImage 
 ; IMPORT FM3SrcToks
 ; IMPORT FM3Units 
 ; IMPORT FM3Utils
@@ -105,7 +106,7 @@ MODULE FM3Exprs
 
   = BEGIN
       IF ExprList = NIL THEN RETURN END (*IF*)
-    ; FOR RI := FIRST ( ExprList ^) TO LAST ( ExprList ^ ) 
+    ; FOR RI := FIRST ( ExprList ^ ) TO LAST ( ExprList ^ ) 
       DO
         Wr . PutText ( GWrT , GIndentStrings [ ORD ( GDepth MOD 5 = 0 ) ] ) 
       ; Wr . PutChar ( GWrT , '[' )  
@@ -124,12 +125,23 @@ MODULE FM3Exprs
 ; TYPE IndentStringsTyp = ARRAY [ 0 .. 1 ] OF TEXT
 ; VAR GIndentStrings : IndentStringsTyp 
 ; CONST IndentBase0
-    = "   2   4   6   8  10  12  14  16  18  20  22  24  26  28  30  32  34  36  38  "
+    = ".. 2.. 4.. 6.. 8..10..12..14..16..18..20..22..24..26..28..30..32..34..36..38  "
 ; CONST IndentBase1 
     = "   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |  "
 
 (*EXPORTED.*) 
+; PROCEDURE DumpExpr ( Expr : ExprTyp ; WrT : Wr . T )  
+
+  = BEGIN
+      GWrT := WrT 
+    ; GDepth := 0 
+    ; Expr . appendDump ( )
+    ; Wr . PutText ( WrT , Wr . EOL ) 
+    END DumpExpr
+
+(*EXPORTED.*) 
 ; PROCEDURE ExprImage ( Expr : ExprTyp ) : TEXT 
+  (* For calling from within a debugger. *) 
 
   = BEGIN
       GWrT := TextWr . New ( )
@@ -143,6 +155,7 @@ MODULE FM3Exprs
 
   = BEGIN
       Wr . PutText ( GWrT , GIndentStrings [ ORD ( GDepth MOD 5 = 0 ) ] )
+    ; Wr . PutChar ( GWrT , ' ' ) 
     ; Wr . PutText ( GWrT , Name ) 
     ; Wr . PutText ( GWrT , " = " ) 
     ; Wr . PutText ( GWrT , Value ) 
@@ -154,25 +167,32 @@ MODULE FM3Exprs
   = VAR LIndentStrings : IndentStringsTyp 
 
   ; BEGIN
-      INC ( GDepth )
-    ; LIndentStrings := GIndentStrings 
-    ; GIndentStrings [ 0 ]  := Text . Sub ( IndentBase0 , 0 , GDepth * 2 ) 
-    ; GIndentStrings [ 1 ]  := Text . Sub ( IndentBase1 , 0 , GDepth * 2 ) 
-    ; Expr . appendDump ( )
-    ; GIndentStrings := LIndentStrings 
-    ; DEC ( GDepth ) 
+      IF Expr = NIL
+      THEN 
+        Wr . PutText ( GWrT , Wr . EOL )
+      ELSE 
+        INC ( GDepth )
+      ; LIndentStrings := GIndentStrings 
+      ; GIndentStrings [ 0 ]  := Text . Sub ( IndentBase0 , 0 , GDepth * 2 ) 
+      ; GIndentStrings [ 1 ]  := Text . Sub ( IndentBase1 , 0 , GDepth * 2 ) 
+      ; Expr . appendDump ( )
+      ; GIndentStrings := LIndentStrings 
+      ; DEC ( GDepth )
+      END (*IF*) 
     END AppendNestedExpr
 
 ; PROCEDURE NestedField ( Name : TEXT ; Expr : ExprTyp ) 
 
   = BEGIN
       Wr . PutText ( GWrT , GIndentStrings [ ORD ( GDepth MOD 5 = 0 ) ] )
+    ; Wr . PutChar ( GWrT , ' ' ) 
     ; Wr . PutText ( GWrT , Name ) 
-    ; Wr . PutText ( GWrT , " = " ) 
-    ; Wr . PutText ( GWrT , Wr . EOL )
+    ; Wr . PutText ( GWrT , " = " )
+    ; Wr . PutText ( GWrT , RefanyImage ( Expr ) )  
+    ; IF Expr # NIL THEN Wr . PutText ( GWrT , Wr . EOL ) END (*IF*) 
     ; AppendNestedExpr ( Expr ) 
     END NestedField
-
+(*
 ; PROCEDURE LongHexImage ( Value : LONGINT ) : TEXT 
 
   = BEGIN
@@ -190,7 +210,7 @@ MODULE FM3Exprs
   = BEGIN
       RETURN LongHexImage ( FM3UnsafeUtils . RefanyToLongInt ( Value ) ) 
     END RefanyImage 
-
+*) 
 ; PROCEDURE AtomTypImage ( Value : FM3Base . AtomTyp ) : TEXT
 
   = VAR LChars : REF ARRAY OF CHAR
@@ -220,10 +240,12 @@ MODULE FM3Exprs
 
 ; REVEAL ExprTyp
     = ExprPublic BRANDED OBJECT OVERRIDES appendDump := ExprAppend END
+    
 ; PROCEDURE ExprAppend ( Expr : ExprTyp )
     = BEGIN
-        NestedField ( "ExpStackLink" , Expr . ExpStackLink ) 
-      ; NestedField ( "ExpType" , Expr . ExpType ) 
+     (* Field ( "This node's address" , RefanyImage ( Expr ) ) 
+      ; Field ( "ExpStackLink" , RefanyImage ( Expr . ExpStackLink ) ) 
+      ; *) NestedField ( "ExpType" , Expr . ExpType ) 
       ; Field ( "ExpRefConstVal" , RefanyImage ( Expr . ExpRefConstVal ) )  
       ; Field
           ( "ExpScalarConstVal" , Fmt . LongInt ( Expr . ExpScalarConstVal ) )  
@@ -580,6 +602,8 @@ MODULE FM3Exprs
       
 
 ; BEGIN
+    GIndentStrings [ 0 ] := "" 
+  ; GIndentStrings [ 1 ] := "" 
   END FM3Exprs
 .
 

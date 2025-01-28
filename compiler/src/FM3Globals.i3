@@ -61,6 +61,7 @@ INTERFACE FM3Globals
 ; CONST Pass3OutSuffix = "FM3Pass3" (* Output of pass 3. *)
 ; CONST CopyFileSuffix = "Copy" 
 ; CONST DisAsmFileSuffix = "DisAsm"
+; CONST ExprsFileSuffix = "Exprs"
 ; CONST UnitLogSuffix = "Log" 
 
 (* These are cached copies of Unt* fields of the current Unit, for faster
