@@ -21,6 +21,7 @@ MODULE FM3Exprs
 ; IMPORT FM3Base
 ; IMPORT FM3Globals
 ; FROM FM3SharedUtils IMPORT RefanyImage 
+; IMPORT FM3Scopes
 ; IMPORT FM3SrcToks
 ; IMPORT FM3Units 
 ; IMPORT FM3Utils
@@ -151,6 +152,16 @@ MODULE FM3Exprs
     ; RETURN TextWr . ToText ( GWrT )
     END ExprImage
 
+; PROCEDURE SubtypeComment ( Text : TEXT ) 
+
+  = BEGIN
+      Wr . PutText ( GWrT , GIndentStrings [ ORD ( GDepth MOD 5 = 0 ) ] )
+    ; Wr . PutText ( GWrT , " (* From subtype " ) 
+    ; Wr . PutText ( GWrT , Text ) 
+    ; Wr . PutText ( GWrT , ": *)" ) 
+    ; Wr . PutText ( GWrT , Wr . EOL ) 
+    END SubtypeComment
+
 ; PROCEDURE Field ( Name : TEXT ; Value : TEXT ) 
 
   = BEGIN
@@ -236,7 +247,27 @@ MODULE FM3Exprs
 
   = BEGIN
       RETURN Fmt . Int ( Elem ) 
-    END IntSetsElemImage 
+    END IntSetsElemImage
+
+; PROCEDURE ScopeRefImage ( ScopeRef : FM3Scopes . ScopeRefTyp ) : TEXT 
+
+  = VAR LResult : TEXT
+  ; VAR LWrT : Wr . T 
+
+  ; BEGIN
+      IF ScopeRef = NIL
+      THEN
+        RETURN "Scope NIL" 
+      ELSE
+        LWrT := TextWr . New ( ) 
+      ; Wr . PutText ( LWrT , "Scope no " )
+      ; Wr . PutText ( LWrT , Fmt . Int ( ScopeRef^ . ScpSelfScopeNo ) )
+      ; Wr . PutText ( LWrT , " at " )
+      ; Wr . PutText ( LWrT , RefanyImage ( ScopeRef ) ) 
+      ; LResult := TextWr . ToText ( LWrT )
+      ; RETURN LResult 
+      END (*IF*) 
+    END ScopeRefImage
 
 ; REVEAL ExprTyp
     = ExprPublic BRANDED OBJECT OVERRIDES appendDump := ExprAppend END
@@ -274,85 +305,110 @@ MODULE FM3Exprs
 
 ; REVEAL Expr1OpndTyp
     = Expr1OpndPublic BRANDED OBJECT OVERRIDES appendDump := Expr1OpndAppend END
+
 ; PROCEDURE Expr1OpndAppend ( Expr : Expr1OpndTyp )
     = BEGIN 
-        ExprAppend ( Expr ) 
+        ExprAppend ( Expr )
+      ; SubtypeComment ( "Expr1OpndTyp" )
       ; NestedField ( "ExpOpnd1" , Expr . ExpOpnd1 ) 
       END Expr1OpndAppend
+
 ; REVEAL Expr2OpndTyp
     = Expr2OpndPublic BRANDED OBJECT OVERRIDES appendDump := Expr2OpndAppend END
+
 ; PROCEDURE Expr2OpndAppend ( Expr : Expr2OpndTyp )
     = BEGIN 
         Expr1OpndAppend ( Expr ) 
+      ; SubtypeComment ( "Expr2OpndTyp" )
       ; NestedField ( "ExpOpnd2" , Expr . ExpOpnd2 ) 
       END Expr2OpndAppend
 
 ; REVEAL Expr3OpndTyp
     = Expr3OpndPublic BRANDED OBJECT OVERRIDES appendDump := Expr3OpndAppend END
+
 ; PROCEDURE Expr3OpndAppend ( Expr : Expr3OpndTyp )
     = BEGIN 
         Expr2OpndAppend ( Expr ) 
+      ; SubtypeComment ( "Expr3OpndTyp" )
       ; NestedField ( "ExpOpnd3" , Expr . ExpOpnd3 ) 
       END Expr3OpndAppend
 
 ; REVEAL ExprMultiOpndTyp
-    = ExprMultiOpndPublic BRANDED OBJECT OVERRIDES appendDump := ExprMultiOpndAppend END
+    = ExprMultiOpndPublic BRANDED OBJECT
+        OVERRIDES appendDump := ExprMultiOpndAppend END
+
 ; PROCEDURE ExprMultiOpndAppend ( Expr : ExprMultiOpndTyp )
     = BEGIN 
         ExprAppend ( Expr ) 
+      ; SubtypeComment ( "ExprMultiOpndTyp" )
       ; Field ( "ExpOpnds" , "" ) 
       ; AppendExprList ( Expr . ExpOpnds ) 
       END ExprMultiOpndAppend
 
 (* Identifier references: *) 
 ; REVEAL ExprIdentRefTyp
-    = ExprIdentRefPublic BRANDED OBJECT OVERRIDES appendDump := ExprIdentRefAppend END
+    = ExprIdentRefPublic BRANDED OBJECT
+        OVERRIDES appendDump := ExprIdentRefAppend END
+
 ; PROCEDURE ExprIdentRefAppend ( Expr : ExprIdentRefTyp )
     = BEGIN 
         ExprAppend ( Expr ) 
+      ; SubtypeComment ( "ExprIdentRefTyp" )
       ; Field ( "ExpIdentDeclNo" , Fmt . Int ( Expr . ExpIdentDeclNo ) ) 
       END ExprIdentRefAppend (* Not builtin. *) 
 
 ; REVEAL ExprRemoteRefTyp
-    = ExprRemoteRefPublic BRANDED OBJECT OVERRIDES appendDump := ExprRemoteRefAppend END
+    = ExprRemoteRefPublic BRANDED OBJECT
+        OVERRIDES appendDump := ExprRemoteRefAppend END
+
 ; PROCEDURE ExprRemoteRefAppend ( Expr : ExprRemoteRefTyp )
     = BEGIN 
         ExprAppend ( Expr ) 
+      ; SubtypeComment ( "ExprRemoteRefTyp" )
       ; Field ( "ExpRemoteUnitNo" , Fmt . Int ( Expr . ExpRemoteUnitNo ) ) 
       ; Field ( "ExpRemoteDeclNo" , Fmt . Int ( Expr . ExpRemoteDeclNo ) ) 
       END ExprRemoteRefAppend
 
 ; REVEAL ExprQualIdDeclNoAtomTyp
-    = ExprQualIdDeclNoAtomPublic BRANDED OBJECT OVERRIDES appendDump := ExprQualIdDeclNoAtomAppend END
+    = ExprQualIdDeclNoAtomPublic BRANDED OBJECT
+        OVERRIDES appendDump := ExprQualIdDeclNoAtomAppend END
+
 ; PROCEDURE ExprQualIdDeclNoAtomAppend ( Expr : ExprQualIdDeclNoAtomTyp )
     = BEGIN 
         ExprAppend ( Expr ) 
+      ; SubtypeComment ( "ExprQualIdDeclNoAtomTyp" )
       ; Field ( "ExpQualDeclNoLt" , Fmt . Int ( Expr . ExpQualDeclNoLt ) ) 
       ; Field ( "ExpQualIdAtomRt" , AtomTypImage ( Expr . ExpQualIdAtomRt ) ) 
       END ExprQualIdDeclNoAtomAppend
 
 ; REVEAL ExprDotTyp
     = ExprDotPublic BRANDED OBJECT OVERRIDES appendDump := ExprDotAppend END
+
 ; PROCEDURE ExprDotAppend ( Expr : ExprDotTyp )
     = BEGIN 
         Expr1OpndAppend ( Expr ) 
+      ; SubtypeComment ( "ExprDotTyp" )
       ; Field ( "ExpDotIdAtom" , AtomTypImage ( Expr . ExpDotIdAtom ) ) 
       END ExprDotAppend
 
 (* Either a constant expression or one whose type is of interest. *) 
 ; REVEAL ExprBinOpTyp
     = ExprBinOpPublic BRANDED OBJECT OVERRIDES appendDump := ExprBinOpAppend END
+
 ; PROCEDURE ExprBinOpAppend ( Expr : ExprBinOpTyp )
     = BEGIN 
         Expr2OpndAppend ( Expr ) 
+      ; SubtypeComment ( "ExprBinOpTyp" )
       ; Field ( "ExpBinOpOp" , Fmt . Int ( Expr . ExpBinOpOp ) ) 
       END ExprBinOpAppend
 
 ; REVEAL ExprCallTyp
     = ExprCallPublic BRANDED OBJECT OVERRIDES appendDump := ExprCallAppend END
+
 ; PROCEDURE ExprCallAppend ( Expr : ExprCallTyp )
     = BEGIN 
         ExprAppend ( Expr ) 
+      ; SubtypeComment ( "ExprCallTyp" )
       ; NestedField ( "ExpCallProc" , Expr . ExpCallProc ) 
       ; Field ( "ExpActualsList" , "" )
       ; AppendExprList ( Expr . ExpActualsList ) 
@@ -360,10 +416,13 @@ MODULE FM3Exprs
       END ExprCallAppend
 
 ; REVEAL ExprReservedIdRefTyp
-    = ExprReservedIdRefPublic BRANDED OBJECT OVERRIDES appendDump := ExprReservedIdRefAppend END
+    = ExprReservedIdRefPublic BRANDED OBJECT
+        OVERRIDES appendDump := ExprReservedIdRefAppend END
+
 ; PROCEDURE ExprReservedIdRefAppend ( Expr : ExprReservedIdRefTyp )
     = BEGIN
         ExprAppend ( Expr )  
+      ; SubtypeComment ( "ExprReservedIdRefTyp" )
       END ExprReservedIdRefAppend
 
 (* Constants: *)
@@ -371,119 +430,161 @@ MODULE FM3Exprs
 (* Builtin types: *)
 
 ; REVEAL ExprIntTypeTyp
-    = ExprIntTypePublic BRANDED OBJECT OVERRIDES appendDump := ExprIntTypeAppend END
+    = ExprIntTypePublic BRANDED OBJECT
+        OVERRIDES appendDump := ExprIntTypeAppend END
+
 ; PROCEDURE ExprIntTypeAppend ( Expr : ExprIntTypeTyp )
     = BEGIN
         ExprAppend ( Expr ) 
+      ; SubtypeComment ( "ExprIntTypeTyp" )
       END ExprIntTypeAppend 
 
 ; REVEAL ExprFloatTypeTyp
-    = ExprFloatTypePublic BRANDED OBJECT OVERRIDES appendDump := ExprFloatTypeAppend END
+    = ExprFloatTypePublic BRANDED OBJECT
+        OVERRIDES appendDump := ExprFloatTypeAppend END
+
 ; PROCEDURE ExprFloatTypeAppend ( Expr : ExprFloatTypeTyp )
     = BEGIN
         ExprAppend ( Expr ) 
+      ; SubtypeComment ( "ExprFloatTypeTyp" )
       END ExprFloatTypeAppend 
 
 (* Type constructors: *)
 
 ; REVEAL ExprAddrTypeTyp
-    = ExprAddrTypePublic BRANDED OBJECT OVERRIDES appendDump := ExprAddrTypeAppend END
+    = ExprAddrTypePublic BRANDED OBJECT
+      OVERRIDES appendDump := ExprAddrTypeAppend END
+
 ; PROCEDURE ExprAddrTypeAppend ( Expr : ExprAddrTypeTyp )
     = BEGIN 
         Expr1OpndAppend ( Expr ) 
+      ; SubtypeComment ( "ExprAddrTypeTyp" )
       ; NestedField ( "ExpAddrReferent" , Expr . ExpAddrReferent ) 
       END ExprAddrTypeAppend (* REF type. *) 
 
 ; REVEAL ExprREFTypeTyp
-    = ExprREFTypePublic BRANDED OBJECT OVERRIDES appendDump := ExprREFTypeAppend END
+    = ExprREFTypePublic BRANDED OBJECT
+        OVERRIDES appendDump := ExprREFTypeAppend END
+
 ; PROCEDURE ExprREFTypeAppend ( Expr : ExprREFTypeTyp )
     = BEGIN 
         Expr1OpndAppend ( Expr ) 
+      ; SubtypeComment ( "ExprREFTypeTyp" )
       ; NestedField ( "ExpREFReferent" , Expr . ExpREFReferent ) 
       END ExprREFTypeAppend (* REF type. *) 
 
 ; REVEAL ExprOpenArrayTypeTyp
-    = ExprOpenArrayTypePublic BRANDED OBJECT OVERRIDES appendDump := ExprOpenArrayTypeAppend END
+    = ExprOpenArrayTypePublic BRANDED OBJECT
+        OVERRIDES appendDump := ExprOpenArrayTypeAppend END
+
 ; PROCEDURE ExprOpenArrayTypeAppend ( Expr : ExprOpenArrayTypeTyp )
     = BEGIN 
         Expr1OpndAppend ( Expr ) 
+      ; SubtypeComment ( "ExprOpenArrayTypeTyp" )
       ; NestedField ( "ExpOpenArrayElemType" , Expr . ExpOpenArrayElemType ) 
       END ExprOpenArrayTypeAppend (* REF type. *) 
 
 ; REVEAL ExprSubrTypeTyp
-    = ExprSubrTypePublic BRANDED OBJECT OVERRIDES appendDump := ExprSubrTypeAppend END
+    = ExprSubrTypePublic BRANDED OBJECT
+        OVERRIDES appendDump := ExprSubrTypeAppend END
+
 ; PROCEDURE ExprSubrTypeAppend ( Expr : ExprSubrTypeTyp )
     = BEGIN 
         Expr3OpndAppend ( Expr ) 
+      ; SubtypeComment ( "ExprSubrTypeTyp" )
       ; NestedField ( "ExpRangeBase" , Expr . ExpRangeBase ) 
       ; NestedField ( "ExpSubrLo" , Expr . ExpSubrLo ) 
       ; NestedField ( "ExpSubrHi" , Expr . ExpSubrHi ) 
       END ExprSubrTypeAppend (* Subrange *) 
 
 ; REVEAL ExprArrayTypeTyp
-    = ExprArrayTypePublic BRANDED OBJECT OVERRIDES appendDump := ExprArrayTypeAppend END
+    = ExprArrayTypePublic BRANDED OBJECT
+        OVERRIDES appendDump := ExprArrayTypeAppend END
+
 ; PROCEDURE ExprArrayTypeAppend ( Expr : ExprArrayTypeTyp )
     = BEGIN 
         ExprAppend ( Expr ) 
+      ; SubtypeComment ( "ExprArrayTypeTyp" )
       ; NestedField ( "ExpDefElmtType" , Expr . ExpDefElmtType ) 
       ; NestedField ( "ExpDefSsType" , Expr . ExpDefSsType ) 
       END ExprArrayTypeAppend
 
 ; REVEAL Expr1ScopeTyp
-    = Expr1ScopePublic BRANDED OBJECT OVERRIDES appendDump := Expr1ScopeAppend END
+    = Expr1ScopePublic BRANDED OBJECT
+        OVERRIDES appendDump := Expr1ScopeAppend END
 ; PROCEDURE Expr1ScopeAppend ( Expr : Expr1ScopeTyp )
     = BEGIN 
         ExprAppend ( Expr ) 
-      ; Field ( "ExpScopeRef1" , "" (* ScopeRefTypImage ( Expr . ExpScopeRef1 ) *) ) 
+      ; SubtypeComment ( "Expr1ScopeTyp" )
+      ; Field ( "ExpScopeRef1" , ScopeRefImage ( Expr . ExpScopeRef1 ) ) 
       END Expr1ScopeAppend
 
 ; REVEAL ExprRecTypeTyp
-    = ExprRecTypePublic BRANDED OBJECT OVERRIDES appendDump := ExprRecTypeAppend END
+    = ExprRecTypePublic BRANDED OBJECT
+        OVERRIDES appendDump := ExprRecTypeAppend END
+
 ; PROCEDURE ExprRecTypeAppend ( Expr : ExprRecTypeTyp )
     = BEGIN
         Expr1ScopeAppend ( Expr ) 
+      ; SubtypeComment ( "ExprRecTypeTyp" )
       END ExprRecTypeAppend 
 
 ; REVEAL ExprEnumTypeTyp
-    = ExprEnumTypePublic BRANDED OBJECT OVERRIDES appendDump := ExprEnumTypeAppend END
+    = ExprEnumTypePublic BRANDED OBJECT
+        OVERRIDES appendDump := ExprEnumTypeAppend END
+
 ; PROCEDURE ExprEnumTypeAppend ( Expr : ExprEnumTypeTyp )
     = BEGIN
         Expr1ScopeAppend ( Expr ) 
+      ; SubtypeComment ( "ExprEnumTypeTyp" )
       END ExprEnumTypeAppend 
 
 ; REVEAL ExprObjTypeTyp
-    = ExprObjTypePublic BRANDED OBJECT OVERRIDES appendDump := ExprObjTypeAppend END
+    = ExprObjTypePublic BRANDED OBJECT
+        OVERRIDES appendDump := ExprObjTypeAppend END
+
 ; PROCEDURE ExprObjTypeAppend ( Expr : ExprObjTypeTyp )
     = BEGIN
         Expr1ScopeAppend ( Expr ) 
-      ; Field ( "ExpObjMethods" , "" (* ScopeRefTypImage ( Expr . ExpObjMethods ) *) )  
+      ; SubtypeComment ( "ExprObjTypeTyp" )
+      ; Field ( "ExpObjMethods" , ScopeRefImage ( Expr . ExpObjMethods ) )  
       END ExprObjTypeAppend 
 
 (* Constant values: *)
 ; REVEAL ExprConstValueTyp
-    = ExprConstValuePublic BRANDED OBJECT OVERRIDES appendDump := ExprConstValueAppend END
+    = ExprConstValuePublic BRANDED OBJECT
+        OVERRIDES appendDump := ExprConstValueAppend END
+
 ; PROCEDURE ExprConstValueAppend ( Expr : ExprConstValueTyp )
     = BEGIN
         ExprAppend ( Expr ) 
+      ; SubtypeComment ( "ExprConstValueTyp" )
       END ExprConstValueAppend
 
-(* References: *) 
+(* References in source code: *) 
 ; REVEAL ExprDeclIdTyp
-    = ExprDeclIdPublic BRANDED OBJECT OVERRIDES appendDump := ExprDeclIdAppend END
+    = ExprDeclIdPublic BRANDED OBJECT
+        OVERRIDES appendDump := ExprDeclIdAppend END
+
 ; PROCEDURE ExprDeclIdAppend ( Expr : ExprDeclIdTyp )
     = BEGIN 
         ExprAppend ( Expr ) 
+      ; SubtypeComment ( "ExprDeclIdTyp" )
       ; Field ( "ExpDefDeclNo" , Fmt . Int ( Expr . ExpDefDeclNo ) )  
       END ExprDeclIdAppend (* Reference to something declared in this unit. *)
 
 ; REVEAL ExprExpImpDeclIdTyp
-    = ExprExpImpDeclIdPublic BRANDED OBJECT OVERRIDES appendDump := ExprExpImpDeclIdAppend END
+    = ExprExpImpDeclIdPublic BRANDED OBJECT
+        OVERRIDES appendDump := ExprExpImpDeclIdAppend END
+
 ; PROCEDURE ExprExpImpDeclIdAppend ( Expr : ExprExpImpDeclIdTyp )
     = BEGIN 
         ExprAppend ( Expr ) 
+      ; SubtypeComment ( "ExprExpImpDeclIdTyp" )
       ; Field ( "ExpDefIntfUnitNo" , Fmt . Int ( Expr . ExpDefIntfUnitNo ) )  
       ; Field ( "ExpDefIntfDeclNo" , Fmt . Int ( Expr . ExpDefIntfDeclNo ) )   
-     END ExprExpImpDeclIdAppend (* Reference to something declared in another unit. *) 
+     END ExprExpImpDeclIdAppend
+     (* ^Reference to something declared in another unit. *) 
 
 (* Types in the compiled code, not in the compiler. *)
 
