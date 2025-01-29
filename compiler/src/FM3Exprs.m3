@@ -123,6 +123,7 @@ MODULE FM3Exprs
     
 ; VAR GWrT : Wr . T (* Sorry for the global. *)
 ; VAR GDepth : INTEGER
+; VAR GExprNosDumped : IntSets . T
 ; TYPE IndentStringsTyp = ARRAY [ 0 .. 1 ] OF TEXT
 ; VAR GIndentStrings : IndentStringsTyp 
 ; CONST IndentBase0
@@ -131,13 +132,18 @@ MODULE FM3Exprs
     = "   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |  "
 
 (*EXPORTED.*) 
-; PROCEDURE DumpExpr ( Expr : ExprTyp ; WrT : Wr . T )  
+; PROCEDURE DumpExpr
+    ( Expr : ExprTyp ; WrT : Wr . T ; VAR (*IN OUT*) ExprNosDumped : IntSets . T)
+  (* PRE: It's not already dumped. *)
+  (* PRE: Expr header line already written. *) 
 
   = BEGIN
       GWrT := WrT 
     ; GDepth := 0 
+    ; GExprNosDumped := ExprNosDumped 
     ; Expr . appendDump ( )
-    ; Wr . PutText ( WrT , Wr . EOL ) 
+    ; Wr . PutText ( WrT , Wr . EOL )
+    ; ExprNosDumped := GExprNosDumped
     END DumpExpr
 
 (*EXPORTED.*) 
@@ -146,7 +152,8 @@ MODULE FM3Exprs
 
   = BEGIN
       GWrT := TextWr . New ( )
-    ; GDepth := 0 
+    ; GDepth := 0
+    ; GExprNosDumped := IntSets . Empty ( ) 
     ; Expr . appendDump ( )
     ; Wr . PutText ( GWrT , Wr . EOL ) 
     ; RETURN TextWr . ToText ( GWrT )
@@ -199,9 +206,27 @@ MODULE FM3Exprs
     ; Wr . PutChar ( GWrT , ' ' ) 
     ; Wr . PutText ( GWrT , Name ) 
     ; Wr . PutText ( GWrT , " = " )
-    ; Wr . PutText ( GWrT , RefanyImage ( Expr ) )  
-    ; IF Expr # NIL THEN Wr . PutText ( GWrT , Wr . EOL ) END (*IF*) 
-    ; AppendNestedExpr ( Expr ) 
+    ; IF Expr = NIL
+      THEN
+        Wr . PutText ( GWrT , "NIL" )
+      ; Wr . PutText ( GWrT , Wr . EOL ) 
+      ELSE
+        Wr . PutText ( GWrT , "ExprNo " )
+      ; Wr . PutText ( GWrT , Fmt . Int ( Expr . ExpSelfExprNo ) )
+      ; Wr . PutChar ( GWrT , ' ' )
+      ; Wr . PutText ( GWrT , RefanyImage ( Expr ) ) 
+      ; IF IntSets . IsElement ( Expr . ExpSelfExprNo , GExprNosDumped )
+        THEN
+          Wr . PutText ( GWrT , ", previously displayed." )
+        ; Wr . PutText ( GWrT , Wr . EOL ) 
+        ELSE
+          Wr . PutText ( GWrT , Wr . EOL )  
+        ; GExprNosDumped
+            := IntSets . Include ( GExprNosDumped , Expr . ExpSelfExprNo )
+        ; AppendNestedExpr ( Expr ) 
+        ; Wr . PutText ( GWrT , Wr . EOL )  
+        END (*IF*) 
+      END (*IF*) 
     END NestedField
 (*
 ; PROCEDURE LongHexImage ( Value : LONGINT ) : TEXT 
@@ -243,7 +268,7 @@ MODULE FM3Exprs
     END AtomTypImage
 
 ; PROCEDURE IntSetsElemImage ( Elem : INTEGER ) : TEXT
-  (* Why do I have to wrap FMt.Int? *) 
+  (* Why do I have to wrap Fmt.Int? *) 
 
   = BEGIN
       RETURN Fmt . Int ( Elem ) 
@@ -269,12 +294,29 @@ MODULE FM3Exprs
       END (*IF*) 
     END ScopeRefImage
 
+(*EXPORTED.*)
+; PROCEDURE ExprRefImage ( ExprRef : ExprTyp ) : TEXT 
+
+  = BEGIN (*ExprRefImage*)
+      TYPECASE ExprRef OF
+      | NULL => RETURN "NIL"
+      | ExprTyp
+      => RETURN
+           "ExprNo "
+           & Fmt . Int ( ExprRef . ExpSelfExprNo )
+           & " "
+           & RefanyImage ( ExprRef )
+      ELSE RETURN RefanyImage ( ExprRef )
+      END (*TYPECASE*) 
+    END ExprRefImage
+
 ; REVEAL ExprTyp
     = ExprPublic BRANDED OBJECT OVERRIDES appendDump := ExprAppend END
     
 ; PROCEDURE ExprAppend ( Expr : ExprTyp )
     = BEGIN
-        NestedField ( "ExpType" , Expr . ExpType ) 
+        Field ( "ExpStackLink" , ExprRefImage ( Expr . ExpStackLink ) ) 
+      ; NestedField ( "ExpType" , Expr . ExpType ) 
       ; Field ( "ExpRefConstVal" , RefanyImage ( Expr . ExpRefConstVal ) )  
       ; Field
           ( "ExpScalarConstVal" , Fmt . LongInt ( Expr . ExpScalarConstVal ) )  

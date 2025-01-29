@@ -274,6 +274,7 @@ MODULE  FM3Compile
   = VAR LPassFileName : TEXT 
   ; VAR LExprsFileFullName : TEXT
   ; VAR LDisAsmFileFullName : TEXT
+  ; VAR ExprNosDumped : IntSets . T 
   ; VAR LExprMap : FM3Base . MapTyp
   ; VAR LWrT : Wr . T
   
@@ -293,27 +294,31 @@ MODULE  FM3Compile
       THEN
         Wr . PutText ( LWrT , "<No expression map>" )
       ; Wr . PutText ( LWrT , Wr . EOL ) 
-      ELSE 
-        FOR RExprNo
+      ELSE
+        ExprNosDumped := IntSets . Empty ( ) 
+      ; FOR RExprNo
             := VarArray_Int_Refany . TouchedRange ( LExprMap ) . Lo
             TO  VarArray_Int_Refany . TouchedRange ( LExprMap ) . Hi
-        DO Wr . PutText ( LWrT , "Expr No " )
-        ; Wr . PutText ( LWrT , Fmt . Int ( RExprNo ) )
-        ; Wr . PutChar ( LWrT , ':' )
-        ; TYPECASE VarArray_Int_Refany . Fetch ( LExprMap , RExprNo ) OF
-          | NULL
-          =>  Wr . PutText ( LWrT , "NIL" )
-            ; Wr . PutText ( LWrT , Wr . EOL )
-            
-          | FM3Exprs . ExprTyp ( TExpr )
-          =>  Wr . PutText ( LWrT , FM3SharedUtils . RefanyImage ( TExpr ) ) 
-            ; Wr . PutText ( LWrT , Wr . EOL ) 
-            ; FM3Exprs . DumpExpr ( TExpr , LWrT )
+        DO IF NOT IntSets . IsElement ( RExprNo , ExprNosDumped )
+          THEN Wr . PutText ( LWrT , "From unit expression map, Expr No " )
+          ; Wr . PutText ( LWrT , Fmt . Int ( RExprNo ) )
+          ; Wr . PutChar ( LWrT , ' ' )
+          ; TYPECASE VarArray_Int_Refany . Fetch ( LExprMap , RExprNo ) OF
+            | NULL
+            =>  Wr . PutText ( LWrT , "NIL" )
+              ; Wr . PutText ( LWrT , Wr . EOL )
 
-          ELSE
-            Wr . PutText ( LWrT , "<notExprTyp>" )
+            | FM3Exprs . ExprTyp ( TExpr )
+            =>  Wr . PutText ( LWrT , FM3SharedUtils . RefanyImage ( TExpr ) ) 
+              ; Wr . PutText ( LWrT , Wr . EOL ) 
+              ; FM3Exprs . DumpExpr ( TExpr , LWrT , (*IN OUT*) ExprNosDumped )
+
+            ELSE
+              Wr . PutText ( LWrT , "<notExprTyp>" )
+            ; Wr . PutText ( LWrT , Wr . EOL )
+            END (*TYPECASE*)
           ; Wr . PutText ( LWrT , Wr . EOL )
-          END (*TYPECASE*) 
+          END (*IF*) 
         END (*FOR*)
       END (*IF*) 
     ; Wr . Close ( LWrT ) 

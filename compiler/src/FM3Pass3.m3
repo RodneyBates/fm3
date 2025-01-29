@@ -2193,8 +2193,23 @@ MODULE FM3Pass3
       *> 
     END FinishPass3
 
+(*EXPORTED.*)
+; PROCEDURE ResolveExpr ( Expr : FM3Exprs . ExprTyp )
+
+  = VAR
+
+  ; BEGIN (*ResolveExpr*)
+      END ResolveExpr
+      
+
+
+
+
+
 ; BEGIN (*FM3Pass3*)
 
-END FM3Pass3
+  END FM3Pass3
 .
+
+
 

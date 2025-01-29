@@ -33,6 +33,7 @@ MODULE FM3Pass2
 ; FROM   FM3Compress IMPORT GetBwd
 ; IMPORT FM3Decls
 ; IMPORT FM3Exprs  
+; FROM FM3Exprs IMPORT Est   
 ; IMPORT FM3Dict_Int_Int
 ; IMPORT FM3ExpImp
 ; IMPORT FM3ExpImpProxy 
@@ -333,8 +334,8 @@ END ;
              , "Missed a patch stack token."
           *>
           LPatchedTokenL := FM3Compress . GetBwd ( LPatchRdBack )
- ; IF LPatchedTokenL = 0L
-   THEN LPatchedToken := 0
+ ; IF LPatchedTokenL = 710L
+   THEN LPatchedToken := 710
    END 
         ; LPatchedToken := VAL ( LPatchedTokenL , INTEGER (*Itk . TokTyp*) )
         ; IF LPatchedToken = Itk . ItkSkipLt
@@ -746,7 +747,9 @@ END ;
             ; LExpr . ExpPosition := LPosition
             ; LExpr . ExpUpKind := Ekt . EkValue 
             ; LExpr . ExpIsConst := TRUE 
+            ; LExpr . ExpConstValIsKnown := TRUE 
             ; LExpr . ExpIsLegalRecursive := TRUE
+            ; LExpr . ExpState := Est . EsResolved
             ; DefExprRt ( LExpr )
             END (*WITH*)
           ELSE
@@ -853,7 +856,7 @@ END ;
             ) 
         ; RETURN TRUE  
         ELSE 
-          IF NOT FM3Scopes . DeclScopeStackTopRef ^ . ScpInsideDecl 
+          IF NOT FM3Scopes . OpenScopeStackTopRef ^ . ScpInsideDecl 
           THEN (* Not inside a decl-defining expression. *) 
             CopyOperandsInOrder
               ( FM3Utils . TokenOpndCt ( TokResult . TrTok )
@@ -1172,7 +1175,10 @@ END ;
       | Itk . ItkOpenArrayTypeRt 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; HtExprRt
-            ( NEW ( FM3Exprs . ExprOpenArrayTypeTyp , ExpUpKind := Ekt . EkValue ) )
+            ( NEW ( FM3Exprs . ExprOpenArrayTypeTyp
+                  , ExpUpKind := Ekt . EkValue
+                  )
+            )
 
       | Itk . ItkOpenArrayTypeLt
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
@@ -1183,10 +1189,10 @@ END ;
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; HtExprRt
             ( NEW ( FM3Exprs . ExprSubrTypeTyp , ExpUpKind := Ekt . EkType ) ) 
-        ; HtExprOpnd2 ( )
 
       | Itk . ItkSubrTypeDotDot 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
+        ; HtExprOpnd2 ( )
 
       | Itk . ItkSubrTypeLt 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*)
@@ -1198,14 +1204,13 @@ END ;
         ; HtExprRt
             ( NEW ( FM3Exprs . ExprBinOpTyp
                   , ExpBinOpOp := GetBwdInt ( TokResult . TrRdBack )
-                  , ExpPosition := GetBwdPos ( TokResult . TrRdBack )
                   )
             ) 
  
       | Itk . ItkUnaryOpLt 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
-        ; HtExprOpnd1 ( ) (* Only operand. *)
         ; LOpcode := GetBwdInt ( TokResult . TrRdBack ) 
+        ; HtExprOpnd1 ( ) (* Only operand. *)
         ; IF NOT HtSkipping THEN UnaryOp ( LOpcode ) END (*IF*)
 
       (* Binary Operators: *) 
@@ -1214,19 +1219,18 @@ END ;
         ; HtExprRt
             ( NEW ( FM3Exprs . ExprBinOpTyp
                   , ExpBinOpOp := GetBwdInt ( TokResult . TrRdBack )
-                  , ExpPosition := GetBwdPos ( TokResult . TrRdBack )
                   )
             )
 
       | Itk . ItkBinaryOpOperator
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
+        ; LOpcode := GetBwdInt ( TokResult . TrRdBack ) (* Opcode. *) 
         ; HtExprOpnd2 ( ) (* Right operand. *)
-        ; EVAL GetBwdInt ( TokResult . TrRdBack ) (* Opcode. *) 
 
       | Itk . ItkBinaryOpLt 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
-        ; HtExprOpnd1 ( ) (* Left operand. *)
         ; LOpcode := GetBwdInt ( TokResult . TrRdBack ) 
+        ; HtExprOpnd1 ( ) (* Left operand. *)
         ; IF NOT HtSkipping THEN BinaryOp ( LOpcode ) END (*IF*)
 
       | Itk . ItkCallRt
@@ -1999,7 +2003,8 @@ END ;
              ( LOpnd1 . ExpReachedDeclNoSet 
              , LOpnd2 . ExpReachedDeclNoSet
              )
-    ; EVAL CheckOperation ( LNewExpr ) 
+    ; EVAL CheckOperation ( LNewExpr )
+    ; FM3Exprs . PushExprStack ( LNewExpr )  
     ; RETURN LNewExpr
     END MaybeConvertCallToOperator
 

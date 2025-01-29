@@ -71,7 +71,8 @@ INTERFACE FM3Exprs
 
 ; TYPE ExprListRefTyp = REF ARRAY OF ExprTyp
 
-; PROCEDURE DumpExpr ( Expr : ExprTyp ; WrT : Wr . T )  
+; PROCEDURE DumpExpr
+    ( Expr : ExprTyp ; WrT : Wr . T ; VAR (*IN OUT*) ExprNosDumped : IntSets . T )
 ;
  PROCEDURE ExprImage ( Expr : ExprTyp ) : TEXT 
 

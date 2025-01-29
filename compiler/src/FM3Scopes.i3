@@ -128,12 +128,13 @@ INTERFACE FM3Scopes
       ; ScpPosition : FM3Base . tPosition 
       ; ScpKind : ScopeKindTyp
       ; ScpInsideDecl : BOOLEAN := FALSE (*1*)
-      ; ScpCurDefIsValue : BOOLEAN := FALSE (*1*) (* As opposed to a type def. *) 
+      ; ScpCurDefIsValue : BOOLEAN := FALSE (*1*) (* As opposed to a type def. *)
       END (*ScopeTyp*)
 
       (* NOTE 1: This field retains meaning only during handling of a single
                  declaration within the scope.  It is reinitialized and reused in
-                 later declarations.  It is NIL when not working in a declaration.
+                 later declarations.  It is NIL/Empty/FALSE when not working in
+                 a declaration.
                  It would more naturally be in a Decl object, but in Pass 2, we
                  don't have one when needed, and when we finally do, there can
                  be >1.
