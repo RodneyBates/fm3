@@ -93,7 +93,7 @@ INTERFACE FM3Exprs
         (* NIL in root expression of a tree. *) 
       ; ExpType : ExprTyp := NIL
       ; ExpRefConstVal : REFANY := NIL
-      ; ExpScalarConstVal : LONGINT 
+      ; ExpScalarConstVal : LONGINT := 0L
       ; ExpLoTypeInfoRef : FM3LoTypes . LoTypeInfoRefTyp := NIL
       ; ExpReachedDeclNoSet : IntSets . T
         (* ^DeclNos of ids declared in the same open scope and reached on

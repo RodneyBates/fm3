@@ -6,51 +6,98 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
 
-(* Properties of operations builtin to Modula-3. *)
+(* Exprs for types builtin to Modula-3. *)
 
-MODULE FM3BuiltinOps
+MODULE FM3BuiltinTypes
+
+; IMPORT IntSets
+; IMPORT IntRanges
+; IMPORT VarArray_Int_Refany 
 
 ; IMPORT FM3Exprs
-; IMPORT FM3SrcToks 
+; IMPORT FM3LoTypes
+; IMPORT FM3LoTypes AS Lt
+; IMPORT FM3SrcToks
+; IMPORT FM3SrcToks AS Stk
 
-; CONST OpPropertiesNull
-    = OpPropertiesTyp
-         { OpResultType := NIL
-         , OpExprKind := FM3Exprs . ExprKindTyp . EkNull 
-         , OpOpndCt := 0 
-         , OpLtExprKindsAllowed := FM3Exprs . ExprKindSetTyp { } 
-         , OpRtExprKindsAllowed := FM3Exprs . ExprKindSetTyp { }
-         } 
+; VAR GTokArray : VarArray_Int_Refany . T 
 
-; CONST OpPropertiesType
-    = OpPropertiesTyp
-         { OpResultType := NIL
-         , OpExprKind := FM3Exprs . ExprKindTyp . EkType 
-         , OpOpndCt := 0 
-         , OpLtExprKindsAllowed := FM3Exprs . ExprKindSetTyp { } 
-         , OpRtExprKindsAllowed := FM3Exprs . ExprKindSetTyp { }
-         } 
+; PROCEDURE InitOneTypeExpr
+    ( Opcode : FM3SrcToks . TokTyp
+    ; LoTypeNo : FM3LoTypes . LoTypeNoTyp 
+    )
 
-; CONST OpPropertiesConstValue
-    = OpPropertiesTyp
-         { OpResultType := NIL
-         , OpExprKind := FM3Exprs . ExprKindTyp . EkValue 
-         , OpOpndCt := 0 
-         , OpLtExprKindsAllowed := FM3Exprs . ExprKindSetTyp { } 
-         , OpRtExprKindsAllowed := FM3Exprs . ExprKindSetTyp { }
-         } 
+  = VAR LTypeExpr : FM3Exprs . ExprTyp
 
-(*EXPORTED.*)
-; PROCEDURE Properties ( Tok : FM3SrcToks . TokTyp ) : OpPropertiesTyp
+  ; BEGIN
+      LTypeExpr := NEW ( FM3Exprs . ExprTyp ) 
+    ; LTypeExpr . ExpType := LTypeExpr (* Self referential. *) 
+    ; LTypeExpr . ExpLoTypeInfoRef
+        := FM3LoTypes . InfoRef ( LoTypeNo )  
+    ; LTypeExpr . ExpReachedDeclNoSet := IntSets . Empty ( ) 
+    ; LTypeExpr . ExpSelfExprNo := - Opcode (* < 0 for builtin types. *) 
+    ; LTypeExpr . ExpOpcode := Opcode
+    ; LTypeExpr . ExpUpKind := FM3Exprs . ExprKindTyp . EkType (* Spontaneous. *)  
+    ; LTypeExpr . ExpState := FM3Exprs . ExprStateTyp . EsResolved
+    ; LTypeExpr . ExpIsUsable := TRUE
+    ; LTypeExpr . ExpIsLegalRecursive := TRUE
+    ; VarArray_Int_Refany . Assign ( GTokArray , Opcode , LTypeExpr ) 
+    END InitOneTypeExpr
+
+; PROCEDURE InitTypeExprs ( ) 
 
   = BEGIN
+      InitOneTypeExpr ( Stk . RidADDRESS   , Lt . LoTypeNoAddr ) 
+    ; InitOneTypeExpr ( Stk . RidBOOLEAN   , Lt . LoTypeNoU8 )
+    ; InitOneTypeExpr ( Stk . RidCARDINAL  , Lt . LoTypeNoInt )
+    ; InitOneTypeExpr ( Stk . RidCHAR      , Lt . LoTypeNoU8 )
+    ; InitOneTypeExpr ( Stk . RidEXTENDED  , Lt . LoTypeNoExtended )
+    ; InitOneTypeExpr ( Stk . RidINTEGER   , Lt . LoTypeNoInt )
+    ; InitOneTypeExpr ( Stk . RidLONGCARD  , Lt . LoTypeNoLong )
+    ; InitOneTypeExpr ( Stk . RidLONGINT   , Lt . LoTypeNoLong )
+    ; InitOneTypeExpr ( Stk . RidLONGREAL  , Lt . LoTypeNoLongReal )
+    ; InitOneTypeExpr ( Stk . RidMUTEX     , Lt . LoTypeNoAddr )
+    ; InitOneTypeExpr ( Stk . RidNULL      , Lt . LoTypeNoAddr )
+    ; InitOneTypeExpr ( Stk . RidREAL      , Lt . LoTypeNoReal )
+    ; InitOneTypeExpr ( Stk . RidREFANY    , Lt . LoTypeNoAddr )
+    ; InitOneTypeExpr ( Stk . RidTEXT      , Lt . LoTypeNoAddr )
+    ; InitOneTypeExpr ( Stk . RidWIDECHAR  , Lt . LoTypeNoU32 )
+    END InitTypeExprs
+
+; PROCEDURE Init (  )
+
+  = BEGIN (*Init*)
+      GTokArray
+        := VarArray_Int_Refany . New
+             ( NIL
+             , IntRanges . RangeTyp { Stk . RidADDRESS , Stk . RidWIDECHAR }
+             )
+    ; InitTypeExprs ( ) 
+    END Init
+      
+
+(*EXPORTED.*)
+; PROCEDURE TypeExpr ( Tok : FM3SrcToks . TokTyp )
+  : FM3Exprs . ExprTyp (* NIL if not a reserved id denoting a type > *) 
+
+  = BEGIN
+      RETURN
+        NARROW
+          ( VarArray_Int_Refany . Fetch ( GTokArray , Tok )
+          , FM3Exprs . ExprTyp
+          )   
+    END TypeExpr 
+
+
+
+(*
       CASE Tok OF
       | FM3SrcToks . RidADDRESS  
       , FM3SrcToks . RidBOOLEAN 
       , FM3SrcToks . RidCARDINAL 
       , FM3SrcToks . RidCHAR 
-      , FM3SrcToks . RidINTEGER 
       , FM3SrcToks . RidEXTENDED 
+      , FM3SrcToks . RidINTEGER 
       , FM3SrcToks . RidLONGCARD 
       , FM3SrcToks . RidLONGINT 
       , FM3SrcToks . RidLONGREAL 
@@ -67,9 +114,6 @@ MODULE FM3BuiltinOps
       , FM3SrcToks . RidTRUE
       => RETURN OpPropertiesType
 
-(*
-
-
       , FM3SrcToks . Rid
       , FM3SrcToks . Rid
       , FM3SrcToks . Rid
@@ -84,12 +128,12 @@ MODULE FM3BuiltinOps
       , FM3SrcToks . Rid
       , FM3SrcToks . Rid
       , FM3SrcToks . Rid
-*)
       ELSE RETURN OpPropertiesNull
       END (*CASE*) 
     END Properties 
+*)
 
-; BEGIN
-  END FM3BuiltinOps
+; BEGIN Init ( ) 
+  END FM3BuiltinTypes
 .
  

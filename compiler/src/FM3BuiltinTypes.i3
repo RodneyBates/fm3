@@ -6,24 +6,16 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
 
-(* Properties of operations builtin to Modula-3. *)  
+(* Exprs for types builtin to Modula-3. *)  
 
-INTERFACE FM3BuiltinOps
+INTERFACE FM3BuiltinTypes
 
 ; IMPORT FM3Exprs 
 ; IMPORT FM3SrcToks
 
-; TYPE OpPropertiesTyp
-    = RECORD
-        OpResultType : FM3Exprs . ExprTyp := NIL
-      ; OpExprKind := FM3Exprs . ExprKindTyp . EkNull 
-      ; OpOpndCt : INTEGER 
-      ; OpLtExprKindsAllowed : FM3Exprs . ExprKindSetTyp
-      ; OpRtExprKindsAllowed : FM3Exprs . ExprKindSetTyp
-      END
+; PROCEDURE TypeExpr ( Tok : FM3SrcToks . TokTyp )
+  : FM3Exprs . ExprTyp (* NIL if not a reserved id denoting a type > *) 
 
-; PROCEDURE Properties ( Tok : FM3SrcToks . TokTyp ) : OpPropertiesTyp
-
-; END FM3BuiltinOps
+; END FM3BuiltinTypes
 .
 
