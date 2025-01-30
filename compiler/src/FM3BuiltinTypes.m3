@@ -37,7 +37,8 @@ MODULE FM3BuiltinTypes
     ; LTypeExpr . ExpReachedDeclNoSet := IntSets . Empty ( ) 
     ; LTypeExpr . ExpSelfExprNo := - Opcode (* < 0 for builtin types. *) 
     ; LTypeExpr . ExpOpcode := Opcode
-    ; LTypeExpr . ExpUpKind := FM3Exprs . ExprKindTyp . EkType (* Spontaneous. *)  
+    ; LTypeExpr . ExpUpKind
+        := FM3Exprs . ExprKindTyp . EkType (* Spontaneous. *)  
     ; LTypeExpr . ExpState := FM3Exprs . ExprStateTyp . EsResolved
     ; LTypeExpr . ExpIsUsable := TRUE
     ; LTypeExpr . ExpIsLegalRecursive := TRUE
@@ -64,6 +65,42 @@ MODULE FM3BuiltinTypes
     ; InitOneTypeExpr ( Stk . RidWIDECHAR  , Lt . LoTypeNoU32 )
     END InitTypeExprs
 
+; PROCEDURE InitOneConstExpr
+    ( Opcode : FM3SrcToks . TokTyp
+    ; ConstTypeExpr : FM3Exprs . ExprTyp 
+    ; LoTypeNo : FM3LoTypes . LoTypeNoTyp 
+    )
+
+  = VAR LConstExpr : FM3Exprs . ExprTyp
+
+  ; BEGIN
+      LConstExpr := NEW ( FM3Exprs . ExprTyp ) 
+    ; LConstExpr . ExpType := ConstTypeExpr (* Self referential. *) 
+    ; LConstExpr . ExpLoTypeInfoRef
+        := FM3LoTypes . InfoRef ( LoTypeNo )  
+    ; LConstExpr . ExpReachedDeclNoSet := IntSets . Empty ( ) 
+    ; LConstExpr . ExpSelfExprNo := - Opcode (* < 0 for builtin types. *) 
+    ; LConstExpr . ExpOpcode := Opcode
+    ; LConstExpr . ExpUpKind
+        := FM3Exprs . ExprKindTyp . EkConst (* Spontaneous. *)  
+    ; LConstExpr . ExpState := FM3Exprs . ExprStateTyp . EsResolved
+    ; LConstExpr . ExpIsUsable := TRUE
+    ; LConstExpr . ExpIsLegalRecursive := TRUE
+    ; VarArray_Int_Refany . Assign ( GTokArray , Opcode , LConstExpr ) 
+    END InitOneConstExpr
+
+; PROCEDURE InitConstExprs ( ) 
+
+  = VAR LTypeExpr : FM3Exprs . ExprTyp 
+
+  ; BEGIN
+      LTypeExpr := VarArray_Int_Refany . Fetch ( GTokArray , Stk . RidBOOLEAN ) 
+    ; InitOneConstExpr ( Stk . RidFALSE , LTypeExpr , Lt . LoTypeNoU8   ) 
+    ; InitOneConstExpr ( Stk . RidTRUE  , LTypeExpr , Lt . LoTypeNoU8 )
+    ; LTypeExpr := VarArray_Int_Refany . Fetch ( GTokArray , Stk . RidREFANY ) 
+    ; InitOneConstExpr ( Stk . RidNIL , LTypeExpr , Lt . LoTypeNoAddr)
+    END InitConstExprs
+
 ; PROCEDURE Init (  )
 
   = BEGIN (*Init*)
@@ -72,7 +109,8 @@ MODULE FM3BuiltinTypes
              ( NIL
              , IntRanges . RangeTyp { Stk . RidADDRESS , Stk . RidWIDECHAR }
              )
-    ; InitTypeExprs ( ) 
+    ; InitTypeExprs ( )
+    ; InitConstExprs ( ) 
     END Init
       
 
