@@ -846,7 +846,7 @@ MODULE FM3Pass3
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*)
         ; HtExprLt
             ( NEW ( FM3Exprs . ExprBinOpTyp
-                  , ExpBinOpOp := GetBwdInt ( HtPass2RdBack )
+                  , ExpOpCode := GetBwdInt ( HtPass2RdBack )
                   )
             ) 
  
@@ -859,7 +859,7 @@ MODULE FM3Pass3
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; HtExprLt
             ( NEW ( FM3Exprs . ExprBinOpTyp
-                  , ExpBinOpOp := GetBwdInt ( HtPass2RdBack )
+                  , ExpOpcode := GetBwdInt ( HtPass2RdBack )
                   )
             )
 
@@ -2193,14 +2193,7 @@ MODULE FM3Pass3
       *> 
     END FinishPass3
 
-(*EXPORTED.*)
-; PROCEDURE ResolveExpr ( Expr : FM3Exprs . ExprTyp )
 
-  = VAR
-
-  ; BEGIN (*ResolveExpr*)
-      END ResolveExpr
-      
 
 
 

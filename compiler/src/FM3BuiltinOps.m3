@@ -40,51 +40,51 @@ MODULE FM3BuiltinOps
          , OpRtExprKindsAllowed := FM3Exprs . ExprKindSetTyp { }
          } 
 
+; CONST OpPropertiesUnOp
+    = OpPropertiesTyp
+         { OpResultType := NIL
+         , OpExprKind := FM3Exprs . ExprKindTyp . EkValue 
+         , OpOpndCt := 0 
+         , OpLtExprKindsAllowed := FM3Exprs . ExprKindSetTyp { } 
+         , OpRtExprKindsAllowed := FM3Exprs . ExprKindSetTyp { }
+         } 
+
 (*EXPORTED.*)
 ; PROCEDURE Properties ( Tok : FM3SrcToks . TokTyp ) : OpPropertiesTyp
 
   = BEGIN
       CASE Tok OF
-      | FM3SrcToks . RidADDRESS  
-      , FM3SrcToks . RidBOOLEAN 
-      , FM3SrcToks . RidCARDINAL 
-      , FM3SrcToks . RidCHAR 
-      , FM3SrcToks . RidINTEGER 
-      , FM3SrcToks . RidEXTENDED 
-      , FM3SrcToks . RidLONGCARD 
-      , FM3SrcToks . RidLONGINT 
-      , FM3SrcToks . RidLONGREAL 
-      , FM3SrcToks . RidMUTEX 
-      , FM3SrcToks . RidNULL 
-      , FM3SrcToks . RidREAL 
-      , FM3SrcToks . RidREFANY 
-      , FM3SrcToks . RidTEXT  
-      , FM3SrcToks . RidWIDECHAR
-      => RETURN OpPropertiesType
+ (*
+ (* Functions: *)   
+   RidABS              "ABS" . 
+   RidADR              "ADR" . 
+   RidADRSIZE          "ADRSIZE" . 
+   RidBITSIZE          "BITSIZE" . 
+   RidBYTESIZE         "BYTESIZE" . 
+   RidCEILING          "CEILING" .
+   RidFIRST            "FIRST" . 
+   RidFLOAT            "FLOAT" . 
+   RidFLOOR            "FLOOR" . 
+   RidISTYPE           "ISTYPE" . 
+   RidLAST             "LAST" . 
+   RidLOOPHOLE         "LOOPHOLE" . 
+   RidMAX              "MAX" . 
+   RidMIN              "MIN" . 
+   RidNARROW           "NARROW" . 
+   RidNEW              "NEW" . 
+   RidNUMBER           "NUMBER" . 
+   RidORD              "ORD" . 
+   RidROUND            "ROUND" . 
+   RidSUBARRAY         "SUBARRAY" . 
+   RidTRUNC            "TRUNC" . 
+   RidTYPECODE         "TYPECODE" . 
+   RidVAL              "VAL" .
 
-      | FM3SrcToks . RidFALSE
-      , FM3SrcToks . RidNIL
-      , FM3SrcToks . RidTRUE
-      => RETURN OpPropertiesType
-
-(*
-
-
-      , FM3SrcToks . Rid
-      , FM3SrcToks . Rid
-      , FM3SrcToks . Rid
-      , FM3SrcToks . Rid
-      , FM3SrcToks . Rid
-      , FM3SrcToks . Rid
-      , FM3SrcToks . Rid
-      , FM3SrcToks . Rid
-      , FM3SrcToks . Rid
-      , FM3SrcToks . Rid
-      , FM3SrcToks . Rid
-      , FM3SrcToks . Rid
-      , FM3SrcToks . Rid
-      , FM3SrcToks . Rid
-*)
+   (* Proper procedures: *) 
+   RidDISPOSE          "DISPOSE" . 
+   RidDEC              "DEC" . 
+   RidINC              "INC" .
+ *) 
       ELSE RETURN OpPropertiesNull
       END (*CASE*) 
     END Properties 

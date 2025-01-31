@@ -1203,7 +1203,7 @@ END ;
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*)
         ; HtExprRt
             ( NEW ( FM3Exprs . ExprBinOpTyp
-                  , ExpBinOpOp := GetBwdInt ( TokResult . TrRdBack )
+                  , ExpOpcode := GetBwdInt ( TokResult . TrRdBack )
                   )
             ) 
  
@@ -1218,7 +1218,7 @@ END ;
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; HtExprRt
             ( NEW ( FM3Exprs . ExprBinOpTyp
-                  , ExpBinOpOp := GetBwdInt ( TokResult . TrRdBack )
+                  , ExpOpcode := GetBwdInt ( TokResult . TrRdBack )
                   )
             )
 
@@ -1810,7 +1810,7 @@ END ;
       END (*CASE*) 
     END ReservedIdR2L
 
-; PROCEDURE CheckOperand
+; PROCEDURE CheckOpndKind
     ( OpndExpr : FM3Exprs . ExprTyp
     ; Opcode : FM3SrcToks . TokTyp 
     ; OpndTag : TEXT 
@@ -1835,21 +1835,25 @@ END ;
       ; RETURN FALSE
       ELSE RETURN TRUE
       END (*IF*) 
-    END CheckOperand
+    END CheckOpndKind
 
-; PROCEDURE FixDeclTok
-     ( UnitTok , OrigTok : FM3SrcToks . TokTyp ) : FM3SrcToks . TokTyp
-  (* Make decl tokens that occur in >1 standard interface unique. *) 
+; PROCEDURE DisambiguateStdDeclTok
+     ( UnitTok , OrigDeclTok : FM3SrcToks . TokTyp ) : FM3SrcToks . TokTyp
+  (* Make decl tokens that occur in >1 standard interface unique. *)
+  (* OrigDeclTok denotes an identifier declared in more that one standard
+     interface.  Replace it with one that is unique. *) 
 
   = BEGIN
-      IF FM3SrcToks . StkMinWordLong <= OrigTok
-         AND OrigTok <= FM3SrcToks . StkMaxWordLong
+      IF FM3SrcToks . StkMinWordLong <= OrigDeclTok
+         AND OrigDeclTok <= FM3SrcToks . StkMaxWordLong
          AND UnitTok = FM3SrcToks . StkPdLong
       THEN
-        RETURN OrigTok - FM3SrcToks . StkMinWordLong +  FM3SrcToks . StkMinLong
-      ELSE RETURN OrigTok
+        (*The only noticed cases of namesake decls in std interfaces. *) 
+        RETURN
+          OrigDeclTok - FM3SrcToks . StkMinWordLong +  FM3SrcToks . StkMinLong
+      ELSE RETURN OrigDeclTok
       END (*IF*) 
-    END FixDeclTok
+    END DisambiguateStdDeclTok
 
 ; PROCEDURE CheckOperation ( OpExpr : FM3Exprs . ExprTyp ) : BOOLEAN (* OK *) 
 
@@ -1860,29 +1864,32 @@ END ;
   ; BEGIN
       TYPECASE OpExpr OF
       | NULL => RETURN TRUE 
-      | FM3Exprs . Expr2OpndTyp ( TOpExpr )
+      | FM3Exprs . ExprBinOpTyp ( TOpExpr )
       =>  LOK := TRUE
         ; LProperties := FM3BuiltinOps . Properties ( TOpExpr . ExpOpcode )
         ; LOpnd1 :=TOpExpr . ExpOpnd1 
         ; IF LOpnd1 = NIL THEN RETURN TRUE END (*IF*)  
-        ; IF NOT CheckOperand
+        ; IF NOT CheckOpndKind
                    ( LOpnd1
                    , TOpExpr . ExpOpcode 
                    , "Left operand "
-                   , LProperties . OpLtExprKindsAllowed
+                   , TOpExpr . ExpBinOpLtOpndKindsAllowed
                    )
           THEN LOK := FALSE
           END (*IF*)
 
-        ; LOpnd2 := TOpExpr . ExpOpnd2
-        ; IF LOpnd2 = NIL THEN RETURN TRUE END (*IF*)
-        ; IF NOT CheckOperand
-                   ( LOpnd2
-                   , TOpExpr . ExpOpcode
-                   , "Right operand "
-                   , LProperties . OpRtExprKindsAllowed
-                   )
-          THEN LOK := FALSE
+        ; IF TOpExpr . ExpBinOpActualsCt > 1
+          THEN
+            LOpnd2 := TOpExpr . ExpOpnd2
+          ; IF LOpnd2 = NIL THEN RETURN TRUE END (*IF*)
+          ; IF NOT CheckOpndKind
+                     ( LOpnd2
+                     , TOpExpr . ExpOpcode
+                     , "Right operand "
+                     , TOpExpr . ExpBinOpRtOpndKindsAllowed
+                     )
+            THEN LOK := FALSE
+            END (*IF*)
           END (*IF*)
 
         ; IF NOT LOK
@@ -1896,18 +1903,17 @@ END ;
     END CheckOperation 
 
 ; PROCEDURE MaybeConvertCallToOperator ( OrigExpr : FM3Exprs . ExprTyp )
-  : FM3Exprs . Expr2OpndTyp
-  (* If all is OK, return an ExpOpnd2-rooted subtree that is the
+  : FM3Exprs . ExprBinOpTyp
+  (* If conditions are met, return an ExpBinOp-rooted subtree that is the
      conversion of OrigExpr.
   *) 
 
   = VAR LCallExpr : FM3Exprs . ExprCallTyp 
   ; VAR LOpnd1 , LOpnd2 : FM3Exprs . ExprTyp 
-  ; VAR LNewExpr : FM3Exprs . Expr2OpndTyp
+  ; VAR LNewExpr : FM3Exprs . ExprBinOpTyp
   ; VAR LPluralSuffix : TEXT
   ; VAR LActualsCt : INTEGER
   ; VAR LUnitTok , LDeclTok : FM3SrcToks . TokTyp
-  ; VAR LProperties : FM3BuiltinOps . OpPropertiesTyp
 
   ; BEGIN
       IF NOT OrigExpr . ExpIsUsable THEN RETURN OrigExpr END (*IF*)
@@ -1928,7 +1934,7 @@ END ;
         ; LDeclTok := TReservedIdRef . ExpOpcode  
 
       | FM3Exprs . ExprIdentRefTyp ( TExprIdentRef )  
-       => GetBuiltinToks 
+       => GetStdToks 
             ( FM3Units . UnitStackTopRef ^ . UntSelfUnitNo 
             , TExprIdentRef . ExpIdentDeclNo 
             , (*OUT*) LUnitTok 
@@ -1936,82 +1942,76 @@ END ;
             ) 
 
       | FM3Exprs . ExprRemoteRefTyp ( TExprRemoteRef ) 
-       => GetBuiltinToks 
+       => GetStdToks 
             ( TExprRemoteRef . ExpRemoteUnitNo 
             , TExprRemoteRef . ExpRemoteDeclNo 
             , (*OUT*) LUnitTok 
             , (*OUT*) LDeclTok 
             ) 
 
-      ELSE (* Called proc is not on a named builtin. *) RETURN OrigExpr 
+      ELSE (* Called proc is not a named builtin. *) RETURN OrigExpr 
       END (* TYPECASE *)  
     ; IF LUnitTok = FM3Base . TokNull AND LUnitTok = FM3Base . TokNull 
       THEN (* Also not on anything builtin. *) RETURN OrigExpr
       END (*IF*) 
 
-    ; LDeclTok := FixDeclTok ( LUnitTok , LDeclTok ) 
-      (* ^LDeclTok now belongs to only one unit. *) 
-    ; LProperties := FM3BuiltinOps . Properties ( LDeclTok ) 
-    ; IF LProperties . OpResultType = NIL
-      THEN (* A builtin but not an operation. *) RETURN OrigExpr 
-      END (*IF*)
-    ; IF LProperties . OpLtExprKindsAllowed = FM3Exprs . ExprKindSetTyp { } 
-      THEN (* It's a non-callable builtin (type, constant, etc.) . *) 
+    ; LDeclTok := DisambiguateStdDeclTok ( LUnitTok , LDeclTok ) 
+      (* ^LDeclTok now belongs to only one unit . *) 
+    ; IF NOT FM3BuiltinOps . IsOperationTok ( LDeclTok ) 
+      THEN (* It's not a callable builtin (type, constant, etc.) . *) 
         FM3Messages . ErrorArr 
           ( ARRAY OF REFANY 
-              { FM3SrcToks . Image ( LDeclTok ) 
-              , " is not callable." 
-              }
+              { FM3SrcToks . Image ( LDeclTok ) , " is not callable." }
           , LCallExpr . ExpCallProc . ExpPosition 
           ) 
       ; OrigExpr . ExpIsUsable := FALSE 
       ; RETURN OrigExpr 
       END (*IF*)
-    ; IF LActualsCt # LProperties . OpOpndCt 
-      THEN (* Wrong number of actual paremeters. *) 
-        IF LProperties . OpOpndCt = 1 THEN LPluralSuffix := "."  
+
+    ; LNewExpr := FM3BuiltinOps . Expr ( LDeclTok ) 
+    ; IF LActualsCt # LNewExpr . ExpBinOpActualsCt 
+      THEN (* Wrong number of actual parameters. *) 
+        IF LNewExpr . ExpBinOpActualsCt = 1 THEN LPluralSuffix := "."  
         ELSE LPluralSuffix := "s." 
         END (*IF*)
       ; FM3Messages . ErrorArr 
           ( ARRAY OF REFANY 
               { FM3SrcToks . Image ( LDeclTok )
               , " requires "
-              , Fmt . Int ( LProperties . OpOpndCt )
-              , " Parameter"
+              , Fmt . Int ( LNewExpr . ExpBinOpActualsCt )
+              , " Actual parameter"
               , LPluralSuffix
               }
           , LCallExpr . ExpPosition 
           ) 
-      ; OrigExpr . ExpIsUsable := FALSE 
-      ; RETURN OrigExpr
+      ; LNewExpr . ExpIsUsable := FALSE 
+      ; RETURN LNewExpr
       END (*IF*)
 
-    ; LNewExpr := NEW ( FM3Exprs . Expr2OpndTyp )
-    ; LNewExpr . ExpType := LProperties . OpResultType 
-    ; LNewExpr . ExpOpcode := LDeclTok
-    ; LNewExpr . ExpUpKind := Ekt . EkValue 
-    ; LNewExpr . ExpIsUsable := LCallExpr . ExpIsUsable
     ; LNewExpr . ExpPosition := LCallExpr . ExpPosition 
-    ; LNewExpr . ExpIsConst
-        := LOpnd1 . ExpIsConst
-           AND LActualsCt >= 2 
-           AND LOpnd2 . ExpIsConst
-           AND IntSets . IsElement
-                 ( LNewExpr . ExpOpcode , FM3Std . ConstantSet )
-    ; LNewExpr . ExpReachedDeclNoSet
+    ; LOpnd1 := LCallExpr . ExpActualsList ^ [ 0 ]
+    ; LNewExpr . ExpOpnd1 := LOpnd1
+    ; LNewExpr . ExpIsUsable := LCallExpr . ExpIsUsable AND LOpnd1 . ExpIsUsable
+    ; IF LActualsCt = 1
+      THEN
+        LNewExpr . ExpReachedDeclNoSet := LOpnd1 . ExpReachedDeclNoSet 
+      ELSE
+        LOpnd2 := LCallExpr . ExpActualsList ^ [ 1 ]
+      ; LNewExpr . ExpOpnd2 := LOpnd2
+      ; LNewExpr . ExpIsUsable := LNewExpr . ExpIsUsable AND LOpnd2 . ExpIsUsable
+      ; LNewExpr . ExpReachedDeclNoSet
         := IntSets . Union
              ( LOpnd1 . ExpReachedDeclNoSet 
              , LOpnd2 . ExpReachedDeclNoSet
              )
+      END (*IF*) 
+
     ; EVAL CheckOperation ( LNewExpr )
-    ; FM3Exprs . PushExprStack ( LNewExpr )  
     ; RETURN LNewExpr
     END MaybeConvertCallToOperator
 
-; PROCEDURE WordLongExpr
-    ( CallExpr : FM3Exprs . ExprCallTyp
-    ; DeclStdTok : FM3SrcToks . TokTyp
-    ; Type : FM3Exprs . ExprTyp 
+; PROCEDURE InterfaceExpr
+    ( DeclStdTok : FM3SrcToks . TokTyp
     ; IsCall : BOOLEAN (* Relevant only if it turns out to a procedure. *)
     )
   : FM3Exprs . ExprTyp
@@ -2026,10 +2026,10 @@ END ;
       | FM3SrcToks . StkPdMinus
       => IF NOT IsCall THEN RETURN NIL END (*IF*)
       
-      
       ELSE RETURN NIL
-      END (*CASE*) 
-    END WordLongExpr
+      END (*CASE*)
+    ; RETURN NIL  
+    END InterfaceExpr
 
 ; PROCEDURE MaybeStdDeclRef
     ( Expr : FM3Exprs . ExprTyp
@@ -2037,11 +2037,8 @@ END ;
     ; DeclNo : FM3Globals . DeclNoTyp
     ; IsCall : BOOLEAN (* Relevant only if it turns out to a procedure. *)
     )
-  : FM3Exprs . ExprTyp
-  (* Return an expression tree for the reference. *) 
-  (* PRE: The reference is known to lie in an imported interface, so if it
-          has standard idents, it will be to a true standard delaration.
-  *) 
+  : FM3Exprs . ExprTyp (* NIL if not a decl in a standard interface. *) 
+  (* Return an expression for UnitNo/DeclNo if it's in a standard interface. *) 
 
   = VAR LUnitRef : FM3Units . UnitRefTyp
   ; VAR LDeclRef : FM3Decls . DeclRefTyp
@@ -2050,26 +2047,20 @@ END ;
  
   ; BEGIN
       IF UnitNo = FM3Globals . UnitNoNull THEN RETURN NIL END (*IF*)
+    ; IF DeclNo = FM3Globals . DeclNoNull THEN RETURN NIL END (*IF*)  
     ; LUnitRef := VarArray_Int_Refany . Fetch ( FM3Units . UnitsMap , UnitNo )
     ; IF LUnitRef = NIL THEN RETURN NIL END (*IF*)
     ; LUnitStdTok := LUnitRef . UntStdTok
-    ; IF DeclNo = FM3Globals . DeclNoNull THEN RETURN NIL END (*IF*)  
-    ; LDeclRef
-        := VarArray_Int_Refany . Fetch
-             ( LUnitRef . UntDeclMap , DeclNo ) 
+    ; IF LUnitStdTok = FM3Base . TokNull THEN RETURN NIL END (*IF*)
+    ; LDeclRef := VarArray_Int_Refany . Fetch ( LUnitRef . UntDeclMap , DeclNo ) 
     ; IF LDeclRef = NIL THEN RETURN NIL END (*IF*)
     ; LDeclStdTok := LDeclRef . DclStdTok
     ; IF LDeclStdTok = FM3Base . TokNull THEN RETURN NIL END (*IF*)
-    ; IF NOT IntSets . IsElement ( LUnitStdTok , FM3Std . StdIntfSet ) 
-      THEN RETURN NIL
-      END (*IF*)
     ; CASE LUnitStdTok OF
       | FM3SrcToks . StkPdWord
       => RETURN
-           WordLongExpr
-             ( Expr
-             , LDeclStdTok
-             , FM3ReservedIds . ExprRefs [ FM3SrcToks . RidINTEGER ] 
+           InterfaceExpr
+             ( LDeclStdTok
              , IsCall
              )
 
@@ -2078,15 +2069,12 @@ END ;
         ; Expr
            ( Expr
            , LDeclStdTok
-           , FM3ReservedIds . ExprRefs [ FM3SrcToks . RidINTEGER ]
            , IsCall
            )
 *) 
       | FM3SrcToks . StkPdLong
-      => RETURN WordLongExpr
-           ( Expr
-           , LDeclStdTok
-           , FM3ReservedIds . ExprRefs [ FM3SrcToks . RidLONGINT ]
+      => RETURN InterfaceExpr
+           ( LDeclStdTok
            , IsCall
            )
 
@@ -2095,7 +2083,7 @@ END ;
       END (*CASE*)
     END MaybeStdDeclRef
 
-; PROCEDURE GetBuiltinToks 
+; PROCEDURE GetStdToks 
     ( UnitNo : FM3Globals . UnitNoTyp
     ; DeclNo :FM3Globals . DeclNoTyp
     ; VAR (*OUT*) UnitTok : FM3SrcToks . TokTyp 
@@ -2112,13 +2100,11 @@ END ;
     ; LUnitRef := VarArray_Int_Refany . Fetch ( FM3Units . UnitsMap , UnitNo )
     ; IF LUnitRef = NIL THEN RETURN END (*IF*)
     ; IF DeclNo = FM3Globals . DeclNoNull THEN RETURN END (*IF*)  
-    ; LDeclRef
-        := VarArray_Int_Refany . Fetch
-             ( LUnitRef . UntDeclMap , DeclNo ) 
+    ; LDeclRef := VarArray_Int_Refany . Fetch ( LUnitRef . UntDeclMap , DeclNo ) 
     ; IF LDeclRef = NIL THEN RETURN END (*IF*)
     ; UnitTok := LUnitRef . UntStdTok 
     ; DeclTok := LDeclRef . DclStdTok 
-    END GetBuiltinToks 
+    END GetStdToks 
 
 ; PROCEDURE IdentRefR2L ( READONLY TokResult : TokResultTyp )
   (* PRE: The ident is not followed by dot Ident. (The parser has gone

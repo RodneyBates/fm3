@@ -439,7 +439,15 @@ MODULE FM3Exprs
     = BEGIN 
         Expr2OpndAppend ( Expr ) 
       ; SubtypeComment ( "ExprBinOpTyp" )
-      ; Field ( "ExpBinOpOp" , Fmt . Int ( Expr . ExpBinOpOp ) ) 
+      ; Field ( "ExpBinOpActualsCt" , Fmt . Int ( Expr . ExpBinOpActualsCt ) )
+      ; Field
+          ( "ExpBinOpLtOpndKindsAllowed" 
+          , ExprKindSetMessage ( Expr . ExpBinOpLtOpndKindsAllowed ) 
+          )
+      ; Field
+          ( "ExpBinOpRtOpndKindsAllowed" 
+          , ExprKindSetMessage ( Expr . ExpBinOpRtOpndKindsAllowed ) 
+          )
       END ExprBinOpAppend
 
 ; REVEAL ExprCallTyp

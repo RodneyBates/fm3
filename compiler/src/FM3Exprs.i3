@@ -176,10 +176,11 @@ INTERFACE FM3Exprs
 ; TYPE ExprBinOpTyp <: ExprBinOpPublic 
 ; TYPE ExprBinOpPublic
     = Expr2OpndTyp OBJECT
-        ExpBinOpOp : INTEGER 
-        (* Certain values from FM3SrcToks.i3 or FM3LongToks.i3.
-           can be a unary operator, in which case we use this type
-           with the 2nd operand field just going unused.
+        ExpBinOpActualsCt : INTEGER 
+      ; ExpBinOpLtOpndKindsAllowed := ExprKindSetTyp { } 
+      ; ExpBinOpRtOpndKindsAllowed := ExprKindSetTyp { }
+        (* This can denote a unary operator, in which case we use this
+           type with 2nd operand fields just going unused.
         *) 
       END
 
