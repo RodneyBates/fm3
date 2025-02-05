@@ -52,7 +52,15 @@ INTERFACE FM3Exprs
 
 ; TYPE ExprKindSetTyp = SET OF ExprKindTyp
 
-; TYPE EkSetTyp = ExprKindSetTyp 
+; TYPE EkSetTyp = ExprKindSetTyp
+
+; CONST EkSetValue = EkSetTyp { Ekt . EkValue } 
+
+; CONST EkSetType = EkSetTyp { Ekt . EkType } 
+
+; CONST EkSetConst = EkSetTyp { Ekt . EkConst } 
+
+; CONST EkSetTypeOrValue = EkSetTyp { Ekt . EkValue , Ekt . EkValue } 
 
 ; PROCEDURE KindSetCard ( KindSet : ExprKindSetTyp ) : INTEGER 
 
@@ -172,15 +180,27 @@ INTERFACE FM3Exprs
         ExpDotIdAtom : FM3Base . AtomTyp
       END
 
+; CONST ActualsCtInf = 127 (* "infinity", actually means unlimited. *) 
+
 (* Either a constant expression or one whose type is of interest. *) 
 ; TYPE ExprBinOpTyp <: ExprBinOpPublic 
 ; TYPE ExprBinOpPublic
     = Expr2OpndTyp OBJECT
-        ExpBinOpActualsCt : INTEGER 
+        ExpBinOpActualsCt : [ 0 .. 127 ]  
       ; ExpBinOpLtOpndKindsAllowed := ExprKindSetTyp { } 
       ; ExpBinOpRtOpndKindsAllowed := ExprKindSetTyp { }
         (* This can denote a unary operator, in which case we use this
            type with 2nd operand fields just going unused.
+        *) 
+      END
+
+; TYPE ExprQuadOpTyp <: ExprQuadOpPublic 
+; TYPE ExprQuadOpPublic
+    = ExprBinOpTyp OBJECT
+        ExpQuadOpOpnd3 : ExprTyp 
+      ; ExpQuadOpOpnd4 : ExprTyp 
+        (* This can denote a ternary operator, in which case we use this
+           type with ExpQuadOpOpnd4 field just going unused.
         *) 
       END
 

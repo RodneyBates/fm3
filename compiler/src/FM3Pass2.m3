@@ -25,7 +25,7 @@ MODULE FM3Pass2
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Base 
 ; FROM   FM3Base IMPORT tPosition
-; IMPORT FM3BuiltinOps 
+; IMPORT FM3Builtins 
 ; IMPORT FM3CLArgs
 ; IMPORT FM3CLOptions  
 ; IMPORT FM3Compile
@@ -1068,7 +1068,7 @@ END ;
           ; LNewExpr . ExpPosition := GetBwdPos ( TokResult . TrRdBack )
           ; LNewExpr . ExpIsLegalRecursive := TRUE
           ; LNewExpr . ExpUpKind
-              := FM3BuiltinOps . Properties ( LNewExpr . ExpOpcode ) . OpExprKind
+              := FM3Builtins . OpExprKind ( LNewExpr . ExpOpcode ) 
           (* Other properties computed later. *) 
           ; DefExprRt ( LNewExpr )
           ELSE HtPassTokenThru ( ) 
@@ -1819,7 +1819,8 @@ END ;
   : BOOLEAN (* Check is OK. *) 
 
   = BEGIN
-      IF NOT OpndExpr . ExpUpKind IN AllowedKinds
+      IF OpndExpr = NIL THEN RETURN TRUE END (*IF*) 
+    ; IF NOT OpndExpr . ExpUpKind IN AllowedKinds
       THEN
         FM3Messages . ErrorArr
           ( ARRAY OF REFANY
@@ -1857,20 +1858,16 @@ END ;
 
 ; PROCEDURE CheckOperation ( OpExpr : FM3Exprs . ExprTyp ) : BOOLEAN (* OK *) 
 
-  = VAR LProperties : FM3BuiltinOps . OpPropertiesTyp
-  ; LOpnd1 , LOpnd2 : FM3Exprs . ExprTyp
-  ; LOK : BOOLEAN
+  = VAR LOK : BOOLEAN
 
   ; BEGIN
       TYPECASE OpExpr OF
-      | NULL => RETURN TRUE 
+      | NULL => RETURN TRUE
+      
       | FM3Exprs . ExprBinOpTyp ( TOpExpr )
       =>  LOK := TRUE
-        ; LProperties := FM3BuiltinOps . Properties ( TOpExpr . ExpOpcode )
-        ; LOpnd1 :=TOpExpr . ExpOpnd1 
-        ; IF LOpnd1 = NIL THEN RETURN TRUE END (*IF*)  
         ; IF NOT CheckOpndKind
-                   ( LOpnd1
+                   ( TOpExpr . ExpOpnd1
                    , TOpExpr . ExpOpcode 
                    , "Left operand "
                    , TOpExpr . ExpBinOpLtOpndKindsAllowed
@@ -1879,18 +1876,39 @@ END ;
           END (*IF*)
 
         ; IF TOpExpr . ExpBinOpActualsCt > 1
-          THEN
-            LOpnd2 := TOpExpr . ExpOpnd2
-          ; IF LOpnd2 = NIL THEN RETURN TRUE END (*IF*)
-          ; IF NOT CheckOpndKind
-                     ( LOpnd2
-                     , TOpExpr . ExpOpcode
-                     , "Right operand "
-                     , TOpExpr . ExpBinOpRtOpndKindsAllowed
-                     )
-            THEN LOK := FALSE
-            END (*IF*)
+             AND  NOT CheckOpndKind
+                        ( TOpExpr . ExpOpnd2 
+                        , TOpExpr . ExpOpcode
+                        , "Right operand "
+                        , TOpExpr . ExpBinOpRtOpndKindsAllowed
+                        )
+          THEN LOK := FALSE
           END (*IF*)
+
+        ; TYPECASE OpExpr OF
+          | NULL =>
+          
+          | FM3Exprs . ExprQuadOpTyp ( TQuadOpExpr )
+          =>  IF NOT CheckOpndKind
+                      ( TQuadOpExpr . ExpQuadOpOpnd3 
+                      , TQuadOpExpr . ExpOpcode
+                      , "Third operand "
+                      , FM3Exprs . EkSetValue 
+                      )
+              THEN LOK := FALSE
+              END (*IF*)
+            ; IF TOpExpr . ExpBinOpActualsCt > 3
+                 AND NOT CheckOpndKind
+                           ( TQuadOpExpr . ExpQuadOpOpnd4 
+                           , TQuadOpExpr . ExpOpcode
+                           , "Forth operand "
+                           , FM3Exprs . EkSetValue 
+                           )
+              THEN LOK := FALSE
+              END (*IF*)
+
+          ELSE
+          END (*TYPECASE*) 
 
         ; IF NOT LOK
           THEN
@@ -1957,7 +1975,7 @@ END ;
 
     ; LDeclTok := DisambiguateStdDeclTok ( LUnitTok , LDeclTok ) 
       (* ^LDeclTok now belongs to only one unit . *) 
-    ; IF NOT FM3BuiltinOps . IsOperationTok ( LDeclTok ) 
+    ; IF NOT FM3Builtins . IsOperationTok ( LDeclTok ) 
       THEN (* It's not a callable builtin (type, constant, etc.) . *) 
         FM3Messages . ErrorArr 
           ( ARRAY OF REFANY 
@@ -1968,7 +1986,9 @@ END ;
       ; RETURN OrigExpr 
       END (*IF*)
 
-    ; LNewExpr := FM3BuiltinOps . Expr ( LDeclTok ) 
+    ; LNewExpr
+        := FM3Builtins . BuiltinExpr
+             ( LDeclTok , LCallExpr . ExpCallProc . ExpPosition ) 
     ; IF LActualsCt # LNewExpr . ExpBinOpActualsCt 
       THEN (* Wrong number of actual parameters. *) 
         IF LNewExpr . ExpBinOpActualsCt = 1 THEN LPluralSuffix := "."  

@@ -8,8 +8,6 @@
 
 INTERFACE FM3Pass2
 
-; IMPORT FM3Base 
-; IMPORT FM3Scopes 
 ; IMPORT FM3Units 
 
 ; PROCEDURE RunPass2 ( ) 

@@ -146,105 +146,107 @@ ABS 5
       same lex machine as reserved words. 
    *) 
 
-   (* The parser will convert '+' and '-' into StkUnary* when they really are
-      unary.  They will be used later as operation codes.  The scanner will
-      not recognize them.
+   (* The parser will convert '+' and '-' into StkUnary* when syntactic
+      context shows they really are unary.  They will be used later as
+      operation codes.  The scanner will not produce them.
    *)
 
    StkUnaryPlus        "%UnaryPlus" . 
    StkUnaryMinus       "%UnaryMinus" . 
 
-   (* Reserved identifiers: *)
+   (* Builtin Identifiers: *)
+
+NEXT StkMinBuiltin .
+   (* Reserved identifiers: *) 
+NEXT StkMinStatic . 
 NEXT StkMinRid . 
    RidNull             "<RidNull>" .
    (* ^Scanner will never present this, but parsing may convert to it in a
-       context where a reserved ident is illegal. *) 
-   RidABS              "ABS" . 
-   RidADDRESS          "ADDRESS" . 
-   RidADR              "ADR" . 
-   RidADRSIZE          "ADRSIZE" . 
-   RidBITSIZE          "BITSIZE" . 
-   RidBOOLEAN          "BOOLEAN" . 
-   RidBYTESIZE         "BYTESIZE" . 
-   RidCARDINAL         "CARDINAL" . 
-   RidCEILING          "CEILING" . 
-   RidCHAR             "CHAR" . 
-   RidDEC              "DEC" . 
-   RidDISPOSE          "DISPOSE" . 
-   RidEXTENDED         "EXTENDED" . 
+       context where a reserved ident is illegal.
+   *)
+
+(* Things that will have a single, shared ExprTyp node. *) 
+   (* Constants: *) 
    RidFALSE            "FALSE" . 
-   RidFIRST            "FIRST" . 
-   RidFLOAT            "FLOAT" . 
-   RidFLOOR            "FLOOR" . 
-   RidINC              "INC" . 
+   RidNIL              "NIL" . 
+   RidTRUE             "TRUE" . 
+
+   (* Types: *)
+NEXT StkMinType . 
+   RidADDRESS          "ADDRESS" . 
+   RidBOOLEAN          "BOOLEAN" . 
+   RidCARDINAL         "CARDINAL" . 
+   RidCHAR             "CHAR" . 
+   RidEXTENDED         "EXTENDED" . 
    RidINTEGER          "INTEGER" . 
-   RidISTYPE           "ISTYPE" . 
-   RidLAST             "LAST" . 
    RidLONGCARD         "LONGCARD" . 
    RidLONGINT          "LONGINT" . 
    RidLONGREAL         "LONGREAL" . 
-   RidLOOPHOLE         "LOOPHOLE" . 
-   RidMAX              "MAX" . 
-   RidMIN              "MIN" . 
    RidMUTEX            "MUTEX" . 
-   RidNARROW           "NARROW" . 
-   RidNEW              "NEW" . 
-   RidNIL              "NIL" . 
    RidNULL             "NULL" . 
-   RidNUMBER           "NUMBER" . 
-   RidORD              "ORD" . 
    RidREAL             "REAL" . 
    RidREFANY           "REFANY" . 
-   RidROUND            "ROUND" . 
-   RidSUBARRAY         "SUBARRAY" . 
-   RidTEXT             "TEXT" . 
-   RidTRUE             "TRUE" . 
-   RidTRUNC            "TRUNC" . 
-   RidTYPECODE         "TYPECODE" . 
-   RidVAL              "VAL" .
+   RidTEXT             "TEXT" .
+NEXT StkMaxType . 
    RidWIDECHAR         "WIDECHAR" .
 
    (* ROOT and UNTRACED behave semantically like reserved identifiers, but
       each occurs in a different set of syntactic contexts from identifiers,
-      so they are source-code reserved words.  We convert those after parsing
+      so they are source-code reserved words.  We convert those during parsing
       into reserved idents with the following Rid atoms.  FM3Scanner
-      will not recognize them.
+      will not produce them.
    *)
    
    RidROOT             "%ROOT" .
-NEXT StkMaxRid . 
+NEXT StkMaxStatic . 
    RidUNTRACEDROOT     "%UNTRACED_ROOT" .
+
+
+   (* These are operations.  Each instance requires its own ExprTyp
+      node, with differing children and other fields.
+   *) 
+NEXT StkMinOperation .
+   (* Functions: *) 
+   RidABS              "ABS" . 
+   RidADR              "ADR" . 
+   RidADRSIZE          "ADRSIZE" . 
+   RidBITSIZE          "BITSIZE" . 
+   RidBYTESIZE         "BYTESIZE" . 
+   RidCEILING          "CEILING" .
+   RidFIRST            "FIRST" . 
+   RidFLOAT            "FLOAT" . 
+   RidFLOOR            "FLOOR" . 
+   RidISTYPE           "ISTYPE" . 
+   RidLAST             "LAST" . 
+   RidLOOPHOLE         "LOOPHOLE" . 
+   RidMAX              "MAX" . 
+   RidMIN              "MIN" . 
+   RidNARROW           "NARROW" . 
+   RidNEW              "NEW" . 
+   RidNUMBER           "NUMBER" . 
+   RidORD              "ORD" . 
+   RidROUND            "ROUND" . 
+   RidSUBARRAY         "SUBARRAY" . 
+   RidTRUNC            "TRUNC" . 
+   RidTYPECODE         "TYPECODE" . 
+   RidVAL              "VAL" .
+
+   (* Proper procedures: *) 
+   RidDISPOSE          "DISPOSE" . 
+   RidDEC              "DEC" .
+NEXT StkMaxRid . 
+   RidINC              "INC" . 
 
    (* Standard identifiers.  Scanner will treat these as ordinary
       identifiers, except it adds their codes as a separate field.
-      Later semantic processsing will decide whether the standard
+      Later semantic processing will decide whether the standard
       meaning should  be used. 
    *) 
 NEXT StkMinStd . 
-(* Standard interface names.  These values are used as unique unit numbers.
-   Keep them low in the unit number space. *)
-
-(* Standard interface names: *) 
-   StkPdMain           "Main" .
-   StkPdText           "Text" .
-   StkThread           "Thread" . 
-   StkPdWord           "Word" .
-   StkPdLong           "Long" . (* For LONGINT. *)
-   StkPdReal           "Real" .
-   StkPdLongReal       "LongReal" .
-   StkPdExtended       "Extended" .
-   StkPdRealFloat      "RealFloat" .
-   StkPdLongRealFloat  "LongRealFloat" .
-   StkPdExtendedFloat  "ExtendedFloat" .
-   StkPdFloatMode      "FloatMode" .
-   StkPdLex            "Lex" .
-NEXT   StkMaxStdIntf .
-   StkPdFmt            "Fmt" .
-
-   StkPdT              "T" (* In many standard interfaces: *) 
 
 (* In Word and Long: *)
 NEXT StkMinWordLong .
+   StkPdT              "T" (* Also in many standard interfaces: *) .  
    StkPdSize           "Size" . 
    StkPdPlus           "Plus" . 
    StkPdTimes          "Times" . 
@@ -274,6 +276,7 @@ NEXT StkMaxWordLong .
    See FM3Pass2 . FixDeclTok.
 *)
 NEXT StkMinLong .
+   StkPd_Long_T              "T" . 
    StkPd_Long_Size           "Size" . 
    StkPd_Long_Plus           "Plus" . 
    StkPd_Long_Times          "Times" . 
@@ -296,8 +299,29 @@ NEXT StkMinLong .
    StkPd_Long_RightRotate    "RightRotate" . 
    StkPd_Long_Extract        "Extract" . 
 NEXT StkMaxLong .
-NEXT StkMaxStd . 
+NEXT StkMaxOperation .
    StkPd_Long_Insert         "Insert" .
+
+NEXT StkMinStdIntf . 
+
+(* Standard interface names: *) 
+   StkPdMain           "Main" .
+   StkPdText           "Text" .
+   StkThread           "Thread" . 
+   StkPdWord           "Word" .
+   StkPdLong           "Long" . (* For LONGINT. *)
+   StkPdReal           "Real" .
+   StkPdLongReal       "LongReal" .
+   StkPdExtended       "Extended" .
+   StkPdRealFloat      "RealFloat" .
+   StkPdLongRealFloat  "LongRealFloat" .
+   StkPdExtendedFloat  "ExtendedFloat" .
+   StkPdFloatMode      "FloatMode" .
+   StkPdLex            "Lex" .
+NEXT   StkMaxStdIntf .
+NEXT StkMaxStd . 
+NEXT StkMaxBuiltin . 
+   StkPdFmt            "Fmt" .
 
 (* COMPLETEME: Idents declared in other standard interfaces. *) 
 

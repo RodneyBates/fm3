@@ -25,8 +25,6 @@ MODULE FM3Exprs
 ; IMPORT FM3SrcToks
 ; IMPORT FM3Units 
 ; IMPORT FM3Utils
-; IMPORT FM3UnsafeUtils 
-
 
 (* EXPORTED.*) 
 ; PROCEDURE ExprKindMessage ( Kind : ExprKindTyp ) : TEXT
@@ -449,6 +447,18 @@ MODULE FM3Exprs
           , ExprKindSetMessage ( Expr . ExpBinOpRtOpndKindsAllowed ) 
           )
       END ExprBinOpAppend
+
+(* Three or 4 operands: *) 
+; REVEAL ExprQuadOpTyp
+    = ExprQuadOpPublic BRANDED OBJECT OVERRIDES appendDump := ExprQuadOpAppend END
+
+; PROCEDURE ExprQuadOpAppend ( Expr : ExprQuadOpTyp )
+    = BEGIN 
+        ExprBinOpAppend ( Expr ) 
+      ; SubtypeComment ( "ExprQuadOpTyp" )
+      ; NestedField ( "ExpQuadOpOpnd3" , Expr . ExpQuadOpOpnd3 ) 
+      ; NestedField ( "ExpQuadOpOpnd4" , Expr . ExpQuadOpOpnd4 ) 
+      END ExprQuadOpAppend
 
 ; REVEAL ExprCallTyp
     = ExprCallPublic BRANDED OBJECT OVERRIDES appendDump := ExprCallAppend END

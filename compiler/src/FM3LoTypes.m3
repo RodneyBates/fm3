@@ -11,7 +11,14 @@ MODULE FM3LoTypes
 ; IMPORT FM3Target
 ; IMPORT VarArray_Int_Refany
 
-; BEGIN
+(*EXPORTED:*) 
+; PROCEDURE InfoRef ( TypeNo : LoTypeNoTyp ) : LoTypeInfoRefTyp
+
+  = BEGIN
+      RETURN VarArray_Int_Refany . Fetch ( LoTypeMap , TypeNo ) 
+    END InfoRef 
+ 
+; BEGIN (*FM3LoTypes*) 
 
     LoTypeMap := VarArray_Int_Refany . New ( NIL ) 
 
@@ -200,6 +207,5 @@ MODULE FM3LoTypes
       , VarArray_Int_Refany . Fetch ( LoTypeMap , FM3Target . LoTypeNoAddr )
       ) 
 
-
-  END FM3LoTypes
+; END FM3LoTypes
 . 
