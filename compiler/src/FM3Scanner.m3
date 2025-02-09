@@ -105,7 +105,7 @@ MODULE FM3Scanner
          ; SsWCh : WIDECHAR 
          ; SsCh : CHAR 
          ; SsAtBegOfPragma := FALSE 
-           (* ^The immediately-preceding token was "<*". *) 
+           (* ^The immediately-preceding delivered token was "<*". *) 
          ; SsAtEndOfPragma := FALSE (* Similarly for "*>". *)  
          END (* ScanStateTyp *) 
 
@@ -441,7 +441,7 @@ MODULE FM3Scanner
 (* TODO: Handle this as an unrecognized pragma and skip the entire thing. *) 
 
           ELSE (* It's a pragma ident. *) 
-            Attribute . SaBuiltinTok := GCurRwValue (* A recognized pragma name. *) 
+            Attribute . SaBuiltinTok := GCurRwValue (* Recognized pragma name. *)
           ; Attribute . SaTok := FM3SrcToks . StkPragmaId 
           END (*CASE*) 
 
@@ -1210,7 +1210,7 @@ MODULE FM3Scanner
           => (* Opening pragma delimiter. *)
             NextChar ( )
           ; GTopSsRef ^ . SsAtBegOfPragma := TRUE 
-          ; Attribute . SaTok := FM3SrcToks . StkOpenPragma 
+          ; Attribute . SaTok := FM3SrcToks . StkOpenPragma
           ELSE 
             Attribute . SaTok := FM3SrcToks . StkLess
           END (* CASE *) 
@@ -1338,12 +1338,29 @@ MODULE FM3Scanner
 
      (* ELSE Can't happen.  (Other values ruled out earlier). *)  
         END (* CASE *)
-        
-      ; IF GTopSsRef ^ . SsAtBegOfPragma
-           OR GTopSsRef ^ . SsAtEndOfPragma
-           OR GTopSsRef ^ . SsPragmaDepth > 0
-        THEN (* Don't deliver this token.  Loop for another. *)
-        ELSE RETURN Attribute . SaTok 
+
+      ; IF Attribute . SaTok = FM3SrcToks . StkClosePragma
+           AND GTopSsRef ^ . SsPragmaDepth = 0
+        THEN
+           FM3Messages . ErrorArr
+             ( ARRAY OF REFANY
+                 { "No pragma is open here." }
+             , Attribute . Position
+             ) 
+(* TODO: Emit error on unclosed pragmas at EOF *) 
+        ; GTopSsRef ^ . SsAtEndOfPragma := FALSE
+          (* So we won't go negative at the top of the loop. *)
+        ELSIF GTopSsRef ^ . SsPragmaDepth = 0
+        THEN RETURN Attribute . SaTok
+        ELSIF GTopSsRef ^ . SsPragmaDepth = 1
+              AND ( Attribute . SaTok = FM3SrcToks . StkClosePragma 
+                    OR Attribute . SaTok = FM3SrcToks . StkPragmaId
+                  )
+        THEN RETURN Attribute . SaTok
+        ELSE (* Don't deliver this token.  We are inside a top-level pragma,
+                not including its StlOpenPragma, StkPragmaId, or StkClosePragma. 
+                This is tricky.
+             *) 
         END (*IF*) 
       END (*LOOP*) (* A very long one. *) 
     END GetToken
