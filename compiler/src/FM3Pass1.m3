@@ -79,6 +79,8 @@ MODULE FM3Pass1
 
 ; CONST PosImage = FM3Utils . PositionImage
 
+; TYPE Ukt = FM3Units . UnitKindTyp 
+
 ; VAR FileTagVersion := VAL ( ORD ( '1' ) , Byte )  
 
 ; CONST LeftFileTagLen
@@ -537,9 +539,10 @@ MODULE FM3Pass1
   ; BEGIN (* InterfaceId *)
       UnitRef ^ . UntUnitIdent := IdScanAttr . SaChars 
     ; UnitRef ^ . UntUnitIdentPos := IdScanAttr . Position
-    ; UnitRef ^ . UntStdTok := IdScanAttr . SaBuiltinTok
-(*                ^Compare to FM3Compile.m3. *)     
-    ; IF UnitRef ^ . UntUnitIdent = NIL THEN RETURN END (*IF*) 
+    ; <* ASSERT UnitRef ^ . UntStdTok = IdScanAttr . SaBuiltinTok
+         , "Std unit Toks for filename and interface name disagree."
+      *>
+      IF UnitRef ^ . UntUnitIdent = NIL THEN RETURN END (*IF*) 
     ; LNameFromFileName := UnitNameTFromFileName ( UnitRef ) 
     ; IF LNameFromFileName = NIL THEN RETURN END (*IF*) 
     ; IF NOT Text . Equal
@@ -624,6 +627,19 @@ MODULE FM3Pass1
           )
       END (*IF*) 
     END CheckUnitFinalId
+
+(*EXPORTED:*)
+; PROCEDURE CheckStdUnitPragma ( UnitRef : FM3Units . UnitRefTyp )
+    
+  = BEGIN (* CheckStdUnitPragma *)
+      IF UnitRef = NIL THEN RETURN END (*IF*)
+    ; IF UnitRef ^ . UntKind # Ukt . UkInterface THEN RETURN END (*IF*)
+    ; <* ASSERT UnitRef ^ . UntHasStdUnitPragma
+                = ( UnitRef ^ . UntStdTok # FM3Base . TokNull ) 
+      , "HasStdUnitPragma disagrees with UntStdTok for "
+        & UnitRef ^ . UntSrcFileSimpleName
+      *> 
+    END CheckStdUnitPragma
 
 (* ------------------------ Pass 1 output file --------------------- *) 
 
@@ -1699,7 +1715,7 @@ MODULE FM3Pass1
   *) 
 
   = BEGIN 
-     IF NOT  HasType AND NOT HasValue 
+     IF NOT HasType AND NOT HasValue 
      THEN
        WITH WDeclParseInfo = FM3Decls . TopDeclParseInfo ( )
        DO 
@@ -1971,8 +1987,8 @@ MODULE FM3Pass1
 
   = BEGIN
       CASE PragmaAttr . Scan . SaBuiltinTok OF
-      | FM3PgToks . PgFm3StdUnit
-       => FM3Units . UnitStackTopRef ^ . UntIsStdUnit := TRUE 
+      | FM3PgToks . PgFM3StdUnit
+       => FM3Units . UnitStackTopRef ^ . UntHasStdUnitPragma := TRUE 
       ELSE
         FM3Messages . WarningArr
           ( ARRAY OF REFANY

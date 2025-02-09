@@ -1406,7 +1406,7 @@ END ;
 
 ; PROCEDURE LookupAtomInOpenScopes
     ( IdAtom : FM3Base . AtomTyp ) : FM3Globals . DeclNoTyp  
-  (* In nearest enclosing open scope on open scope stack. *) 
+  (* In innermost enclosing open scope on open scope stack. *) 
 
   = VAR LScopeRef : FM3Scopes . ScopeRefTyp 
   ; VAR LDeclNoInt : INTEGER
@@ -1498,7 +1498,8 @@ END ;
       END (* Block. *) 
     END DuplDeclIdR2L
     
-; PROCEDURE DeclIdR2L ( READONLY TokResult : TokResultTyp ) : FM3Globals . DeclNoTyp
+; PROCEDURE DeclIdR2L ( READONLY TokResult : TokResultTyp )
+  : FM3Globals . DeclNoTyp
   (* ^This will be the only decl of DeclIdAtom in its scope. *) 
 
   = VAR DidAtom : FM3Base . AtomTyp
@@ -1969,8 +1970,8 @@ END ;
 
       ELSE (* Called proc is not a named builtin. *) RETURN OrigExpr 
       END (* TYPECASE *)  
-    ; IF LUnitTok = FM3Base . TokNull AND LUnitTok = FM3Base . TokNull 
-      THEN (* Also not on anything builtin. *) RETURN OrigExpr
+    ; IF LUnitTok = FM3Base . TokNull AND LDeclTok = FM3Base . TokNull 
+      THEN (* Also not a call on anything builtin. *) RETURN OrigExpr
       END (*IF*) 
 
     ; LDeclTok := DisambiguateStdDeclTok ( LUnitTok , LDeclTok ) 
@@ -2122,7 +2123,9 @@ END ;
     ; IF DeclNo = FM3Globals . DeclNoNull THEN RETURN END (*IF*)  
     ; LDeclRef := VarArray_Int_Refany . Fetch ( LUnitRef . UntDeclMap , DeclNo ) 
     ; IF LDeclRef = NIL THEN RETURN END (*IF*)
-    ; UnitTok := LUnitRef . UntStdTok 
+    ; IF LUnitRef ^. UntHasStdUnitPragma
+      THEN UnitTok := LUnitRef . UntStdTok
+      END (*IF*) 
     ; DeclTok := LDeclRef . DclStdTok 
     END GetStdToks 
 
@@ -2156,7 +2159,7 @@ END ;
         THEN
           LUnitRef := FM3Units . UnitStackTopRef 
         ; IF AreInsideADecl ( )
-          THEN (* Create an ExprIdentReference node. *) 
+          THEN (* Create an ExprIdentRefTyp node. *) 
             CheckRecursiveRef ( LRefDeclNo )
           ; WITH WExpr = NEW ( FM3Exprs . ExprIdentRefTyp )
             DO

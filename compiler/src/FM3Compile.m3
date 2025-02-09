@@ -33,7 +33,8 @@ MODULE  FM3Compile
 ; IMPORT FM3Pass1 
 ; IMPORT FM3Pass2
 ; IMPORT FM3SharedUtils
-; IMPORT FM3SrcToks 
+; IMPORT FM3SrcToks
+; IMPORT FM3Dict_Text_Int 
 ; IMPORT FM3Units
 ; IMPORT FM3Utils
 ; IMPORT RdBackFile
@@ -43,10 +44,10 @@ MODULE  FM3Compile
 
 (*EXPORTED.*)
 ; PROCEDURE GetUnitRefOfFileName ( SrcFileName : TEXT ) : FM3Units . UnitRefTyp
-  (* POST: Result, # NIL, references a UnitTyp whose source file is named in
+  (* POST: Result, # NIL, references a UnitTyp, whose source file is named in
            FM3Units . UnitsAtomDict, and has field UntSrcFileSimpleName set,
-           using the simple name taken from SrcFileName.
-           Allocate the UnitTyp if necessary. 
+           using the file name taken from SrcFileName, which may include a
+           path.  Allocate the UnitTyp if necessary. 
   *) 
 
   = VAR LSimpleName : TEXT
@@ -74,40 +75,58 @@ MODULE  FM3Compile
     ; RETURN LUnitRef
     END GetUnitRefOfFileName
 
-; VAR SearchPathShown := FALSE 
+; VAR GSearchPathShown := FALSE 
 
 ; PROCEDURE SrcSearchPathOnce ( ) : TEXT  
 
   = BEGIN
-      IF SearchPathShown THEN RETURN "" END (*IF*) 
-    ; SearchPathShown := TRUE
+      IF GSearchPathShown THEN RETURN "" END (*IF*) 
+    ; GSearchPathShown := TRUE
     ; RETURN
         FM3Messages . NLIndent
         & "Search directories for source files are:"
         & FM3CLOptions . SrcDirMsg 
     END SrcSearchPathOnce
 
+; VAR GStdUnitFileNames : FM3Dict_Text_Int . FixedTyp 
+
+; PROCEDURE InitStdFileNames ( )
+
+  = VAR LUnitName : TEXT
+
+  ; BEGIN (*InitStdFileNames*)
+      GStdUnitFileNames
+        := FM3Dict_Text_Int . NewFixed ( 28 , FM3Utils . HashOfText ) 
+    ; FOR RTok := FM3SrcToks . StkMinStdIntf TO FM3SrcToks . StkMaxStdIntf
+      DO LUnitName := FM3SrcToks . Image ( RTok )
+      ; FM3Dict_Text_Int . InsertFixed
+           ( GStdUnitFileNames , LUnitName & ".i3" , FM3Base . HashNull , RTok )
+      ; FM3Dict_Text_Int . InsertFixed
+           ( GStdUnitFileNames , LUnitName & ".m3" , FM3Base . HashNull , RTok )
+      END (*FOR*)
+    ; FM3Dict_Text_Int . FinalizeFixed ( GStdUnitFileNames ) 
+    END InitStdFileNames
+
 ; PROCEDURE IsStdUnitName  ( UnitName : TEXT ) : BOOLEAN 
 
-  = BEGIN
-      IF Text . Equal ( UnitName , "Main.i3" ) THEN RETURN TRUE END (*IF*) 
-    ; IF Text . Equal ( UnitName , "Word.i3" ) THEN RETURN TRUE END (*IF*) 
-    ; IF Text . Equal ( UnitName , "Word.m3" ) THEN RETURN TRUE END (*IF*) 
-    ; RETURN FALSE 
+  = VAR LTok : FM3SrcToks . TokTyp
+
+  ; BEGIN
+      RETURN FM3Dict_Text_Int . LookupFixed
+          ( GStdUnitFileNames , UnitName , FM3Base . HashNull , (*OUT*) LTok )
    END IsStdUnitName  
 
 ; PROCEDURE StdUnitTok ( UnitName : TEXT ) : FM3SrcToks . TokTyp  
 
-  = BEGIN
-(* COMPLETEME: 
-      IF Text . Equal ( UnitName , "Main.i3" ) THEN RETURN TRUE END (*IF*) 
-    ; IF Text . Equal ( UnitName , "Word.i3" ) THEN RETURN TRUE END (*IF*) 
-    ; IF Text . Equal ( UnitName , "Word.m3" ) THEN RETURN TRUE END (*IF*) 
-    ; RETURN FM3SrcToks . StkUnknown 
-*)
+  = VAR LTok : FM3SrcToks . TokTyp
 
-     RETURN FM3SrcToks . StkUnknown 
-   END StdUnitTok
+  ; BEGIN
+      IF NOT FM3Dict_Text_Int . LookupFixed
+           ( GStdUnitFileNames , UnitName , FM3Base . HashNull , (*OUT*) LTok )
+      THEN LTok := FM3Base . TokNull
+      END  (*IF*)
+    ; RETURN LTok
+    END StdUnitTok 
 
 (*EXPORTED*) 
 ; PROCEDURE FindAndOpenUnitSrcFile
@@ -132,15 +151,9 @@ MODULE  FM3Compile
     ; IF UnitRef ^ . UntSrcFileSimpleName = NIL THEN RETURN FALSE END (*IF*) 
     ; IF UnitRef ^ . UntState # Us . UsNull THEN RETURN FALSE END (*IF*)
     ; UnitRef ^ . UntStdTok
-(* COMPARE        ^ To FM3Pass2.  *)
         := StdUnitTok ( UnitRef ^ . UntSrcFileSimpleName )
-(*  ; IF UnitRef ^ . UntStdTok # FM3SrcToks . StkUnknown
-      Use ^this instead of below when StdUnitTok is completed.*) 
-    
-    ; IF IsStdUnitName ( UnitRef ^ . UntSrcFileSimpleName )
-      THEN
-        LSrcDirList := FM3CLOptions . ResourceDirNameList
-      ; UnitRef ^ . UntIsStdUnit := TRUE 
+    ; IF UnitRef ^ . UntStdTok # FM3Base . TokNull 
+      THEN LSrcDirList := FM3CLOptions . ResourceDirNameList
       ELSE LSrcDirList := FM3CLOptions . SrcDirList 
       END (*IF*) 
     ; IF LSrcDirList = NIL THEN RETURN FALSE END (*IF*)
@@ -483,8 +496,7 @@ MODULE  FM3Compile
   ; VAR LToAtom : FM3Base . AtomTyp 
 
   ; BEGIN
-      IF FromUnitRef ^ . UntIsStdUnit
-         AND TRUE  
+      IF FromUnitRef ^ . UntStdTok # FM3Base . TokNull AND FromAtom < 0 
       THEN RETURN FromAtom 
       ELSIF NOT FM3Atom_OAChars . Key
                   ( FromUnitRef ^ . UntIdentAtomDict
@@ -503,7 +515,8 @@ MODULE  FM3Compile
     END ConvertAndCreateIdentAtom 
     
 ; BEGIN
-    SearchPathShown := FALSE 
+    GSearchPathShown := FALSE 
+  ; InitStdFileNames ( )
   END FM3Compile
 .
 

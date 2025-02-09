@@ -302,9 +302,8 @@ NEXT StkMaxLong .
 NEXT StkMaxOperation .
    StkPd_Long_Insert         "Insert" .
 
-NEXT StkMinStdIntf . 
-
 (* Standard interface names: *) 
+NEXT StkMinStdIntf . 
    StkPdMain           "Main" .
    StkPdText           "Text" .
    StkThread           "Thread" . 

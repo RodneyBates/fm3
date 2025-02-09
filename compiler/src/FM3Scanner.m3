@@ -424,7 +424,9 @@ MODULE FM3Scanner
         END (*IF*)
 
       ; IF ScAtBegOfPragma (* Expecting a pragma id? *) 
-        THEN (* GCurRwValue will have been recognized only among the pragma id. *)
+        THEN (* GCurRwValue will have been recognized only among the known
+                pragma ids. 
+             *)
           CASE GCurRwValue OF
           | FM3LexTable . ValueUnrecognized , FM3LexTable . ValueNull 
           => (* It's not a pragma ident. Make it an ordinary ident. *) 

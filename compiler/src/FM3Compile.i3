@@ -17,10 +17,10 @@ INTERFACE FM3Compile
 ; IMPORT RdBackFile
 
 ; PROCEDURE GetUnitRefOfFileName ( SrcFileName : TEXT ) : FM3Units . UnitRefTyp
-  (* POST: Result, # NIL, references a UnitTyp whose source file is named in
+  (* POST: Result, # NIL, references a UnitTyp, whose source file is named in
            FM3Units . UnitsAtomDict, and has field UntSrcFileSimpleName set,
-           using the simple name taken from SrcFileName.
-           Allocate the UnitTyp if necessary. 
+           using the simple name taken from SrcFileName, which may include a
+           path.  Allocate the UnitTyp if necessary. 
   *) 
 
 ; PROCEDURE FindAndOpenUnitSrcFile

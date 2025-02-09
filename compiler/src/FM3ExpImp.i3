@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2024        Rodney M. Bates.                                    *)
+(* Copyright 2024..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -28,6 +28,7 @@ INTERFACE FM3ExpImp
 
 ; PROCEDURE GetInterface
     ( IdentChars : FM3OpenArray_Char . T
+      (* ^Interface unit name, without file name suffix. *)  
     ; Position : FM3Base . tPosition
       (* ^Of the [ex/im]port identifier in the current unit. *) 
     ; IsExport : BOOLEAN

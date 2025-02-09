@@ -356,12 +356,13 @@ RULE
          <* ASSERT FM3Scopes . PopDeclScopeRef ( ) = LScopeRef *>
          FM3Pass1 . CheckUnitFinalId
            ( FM3Units . UnitStackTopRef , $4 . Scan , Ukt . UkInterface ) ; 
+         FM3Pass1 . CheckStdUnitPragma ( FM3Units . UnitStackTopRef ) ; 
          FM3Pass1 . PutBwd_LCIP_rip 
            ( Itk . ItkInterfaceLt
            , $1 . PaPass1Coord
            , FM3Units . UnitStackTopRef ^ . UntSelfUnitNo 
            , $1 . Scan . Position
-           ) ; 
+           ) ;
        END ; 
      } .
 

@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2024        Rodney M. Bates.                                    *)
+(* Copyright 2024..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -84,6 +84,7 @@ MODULE FM3ExpImp
 (*EXPORTED*) 
 ; PROCEDURE GetInterface
     ( IdentChars : FM3OpenArray_Char . T
+      (* ^Interface unit name, without file name suffix. *)  
     ; Position : FM3Base . tPosition
       (* ^In the current unit of the to-be [ex/im]ported identifier. *) 
     ; IsExport : BOOLEAN
@@ -106,9 +107,11 @@ MODULE FM3ExpImp
              , FM3Base . InterfaceFileNameSuffix
              ) 
     ; LIntfUnitRef := FM3Compile . GetUnitRefOfFileName ( LSrcFileName )
-    ; IF LIntfUnitRef ^ . UntState = Ust . UsNotUsable THEN RETURN NIL END (*IF*)  
+    ; IF LIntfUnitRef ^ . UntState = Ust . UsNotUsable
+      THEN RETURN NIL
+      END (*IF*) 
     ; IF LIntfUnitRef ^ . UntState = Ust . UsNull 
-      THEN (* Haven't seen this unit yet. *)
+      THEN (* Haven't previously seen this unit. *)
       (* Compile it. *)
 (*TODO: Or load it. *)
         IF IsExport

@@ -21,7 +21,7 @@ INTERFACE FM3PgToks
 (* Avoid overlap of source tokens. *)
 (* ABS 220: *)
 
-; CONST PgFm3StdUnit                                 =   220 (*16_dc 01 *)
+; CONST PgFM3StdUnit                                 =   220 (*16_dc 01 *)
 ; CONST PgInline                                     =   221 (*16_dd 01 *)
 (* End of FM3PgToks.gentok. *)
 ; CONST TkMinTok                                     =   220

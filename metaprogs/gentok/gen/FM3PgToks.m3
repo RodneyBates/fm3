@@ -28,7 +28,7 @@ MODULE FM3PgToks
 
   = BEGIN 
       CASE TokNo OF 
-      | 220 => RETURN "PgFm3StdUnit"
+      | 220 => RETURN "PgFM3StdUnit"
       | 221 => RETURN "PgInline"
       ELSE RETURN "<Undef>"
       END (*CASE*) 

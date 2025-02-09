@@ -21,7 +21,7 @@ SRC
 
 ABS 220 (* Avoid overlap of source tokens. *) 
 
-   PgFm3StdUnit     "FM3_STDUNIT" .
+   PgFM3StdUnit     "FM3_STDUNIT" .
    PgInline            "INLINE" . 
    
 (* End of FM3PgToks.gentok. *) 

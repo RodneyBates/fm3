@@ -81,6 +81,8 @@ INTERFACE FM3Pass1
     ; UnitKind : FM3Units . UnitKindTyp
     )
     
+; PROCEDURE CheckStdUnitPragma ( UnitRef : FM3Units . UnitRefTyp )
+    
 (* ------------------------- Pass1 output file ---------------------- *)
 
 ; PROCEDURE Coord ( ) : LONGINT

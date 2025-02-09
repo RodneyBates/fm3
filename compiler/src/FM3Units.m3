@@ -126,7 +126,7 @@ MODULE FM3Units
     ; LUnitRef ^ . UntState := UnitStateTyp . UsNull
     ; LUnitRef ^ . UntUnsafe := FALSE 
     ; LUnitRef ^ . UntInExpImpCycle := FALSE
-    ; LUnitRef ^ . UntIsStdUnit := FALSE 
+    ; LUnitRef ^ . UntHasStdUnitPragma := FALSE 
     ; LUnitRef ^ . UntIdentAtomDict 
         := FM3Atom_OAChars . New
              ( FM3Globals . IdentAtomInitSize
@@ -166,7 +166,7 @@ MODULE FM3Units
     ; VarArray_Int_ExpImpProxy . Touch
         ( LUnitRef ^ .  UntExpImpMap , Ranges_Int . RangeTyp { 0 , 0 } )
     ; LUnitRef ^ . UntNextDeclNo := 1 
-    ; LUnitRef ^ . UntStdTok := FM3SrcToks . StkUnknown 
+    ; LUnitRef ^ . UntStdTok := FM3Base . TokNull  
     ; LUnitRef ^ . UntDeclMap 
         := FM3Decls . NewDeclMap ( FM3Globals . InitDeclCtPerUnit ) 
     ; VarArray_Int_Refany . Touch
