@@ -1968,8 +1968,8 @@ MODULE FM3Pass1
   = BEGIN (*IdentRefL2R*)
       WITH WScan = IdAttr . Scan
       DO IF WScan . SaAtom = FM3Base . AtomNull  
-        THEN (* Reserved Ident.  Now that we know it's a reference,
-                distinguish reserved from non-.
+        THEN (* Reserved Ident.  Now that we know from syntax that it's a
+                reference, distinguish reserved from non-reserved ident.
              *) 
           PutBwd_LIP
             ( Itk . ItkReservedIdRef , WScan . SaBuiltinTok , WScan . Position )
@@ -2079,34 +2079,47 @@ MODULE FM3Pass1
     END AttrIsReservedId
 
 (*EXPORTED.*)
-; PROCEDURE FlagReservedIdent
-    ( READONLY IdAttr : tParsAttribute ; ContextTag := "used in this context" )
+; PROCEDURE CheckIllegalReservedIdent
+    ( READONLY IdAttr : tParsAttribute
+    ; ContextTag := "be used in this context"
+    )
+  : BOOLEAN (* it's reserved, (thus illegal). *)
+  (* PRE: reserved => illegal. *)
+  (* POST: illegal => error message has been emitted. *) 
 
   = BEGIN
-      IF IdAttr . Scan . SaAtom # FM3Base . AtomNull
+      IF IdAttr . Scan . SaAtom = FM3Base . AtomNull
       THEN 
         FM3Messages . ErrorArr
           ( ARRAY OF REFANY
               { "Identifier \""
               , FM3SrcToks . Image ( IdAttr . Scan . SaBuiltinTok )
-              , "\" is reserved and cannot be "
+              , "\" is reserved and cannot "
               , ContextTag 
               , "(2.8.2)."
               }
           , IdAttr . Scan . Position 
           )
+      ; RETURN TRUE
+      ELSE RETURN FALSE 
       END (*IF*) 
-    END FlagReservedIdent
+    END CheckIllegalReservedIdent
 
 (*EXPORTED.*)
-; PROCEDURE QualIdentL2R
+; PROCEDURE QualIdentRefL2R
     ( READONLY LtIdAttr , RtIdAttr : tParsAttribute )
   (* Handles either/both idents reserved. *) 
 
-  = BEGIN (*QualIdentL2R*)
+  = VAR LIsIllegal : BOOLEAN
+
+  ; BEGIN (*QualIdentRefL2R*)
       WITH WunRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
-      DO IF AttrIsReservedId ( LtIdAttr )
-         OR AttrIsReservedId ( RtIdAttr )
+      DO LIsIllegal
+          := CheckIllegalReservedIdent ( LtIdAttr , "have a qualifier." )
+      ; LIsIllegal
+          := CheckIllegalReservedIdent ( RtIdAttr , "be a qualifier." )
+             OR LIsIllegal
+      ; IF LIsIllegal 
         THEN 
           PutBwd 
             ( WunRdBack , VAL ( LtIdAttr . Scan . Position . Column , LONGINT ) )
@@ -2131,7 +2144,7 @@ MODULE FM3Pass1
         ; PutBwd ( WunRdBack , VAL ( Itk . ItkQualIdAtoms , LONGINT ) )
         END (*IF*) 
       END (*WITH*)
-    END QualIdentL2R
+    END QualIdentRefL2R
 
 (*EXPORTED.*)
 ; PROCEDURE BuiltinNoSelectorAllowed
@@ -2349,7 +2362,7 @@ MODULE FM3Pass1
         END SrtVisit
 
     ; BEGIN (* Block. *)
-        <* ASSERT ScopeRef = FM3Scopes . DeclScopeStackTopRef *>
+(*      <* ASSERT ScopeRef = FM3Scopes . DeclScopeStackTopRef *> *)
       (* Move Idents ref'd but not declared here out to parent lookup scope. *)
         LEscapingRefSet
           := IntSets . Difference 

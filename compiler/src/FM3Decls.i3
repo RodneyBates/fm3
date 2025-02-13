@@ -63,7 +63,7 @@ INTERFACE FM3Decls
       ; DclPos : FM3Base . tPosition
       ; DclStdTok : FM3SrcToks . TokTyp := FM3SrcToks . StkUnknown 
       ; DclKind : DeclKindTyp
-      ; DclIsUsable : BOOLEAN 
+      ; DclIsUsable : BOOLEAN := TRUE 
       END (*DeclObjBaseTyp*)
 
 ; TYPE DeclMapTyp = FM3Base . MapTyp  

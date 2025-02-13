@@ -1234,8 +1234,8 @@ END ;
         ; IF NOT HtSkipping THEN BinaryOp ( LOpcode ) END (*IF*)
 
       | Itk . ItkCallRt
-       => LPosition := GetBwdPos ( TokResult . TrRdBack )
-        ; LCt := GetBwdInt ( TokResult . TrRdBack ) (* Actuals count. *) 
+      =>  LCt := GetBwdInt ( TokResult . TrRdBack ) (* Actuals count. *) 
+        ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; LCallExpr := NEW ( FM3Exprs . ExprCallTyp )
         ; LCallExpr . ExpActualsList
             := NEW ( REF ARRAY OF FM3Exprs . ExprTyp , LCt )
@@ -1243,23 +1243,52 @@ END ;
         ; LCallExpr . ExpPosition := LPosition
         ; FM3Exprs . PushExprStack ( LCallExpr )
 
+      | Itk . ItkActualsListRt
+       => LCt := GetBwdInt ( TokResult . TrRdBack ) (* Actuals count. *) 
+        ; LPosition := GetBwdPos ( TokResult . TrRdBack )
+        ; LCallExpr 
+            := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprCallTyp )
+        ; <* ASSERT LCt = LCallExpr . ExpActualNo *> 
+
       | Itk . ItkActualsListSep
-      , Itk . ItkActualsListLt
-       => LListElem := FM3Exprs . PopExprStack ( )
-        ; LCallExpr := FM3Exprs . ExprStackTopObj
+       => LCt := GetBwdInt ( TokResult . TrRdBack ) (* Actuals count. *) 
+        ; LPosition := GetBwdPos ( TokResult . TrRdBack )
+        ; LListElem := FM3Exprs . PopExprStack ( )
+        ; LCallExpr 
+            := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprCallTyp )
         ; DEC ( LCallExpr . ExpActualNo )  
         ; LCallExpr . ExpActualsList ^ [ LCallExpr . ExpActualNo ] := LListElem
 
+      | Itk . ItkActualsListLt
+       => LCt := GetBwdInt ( TokResult . TrRdBack ) (* Actuals count. *) 
+        ; LPosition := GetBwdPos ( TokResult . TrRdBack )
+        ; IF LCt > 0
+          THEN 
+            LListElem := FM3Exprs . PopExprStack ( )
+          ; LCallExpr 
+              := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprCallTyp )
+          ; <* ASSERT LCallExpr . ExpActualNo = 1 *> 
+            DEC ( LCallExpr . ExpActualNo )
+          ; LCallExpr . ExpActualsList ^ [ LCallExpr . ExpActualNo ] := LListElem
+          ELSE 
+            LCallExpr 
+              := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprCallTyp )
+          ; <* ASSERT LCallExpr . ExpActualNo = 0 *> 
+          END (*IF*) 
+
       | Itk . ItkCallLt
-        => LPosition := GetBwdPos ( TokResult . TrRdBack )
-        ; LCt := GetBwdInt ( TokResult . TrRdBack )
+      =>  LCt := GetBwdInt ( TokResult . TrRdBack )
+        ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; LProcExpr := FM3Exprs . PopExprStack ( )
         ; LCallExpr
             := NARROW ( FM3Exprs . PopExprStack ( ) , FM3Exprs . ExprCallTyp )
         ; <* ASSERT LPosition = LCallExpr . ExpPosition *>
           <* ASSERT LCallExpr . ExpActualNo = 0 *>
           LCallExpr . ExpCallProc := LProcExpr 
-        ; FM3Exprs . PushExprStack ( MaybeConvertCallToOperator ( LCallExpr ) ) 
+        ; FM3Exprs . PushExprStack ( MaybeConvertCallToOperator ( LCallExpr ) )
+        ; PutBwdP2
+            ( HtPass2RdBack , VAL ( LCallExpr . ExpSelfExprNo , LONGINT ) ) 
+        ; PutBwdP2 ( HtPass2RdBack , VAL ( Itk . ItkExprTyp , LONGINT ) )
 
       ELSE (* No special pass2 handling. *)
         HtPassTokenThru ( ) 
@@ -1581,20 +1610,18 @@ END ;
             *>
 
         | Dkt . DkType                        
-        , Dkt . DkMethod
         , Dkt . DkProc
         , Dkt . DkReveal 
         =>  <* ASSERT FM3Scopes . DeclScopeStackTopRef ^ . ScpKind
                       IN FM3Scopes . ScopeKindSetOpen
             *>
-            (* These have a required type on the expression stack. *)
-            <* ASSERT LDeclRef ^ . DclDefType # NIL *> 
 
         | Dkt . DkVALUEFormal
         , Dkt . DkVARFormal
         , Dkt . DkROFormal
         , Dkt . DkRecField
         , Dkt . DkObjField
+        , Dkt . DkMethod
         =>  <* ASSERT NOT FM3Scopes . DeclScopeStackTopRef ^ . ScpKind
                           IN FM3Scopes . ScopeKindSetOpen
             *>
@@ -1922,7 +1949,7 @@ END ;
     END CheckOperation 
 
 ; PROCEDURE MaybeConvertCallToOperator ( OrigExpr : FM3Exprs . ExprTyp )
-  : FM3Exprs . ExprBinOpTyp
+  : FM3Exprs . ExprTyp
   (* If conditions are met, return an ExpBinOp-rooted subtree that is the
      conversion of OrigExpr.
   *) 

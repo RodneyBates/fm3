@@ -377,8 +377,13 @@ INTERFACE FM3Pass1
     ( ScopeKind : FM3Scopes . ScopeKindTyp ; Position : FM3Base . tPosition )
   : FM3Scopes . ScopeRefTyp 
 
-; PROCEDURE FlagReservedIdent
-    ( READONLY IdAttr : tParsAttribute ; ContextTag := "used in this context" )
+; PROCEDURE CheckIllegalReservedIdent
+    ( READONLY IdAttr : tParsAttribute
+    ; ContextTag := "be used in this context"
+    )
+  : BOOLEAN (* it's reserved, (thus illegal). *)
+  (* PRE: reserved => illegal. *)
+  (* POST: illegal => error message has been emitted. *) 
 
 ; PROCEDURE DeclIdL2R 
     ( DeclKind : FM3Decls . DeclKindTyp  
@@ -403,7 +408,7 @@ INTERFACE FM3Pass1
   : BOOLEAN (* It's OK so far. *) 
   (* Disallows reserved Id. *) 
 
-; PROCEDURE QualIdentL2R
+; PROCEDURE QualIdentRefL2R
     ( READONLY LtAttribute , RtAttribute : tParsAttribute )
   (* Handles either/both idents reserved. *) 
     

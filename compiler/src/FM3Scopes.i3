@@ -45,9 +45,10 @@ INTERFACE FM3Scopes
       , SkUnit (* Exports & Imports of a single compilation unit. *) 
       , SkInterface (* Including generic and instantiation. *) 
       , SkModule (* Including generic and instantiation. *)
-      , SkFormals (* Built as part of a type definition, treated as qualified
-                     when ref'd by a named formal within an actual parameter list,
-                     treated as open for other lookups.  No self references.
+      , SkFormals (* Built as part of a signature definition, treated as
+                     qualified when ref'd by a named formal within an actual
+                     parameter list.  Treated as open for other lookups.
+                     No self references.
                   *) 
       , SkBlock
       , SkCompEnv (* Compiled, IMPORTed, EXPORTed. *) 
@@ -152,7 +153,8 @@ INTERFACE FM3Scopes
   : ScopeRefTyp
   (* Allocate and connect a ScopeNo and ScopeRef, owned by OwningUnitRef. *) 
 
-; PROCEDURE ScopeRefOfScopeNo ( ScopeNo : FM3Globals . ScopeNoTyp ) : ScopeRefTyp 
+; PROCEDURE ScopeRefOfScopeNo ( ScopeNo : FM3Globals . ScopeNoTyp )
+  : ScopeRefTyp 
   (* In the current unit. *) 
 
 ; TYPE ScopeMapTyp = FM3Base . MapTyp
@@ -162,13 +164,19 @@ INTERFACE FM3Scopes
 
 ; VAR DeclScopeStackTopRef : ScopeRefTyp := NIL
       (* A global, linked stack containing scopes from multiple units.
-         The top one is where declarations are being inserted. *)
+         The top one is where declarations are being inserted.  No references
+         are looked up in a scope accessed via this stack.  
+      *)
 ; VAR DeclScopeStackCt : INTEGER := 0 
       
 ; VAR OpenScopeStackTopRef : ScopeRefTyp := NIL
       (* Another global, linked stack containing scopes from multiple units.
          Inner scopes are on top.  Unqualified ident references are searched
-         top down to the enclosing unit scope. *) 
+         top down to the enclosing unit scope.  Unqualified references are
+         looked up in scopes accessed by this stack, not necessarily the top.
+         These two stacks of scopeRefs have separate root and link pointers,
+         so a scope can be on each stack simultaneously and independently.
+      *) 
 ; VAR OpenScopeStackCt : INTEGER := 0 
       
 ; PROCEDURE PushDeclScopeRef ( ScopeRef : ScopeRefTyp ) 

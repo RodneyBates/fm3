@@ -117,7 +117,7 @@ ItkConstId IDENT POS 3 .
 
 FIXED
 ItkConstDecl POS
-  Type POS BOOL 
+  Type POS 
   Value POS . 
  
 ItkTypeDecl POS 2 (* Position of ident. *)
@@ -171,7 +171,7 @@ LONE
   ItkBrandAnon POS (* anonymous brand value. *) . 
 
 LIST
-ItkEnumLitList (* This suffices to delimit an enumeration type. *) . 
+ItkEnumLitList (* This list alone suffices to delimit an enumeration type. *) . 
 ItkFieldDeclList .
 ItkVarDeclList .
 ItkTypeDeclList .
@@ -251,7 +251,8 @@ ItkROFormalIdList (* Position is READONLY. *).
          ever be needed anyway.
 
          So it's left undone for now.
-*) 
+*)
+
 ItkOpenDeclList . 
 
 (* Statements *)
@@ -411,6 +412,9 @@ LONE
 LONE
   ItkConstructorDotDot POS (* In array constructor. *) . 
 
+LONE 
+  ItkExprTyp INT (* ExprNo *) 
+
   (* The values of all scalar literals are LOOPHOLEd to LONGINT. *)
   ItkIntLit INT POS .
   ItkLongIntLit INT POS .
@@ -428,6 +432,8 @@ FIXED
 
 
 LIST ItkActualsList . 
+LONE ItkActualsListEmpty .
+
 LIST ItkSubscriptsPlusList .
 
 FIXED ItkAnonActual POS .
