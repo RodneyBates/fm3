@@ -144,8 +144,9 @@ ItkVARFormalId   IDENT POS .
 ItkROFormalId    IDENT POS . 
 *)
 FIXED 
-ItkREFType POS 2 .
-ItkUNTRACEDREFType POS 2 .
+ItkREFType BOOL POS 3 (* IsUntraced. *)
+   Referent POS 2 .
+
 ItkOpenArrayType POS 2 .
 ItkSubrType POS 2
   DotDot POS 2
@@ -166,8 +167,8 @@ FIXED
   ItkBrand POS (* With explicit brand value. *) .
 
 LONE
-  ItkAbsentSupertype POS .
-  ItkAbsentBrand POS . 
+  ItkSupertypeAbsent POS .
+  ItkBrandAbsent POS . 
   ItkBrandAnon POS (* anonymous brand value. *) . 
 
 LIST

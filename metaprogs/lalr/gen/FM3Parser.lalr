@@ -1098,7 +1098,7 @@ RULE
 
 (* --------------------------------- Types ----------------------------- *)
 
-   Type :  TypeId 
+   Type : TypeId 
      { $$ . Scan . SaAtom := $1 . Scan . SaAtom ; (* Needed? *) } . 
 
 (* ------------------------ Builtin type names ---------------------- *)
@@ -1122,18 +1122,22 @@ RULE
 
 (* ------------------------------- REF Types --------------------------- *)
 
-   Type : StkRwREF Type 
-     { FM3Pass1 . PutBwd_LCP_rp
+   RefTypeOptUntraced : /* Empty */
+     { $$ . PaBool := FALSE (* Not UNTRACED. *) } .
+
+   RefTypeOptUntraced : StkRwUNTRACED 
+     { $$ . PaBool := TRUE (* UNTRACED. *) } .
+
+   Type : RefTypeOptUntraced Brand StkRwREF Type 
+     { FM3Pass1 . PutBwd_LCBP_eCP_rbP
          ( Itk . ItkREFTypeLt
          , $1 . PaPass1Coord
-         , $1 . Scan . Position 
-         ) ;
-     } .
+         , $1 . PaBool (* IsUntraced. *) 
+         , $1 . Scan . Position
 
-   Type : StkUNTRACED StkRwREF Type 
-     { FM3Pass1 . PutBwd_LCP_rp
-         ( Itk . ItkUNTRACEDREFTypeLt
-         , $1 . PaPass1Coord
+         , $4 . PaPass1Coord 
+         , $4 . Scan . Position
+
          , $1 . Scan . Position 
          ) ;
      } .
@@ -1426,7 +1430,7 @@ RULE
 
    Brand : /*Empty*/
      { FM3Pass1 . PutBwd_LP
-         ( Itk . ItkAbsentBrand , FM3Scanner . Attribute . Position ) ;
+         ( Itk . ItkBrandAbsent , FM3Scanner . Attribute . Position ) ;
      } . 
 
    Brand : StkRwBRANDED
@@ -1435,8 +1439,8 @@ RULE
      } . 
 
    Brand : StkRwBRANDED Expr
-     { FM3Pass1 . PutBwd_LP_rp 
-         ( Itk . ItkBrandLt , $1 . Scan . Position ) ;
+     { $$ . PaPass1Coord := $2 . PaPass1Coord ;
+       $$ . Scan . Position := $2 . Scan . Position 
      } . 
 
 (* ------------------------------ Object Types ------------------------------ *)
@@ -1444,7 +1448,7 @@ RULE
    Supertype : /*Empty*/ 
      { $$ . Scan . Position := FM3Scanner . Attribute . Position ;
        FM3Pass1 . PutBwd_LP
-         ( Itk . ItkAbsentSupertype , FM3Scanner . Attribute . Position ) ;
+         ( Itk . ItkSupertypeAbsent , FM3Scanner . Attribute . Position ) ;
      } . 
 
    Supertype : TypeId 
@@ -1476,7 +1480,8 @@ RULE
                 ( FM3Decls . DeclParseInfoTyp
                     { DiDeclTok := Itk . ItkFieldDeclLt
                     , DiIdListTok := Itk . ItkFieldDeclIdListLt
-                    , DiIdSepTok := Itk . ItkFieldDeclIdListLt + Itk . LtToListSep
+                    , DiIdSepTok
+                        := Itk . ItkFieldDeclIdListLt + Itk . LtToListSep
                     , DiKind := Dkt . DkObjField 
                     }
                 ) ;

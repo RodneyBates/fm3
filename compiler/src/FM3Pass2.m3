@@ -724,6 +724,7 @@ END ;
   ; VAR LCt : INTEGER 
   ; VAR LPosition : tPosition
   ; VAR HtSkipping : BOOLEAN
+  ; VAR LBool : BOOLEAN
 
   ; PROCEDURE HtIntLit ( LoTypeNo : FM3LoTypes . LoTypeNoTyp )
     (* Both INTEGER and LONGINT. *)
@@ -787,8 +788,7 @@ END ;
             LOpnd := FM3Exprs . PopExprStack ( )
           ; LParentExpr
               := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . Expr1OpndTyp ) 
-          ; <*ASSERT WPosition = LParentExpr . ExpPosition *>
-            LParentExpr . ExpOpnd1 := LOpnd
+          ; LParentExpr . ExpOpnd1 := LOpnd
           ; DefExprLt ( ) 
           END (*IF*) 
         END (*WITH*)
@@ -806,14 +806,13 @@ END ;
             LOpnd := FM3Exprs . PopExprStack ( )
           ; LParentExpr
               := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . Expr2OpndTyp ) 
-          ; <*ASSERT WPosition = LParentExpr . ExpPosition *>
-            LParentExpr . ExpOpnd2 := LOpnd
+          ; LParentExpr . ExpOpnd2 := LOpnd
           ; DefExprLt ( ) 
           END (*IF*) 
         END (*WITH*)
       END HtExprOpnd2
 
-  ; PROCEDURE IntUnionSelf
+  ; <*INLINE*> PROCEDURE IntUnionSelf
       ( VAR (*IN OUT*) Self : IntSets . T ; Opnd1 , Opnd2 : IntSets . T )  
 
     = VAR LResult : IntSets . T 
@@ -1112,14 +1111,25 @@ END ;
 
       | Itk . ItkTextLitRt
       , Itk . ItkWideTextLitRt
-      => CopyOperandsInOrder
-           ( 3 (* Atom, position. *)
-           , TokResult . TrRdBack
-           , HtPass2RdBack
-           , MaybeSkip := TRUE 
-           )
-        ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
-        ; HtReverseVariableValues ( MaybeSkip := TRUE ) 
+      =>  LCt := GetBwdInt ( TokResult . TrRdBack ) (* Actuals count. *)
+          (* ^Atom, actually. *) 
+        ; LPosition := GetBwdPos ( TokResult . TrRdBack )
+        ; IF NOT HtSkipping 
+          THEN
+            DefExprRt
+              ( NEW ( FM3Exprs . ExprTyp
+                    , ExpUpKind := Ekt . EkValue
+                    , ExpPosition := LPosition 
+                    )
+              )
+(* COMPLETEME^ Put the atom in the expr. Ensure the text gets somewhere. *) 
+          ; HtReverseVariableValues ( MaybeSkip := TRUE )
+          ; PutBwdP2 ( HtPass2RdBack , VAL ( LPosition . Column , LONGINT ) ) 
+          ; PutBwdP2 ( HtPass2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
+          ; PutBwdP2 ( HtPass2RdBack , VAL ( LCt , LONGINT ) )
+          ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
+
+          END (*IF*) 
 
       | Itk . ItkTextLitLt
       , Itk . ItkWideTextLitLt
@@ -1155,21 +1165,53 @@ END ;
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *)
         ; EVAL GetBwdPos ( TokResult . TrRdBack )
-(* Copy token? *) 
+(* Copy token? *)
 
-      (* REF type: *) 
-      | Itk . ItkREFTypeRt 
-      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
-        ; HtExprRt
-            ( NEW ( FM3Exprs . ExprREFTypeTyp
-                  , ExpUpKind := Ekt . EkType
+      (* Brands: *)
+
+      | Itk . ItkBrandAbsent
+      =>  HtExprRt
+            ( NEW ( FM3Exprs . ExprTyp
+                  , ExpUpKind := Ekt . EkNull
                   , ExpIsLegalRecursive := TRUE
                   )
             ) 
 
+      | Itk . ItkBrandAnon
+      =>  WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
+          DO IF NOT HtSkipping 
+          THEN 
+            LNewExpr
+              := FM3Builtins . BuiltinExpr
+                   ( FM3SrcToks . StkRTUniqueBrand , WPosition ) 
+          ; DefExprRt ( LNewExpr )
+          END (*IF*)
+        END (*WITH*)
+
+      (* An explicit brand is just an expression. *) 
+
+      (* REF type: *) 
+      | Itk . ItkREFTypeRt 
+      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*)
+        ; LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN ) 
+        ; HtExprRt
+            ( NEW ( FM3Exprs . Expr2OpndTyp
+                  , ExpUpKind := Ekt . EkType
+                  , ExpIsLegalRecursive := TRUE
+                  , ExpRefTypeIsUntraced := LBool 
+                  (* ExpOpnd1 will later be brand. *) 
+                  )
+            ) 
+
+      | Itk . ItkREFTypeReferent 
+      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
+        ; HtExprOpnd2 ( ) (* Referent *)
+
       | Itk . ItkREFTypeLt
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
-        ; HtExprOpnd1 ( ) 
+        ; LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN ) 
+        ; HtExprOpnd1 ( ) (* Brand *)
+        ; EVAL FM3Exprs . PopExprStack ( )
 
       (* Open array type: *) 
       | Itk . ItkOpenArrayTypeRt 

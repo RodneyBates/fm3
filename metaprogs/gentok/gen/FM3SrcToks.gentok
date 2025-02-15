@@ -302,6 +302,8 @@ NEXT StkMaxLong .
 NEXT StkMaxOperation .
    StkPd_Long_Insert         "Insert" .
 
+(* COMPLETEME: Idents declared in other standard interfaces. *) 
+
 (* Standard interface names: *) 
 NEXT StkMinStdIntf . 
    StkPdMain           "Main" .
@@ -322,6 +324,8 @@ NEXT StkMaxStd .
 NEXT StkMaxBuiltin . 
    StkPdFmt            "Fmt" .
 
-(* COMPLETEME: Idents declared in other standard interfaces. *) 
+(* Runtime operations: *)
+
+   StkRTUniqueBrand
 
 (* End of FM3SrcToks.gentok. *) 

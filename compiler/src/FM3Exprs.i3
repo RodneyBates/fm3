@@ -122,6 +122,7 @@ INTERFACE FM3Exprs
       ; ExpIsDesignator : BOOLEAN := FALSE
       ; ExpIsWritable : BOOLEAN := FALSE
       ; ExpIsPresent : BOOLEAN := TRUE  
+      ; ExpRefTypeIsUntraced : BOOLEAN := FALSE   
       METHODS
         appendDump ( )  
       ; resolve ( ExprKind : ExprKindTyp ) : ExprStateTyp (* final. *) 
@@ -231,15 +232,17 @@ INTERFACE FM3Exprs
 (* Type constructors: *)
 
 ; TYPE ExprAddrTypeTyp <: ExprAddrTypePublic 
-; TYPE ExprAddrTypePublic (* REF type. *) 
+; TYPE ExprAddrTypePublic (* Simple address type. *) 
     = Expr1OpndTyp OBJECT
         ExpAddrReferent : ExprTyp := NIL (* Redundant to Opnd1? *) 
       END
 
 ; TYPE ExprREFTypeTyp <: ExprREFTypePublic 
 ; TYPE ExprREFTypePublic (* REF type. *) 
-    = Expr1OpndTyp OBJECT
-        ExpREFReferent : ExprTyp := NIL (* Redundant to Opnd1? *) 
+    = Expr2OpndTyp OBJECT
+        (* ExpOpnd1 is brand expression. *) 
+        (* ExpOpnd2 is referent type or supertype. *) 
+        ExpREFIsUntraced : BOOLEAN 
       END
 
 ; TYPE ExprOpenArrayTypeTyp <: ExprOpenArrayTypePublic 

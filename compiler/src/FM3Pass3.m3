@@ -805,7 +805,7 @@ MODULE FM3Pass3
 (* Copy token? *) 
 
       (* REF type: *) 
-      | Itk . ItkREFTypeLt 
+      | Itk . ItkREFTypeLtxxx 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; HtExprLt
             ( NEW ( FM3Exprs . ExprREFTypeTyp
@@ -814,7 +814,7 @@ MODULE FM3Pass3
                   )
             ) 
 
-      | Itk . ItkREFTypeRt
+      | Itk . ItkREFTypeRtxxx
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; HtExprOpnd1 ( ) 
 

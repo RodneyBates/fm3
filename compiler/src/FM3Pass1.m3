@@ -1081,6 +1081,38 @@ MODULE FM3Pass1
     END PutBwd_LCP_eCp_rp
 
 (*EXPORTED:*)
+; PROCEDURE PutBwd_LCBP_eCP_rbP
+   ( T : Itk . TokTyp
+   ; C1 : LONGINT
+   ; Be : BOOLEAN 
+   ; READONLY Position : tPosition
+   ; C2 : LONGINT
+   ; READONLY Position1 : tPosition
+   ; READONLY PositionRt : tPosition
+   )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( PositionRt . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( PositionRt . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( ORD ( Be ) , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) )
+
+      ; PutBwd ( WRdBack , VAL ( Position1 . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position1 . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , C2 ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToOnePatch , LONGINT ) ) 
+
+      ; PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) )
+      ; PutBwd ( WRdBack , VAL ( ORD ( Be ) , LONGINT ) ) 
+      ; PutBwd ( WRdBack , C1 ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END PutBwd_LCBP_eCP_rbP
+
+(*EXPORTED:*)
 ; PROCEDURE PutBwd_LCPI_rpi
     ( T : Itk . TokTyp 
     ; C : LONGINT 

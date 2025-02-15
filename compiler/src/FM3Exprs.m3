@@ -339,6 +339,9 @@ MODULE FM3Exprs
           ( "ExpIsLegalRecursive" , Fmt . Bool ( Expr . ExpIsLegalRecursive ) )
       ; Field ( "ExpIsDesignator" , Fmt . Bool ( Expr . ExpIsDesignator ) ) 
       ; Field ( "ExpIsWritable" , Fmt . Bool ( Expr . ExpIsWritable ) )  
+      ; Field ( "ExpIsPresent" , Fmt . Bool ( Expr . ExpIsPresent ) )  
+      ; Field
+          ( "ExpRefTypeIsUntraced" , Fmt . Bool ( Expr . ExpRefTypeIsUntraced ) )
       END ExprAppend
 
 ; REVEAL Expr1OpndTyp
@@ -526,9 +529,8 @@ MODULE FM3Exprs
 
 ; PROCEDURE ExprREFTypeAppend ( Expr : ExprREFTypeTyp )
     = BEGIN 
-        Expr1OpndAppend ( Expr ) 
+        Expr2OpndAppend ( Expr ) 
       ; SubtypeComment ( "ExprREFTypeTyp" )
-      ; NestedField ( "ExpREFReferent" , Expr . ExpREFReferent ) 
       END ExprREFTypeAppend (* REF type. *) 
 
 ; REVEAL ExprOpenArrayTypeTyp
@@ -725,8 +727,11 @@ MODULE FM3Exprs
 (*EXPORTED*) 
 ; PROCEDURE PushExprStack ( NewExpr : ExprTyp )
 
-  = BEGIN
+  = VAR LResult : ExprTyp 
+
+  ; BEGIN
       NewExpr . ExpStackLink := ExprStackTopObj
+    ; LResult := NewExpr
     ; ExprStackTopObj := NewExpr 
     END PushExprStack 
 

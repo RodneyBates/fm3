@@ -297,6 +297,7 @@ INTERFACE FM3SrcToks
 ; CONST StkMaxLong                                   =   203 (*16_cb 01 *)
 ; CONST StkMaxOperation                              =   203 (*16_cb 01 *)
 ; CONST StkPd_Long_Insert                            =   203 (*16_cb 01 *)
+(* COMPLETEME: Idents declared in other standard interfaces. *)
 (* Standard interface names: *)
 ; CONST StkMinStdIntf                                =   204 (*16_cc 01 *)
 ; CONST StkPdMain                                    =   204 (*16_cc 01 *)
@@ -317,11 +318,12 @@ INTERFACE FM3SrcToks
 ; CONST StkMaxStd                                    =   217 (*16_d9 01 *)
 ; CONST StkMaxBuiltin                                =   217 (*16_d9 01 *)
 ; CONST StkPdFmt                                     =   217 (*16_d9 01 *)
-(* COMPLETEME: Idents declared in other standard interfaces. *)
+(* Runtime operations: *)
 (* End of FM3SrcToks.gentok. *)
+; CONST StkRTUniqueBrand                             =   218 (*16_da 01 *)
 ; CONST TkMinTok                                     =     0
 
-; CONST TkMaxTok                                     =   217
+; CONST TkMaxTok                                     =   218
 
 ; END FM3SrcToks
 .

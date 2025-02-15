@@ -198,6 +198,16 @@ INTERFACE FM3Pass1
    ; C2 : LONGINT
    )
 
+; PROCEDURE PutBwd_LCBP_eCP_rbP
+   ( T : Itk . TokTyp
+   ; C1 : LONGINT
+   ; Be : BOOLEAN 
+   ; READONLY Position : tPosition
+   ; C2 : LONGINT
+   ; READONLY Position1 : tPosition
+   ; READONLY PositionRt : tPosition
+   )
+
 ; PROCEDURE PutBwd_LCIP_rip
     ( T : Itk . TokTyp 
     ; C : LONGINT 

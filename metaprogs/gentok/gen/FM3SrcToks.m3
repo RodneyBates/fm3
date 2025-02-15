@@ -233,6 +233,7 @@ MODULE FM3SrcToks
       | 215 => RETURN "FloatMode"
       | 216 => RETURN "Lex"
       | 217 => RETURN "Fmt"
+      | 218 => RETURN "StkRTUniqueBrand"
       ELSE RETURN "<Undef>"
       END (*CASE*) 
     END Image
@@ -458,6 +459,7 @@ MODULE FM3SrcToks
       | 215 => RETURN "StkPdFloatMode"
       | 216 => RETURN "StkPdLex"
       | 217 => RETURN "StkPdFmt"
+      | 218 => RETURN "StkRTUniqueBrand"
       ELSE RETURN "<Undef>"
       END (*CASE*) 
     END Name
