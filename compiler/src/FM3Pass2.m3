@@ -73,10 +73,6 @@ MODULE FM3Pass2
 
   = BEGIN (*PutBwdP2*) 
       <* ASSERT RdBack = P2RdBack *>
-
-IF ValueL = 0L
-THEN ValueL := ValueL
-END ; 
       IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0 
       THEN (* We are skipping output. *) RETURN
       END (*IF*) 
@@ -324,19 +320,12 @@ END ;
         
       (* More to be done.  One of three possible actions. *)
       (* Check first for an already patched token on top of the patch stack. *)
-; IF LPass1Coord = 141L
-  THEN
-    LPass1Coord := 141L
-  END 
       ; IF LPass1Coord <= LPatchStackTopCoord
         THEN (* Give caller the token off the patch stack. *)
           <* ASSERT LPass1Coord = LPatchStackTopCoord
              , "Missed a patch stack token."
           *>
           LPatchedTokenL := FM3Compress . GetBwd ( LPatchRdBack )
- ; IF LPatchedTokenL = 710L
-   THEN LPatchedToken := 710
-   END 
         ; LPatchedToken := VAL ( LPatchedTokenL , INTEGER (*Itk . TokTyp*) )
         ; IF LPatchedToken = Itk . ItkSkipLt
           THEN (* ItkSkipLt will come only from the patch stack.  Handle it
@@ -344,6 +333,14 @@ END ;
                *)
             SkipLt ( GetBwdInt ( FM3Globals . PatchRdBack ) )
             (* And loop. *)
+; IF LPatchedToken = 1109
+  THEN LToken := 1109 + 0
+  END 
+          ELSIF (* Skipping? *) 
+            VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
+          THEN (* Skip it and loop. *) 
+            DiscardOperands
+              ( FM3Utils . TokenOpndCt ( LPatchedToken ) , LPatchRdBack ) 
           ELSE 
             Result . TrRdBack := LPatchRdBack
           ; Result . TrTok := LPatchedToken
@@ -355,9 +352,6 @@ END ;
             (* ^Push the current patch coordinate back on patch stack. *)
         ; LTokenL := FM3Compress . GetBwd ( LPass1RdBack )
         ; LToken := VAL ( LTokenL , Itk . TokTyp ) 
-; IF LTokenL = 461L
-  THEN LTokenL := 461L
-  END 
         ; IF IntSets . IsElement ( LToken , FM3SharedGlobals . GTokSetPatch )
           THEN
 
@@ -376,9 +370,6 @@ END ;
           the necessary bias is always the same as LtToPatch, but check
           this and then use a better name for it.
 *)
- ; IF LPatchedToken = 0
-   THEN LPatchedToken := 0
-   END 
 
           ; PutBwdPatch ( LPatchRdBack , VAL ( LPatchedToken , LONGINT ) )
           ; PutBwdPatch ( LPatchRdBack , LPatchStackTopCoord )
@@ -389,11 +380,14 @@ END ;
                   here, so multiple token handlers don't have to.
                *) 
             SkipRt ( GetBwdInt ( LPass1RdBack) ) 
-          (* and loop. *) 
+          (* and loop. *)
+; IF LToken = 1109
+  THEN LToken := 1109 + 0
+  END 
+          ELSIF 
+            VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
+          THEN (* Skip it and loop. *) 
           ELSE (* Return it directly. *)
-IF LToken = 0
-THEN LToken := 0
-END ; 
             Result . TrRdBack := LPass1RdBack
           ; Result . TrTok := LToken
           ; RETURN 
@@ -909,6 +903,7 @@ END ;
     ; HtPass2RdBack := LUnitRef ^ . UntPass2OutRdBack
     ; HtSkipping
         := VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
+
     ; CASE TokResult . TrTok OF
 
       | Itk . ItkScopeEmpty 
@@ -1076,6 +1071,14 @@ END ;
       | Itk . ItkIdRefAtom
       => IdentRefR2L ( TokResult )
 
+      | Itk . ItkIdRefAtomNotUsable 
+      =>  LNewExpr := NEW ( FM3Exprs . ExprTyp ) 
+        ; LNewExpr . ExpOpcode := GetBwdAtom ( TokResult . TrRdBack )
+        ; LNewExpr . ExpPosition := GetBwdPos ( TokResult . TrRdBack )
+        ; LNewExpr . ExpIsLegalRecursive := TRUE
+        ; LNewExpr . ExpUpKind := Ekt . EkNull
+        ; DefExprRt ( LNewExpr )
+
       | Itk . ItkQualIdAtoms 
       => QualIdentR2L ( TokResult . TrRdBack )
 
@@ -1111,35 +1114,23 @@ END ;
 
       | Itk . ItkTextLitRt
       , Itk . ItkWideTextLitRt
-      =>  LCt := GetBwdInt ( TokResult . TrRdBack ) (* Actuals count. *)
-          (* ^Atom, actually. *) 
+      =>  LCt := GetBwdInt ( TokResult . TrRdBack ) (* ^Atom, actually. *) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; IF NOT HtSkipping 
           THEN
             DefExprRt
               ( NEW ( FM3Exprs . ExprTyp
                     , ExpUpKind := Ekt . EkValue
+                    , ExpScalarConstVal := VAL ( LCt , LONGINT ) 
+                    , ExpOpcode := TokResult . TrTok 
                     , ExpPosition := LPosition 
                     )
               )
-(* COMPLETEME^ Put the atom in the expr. Ensure the text gets somewhere. *) 
-          ; HtReverseVariableValues ( MaybeSkip := TRUE )
-          ; PutBwdP2 ( HtPass2RdBack , VAL ( LPosition . Column , LONGINT ) ) 
-          ; PutBwdP2 ( HtPass2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
-          ; PutBwdP2 ( HtPass2RdBack , VAL ( LCt , LONGINT ) )
-          ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
-
           END (*IF*) 
 
       | Itk . ItkTextLitLt
       , Itk . ItkWideTextLitLt
-      => CopyOperandsInOrder
-           ( 3 (* Atom, position. *)
-           , TokResult . TrRdBack
-           , HtPass2RdBack
-           , MaybeSkip := TRUE 
-           )
-        ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
+      => DiscardOperands ( 3 (* Atom, position. *) , TokResult . TrRdBack ) 
 
       (* Enumeration type: *) 
 (* FIXME: Some of these need to copy the token and arguments. *)   
@@ -1174,6 +1165,7 @@ END ;
             ( NEW ( FM3Exprs . ExprTyp
                   , ExpUpKind := Ekt . EkNull
                   , ExpIsLegalRecursive := TRUE
+                  , ExpIsPresent := FALSE 
                   )
             ) 
 
@@ -1198,7 +1190,10 @@ END ;
             ( NEW ( FM3Exprs . Expr2OpndTyp
                   , ExpUpKind := Ekt . EkType
                   , ExpIsLegalRecursive := TRUE
-                  , ExpRefTypeIsUntraced := LBool 
+                  , ExpRefTypeIsUntraced := LBool
+                  , ExpOpcode := Stk . StkRwREF
+                  , ExpRefTypeIsUntraced := LBool
+                  (* ExpOpnd2 will later be referent. *) 
                   (* ExpOpnd1 will later be brand. *) 
                   )
             ) 
@@ -1211,7 +1206,7 @@ END ;
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN ) 
         ; HtExprOpnd1 ( ) (* Brand *)
-        ; EVAL FM3Exprs . PopExprStack ( )
+        ; SynthIsUsable2 ( FM3Exprs . PopExprStack ( ) (* The REF Type. *) )
 
       (* Open array type: *) 
       | Itk . ItkOpenArrayTypeRt 
@@ -1306,13 +1301,13 @@ END ;
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; IF LCt > 0
           THEN 
-            LListElem := FM3Exprs . PopExprStack ( )
+            LListElem := FM3Exprs . PopExprStack ( ) (* LM actual. *) 
           ; LCallExpr 
               := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprCallTyp )
           ; <* ASSERT LCallExpr . ExpActualNo = 1 *> 
             DEC ( LCallExpr . ExpActualNo )
           ; LCallExpr . ExpActualsList ^ [ LCallExpr . ExpActualNo ] := LListElem
-          ELSE 
+          ELSE (* Empty actuals list. *) 
             LCallExpr 
               := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprCallTyp )
           ; <* ASSERT LCallExpr . ExpActualNo = 0 *> 
@@ -1725,6 +1720,29 @@ END ;
       ; RETURN DidOpenDeclNo
       END (*WITH*) 
     END DeclIdR2L
+
+; PROCEDURE SynthIsUsable1 ( Parent : FM3Exprs . Expr1OpndTyp )
+
+  = BEGIN (*SynthIsUsable1*)
+      Parent . ExpIsUsable
+        := Parent . ExpIsUsable AND Parent . ExpOpnd1 . ExpIsUsable 
+    END SynthIsUsable1        
+
+; PROCEDURE SynthIsUsable2 ( Parent : FM3Exprs . Expr2OpndTyp )
+
+  = BEGIN (*SynthIsUsable2*)
+      Parent . ExpIsUsable
+        := Parent . ExpIsUsable AND Parent . ExpOpnd2 . ExpIsUsable 
+    END SynthIsUsable2        
+
+; PROCEDURE SynthIsUsable12 ( Parent : FM3Exprs . Expr2OpndTyp )
+
+  = BEGIN (*SynthIsUsable12*)
+      Parent . ExpIsUsable
+        := Parent . ExpIsUsable
+           AND Parent . ExpOpnd1 . ExpIsUsable 
+           AND Parent . ExpOpnd2 . ExpIsUsable 
+    END SynthIsUsable12     
 
 ; PROCEDURE BadIdentMessage
     ( Msg : TEXT
@@ -2542,9 +2560,15 @@ END ;
 
   = BEGIN (*DisAsmPass2*)
       IF NOT FM3CLOptions . PassNo2 IN UnitRef ^ . UntPassNosDisAsmed 
-      THEN (* Disassembly file is not already written. *) 
-        FM3Compile . DisAsmPassFile
-          ( UnitRef , FM3Globals . Pass2OutSuffix , L2R := TRUE )
+      THEN (* Disassembly file is not already written. *)
+        TRY 
+          FM3Compile . DisAsmPassFile
+            ( UnitRef , FM3Globals . Pass2OutSuffix , L2R := TRUE )
+          EXCEPT
+          | RdBackFile . BOF
+          => DoEarlierPasses := NOT DoEarlierPasses
+          END (*EXCEPT*)
+          
       ; FM3CLOptions . InclPassNo
           ( UnitRef ^ . UntPassNosDisAsmed , FM3CLOptions . PassNo2 ) 
       END (*IF*) 

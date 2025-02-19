@@ -190,6 +190,7 @@ MODULE FM3Pass1
 
 (*EXPORTED*) 
 ; PROCEDURE DisAsmPass1 ( UnitRef : FM3Units . UnitRefTyp )
+  RAISES { RdBackFile . BOF }
 
   = BEGIN (*DisAsmPass1*)
       IF NOT FM3CLOptions . PassNo1 IN UnitRef ^ . UntPassNosDisAsmed 
@@ -668,7 +669,7 @@ MODULE FM3Pass1
           ( WRdBack , VAL ( ParsAttr . Scan . SaAtom , LONGINT ) )
       ; PutBwd
           ( WRdBack , VAL ( Itk . ItkTextLitLt , LONGINT ) )
-
+(* Don't put the chars in the stream.
       ; PutBwd ( WRdBack , VAL ( LNumber , LONGINT ) )
       ; FOR RI := LNumber - 1 TO 0 BY - 1 (* LM Char near EOF. *) 
         DO
@@ -678,6 +679,7 @@ MODULE FM3Pass1
             )
         END (*FOR*) 
       ; PutBwd ( WRdBack , VAL ( LNumber , LONGINT ) )
+*)
 
       ; PutBwd
           ( WRdBack , VAL ( ParsAttr . Scan . Position . Column , LONGINT ) )
@@ -706,7 +708,8 @@ MODULE FM3Pass1
           ( WRdBack , VAL ( ParsAttr . Scan . SaAtom , LONGINT ) )
       ; PutBwd
           ( WRdBack , VAL ( Itk . ItkWideTextLitLt , LONGINT ) )
-
+          
+(* Don't put the chars in the stream.
       ; PutBwd ( WRdBack , VAL ( LNumber , LONGINT ) )
       ; FOR RI := LNumber - 1 TO 0 BY - 1 (* LM Char near EOF. *)
         DO
@@ -716,7 +719,7 @@ MODULE FM3Pass1
             ) 
         END (*FOR*) 
       ; PutBwd ( WRdBack , VAL ( LNumber , LONGINT ) )
-
+*)
       ; PutBwd
           ( WRdBack , VAL ( ParsAttr . Scan . Position . Column , LONGINT ) )
       ; PutBwd
@@ -1161,6 +1164,37 @@ MODULE FM3Pass1
     END PutBwd_LCIP_rip
 
 (*EXPORTED:*)
+; PROCEDURE PutBwd_LCIP_eCP_rip
+    ( T : Itk . TokTyp 
+    ; CLt : LONGINT 
+    ; I : INTEGER 
+    ; READONLY PositionLt : tPosition
+    ; COne : LONGINT
+    ; READONLY PositionOne : tPosition 
+    )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( PositionLt . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( PositionLt . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) )
+      
+      ; PutBwd ( WRdBack , VAL ( PositionOne . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( PositionOne . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , COne ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToOnePatch , LONGINT ) ) 
+
+      ; PutBwd ( WRdBack , VAL ( PositionLt . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( PositionLt . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , CLt ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END PutBwd_LCIP_eCP_rip
+
+(*EXPORTED:*)
 ; PROCEDURE PutBwd_LCIIP_riip
     ( T : Itk . TokTyp 
     ; C : LONGINT 
@@ -1242,7 +1276,7 @@ MODULE FM3Pass1
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
       END (*WITH*) 
     END PutBwd_LCIP_eCiP_riP
-
+(*
 (*EXPORTED:*)
 ; PROCEDURE PutBwd_LCIP_eCP_rip
     ( T : Itk . TokTyp 
@@ -1274,7 +1308,7 @@ MODULE FM3Pass1
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
       END (*WITH*) 
     END PutBwd_LCIP_eCP_rip
-
+*)
 (*EXPORTED:*)
 ; PROCEDURE PutBwd_LCIP_eCip_rip
     ( T : Itk . TokTyp 
@@ -1902,7 +1936,32 @@ MODULE FM3Pass1
                 , IdAttr . Scan . SaChars 
                 , IdAttr . Scan . SaHash 
                 ) 
-    END AtomOfStdId 
+    END AtomOfStdId
+
+(*EXPORTED.*)
+; PROCEDURE CheckIdentNotReserved
+    ( READONLY IdAttr : tParsAttribute ; IllegalPastParticiple : TEXT )
+  : BOOLEAN (* It's OK. *)
+  (* POST: FALSE result => Error message has been generated. *)  
+
+  = BEGIN (*CheckIdentNotReserved*)
+      IF IntSets . IsElement
+           ( IdAttr . Scan . SaBuiltinTok , FM3Std . ReservedIdSet ) 
+      THEN 
+        FM3Messages . ErrorArr
+          ( ARRAY OF REFANY
+              { "Identifier \""
+              , FM3SrcToks . Image ( IdAttr . Scan . SaBuiltinTok )
+              , "\" is reserved and cannot "
+              , IllegalPastParticiple 
+              , " (2.8.2)." 
+              }
+          , IdAttr . Scan . Position 
+          )
+      ; RETURN FALSE (* Not OK. *)
+      ELSE RETURN TRUE (* It's OK *) 
+      END (*IF*) 
+    END CheckIdentNotReserved
 
 (*EXPORTED.*)
 ; PROCEDURE DeclIdL2R 
@@ -1920,18 +1979,8 @@ MODULE FM3Pass1
   = VAR LAtom : FM3Base . AtomTyp 
 
   ; BEGIN (*DeclIdL2R*)
-      IF IntSets . IsElement
-           ( IdAttr . Scan . SaBuiltinTok , FM3Std . ReservedIdSet ) 
-      THEN 
-        FM3Messages . ErrorArr
-          ( ARRAY OF REFANY
-              { "Identifier \""
-              , FM3SrcToks . Image ( IdAttr . Scan . SaBuiltinTok )
-              , "\" is reserved and cannot be declared (2.8.2)." 
-              }
-          , IdAttr . Scan . Position 
-          )
-      ; RETURN FALSE (* Caller, Don't use this Id. *) 
+      IF NOT CheckIdentNotReserved ( IdAttr , "be declared" )
+      THEN RETURN FALSE
       END (*IF*) 
     ; LAtom := IdAttr . Scan . SaAtom 
     ; WITH WScope = FM3Scopes . DeclScopeStackTopRef ^
@@ -1999,7 +2048,7 @@ MODULE FM3Pass1
 
   = BEGIN (*IdentRefL2R*)
       WITH WScan = IdAttr . Scan
-      DO IF WScan . SaAtom = FM3Base . AtomNull  
+      DO IF WScan . SaAtom = FM3Base . AtomNull 
         THEN (* Reserved Ident.  Now that we know from syntax that it's a
                 reference, distinguish reserved from non-reserved ident.
              *) 
@@ -2048,6 +2097,7 @@ MODULE FM3Pass1
         ) 
     END UnrecognizedPragma
 
+(*EXPORTED.*)
 ; PROCEDURE PutNotUsable 
     ( IdentRefAtom : FM3Base . AtomTyp
     ; READONLY Position : FM3Base . tPosition
@@ -2099,11 +2149,9 @@ MODULE FM3Pass1
   : BOOLEAN (* It's OK. *) 
 
   = BEGIN
-      IF IdAttr . Scan . SaTok # Stk . StkIdent THEN RETURN FALSE END (*IF*) 
-    ; IF IdAttr . Scan . SaAtom # FM3Base . AtomNull
+      IF IdAttr . Scan . SaTok # Stk . StkIdent THEN RETURN FALSE END (*IF*)
+    ; IF IdAttr . Scan . SaAtom # FM3Base . AtomNull THEN RETURN FALSE END (*IF*)
          (* ^Either standard or declared. *) 
-      THEN RETURN FALSE
-      END (*IF*)
     ; <* ASSERT IntSets . IsElement
                   ( IdAttr . Scan . SaBuiltinTok , FM3Std . ReservedIdSet )
       *>
@@ -2111,54 +2159,25 @@ MODULE FM3Pass1
     END AttrIsReservedId
 
 (*EXPORTED.*)
-; PROCEDURE CheckIllegalReservedIdent
-    ( READONLY IdAttr : tParsAttribute
-    ; ContextTag := "be used in this context"
-    )
-  : BOOLEAN (* it's reserved, (thus illegal). *)
-  (* PRE: reserved => illegal. *)
-  (* POST: illegal => error message has been emitted. *) 
-
-  = BEGIN
-      IF IdAttr . Scan . SaAtom = FM3Base . AtomNull
-      THEN 
-        FM3Messages . ErrorArr
-          ( ARRAY OF REFANY
-              { "Identifier \""
-              , FM3SrcToks . Image ( IdAttr . Scan . SaBuiltinTok )
-              , "\" is reserved and cannot "
-              , ContextTag 
-              , "(2.8.2)."
-              }
-          , IdAttr . Scan . Position 
-          )
-      ; RETURN TRUE
-      ELSE RETURN FALSE 
-      END (*IF*) 
-    END CheckIllegalReservedIdent
-
-(*EXPORTED.*)
 ; PROCEDURE QualIdentRefL2R
     ( READONLY LtIdAttr , RtIdAttr : tParsAttribute )
   (* Handles either/both idents reserved. *) 
 
-  = VAR LIsIllegal : BOOLEAN
+  = VAR LIsLegal : BOOLEAN
 
   ; BEGIN (*QualIdentRefL2R*)
       WITH WunRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
-      DO LIsIllegal
-          := CheckIllegalReservedIdent ( LtIdAttr , "have a qualifier." )
-      ; LIsIllegal
-          := CheckIllegalReservedIdent ( RtIdAttr , "be a qualifier." )
-             OR LIsIllegal
-      ; IF LIsIllegal 
+      DO LIsLegal := CheckIdentNotReserved ( LtIdAttr , "have a qualifier." )
+      ; LIsLegal := CheckIdentNotReserved ( RtIdAttr , "be a qualifier." )
+                    AND LIsLegal
+      ; IF NOT LIsLegal 
         THEN 
           PutBwd 
             ( WunRdBack , VAL ( LtIdAttr . Scan . Position . Column , LONGINT ) )
         ; PutBwd 
             ( WunRdBack , VAL ( LtIdAttr . Scan . Position . Line , LONGINT ) )
         ; PutBwd ( WunRdBack , VAL ( Itk . ItkInvalidRef , LONGINT ) ) 
-        ELSE (* Neither is reserved. *) 
+        ELSE (* Neither ident is reserved. *) 
           WITH WIdentRefSet = FM3Scopes . DeclScopeStackTopRef ^ . ScpRefIdSet
           DO WIdentRefSet
                := IntSets . Include ( WIdentRefSet , LtIdAttr . Scan . SaAtom )

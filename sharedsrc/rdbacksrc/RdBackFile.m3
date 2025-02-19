@@ -615,7 +615,9 @@ MODULE RdBackFile
       THEN Raise ( "GetBwd, " , RbFile . RbFileName , " is not open." )
       END (*IF*) 
 
-    ; IF RbFile . RbLengthL = 0L THEN RAISE BOF END (*IF*)
+    ; IF RbFile . RbLengthL = 0L
+      THEN RAISE BOF
+      END (*IF*)
 
     (* If necessary, make RbBuffer contain the block to the left. *) 
     ; IF RbFile . RbBlockNextIn = 0 (* Left of the block in RbBuffer. *)

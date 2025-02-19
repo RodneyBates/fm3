@@ -324,7 +324,8 @@ RULE
      } .
 
    InstInterface :
-     InterfaceLt StkEqual NonreservedIdent GenActualList StkRwEND NonreservedIdent StkDot 
+     InterfaceLt StkEqual NonreservedIdent GenActualList StkRwEND
+     NonreservedIdent StkDot 
      { FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstInterface ;
 (*INCOMPLETE.*)
        FM3Pass1 . CheckUnitFinalId
@@ -396,7 +397,8 @@ RULE
      } .
 
    InstModule :
-     ModuleLt StkEqual NonreservedIdent GenActualList StkRwEND NonreservedIdent StkDot 
+     ModuleLt StkEqual NonreservedIdent GenActualList StkRwEND
+     NonreservedIdent StkDot 
      { FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstModule ;
 (*INCOMPLETE.*)
        FM3Pass1 . CheckUnitFinalId
@@ -461,7 +463,8 @@ RULE
 
    GenInterface :
        GenInterfaceLt GenInterfaceKind GenFormalList
-       StkSemicolon ImportList ExpImpDone OpenDeclList StkRwEND NonreservedIdent StkDot 
+       StkSemicolon ImportList ExpImpDone
+       OpenDeclList StkRwEND NonreservedIdent StkDot 
      { (* Scope ref:
         FM3Pass1 . PutBwd_LI ( Itk . ItkDeclScopeLt , $1 . PaConstructNo ) ;
        *)
@@ -610,8 +613,11 @@ RULE
      } .
 (*
    NonreservedIdent : StkReservedIdent
-     { FM3Pass1 . FlagReservedIdent ( $1 ) ; } .  
+     { FM3Pass1 . CheckIllegalReservedIdent
+         ( $1 , "used in this context" ) ;
+     } .  
 *)
+
    IdentRef : StkIdent
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
        $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
@@ -676,7 +682,7 @@ RULE
    IdStarList : /*Empty*/
      { $$ . PaInt := 0 ; } . 
 
-(* Qualified or unqualified ident. *)
+(* Qualified or unqualified ident reference. *)
 
    MaybeQualIdent : IdentRef
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
@@ -1440,7 +1446,8 @@ RULE
 
    Brand : StkRwBRANDED Expr
      { $$ . PaPass1Coord := $2 . PaPass1Coord ;
-       $$ . Scan . Position := $2 . Scan . Position 
+       $$ . Scan . Position := $2 . Scan . Position
+       (* Just let the presence of Expr speak for itself. *) 
      } . 
 
 (* ------------------------------ Object Types ------------------------------ *)
@@ -1968,14 +1975,17 @@ RULE
          ) ; 
      } .
      
-   E7 : E8WOId Actuals  
-     { FM3Pass1 . PutBwd_LCIP_rip
-         ( Itk . ItkCallLt 
-         , $1 . PaPass1Coord
-         , $2 . PaInt 
-         , $2 . Scan . Position
-         ) ; 
-     } .
+   E7 : E8WOId Actuals
+      { FM3Pass1 . PutBwd_LCIP_eCP_rip
+           ( Itk . ItkCallLt 
+           , $1 . PaPass1Coord 
+           , $2 . PaInt 
+           , $2 . Scan . Position
+           , $2 . PaPass1Coord
+           , $2 . Scan . Position 
+           ) ;
+      } . 
+
      
    E7 : E8WOId StkDot NonreservedIdent 
      { FM3Pass1 . PutBwd_LCIP_rip
@@ -1989,29 +1999,55 @@ RULE
    E7 : E8WOId /* No selector. */ . 
 
    E7 : IdentRef StkDeref 
-     { FM3Pass1 . PutBwd_LCP_rp
-         ( Itk . ItkDerefLt , $1 . PaPass1Coord , $2 . Scan . Position ) ;
+     { IF FM3Pass1 . CheckIdentNotReserved ( $1 , "be dereferenced" ) 
+       THEN (* OK *) 
+         FM3Pass1 . PutBwd_LCP_rp
+           ( Itk . ItkDerefLt , $1 . PaPass1Coord , $2 . Scan . Position ) ;
+       ELSE
+         FM3Pass1 . PutBwd_LCI_ri
+           ( Itk . ItkSkipLt , $1 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
+         INC ( FM3Globals . NextSkipNo ) ;
+         FM3Pass1 . PutNotUsable ( $1 . Scan . SaAtom , $1 . Scan . Position ) 
+       END (*IF*) ; 
      } .
      
    E7 : IdentRef Subscripts 
-     { FM3Pass1 . PutBwd_LCIP_rip
-         ( Itk . ItkSubscriptLt 
-         , $1 . PaPass1Coord 
-         , $2 . PaInt 
-         , $2 . Scan . Position
-         ) ; 
+     { IF FM3Pass1 . CheckIdentNotReserved ( $1 , "be subscripted" ) 
+       THEN (* OK *)
+         FM3Pass1 . PutBwd_LCIP_rip
+           ( Itk . ItkSubscriptLt 
+           , $1 . PaPass1Coord 
+           , $2 . PaInt 
+           , $2 . Scan . Position
+           ) ;
+       ELSE
+         FM3Pass1 . PutBwd_LCI_ri
+           ( Itk . ItkSkipLt , $1 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
+         INC ( FM3Globals . NextSkipNo ) ;
+         FM3Pass1 . PutNotUsable ( $1 . Scan . SaAtom , $1 . Scan . Position ) 
+       END (*IF*) ; 
      } .
 
    E7 : IdentRef Actuals 
-     { FM3Pass1 . PutBwd_LCIP_rip
-         ( Itk . ItkCallLt 
-         , $1 . PaPass1Coord 
-         , $2 . PaInt 
-         , $2 . Scan . Position
-         ) ; 
+     { IF FM3Pass1 . CheckIdentNotReserved ( $1 , "be called" ) 
+       THEN (* OK *)
+         FM3Pass1 . PutBwd_LCIP_eCP_rip
+           ( Itk . ItkCallLt 
+           , $1 . PaPass1Coord 
+           , $2 . PaInt 
+           , $2 . Scan . Position
+           , $2 . PaPass1Coord
+           , $2 . Scan . Position 
+           ) ; 
+       ELSE
+         FM3Pass1 . PutBwd_LCI_ri
+           ( Itk . ItkSkipLt , $1 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
+         INC ( FM3Globals . NextSkipNo ) ;
+         FM3Pass1 . PutNotUsable ( $1 . Scan . SaAtom , $1 . Scan . Position ) 
+       END (*IF*) ; 
      } . 
      
-   E7 : IdentRef /* No selector */ .
+   E7 : IdentRef /* Noselector */ .
 
    E7 : QualIdentRef
           /* Special case. Ident dot Ident. Can occur in other contexts. */

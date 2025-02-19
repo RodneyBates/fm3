@@ -8,6 +8,8 @@
 
 INTERFACE FM3Pass1
 
+; IMPORT RdBackFile
+
 ; IMPORT FM3Base
 ; FROM FM3Base IMPORT tPosition 
 ; IMPORT FM3Decls 
@@ -215,6 +217,15 @@ INTERFACE FM3Pass1
     ; READONLY Position : tPosition 
     )
 
+; PROCEDURE PutBwd_LCIP_eCP_rip
+    ( T : Itk . TokTyp 
+    ; CLt : LONGINT 
+    ; I : INTEGER 
+    ; READONLY PositionLt : tPosition
+    ; COne : LONGINT
+    ; READONLY PositionOne : tPosition 
+    )
+
 ; PROCEDURE PutBwd_LCIIP_riip
     ( T : Itk . TokTyp 
     ; C : LONGINT 
@@ -387,13 +398,10 @@ INTERFACE FM3Pass1
     ( ScopeKind : FM3Scopes . ScopeKindTyp ; Position : FM3Base . tPosition )
   : FM3Scopes . ScopeRefTyp 
 
-; PROCEDURE CheckIllegalReservedIdent
-    ( READONLY IdAttr : tParsAttribute
-    ; ContextTag := "be used in this context"
-    )
-  : BOOLEAN (* it's reserved, (thus illegal). *)
-  (* PRE: reserved => illegal. *)
-  (* POST: illegal => error message has been emitted. *) 
+; PROCEDURE CheckIdentNotReserved 
+    ( READONLY IdAttr : tParsAttribute ; IllegalPastParticiple : TEXT )
+  : BOOLEAN (* It's OK. *)
+  (* POST: FALSE result => Error message has been generated. *)  
 
 ; PROCEDURE DeclIdL2R 
     ( DeclKind : FM3Decls . DeclKindTyp  
@@ -413,6 +421,11 @@ INTERFACE FM3Pass1
 ; PROCEDURE RecognizedPragma ( READONLY PragmaAttr : tParsAttribute )
 
 ; PROCEDURE UnrecognizedPragma ( READONLY IdAttr : tParsAttribute )
+
+; PROCEDURE PutNotUsable 
+    ( IdentRefAtom : FM3Base . AtomTyp
+    ; READONLY Position : FM3Base . tPosition
+    )
 
 ; PROCEDURE OverrideIdentRefL2R ( READONLY IdAttribute : tParsAttribute )
   : BOOLEAN (* It's OK so far. *) 
@@ -451,6 +464,7 @@ INTERFACE FM3Pass1
   *) 
 
 ; PROCEDURE DisAsmPass1 ( UnitRef : FM3Units . UnitRefTyp )
+  RAISES { RdBackFile . BOF }
 
 ; PROCEDURE RunPass1 ( ) 
 

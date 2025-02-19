@@ -61,7 +61,7 @@ MODULE FM3DisAsm
 ; PROCEDURE ReadAndPutPrefix
     ( RBT : RdBackFile . T ; WrT : Wr . T )
   : LONGINT
-  RAISES { RdBackFile .  BOF }
+  RAISES { RdBackFile . BOF }
     
   = VAR LLengthL , LValueL : LONGINT
 
@@ -266,6 +266,8 @@ MODULE FM3DisAsm
 (*EXPORTED:*) 
 ; PROCEDURE DisAsmWOperands
     ( RBT : RdBackFile . T ; WrT : Wr . T ; L2R : BOOLEAN )
+  RAISES { RdBackFile . BOF }
+
   (* PRE: RBT is open. *) 
 
   = VAR LTokenL : LONGINT
@@ -455,6 +457,7 @@ MODULE FM3DisAsm
       END DobBasedInt
 
   ; PROCEDURE DobText ( DoString : BOOLEAN ; Wide : BOOLEAN )
+    RAISES { RdBackFile . BOF } 
 
     = VAR LArgL : LONGINT
     ; VAR LCharL : LONGINT
@@ -517,7 +520,7 @@ MODULE FM3DisAsm
               ; Wr . PutChar ( WrT , ')')
               ; Wr . PutText ( WrT , Wr . EOL )
 
-            (* Keep these consistent with Fm3ParsePass.UnnestStk: *)
+            (* Keep these consistent with FM3Pass1.UnnestStk: *)
 (* These should not happen: 
             | FM3SrcToks . StkIntLit 
             , FM3SrcToks . StkLongIntLit 
@@ -656,16 +659,16 @@ MODULE FM3DisAsm
               ; Wr . PutText ( WrT , Wr . EOL )
 
             | FM3IntToks . ItkTextLitLt
-            =>  DobText ( DoString := L2R , Wide := FALSE ) 
+            =>  DobText ( DoString := FALSE , Wide := FALSE ) 
 
             | FM3IntToks . ItkTextLitRt
-            =>  DobText ( DoString := NOT L2R , Wide := FALSE ) 
+            =>  DobText ( DoString := FALSE , Wide := FALSE ) 
 
             | FM3IntToks . ItkWideTextLitLt
-            =>  DobText ( DoString := L2R , Wide := TRUE ) 
+            =>  DobText ( DoString := FALSE , Wide := TRUE ) 
 
             | FM3IntToks . ItkWideTextLitRt
-            =>  DobText ( DoString := NOT L2R , Wide := TRUE ) 
+            =>  DobText ( DoString := NOT FALSE , Wide := TRUE ) 
 
             ELSE (* Of outer CASE. *) 
               CASE LToken OF 

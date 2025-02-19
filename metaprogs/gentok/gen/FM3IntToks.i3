@@ -616,13 +616,13 @@ ItkROFormalId    IDENT POS .
 ; CONST ItkROFormalValueTemp            (*ArgCt: 2*) =   504 (*16_f8 03 *)
 ; CONST ItkROFormalValuePatch           (*ArgCt: 2*) =   505 (*16_f9 03 *)
 
-(* GenTok implicitly gives list tokens:
+(* GenTok implicitly gives LIST tokens:
      The usual patch coordinate, if it's a patch token.
      One integer operand for element count (Lt & Rt tokens)
        or, for separator tokens, number of elements to left.  
-     Position.  For Lt & Rt, of what source token  depends on the list.
-       For separators, of the source separator, or if none, beginning
-       of element to right.
+     Position.  For Lt & Rt, of what source token depends on the list.
+       For separators, of the source separator, or if no separator exists,
+       beginning of element to right.
 *)
 (* Position is "(" *)
 (* LIST ItkGenFormalIdList: *)
@@ -754,7 +754,7 @@ ItkROFormalId    IDENT POS .
 
 ; CONST ItkROFormalIdListElem           (*ArgCt: 3*) =   585 (*16_c9 04 *)
 
-(* NOTE: As of 2024-01030, FM3 is not numbering the ItkBlockDeclSep
+(* NOTE: As of 2024-0103, FM3 is not numbering the ItkBlockDeclSep
          tokens separators in a flattened way, when decls are in
          2-level nested lists.  This affects only the separators.
          Totals in left and right tokens are correct.

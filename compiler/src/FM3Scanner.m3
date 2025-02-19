@@ -451,7 +451,10 @@ MODULE FM3Scanner
           | FM3SrcToks . StkMinRid .. FM3SrcToks . StkMaxRid 
           => (* Reserved identifier.  It has its builtin meaning and only that
                 in every context.  Make this an StkIdent with Null SaAtom
-                and SaBuiltinTok set to the reserved Id's lex code.
+                and SaBuiltinTok set to the reserved Id's lex code. Having
+                a single token for reserved and nonreserved identifiers
+                simplifies parsing and allows more helpful error messages
+                for misused reserved idents.  
              *) 
               Attribute . SaAtom := FM3Base . AtomNull 
             ; Attribute . SaBuiltinTok := GCurRwValue 

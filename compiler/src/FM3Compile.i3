@@ -47,6 +47,7 @@ INTERFACE FM3Compile
 
 ; PROCEDURE DisAsmPassFile
     ( UnitRef : FM3Units . UnitRefTyp ; PassFileSuffix : TEXT ; L2R : BOOLEAN )
+  RAISES { RdBackFile . BOF }
   (* PRE: A dispensible .Copy file exists in the build directory. *)
   (* POST: The disassembly file has been written in the build directory. *)
   (* POST: The copy file has been removed. *) 

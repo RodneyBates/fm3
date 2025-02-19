@@ -204,6 +204,7 @@ MODULE FM3Builtins
           | Stk . StkPdRightRotate => WOp [ ROp ] := WSt [ Stk . RidINTEGER ] 
           | Stk . StkPdExtract     => WOp [ ROp ] := WSt [ Stk . RidINTEGER ] 
           | Stk . StkPdInsert      => WOp [ ROp ] := WSt [ Stk . RidINTEGER ]
+          | Stk . StkRTUniqueBrand => WOp [ ROp ] := WSt [ Stk . RidTEXT    ]
           ELSE
             WOp [ ROp ] := WSt [ Stk . RidNull ]
           END (*CASE*) 
@@ -380,6 +381,13 @@ MODULE FM3Builtins
            ; WProp . OpRtOpndKindsAllowed := FM3Exprs . EkSetValue
            (* 3rd and 4th opnds are implicitly EkSetValue. *) 
            END (*WITH*)
+        | Stk . StkRTUniqueBrand  
+         => WITH WProp = GOpPropertiesArray [ ROp]
+           DO WProp . OpOpndCt := 0
+           ; WProp . OpExprKind := Ekt . EkValue
+           ; WProp . OpLtOpndKindsAllowed := FM3Exprs . EkSetTyp { }  
+           ; WProp . OpRtOpndKindsAllowed := FM3Exprs . EkSetTyp { } 
+           END (*WITH*) 
         ELSE
 (* TODO: CM3 warns not all values handled.  Fint out what is missing. *) 
           WITH WProp = GOpPropertiesArray [ ROp]
@@ -406,8 +414,11 @@ MODULE FM3Builtins
       , Stk . StkPd_Long_Insert
       => LResult := NEW ( FM3Exprs . ExprQuadOpTyp )
       ; LResult . ExpQuadOpOpnd3 := NIL 
-      ; LResult . ExpQuadOpOpnd4 := NIL 
-      ELSE LResult := NEW ( FM3Exprs . ExprBinOpTyp )
+      ; LResult . ExpQuadOpOpnd4 := NIL
+      | Stk . StkRTUniqueBrand
+      => LResult := NEW ( FM3Exprs . ExprQuadOpTyp )
+(* TODO: ^V Use an appropriate Expr type. *) 
+      ELSE LResult := NEW ( FM3Exprs . ExprQuadOpTyp )
       END (*CASE *) 
     ; LResult . ExpOpnd1 := NIL 
     ; LResult . ExpOpnd2 := NIL 

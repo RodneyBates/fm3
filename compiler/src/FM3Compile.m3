@@ -244,6 +244,7 @@ MODULE  FM3Compile
 (*EXPORTED*) 
 ; PROCEDURE DisAsmPassFile
     ( UnitRef : FM3Units . UnitRefTyp ; PassFileSuffix : TEXT ; L2R : BOOLEAN ) 
+  RAISES { RdBackFile . BOF }
   (* PRE: A dispensible .Copy file exists in the build directory. *)
   (* POST: The disassembly file has been written in the build directory. *)
   (* POST: The copy file has been removed. *) 
@@ -270,12 +271,24 @@ MODULE  FM3Compile
     ; LDisAsmWrT := FileWr . Open ( LDisAsmFileFullName )
     ; LRdBack := RdBackFile . Open ( LCopyFileFullName )
 
-    ; FM3DisAsm . DisAsmWOperands ( LRdBack , LDisAsmWrT , L2R )
+    ; TRY
+        FM3DisAsm . DisAsmWOperands ( LRdBack , LDisAsmWrT , L2R )
     
-    ; RdBackFile . Close ( LRdBack , - 1L )      
-    ; Wr . Close ( LDisAsmWrT ) 
-
-    ; FM3SharedUtils . DeleteFile ( LCopyFileFullName )
+      ; RdBackFile . Close ( LRdBack , - 1L )      
+      ; Wr . Close ( LDisAsmWrT ) 
+      ; FM3SharedUtils . DeleteFile ( LCopyFileFullName )
+      EXCEPT
+      | RdBackFile . BOF
+        => 
+          FM3Messages . InfoArr
+            ( ARRAY OF REFANY
+                { "Unable to complete disassembly file  "
+                , LDisAsmFileFullName
+                }
+            )
+        ; RdBackFile . Close ( LRdBack , - 1L )      
+        ; Wr . Close ( LDisAsmWrT ) 
+      END (*EXCEPT*)
 
     END DisAsmPassFile
 

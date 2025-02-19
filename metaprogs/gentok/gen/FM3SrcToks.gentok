@@ -299,8 +299,9 @@ NEXT StkMinLong .
    StkPd_Long_RightRotate    "RightRotate" . 
    StkPd_Long_Extract        "Extract" . 
 NEXT StkMaxLong .
-NEXT StkMaxOperation .
    StkPd_Long_Insert         "Insert" .
+NEXT StkMaxOperation .
+   StkRTUniqueBrand . 
 
 (* COMPLETEME: Idents declared in other standard interfaces. *) 
 
@@ -326,6 +327,5 @@ NEXT StkMaxBuiltin .
 
 (* Runtime operations: *)
 
-   StkRTUniqueBrand
 
 (* End of FM3SrcToks.gentok. *) 
