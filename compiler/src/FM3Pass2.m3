@@ -540,7 +540,7 @@ MODULE FM3Pass2
   = BEGIN
       FM3Messages . ErrorArr
         ( ARRAY OF REFANY
-            { Operand , " of \"" , Opcode  , "\" must be " , Expected , "." }
+            { Operand , " of \"" , Opcode , "\" must be " , Expected , "." }
         , Position
         )
     END WrongKindMsg
@@ -565,7 +565,7 @@ MODULE FM3Pass2
              IN EkSetTyp { Ekt . EkValue , Ekt . EkConst }
       THEN
         WrongKindMsg
-          ( "Operand"
+          ( "Parameter"
           , FM3SrcToks . Image ( Opcode ) 
           , "a value expression"
           , LUnOpExpr . ExpPosition
@@ -593,7 +593,7 @@ MODULE FM3Pass2
              IN EkSetTyp { Ekt . EkValue , Ekt . EkConst }
       THEN
         WrongKindMsg
-          ( "Left operand"
+          ( "Left parameter"
           , FM3SrcToks . Image ( Opcode ) 
           , "a value expression"
           , LOpnd1 . ExpPosition
@@ -604,7 +604,7 @@ MODULE FM3Pass2
              IN EkSetTyp { Ekt . EkValue , Ekt . EkConst } 
       THEN
         WrongKindMsg
-          ( "Right operand"
+          ( "Right parameter"
           , FM3SrcToks . Image ( Opcode ) 
           , "a value expression"
           , LOpnd2 . ExpPosition
@@ -904,6 +904,11 @@ MODULE FM3Pass2
     ; HtSkipping
         := VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
 
+; IF TokResult . TrTok = 1079
+  THEN HtSkipping := FALSE 
+  END 
+
+
     ; CASE TokResult . TrTok OF
 
       | Itk . ItkScopeEmpty 
@@ -1024,7 +1029,7 @@ MODULE FM3Pass2
         ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefExprs
             := ARRAY BOOLEAN OF REFANY { NIL , .. }
         ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := FALSE
-            (* ^ These have only a type def. *) 
+            (* ^ TYPE Decl has only a type def. *) 
         ; HtPassTokenThru ( )
 
       | Itk . ItkTypeDeclType
@@ -1227,7 +1232,7 @@ MODULE FM3Pass2
         ; HtExprRt
             ( NEW ( FM3Exprs . ExprSubrTypeTyp , ExpUpKind := Ekt . EkType ) ) 
 
-      | Itk . ItkSubrTypeDotDot 
+      | Itk . ItkSubrTypeEllipsis 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; HtExprOpnd2 ( )
 
@@ -1283,9 +1288,12 @@ MODULE FM3Pass2
       | Itk . ItkActualsListRt
        => LCt := GetBwdInt ( TokResult . TrRdBack ) (* Actuals count. *) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
-        ; LCallExpr 
-            := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprCallTyp )
-        ; <* ASSERT LCt = LCallExpr . ExpActualNo *> 
+        ; IF LCt > 0
+          THEN 
+            LCallExpr 
+              := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprCallTyp )
+          ; <* ASSERT LCt = LCallExpr . ExpActualNo *>
+          END (*IF*) 
 
       | Itk . ItkActualsListSep
        => LCt := GetBwdInt ( TokResult . TrRdBack ) (* Actuals count. *) 
@@ -1307,10 +1315,6 @@ MODULE FM3Pass2
           ; <* ASSERT LCallExpr . ExpActualNo = 1 *> 
             DEC ( LCallExpr . ExpActualNo )
           ; LCallExpr . ExpActualsList ^ [ LCallExpr . ExpActualNo ] := LListElem
-          ELSE (* Empty actuals list. *) 
-            LCallExpr 
-              := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprCallTyp )
-          ; <* ASSERT LCallExpr . ExpActualNo = 0 *> 
           END (*IF*) 
 
       | Itk . ItkCallLt
@@ -1957,7 +1961,7 @@ MODULE FM3Pass2
         ; IF NOT CheckOpndKind
                    ( TOpExpr . ExpOpnd1
                    , TOpExpr . ExpOpcode 
-                   , "Left operand "
+                   , "Left parameter"
                    , TOpExpr . ExpBinOpLtOpndKindsAllowed
                    )
           THEN LOK := FALSE
@@ -1967,7 +1971,7 @@ MODULE FM3Pass2
              AND  NOT CheckOpndKind
                         ( TOpExpr . ExpOpnd2 
                         , TOpExpr . ExpOpcode
-                        , "Right operand "
+                        , "Second parameter"
                         , TOpExpr . ExpBinOpRtOpndKindsAllowed
                         )
           THEN LOK := FALSE
@@ -1980,7 +1984,7 @@ MODULE FM3Pass2
           =>  IF NOT CheckOpndKind
                       ( TQuadOpExpr . ExpQuadOpOpnd3 
                       , TQuadOpExpr . ExpOpcode
-                      , "Third operand "
+                      , "Third parameter"
                       , FM3Exprs . EkSetValue 
                       )
               THEN LOK := FALSE
@@ -1989,7 +1993,7 @@ MODULE FM3Pass2
                  AND NOT CheckOpndKind
                            ( TQuadOpExpr . ExpQuadOpOpnd4 
                            , TQuadOpExpr . ExpOpcode
-                           , "Forth operand "
+                           , "Forth parameter"
                            , FM3Exprs . EkSetValue 
                            )
               THEN LOK := FALSE
@@ -2077,7 +2081,19 @@ MODULE FM3Pass2
     ; LNewExpr
         := FM3Builtins . BuiltinExpr
              ( LDeclTok , LCallExpr . ExpCallProc . ExpPosition ) 
-    ; IF LActualsCt # LNewExpr . ExpBinOpActualsCt 
+    ; IF LNewExpr . ExpBinOpActualsCt = FM3Builtins . ActualsCtAtLeastOne  
+         (* NEW is the only case here. *)
+      THEN IF  LActualsCt < 1
+        THEN 
+          FM3Messages . ErrorArr 
+            ( ARRAY OF REFANY 
+                { "NEW requires one or more actual parameters." }
+            , LCallExpr . ExpPosition 
+            ) 
+        ; LNewExpr . ExpIsUsable := FALSE
+        ; RETURN LCallExpr
+        END (*IF*) 
+      ELSIF LActualsCt # LNewExpr . ExpBinOpActualsCt 
       THEN (* Wrong number of actual parameters. *) 
         IF LNewExpr . ExpBinOpActualsCt = 1 THEN LPluralSuffix := "."  
         ELSE LPluralSuffix := "s." 
@@ -2087,7 +2103,7 @@ MODULE FM3Pass2
               { FM3SrcToks . Image ( LDeclTok )
               , " requires "
               , Fmt . Int ( LNewExpr . ExpBinOpActualsCt )
-              , " Actual parameter"
+              , " actual parameter"
               , LPluralSuffix
               }
           , LCallExpr . ExpPosition 
@@ -2399,7 +2415,7 @@ MODULE FM3Pass2
                 ( LAtomLt , (*OUT*) LUnitNoLt , (*OUT*) LRefDeclNoLt )
         THEN (* Lt ident is [ex|im]ported. *)  
           IF LUnitNoLt = FM3Globals . UnitNoNull
-          THEN (* Lt is ndeclared. *)
+          THEN (* Lt is Undeclared. *)
             BadIdentMessage
               ( "Undeclared identifier" , LAtomLt , LPosLt )
           ; PutNotUsable( LAtomLt , LPosLt ) 

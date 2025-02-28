@@ -26,6 +26,8 @@ INTERFACE FM3Builtins
      that can occcur in a standard interface (starting with StkPd).
   *)  
 
+; CONST ActualsCtAtLeastOne = - 2 
+
 ; END FM3Builtins
 .
 

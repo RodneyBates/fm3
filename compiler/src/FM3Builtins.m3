@@ -283,7 +283,7 @@ MODULE FM3Builtins
 
         | Stk . RidNEW            
         => WITH WProp = GOpPropertiesArray [ ROp]
-           DO WProp . OpOpndCt := FM3Exprs . ActualsCtInf 
+           DO WProp . OpOpndCt := ActualsCtAtLeastOne 
            ; WProp . OpExprKind := Ekt . EkValue
            ; WProp . OpLtOpndKindsAllowed := FM3Exprs . EkSetType 
            ; WProp . OpRtOpndKindsAllowed := FM3Exprs . EkSetValue

@@ -13,10 +13,7 @@ MODULE FM3Scopes
 ; IMPORT VarArray_Int_Refany 
 
 ; IMPORT FM3Base
-; IMPORT FM3Decls 
-; IMPORT FM3Dict_Int_Int
 ; IMPORT FM3Globals 
-; IMPORT FM3SharedUtils
 ; IMPORT FM3Units
 ; IMPORT Ranges_Int
 
@@ -55,8 +52,8 @@ MODULE FM3Scopes
     ; LScopeRef ^ . ScpSelfScopeNo := LScopeNo
     ; LScopeRef ^ . ScpKind := ScopeKind
     ; LScopeRef ^ . ScpPosition := Position
-    ; LScopeRef ^ . ScpOnDeclStackCt := 0
-    ; LScopeRef ^ . ScpOnOpenScopeStackCt := 0
+    ; LScopeRef ^ . ScpDeclStackHt := 0
+    ; LScopeRef ^ . ScpOpenStackHt := 0
  
     ; LScopeRef ^ . ScpDeclIdSet := IntSets . Empty ( )
                     (* ^For a unit, includes [ex|im]ported idents. *) 
@@ -91,9 +88,14 @@ MODULE FM3Scopes
 
   = BEGIN (*PushDeclScopeRef*)
       IF ScopeRef = NIL THEN RETURN END (*IF*)
+    ; <* ASSERT ScopeRef ^ . ScpDeclStackHt = 0 *>
+      IF DeclScopeStackTopRef = NIL
+      THEN ScopeRef ^ . ScpDeclStackHt := 1 
+      ELSE ScopeRef ^ . ScpDeclStackHt
+             := DeclScopeStackTopRef ^ . ScpDeclStackHt + 1
+      END (*IF*) 
     ; ScopeRef ^ . ScpDeclStackLink := DeclScopeStackTopRef
     ; DeclScopeStackTopRef := ScopeRef
-    ; INC ( ScopeRef ^ . ScpOnDeclStackCt ) 
     ; INC ( DeclScopeStackCt ) 
     END PushDeclScopeRef
 
@@ -106,9 +108,9 @@ MODULE FM3Scopes
       LPoppedScopeRef := DeclScopeStackTopRef 
     ; DeclScopeStackTopRef := LPoppedScopeRef . ScpDeclStackLink
     ; DEC ( DeclScopeStackCt ) 
-    ; DEC ( LPoppedScopeRef ^ . ScpOnDeclStackCt )
-    ; <* ASSERT ( DeclScopeStackTopRef = NIL ) = ( DeclScopeStackCt = 0 ) *> 
-      RETURN LPoppedScopeRef
+    ; <* ASSERT ( DeclScopeStackTopRef = NIL ) = ( DeclScopeStackCt = 0 ) *>
+      LPoppedScopeRef . ScpDeclStackHt := 0 
+    ; RETURN LPoppedScopeRef
     END PopDeclScopeRef 
 
 (*EXPORTED.*)
@@ -116,9 +118,14 @@ MODULE FM3Scopes
 
   = BEGIN (*PushOpenScopeRef*)
       IF ScopeRef = NIL THEN RETURN END (*IF*)
+    ; <* ASSERT ScopeRef ^ . ScpOpenStackHt = 0 *>
+      IF OpenScopeStackTopRef = NIL
+      THEN ScopeRef ^ . ScpOpenStackHt := 1 
+      ELSE ScopeRef ^ . ScpOpenStackHt
+             := OpenScopeStackTopRef ^ . ScpOpenStackHt + 1
+      END (*IF*) 
     ; ScopeRef ^ . ScpOpenScopeStackLink := OpenScopeStackTopRef
     ; OpenScopeStackTopRef := ScopeRef
-    ; INC ( ScopeRef ^ . ScpOnOpenScopeStackCt ) 
     ; INC ( OpenScopeStackCt ) 
     END PushOpenScopeRef
 
@@ -131,9 +138,9 @@ MODULE FM3Scopes
       LPoppedScopeRef := OpenScopeStackTopRef 
     ; OpenScopeStackTopRef := LPoppedScopeRef . ScpOpenScopeStackLink
     ; DEC ( OpenScopeStackCt ) 
-    ; DEC ( LPoppedScopeRef ^ . ScpOnOpenScopeStackCt )
     ; <* ASSERT ( OpenScopeStackTopRef = NIL ) = ( OpenScopeStackCt = 0 ) *>
-      RETURN LPoppedScopeRef
+      LPoppedScopeRef . ScpOpenStackHt := 0 
+    ; RETURN LPoppedScopeRef
     END PopOpenScopeRef 
 
 ; BEGIN

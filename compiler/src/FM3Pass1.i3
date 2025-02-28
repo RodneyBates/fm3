@@ -116,8 +116,9 @@ INTERFACE FM3Pass1
    this stuff will need to be popped backwards in pass 2.
 
    A capital letter denotes a value that is passed to the PutBwd_<x> procedure
-   as a parameter.  The parameters are in the same order as the capital letters.
-   A lower case letter denotes a value derived from the previous case-
+   as a parameter.  The parameters to the procedure are in the same order
+   as the capital letters in the procedure name.
+   A lower case letter denotes a value derived from the previous capical case-
    homonym of itself.
 
    For a capital-letter token, the token parameter is always the left token of
@@ -137,7 +138,7 @@ INTERFACE FM3Pass1
 
    'C' or 'c' denotes a patch coordinate, passed in ('C'), or copied from
    from the previous coordinate ('c').  If present, it must immediately follow
-   a token, and it causes the push procedure to convert the preceding token
+   a token, and it causes the PutBwd procedure to convert the preceding token
    to its patch counterpart.
 
    'P' or 'p' denotes a position in the source code.  When passed in, it
@@ -145,7 +146,7 @@ INTERFACE FM3Pass1
    and column-number.  The procedure pushes it as two separate numbers on the
    pass1 output file, column number deeper.
 
-   pl means reuse the first position passed in.
+   p1 means reuse the first position passed in.
 
    'I' or 'i' is an integer value.
    'B' or 'b' is a boolean value.
@@ -169,7 +170,7 @@ INTERFACE FM3Pass1
 
 ; PROCEDURE PutBwd_LI ( T : Itk . TokTyp ; I : INTEGER )
 
-; PROCEDURE PutBwd_LIP
+; PROCEDURE PutBwd_TIP
     ( T : Itk . TokTyp ; I : INTEGER ; READONLY Position : tPosition )
 
 ; PROCEDURE PutBwd_LIIP
@@ -192,13 +193,6 @@ INTERFACE FM3Pass1
 
 ; PROCEDURE PutBwd_LCP_rp
    ( T : Itk . TokTyp ; C : LONGINT ; READONLY Position : tPosition )
-
-; PROCEDURE PutBwd_LCP_eCp_rp
-   ( T : Itk . TokTyp
-   ; C1 : LONGINT
-   ; READONLY Position : tPosition
-   ; C2 : LONGINT
-   )
 
 ; PROCEDURE PutBwd_LCBP_eCP_rbP
    ( T : Itk . TokTyp
@@ -265,6 +259,11 @@ INTERFACE FM3Pass1
     ; I : INTEGER 
     )
 
+; PROCEDURE PutBwd_TP ( T : Itk . TokTyp ; READONLY P : tPosition )
+
+; PROCEDURE PutBwd_TCP
+   ( T : Itk . TokTyp ; C : LONGINT ; READONLY P : tPosition )
+
 ; PROCEDURE PutBwd_LCP_eCP_rP
    ( T : Itk . TokTyp
    ; CLt : LONGINT
@@ -325,12 +324,11 @@ INTERFACE FM3Pass1
    ; READONLY PositionRt : tPosition
    )
 
-; PROCEDURE PutBwd_ECPrP
-   ( T : Itk . TokTyp
-   ; CLt : LONGINT
-   ; READONLY PositionOne : tPosition
-   ; READONLY PositionRt : tPosition
-   )
+; PROCEDURE PutBwd_ECP
+   ( T : Itk . TokTyp ; C : LONGINT ; READONLY Position : tPosition )
+   
+; PROCEDURE PutBwd_ZCP
+   ( T : Itk . TokTyp ; C : LONGINT ; READONLY Position : tPosition )
 
 ; PROCEDURE PutBwd_LCBr ( T : Itk . TokTyp ; C : LONGINT ; B : BOOLEAN )
 
@@ -398,8 +396,11 @@ INTERFACE FM3Pass1
     ( ScopeKind : FM3Scopes . ScopeKindTyp ; Position : FM3Base . tPosition )
   : FM3Scopes . ScopeRefTyp 
 
-; PROCEDURE CheckIdentNotReserved 
-    ( READONLY IdAttr : tParsAttribute ; IllegalPastParticiple : TEXT )
+; PROCEDURE CheckIdentNotReserved
+    ( READONLY IdAttr : tParsAttribute
+    ; Position : tPosition 
+    ; IllegalPastParticiple : TEXT
+    )
   : BOOLEAN (* It's OK. *)
   (* POST: FALSE result => Error message has been generated. *)  
 
@@ -415,8 +416,13 @@ INTERFACE FM3Pass1
                in current scope.) *)
   (* PRE: IdAttribute is for an identifier in a declaration context. *) 
 
+; PROCEDURE IdentRefLone ( READONLY IdAttr : tParsAttribute )
+  (* Possibly a reserved Id. *) 
+  (* PRE: The ident is not followed by actuals, subscripte, or a deref. *) 
+
 ; PROCEDURE IdentRefL2R ( READONLY IdAttribute : tParsAttribute )
   (* Possibly a reserved Id. *) 
+  (* PRE: The ident is followed by actuals, subscripte, or a deref. *) 
 
 ; PROCEDURE RecognizedPragma ( READONLY PragmaAttr : tParsAttribute )
 
@@ -440,16 +446,14 @@ INTERFACE FM3Pass1
     ; SelectedTag : TEXT
     )
 
-; PROCEDURE BuiltinWithNoSelector
-( READONLY IdAttribute : tParsAttribute )
-  (* PRE: IdAttribute . Scan . SaStdTok # FM3Base , TokNull. *) 
-  (* Builtin ident that has no selector. *) 
-
-; PROCEDURE BuiltinIdentActualsL2R
-    ( READONLY IdAttribute , ActualsAttribute : tParsAttribute )
-  (* PRE: IdAttribute . Scan . SaStdTok # FM3Base , TokNull. *) 
-  (* PRE: IdAttribute is for the builtin ident only. *) 
-  (* PRE: ActualsAttribute is for an actual parameter list. *) 
+; PROCEDURE CheckReservedActualsCt
+    ( READONLY IdAttr : tParsAttribute
+    ; ActualActualsCt : INTEGER
+    ; Position : tPosition
+    )
+  : BOOLEAN (* Nothing illegal.  Nothing done.
+               Otherwise message emitted and token stream modified. *)
+  (* PRE: Id is reserved. *) 
 
 ; PROCEDURE BuiltinOtherSelector
     ( READONLY IdAttribute , SelectorAttribute : tParsAttribute ; Tag : TEXT )

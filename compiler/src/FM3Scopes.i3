@@ -49,7 +49,8 @@ INTERFACE FM3Scopes
                      qualified when ref'd by a named formal within an actual
                      parameter list.  Treated as open for other lookups.
                      No self references.
-                  *) 
+                  *)
+      , SkProcBody 
       , SkBlock
       , SkCompEnv (* Compiled, IMPORTed, EXPORTed. *) 
       , SkExports 
@@ -122,9 +123,9 @@ INTERFACE FM3Scopes
       ; ScpMinDeclNo := FM3Globals . DeclNoNull
       ; ScpSelfScopeNo : FM3Globals . ScopeNoTyp (* A self-reference. *)
       ; ScpOwningDeclNo : FM3Globals . DeclNoTyp
-      ; ScpOnDeclStackCt : INTEGER := 0
-      ; ScpOnOpenScopeStackCt : INTEGER := 0
-        (* ^Number of times it's on either scope stack. *)
+      ; ScpDeclStackHt : INTEGER := 0
+      ; ScpOpenStackHt : INTEGER := 0
+        (* ^Number scopes beneath, where "beneath" is a reflexively closed. *)
 (* CHECK ^Do we really need this? *) 
       ; ScpPosition : FM3Base . tPosition 
       ; ScpKind : ScopeKindTyp

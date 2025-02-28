@@ -73,8 +73,7 @@ MODULE FM3Exprs
   ; BEGIN 
       LCt := KindSetCard ( KindSet ) 
     ; IF LCt = 0 THEN RETURN "<nothing>" END (*IF*) 
-    ; LWrT := NEW ( TextWr . T )
-    ; Wr . PutText ( LWrT , "one of " ) 
+    ; LWrT := TextWr . New ( )
     ; FOR RK := FIRST ( ExprKindTyp ) TO LAST ( ExprKindTyp )
       DO IF RK IN KindSet
         THEN

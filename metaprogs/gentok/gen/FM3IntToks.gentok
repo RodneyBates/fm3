@@ -148,8 +148,13 @@ ItkREFType BOOL POS 3 (* IsUntraced. *)
    Referent POS 2 .
 
 ItkOpenArrayType POS 2 .
+
+ItkFixedArrayType POS 2
+   Elmt POS 2
+. 
+
 ItkSubrType POS 2
-  DotDot POS 2
+  Ellipsis POS 2
 . 
 
 (* Record type definitions. *) 

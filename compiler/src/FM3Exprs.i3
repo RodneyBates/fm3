@@ -181,13 +181,11 @@ INTERFACE FM3Exprs
         ExpDotIdAtom : FM3Base . AtomTyp
       END
 
-; CONST ActualsCtInf = 127 (* "infinity", actually means unlimited. *) 
-
 (* Either a constant expression or one whose type is of interest. *) 
 ; TYPE ExprBinOpTyp <: ExprBinOpPublic 
 ; TYPE ExprBinOpPublic
     = Expr2OpndTyp OBJECT
-        ExpBinOpActualsCt : [ 0 .. 127 ]  
+        ExpBinOpActualsCt : INTEGER 
       ; ExpBinOpLtOpndKindsAllowed := ExprKindSetTyp { } 
       ; ExpBinOpRtOpndKindsAllowed := ExprKindSetTyp { }
         (* This can denote a unary operator, in which case we use this
