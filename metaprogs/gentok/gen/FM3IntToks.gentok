@@ -321,7 +321,7 @@ FIXED
 
 (* Binary operators: *) 
 FIXED
-  ItkBinaryOp   INT POS    
+  ItkBinaryOp   INT POS (* Operation code. *)     
      Operator INT POS (* Operation code. *) . 
 (*  
   ItkEqual POS        BinOp POS . 

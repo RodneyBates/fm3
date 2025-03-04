@@ -514,8 +514,11 @@ RULE
        $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
      }.
 
-   OptSemicolon : StkSemicolon .
-   OptSemicolon : /*Empty*/ . 
+   OptSemicolon : StkSemicolon { $$ . PaPos2 := $1 . Scan . Position ; } .
+   OptSemicolon : /*Empty*/
+     { $$ . PaPos2 := FM3Scanner . Attribute . Position ;
+       (* If semicolon is absent, right end of item to left. *) 
+     } . 
  
 (* ------------------------ Generic parameters ---------------------- . *)
 
@@ -1957,11 +1960,14 @@ RULE
       same semantic action.  Hopefully, difference in the left context
       will disabiguate this. 
    *)
-   
+
+   BinOpOp : /* Empty */
+     { } . 
+
    Expr : E0 .
 
    E0 : E1 . 
-   E0 : E0 StkRwOR E1
+   E0 : E0 BinOpOp StkRwOR E1
      { FM3Pass1 . PutBwd_LCIP_eCip_rip
          ( Itk . ItkBinaryOpLt
          , $1 . PaPass1Coord
@@ -1972,7 +1978,7 @@ RULE
      } . 
    
    E1 : E2 . 
-   E1 : E1 StkRwAND E2
+   E1 : E1 BinOpOp StkRwAND E2
      { FM3Pass1 . PutBwd_LCIP_eCip_rip
          ( Itk . ItkBinaryOpLt
          , $1 . PaPass1Coord
@@ -1993,7 +1999,7 @@ RULE
      } . 
    
    E3 : E4 . 
-   E3 : E3 ExprRelOp E4
+   E3 : E3 BinOpOp ExprRelOp E4
      { FM3Pass1 . PutBwd_LCIP_eCip_rip
          ( Itk . ItkBinaryOpLt
          , $1 . PaPass1Coord
@@ -2004,7 +2010,7 @@ RULE
      } . 
    
    E4 : E5 . 
-   E4 : E4 ExprAddOp E5
+   E4 : E4 BinOpOp ExprAddOp E5
      { FM3Pass1 . PutBwd_LCIP_eCip_rip
          ( Itk . ItkBinaryOpLt
          , $1 . PaPass1Coord
@@ -2014,17 +2020,28 @@ RULE
          ) ; 
      } . 
    
-   E5 : E6 . 
-   E5 : E5 ExprMulOp E6
-     { FM3Pass1 . PutBwd_LCIP_eCip_rip
-         ( Itk . ItkBinaryOpLt
-         , $1 . PaPass1Coord
-         , $2 . PaTok1 
-         , $2  . Scan . Position
-         , $2 . PaPass1Coord 
-         ) ; 
-     } . 
+   E5 : E6 { (* Default PaPos & PaPass1Coord. *) } .
    
+   E5Lt : E5 ExprMulOp 
+     { (* Default PaPos.PaPass1Coord. *)
+       $$ . PaTok1 := $2 . PaTok1 ;
+       FM3Pass1 . PutBwd_TIP
+         ( Itk . ItkBinaryOpOperator
+         , $2 . PaTok1  
+         , $2 . PaPos
+         ) ; 
+     } .
+     
+   E5 : E5Lt E6
+     { (* Default PaPos.PaPass1Coord. *)
+       FM3Pass1 . PutBwd_LCIP_rip
+         ( Itk . ItkBinaryOpLt
+         , $1 . PaPass1Coord 
+         , $1 . PaTok1
+         , $1 . PaPos
+         ) 
+     } . 
+
    E6 : E7 . 
    E6 : ExprUnaryAddOp E7
      { (* Let's leave the unary + in there, just in case there is a need
@@ -2059,17 +2076,14 @@ RULE
          ) ; 
      } .
      
-   E7 : E8WOId ActualsLt Actuals
-      { FM3Pass1 . PutBwd_LCIP_eCP_rip
-           ( Itk . ItkCallLt 
-           , $1 . PaPass1Coord 
-           , $3 . PaInt 
-           , $3 . Scan . Position
-           , $3 . PaPass1Coord
-           , $3 . Scan . Position 
-           ) ;
+   E7 : E8WOId CallActualsLt Actuals
+     { FM3Pass1 . PutBwd_LCIP_rip
+         ( Itk . ItkCallLt 
+         , $1 . PaPass1Coord 
+         , $3 . PaInt 
+         , $3 . Scan . Position
+         ) ;
       } . 
-
      
    E7 : E8WOId StkDot NonreservedIdent 
      { FM3Pass1 . PutBwd_LCIP_rip
@@ -2114,14 +2128,14 @@ RULE
        END (*IF*) ; 
      } .
 
-   ActualsLt : /* Empty */
+   CallActualsLt : /* Empty */
      { FM3Pass1 . PutBwd_TP 
          ( Itk . ItkCallActuals  
          , FM3Scanner . Attribute . Position
          ) ; 
      } .
      
-   E7 : IdentRef ActualsLt Actuals 
+   E7 : IdentRef CallActualsLt Actuals 
      { IF FM3Pass1 . CheckReservedActualsCt
             ( IdAttr := $1
             , ActualActualsCt := $3 . PaInt
@@ -2143,7 +2157,10 @@ RULE
           /* Special case. Ident dot Ident. Can occur in other contexts. */
         . 
    
-  (* Array subscript list. *) 
+   (* Array subscript list.
+      Commas are always separators, so parsed here as part of the list.
+      List may not be empty.
+   *) 
    Subscripts : StkOpenBracket SsPlusList StkCloseBracket
      { FM3Pass1 . MakeListPos
          ( LHSAttr := $$
@@ -2154,19 +2171,33 @@ RULE
      } .
    
    SsPlusList : Expr 
-     { $$ . PaInt (* Expression count *) :=  1 ; } . 
+     { $$ . PaInt (* Expression count *) :=  1 ;
+       (* Default PaPos. *) 
+       (* Default PaPass1Coord. *)
+     } . 
    
-   SsPlusList : SsPlusList StkComma Expr 
-     { $$ . PaInt (* Expression count *) := $1 . PaInt + 1 ;
-       FM3Pass1 . PutBwd_ECIP
-         ( Itk . ItkSubscriptsPlusListLt
-         , $2 . PaPass1Coord 
+   SsPlusListLt : SsPlusList StkComma 
+     { $$ . PaInt (* Expression count *) := $1 . PaInt ; 
+       (* Default PaPos. *) 
+       (* Default PaPass1Coord. *)
+       FM3Pass1 . PutBwd_TIP
+         ( Itk . ItkSubscriptsPlusListSep
          , $1 . PaInt
          , $2 . Scan . Position
          ) ; 
      } . 
 
-  (* Actual parameter list of call. *) 
+   SsPlusList : SsPlusListLt Expr 
+     { $$ . PaInt (* Expression count *) := $1 . PaInt + 1 ;
+       (* Default PaPos. *) 
+       (* Default PaPass1Coord. *)
+     } . 
+
+  (* Actual parameter list of call.
+     Commas are always separators. so parsed as part of the list.
+     List may be empty
+  *)
+  
    Actuals : StkOpenParen ActualList StkCloseParen
      { FM3Pass1 . MakeListPos
          ( LHSAttr := $$
@@ -2178,28 +2209,45 @@ RULE
      } .
 
    ActualList : /*Empty*/
-     { $$ . PaInt (* Actual count *) :=  0 ; } . 
+     { $$ . PaInt (* Actual count *) :=  0 ;
+       (* Default PaPos. *) 
+       (* Default PaPass1Coord. *)
+     } . 
 
    ActualList : Actual 
-     { $$ . PaInt (* Actual count *) :=  1 ; } . 
+     { $$ . PaInt (* Actual count *) :=  1 ;
+       (* Default PaPos. *) 
+       (* Default PaPass1Coord. *)
+     } . 
    
-   ActualList : ActualList StkComma Actual  
-     { $$ . PaInt (* Actual count *) := $1 . PaInt + 1 ;
-       FM3Pass1 . PutBwd_ECIP
-         ( Itk . ItkActualsListLt
-         , $2 . PaPass1Coord 
+   ActualListLt : ActualList StkComma 
+     { $$ . PaInt (* Actual count *) := $1 . PaInt ;
+       (* Default PaPos. *) 
+       (* Default PaPass1Coord. *)
+       FM3Pass1 . PutBwd_TIP
+         ( Itk . ItkActualsListSep
          , $1 . PaInt
          , $2 . Scan . Position
          ) ; 
      } .
 
+   ActualList : ActualListLt Actual  
+     { $$ . PaInt (* Actual count *) := $1 . PaInt + 1 ;
+       (* Default PaPos. *) 
+       (* Default PaPass1Coord. *)
+     } .
+
    Actual : Expr
-     { FM3Pass1 . PutBwd_LCP_rp
-        ( Itk . ItkAnonActualLt , $1 . PaPass1Coord , $1 . Scan . Position ) ;
+     { (* Default PaPos. *) 
+       (* Default PaPass1Coord. *)
+       FM3Pass1 . PutBwd_LCP_rp
+         ( Itk . ItkAnonActualLt , $1 . PaPass1Coord , $1 . Scan . Position ) ;
      } .
 
    Actual : NonreservedIdent StkBecomes Expr
-     { FM3Pass1 . PutBwd_LCIP_rip
+     { (* Default PaPos. *) 
+       (* Default PaPass1Coord. *)
+       FM3Pass1 . PutBwd_LCIP_rip
          ( Itk . ItkNamedExprLt
          , $1 . PaPass1Coord
          , $1 . Scan . SaAtom  
@@ -2355,7 +2403,10 @@ RULE
      } . 
  
    (* A block declaration always includes a terminating semicolon in the
-      source syntax, but we emit only Itk *separators*. *)
+      source syntax, so it is parsed as part of the list element.  But
+      we emit only Itk *separators*, as part of the list actions. 
+      List may be empty.
+   *) 
 
    OpenDeclList : /*Empty*/
      { FM3Pass1 . MakeListEmpty 
@@ -2366,7 +2417,9 @@ RULE
      } .
      
    OpenDeclList : BlockDeclPlus 
-     { MakeListPos
+     { (* Default PaPos. *) 
+       (* Default PaPass1Coord. *) 
+       MakeListPos
          ( $$
          , Itk . ItkOpenDeclListLt
          , $1 . Scan . Position
@@ -2376,27 +2429,37 @@ RULE
      
    BlockDeclPlus : BlockDecl 
      { $$ . PaInt := $1 . PaInt (* Decl count. *) ;
-       $$ . PaPos (* Rt semicolon. *) := $1 . PaPos ; 
+       (* Default PaPos. *) 
+       (* Default PaPass1Coord. *) 
+       $$ . PaPos2 := $1 . PaPos2 ;
      } .
 
-   BlockDeclPlus : BlockDeclPlus BlockDecl  
-     { $$ . PaInt := $1 . PaInt + $2 . PaInt (* Decl count. *) ;
-
-       IF $2 . PaInt > 0
+   BlockDeclPlusSepLt : BlockDeclPlus 
+     { $$ . PaInt := $1 . PaInt (* Decl count. *) ;
+       (* Default PaPos. *) 
+       $$ . PaPos2 := $1 . PaPos2 ;
+       (* Default PaPass1Coord. *) 
+       IF $1 . PaInt > 0
        THEN
-         $$ . PaPos (* Rt semicolon. *) := $2 . PaPos ; 
-         FM3Pass1 . PutBwd_ECIP (* Insert a separator. *)
-           ( Itk . ItkOpenDeclListLt
-           , $2 . PaPass1Coord
+         FM3Pass1 . PutBwd_TIP (* Insert a separator. *)
+           ( Itk . ItkOpenDeclListSep
            , $1 . PaInt
            , $1 . PaPos 
            ) ;
-       ELSE 
-         $$ . PaPos (* Rt semicolon. *) := $1 . PaPos ; 
        END (*IF*) ; 
      } .
 
+   BlockDeclPlus : BlockDeclPlusSepLt BlockDecl  
+     { $$ . PaInt := $1 . PaInt + $2 . PaInt (* Decl count. *) ;
+       (* Default PaPos. *)
+       (* Default PaPass1Coord. *) 
+       $$ . PaPos2 := $2 . PaPos2 ;
+     } .
+
 (* ---------------------------- Statements ----------------------------- *)
+
+(* Semicolons are optional, parsed as components of the list. *)
+(* List may be empty. *) 
 
    StmtList : /*Empty*/
      { FM3Pass1 . MakeListEmpty 
@@ -2406,8 +2469,10 @@ RULE
          ) ; 
      } .
 
-   StmtList : StmtPlus OptSemicolon 
-     { MakeListPos
+   StmtList : StmtPlus 
+     { (* Default PaPos. *)
+       (* Default PaPass1Coord. *) 
+       MakeListPos
          ( $$
          , Itk . ItkStmtListLt
          , $1 . Scan . Position
@@ -2415,17 +2480,31 @@ RULE
          ) ;
      } .
 
-   StmtPlus : Stmt { $$ . PaInt := 0 ; } .
-     
-   StmtPlus : StmtPlus StkSemicolon Stmt  
-     { $$ . PaInt := $1 . PaInt + 1 (* Stmt count. *) ;
-       FM3Pass1 . PutBwd_ECIP (* Internal separator. *)
-         ( Itk . ItkStmtListLt
-         , $2 . PaPass1Coord
+   StmtPlus : Stmt
+     { $$ . PaInt := 0 ;
+       (* Default PaPos. *)
+       (* Default PaPass1Coord. *) 
+     } .
+
+   StmtPlusSepLt : StmtPlus OptSemicolon 
+     { $$ . PaInt := $1 . PaInt (* Count of stmts to left. *) ;
+       $$ . PaPos2 := $2 . PaPos2 ;
+       (* Default PaPos. *)
+       (* Default PaPass1Coord. *) 
+
+       FM3Pass1 . PutBwd_TIP (* Internal separator. *)
+         ( Itk . ItkStmtListSep 
          , $1 . PaInt
          , $2 . Scan . Position
          ) ; 
      } .
+   
+   StmtPlus : StmtPlusSepLt Stmt
+     { $$ . PaInt := $1 . PaInt + 1 ;
+       $$ . PaPos2 := $2 . PaPos2 ;
+       (* Default PaPos. *)
+       (* Default PaPass1Coord. *) 
+     } .   
    
 (* ---------------------------- Assignment statements ------------------ *)
 

@@ -20,7 +20,7 @@ INTERFACE FM3Pass1
 ; IMPORT FM3IntToks AS Itk  
 
   (* Lalr mandates this type, by name, and its 'Scan' field, Q.V. *)
-(*FIXME: But why is it here? *) 
+(*FIXME: But is this the right place for it? *) 
 ; TYPE tParsAttribute
     = RECORD
         Scan : FM3Scanner . tScanAttribute
@@ -32,6 +32,7 @@ INTERFACE FM3Pass1
       ; PaListItemNo : INTEGER
       ; PaInt : INTEGER
       ; PaPos : FM3Base . tPosition 
+      ; PaPos2 : FM3Base . tPosition 
       ; PaTok1 : FM3Base . TokTyp 
       ; PaTok2 : FM3Base . TokTyp 
       ; PaByte : [ 0 .. 16_FF ] 
@@ -49,6 +50,7 @@ INTERFACE FM3Pass1
         , PaListItemNo := FIRST ( INTEGER )
         , PaInt := FIRST ( INTEGER )
         , PaPos := FM3Base . PositionNull 
+        , PaPos2 := FM3Base . PositionNull 
         , PaTok1 := FM3Base . TokNull
         , PaTok2 := FM3Base . TokNull
         , PaByte := 16_FF 

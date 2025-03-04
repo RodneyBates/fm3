@@ -988,6 +988,7 @@ LIST ItkIdPlusList
 ; CONST ItkLong_NotRt                   (*ArgCt: 2*) =   715 (*16_cb 05 *)
 
 (* Binary operators: *)
+(* Operation code. *)
 (* FIXED ItkBinaryOp: *)
 ; CONST ItkBinaryOpLt                   (*ArgCt: 3*) =   716 (*16_cc 05 *)
 ; CONST ItkBinaryOpLtTemp               (*ArgCt: 3*) =   717 (*16_cd 05 *)

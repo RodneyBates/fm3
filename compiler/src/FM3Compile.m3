@@ -101,8 +101,10 @@ MODULE  FM3Compile
       DO LUnitName := FM3SrcToks . Image ( RTok )
       ; FM3Dict_Text_Int . InsertFixed
            ( GStdUnitFileNames , LUnitName & ".i3" , FM3Base . HashNull , RTok )
-      ; FM3Dict_Text_Int . InsertFixed
-           ( GStdUnitFileNames , LUnitName & ".m3" , FM3Base . HashNull , RTok )
+      ; IF RTok # FM3SrcToks . StkPdMain (* Main.m3 is not a standard unit. *) 
+        THEN FM3Dict_Text_Int . InsertFixed
+               ( GStdUnitFileNames , LUnitName & ".m3" , FM3Base . HashNull , RTok )
+        END (*IF*) 
       END (*FOR*)
     ; FM3Dict_Text_Int . FinalizeFixed ( GStdUnitFileNames ) 
     END InitStdFileNames
