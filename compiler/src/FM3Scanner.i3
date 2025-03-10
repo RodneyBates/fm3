@@ -27,7 +27,7 @@ INTERFACE FM3Scanner
 
 ; TYPE tPosition = FM3Base . tPosition 
 
-; VAR Attribute : tScanAttribute (*lalr*)
+; VAR Attribute : tScanAttribute (*mandated by lalr.*)
 
 (* Lalr mandates the existence (but not the name, I don't think,) of
    record type tScanAttribute, its Position field, by name, and

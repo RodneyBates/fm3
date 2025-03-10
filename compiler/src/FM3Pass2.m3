@@ -565,7 +565,7 @@ MODULE FM3Pass2
              IN EkSetTyp { Ekt . EkValue , Ekt . EkConst }
       THEN
         WrongKindMsg
-          ( "Parameter"
+          ( "Operand"
           , FM3SrcToks . Image ( Opcode ) 
           , "a value expression"
           , LUnOpExpr . ExpPosition
@@ -593,7 +593,7 @@ MODULE FM3Pass2
              IN EkSetTyp { Ekt . EkValue , Ekt . EkConst }
       THEN
         WrongKindMsg
-          ( "Left parameter"
+          ( "Left operand"
           , FM3SrcToks . Image ( Opcode ) 
           , "a value expression"
           , LOpnd1 . ExpPosition
@@ -604,7 +604,7 @@ MODULE FM3Pass2
              IN EkSetTyp { Ekt . EkValue , Ekt . EkConst } 
       THEN
         WrongKindMsg
-          ( "Right parameter"
+          ( "Right Operand"
           , FM3SrcToks . Image ( Opcode ) 
           , "a value expression"
           , LOpnd2 . ExpPosition
@@ -665,12 +665,12 @@ MODULE FM3Pass2
   ; BEGIN
       LValueExpr := FM3Exprs . PopExprStack ( )
     ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefExprs [ TRUE ] := LValueExpr
-    ; IF NOT LValueExpr . ExpIsPresent THEN RETURN END (*IF*) 
     ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := FALSE 
       (* ^Type is coming up next. *) 
+    ; IF NOT LValueExpr . ExpIsPresent THEN RETURN END (*IF*) 
     ; IF NOT LValueExpr . ExpIsUsable THEN RETURN END (*IF*) 
     ; IF FALSE 
-(* FIXME:         LValusExpr could be an identifier referring to a decl farther
+(* FIXME:         LValueExpr could be an identifier referring to a decl farther
                   to the left, whose (the decl's) kind we can't get here.
                   This check will have to be done in Pass3
 *)
@@ -904,10 +904,10 @@ MODULE FM3Pass2
     ; HtSkipping
         := VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
 
-; IF TokResult . TrTok = 1079
+; TRY 
+  IF TokResult . TrTok = 1079
   THEN HtSkipping := FALSE 
   END 
-
 
     ; CASE TokResult . TrTok OF
 
@@ -973,12 +973,14 @@ MODULE FM3Pass2
          
       | Itk . ItkVALUEFormalValue
       , Itk . ItkROFormalValue
-      => DeclValue ( "Default value of formal" , MustBeConst := FALSE ) 
+      =>  DeclValue ( "Default value of formal" , MustBeConst := FALSE ) 
         ; DiscardOperands ( 2 , TokResult . TrRdBack )
 
       | Itk . ItkVARFormalValue
-      =>  <* ASSERT NOT FM3Exprs . ExprStackTopObj . ExpIsPresent *> 
-          FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := FALSE
+      =>  LValueExpr := FM3Exprs . PopExprStack ( ) 
+        ; <* ASSERT LValueExpr . ExpIsPresent *> 
+          FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := FALSE 
+          (* ^Type is coming up next. *) 
         ; DiscardOperands ( 2 , TokResult . TrRdBack )
 
        | Itk . ItkDeclTypeAbsent
@@ -1011,7 +1013,6 @@ MODULE FM3Pass2
       , Itk . ItkVARFormalType
        =>  DeclType ( "formal" ) 
          ; DiscardOperands ( 2 , TokResult . TrRdBack )
-
 
       | Itk . ItkConstDeclLt 
       , Itk . ItkVarDeclLt 
@@ -1087,7 +1088,8 @@ MODULE FM3Pass2
       | Itk . ItkQualIdAtoms 
       => QualIdentR2L ( TokResult . TrRdBack )
 
-      | Itk . ItkBlockRt
+      | Itk . ItkAnonBlockRt
+      , Itk . ItkProcBlockRt
       => LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
      (* Doesn't exist, probably ItkBlock[LR]t will disappear.
 
@@ -1099,10 +1101,11 @@ MODULE FM3Pass2
            , MaybeSkip := TRUE 
            )
         ; PutBwdP2 ( HtPass2RdBack , VAL ( LScopeNo , LONGINT ) ) 
-        ; PutBwdP2 ( HtPass2RdBack , VAL ( Itk . ItkBlockRt , LONGINT ) )
+        ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
 
 (* ItkBlock[RL]t will probably disappear. *) 
-      | Itk . ItkBlockLt 
+      | Itk . ItkProcBlockLt 
+      , Itk . ItkAnonBlockLt 
       => CopyOperandsInOrder
            ( FM3Utils . TokenOpndCt ( TokResult . TrTok ) 
            , TokResult . TrRdBack
@@ -1334,6 +1337,9 @@ MODULE FM3Pass2
       ELSE (* No special pass2 handling. *)
         HtPassTokenThru ( ) 
       END (*CASE*)
+ EXCEPT ELSE
+   LCt := TokResult . TrTok
+ END (*EXCEPT*) 
     END HandleTok
 
 (* Right-to-left scope handling.  Call sites read the Itk and its operands,
@@ -1902,7 +1908,7 @@ MODULE FM3Pass2
       END (*CASE*) 
     END ReservedIdR2L
 
-; PROCEDURE CheckOpndKind
+; PROCEDURE CheckParamKind
     ( OpndExpr : FM3Exprs . ExprTyp
     ; Opcode : FM3SrcToks . TokTyp 
     ; OpndTag : TEXT 
@@ -1917,9 +1923,9 @@ MODULE FM3Pass2
         FM3Messages . ErrorArr
           ( ARRAY OF REFANY
               { OpndTag
-              , " of "
+              , " of \""
               , FM3SrcToks . Image ( Opcode )
-              , " must be "
+              , "\" must be "
               , FM3Exprs . ExprKindSetMessage ( AllowedKinds ) 
               , "." 
               }
@@ -1928,7 +1934,7 @@ MODULE FM3Pass2
       ; RETURN FALSE
       ELSE RETURN TRUE
       END (*IF*) 
-    END CheckOpndKind
+    END CheckParamKind
 
 ; PROCEDURE DisambiguateStdDeclTok
      ( UnitTok , OrigDeclTok : FM3SrcToks . TokTyp ) : FM3SrcToks . TokTyp
@@ -1958,7 +1964,7 @@ MODULE FM3Pass2
       
       | FM3Exprs . ExprBinOpTyp ( TOpExpr )
       =>  LOK := TRUE
-        ; IF NOT CheckOpndKind
+        ; IF NOT CheckParamKind
                    ( TOpExpr . ExpOpnd1
                    , TOpExpr . ExpOpcode 
                    , "Left parameter"
@@ -1968,7 +1974,7 @@ MODULE FM3Pass2
           END (*IF*)
 
         ; IF TOpExpr . ExpBinOpActualsCt > 1
-             AND  NOT CheckOpndKind
+             AND  NOT CheckParamKind
                         ( TOpExpr . ExpOpnd2 
                         , TOpExpr . ExpOpcode
                         , "Second parameter"
@@ -1981,7 +1987,7 @@ MODULE FM3Pass2
           | NULL =>
           
           | FM3Exprs . ExprQuadOpTyp ( TQuadOpExpr )
-          =>  IF NOT CheckOpndKind
+          =>  IF NOT CheckParamKind
                       ( TQuadOpExpr . ExpQuadOpOpnd3 
                       , TQuadOpExpr . ExpOpcode
                       , "Third parameter"
@@ -1990,7 +1996,7 @@ MODULE FM3Pass2
               THEN LOK := FALSE
               END (*IF*)
             ; IF TOpExpr . ExpBinOpActualsCt > 3
-                 AND NOT CheckOpndKind
+                 AND NOT CheckParamKind
                            ( TQuadOpExpr . ExpQuadOpOpnd4 
                            , TQuadOpExpr . ExpOpcode
                            , "Forth parameter"

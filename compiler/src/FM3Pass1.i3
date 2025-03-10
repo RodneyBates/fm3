@@ -57,6 +57,9 @@ INTERFACE FM3Pass1
         , PaBool := FALSE
         }
 
+; VAR VarLabel := ARRAY FM3Decls . DeclKindTyp  OF TEXT { NIL , .. }  
+; VAR VarSection := ARRAY  FM3Decls . DeclKindTyp OF TEXT { NIL , .. }
+
 (* --------------------------- Signature kinds ---------------------- *)
 
 ; TYPE SigKindType
@@ -172,6 +175,8 @@ INTERFACE FM3Pass1
 
 ; PROCEDURE PutBwd_LI ( T : Itk . TokTyp ; I : INTEGER )
 
+; PROCEDURE PutBwd_TI ( T : Itk . TokTyp ; I : INTEGER )
+
 ; PROCEDURE PutBwd_TIP
     ( T : Itk . TokTyp ; I : INTEGER ; READONLY Position : tPosition )
 
@@ -180,6 +185,10 @@ INTERFACE FM3Pass1
 
 ; PROCEDURE PutBwd_LIP_rip
     ( T : Itk . TokTyp ; I : INTEGER ; READONLY Position : tPosition )
+
+; PROCEDURE PutBwd_EP ( T : Itk . TokTyp ; READONLY Position : tPosition )
+
+; PROCEDURE PutBwd_ZP ( T : Itk . TokTyp ; READONLY Position : tPosition )
 
 ; PROCEDURE PutBwd_EIP
     ( T : Itk . TokTyp ; I : INTEGER ; READONLY Position : tPosition )

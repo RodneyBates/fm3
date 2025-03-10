@@ -55,12 +55,12 @@ LONE
   (*ItkRaisesSetAbsent POS 2 (* Position. *) *) . 
   ItkRaisesANY POS 2 (* Position. *) .
   ItkResultTypeAbsent POS 2 (* Position. *). 
-  ItkProcBodyAbsent POS 2 (* Position. *).
+
   ItkIdRefAtomNotUsable IDENT POS . 
 
 (* Scopes and declarations within. *) 
 LONE
-  ItkScopeEmpty INT (* ScopeNo. *) .
+  ItkScopeEmpty INT POS (* ScopeNo. *) .
   ItkDeclScopeLt INT (* ScopeNo. *) .
   ItkDeclScopeRt INT (* ScopeNo. *) . 
   ItkOpenScopeLt INT (* ScopeNo. *) .
@@ -94,16 +94,18 @@ ItkMethodDecl IDENT POS 3 (* Position. *).
 ItkFormalType POS 2 (* Position of colon. *) . 
 ItkFormalExpr POS 2 (* Position of ":=" *).
 ItkResultType POS 2 (* Position of colon. *).
-ItkRaisesSet INT POS 3 (* list count. Position of RAISES. *). 
-ItkProcNoBody IDENT 1 (* Atom of signature. *) .
-ItkProcWBody IDENT 1 (* Atom of signature. *) .
-ItkProcBody POS 2 (* Position of equal sign. *) .
+ItkRaisesSet INT POS 3 (* list count. Position of RAISES. *) . 
+ItkProcDecl IDENT POS 3 .
+ItkProcDef IDENT POS 3 (* Position of equal sign. *) 
+   Body POS 2 (* Position of equal sign. *) .
 ItkProcType POS 2 (* Position of "PROCEDURE". *) . 
 ItkOverride POS (* Position of equal sign. *)
-  Equals POS . 
-
+  Equals POS .
+  
 FIXED
-ItkBlock INT POS 3 (* Construct no., Position of LM declaration. *)
+ItkProcBlock INT POS 3 (* Construct no., Position of LM declaration. *)
+  BEGIN INT POS 3 (* Construct no.,Position of BEGIN. *) . 
+ItkAnonBlock INT POS 3 (* Construct no., Position of LM declaration. *)
   BEGIN INT POS 3 (* Construct no.,Position of BEGIN. *) . 
 
 (* Type decls. *)

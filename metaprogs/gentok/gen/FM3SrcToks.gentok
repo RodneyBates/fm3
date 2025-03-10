@@ -151,8 +151,8 @@ ABS 5
       operation codes.  The scanner will not produce them.
    *)
 
-   StkUnaryPlus        "%UnaryPlus" . 
-   StkUnaryMinus       "%UnaryMinus" . 
+   StkUnaryPlus        "UnaryPlus" . 
+   StkUnaryMinus       "UnaryMinus" . 
 
    (* Builtin Identifiers: *)
 

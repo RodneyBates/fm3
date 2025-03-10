@@ -59,9 +59,8 @@ MODULE FM3Pass1
 ; IMPORT FM3RTFailures 
 ; IMPORT FM3Files
 ; IMPORT FM3Globals
-; IMPORT FM3IntToks AS Itk
-; FROM FM3IntToks
-    IMPORT LtToRt , LtToPatch , LtToOne , LtToOnePatch , LtToTwoPatch
+; IMPORT FM3IntToks AS Itk; FROM FM3IntToks
+    IMPORT LtToRt , LtToPatch , LtToOne , LtToTwo , LtToOnePatch , LtToTwoPatch
            , LtToListSepPatch 
 ; IMPORT FM3Messages 
 ; FROM FM3Messages IMPORT FatalArr , ErrorArr , FM3LogArr
@@ -99,7 +98,10 @@ MODULE FM3Pass1
   *)
 
   = BEGIN
-      <* ASSERT RdBack # FM3Globals . P2RdBack *> 
+      <* ASSERT RdBack # FM3Globals . P2RdBack *>
+IF ValueL < 0L
+THEN EVAL Coord ( )
+END ; 
       IF TRUE 
       THEN
         TRY
@@ -950,6 +952,17 @@ MODULE FM3Pass1
     END PutBwd_LI
 
 (*EXPORTED:*)
+; PROCEDURE PutBwd_TI ( T : Itk . TokTyp ; I : INTEGER )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T , LONGINT ) ) 
+      END (*WITH*) 
+    END PutBwd_TI
+
+(*EXPORTED:*)
 ; PROCEDURE PutBwd_TIP
     ( T : Itk . TokTyp ; I : INTEGER ; READONLY Position : tPosition )
 
@@ -995,6 +1008,30 @@ MODULE FM3Pass1
       ; PutBwd ( WRdBack , VAL ( T , LONGINT ) ) 
       END (*WITH*) 
     END PutBwd_LIP_rip
+
+(*EXPORTED:*)
+; PROCEDURE PutBwd_EP ( T : Itk . TokTyp ; READONLY Position : tPosition )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToOne , LONGINT ) ) 
+      END (*WITH*) 
+    END PutBwd_EP
+
+(*EXPORTED:*)
+; PROCEDURE PutBwd_ZP ( T : Itk . TokTyp ; READONLY Position : tPosition )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToTwo , LONGINT ) ) 
+      END (*WITH*) 
+    END PutBwd_ZP
 
 (*EXPORTED:*)
 ; PROCEDURE PutBwd_EIP
@@ -1744,9 +1781,6 @@ MODULE FM3Pass1
     ; PutBwdLong ( PatchCoord ) (*Patch*)
     ; PutBwdInt ( TokLt + Itk . LtToPatch )
     END MakeConstruct
-
-; VAR VarLabel := ARRAY Dkt OF TEXT { NIL , .. }  
-; VAR VarSection := ARRAY Dkt OF TEXT { NIL , .. }
 
 ; PROCEDURE InitVarInfo ( )
 

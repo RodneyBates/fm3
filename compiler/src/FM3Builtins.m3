@@ -295,7 +295,7 @@ MODULE FM3Builtins
         => WITH WProp = GOpPropertiesArray [ ROp]
            DO WProp . OpOpndCt := 1 
            ; WProp . OpExprKind := Ekt . EkValue
-           ; WProp . OpLtOpndKindsAllowed := FM3Exprs . EkSetType 
+           ; WProp . OpLtOpndKindsAllowed := FM3Exprs . EkSetValue
            ; WProp . OpRtOpndKindsAllowed := FM3Exprs . EkSetTyp { } 
                      (* Could be bindings. *)  
            END (*WITH*)
