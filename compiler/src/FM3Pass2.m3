@@ -333,9 +333,6 @@ MODULE FM3Pass2
                *)
             SkipLt ( GetBwdInt ( FM3Globals . PatchRdBack ) )
             (* And loop. *)
-; IF LPatchedToken = 1109
-  THEN LToken := 1109 + 0
-  END 
           ELSIF (* Skipping? *) 
             VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
           THEN (* Skip it and loop. *) 
@@ -947,11 +944,14 @@ MODULE FM3Pass2
 
       | Itk . ItkConstDeclRt 
       , Itk . ItkVarDeclRt 
-      , Itk . ItkFieldDeclRt (* Of either record or object. *) 
-      , Itk . ItkVALUEFormalRt
+      , Itk . ItkFieldDeclRt (* Of either record or object. *)
+      =>  HtPassTokenThru ( )
+
+      | Itk . ItkVALUEFormalRt
       , Itk . ItkVARFormalRt
       , Itk . ItkROFormalRt
-      =>  FM3Scopes . DeclScopeStackTopRef ^ .  ScpCurDeclRefNoSet
+      =>  LPosition := GetBwdPos ( TokResult . TrRdBack )
+        ; FM3Scopes . DeclScopeStackTopRef ^ .  ScpCurDeclRefNoSet
             := IntSets . Empty ( )
         ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefExprs
             := ARRAY BOOLEAN OF REFANY { NIL , .. }
@@ -1714,6 +1714,9 @@ MODULE FM3Pass2
 
     ; WITH Wp2RdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack
       DO 
+  IF FM3Scopes . DeclScopeStackTopRef = NIL
+  THEN RETURN FM3Globals . DeclNoNull
+  END (*IF*) ;  
         DidOpenDeclNo
           := LookupDeclNoInScope
                ( FM3Scopes . DeclScopeStackTopRef ^ , DidAtom ) 
