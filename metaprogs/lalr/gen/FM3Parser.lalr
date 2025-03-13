@@ -1616,8 +1616,8 @@ RULE
 
 (* List of formal decls. *)
 
-(* FormalsLt Formals, FormalPlus, FormalsList . PaInt
-   is formals count. *)
+(* FormalsLt Formals.PaInt, FormalPlus.PaInt, and FormalsList.PaInt
+   are formals count. *)
 
    FormalsLt : StkOpenParen 
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
@@ -1636,11 +1636,6 @@ RULE
 
    Formals : FormalsLt FormalsList StkCloseParen
      { FM3Pass1 . DeclScopeRtL2R ( FM3Scopes . DeclScopeStackTopRef ) ;
-       FM3Pass1 . PutBwd_TI
-         ( Itk . ItkDeclScopeRt
-         , FM3Scopes . DeclScopeStackTopRef ^ . ScpSelfScopeNo
-         ) ;
-       EVAL FM3Scopes . PopDeclScopeRef ( ) ; 
        MakeListPos
          ( $$ , Itk . ItkFormalsListLt , $2 . Scan . Position , $2 ) ;
 (* FIXME^ Maybe different tokens for different formal modes? *)
@@ -1830,7 +1825,7 @@ RULE
          ( $$ , Itk . ItkRaisesSetLt , FM3Scanner . Attribute . Position ) ; 
      } .
 
-   Raises : StkRwRAISES StkRwANY
+   Raises : StkRwRAISES StkRwANY 
      { $$ . PaBool (* Raises set is present. *) := TRUE ;
        $$ . Scan . Position := $1 . Scan . Position ; 
        FM3Pass1 . PutBwd_LP_rp
@@ -1848,8 +1843,6 @@ RULE
    OptProcBody : StkSemicolon /* Procedure body is absent in source code. */ 
      { VAR LScopeRefDecl : FM3Scopes . ScopeRefTyp ;
        BEGIN 
-         $$ . PaBool (* Procedure has a source code body? *)
-           := FALSE (* No. Absent. *) ;
          $$ . PaTok1 := Itk . ItkProcDeclLt ;  
          IF FM3Units . CurrentUnitIsModule ( )
          THEN 
@@ -1863,6 +1856,8 @@ RULE
          <* ASSERT LScopeRefDecl ^ . ScpKind = Skt . SkFormals *> 
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkDeclScopeRt , LScopeRefDecl ^ . ScpSelfScopeNo ) ;
+         FM3Pass1 . PutBwd_TIP
+           ( Itk . ItkProcDeclRt , $0 . Scan . SaAtom , $0 . Scan . Position ) ;
        END (*Block*) 
      } .
 
@@ -1903,7 +1898,6 @@ RULE
        VAR LScopeRefOpen : FM3Scopes . ScopeRefTyp ; 
        BEGIN
          (* Default Coord and position. *) 
-         $$ . PaBool (* Procedure has a body? *) := TRUE ;
          $$ . PaTok1 := $1 . PaTok1 ;
          (* Body Scope: *) 
          LScopeRefOpen := FM3Scopes . PopOpenScopeRef ( ) ; 
@@ -1922,13 +1916,6 @@ RULE
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkOpenScopeRt , LScopeRefOpen ^ . ScpSelfScopeNo ) ;
 
-         LScopeRefDecl := FM3Scopes . PopDeclScopeRef ( ) ;
-         <* ASSERT LScopeRefDecl = LScopeRefOpen *> 
-         FM3Pass1 . PutBwd_TI
-           ( Itk . ItkDeclScopeRt , LScopeRefDecl ^ . ScpSelfScopeNo ) ;
-         FM3Pass1 . PutBwd_TIP
-           ( Itk . ItkProcDefRt , $3 . Scan . SaAtom , $0 . Scan . Position ) ;
-             
          IF NOT FM3Units . CurrentUnitIsModule ( )
          THEN 
            FM3Messages . ErrorArr
@@ -1940,7 +1927,18 @@ RULE
 
            FM3Pass1 . PutBwd_LCI_ri (* Skip the body. *) 
              ( Itk . ItkSkipLt , $1 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
-           INC ( FM3Globals . NextSkipNo ) ; 
+           INC ( FM3Globals . NextSkipNo ) ;
+         
+         (* Don't skip popping formals scope from DeclScopeStack. It was pushed there
+            regardless of skipping the extraneous body.
+         *) 
+         LScopeRefDecl := FM3Scopes . PopDeclScopeRef ( ) ;
+         <* ASSERT LScopeRefDecl = LScopeRefOpen *> 
+         FM3Pass1 . PutBwd_TI
+           ( Itk . ItkDeclScopeRt , LScopeRefDecl ^ . ScpSelfScopeNo ) ;
+         FM3Pass1 . PutBwd_TIP
+           ( Itk . ItkProcDefRt , $3 . Scan . SaAtom , $0 . Scan . Position ) ;
+             
          END (*IF*) 
        END;
      } .
@@ -1953,16 +1951,6 @@ RULE
          $$ . Scan . SaAtom := $2 . Scan . SaAtom ; 
          $$ . PaInt (* Ident count, 0 or 1. *) 
            := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkProc , $2 ) ) ;
-           (* Decl scope for formals: *)
-         LScopeRef 
-           := FM3Scopes . NewScopeRef
-                ( FM3Units . UnitStackTopRef
-                , Skt . SkFormals  
-                , $1 . Scan . Position 
-                ) ;
-         FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
-         FM3Pass1 . PutBwd_TI
-           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ; 
        END (*Block*) 
      } . 
 
@@ -1970,25 +1958,8 @@ RULE
      { (* Default coord and position. *)
          $$ . Scan . SaAtom := $1 . Scan . SaAtom ; 
          $$ . PaInt (* Valid decl count. *) := $1 . PaInt ; 
- 
-         IF NOT $2 . PaBool (* This procedure has no body in source code. *)
-         THEN
-           IF FM3Units . CurrentUnitIsModule ( )
-           THEN
-           (* Henceforth, treat as having a body, regardless of source code. *)
-             FM3Messages . ErrorArr
-               ( ARRAY OF REFANY
-                   { "A procedure in a module must have a body (2.5)." } 
-               , $2 . Scan . Position
-               ) ;
-           END (*IF*) ;
-           FM3Pass1 . PutBwd_LCI_ri
-             ( Itk . ItkSkipLt , $2 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
-           INC ( FM3Globals . NextSkipNo ) ;
-         ELSE (* In an interface => treat as bodyless, regardless of source. *) 
-         END (*IF*) ;
-         FM3Pass1 . PutBwd_LCI_ri
-           ( $2 . PaTok1 , $1 . PaPass1Coord , $1 . Scan . SaAtom ) ; 
+         FM3Pass1 . PutBwd_LCIP
+           ( $2 . PaTok1 , $1 . PaPass1Coord , $1 . Scan . SaAtom , $1 . Scan . Position ) ;
      } . 
 
 (* ---------------------------- Expressions ---------------------------- *)

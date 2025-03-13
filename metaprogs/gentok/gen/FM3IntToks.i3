@@ -240,7 +240,6 @@ FIXME: Not so. must be < 64.  This clashes with src tokens that
 ; CONST ItkProcDeclLtPatch              (*ArgCt: 3*) =   288 (*16_a0 02 *)
 ; CONST ItkProcDeclRt                   (*ArgCt: 3*) =   289 (*16_a1 02 *)
 
-(* Position of equal sign. *)
 (* FIXED ItkProcDef: *)
 ; CONST ItkProcDefLt                    (*ArgCt: 3*) =   290 (*16_a2 02 *)
 ; CONST ItkProcDefLtTemp                (*ArgCt: 3*) =   291 (*16_a3 02 *)

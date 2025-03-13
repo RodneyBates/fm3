@@ -96,8 +96,8 @@ ItkFormalExpr POS 2 (* Position of ":=" *).
 ItkResultType POS 2 (* Position of colon. *).
 ItkRaisesSet INT POS 3 (* list count. Position of RAISES. *) . 
 ItkProcDecl IDENT POS 3 .
-ItkProcDef IDENT POS 3 (* Position of equal sign. *) 
-   Body POS 2 (* Position of equal sign. *) .
+ItkProcDef IDENT POS 3 
+  Body POS 2 (* Position of equal sign. *) .
 ItkProcType POS 2 (* Position of "PROCEDURE". *) . 
 ItkOverride POS (* Position of equal sign. *)
   Equals POS .

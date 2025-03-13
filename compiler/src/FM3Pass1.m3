@@ -1152,6 +1152,25 @@ END ;
     END PutBwd_LCPI_rpi
 
 (*EXPORTED:*)
+; PROCEDURE PutBwd_LCIP
+    ( T : Itk . TokTyp 
+    ; C : LONGINT 
+    ; I : INTEGER 
+    ; READONLY Position : tPosition 
+    )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , C ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END PutBwd_LCIP
+
+(*EXPORTED:*)
 ; PROCEDURE PutBwd_LCIP_rip
     ( T : Itk . TokTyp 
     ; C : LONGINT 
