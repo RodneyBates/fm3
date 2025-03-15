@@ -16,7 +16,8 @@ INTERFACE FM3Pass1
 ; IMPORT FM3Globals 
 ; IMPORT FM3Units 
 ; IMPORT FM3Scanner
-; IMPORT FM3Scopes 
+; IMPORT FM3Scopes
+; IMPORT FM3SrcToks
 ; IMPORT FM3IntToks AS Itk  
 
   (* Lalr mandates this type, by name, and its 'Scan' field, Q.V. *)
@@ -228,6 +229,14 @@ INTERFACE FM3Pass1
     ; READONLY Position : tPosition 
     )
 
+; PROCEDURE PutBwd_LCIP_eCp_rip
+    ( T : Itk . TokTyp 
+    ; CLt : LONGINT 
+    ; I : INTEGER 
+    ; READONLY Position : tPosition
+    ; COne : LONGINT
+    )
+
 ; PROCEDURE PutBwd_LCIP_eCP_rip
     ( T : Itk . TokTyp 
     ; CLt : LONGINT 
@@ -236,7 +245,7 @@ INTERFACE FM3Pass1
     ; COne : LONGINT
     ; READONLY PositionOne : tPosition 
     )
-
+    
 ; PROCEDURE PutBwd_LCIIP_riip
     ( T : Itk . TokTyp 
     ; C : LONGINT 
@@ -464,13 +473,11 @@ INTERFACE FM3Pass1
     )
 
 ; PROCEDURE CheckReservedActualsCt
-    ( READONLY IdAttr : tParsAttribute
-    ; ActualActualsCt : INTEGER
-    ; Position : tPosition
+    ( READONLY ActualsAttr : tParsAttribute
+    ; READONLY TokAttr : tParsAttribute
     )
   : BOOLEAN (* Nothing illegal.  Nothing done.
                Otherwise message emitted and token stream modified. *)
-  (* PRE: Id is reserved. *) 
 
 ; PROCEDURE BuiltinOtherSelector
     ( READONLY IdAttribute , SelectorAttribute : tParsAttribute ; Tag : TEXT )

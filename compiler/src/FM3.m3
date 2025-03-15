@@ -10,6 +10,7 @@
 
 MODULE FM3 EXPORTS Main
 
+; IMPORT RT0 
 ; IMPORT RTProcess 
 ; IMPORT Stdio
 ; IMPORT Thread 
@@ -85,8 +86,20 @@ MODULE FM3 EXPORTS Main
     ; LTerminate := 19 
     END Work 
 
+ ; PROCEDURE Failure
+     ( <* UNUSED *> READONLY Act : RT0 . RaiseActivation
+     ; <* UNUSED *> StoppedReason : TEXT 
+     ; <* UNUSED *> AllowedActions : FM3RTFailures . FailureActionSetTyp
+     )
+   : FM3RTFailures . FailureActionTyp
+
+   = BEGIN
+       RETURN FM3RTFailures . FailureActionTyp . FaCrash 
+     END Failure
+     
 ; BEGIN 
-    TRY 
+    FM3RTFailures . RegisterQueryProc ( Failure ) 
+  ; TRY 
       Work ( )
     EXCEPT FM3RTFailures . Terminate => 
     END (*EXCEPT*) 

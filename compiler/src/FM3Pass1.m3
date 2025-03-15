@@ -1193,6 +1193,36 @@ END ;
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
       END (*WITH*) 
     END PutBwd_LCIP_rip
+;
+(*EXPORTED:*)
+ PROCEDURE PutBwd_LCIP_eCp_rip
+    ( T : Itk . TokTyp 
+    ; CLt : LONGINT 
+    ; I : INTEGER 
+    ; READONLY Position : tPosition
+    ; COne : LONGINT
+    )
+    
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) )
+      
+      ; PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , COne ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToOnePatch , LONGINT ) ) 
+
+      ; PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , CLt ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END PutBwd_LCIP_eCp_rip
 
 (*EXPORTED:*)
 ; PROCEDURE PutBwd_LCIP_eCP_rip
@@ -2423,63 +2453,58 @@ END ;
 
 (*EXPORTED.*)
 ; PROCEDURE CheckReservedActualsCt
-    ( READONLY IdAttr : tParsAttribute
-    ; ActualActualsCt : INTEGER
-    ; Position : tPosition
+    ( READONLY ActualsAttr : tParsAttribute
+    ; READONLY TokAttr : tParsAttribute
     )
   : BOOLEAN (* Nothing illegal.  Nothing done.
                Otherwise message emitted and token stream modified. *)
-  (* PRE: Id is reserved. *) 
 
   = VAR LReqdActualsCt : INTEGER
+  ; VAR LBuiltinTok : FM3SrcToks . TokTyp 
 
   ; BEGIN
-      IF NOT IntSets . IsElement
-               ( IdAttr . Scan . SaBuiltinTok , FM3Std . ReservedIdSet )
+      LBuiltinTok := TokAttr . Scan . SaBuiltinTok
+    ; IF NOT IntSets . IsElement
+               ( LBuiltinTok , FM3Std . ReservedIdSet )
       THEN RETURN TRUE 
       END (*IF*) 
-    ; LReqdActualsCt := BuiltinActualCt ( IdAttr . Scan . SaBuiltinTok )
+    ; LReqdActualsCt := BuiltinActualCt ( LBuiltinTok )
     ; IF LReqdActualsCt < 0 
       THEN 
         FM3Messages . ErrorArr
           ( ARRAY OF REFANY
               { "Reserved identifier \""
-              , FM3SrcToks . Image ( IdAttr . Scan . SaBuiltinTok )
+              , FM3SrcToks . Image ( LBuiltinTok )
               , "\" is not a function and cannot be called "
-           (* , SectionOfBuiltin ( IdAttr . Scan . SaBuiltinTok ) *)  
+           (* , SectionOfBuiltin ( LBuiltinTok ) *)  
               }
-          , Position 
+          , ActualsAttr . Scan . Position 
           )
         (* And fall thru' to below. *) 
-      ELSIF ( LReqdActualsCt >= 5 AND ActualActualsCt >= 1 )
-            OR ( ActualActualsCt = LReqdActualsCt ) 
+      ELSIF ( LReqdActualsCt >= 5 AND ActualsAttr . PaInt >= 1 )
+            OR ( ActualsAttr . PaInt = LReqdActualsCt ) 
       THEN (* Actuals count of reserved id function is OK *) 
-          PutBwd_TIP
-            ( Itk . ItkBuiltinIdRef
-            , IdAttr . Scan . SaBuiltinTok
-            , IdAttr . Scan . Position
-            )
-        ; RETURN TRUE
+        RETURN TRUE
       ELSE 
       (* The actuals count is wrong. *) 
         FM3Messages . ErrorArr
           ( ARRAY OF REFANY
               { "Reserved identifier \""
-              , FM3SrcToks . Image ( IdAttr . Scan . SaBuiltinTok )
+              , FM3SrcToks . Image ( LBuiltinTok )
               , "\" requires "
               , ActualsCtImage ( LReqdActualsCt )  
               , " actual parameter"
               , PluralSuffix ( LReqdActualsCt )  
-           (* , SectionOfBuiltin ( IdAttr . Scan . SaBuiltinTok ) *)  
+           (* , SectionOfBuiltin ( LBuiltinTok ) *)  
               }
-          , Position 
+          , ActualsAttr . Scan . Position 
           )
       END (*IF*) 
-    ; SkipFrom ( IdAttr . PaPass1Coord ) (* Skip the reserved id. *)
+    ; SkipFrom ( TokAttr . PaPass1Coord ) (* Skip the reserved id. *)
     ; PutBwd_TIP
         ( Itk . ItkIdRefAtomNotUsable
         , FM3Base . AtomNull
-        , IdAttr . Scan . Position
+        , ActualsAttr . Scan . Position
         ) 
     ; RETURN FALSE 
     END CheckReservedActualsCt 
