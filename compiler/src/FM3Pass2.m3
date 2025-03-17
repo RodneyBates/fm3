@@ -891,7 +891,7 @@ MODULE FM3Pass2
         ; <*ASSERT LCountLt = LCountRt *>
           PutBwdP2 ( HtPass2RdBack , LCountLt )
         END (*IF*) 
-      END HtReverseVariableValues 
+      END HtReverseVariableValues
 
   ; BEGIN (*HandleTok*) 
       LUnitRef := FM3Units . UnitStackTopRef
@@ -908,19 +908,22 @@ MODULE FM3Pass2
     ; CASE TokResult . TrTok OF
 
       | Itk . ItkScopeEmpty 
-      =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack )
-(* TODO: Anything here? *) 
+      =>  HtPassTokenThru ( ) 
 
       | Itk . ItkDeclScopeRt 
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack )
         ; FM3Scopes . PushDeclScopeRef
             ( FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) )
+        ; PutBwdP2 ( HtPass2RdBack , VAL ( LScopeNo , LONGINT ) ) 
+        ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
 
       | Itk . ItkDeclScopeLt 
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack )
         ; <* ASSERT FM3Scopes . PopDeclScopeRef ( ) ^ . ScpSelfScopeNo
              = LScopeNo
           *>
+          PutBwdP2 ( HtPass2RdBack , VAL ( LScopeNo , LONGINT ) ) 
+        ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
 
       | Itk . ItkOpenScopeRt 
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
@@ -928,11 +931,13 @@ MODULE FM3Pass2
         ; LScopeRef ^ . ScpDeclGraph
             := FM3Graph . NewEmpty ( MaxNodeCt := LScopeRef ^ . ScpDeclCt ) 
         ; FM3Scopes . PushOpenScopeRef ( LScopeRef ) 
+        ; PutBwdP2 ( HtPass2RdBack , VAL ( LScopeNo , LONGINT ) ) 
+        ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
 
       | Itk . ItkOpenScopeLt 
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack )
         ; OpenScopeLt ( LScopeNo ) 
-
+        
       | Itk . ItkOpenDeclListRt
       =>  FM3Scopes . OpenScopeStackTopRef ^ . ScpInsideDecl := TRUE 
         ; HtPassTokenThru ( ) 
@@ -982,28 +987,28 @@ MODULE FM3Pass2
           (* ^Type is coming up next. *) 
         ; HtPassTokenThru ( )
 
-       | Itk . ItkDeclTypeAbsent
-       , Itk . ItkDeclValAbsent
-       =>  FM3Exprs . PushExprStack
-             ( NEW ( FM3Exprs . ExprTyp , ExpIsPresent := FALSE ) )
-         ; HtPassTokenThru ( )
+      | Itk . ItkDeclTypeAbsent
+      , Itk . ItkDeclValAbsent
+      =>  FM3Exprs . PushExprStack
+            ( NEW ( FM3Exprs . ExprTyp , ExpIsPresent := FALSE ) )
+        ; HtPassTokenThru ( )
 
-       | Itk . ItkConstDeclType
-       =>  DeclType ( "CONST" )
-         ; HtPassTokenThru ( )
+      | Itk . ItkConstDeclType
+      =>  DeclType ( "CONST" )
+        ; HtPassTokenThru ( )
 
-       | Itk . ItkFieldDeclType (* Of either record or object. *)
-       =>  DeclType ( "field" )
-         ; HtPassTokenThru ( )
+      | Itk . ItkFieldDeclType (* Of either record or object. *)
+      =>  DeclType ( "field" )
+        ; HtPassTokenThru ( )
 
-       | Itk . ItkVarDeclType 
-       =>  DeclType ( "variable" )  
-         ; HtPassTokenThru ( )
+      | Itk . ItkVarDeclType 
+      =>  DeclType ( "variable" )  
+        ; HtPassTokenThru ( )
 
       | Itk . ItkVALUEFormalType
       , Itk . ItkROFormalType
       , Itk . ItkVARFormalType
-       =>  DeclType ( "formal" ) 
+      =>  DeclType ( "formal" ) 
         ; HtPassTokenThru ( )
 
       | Itk . ItkConstDeclLt 
@@ -1052,7 +1057,7 @@ MODULE FM3Pass2
     ItkVALUEFormalIdListElem.  But is that necessary? *)
 
       | Itk . ItkReservedIdRef
-      =>  IF InsideDecl ()
+      =>  IF InsideDecl ( )
           THEN
             LNewExpr
               := NEW ( FM3Exprs . ExprReservedIdRefTyp ) 

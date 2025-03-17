@@ -99,7 +99,7 @@ MODULE FM3Pass1
 
   = BEGIN
       <* ASSERT RdBack # FM3Globals . P2RdBack *>
-IF ValueL < 0L
+IF ValueL = 492L
 THEN EVAL Coord ( )
 END ; 
       IF TRUE 

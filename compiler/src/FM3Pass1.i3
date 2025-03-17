@@ -30,7 +30,7 @@ INTERFACE FM3Pass1
       ; PaLong : LONGINT
       ; PaAtom : FM3Base . AtomTyp 
       ; PaConstructNo : INTEGER
-      ; PaListItemNo : INTEGER
+      ; PaDeclDepth : INTEGER
       ; PaInt : INTEGER
       ; PaPos : FM3Base . tPosition 
       ; PaPos2 : FM3Base . tPosition 
@@ -48,7 +48,7 @@ INTERFACE FM3Pass1
         , PaLong := FIRST ( LONGINT )
         , PaAtom := FM3Base . AtomNull 
         , PaConstructNo := FIRST ( INTEGER ) 
-        , PaListItemNo := FIRST ( INTEGER )
+        , PaDeclDepth := FIRST ( INTEGER )
         , PaInt := FIRST ( INTEGER )
         , PaPos := FM3Base . PositionNull 
         , PaPos2 := FM3Base . PositionNull 
