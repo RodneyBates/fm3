@@ -1080,6 +1080,7 @@ MODULE FM3Pass2
         ; LNewExpr . ExpPosition := GetBwdPos ( TokResult . TrRdBack )
         ; LNewExpr . ExpIsLegalRecursive := TRUE
         ; LNewExpr . ExpUpKind := Ekt . EkNull
+        ; LNewExpr . ExpIsUsable := FALSE 
         ; DefExprRt ( LNewExpr )
 
       | Itk . ItkQualIdAtoms 

@@ -403,7 +403,8 @@ FIXED
 FIXED
   ItkExprDot IDENT POS . 
   ItkDeref POS . 
-  ItkSubscript INT POS (* Number of subscripts. *) .
+  ItkSubscript INT POS (* Number of subscripts. *) 
+     Subs INT POS . 
   ItkCall INT POS (* Number of actual parameters *) 
      Actuals POS . 
   ItkConstructor INT POS (* Number of values *) .

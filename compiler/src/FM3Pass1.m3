@@ -2157,7 +2157,7 @@ END ;
           THEN
             FM3Messages . ErrorArr
               ( ARRAY OF REFANY
-                  { "\""
+                  { "Reserved identifier \""
                   , FM3SrcToks . Image ( WScan . SaBuiltinTok )
                   , "\" is a function and must have a parameter list." 
                   }

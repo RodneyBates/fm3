@@ -4313,7 +4313,7 @@ yyNonterminal := 249;
                          FM3Pass1 . PutBwd_LCI_ri
                            ( Itk . ItkSkipLt , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord , FM3Globals . NextSkipNo ) ;
                          INC ( FM3Globals . NextSkipNo ) ;
-                         FM3Pass1 . PutNotUsable ( yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) 
+                         FM3Pass1 . PutNotUsable ( yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ;
                        END (*IF*) ; 
                      
               | 655,366 => (* P231 E7 (265): IdentRef Subscripts .*)
@@ -4332,7 +4332,7 @@ yyNonterminal := 249;
                          FM3Pass1 . PutBwd_LCI_ri
                            ( Itk . ItkSkipLt , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord , FM3Globals . NextSkipNo ) ;
                          INC ( FM3Globals . NextSkipNo ) ;
-                         FM3Pass1 . PutNotUsable ( yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) 
+                         FM3Pass1 . PutNotUsable ( yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ; 
                        END (*IF*) ; 
                      
               | 656,367 => (* P232 E7 (265): IdentRef Actuals .*)
