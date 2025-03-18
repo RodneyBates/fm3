@@ -462,18 +462,18 @@ MODULE FM3Exprs
       ; NestedField ( "ExpQuadOpOpnd4" , Expr . ExpQuadOpOpnd4 ) 
       END ExprQuadOpAppend
 
-; REVEAL ExprCallTyp
-    = ExprCallPublic BRANDED OBJECT OVERRIDES appendDump := ExprCallAppend END
+; REVEAL ExprArgsObj
+    = ExprArgsPublic BRANDED OBJECT OVERRIDES appendDump := ExprArgsAppend END
 
-; PROCEDURE ExprCallAppend ( Expr : ExprCallTyp )
+; PROCEDURE ExprArgsAppend ( Expr : ExprArgsObj )
     = BEGIN 
         ExprAppend ( Expr ) 
-      ; SubtypeComment ( "ExprCallTyp" )
-      ; NestedField ( "ExpCallProc" , Expr . ExpCallProc ) 
-      ; Field ( "ExpActualsList" , "" )
-      ; AppendExprList ( Expr . ExpActualsList ) 
-      ; Field ( "ExpActualNo" , Fmt . Int ( Expr . ExpActualNo ) )  
-      END ExprCallAppend
+      ; SubtypeComment ( "ExprArgsObj" )
+      ; NestedField ( "ExpArgPrefix" , Expr . ExpArgPrefix ) 
+      ; Field ( "ExpArgsList" , "" )
+      ; AppendExprList ( Expr . ExpArgsList ) 
+      ; Field ( "ExpArgNo" , Fmt . Int ( Expr . ExpArgNo ) )  
+      END ExprArgsAppend
 
 ; REVEAL ExprReservedIdRefTyp
     = ExprReservedIdRefPublic BRANDED OBJECT

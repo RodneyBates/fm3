@@ -203,12 +203,15 @@ INTERFACE FM3Exprs
         *) 
       END
 
-; TYPE ExprCallTyp <: ExprCallPublic 
-; TYPE ExprCallPublic
+(* ExprArgsObj is used both for a call (with actuals) and a subscripted array.
+   "Arg" is used in the names to refer to either.
+*)
+; TYPE ExprArgsObj <: ExprArgsPublic 
+; TYPE ExprArgsPublic
     = ExprTyp OBJECT
-        ExpCallProc : ExprTyp 
-      ; ExpActualsList : ExprListRefTyp 
-      ; ExpActualNo : INTEGER (* # of actuals still to be linked in. *) 
+        ExpArgPrefix : ExprTyp 
+      ; ExpArgsList : ExprListRefTyp 
+      ; ExpArgNo : INTEGER (* # of actuals still to be linked in. *) 
       END
 
 ; TYPE ExprReservedIdRefTyp <: ExprReservedIdRefPublic 

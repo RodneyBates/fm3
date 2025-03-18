@@ -1535,9 +1535,9 @@ LIST ItkIdPlusList
 ; CONST ItkSubscriptLtPatch             (*ArgCt: 3*) =  1082 (*16_ba 08 *)
 ; CONST ItkSubscriptRt                  (*ArgCt: 3*) =  1083 (*16_bb 08 *)
 
-; CONST ItkSubscriptSubs                (*ArgCt: 2*) =  1084 (*16_bc 08 *)
-; CONST ItkSubscriptSubsTemp            (*ArgCt: 2*) =  1085 (*16_bd 08 *)
-; CONST ItkSubscriptSubsPatch           (*ArgCt: 2*) =  1086 (*16_be 08 *)
+; CONST ItkSubscriptSubs                (*ArgCt: 3*) =  1084 (*16_bc 08 *)
+; CONST ItkSubscriptSubsTemp            (*ArgCt: 3*) =  1085 (*16_bd 08 *)
+; CONST ItkSubscriptSubsPatch           (*ArgCt: 3*) =  1086 (*16_be 08 *)
 
 (* Number of actual parameters *)
 (* FIXED ItkCall: *)
@@ -1546,9 +1546,9 @@ LIST ItkIdPlusList
 ; CONST ItkCallLtPatch                  (*ArgCt: 3*) =  1089 (*16_c1 08 *)
 ; CONST ItkCallRt                       (*ArgCt: 3*) =  1090 (*16_c2 08 *)
 
-; CONST ItkCallActuals                  (*ArgCt: 2*) =  1091 (*16_c3 08 *)
-; CONST ItkCallActualsTemp              (*ArgCt: 2*) =  1092 (*16_c4 08 *)
-; CONST ItkCallActualsPatch             (*ArgCt: 2*) =  1093 (*16_c5 08 *)
+; CONST ItkCallActuals                  (*ArgCt: 3*) =  1091 (*16_c3 08 *)
+; CONST ItkCallActualsTemp              (*ArgCt: 3*) =  1092 (*16_c4 08 *)
+; CONST ItkCallActualsPatch             (*ArgCt: 3*) =  1093 (*16_c5 08 *)
 
 (* Number of values *)
 (* FIXED ItkConstructor: *)

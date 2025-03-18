@@ -2131,13 +2131,15 @@ RULE
      } .
      
    E7 : E8WOId Actuals
-     { FM3Pass1 . PutBwd_LCIP_rip
+     { FM3Pass1 . PutBwd_LCIP_eCip_rip
          ( Itk . ItkCallLt 
          , $1 . PaPass1Coord 
          , $2 . PaInt 
          , $2 . Scan . Position
-         ) ;
-      } . 
+
+         , $2 . PaPass1Coord
+         ) ; 
+     } . 
      
    E7 : E8WOId StkDot NonreservedIdent 
      { FM3Pass1 . PutBwd_LCIP_rip
@@ -2168,7 +2170,7 @@ RULE
      { IF FM3Pass1 . CheckIdentNotReserved
             ( $1 , $2 . Scan . Position , "be subscripted" ) 
        THEN (* OK *)
-         FM3Pass1 . PutBwd_LCIP_eCip rip
+         FM3Pass1 . PutBwd_LCIP_eCip_rip
            ( Itk . ItkSubscriptLt 
            , $1 . PaPass1Coord 
            , $2 . PaInt 
@@ -2187,7 +2189,7 @@ RULE
    E7 : IdentRef Actuals 
      { IF FM3Pass1 . CheckReservedActualsCt ( ActualsAttr := $2 , TokAttr := $1 )
        THEN (* Actuals non problematic.  Handle it here *)
-         FM3Pass1 . PutBwd_LCIP_eCp_rip
+         FM3Pass1 . PutBwd_LCIP_eCip_rip
            ( Itk . ItkCallLt 
            , $1 . PaPass1Coord 
            , $2 . PaInt 

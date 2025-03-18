@@ -706,8 +706,8 @@ MODULE FM3Pass2
   ; VAR LScopeRef : FM3Scopes . ScopeRefTyp
   ; VAR HtPass1RdBack : RdBackFile . T 
   ; VAR HtPass2RdBack : RdBackFile . T
-  ; VAR LNewExpr , LValueExpr , LProcExpr , LListElem : FM3Exprs . ExprTyp
-  ; VAR LCallExpr : FM3Exprs . ExprCallTyp
+  ; VAR LNewExpr , LValueExpr , LPrefixExpr , LListElem : FM3Exprs . ExprTyp
+  ; VAR LArgsExpr : FM3Exprs . ExprArgsObj
   ; VAR LLongInt : LONGINT 
   ; VAR LScopeNo : FM3Globals . ScopeNoTyp
   ; VAR LOpcode : FM3SrcToks . TokTyp
@@ -1277,59 +1277,67 @@ MODULE FM3Pass2
         ; IF NOT HtSkipping THEN BinaryOp ( LOpcode ) END (*IF*)
 
       | Itk . ItkCallRt
-      =>  LCt := GetBwdInt ( TokResult . TrRdBack ) (* Actuals count. *) 
+      , Itk . ItkSubscriptRt 
+      =>  LCt := GetBwdInt ( TokResult . TrRdBack ) (* Args count. *) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
-        ; LCallExpr := NEW ( FM3Exprs . ExprCallTyp )
-        ; LCallExpr . ExpActualsList
+        ; LArgsExpr := NEW ( FM3Exprs . ExprArgsObj )
+        ; LArgsExpr . ExpArgsList
             := NEW ( REF ARRAY OF FM3Exprs . ExprTyp , LCt )
-        ; LCallExpr . ExpActualNo := LCt
-        ; LCallExpr . ExpPosition := LPosition
-        ; FM3Exprs . PushExprStack ( LCallExpr )
+        ; LArgsExpr . ExpArgNo := LCt
+        ; LArgsExpr . ExpPosition := LPosition
+        ; FM3Exprs . PushExprStack ( LArgsExpr )
 
       | Itk . ItkActualsListRt
-       => LCt := GetBwdInt ( TokResult . TrRdBack ) (* Actuals count. *) 
+      , Itk . ItkSubscriptsPlusListRt 
+       => LCt := GetBwdInt ( TokResult . TrRdBack ) (* Args count. *) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; IF LCt > 0
           THEN 
-            LCallExpr 
-              := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprCallTyp )
-          ; <* ASSERT LCt = LCallExpr . ExpActualNo *>
+            LArgsExpr 
+              := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprArgsObj )
+          ; <* ASSERT LCt = LArgsExpr . ExpArgNo *>
           END (*IF*) 
 
       | Itk . ItkActualsListSep
-       => LCt := GetBwdInt ( TokResult . TrRdBack ) (* Actuals count. *) 
+      , Itk . ItkSubscriptsPlusListSep 
+       => LCt := GetBwdInt ( TokResult . TrRdBack ) (* Args count. *) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; LListElem := FM3Exprs . PopExprStack ( )
-        ; LCallExpr 
-            := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprCallTyp )
-        ; DEC ( LCallExpr . ExpActualNo )  
-        ; LCallExpr . ExpActualsList ^ [ LCallExpr . ExpActualNo ] := LListElem
+        ; LArgsExpr 
+            := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprArgsObj )
+        ; DEC ( LArgsExpr . ExpArgNo )  
+        ; LArgsExpr . ExpArgsList ^ [ LArgsExpr . ExpArgNo ] := LListElem
 
       | Itk . ItkActualsListLt
-       => LCt := GetBwdInt ( TokResult . TrRdBack ) (* Actuals count. *) 
+      , Itk . ItkSubscriptsPlusListLt 
+       => LCt := GetBwdInt ( TokResult . TrRdBack ) (* Args count. *) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; IF LCt > 0
           THEN 
             LListElem := FM3Exprs . PopExprStack ( ) (* LM actual. *) 
-          ; LCallExpr 
-              := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprCallTyp )
-          ; <* ASSERT LCallExpr . ExpActualNo = 1 *> 
-            DEC ( LCallExpr . ExpActualNo )
-          ; LCallExpr . ExpActualsList ^ [ LCallExpr . ExpActualNo ] := LListElem
+          ; LArgsExpr 
+              := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprArgsObj )
+          ; <* ASSERT LArgsExpr . ExpArgNo = 1 *> 
+            DEC ( LArgsExpr . ExpArgNo )
+          ; LArgsExpr . ExpArgsList ^ [ LArgsExpr . ExpArgNo ] := LListElem
           END (*IF*) 
 
       | Itk . ItkCallLt
+      , Itk . ItkSubscriptLt 
       =>  LCt := GetBwdInt ( TokResult . TrRdBack )
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
-        ; LProcExpr := FM3Exprs . PopExprStack ( )
-        ; LCallExpr
-            := NARROW ( FM3Exprs . PopExprStack ( ) , FM3Exprs . ExprCallTyp )
-        ; <* ASSERT LPosition = LCallExpr . ExpPosition *>
-          <* ASSERT LCallExpr . ExpActualNo = 0 *>
-          LCallExpr . ExpCallProc := LProcExpr 
-        ; FM3Exprs . PushExprStack ( MaybeConvertCallToOperator ( LCallExpr ) )
+        ; LPrefixExpr := FM3Exprs . PopExprStack ( ) (* Procedure or array *) 
+        ; LArgsExpr
+            := NARROW ( FM3Exprs . PopExprStack ( ) , FM3Exprs . ExprArgsObj )
+        ; <* ASSERT LPosition = LArgsExpr . ExpPosition *>
+          <* ASSERT LArgsExpr . ExpArgNo = 0 *>
+          LArgsExpr . ExpArgPrefix := LPrefixExpr
+        ; IF TokResult . TrTok = Itk . ItkCallLt
+          THEN LArgsExpr := MaybeConvertCallToOperator ( LArgsExpr )
+          END (*IF*) 
+        ; FM3Exprs . PushExprStack ( LArgsExpr )
         ; PutBwdP2
-            ( HtPass2RdBack , VAL ( LCallExpr . ExpSelfExprNo , LONGINT ) ) 
+            ( HtPass2RdBack , VAL ( LArgsExpr . ExpSelfExprNo , LONGINT ) ) 
         ; PutBwdP2 ( HtPass2RdBack , VAL ( Itk . ItkExprTyp , LONGINT ) )
 
       ELSE (* No special pass2 handling. *)
@@ -2025,7 +2033,7 @@ MODULE FM3Pass2
      conversion of OrigExpr.
   *) 
 
-  = VAR LCallExpr : FM3Exprs . ExprCallTyp 
+  = VAR LCallExpr : FM3Exprs . ExprArgsObj 
   ; VAR LOpnd1 , LOpnd2 : FM3Exprs . ExprTyp 
   ; VAR LNewExpr : FM3Exprs . ExprBinOpTyp
   ; VAR LPluralSuffix : TEXT
@@ -2036,15 +2044,15 @@ MODULE FM3Pass2
       IF NOT OrigExpr . ExpIsUsable THEN RETURN OrigExpr END (*IF*)
     ; TYPECASE OrigExpr OF
       | NULL => RETURN NIL
-      | FM3Exprs . ExprCallTyp ( TCallExpr )
+      | FM3Exprs . ExprArgsObj ( TCallExpr )
       =>  LCallExpr := TCallExpr 
       ELSE RETURN OrigExpr
       END (*TYPECASE*) 
-    ; IF LCallExpr . ExpActualsList = NIL THEN RETURN OrigExpr END (*IF*)
-    ; LActualsCt := NUMBER ( LCallExpr . ExpActualsList ^ )
-    ; TYPECASE LCallExpr . ExpCallProc OF
+    ; IF LCallExpr . ExpArgsList = NIL THEN RETURN OrigExpr END (*IF*)
+    ; LActualsCt := NUMBER ( LCallExpr . ExpArgsList ^ )
+    ; TYPECASE LCallExpr . ExpArgPrefix OF
     
-      | NULL => <* ASSERT FALSE , "NIL ExpCallProc of ExprCallTyp." *> 
+      | NULL => <* ASSERT FALSE , "NIL ExpArgPrefix of ExprArgsObj." *> 
 
       | FM3Exprs . ExprReservedIdRefTyp ( TReservedIdRef )  
        => LUnitTok := FM3Base . TokNull 
@@ -2079,7 +2087,7 @@ MODULE FM3Pass2
         FM3Messages . ErrorArr 
           ( ARRAY OF REFANY 
               { FM3SrcToks . Image ( LDeclTok ) , " is not callable." }
-          , LCallExpr . ExpCallProc . ExpPosition 
+          , LCallExpr . ExpArgPrefix . ExpPosition 
           ) 
       ; OrigExpr . ExpIsUsable := FALSE 
       ; RETURN OrigExpr 
@@ -2087,7 +2095,7 @@ MODULE FM3Pass2
 
     ; LNewExpr
         := FM3Builtins . BuiltinExpr
-             ( LDeclTok , LCallExpr . ExpCallProc . ExpPosition ) 
+             ( LDeclTok , LCallExpr . ExpArgPrefix . ExpPosition ) 
     ; IF LNewExpr . ExpBinOpActualsCt = FM3Builtins . ActualsCtAtLeastOne  
          (* NEW is the only case here. *)
       THEN IF  LActualsCt < 1
@@ -2120,14 +2128,14 @@ MODULE FM3Pass2
       END (*IF*)
 
     ; LNewExpr . ExpPosition := LCallExpr . ExpPosition 
-    ; LOpnd1 := LCallExpr . ExpActualsList ^ [ 0 ]
+    ; LOpnd1 := LCallExpr . ExpArgsList ^ [ 0 ]
     ; LNewExpr . ExpOpnd1 := LOpnd1
     ; LNewExpr . ExpIsUsable := LCallExpr . ExpIsUsable AND LOpnd1 . ExpIsUsable
     ; IF LActualsCt = 1
       THEN
         LNewExpr . ExpReachedDeclNoSet := LOpnd1 . ExpReachedDeclNoSet 
       ELSE
-        LOpnd2 := LCallExpr . ExpActualsList ^ [ 1 ]
+        LOpnd2 := LCallExpr . ExpArgsList ^ [ 1 ]
       ; LNewExpr . ExpOpnd2 := LOpnd2
       ; LNewExpr . ExpIsUsable := LNewExpr . ExpIsUsable AND LOpnd2 . ExpIsUsable
       ; LNewExpr . ExpReachedDeclNoSet

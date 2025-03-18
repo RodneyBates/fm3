@@ -406,7 +406,7 @@ FIXED
   ItkSubscript INT POS (* Number of subscripts. *) 
      Subs INT POS . 
   ItkCall INT POS (* Number of actual parameters *) 
-     Actuals POS . 
+     Actuals INT POS . 
   ItkConstructor INT POS (* Number of values *) .
   ItkBuiltinCall IDENT INT POS (* Builtin source token, actuals count. *) .
   (* Surrounds a list of actuals. *) 
