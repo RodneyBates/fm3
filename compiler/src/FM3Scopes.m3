@@ -1,19 +1,24 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+(* Copyright 2023..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
 MODULE FM3Scopes
 
+; IMPORT Fmt 
+; IMPORT TextWr
+; IMPORT Wr
+
 ; IMPORT IntRanges
 ; IMPORT IntSets
 ; IMPORT VarArray_Int_Refany 
 
 ; IMPORT FM3Base
-; IMPORT FM3Globals 
+; IMPORT FM3Globals
+; IMPORT FM3SharedUtils 
 ; IMPORT FM3Units
 ; IMPORT Ranges_Int
 
@@ -26,6 +31,24 @@ MODULE FM3Scopes
         VarArray_Int_Refany . New
           ( NIL , IntRanges . RangeTyp {  0 , ScopeCt - 1 } ) 
     END NewScopeMap
+
+(*EXPORTED.*)
+; PROCEDURE ScopeRefImage ( ScopeRef : ScopeRefTyp ) : TEXT 
+  (* DeclNo and REF. *) 
+
+  = VAR LWrT : Wr . T
+  ; VAR LResult : TEXT
+
+  ; BEGIN (*ScopeRefImage*)
+      IF ScopeRef = NIL THEN RETURN "NIL" END (*IF*)
+    ; LWrT := TextWr . New ( )
+    ; Wr . PutText ( LWrT , "ScopeNo " ) 
+    ; Wr . PutText ( LWrT , Fmt . Int ( ScopeRef ^ . ScpSelfScopeNo ) ) 
+    ; Wr . PutText ( LWrT , " at " ) 
+    ; Wr . PutText ( LWrT , FM3SharedUtils . RefanyImage ( ScopeRef ) ) 
+    ; LResult := TextWr . ToText ( LWrT )
+    ; RETURN LResult 
+    END ScopeRefImage
 
 (*EXPORTED*) 
 ; PROCEDURE NewScopeRef

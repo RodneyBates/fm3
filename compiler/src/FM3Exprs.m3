@@ -22,6 +22,7 @@ MODULE FM3Exprs
 ; IMPORT FM3Globals
 ; FROM FM3SharedUtils IMPORT RefanyImage 
 ; IMPORT FM3Scopes
+; IMPORT FM3SharedUtils 
 ; IMPORT FM3SrcToks
 ; IMPORT FM3Units 
 ; IMPORT FM3Utils
@@ -271,39 +272,20 @@ MODULE FM3Exprs
       RETURN Fmt . Int ( Elem ) 
     END IntSetsElemImage
 
-; PROCEDURE ScopeRefImage ( ScopeRef : FM3Scopes . ScopeRefTyp ) : TEXT 
-
-  = VAR LResult : TEXT
-  ; VAR LWrT : Wr . T 
-
-  ; BEGIN
-      IF ScopeRef = NIL
-      THEN
-        RETURN "Scope NIL" 
-      ELSE
-        LWrT := TextWr . New ( ) 
-      ; Wr . PutText ( LWrT , "Scope no " )
-      ; Wr . PutText ( LWrT , Fmt . Int ( ScopeRef^ . ScpSelfScopeNo ) )
-      ; Wr . PutChar ( LWrT , ':' )
-      ; Wr . PutText ( LWrT , RefanyImage ( ScopeRef ) ) 
-      ; LResult := TextWr . ToText ( LWrT )
-      ; RETURN LResult 
-      END (*IF*) 
-    END ScopeRefImage
-
 (*EXPORTED.*)
-; PROCEDURE ExprRefImage ( ExprRef : ExprTyp ) : TEXT 
+; PROCEDURE ExprRefImage ( ExprRef : REFANY ) : TEXT 
+  (* ExprNo and REF. *) 
 
   = BEGIN (*ExprRefImage*)
       TYPECASE ExprRef OF
       | NULL => RETURN "NIL"
-      | ExprTyp
+      | ExprTyp ( TExprRef )
       => RETURN
            "ExprNo "
-           & Fmt . Int ( ExprRef . ExpSelfExprNo )
+           & Fmt . Int ( TExprRef . ExpSelfExprNo )
            & " "
-           & RefanyImage ( ExprRef )
-      ELSE RETURN RefanyImage ( ExprRef )
+           & RefanyImage ( TExprRef )
+      ELSE RETURN "Not an ExprRef: " & RefanyImage ( ExprRef )
       END (*TYPECASE*) 
     END ExprRefImage
 
@@ -575,7 +557,9 @@ MODULE FM3Exprs
     = BEGIN 
         ExprAppend ( Expr ) 
       ; SubtypeComment ( "Expr1ScopeTyp" )
-      ; Field ( "ExpScopeRef1" , ScopeRefImage ( Expr . ExpScopeRef1 ) ) 
+      ; Field ( "ExpScopeRef1"
+              , FM3Scopes . ScopeRefImage ( Expr . ExpScopeRef1 )
+              ) 
       END Expr1ScopeAppend
 
 ; REVEAL ExprRecTypeTyp
@@ -606,7 +590,9 @@ MODULE FM3Exprs
     = BEGIN
         Expr1ScopeAppend ( Expr ) 
       ; SubtypeComment ( "ExprObjTypeTyp" )
-      ; Field ( "ExpObjMethods" , ScopeRefImage ( Expr . ExpObjMethods ) )  
+      ; Field ( "ExpObjMethods"
+              , FM3Scopes . ScopeRefImage ( Expr . ExpObjMethods )
+              )  
       END ExprObjTypeAppend 
 
 (* Constant values: *)

@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+(* Copyright 2023..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -9,7 +9,7 @@
 MODULE FM3Utils
 
 ; IMPORT AtomList
-; IMPORT Fmt AS FM3Fmt  
+; IMPORT Fmt AS FM3Fmt (* Why? *)  
 ; IMPORT Long AS BitArith
 ; IMPORT Text
 ; IMPORT TextWr
@@ -413,6 +413,25 @@ MODULE FM3Utils
     ; LResult := TextWr . ToText ( LWrT ) 
     ; RETURN LResult 
     END PositionImage
+
+(*EXPORTED.*)
+; PROCEDURE SrcTokImage ( SrcTok : FM3SrcToks . TokTyp ) : TEXT 
+
+  = VAR LWrT : Wr . T
+  ; LResult : TEXT
+
+  ; BEGIN (*SrcTokImage*)
+      LWrT := TextWr . New ( )
+    ; Wr . PutText ( LWrT , "SrcTok " ) 
+    ; Wr . PutText ( LWrT , FM3Fmt . Int ( SrcTok ) ) 
+    ; Wr . PutChar ( LWrT , ' ') 
+    ; Wr . PutText ( LWrT , FM3SrcToks . Name ( SrcTok ) ) 
+    ; Wr . PutChar ( LWrT , ' ') 
+    ; Wr . PutText ( LWrT , FM3SrcToks . Image ( SrcTok ) ) 
+    ; LResult := TextWr . ToText ( LWrT )
+    ; RETURN LResult 
+    END SrcTokImage
+      
 
 (*EXPORTED.*)
 ; PROCEDURE CharsOfAtom

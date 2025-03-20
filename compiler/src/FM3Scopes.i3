@@ -97,12 +97,12 @@ INTERFACE FM3Scopes
 (* CHECK ^ Is there any need for this? *) 
       ; ScpRefIdSet : IntSets . T
         (* ^IdentAtoms referenced within.  Gradually pruned to those
-           both referenced and declared within. *)
+           also declared within. *)
       ; ScpDeclDict : FM3Dict_Int_Int . FixedTyp
         (* ^IdentAtom to Decl no.
             Includes formals, if signature or proc body scope. *)
         (* INVARIANT: Once ScpDeclIdSet and ScpDeclDict are both complete,
-           Atom is in one IFF or the other.
+           Atom is in one IFF in the other.
         *)
       ; ScpDeclGraph : FM3Graph . GraphTyp 
         (* Arcs are intra-scope RefId to DeclId.  Only those that would
@@ -125,7 +125,7 @@ INTERFACE FM3Scopes
       ; ScpOwningDeclNo : FM3Globals . DeclNoTyp
       ; ScpDeclStackHt : INTEGER := 0
       ; ScpOpenStackHt : INTEGER := 0
-        (* ^Number scopes beneath, where "beneath" is a reflexively closed. *)
+        (* ^Number scopes beneath, where "beneath" is reflexively closed. *)
 (* CHECK ^Do we really need this? *) 
       ; ScpPosition : FM3Base . tPosition 
       ; ScpKind : ScopeKindTyp
@@ -138,7 +138,7 @@ INTERFACE FM3Scopes
                  later declarations.  It is NIL/Empty/FALSE when not working in
                  a declaration.
                  It would more naturally be in a Decl object, but in Pass 2, we
-                 don't have one when needed, and when we finally do, there can
+                 don't yet have one when needed, and when we finally do, there can
                  be >1.
       *) 
 
@@ -153,6 +153,9 @@ INTERFACE FM3Scopes
     )
   : ScopeRefTyp
   (* Allocate and connect a ScopeNo and ScopeRef, owned by OwningUnitRef. *) 
+
+; PROCEDURE ScopeRefImage ( ScopeRef : ScopeRefTyp ) : TEXT 
+  (* DeclNo and REF. *) 
 
 ; PROCEDURE ScopeRefOfScopeNo ( ScopeNo : FM3Globals . ScopeNoTyp )
   : ScopeRefTyp 

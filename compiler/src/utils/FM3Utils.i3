@@ -1,7 +1,7 @@
  
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+(* Copyright 2023..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -15,7 +15,8 @@ INTERFACE FM3Utils
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Base
 ; IMPORT FM3IntToks
-; IMPORT FM3OpenArray_Char 
+; IMPORT FM3OpenArray_Char
+; IMPORT FM3SrcToks
 
 ; IMPORT IntCharVarArray AS VarArr_Char 
 ; IMPORT IntWideCharVarArray AS VarArr_WChar
@@ -64,6 +65,8 @@ INTERFACE FM3Utils
 ; PROCEDURE TokenOpndCt ( Token : FM3Base . TokTyp ) : INTEGER
 
 ; PROCEDURE PositionImage ( Pos : FM3Base . tPosition ) : TEXT 
+
+; PROCEDURE SrcTokImage ( SrcTok : FM3SrcToks . TokTyp ) : TEXT 
 
 ; PROCEDURE CharsOfAtom
     ( AtomMap : FM3Atom_OAChars . T ; Atom : FM3Base . AtomTyp )

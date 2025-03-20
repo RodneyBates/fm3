@@ -1,4 +1,4 @@
-
+ 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2023..2025  Rodney M. Bates.                                    *)
@@ -64,7 +64,13 @@ INTERFACE FM3Decls
       ; DclStdTok : FM3SrcToks . TokTyp := FM3SrcToks . StkUnknown 
       ; DclKind : DeclKindTyp
       ; DclIsUsable : BOOLEAN := TRUE 
-      END (*DeclObjBaseTyp*)
+      END (*DeclTyp*)
+      
+; PROCEDURE DeclRefImage ( DeclRef : DeclRefTyp ) : TEXT
+  (* DeclNo and REF. *) 
+
+; PROCEDURE DeclTypImage ( DeclRef : DeclRefTyp ) : TEXT
+  (* Contents of the record. *)  
 
 ; TYPE DeclMapTyp = FM3Base . MapTyp  
     (* Map DeclNoTyp to DeclRefTyp. One of these per Unit. *)

@@ -79,11 +79,14 @@ INTERFACE FM3Exprs
 
 ; TYPE ExprListRefTyp = REF ARRAY OF ExprTyp
 
+; PROCEDURE ExprRefImage ( ExprRef : REFANY ) : TEXT 
+  (* ExprNo and REF. *) 
+
 ; PROCEDURE DumpExpr
     ( Expr : ExprTyp ; WrT : Wr . T ; VAR (*IN OUT*) ExprNosDumped : IntSets . T )
 ;
  PROCEDURE ExprImage ( Expr : ExprTyp ) : TEXT 
-
+ (* Contents of the object. *) 
 ; PROCEDURE ResolveNow
     ( Expr : ExprTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp
 
