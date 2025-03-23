@@ -1414,7 +1414,7 @@ MODULE FM3Pass2
   = VAR OslScopeRef : FM3Scopes . ScopeRefTyp
 
   ; PROCEDURE VisitSCC
-      ( READONLY SCC : ARRAY OF INTEGER
+      ( READONLY SCC : ARRAY OF INTEGER  
                              (* ^ DeclNo, biased relative to the scope. *) )
     (* A callback. *) 
 

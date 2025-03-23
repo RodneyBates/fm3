@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2024        Rodney M. Bates.                                    *)
+(* Copyright 2024..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -53,8 +53,10 @@ MODULE FM3Graph
     ; Graph ^ . GrNodeInfo := NIL 
     END MakeEmpty 
 
+(*EXPORTED:*)
 ; <*INLINE*>
-  PROCEDURE MakeArc ( Graph : GraphTyp ; Pred , Succ : INTEGER ) : ArcTyp
+  PROCEDURE MakeArc ( READONLY Graph : GraphTyp ; Pred , Succ : INTEGER )
+    : ArcTyp
     RAISES { BadNodeNo } 
 
   = VAR LArc : INTEGER
@@ -75,11 +77,13 @@ MODULE FM3Graph
     END MakeArc 
 
 (*EXPORTED:*)
-; <*INLINE*> PROCEDURE PredNode ( Graph : GraphTyp ; Arc : ArcTyp ) : INTEGER  
+; <*INLINE*>
+  PROCEDURE PredNodeNo ( Graph : GraphTyp ; Arc : ArcTyp )
+    : INTEGER  
 
   = BEGIN
       RETURN Arc DIV Graph ^ . GrNodeCt 
-    END PredNode 
+    END PredNodeNo 
 
 (*EXPORTED:*)
 ; <*INLINE*> PROCEDURE SuccNodeNo ( Graph : GraphTyp ; Arc : ArcTyp ) : INTEGER  
@@ -98,6 +102,15 @@ MODULE FM3Graph
         := IntSets . Include
              ( Graph ^ . GrArcSet , MakeArc ( Graph , Pred , Succ ) ) 
     END AddArc
+
+(*EXPORTED:*)
+; PROCEDURE ArcCt ( Graph : GraphTyp ) : INTEGER
+
+  = BEGIN
+      RETURN IntSets . Card ( Graph ^ . GrArcSet ) 
+    END ArcCt 
+
+
 
 ; TYPE StackTyp = RECORD
     StkTopSs : INTEGER:= - 1 
@@ -152,6 +165,14 @@ MODULE FM3Graph
       LProjectedSet := IntSets . Project ( ArcSet , Lo , Hi )
     ; IntSets . ForAllDo ( LProjectedSet , Visiter ) 
     END ForAllInRangeDo 
+
+(*EXPORTED:*)
+; PROCEDURE ForAllArcsDo ( Graph : GraphTyp ; VisitArc : ArcVisitorProc )
+  (* Call back VisitArc for each arc in Graph. *)
+
+  = BEGIN
+      IntSets . ForAllDo ( Graph ^ . GrArcSet , VisitArc )
+    END ForAllArcsDo 
 
 (*EXPORTED:*)
 ; PROCEDURE SCCs ( Graph : GraphTyp ; VisitSCC : SCCVisitorProc )

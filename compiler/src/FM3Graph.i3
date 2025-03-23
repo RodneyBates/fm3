@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2024        Rodney M. Bates.                                    *)
+(* Copyright 2024..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -9,7 +9,7 @@
 INTERFACE FM3Graph
 
 ; TYPE NodeNoTyp = CARDINAL 
-  (* Numbers of real nodes start at zero and must be < LAST(NodeNoTuyp *)
+  (* Numbers of real nodes start at zero and must be < LAST(NodeNoTyp *)
   (* Space used goes up as O(maxNodeNumber^2), albeit with a low constant
      factor, so if your node number space has unused low end, it might be
      nice to bias your numbers down to starting with zero.  This could also
@@ -22,7 +22,7 @@ INTERFACE FM3Graph
 
 ; TYPE GraphTyp <: REFANY 
 
-; PROCEDURE PredNode ( Graph : GraphTyp ; Arc : ArcTyp ) : INTEGER  
+; PROCEDURE PredNodeNo ( Graph : GraphTyp ; Arc : ArcTyp ) : INTEGER  
 
 ; PROCEDURE SuccNodeNo ( Graph : GraphTyp ; Arc : ArcTyp ; ) : INTEGER
 
@@ -30,13 +30,27 @@ INTERFACE FM3Graph
 
 ; PROCEDURE MakeEmpty ( VAR (*IN OUT*) Graph : GraphTyp )
 
-; PROCEDURE AddArc
-    ( VAR (*IN OUT *) Graph : GraphTyp ; Pred , Succ : INTEGER ) 
+; PROCEDURE MakeArc ( READONLY Graph : GraphTyp ; Pred , Succ : INTEGER )
+    : ArcTyp
     RAISES { BadNodeNo } 
 
-; TYPE SCCVisitorProc = PROCEDURE ( READONLY SCC : ARRAY OF INTEGER ) 
+; PROCEDURE AddArc
+    ( VAR (*IN OUT *) Graph : GraphTyp ; Pred , Succ : INTEGER ) 
+    RAISES { BadNodeNo }
+
+; PROCEDURE ArcCt ( Graph : GraphTyp ) : INTEGER 
+
+; TYPE ArcVisitorProc = PROCEDURE ( Arc : ArcTyp )
+
+; PROCEDURE ForAllArcsDo ( Graph : GraphTyp ; VisitArc : ArcVisitorProc )
+  (* Call back VisitArc for each arc in Graph. *) 
+
+; TYPE SCCVisitorProc
+         = PROCEDURE ( READONLY SCC : ARRAY OF INTEGER )
+  (* The node Nos of nodes in one SCC ^. *) 
 
 ; PROCEDURE SCCs ( Graph : GraphTyp ; VisitSCC : SCCVisitorProc )
+  (* Call back VisitSCC for each SCC subgraph. *) 
 
 ; END FM3Graph 
 . 

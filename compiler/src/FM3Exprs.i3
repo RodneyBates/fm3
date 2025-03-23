@@ -80,7 +80,7 @@ INTERFACE FM3Exprs
 ; TYPE ExprListRefTyp = REF ARRAY OF ExprTyp
 
 ; PROCEDURE ExprRefImage ( ExprRef : REFANY ) : TEXT 
-  (* ExprNo and REF. *) 
+  (* ExprNo, REF, and Position. *) 
 
 ; PROCEDURE DumpExpr
     ( Expr : ExprTyp ; WrT : Wr . T ; VAR (*IN OUT*) ExprNosDumped : IntSets . T )

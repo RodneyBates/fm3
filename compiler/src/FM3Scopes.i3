@@ -155,7 +155,7 @@ INTERFACE FM3Scopes
   (* Allocate and connect a ScopeNo and ScopeRef, owned by OwningUnitRef. *) 
 
 ; PROCEDURE ScopeRefImage ( ScopeRef : ScopeRefTyp ) : TEXT 
-  (* DeclNo and REF. *) 
+  (* DeclNo, REF, and Position. *) 
 
 ; PROCEDURE ScopeRefOfScopeNo ( ScopeNo : FM3Globals . ScopeNoTyp )
   : ScopeRefTyp 

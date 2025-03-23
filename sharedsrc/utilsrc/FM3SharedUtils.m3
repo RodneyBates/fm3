@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+(* Copyright 2023..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -638,6 +638,25 @@ MODULE FM3SharedUtils
       EXCEPT OSError . E => (* It didn't exist. *) 
       END (*EXCEPT*)
     END DeleteFile 
+
+; PROCEDURE IntSetsElemImage ( Elem : INTEGER ) : TEXT
+  (* Why do I have to wrap Fmt.Int? *) 
+
+  = BEGIN
+      RETURN Fmt . Int ( Elem ) 
+    END IntSetsElemImage
+
+(*EXPORTED.*)
+; PROCEDURE IntSetsImage
+    ( Set : IntSets . T ; LinePrefix : TEXT ; MaxLine : CARDINAL ) : TEXT 
+
+  = VAR LResult : TEXT 
+
+  ; BEGIN (*IntSetsImage*)
+      LResult
+        := IntSets . Image ( Set , IntSetsElemImage , LinePrefix , MaxLine )
+    ; RETURN LResult 
+    END IntSetsImage
 
 ; BEGIN 
     ResourceDirName := DefaultResourceDirName ( )  

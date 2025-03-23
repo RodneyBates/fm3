@@ -19,6 +19,17 @@ MODULE FM3 EXPORTS Main
 ; IMPORT FM3CLArgs
 ; IMPORT FM3Compile
 ; IMPORT FM3Globals
+
+(* W A R N I N G ! ! -------------------------
+  The code in FM3Introspection is intended to be called by m3gdb commands.
+  There may not be any calls on it in compiled code.  But if it is not
+  named in any IMPORT in the export/import closure, the compiler will
+  not set up global variable addressing for it in the way that m3gdb depends
+  on.  So Don't delete this IMPORT even though it is not needed to compile
+  and will provoke an unused warning.
+*) 
+; IMPORT FM3Introspection
+
 ; IMPORT FM3RTFailures 
 ; IMPORT FM3Scanner
 ; IMPORT FM3SharedUtils

@@ -9,8 +9,6 @@
 MODULE FM3Scopes
 
 ; IMPORT Fmt 
-; IMPORT TextWr
-; IMPORT Wr
 
 ; IMPORT IntRanges
 ; IMPORT IntSets
@@ -20,6 +18,7 @@ MODULE FM3Scopes
 ; IMPORT FM3Globals
 ; IMPORT FM3SharedUtils 
 ; IMPORT FM3Units
+; IMPORT FM3Utils 
 ; IMPORT Ranges_Int
 
 (*EXPORTED*) 
@@ -34,19 +33,22 @@ MODULE FM3Scopes
 
 (*EXPORTED.*)
 ; PROCEDURE ScopeRefImage ( ScopeRef : ScopeRefTyp ) : TEXT 
-  (* DeclNo and REF. *) 
-
-  = VAR LWrT : Wr . T
-  ; VAR LResult : TEXT
+  (* DeclNo, REF, and Position. *) 
+  
+  = VAR LResult : TEXT
 
   ; BEGIN (*ScopeRefImage*)
       IF ScopeRef = NIL THEN RETURN "NIL" END (*IF*)
-    ; LWrT := TextWr . New ( )
-    ; Wr . PutText ( LWrT , "ScopeNo " ) 
-    ; Wr . PutText ( LWrT , Fmt . Int ( ScopeRef ^ . ScpSelfScopeNo ) ) 
-    ; Wr . PutText ( LWrT , " at " ) 
-    ; Wr . PutText ( LWrT , FM3SharedUtils . RefanyImage ( ScopeRef ) ) 
-    ; LResult := TextWr . ToText ( LWrT )
+    ; LResult := FM3SharedUtils . CatArrT
+        ( ARRAY OF REFANY
+            { "ScopeNo " 
+            , Fmt . Int ( ScopeRef ^ . ScpSelfScopeNo ) 
+            , " at " 
+            , FM3SharedUtils . RefanyImage ( ScopeRef )
+            , " "
+            , FM3Utils . PositionImage ( ScopeRef ^ . ScpPosition )
+            }
+        ) 
     ; RETURN LResult 
     END ScopeRefImage
 

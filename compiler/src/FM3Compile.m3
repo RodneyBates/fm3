@@ -427,7 +427,7 @@ MODULE  FM3Compile
 ; PROCEDURE CompileOrLoadCLUnit ( SrcFileName : TEXT )
   (* Compile or load the top unit, as named on the command line. *) 
 
-  = VAR LUnitRef : FM3Units . UnitRefTyp
+  = VAR LUnitRef , LUnitRef2 : FM3Units . UnitRefTyp
   ; BEGIN 
       LUnitRef := GetUnitRefOfFileName ( SrcFileName )
     ; IF LUnitRef . UntState = Us . UsNull 
@@ -445,9 +445,10 @@ MODULE  FM3Compile
         ; FM3Units . CacheTopUnitValues ( )
         (* SetUnitLog will have to wait until Pass1.InitPass1 has
              created the WrT. *) 
-        ; CompileUnitFromSrc ( LUnitRef ) 
-        ; <* ASSERT FM3Units . PopUnit ( ) = LUnitRef *>
-          FM3Messages . SetUnitLog ( LUnitRef ^ . UntLogWrT ) 
+        ; CompileUnitFromSrc ( LUnitRef )
+        ; <* ASSERT FM3Units . UnitStackTopRef = LUnitRef *>
+          EVAL FM3Units . PopUnit ( ) 
+        ; FM3Messages . SetUnitLog ( LUnitRef ^ . UntLogWrT ) 
         ; FM3Units . CacheTopUnitValues ( ) 
         END (*IF*)
       END (*IF*)

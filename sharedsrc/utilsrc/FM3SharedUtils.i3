@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+(* Copyright 2023..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -124,6 +124,9 @@ INTERFACE FM3SharedUtils
 
 ; PROCEDURE DeleteFile ( FileName : TEXT )
 (* PRE-noncondition: File does not necessarily exist. *) 
+
+; PROCEDURE IntSetsImage
+    ( Set : IntSets . T ; LinePrefix : TEXT ; MaxLine : CARDINAL ) : TEXT 
 
 ; END FM3SharedUtils 
 .

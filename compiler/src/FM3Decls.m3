@@ -34,47 +34,139 @@ MODULE FM3Decls
 
   = BEGIN 
       CASE Kind OF 
-      | DeclKindTyp . DkNull => RETURN ", DkNull"
-      | DeclKindTyp . DkDuplDecl => RETURN ", DkDuplDecl"
-      | DeclKindTyp . DkMod => RETURN ", DkMod" 
-      | DeclKindTyp . DkIntf => RETURN ", DkIntf" 
-      | DeclKindTyp . DkGenMod => RETURN ", DkGenMod"
-      | DeclKindTyp . DkGenIntf => RETURN ", DkGenIntf"
-      | DeclKindTyp . DkExc => RETURN ", DkExc"
-      | DeclKindTyp . DkType => RETURN ", DkType"
-      | DeclKindTyp . DkConst => RETURN ", DkConst"
-      | DeclKindTyp . DkVar => RETURN ", DkVar"
-      | DeclKindTyp . DkVALUEFormal => RETURN ", DkVALUEFormal"
-      | DeclKindTyp . DkVARFormal => RETURN ", DkVARFormal"
-      | DeclKindTyp . DkROFormal => RETURN ", DkROFormal"
-      | DeclKindTyp . DkRecField => RETURN ", DkRecField"
-      | DeclKindTyp . DkObjField => RETURN ", DkObjField"
-      | DeclKindTyp . DkMethod => RETURN ", DkMethod"
-      | DeclKindTyp . DkProc => RETURN ", DkProc"
-      | DeclKindTyp . DkWith => RETURN ", DkWith"
-      | DeclKindTyp . DkFor => RETURN ", DkFor"
-      | DeclKindTyp . DkExcArg => RETURN ", DkExcArg"
+      | DeclKindTyp . DkNull => RETURN "DkNull"
+      | DeclKindTyp . DkDuplDecl => RETURN "DkDuplDecl"
+      | DeclKindTyp . DkMod => RETURN "DkMod" 
+      | DeclKindTyp . DkIntf => RETURN "DkIntf" 
+      | DeclKindTyp . DkGenMod => RETURN "DkGenMod"
+      | DeclKindTyp . DkGenIntf => RETURN "DkGenIntf"
+      | DeclKindTyp . DkExc => RETURN "DkExc"
+      | DeclKindTyp . DkType => RETURN "DkType"
+      | DeclKindTyp . DkConst => RETURN "DkConst"
+      | DeclKindTyp . DkVar => RETURN "DkVar"
+      | DeclKindTyp . DkVALUEFormal => RETURN "DkVALUEFormal"
+      | DeclKindTyp . DkVARFormal => RETURN "DkVARFormal"
+      | DeclKindTyp . DkROFormal => RETURN "DkROFormal"
+      | DeclKindTyp . DkRecField => RETURN "DkRecField"
+      | DeclKindTyp . DkObjField => RETURN "DkObjField"
+      | DeclKindTyp . DkMethod => RETURN "DkMethod"
+      | DeclKindTyp . DkProc => RETURN "DkProc"
+      | DeclKindTyp . DkWith => RETURN "DkWith"
+      | DeclKindTyp . DkFor => RETURN "DkFor"
+      | DeclKindTyp . DkExcArg => RETURN "DkExcArg"
       END (*CASE*)
     END DeclKindImage
 
 (*EXPORTED.*)
 ; PROCEDURE DeclRefImage ( DeclRef : DeclRefTyp ) : TEXT 
-  (* DeclNo and REF. *) 
+  (* DeclNo, REF, and Position. *) 
 
-  = VAR LWrT : Wr . T
-  ; VAR LResult : TEXT
+  = VAR LResult : TEXT
 
   ; BEGIN (*DeclRefImage*)
       IF DeclRef = NIL THEN RETURN "NIL" END (*IF*)
-    ; LWrT := TextWr . New ( )
-    ; Wr . PutText ( LWrT , "DeclNo " ) 
-    ; Wr . PutText ( LWrT , Fmt . Int ( DeclRef ^ . DclSelfDeclNo ) ) 
-    ; Wr . PutText ( LWrT , " at " ) 
-    ; Wr . PutText ( LWrT , FM3SharedUtils . RefanyImage ( DeclRef ) ) 
-    ; LResult := TextWr . ToText ( LWrT )
+    ; LResult := FM3SharedUtils . CatArrT
+        ( ARRAY OF REFANY
+            { "DeclNo " 
+            , Fmt . Int ( DeclRef ^ . DclSelfDeclNo )  
+            , " at "  
+            , FM3SharedUtils . RefanyImage ( DeclRef )  
+            , " "
+            , FM3Utils . PositionImage ( DeclRef . DclPos )
+            }
+        ) 
     ; RETURN LResult 
     END DeclRefImage
 
+(*EXPORTED.*)
+; PROCEDURE DeclNoImage ( DeclRef : DeclRefTyp )  : TEXT 
+  (* Unit-relative/Scope-relative. *)
+  
+  = VAR LScopeRef : FM3Scopes . ScopeRefTyp
+  ; VAR LDeclNo : FM3Globals . DeclNoTyp 
+  ; VAR LRelDeclNo : FM3Globals . DeclNoTyp 
+  ; VAR LResult : TEXT 
+
+  ; BEGIN (*DeclNoImage*)
+      IF DeclRef = NIL THEN RETURN "<NIL DeclRef>" END (*IF*)
+    ; LScopeRef := DeclRef ^ . DclOwningScopeRef
+    ; IF LScopeRef = NIL THEN RETURN "<NIL ScopeRef>" END (*IF*)
+    ; LDeclNo := DeclRef ^ . DclSelfDeclNo 
+    ; LRelDeclNo := LDeclNo - LScopeRef ^ . ScpMinDeclNo
+    ; LResult := FM3SharedUtils . CatArrT
+        ( ARRAY OF REFANY
+            { Fmt . Int ( LDeclNo )  
+            , "/"
+            , Fmt . Int ( LRelDeclNo )
+            }
+        )
+    ; RETURN LResult 
+    END DeclNoImage
+
+(*EXPORTED.*)
+; PROCEDURE DeclInfoImage ( DeclRef : DeclRefTyp )  : TEXT 
+  (* Unit-relative/Scope-relative atom, position. *)
+  
+  = VAR LScopeRef : FM3Scopes . ScopeRefTyp
+  ; VAR LDeclNo : FM3Globals . DeclNoTyp 
+  ; VAR LRelDeclNo : FM3Globals . DeclNoTyp 
+  ; VAR LResult : TEXT 
+
+  ; BEGIN (*DeclInfoImage*)
+      IF DeclRef = NIL THEN RETURN "<NIL DeclRef>" END (*IF*)
+    ; LScopeRef := DeclRef ^ . DclOwningScopeRef
+    ; IF LScopeRef = NIL THEN RETURN "<NIL ScopeRef>" END (*IF*)
+    ; LDeclNo := DeclRef ^ . DclSelfDeclNo 
+    ; LRelDeclNo := LDeclNo - LScopeRef ^ . ScpMinDeclNo
+    ; LResult := FM3SharedUtils . CatArrT
+        ( ARRAY OF REFANY
+            { Fmt . Int ( LDeclNo )  
+            , "/"
+            , Fmt . Int ( LRelDeclNo )
+            , " Id "
+            , AtomImage ( DeclRef )
+            , " "
+            , PositionImage ( DeclRef ^ . DclPos )
+            }
+        )
+    ; RETURN LResult 
+    END DeclInfoImage
+
+; PROCEDURE AtomImage ( DeclRef : DeclRefTyp ) : TEXT
+
+  = VAR LAtom : FM3Base . AtomTyp
+  ; VAR LScopeRef : FM3Scopes . ScopeRefTyp
+  ; VAR LUnitRef : FM3Units . UnitRefTyp
+  ; VAR LDict : FM3Atom_OAChars . T
+  ; VAR LOACharsRef : REF ARRAY OF CHAR 
+  ; VAR LTextWrT : TextWr . T
+  ; VAR LResult : TEXT 
+
+  ; BEGIN (*AtomImage*)
+    (* Sheesh. This is a great example of the kind of code I had hoped to
+       mimimize by making this a stream compiler instead of a tree compiler.
+       But it does try to prevent crashes, if things are Undone or wrong. 
+    *)
+      IF DeclRef = NIL THEN RETURN "<NIL DeclRef>" END (*IF*)
+    ; LAtom := DeclRef ^ . DclIdAtom
+    ; IF LAtom = FM3Base. AtomNull THEN RETURN "<AtomNull>" END (*IF*)
+    ; LScopeRef := DeclRef ^ . DclOwningScopeRef
+    ; IF LScopeRef = NIL THEN RETURN "<NIL ScopeRef>" END (*IF*)
+    ; LUnitRef := LScopeRef ^ . ScpOwningUnitRef 
+    ; IF LUnitRef = NIL THEN RETURN "<NIL UnitRef>" END (*IF*)
+    ; LDict := LUnitRef ^ . UntIdentAtomDict 
+    ; IF LDict = NIL THEN RETURN "<NIL Dict>" END (*IF*)
+    ; LOACharsRef := FM3Utils . CharsOfAtom ( LDict , LAtom ) 
+    ; IF LOACharsRef = NIL THEN RETURN "<NIL Chars>" END (*IF*)
+    ; LTextWrT := TextWr . New ( )
+    ; Wr . PutText ( LTextWrT , Fmt . Int ( LAtom ) ) 
+    ; Wr . PutText ( LTextWrT , "(\"") 
+    ; Wr . PutString ( LTextWrT , LOACharsRef ^ ) 
+    ; Wr . PutText ( LTextWrT , "\")") 
+    ; LResult := TextWr . ToText ( LTextWrT )
+    ; RETURN LResult 
+    END AtomImage
+      
 (*EXPORTED.*)
 ; PROCEDURE DeclTypImage ( DeclRef : DeclRefTyp ) : TEXT 
   (* Contents of the record. *)  
@@ -93,79 +185,23 @@ MODULE FM3Decls
       ; Wr . PutText ( LWrT , Wr . EOL )
       END PTNL
 
-; PROCEDURE DeclNoImage ( DeclRef : DeclRefTyp )  : TEXT 
-
-  = VAR LScopeRef : FM3Scopes . ScopeRefTyp
-  ; VAR LDeclNo : FM3Globals . DeclNoTyp 
-  ; VAR LRelDeclNo : FM3Globals . DeclNoTyp 
-  ; VAR LTextWrT : TextWr . T
-  ; VAR LResult : TEXT 
-
-  ; BEGIN (*RelDeclNoImage*)
-      IF DeclRef = NIL THEN RETURN "<NoDeclRef>" END (*IF*)
-    ; LScopeRef := DeclRef ^ . DclParentScopeRef
-    ; IF LScopeRef = NIL THEN RETURN "<NoScopeRef>" END (*IF*)
-    ; LDeclNo := DeclRef ^ . DclSelfDeclNo 
-    ; LRelDeclNo := LDeclNo - LScopeRef ^ . ScpMinDeclNo
-    ; LTextWrT := TextWr . New ( )
-    ; Wr . PutText ( LTextWrT , Fmt . Int ( LDeclNo ) ) 
-    ; Wr . PutText ( LTextWrT , "/") 
-    ; Wr . PutText ( LTextWrT , "Fmt. . Int ( LRelDeclNo") 
-    ; LResult := TextWr . ToText ( LTextWrT )
-    ; RETURN LResult 
-    END DeclNoImage
-
-; PROCEDURE AtomImage ( DeclRef : DeclRefTyp ) : TEXT
-
-  = VAR LAtom : FM3Base . AtomTyp
-  ; VAR LScopeRef : FM3Scopes . ScopeRefTyp
-  ; VAR LUnitRef : FM3Units . UnitRefTyp
-  ; VAR LDict : FM3Atom_OAChars . T
-  ; VAR LOACharsRef : REF ARRAY OF CHAR 
-  ; VAR LTextWrT : TextWr . T
-  ; VAR LResult : TEXT 
-
-  ; BEGIN (*AtomImage*)
-    (* Sheesh. This is a great example of the kind of code I had hoped to
-       mimimize by making this a stream compiler instead of a tree compiler.
-       But it does try to prevent crashes, if things are Undone or wrong. 
-    *)
-      IF DeclRef = NIL THEN RETURN "<NoDeclRef>" END (*IF*)
-    ; LAtom := DeclRef ^ . DclIdAtom
-    ; IF LAtom = FM3Base. AtomNull THEN RETURN "<AtomNull>" END (*IF*)
-    ; LScopeRef := DeclRef ^ . DclParentScopeRef
-    ; IF LScopeRef = NIL THEN RETURN "<NoScopeRef>" END (*IF*)
-    ; LUnitRef := LScopeRef ^ . ScpOwningUnitRef 
-    ; IF LUnitRef = NIL THEN RETURN "<NoUnitRef>" END (*IF*)
-    ; LDict := LUnitRef ^ . UntIdentAtomDict 
-    ; IF LDict = NIL THEN RETURN "<NoDict>" END (*IF*)
-    ; LOACharsRef := FM3Utils . CharsOfAtom ( LDict , LAtom ) 
-    ; IF LOACharsRef = NIL THEN RETURN "<NoChars>" END (*IF*)
-    ; LTextWrT := TextWr . New ( )
-    ; Wr . PutText ( LTextWrT , Fmt . Int ( LAtom ) ) 
-    ; Wr . PutText ( LTextWrT , "(\"") 
-    ; Wr . PutString ( LTextWrT , LOACharsRef ^ ) 
-    ; Wr . PutText ( LTextWrT , "\")") 
-    ; LResult := TextWr . ToText ( LTextWrT )
-    ; RETURN LResult 
-    END AtomImage
-      
   ; BEGIN (*DeclTypImage*)
       IF DeclRef = NIL THEN RETURN "NIL" END (*IF*)
     ; LWrT := TextWr . New ( )
-    ; PT("DclLink = ")           ; PTNL(DeclRefImage(DeclRef^.DclLink))
-    ; PT("DclParentScopeRef = ") ; PTNL(ScopeRefImage(DeclRef^.DclParentScopeRef))
-    ; PT("DclSelfScopeRef = ")   ; PTNL(ScopeRefImage(DeclRef^.DclSelfScopeRef))
-    ; PT("DclDefType = ")        ; PTNL(ExprRefImage(DeclRef^.DclDefType))
-    ; PT("DclDefValue = ")       ; PTNL(ExprRefImage(DeclRef^.DclDefValue))
-    ; PT("DclIdAtom = ")         ; PTNL(AtomImage(DeclRef))
-    ; PT("DclIdCt = ")           ; PTNL(Fmt.Int(DeclRef^.DclIdCt))
-    ; PT("DclIdNo = ")           ; PTNL(Fmt.Int(DeclRef^.DclIdNo))
-    ; PT("DclSelfDeclNo = ")     ; PTNL(DeclNoImage(DeclRef))
-    ; PT("DclPos = ")            ; PTNL(PositionImage(DeclRef^.DclPos))
-    ; PT("DclStdTok = ")         ; PTNL(SrcTokImage(DeclRef^.DclStdTok))
-    ; PT("DclKind = ")           ; PTNL(DeclKindImage(DeclRef^.DclKind))
-    ; PT("DclIsUsable = ")       ; PTNL(Fmt.Bool(DeclRef^.DclIsUsable))
+    ; PT("DeclRef at ")          ; PTNL(DeclRefImage(DeclRef))
+    ; PT("DclLink =           ") ; PTNL(DeclRefImage(DeclRef^.DclLink))
+    ; PT("DclOwningScopeRef = ") ; PTNL(ScopeRefImage(DeclRef^.DclOwningScopeRef))
+    ; PT("DclSelfScopeRef =   ") ; PTNL(ScopeRefImage(DeclRef^.DclSelfScopeRef))
+    ; PT("DclDefType =        ") ; PTNL(ExprRefImage(DeclRef^.DclDefType))
+    ; PT("DclDefValue =       ") ; PTNL(ExprRefImage(DeclRef^.DclDefValue))
+    ; PT("DclIdAtom =         ") ; PTNL(AtomImage(DeclRef))
+    ; PT("DclIdCt =           ") ; PTNL(Fmt.Int(DeclRef^.DclIdCt))
+    ; PT("DclIdNo =           ") ; PTNL(Fmt.Int(DeclRef^.DclIdNo))
+    ; PT("DclSelfDeclNo =     ") ; PTNL(DeclNoImage(DeclRef))
+    ; PT("DclPos =            ") ; PTNL(PositionImage(DeclRef^.DclPos))
+    ; PT("DclStdTok =         ") ; PTNL(SrcTokImage(DeclRef^.DclStdTok))
+    ; PT("DclKind =           ") ; PTNL(DeclKindImage(DeclRef^.DclKind))
+    ; PT("DclIsUsable =       ") ; PTNL(Fmt.Bool(DeclRef^.DclIsUsable))
 
     ; LResult := TextWr . ToText ( LWrT ) 
     ; RETURN LResult 
@@ -184,7 +220,7 @@ MODULE FM3Decls
 
 (*EXPORTED*) 
 ; PROCEDURE NewDeclRef
-    ( ParentScopeRef : FM3Scopes . ScopeRefTyp
+    ( OwningScopeRef : FM3Scopes . ScopeRefTyp
     ; DeclNo : FM3Globals . DeclNoTyp
     )
   : DeclRefTyp
@@ -195,7 +231,7 @@ MODULE FM3Decls
   ; BEGIN
       LDeclRef := NEW ( DeclRefTyp )
     ; LDeclRef ^ . DclSelfDeclNo := DeclNo
-    ; LDeclRef ^ . DclParentScopeRef := ParentScopeRef
+    ; LDeclRef ^ . DclOwningScopeRef := OwningScopeRef
     ; RETURN LDeclRef 
     END NewDeclRef 
 

@@ -274,17 +274,25 @@ MODULE FM3Exprs
 
 (*EXPORTED.*)
 ; PROCEDURE ExprRefImage ( ExprRef : REFANY ) : TEXT 
-  (* ExprNo and REF. *) 
+  (* ExprNo, REF, and Position. *) 
 
-  = BEGIN (*ExprRefImage*)
+  = VAR LResult : TEXT 
+
+  ; BEGIN (*ExprRefImage*)
       TYPECASE ExprRef OF
       | NULL => RETURN "NIL"
       | ExprTyp ( TExprRef )
-      => RETURN
-           "ExprNo "
-           & Fmt . Int ( TExprRef . ExpSelfExprNo )
-           & " "
-           & RefanyImage ( TExprRef )
+      =>  LResult := FM3SharedUtils . CatArrT
+            ( ARRAY OF REFANY
+                { "ExprNo "
+                , Fmt . Int ( TExprRef . ExpSelfExprNo )
+                , " at "
+                , RefanyImage ( TExprRef )
+                , " "
+                , FM3Utils . PositionImage ( TExprRef . ExpPosition )
+                }
+            ) 
+        ; RETURN LResult 
       ELSE RETURN "Not an ExprRef: " & RefanyImage ( ExprRef )
       END (*TYPECASE*) 
     END ExprRefImage

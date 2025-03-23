@@ -168,8 +168,12 @@ INTERFACE FM3Units
       ; UntState := UnitStateTyp . UsNull
       ; UntUnsafe : BOOLEAN := FALSE  
       ; UntInExpImpCycle : BOOLEAN := FALSE
-      ; UntHasStdUnitPragma : BOOLEAN := FALSE (* Has the FM3_STDUNIT pragma. *) 
+      ; UntHasStdUnitPragma : BOOLEAN := FALSE (* Has the FM3_STDUNIT pragma. *)
       END (*UnitTyp*)
+
+; <*INLINE*>
+  PROCEDURE UnitNoRef ( UnitNo : FM3Globals . UnitNoTyp ) : UnitRefTyp
+  (* Mainly for convenient calling by a debugger. *) 
 
 ; VAR UnitsAtomDict : FM3Atom_Text . T
         (* ^Just one in entire compler run.  Map source file simple names as 

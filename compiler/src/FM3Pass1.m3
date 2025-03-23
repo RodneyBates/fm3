@@ -2573,7 +2573,7 @@ END ;
 
   ; BEGIN (*DeclScopeRtL2R*)
       VAR LUnitRef : FM3Units . UnitRefTyp
-    ; VAR LParentScopeRef : FM3Scopes . ScopeRefTyp
+    ; VAR LOwningScopeRef : FM3Scopes . ScopeRefTyp
     ; VAR LEscapingRefSet : IntSets . T 
     ; VAR LDeclCt : INTEGER
     ; VAR LExpectedToDeclNo : INTEGER 
@@ -2599,12 +2599,12 @@ END ;
       ; ScopeRef ^ . ScpRefIdSet 
           := IntSets . Intersection
                ( ScopeRef ^ . ScpRefIdSet , ScopeRef ^ . ScpDeclIdSet )
-      ; LParentScopeRef := ScopeRef ^ . ScpOpenScopeStackLink
-      ; IF LParentScopeRef # NIL
+      ; LOwningScopeRef := ScopeRef ^ . ScpOpenScopeStackLink
+      ; IF LOwningScopeRef # NIL
         THEN
-          LParentScopeRef ^ . ScpRefIdSet
+          LOwningScopeRef ^ . ScpRefIdSet
             := IntSets . Union
-                 ( LParentScopeRef ^ . ScpRefIdSet , LEscapingRefSet ) 
+                 ( LOwningScopeRef ^ . ScpRefIdSet , LEscapingRefSet ) 
         END (*IF*)
       ; LUnitRef := ScopeRef ^ . ScpOwningUnitRef
       ; IF Clt . CltRemoveUnusedDecls IN FM3CLOptions . OptionTokSet

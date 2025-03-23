@@ -414,10 +414,11 @@ MODULE FM3DisAsm
         | VAL ( ORD ( FIRST ( FM3Decls . DeclKindTyp ) ) , LONGINT )  
           .. VAL ( ORD ( LAST ( FM3Decls . DeclKindTyp ) ) , LONGINT )
         => LResult
-             := FM3Decls . DeclKindImage
-                  ( VAL ( LArgL , FM3Decls . DeclKindTyp ) )
+             := ", "
+                & FM3Decls . DeclKindImage
+                    ( VAL ( LArgL , FM3Decls . DeclKindTyp ) )
         ELSE
-          LResult := "OutOfRangeDeclKind(" & Fmt . LongInt ( LArgL ) & ")"
+          LResult := ", OutOfRangeDeclKind(" & Fmt . LongInt ( LArgL ) & ")"
         END (*CASE*) 
       ; Wr . PutText ( WrT , LResult ) 
       END DobDeclKindArg 

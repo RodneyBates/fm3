@@ -81,6 +81,22 @@ MODULE FM3Units
           
     END NewUnitsMap
 
+(*EXPORTED.*)
+; <*INLINE*>
+  PROCEDURE UnitNoRef ( UnitNo : FM3Globals . UnitNoTyp ) : UnitRefTyp 
+
+  = VAR LUnitRef : UnitRefTyp 
+
+  ; BEGIN (*UnitNoRef*)
+      LUnitRef
+        := NARROW
+             ( VarArray_Int_Refany . Fetch ( FM3Units . UnitsMap , UnitNo )
+             , UnitRefTyp
+             ) 
+    ; RETURN LUnitRef 
+    END UnitNoRef
+      
+
 (*EXPORTED*) 
 ; PROCEDURE NewUnitRef ( ) : UnitRefTyp
   (* Allocate, low-level initialize, give it a UnitNo, and put into UnitsMap. *)

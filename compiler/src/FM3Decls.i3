@@ -52,7 +52,7 @@ INTERFACE FM3Decls
            These will have DeclKind DkDuplDecl.  Such a list is mutually
            exclusive of a single node of some other DeclKind. 
         *) 
-      ; DclParentScopeRef : FM3Globals . ScopeRefTyp (* Containing scope *) 
+      ; DclOwningScopeRef : FM3Globals . ScopeRefTyp (* Containing scope *) 
       ; DclSelfScopeRef : FM3Globals . ScopeRefTyp (* If this declares a scope *)
       ; DclDefType : FM3Exprs . ExprTyp := NIL 
       ; DclDefValue : FM3Exprs . ExprTyp := NIL 
@@ -67,7 +67,13 @@ INTERFACE FM3Decls
       END (*DeclTyp*)
       
 ; PROCEDURE DeclRefImage ( DeclRef : DeclRefTyp ) : TEXT
-  (* DeclNo and REF. *) 
+  (* DeclNo, REF, and Position. *) 
+
+; PROCEDURE DeclNoImage ( DeclRef : DeclRefTyp )  : TEXT 
+  (* Unit-relative/Scope-relative. *)
+  
+; PROCEDURE DeclInfoImage ( DeclRef : DeclRefTyp )  : TEXT 
+  (* Unit-relative/Scope-relative. *)
 
 ; PROCEDURE DeclTypImage ( DeclRef : DeclRefTyp ) : TEXT
   (* Contents of the record. *)  
@@ -78,7 +84,7 @@ INTERFACE FM3Decls
 ; PROCEDURE NewDeclMap ( InitDeclCt : FM3Globals . DeclNoTyp ) : DeclMapTyp 
 
 ; PROCEDURE NewDeclRef
-    ( ParentScopeRef : FM3Globals . ScopeRefTyp
+    ( OwningScopeRef : FM3Globals . ScopeRefTyp
     ; DeclNo : FM3Globals . DeclNoTyp
     )
   : DeclRefTyp
