@@ -14,7 +14,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
    ValueGenformal declares nothing.
 
    The other things needed from the generic formals are renamed in
-   exported interface FM3Dict.i3, and used here buy those names.
+   exported interface FM3Dict.i3, and used here by those names.
    This could be done with Compare too, even though it is unused in
    the interface.
    
@@ -44,7 +44,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
         DbTableRef : REF ARRAY OF RowTyp := NIL 
       ; DbHashFunc : HashFuncTyp := NIL 
       ; DbOccupiedCt : INTEGER := 0 
-      ; DbState := StateTyp . DsUnsorted 
+      ; DbState := StateTyp . DsUnsorted
       END (*Private*)
 
 ; TYPE DictBaseTyp = Private
@@ -88,7 +88,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 ; PROCEDURE NewGrowable
     ( InitKeyCt : INTEGER ; HashFunc : HashFuncTyp ) : GrowableTyp 
       (* InitKeyCt is an initial estimate of actual keys.  The dictionary
-         will oversized be and auto-expanded as needed. *) 
+         will be oversized and auto-expanded as needed. *) 
 
   = VAR LNew : GrowableTyp 
   ; VAR LTableNumber : INTEGER 
@@ -100,7 +100,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
     ; LNew . DbTableRef := NEW ( REF ARRAY OF RowTyp , LTableNumber )
     ; LNew . DbHashFunc := HashFunc 
     ; LNew . DbOccupiedCt := 0
-    ; LNew . DbState := StateTyp . DsHashed 
+    ; LNew . DbState := StateTyp . DsHashed
     ; RETURN LNew 
     END NewGrowable 
 
@@ -132,7 +132,13 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
       END (*IF*)
     ; RETURN
         HashInsert
-          ( DictHash , Key , Hash , Value , (*OUT*) OldValue , DoUpdate ) 
+          ( NARROW ( DictHash , DictBaseTyp )
+          , Key
+          , Hash
+          , Value
+          , (*OUT*) OldValue
+          , DoUpdate
+          ) 
     END InsertGrowable 
 
 ; PROCEDURE HashInsert
@@ -272,7 +278,8 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
         ELSE Hash := GHashDefault
         END (*IF*) 
       END (*IF*)
-    ; RETURN HashLookup ( DictHash , Key , Hash , Value ) 
+    ; RETURN HashLookup
+        ( NARROW ( DictHash , DictBaseTyp ) , Key , Hash , Value ) 
     END LookupGrowable 
 
 ; PROCEDURE HashLookup
@@ -325,7 +332,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
     END HashLookup
 
 (* Fixed dictionaries have some restrictions, but may be more compact
-   and possibly faster, if you can with them and if MaxKeyCt is smallish. 
+   and possibly faster, if you can live with them and if MaxKeyCt is smallish. 
    All calls on InsertFixed must precede a call on FinalizeFixedFixed,
    before any calls on LookupFixed.  Also, duplicate keys will result
    Error's being raised, or possibly in undetected duplicate entries,
@@ -351,6 +358,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
       ; LTableNumber := MaxKeyCt + MaxKeyCt DIV 3 (* keep <= 75% full. *) 
       ; LTableNumber := FM3Primes . NextLargerOrEqualPrime ( LTableNumber )
       ; LNew . DbOccupiedCt := 0
+      ; LNew . DbState := StateTyp . DsHashed  
       END (*IF*)
     ; LNew . DbHashFunc := HashFunc 
     ; LNew . DbTableRef := NEW ( REF ARRAY OF RowTyp , LTableNumber )
@@ -382,12 +390,18 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
     ; IF DictFixed . DbState = StateTyp . DsHashed
       THEN
         LFound := HashInsert
-          ( DictFixed , Key , Hash , Value , (*OUT*) LOldValue
+          ( DictFixed
+          , Key
+          , Hash
+          , Value
+          , (*OUT*) LOldValue
           , DoUpdate := FALSE
           )
       ; IF LFound
-        THEN RAISE
-          Error ( "Duplicate Key inserted in sorted dictionary." ) 
+        THEN (* For a consistent interface, Enforce the semantic rules of
+                a fixed dictionary, even when it is using hashing.
+             *) 
+          RAISE Error ( "Duplicate Key inserted in sorted dictionary." ) 
         END (*IF*) 
       ELSIF DictFixed . DbState # StateTyp . DsUnsorted 
       THEN RAISE Error ( "Lookup in fixed dictionary after FinalizeFixed.")
@@ -416,9 +430,17 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
       END (*IF*) 
     ; LTableNumber := NUMBER ( DictFixed . DbTableRef ^ )
     ; IF DictFixed . DbOccupiedCt >= LTableNumber
-      THEN (* Convert to hash form.*)
-(* TODO: Code this *)  
+      THEN 
+       RAISE Error ( "Fixed dictionary size exceeded." )   
       ELSE 
+      (* Usually, this algorithm is described as doing a series of swaps of 
+         table rows.  But, also usually, there is a row that gets swapped in 
+         somewhere in the table only to be swapped out again in the next step. 
+         To cut down on in-and-out row assignments, we keep one row value 
+         on the side in LOrphanRow, that would otherwise be in the table at 
+         LEmptySs, which in turn is empty.  This also means a swap needs 
+         only 2 instead of 3 assignments.
+      *)  
         LEmptySs := DictFixed . DbOccupiedCt
       ; LOrphanRow . RowHash := Hash
       ; LOrphanRow . RowKey := Key
@@ -430,6 +452,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
           ; EXIT
           ELSE
             LParentSs := ( LEmptySs - 1 ) DIV 2
+              (* ^ Using a zero-origin table. *)  
           ; LKeyCmp
               := KeyGenformal . Compare
                    ( LOrphanRow . RowKey
@@ -467,7 +490,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
   
   ; BEGIN
       IF DictFixed . DbState # StateTyp . DsUnsorted THEN RETURN END (*IF*) 
-         (* ^Let's give a pass to duplicate calls here. *)  
+         (* ^Let's give a pass to duplicate finalize calls here. *)  
     ; IF DictFixed . DbOccupiedCt <= 1 (* Aleady trivially sorted.. *)
       THEN
         DictFixed . DbState := StateTyp . DsSorted
@@ -555,26 +578,37 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
         THEN Hash := DictFixed . DbHashFunc ( Key )
         ELSE Hash := GHashDefault
         END (*IF*) 
-      END (*IF*)
-      
-    ; LLo := 0
-    ; LHi := DictFixed . DbOccupiedCt
-    (* INVARIANT: Sought entry, if present, is at subscript S,
-                  where Lo <= S < LHi *) 
-    ; LOOP
-        IF LLo = LHi (* Empty range. *) THEN RETURN FALSE END (*IF*) 
-      ; LProbe := ( LLo + LHi ) DIV 2
-      ; LCompare
-          := KeyGenformal . Compare
-               ( Key , DictFixed . DbTableRef ^ [ LProbe ] . RowKey )
-      ; IF LCompare = CmpEQ
-        THEN (* Lucky early find. *) 
-          Val := DictFixed . DbTableRef ^ [ LProbe ] . RowValue 
-        ; RETURN TRUE
-        ELSIF LCompare = CmpLT THEN LHi := LProbe 
-        ELSE LLo := LProbe + 1
-        END (*IF*) 
-      END (*LOOP*) 
+      END (*IF*) 
+
+    ; IF DictFixed . DbState = StateTyp . DsHashed 
+      THEN  
+        RETURN HashLookup
+          ( NARROW ( DictFixed , DictBaseTyp ) 
+          , Key 
+          , Hash 
+          , (*OUT*) Val 
+          ) 
+
+      ELSE (* Binary search. *)       
+        LLo := 0
+      ; LHi := DictFixed . DbOccupiedCt
+      (* INVARIANT: Sought entry, if present, is at subscript S,
+                    where Lo <= S < LHi *) 
+      ; LOOP
+          IF LLo = LHi (* Empty range. *) THEN RETURN FALSE END (*IF*) 
+        ; LProbe := ( LLo + LHi ) DIV 2
+        ; LCompare
+            := KeyGenformal . Compare
+                 ( Key , DictFixed . DbTableRef ^ [ LProbe ] . RowKey )
+        ; IF LCompare = CmpEQ
+          THEN (* Lucky early find. *) 
+            Val := DictFixed . DbTableRef ^ [ LProbe ] . RowValue 
+          ; RETURN TRUE
+          ELSIF LCompare = CmpLT THEN LHi := LProbe 
+          ELSE LLo := LProbe + 1
+          END (*IF*) 
+        END (*LOOP*) 
+      END (*IF*) 
     END LookupFixed
 
 ; BEGIN
