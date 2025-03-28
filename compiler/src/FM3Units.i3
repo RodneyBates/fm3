@@ -101,6 +101,8 @@ INTERFACE FM3Units
 (*TODO: box  up pass-dependent groups like this one.  Maybe heap-allocate. *)  
       ; UntPass1OutSimpleName : TEXT := NIL
       ; UntPass1OutRdBack : RdBackFile . T := NIL
+      ; UntPass1OutDataLength : LONGINT := 0L
+        (* ^Excludng final boilerplate tokens. *) 
       ; UntMaxPass1OutLength : LONGINT := 0L 
       ; UntPass1OutEmptyCoord : LONGINT := 0L
 (**) 

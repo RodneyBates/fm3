@@ -544,7 +544,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
         ; IF LCompare = CmpGT  
           THEN (* Parent is greatest of 3.  We are done. *) 
             DictFixed . DbTableRef ^ [ LEmptySs ] := LOrphanRow 
-          ; EXIT 
+         ; EXIT 
           ELSE (* Move the greater child up to the current slot, creating
                   space to push the current item down to. *) 
             DictFixed . DbTableRef ^ [ LEmptySs ] := LGreaterChildRow 
@@ -610,6 +610,37 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
         END (*LOOP*) 
       END (*IF*) 
     END LookupFixed
+
+(*EXPORTED.*)
+(*
+; PROCEDURE dump ( Dict : DictBaseTyp ) TEXT 
+
+  = VAR LTableNumber : INTEGER 
+  ; VAR LTextWrT :  TextWr . T
+  ; VAR LResult : TEXT 
+
+  ; BEGIN (*dump*)
+      LTableNumber := NUMBER ( DictBase . DbTableRef ^ )
+    ; LTextWrT := TextWr . New ( )
+
+    ; FOR RI := 0 TO LTableNumber - 1
+      DO 
+        Wr . PutText ( LTextWrT , Fmt . Int ( RI ) ) 
+      ; Wr . PutText ( LTextWrT , " Hash = " ) 
+      ; Wr . PutText
+          ( LTextWrT , Fmt . Int ( DictBase . DbTableRef ^ [ RI ] . Hash ) )
+      ; Wr . PutText ( LTextWrT , " Key = : ) 
+      ; Wr . PutText 
+          ( LTextWrT , KeyImage ( DictBase . DbTableRef ^ [ RI ] . Key ) )
+      ; Wr . PutText ( LTextWrT , " Value = " ) 
+      ; Wr . PutText 
+          ( LTextWrT , ValueImage ( DictBase . DbTableRef ^ [ RI ] . Value ) )
+      ; Wr . PutText ( LTextWrT , Wr . EOL )
+      END (*FOR*) 
+    ; LResult := TextWr . ToText ( LTextWrT )
+    ; RETURN LResult 
+    END dump
+*)
 
 ; BEGIN
   END FM3Dict 

@@ -185,9 +185,11 @@ INTERFACE FM3Scopes
       
 ; PROCEDURE PushDeclScopeRef ( ScopeRef : ScopeRefTyp ) 
 ; PROCEDURE PushOpenScopeRef ( ScopeRef : ScopeRefTyp ) 
+; PROCEDURE PruneScopeDeclStack ( ToDepth : INTEGER := 0 )
 
 ; PROCEDURE PopDeclScopeRef ( ) : ScopeRefTyp  
 ; PROCEDURE PopOpenScopeRef ( ) : ScopeRefTyp  
+; PROCEDURE PruneScopeOpenStack ( ToDepth : INTEGER := 0 )
 
 ; END FM3Scopes
 .

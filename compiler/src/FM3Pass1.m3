@@ -335,8 +335,12 @@ END ;
         := UnitRef ^ . UntPatchStackEmptyCoord
     ; UnitRef . UntPatchStackTopCoord := UnitRef . UntPass1OutEmptyCoord
     ; PutBwd
-        ( UnitRef ^ . UntPatchStackRdBack , FM3Globals . PatchSackEmptySentinal )
-      (* ^A sentinal for when the patch stack is empty of actual tokens. *) 
+        ( UnitRef ^ . UntPatchStackRdBack
+        , FM3Globals . PatchSackEmptySentinel
+        )
+      (* ^A sentinel for when the patch stack is empty of actual tokens. 
+         It's a pseudo patch coordinate atop the initial non-existent token
+      *)
 
     (* Create unit data structures. *)
     
@@ -359,6 +363,9 @@ END ;
 (* TODO:           ^Something with this? *)
 
       (* Write final successful Pass 1 output file tokens. *)
+      ; UnitRef ^ . UntPass1OutDataLength
+          := RdBackFile . LengthL ( UnitRef ^ . UntPass1OutRdBack )
+        (* ^Not including the boilerplate stuff below. *) 
       ; PutBwd
           ( UnitRef ^ . UntPass1OutRdBack
           , VAL ( Itk . ItkRightEnd , LONGINT )

@@ -16,6 +16,7 @@ MODULE FM3Scopes
 
 ; IMPORT FM3Base
 ; IMPORT FM3Globals
+; IMPORT FM3Messages
 ; IMPORT FM3SharedUtils 
 ; IMPORT FM3Units
 ; IMPORT FM3Utils 
@@ -139,6 +140,29 @@ MODULE FM3Scopes
     END PopDeclScopeRef 
 
 (*EXPORTED.*)
+; PROCEDURE PruneScopeDeclStack ( ToDepth : INTEGER := 0 )
+
+  = BEGIN (*PruneScopeDeclStack*)
+      IF DeclScopeStackCt > ToDepth 
+      THEN 
+        FM3Messages . FM3LogArr
+          ( ARRAY OF REFANY
+              { "Scope number "
+              , Fmt . Int ( DeclScopeStackTopRef ^ . ScpSelfScopeNo )
+              , " remains on decl scope stack at depth "
+              , Fmt . Int ( DeclScopeStackCt )
+              , " when expected down to depth "
+              , Fmt . Int ( ToDepth )
+              , "." 
+              } 
+          , DeclScopeStackTopRef ^ . ScpPosition
+          ) 
+      ; REPEAT EVAL PopDeclScopeRef ( ) 
+      ; UNTIL DeclScopeStackCt <= ToDepth  
+      END (*IF*) 
+   END PruneScopeDeclStack
+
+(*EXPORTED.*)
 ; PROCEDURE PushOpenScopeRef ( ScopeRef : ScopeRefTyp ) 
 
   = BEGIN (*PushOpenScopeRef*)
@@ -166,7 +190,30 @@ MODULE FM3Scopes
     ; <* ASSERT ( OpenScopeStackTopRef = NIL ) = ( OpenScopeStackCt = 0 ) *>
       LPoppedScopeRef . ScpOpenStackHt := 0 
     ; RETURN LPoppedScopeRef
-    END PopOpenScopeRef 
+    END PopOpenScopeRef (*EXPORTED.*)
+
+(*EXPORTED.*)
+; PROCEDURE PruneScopeOpenStack ( ToDepth : INTEGER := 0 )
+
+  = BEGIN (*PruneScopeOpenStack*)
+      IF OpenScopeStackCt > ToDepth 
+      THEN 
+        FM3Messages . FM3LogArr
+          ( ARRAY OF REFANY
+              { "Scope number "
+              , Fmt . Int ( OpenScopeStackTopRef ^ . ScpSelfScopeNo )
+              , " remains on open scope stack at depth "
+              , Fmt . Int ( OpenScopeStackCt )
+              , " when expected down to depth "
+              , Fmt . Int ( ToDepth )
+              , "." 
+              } 
+          , OpenScopeStackTopRef ^ . ScpPosition
+          ) 
+      ; REPEAT EVAL PopOpenScopeRef ( ) 
+      ; UNTIL OpenScopeStackCt <= ToDepth  
+      END (*IF*) 
+   END PruneScopeOpenStack
 
 ; BEGIN
     DeclScopeStackTopRef := NIL

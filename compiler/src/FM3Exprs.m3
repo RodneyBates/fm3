@@ -20,6 +20,7 @@ MODULE FM3Exprs
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Base
 ; IMPORT FM3Globals
+; IMPORT FM3Messages 
 ; FROM FM3SharedUtils IMPORT RefanyImage 
 ; IMPORT FM3Scopes
 ; IMPORT FM3SharedUtils 
@@ -39,7 +40,7 @@ MODULE FM3Exprs
        => RETURN "type" 
       | Ekt . EkProc 
        => RETURN "procedure" 
-      | Ekt . EkFunc 
+      | Ekt . EkFunc
        => RETURN "function" 
       | Ekt . EkValue 
        => RETURN "value" 
@@ -688,7 +689,7 @@ MODULE FM3Exprs
 
 (* 
            WITH WReferent = FM3Exprs . GetAnPopExprStackTopRef
-                , WREFType = FM3Exprs . TopExprStackTopRef 
+                , WREFType = FM3Exprs . ExprStackTopRef 
            DO IF NOT WReferent . TgIsUsable
              THEN
                WREFType . TcReferent := NIL
@@ -720,26 +721,57 @@ MODULE FM3Exprs
 (*EXPORTED*) 
 ; PROCEDURE PushExprStack ( NewExpr : ExprTyp )
 
-  = VAR LResult : ExprTyp 
+  = BEGIN
+      (* Let's crash on trying to push a NIL. *)
+      <* ASSERT NewExpr . ExpStackHt = 0 *>
+      IF ExprStackTopObj = NIL
+      THEN NewExpr . ExpStackHt := 1
+      ELSE NewExpr . ExpStackHt := ExprStackTopObj . ExpStackHt + 1
+      END (*IF*)
+    ; NewExpr . ExpStackLink := ExprStackTopObj
+    ; ExprStackTopObj := NewExpr
+    ; INC ( ExprStackCt ) 
+    END PushExprStack
 
-  ; BEGIN
-      NewExpr . ExpStackLink := ExprStackTopObj
-    ; LResult := NewExpr
-    ; ExprStackTopObj := NewExpr 
-    END PushExprStack 
+; VAR GLastPoppedExpr : ExprTyp 
 
 (*EXPORTED*) 
 ; PROCEDURE PopExprStack ( ) : ExprTyp 
 
-  = VAR LResult : ExprTyp 
+  = VAR LPoppedExprObj : ExprTyp 
 
   ; BEGIN
-      LResult := ExprStackTopObj
-    ; IF LResult # NIL
-      THEN ExprStackTopObj := ExprStackTopObj . ExpStackLink
-      END (*IF*) 
-    ; RETURN LResult 
+      LPoppedExprObj := ExprStackTopObj
+    ; ExprStackTopObj := ExprStackTopObj . ExpStackLink
+    ; DEC ( ExprStackCt )
+    ; <* ASSERT ( ExprStackTopObj = NIL ) = ( ExprStackCt = 0 ) *> 
+      LPoppedExprObj . ExpStackHt := 0
+    ; GLastPoppedExpr := LPoppedExprObj
+    ; RETURN LPoppedExprObj 
     END PopExprStack
+
+(*EXPORTED.*)
+; PROCEDURE PruneExprStack ( ToDepth : INTEGER := 0 )
+
+  = BEGIN (*PruneExprStack*)
+      IF ExprStackCt > ToDepth 
+      THEN 
+        FM3Messages . FM3LogArr
+          ( ARRAY OF REFANY
+              { "Expression number "
+              , Fmt . Int ( ExprStackTopObj . ExpSelfExprNo )
+              , " remains on expression stack at depth "
+              , Fmt . Int ( ExprStackCt )
+              , " when expected down to depth "
+              , Fmt . Int ( ToDepth )
+              , "." 
+              } 
+          , ExprStackTopObj . ExpPosition
+          ) 
+      ; REPEAT EVAL PopExprStack ( ) 
+      ; UNTIL ExprStackCt <= ToDepth  
+      END (*IF*) 
+   END PruneExprStack
 
 (*EXPORTED*) 
 ; PROCEDURE IsNumericType ( Expr : ExprTyp ) : BOOLEAN 
@@ -760,7 +792,9 @@ MODULE FM3Exprs
 
 ; BEGIN
     GIndentStrings [ 0 ] := "" 
-  ; GIndentStrings [ 1 ] := "" 
+  ; GIndentStrings [ 1 ] := ""
+  ; ExprStackTopObj := NIL
+  ; ExprStackCt := 0
   END FM3Exprs
 .
 

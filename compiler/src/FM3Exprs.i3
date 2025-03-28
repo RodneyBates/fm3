@@ -101,7 +101,8 @@ INTERFACE FM3Exprs
     = OBJECT
         ExpStackLink : ExprTyp := NIL
         (* Deeper on stack is parent expression.*)
-        (* NIL in root expression of a tree. *) 
+        (* NIL in root expression of a tree. *)
+      ; ExpStackHt : INTEGER := 0 
       ; ExpType : ExprTyp := NIL
       ; ExpRefConstVal : REFANY := NIL
       ; ExpScalarConstVal : LONGINT := 0L
@@ -322,12 +323,15 @@ INTERFACE FM3Exprs
 
 (* Let's just make this one a linked stack. *) 
 ; VAR ExprStackTopObj : ExprTyp := NIL
+; VAR ExprStackCt : INTEGER := 0
 ; VAR ExprTopDeclNo : INTEGER := 0
 (* INVARIANT: (ExprStackTopObj = NIL) = (ExprTopDeclNo = 0). *)
 
 ; PROCEDURE PushExprStack ( NewExpr : ExprTyp )
 
 ; PROCEDURE PopExprStack ( ) : ExprTyp 
+
+; PROCEDURE PruneExprStack ( ToDepth : INTEGER := 0 )
 
 ; PROCEDURE IsNumericType ( Expr : ExprTyp ) : BOOLEAN 
 
