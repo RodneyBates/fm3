@@ -107,7 +107,7 @@ Boolean options default to FALSE.
 
 --[no-]disasm-verbose
        When disassembling intermediate files, show displacements and
-       binary values of token codes. 
+       binary values of token codes. Defaults to TRUE.  
        
 -d<passNum>
 --[no-]disasm-passes[=]<passNum> ..
