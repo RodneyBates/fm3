@@ -99,7 +99,7 @@ MODULE FM3Pass1
 
   = BEGIN
       <* ASSERT RdBack # FM3Globals . P2RdBack *>
-IF ValueL = 492L
+IF ValueL = 238L
 THEN EVAL Coord ( )
 END ; 
       IF TRUE 
@@ -2160,7 +2160,8 @@ END ;
       DO IF WScan . SaAtom = FM3Base . AtomNull 
         THEN (* Reserved Ident. *)
           LReqdActualsCt := BuiltinActualCt ( WScan . SaBuiltinTok ) 
-        ; IF LReqdActualsCt > 0 OR LReqdActualsCt = FM3Builtins . ActualsCtAtLeastOne 
+        ; IF LReqdActualsCt > 0
+             OR LReqdActualsCt = FM3Builtins . ActualsCtAtLeastOne 
           THEN
             FM3Messages . ErrorArr
               ( ARRAY OF REFANY
@@ -2317,7 +2318,9 @@ END ;
             ( WunRdBack , VAL ( LtIdAttr . Scan . Position . Column , LONGINT ) )
         ; PutBwd 
             ( WunRdBack , VAL ( LtIdAttr . Scan . Position . Line , LONGINT ) )
-        ; PutBwd ( WunRdBack , VAL ( Itk . ItkInvalidRef , LONGINT ) ) 
+        ; PutBwd 
+            ( WunRdBack , VAL ( LtIdAttr . Scan . SaAtom , LONGINT ) )
+        ; PutBwd ( WunRdBack , VAL ( Itk . ItkIdRefAtomNotUsable , LONGINT ) ) 
         ELSE (* Neither ident is reserved. *) 
           WITH WIdentRefSet = FM3Scopes . DeclScopeStackTopRef ^ . ScpRefIdSet
           DO WIdentRefSet
@@ -2508,11 +2511,14 @@ END ;
           )
       END (*IF*) 
     ; SkipFrom ( TokAttr . PaPass1Coord ) (* Skip the reserved id. *)
-    ; PutBwd_TIP
-        ( Itk . ItkIdRefAtomNotUsable
-        , FM3Base . AtomNull
-        , ActualsAttr . Scan . Position
-        ) 
+    ; PutNotUsable ( TokAttr . Scan . SaAtom , TokAttr . Scan . Position )
+(* Duplicates the above^.
+    ; PutBwd_TP
+        ( Itk . ItkDeclValAbsent , ActualsAttr . Scan . Position )
+        (* ^ Could be ItkDeclTypeAbsent, but we can't tell without a
+           lot of work, and its only for debugging token streams.
+        *)
+*) 
     ; RETURN FALSE 
     END CheckReservedActualsCt 
 

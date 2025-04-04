@@ -126,6 +126,7 @@ INTERFACE FM3Scopes
       ; ScpDeclStackHt : INTEGER := 0
       ; ScpOpenStackHt : INTEGER := 0
         (* ^Number scopes beneath, where "beneath" is reflexively closed. *)
+      ; ScpCurDeclExprStackCt : INTEGER := 0 (* At beginning and end of decl. *)
 (* CHECK ^Do we really need this? *) 
       ; ScpPosition : FM3Base . tPosition 
       ; ScpKind : ScopeKindTyp

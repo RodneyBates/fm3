@@ -573,8 +573,10 @@ ItkROFormalId    IDENT POS .
 ; CONST ItkVarDeclValueTemp             (*ArgCt: 2*) =   484 (*16_e4 03 *)
 ; CONST ItkVarDeclValuePatch            (*ArgCt: 2*) =   485 (*16_e5 03 *)
 
+(* A Decl's type def. *)
 (* LONE ItkDeclTypeAbsent: *)
 ; CONST ItkDeclTypeAbsent               (*ArgCt: 2*) =   486 (*16_e6 03 *)
+(* A Decl's tvalue def. *)
 (* LONE ItkDeclValAbsent: *)
 ; CONST ItkDeclValAbsent                (*ArgCt: 2*) =   487 (*16_e7 03 *)
 (* One formal, with possibly multiple idents. *)

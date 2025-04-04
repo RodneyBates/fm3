@@ -379,9 +379,6 @@ MODULE FM3Pass2
                *) 
             SkipRt ( GetBwdInt ( LPass1RdBack) ) 
           (* and loop. *)
-; IF LToken = 1109
-  THEN LToken := 1109 + 0
-  END 
           ELSIF 
             VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
           THEN (* Skip it and loop. *) 
@@ -495,6 +492,7 @@ MODULE FM3Pass2
 
   = VAR LUnitRef : FM3Units . UnitRefTyp
   ; VAR LScopeRef : FM3Scopes . ScopeRefTyp
+  ; VAR LParentExpr : FM3Exprs . ExprTyp 
   
   ; BEGIN
       LUnitRef := FM3Units . UnitStackTopRef
@@ -515,19 +513,22 @@ MODULE FM3Pass2
             ( P2RdBack , VAL ( NewExprObj . ExpPosition . Line , LONGINT ) ) 
         ; PutBwdP2 ( P2RdBack , VAL ( NewExprObj . ExpSelfExprNo , LONGINT ) )
         ; PutBwdP2 ( P2RdBack , VAL ( Itk . ItkDefTopExprNo , LONGINT ) )
-        ELSE (* Inherit some things from parent expr node. *) 
+        ELSE (* Inherit some things from parent expr node. *)
+          (* Assertions inside TYPECASE branches seem to just RETURN *)
           TYPECASE FM3Exprs . ExprStackTopObj OF 
-          | NULL => <* ASSERT FALSE , "Orphan expr node" *> 
+          | NULL => LParentExpr := NIL 
           | FM3Exprs . ExprTyp ( TParentExpr ) 
           =>  NewExprObj . ExpDownKind := TParentExpr . ExpDownKind
             ; NewExprObj . ExpIsLegalRecursive
                 := NewExprObj . ExpIsLegalRecursive
                    OR TParentExpr . ExpIsLegalRecursive
-          ELSE <* ASSERT FALSE , "Orphan expr node" *>
+            ; LParentExpr := TParentExpr 
+          ELSE LParentExpr := NIL 
           END (*TYPECASE*)
         END (*IF*)
       END (*WITH*) 
     ; FM3Exprs . PushExprStack ( NewExprObj )
+    ; <* ASSERT LParentExpr # NIL *> 
     END DefExprRt 
 
 ;  PROCEDURE WrongKindMsg
@@ -790,7 +791,7 @@ MODULE FM3Pass2
         END (*WITH*)
       END HtExprOpnd1 
 
-  ; PROCEDURE HtExprOpnd2  ( )
+  ; PROCEDURE HtExprOpnd2 ( )
       (* PRE: TOS is 2nd operand, TOS-1 is parent. *) 
     = VAR LOpnd : FM3Exprs . ExprTyp
     ; VAR LParentExpr : FM3Exprs . Expr2OpndTyp 
@@ -907,11 +908,9 @@ MODULE FM3Pass2
         := VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
 
 ; TRY 
-  IF TokResult . TrTok = 1079
-  THEN HtSkipping := FALSE 
-  END 
-
-    ; CASE TokResult . TrTok OF
+      CASE TokResult . TrTok OF
+      | 602
+      => LLongInt := 1L
 
       | Itk . ItkScopeEmpty 
       =>  HtPassTokenThru ( ) 
@@ -955,7 +954,11 @@ MODULE FM3Pass2
       | Itk . ItkConstDeclRt 
       , Itk . ItkVarDeclRt 
       , Itk . ItkFieldDeclRt (* Of either record or object. *)
-      =>  FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := TRUE 
+      =>  FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefExprs
+            := ARRAY BOOLEAN OF REFANY { NIL , .. }
+        ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := TRUE
+        ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDeclExprStackCt 
+            := FM3Exprs . ExprStackCt 
         ; HtPassTokenThru ( )
 
       | Itk . ItkVALUEFormalRt
@@ -967,6 +970,8 @@ MODULE FM3Pass2
             := ARRAY BOOLEAN OF REFANY { NIL , .. }
         ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := TRUE
             (* ^Value def coming up next. *)
+        ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDeclExprStackCt
+            := FM3Exprs . ExprStackCt 
         ; HtPassTokenThru ( )
 
       | Itk . ItkConstDeclValue (* Parser ensures this exists, no boolean arg. *)
@@ -996,6 +1001,7 @@ MODULE FM3Pass2
       | Itk . ItkDeclTypeAbsent
       , Itk . ItkDeclValAbsent
       =>  LPosition := GetBwdPos ( TokResult . TrRdBack )
+          (* An especially dumb ExprRef, just to keep expr stack consistent. *)
         ; FM3Exprs . PushExprStack
             ( NEW ( FM3Exprs . ExprTyp
                   , ExpIsPresent := FALSE
@@ -1033,7 +1039,10 @@ MODULE FM3Pass2
       , Itk . ItkROFormalLt
       , Itk . ItkFieldDeclLt (* Of either record or object. *)
       
-      =>  FM3Exprs . PruneExprStack ( ToDepth := 0 ) 
+      =>  FM3Exprs . PruneExprStack
+            ( ToDepth
+                := FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDeclExprStackCt
+            ) 
         ; HtPassTokenThru ( )
 
       | Itk . ItkTypeDeclRt
@@ -1044,7 +1053,7 @@ MODULE FM3Pass2
         ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefExprs
             := ARRAY BOOLEAN OF REFANY { NIL , .. }
         ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := FALSE
-            (* ^ TYPE Decl has only a type def. *) 
+            (* ^ TYPE Decl and revelation have only a type def. *) 
         ; HtPassTokenThru ( )
 
       | Itk . ItkTypeDeclType
@@ -1059,9 +1068,7 @@ MODULE FM3Pass2
       =>  HtPassTokenThru ( )
 
       | Itk . ItkMethodDeclLt
-      =>  (* One subtree to pop. *)
-          EVAL FM3Exprs . PopExprStack ( )  
-        ; HtPassTokenThru ( )
+      =>  HtPassTokenThru ( )
 
 (* CONSISTIFY: For some of these, fetch the operands inside the called proc. *) 
       | Itk . ItkDuplDeclId
@@ -1076,8 +1083,7 @@ MODULE FM3Pass2
       | Itk . ItkReservedIdRef
       =>  IF InsideDecl ( )
           THEN
-            LNewExpr
-              := NEW ( FM3Exprs . ExprReservedIdRefTyp ) 
+            LNewExpr := NEW ( FM3Exprs . ExprReservedIdRefTyp ) 
           ; LNewExpr . ExpOpcode := GetBwdAtom ( TokResult . TrRdBack )
           ; LNewExpr . ExpPosition := GetBwdPos ( TokResult . TrRdBack )
           ; LNewExpr . ExpIsLegalRecursive := TRUE
@@ -1186,7 +1192,7 @@ MODULE FM3Pass2
       | Itk . ItkBrandAbsent
       =>  HtExprRt
             ( NEW ( FM3Exprs . ExprTyp
-                  , ExpUpKind := Ekt . EkNull
+                  , ExpUpKind := Ekt . EkBrand
                   , ExpIsLegalRecursive := TRUE
                   , ExpIsPresent := FALSE 
                   )
@@ -1229,7 +1235,7 @@ MODULE FM3Pass2
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
         ; LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN ) 
         ; HtExprOpnd1 ( ) (* Brand *)
-        ; SynthIsUsable2 ( FM3Exprs . PopExprStack ( ) (* The REF Type. *) )
+        ; SynthIsUsable2 ( FM3Exprs . ExprStackTopObj (* The REF Type. *) )
 
       (* Open array type: *) 
       | Itk . ItkOpenArrayTypeRt 
@@ -1609,7 +1615,7 @@ MODULE FM3Pass2
 
   = VAR DidAtom : FM3Base . AtomTyp
   ; VAR DidStdTok : FM3SrcToks . TokTyp 
-  ; VAR DidOpenDeclNo : FM3Globals . DeclNoTyp
+  ; VAR DidDeclNo : FM3Globals . DeclNoTyp
   ; VAR DidPosition : tPosition
   ; VAR DidDeclKind : FM3Decls . DeclKindTyp
 
@@ -1622,7 +1628,7 @@ MODULE FM3Pass2
         LScopeRef := FM3Scopes . DeclScopeStackTopRef 
       ; FM3Graph . AddArc
           ( (*IN OUT*) LScopeRef ^ . ScpDeclGraph
-          , DidOpenDeclNo - LScopeRef ^ . ScpMinDeclNo
+          , DidDeclNo - LScopeRef ^ . ScpMinDeclNo
             (* ^Bias to zero in graph. *) 
           , RefNoI - LScopeRef ^ . ScpMinDeclNo
           )
@@ -1752,20 +1758,20 @@ END ;
   IF FM3Scopes . DeclScopeStackTopRef = NIL
   THEN RETURN FM3Globals . DeclNoNull
   END (*IF*) ;  
-        DidOpenDeclNo
+        DidDeclNo
           := LookupDeclNoInScope
                ( FM3Scopes . DeclScopeStackTopRef ^ , DidAtom ) 
-      ; <*ASSERT DidOpenDeclNo # FM3Globals . DeclNoNull *>
+      ; <*ASSERT DidDeclNo # FM3Globals . DeclNoNull *>
         VarArray_Int_Refany . CallbackWithElem 
           ( FM3Units . UnitStackTopRef ^ . UntDeclMap
-          , DidOpenDeclNo
+          , DidDeclNo
           , DidVisitDecl
           )
       ; PutBwdP2 ( Wp2RdBack , VAL ( DidPosition . Column , LONGINT ) ) 
       ; PutBwdP2 ( Wp2RdBack , VAL ( DidPosition . Line , LONGINT ) ) 
-      ; PutBwdP2 ( Wp2RdBack , VAL ( DidOpenDeclNo , LONGINT ) ) 
+      ; PutBwdP2 ( Wp2RdBack , VAL ( DidDeclNo , LONGINT ) ) 
       ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkDeclNo , LONGINT ) )
-      ; RETURN DidOpenDeclNo
+      ; RETURN DidDeclNo
       END (*WITH*) 
     END DeclIdR2L
 
@@ -2070,7 +2076,8 @@ END ;
   ; VAR LUnitTok , LDeclTok : FM3SrcToks . TokTyp
 
   ; BEGIN
-      IF NOT OrigExpr . ExpIsUsable THEN RETURN OrigExpr END (*IF*)
+      IF TRUE
+         OR NOT OrigExpr . ExpIsUsable THEN RETURN OrigExpr END (*IF*)
     ; TYPECASE OrigExpr OF
       | NULL => RETURN NIL
       | FM3Exprs . ExprArgsObj ( TCallExpr )

@@ -41,7 +41,8 @@ INTERFACE FM3Exprs
      , EkType 
      , EkProc 
      , EkFunc 
-     , EkValue 
+     , EkValue
+     , EkBrand 
      , EkConst (* A Subcategory of EkValue *)     
      , EkRef 
      }

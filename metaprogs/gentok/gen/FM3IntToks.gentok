@@ -200,8 +200,8 @@ ItkVarDecl POS 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
 .
 
 LONE
-  ItkDeclTypeAbsent POS .
-  ItkDeclValAbsent POS . 
+  ItkDeclTypeAbsent POS (* A Decl's type def. *) .
+  ItkDeclValAbsent POS  (* A Decl's tvalue def. *) .
 
 (* One formal, with possibly multiple idents. *)
 FIXED 
