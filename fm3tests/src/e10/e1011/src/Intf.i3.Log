@@ -1,42 +1,36 @@
 [31mERROR: [0mIntf.i3[1,10] Interface name "Intfxx" does not agree with file name "Intf.i3" (FM3 requirement).
 [31mERROR: [0mIntf.i3[7,6] Variable must have a type and/or an initial value (2.4.3)
-[31mERROR: [0mIntf.i3[10,16] VALUE formal must have a type and/or a default (2.2.8)
-[31mERROR: [0mIntf.i3[10,24] VAR formal must have a type (2.2.8).
+[31mERROR: [0mIntf.i3[10,16] VALUE formal must have a type and/or a default ((2.2.8)).
+[31mERROR: [0mIntf.i3[10,26] VAR formal must have a type (2.2.8).
 [31mERROR: [0mIntf.i3[10,26] VAR formal cannot have a default (2.2.8).
-[31mERROR: [0mIntf.i3[10,43] READONLY formal must have a type and/or a default (2.2.8)
-[31mERROR: [0mIntf.i3[10,53] VALUE formal must have a type and/or a default (2.2.8)
-[31mERROR: [0mIntf.i3[11,21] A procedure in an interface must not have a body (2.5.2).
-[31mERROR: [0mIntf.i3[14,18] Record field must have a type and/or a default (2.2.4)
-[31mERROR: [0mIntf.i3[14,22] Record field must have a type and/or a default (2.2.4)
-[31mERROR: [0mIntf.i3[17,32] VALUE formal must have a type and/or a default (2.2.8)
-[31mERROR: [0mIntf.i3[18,21] Object field must have a type and/or a default (2.2.9)
-[31mERROR: [0mIntf.i3[19,33] VALUE formal must have a type and/or a default (2.2.8)
-[31mERROR: [0mIntf.i3[20,29] Reserved identifier "CHAR" cannot be declared (2.8.2).
-[31mERROR: [0mIntf.i3[22,37] Reserved identifier "TEXT" cannot denote an overridable method. (2.8.2).
-[31mERROR: [0mIntf.i3[25,8] Reserved identifier "INTEGER" cannot be declared (2.8.2).
-[31mERROR: [0mIntf.i3[31,18] Reserved identifier "REAL" is not a function and cannot be called 
-[31mERROR: [0mIntf.i3[36,18] Reserved identifier "CHAR" cannot be subscripted (2.8.2).
-[31mERROR: [0mIntf.i3[41,13] Reserved identifier "CARDINAL" cannot have a qualifier. (2.8.2).
-[31mERROR: [0mIntf.i3[41,24] Reserved identifier "MUTEX" cannot be a qualifier. (2.8.2).
-[31mERROR: [0mIntf.i3[47,19] Reserved identifier "FALSE" cannot be dereferenced (2.8.2).
-[31mERROR: [0mIntf.i3[52,13] "ABS" is a function and must have a parameter list.
-[31mERROR: [0mIntf.i3[53,17] Reserved identifier "ABS" requires one actual parameter
-[31mERROR: [0mIntf.i3[55,17] Reserved identifier "ABS" requires one actual parameter
-[31mERROR: [0mIntf.i3[56,17] Reserved identifier "ABS" requires one actual parameter
-[31mERROR: [0mIntf.i3[58,17] Reserved identifier "MIN" requires two actual parameters
-[31mERROR: [0mIntf.i3[60,17] Reserved identifier "MIN" requires two actual parameters
-[31mERROR: [0mIntf.i3[62,16] Reserved identifier "NEW" requires one or more actual parameters
-[31mERROR: [0mIntf.i3[68,21] Reserved identifier "SUBARRAY" requires three actual parameters
-[31mERROR: [0mIntf.i3[69,21] Reserved identifier "SUBARRAY" requires three actual parameters
-[31mERROR: [0mIntf.i3[70,21] Reserved identifier "SUBARRAY" requires three actual parameters
-[31mERROR: [0mIntf.i3[73,21] Reserved identifier "SUBARRAY" requires three actual parameters
-[31mERROR: [0mIntf.i3[93,6] Identifier "Intfyy" at end of INTERFACE named "Intfxx", at [1,10], must repeat its name (2.5.2).
-[31mERROR: [0mIntf.i3[66,19] Left parameter of NEW must be a type.
-[31mERROR: [0mIntf.i3[65,19] Left parameter of NEW must be a type.
-[31mERROR: [0mIntf.i3[64,19] Left parameter of NEW must be a type.
-[31mERROR: [0mIntf.i3[63,18] Left parameter of NEW must be a type.
-[31mERROR: [0mIntf.i3[59,19] Left parameter of MIN must be a value.
-[31mERROR: [0mIntf.i3[59,24] Second parameter of MIN must be a value.
-[31mERROR: [0mIntf.i3[54,19] Left parameter of ABS must be a value.
-[31mERROR: [0mIntf.i3[23,36] Undeclared identifier "m", (2.1).
-[31mERROR: [0mIntf.i3[29,12] Illegal recursive declaration: "real"
+[31mERROR: [0mIntf.i3[10,34] READONLY formal must have a type and/or a default ((2.2.8)).
+[31mERROR: [0mIntf.i3[10,47] VALUE formal must have a type and/or a default ((2.2.8)).
+[31mERROR: [0mIntf.i3[12,21] A procedure in an interface must not have a body (2.5.2).
+[31mERROR: [0mIntf.i3[16,18] Record field must have a type and/or a default (2.2.4)
+[31mERROR: [0mIntf.i3[16,22] Record field must have a type and/or a default (2.2.4)
+[31mERROR: [0mIntf.i3[18,32] VALUE formal must have a type and/or a default ((2.2.8)).
+[31mERROR: [0mIntf.i3[19,21] Object field must have a type and/or a default (2.2.9)
+[31mERROR: [0mIntf.i3[20,33] VALUE formal must have a type and/or a default ((2.2.8)).
+[31mERROR: [0mIntf.i3[21,29] Reserved identifier "CHAR" cannot be declared (2.8.2).
+[31mERROR: [0mIntf.i3[23,37] Reserved identifier "TEXT" cannot denote an overridable method. (2.8.2).
+[31mERROR: [0mIntf.i3[26,8] Reserved identifier "INTEGER" cannot be declared (2.8.2).
+[31mERROR: [0mIntf.i3[32,18] Reserved identifier "REAL" is not a function and cannot be called 
+[31mERROR: [0mIntf.i3[40,18] Reserved identifier "CHAR" cannot be subscripted (2.8.2).
+[31mERROR: [0mIntf.i3[46,13] Reserved identifier "CARDINAL" cannot have a qualifier. (2.8.2).
+[31mERROR: [0mIntf.i3[46,24] Reserved identifier "MUTEX" cannot be a qualifier. (2.8.2).
+[31mERROR: [0mIntf.i3[54,19] Reserved identifier "FALSE" cannot be dereferenced (2.8.2).
+[31mERROR: [0mIntf.i3[59,13] Reserved identifier "ABS" is a function and must have a parameter list.
+[31mERROR: [0mIntf.i3[60,17] Reserved identifier "ABS" requires one actual parameter
+[31mERROR: [0mIntf.i3[62,17] Reserved identifier "ABS" requires one actual parameter
+[31mERROR: [0mIntf.i3[63,17] Reserved identifier "ABS" requires one actual parameter
+[31mERROR: [0mIntf.i3[65,17] Reserved identifier "MIN" requires two actual parameters
+[31mERROR: [0mIntf.i3[67,17] Reserved identifier "MIN" requires two actual parameters
+[31mERROR: [0mIntf.i3[69,16] Reserved identifier "NEW" requires one or more actual parameters
+[31mERROR: [0mIntf.i3[75,21] Reserved identifier "SUBARRAY" requires three actual parameters
+[31mERROR: [0mIntf.i3[76,21] Reserved identifier "SUBARRAY" requires three actual parameters
+[31mERROR: [0mIntf.i3[78,21] Reserved identifier "SUBARRAY" requires three actual parameters
+[31mERROR: [0mIntf.i3[80,21] Reserved identifier "SUBARRAY" requires three actual parameters
+[31mERROR: [0mIntf.i3[94,6] Identifier "Intfyy" at end of INTERFACE named "Intfxx", at [1,10], must repeat its name (2.5.2).
+[31mERROR: [0mIntf.i3[52,14] Undeclared identifier "P", (2.1).
+[31mERROR: [0mIntf.i3[30,14] Undeclared identifier "real", (2.1).
+[31mERROR: [0mIntf.i3[24,36] Undeclared identifier "m", (2.1).
