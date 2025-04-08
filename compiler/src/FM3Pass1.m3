@@ -1103,6 +1103,29 @@ END ;
     END PutBwd_LCP_rp
 
 (*EXPORTED:*)
+; PROCEDURE PutBwd_LCBP_rbp
+   ( T : Itk . TokTyp
+   ; C : LONGINT
+   ; B : BOOLEAN 
+   ; READONLY Position : tPosition
+   )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( ORD ( B ) , LONGINT ) )  
+      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) )  
+      ; PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( ORD ( B ) , LONGINT ) )   
+      ; PutBwd ( WRdBack , C ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END PutBwd_LCBP_rbp
+
+(*EXPORTED:*)
 ; PROCEDURE PutBwd_LCBP_eCP_rbP
    ( T : Itk . TokTyp
    ; C1 : LONGINT
@@ -1452,6 +1475,20 @@ END ;
       ; PutBwd ( WRdBack , VAL ( T , LONGINT ) )
       END (*WITH*) 
     END PutBwd_TP
+
+(*EXPORTED:*)
+; PROCEDURE PutBwd_TBP
+    ( T : Itk . TokTyp ; B : BOOLEAN ; READONLY P : tPosition )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( P . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( P. Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( ORD ( B ) , LONGINT ) )
+      ; PutBwd ( WRdBack , VAL ( T , LONGINT ) )
+      END (*WITH*) 
+    END PutBwd_TBP
 
 (*EXPORTED:*)
 ; PROCEDURE PutBwd_TCP
@@ -2167,7 +2204,7 @@ END ;
               ( ARRAY OF REFANY
                   { "Reserved identifier \""
                   , FM3SrcToks . Image ( WScan . SaBuiltinTok )
-                  , "\" is a function and must have a parameter list." 
+                  , "\" is a builtin function and must have a parameter list." 
                   }
               , WScan . Position 
               )
@@ -2385,7 +2422,7 @@ END ;
           ( ARRAY OF REFANY
               { "\""
               , FM3SrcToks . Image ( IdAttr . Scan . SaBuiltinTok )
-              , "\" is a function requiring "
+              , "\" is a builtin procedure requiring "
               , Fmt . Int ( ExpectedCt ) 
               , " actual parameter"
               , FM3SharedUtils . PluralSuffix ( ExpectedCt )

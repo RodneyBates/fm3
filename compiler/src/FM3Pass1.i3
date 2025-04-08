@@ -206,6 +206,13 @@ INTERFACE FM3Pass1
 ; PROCEDURE PutBwd_LCP_rp
    ( T : Itk . TokTyp ; C : LONGINT ; READONLY Position : tPosition )
 
+; PROCEDURE PutBwd_LCBP_rbp
+   ( T : Itk . TokTyp
+   ; C : LONGINT
+   ; B : BOOLEAN 
+   ; READONLY Position : tPosition
+   )
+
 ; PROCEDURE PutBwd_LCBP_eCP_rbP
    ( T : Itk . TokTyp
    ; C1 : LONGINT
@@ -286,6 +293,9 @@ INTERFACE FM3Pass1
     )
 
 ; PROCEDURE PutBwd_TP ( T : Itk . TokTyp ; READONLY P : tPosition )
+
+; PROCEDURE PutBwd_TBP
+    ( T : Itk . TokTyp ; B : BOOLEAN ; READONLY P : tPosition )
 
 ; PROCEDURE PutBwd_TCP
    ( T : Itk . TokTyp ; C : LONGINT ; READONLY P : tPosition )

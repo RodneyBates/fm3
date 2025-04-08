@@ -149,12 +149,11 @@ FIXED
 ItkREFType BOOL POS 3 (* IsUntraced. *)
    Referent POS 2 .
 
-ItkOpenArrayType POS 2 .
+ItkArrayType BOOL (* IsOpen *) POS 3
+   Elmt BOOL POS 3 .
+LONE ItkSubscriptTypeAbsent POS 2 (* For open array type. *) .
 
-ItkFixedArrayType POS 2
-   Elmt POS 2
-. 
-
+FIXED 
 ItkSubrType POS 2
   Ellipsis POS 2
 . 

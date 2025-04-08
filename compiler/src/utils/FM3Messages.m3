@@ -89,7 +89,13 @@ MODULE FM3Messages
     END PutFM3Log 
 
 ; VAR GFM3LabelT := 
-        FM3TextColors . FGDkGreen & "FM3: " & FM3TextColors . Reset 
+        FM3TextColors . FGDkGreen & "FM3: " & FM3TextColors . Reset
+
+; VAR GFM3Label := ARRAY [ 0 .. 2 ] OF REFANY
+        { FM3TextColors . FGDkGreen 
+        , "FM3: "
+        , FM3TextColors . Reset 
+        }
 
 ; VAR GFM3FatalLabelT
         := FM3TextColors . FGRed & "FM3 FATAL: " & FM3TextColors . Reset 
@@ -153,7 +159,7 @@ MODULE FM3Messages
   = VAR LMsg : TEXT 
 
   ; BEGIN
-      LMsg := FM3SharedUtils . CatArrT ( Frags , GFM3LabelT ) 
+      LMsg := CodeMsgText ( Pos , GFM3Label , Frags ) 
     ; TRY (*EXCEPT*)
         PutStdOut ( LMsg ) 
       ; PutFM3Log ( LMsg ) 
@@ -164,7 +170,7 @@ MODULE FM3Messages
 
 ; PROCEDURE CodeMsgText
     ( READONLY Pos : FM3Base . tPosition
-    ; READONLY Label , Body: ARRAY OF REFANY
+    ; READONLY Label , Body : ARRAY OF REFANY
     )
   : TEXT
   (* Will look funny if either Label or Body displays as empty. *) 

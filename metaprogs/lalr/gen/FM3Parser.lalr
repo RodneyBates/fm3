@@ -464,7 +464,7 @@ RULE
            := FM3Scopes . NewScopeRef
                 ( LUnitRef 
                 , Skt . SkInterface
-                , FM3Scanner . Attribute . Position
+                , $2 . Scan . Position
                 ) ;
          LUnitRef ^ . UntScopeRef := LScopeRef ;
        END ; 
@@ -493,7 +493,7 @@ RULE
            := FM3Scopes . NewScopeRef
                 ( LUnitRef
                 , Skt . SkModule
-                , FM3Scanner . Attribute . Position
+                , $1 . Scan . Position
                 ) ;
          LUnitRef ^ . UntScopeRef := LScopeRef  ; 
        END ; 
@@ -519,7 +519,7 @@ RULE
 
    OptSemicolon : StkSemicolon { $$ . PaPos2 := $1 . Scan . Position ; } .
    OptSemicolon : /*Empty*/
-     { $$ . PaPos2 := FM3Scanner . Attribute . Position ;
+     { $$ . PaPos2 := $1 . Scan . Position ;
        (* If semicolon is absent, right end of item to left. *) 
      } . 
  
@@ -596,7 +596,7 @@ RULE
                 , IsExport := TRUE
                 ) ;
          FM3ExpImp . ImportAllDecls
-           ( LUnitRef , FM3Scanner . Attribute . Position ) ;
+           ( LUnitRef , $0 . Scan . Position ) ;
        END (* Block. *) ;  
      } .
 
@@ -1069,28 +1069,30 @@ RULE
 (* Used for variable and field declarations. *)
 
    DeclType : /* Absent or present, do this. */ 
-     { FM3Pass1 . PutBwd_EP 
+     { $$ . Scan . Position := $0 . Scan . Position ;
+       FM3Pass1 . PutBwd_EP 
          ( FM3Decls . TopDeclParseInfo ( ) . DiDeclTok
-         , FM3Scanner . Attribute . Position
+         , $0 . Scan . Position 
          ) ;
      } .
      
    OptDeclType : StkColon Type 
-     { $$ . PaBool (* Present. *) := FALSE (* Absent. *) ;
+     { $$ . PaBool (* Present. *) := TRUE ; 
        $$ . Scan . Position := $2 . Scan . Position ;
      } .
      
    OptDeclType : /*Empty*/
      { $$ . PaBool (* Present. *) := FALSE (* Absent. *) ;
-       $$ . Scan . Position := FM3Scanner . Attribute . Position ;
+       $$ . Scan . Position := $0 . Scan . Position ;
        FM3Pass1 . PutBwd_LP
-         ( Itk . ItkDeclTypeAbsent , FM3Scanner . Attribute . Position ) ; 
+         ( Itk . ItkDeclTypeAbsent , $0 . Scan . Position ) ; 
      } .
      
    DeclValue : /* Absent or present, do this. */
-     { FM3Pass1 . PutBwd_ZP 
+     { $$ . Scan . Position := $0 . Scan . Position ;
+       FM3Pass1 . PutBwd_ZP 
          ( FM3Decls . TopDeclParseInfo ( ) . DiDeclTok
-         , FM3Scanner . Attribute . Position
+         , $0 . Scan . Position 
          ) ;
      } .
      
@@ -1101,9 +1103,9 @@ RULE
      
    OptDeclValue : /*Empty*/
      { $$ . PaBool (* Present. *) := FALSE (* Absent. *) ;
-       $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
+       $$ . Scan . Position := $0 . Scan . Position ; 
        FM3Pass1 . PutBwd_LP
-         ( Itk . ItkDeclValAbsent , FM3Scanner . Attribute . Position ) ; 
+         ( Itk . ItkDeclValAbsent , $0 . Scan . Position ) ; 
      } . 
 
    VarDecl : VarDeclIds DeclType OptDeclType DeclValue OptDeclValue  
@@ -1187,26 +1189,37 @@ RULE
 
    Type : OpenArrayType .
 
-   OpenArrayType : StkRwARRAY StkRwOF Type 
-     { FM3Pass1 . PutBwd_LCP_rp
-         ( Itk . ItkOpenArrayTypeLt
+   OpenArrayTypeLt : StkRwARRAY StkRwOF
+     { (* Default coord, position. *)
+       FM3Pass1 . PutBwd_TP
+         ( Itk .ItkSubscriptTypeAbsent , $2 . Scan . Position ) ;
+       FM3Pass1 . PutBwd_TBP 
+         ( Itk . ItkArrayTypeElmt , TRUE , $2 . Scan . Position ) ;
+     } .
+
+   OpenArrayType : OpenArrayTypeLt Type 
+     { FM3Pass1 . PutBwd_LCBP_rbp
+         ( Itk . ItkArrayTypeLt
          , $1 . PaPass1Coord
+         , TRUE (* Open. *)  
          , $1 . Scan . Position 
          ) ;
      } .
 
    Type : FixedArrayType .
 
-   FixedArrayType : StkRwARRAY SubrType StkRwOF Type 
-     { FM3Pass1 . PutBwd_LCP_eCP_rP
-         ( Itk . ItkFixedArrayTypeLt
-         , $1 . PaPass1Coord
-         , $1 . Scan . Position
-         
-         , $3 . PaPass1Coord
-         , $3 . Scan . Position
+   FixedArrayTypeLt : StkRwARRAY SubrType StkRwOF 
+     { (* Default coord, position. *)
+       FM3Pass1 . PutBwd_TBP 
+         ( Itk . ItkArrayTypeElmt , FALSE , $3 . Scan . Position ) ;
+     } . 
 
-         , $1 . Scan . Position
+   FixedArrayType : FixedArrayTypeLt Type 
+     { FM3Pass1 . PutBwd_LCBP_rbp
+         ( Itk . ItkArrayTypeLt
+         , $1 . PaPass1Coord
+         , FALSE (* Open. *)  
+         , $1 . Scan . Position 
          ) ;
      } .
 

@@ -1000,6 +1000,7 @@ MODULE FM3Pass2
 
       | Itk . ItkDeclTypeAbsent
       , Itk . ItkDeclValAbsent
+      , Itk . ItkSubscriptTypeAbsent
       =>  LPosition := GetBwdPos ( TokResult . TrRdBack )
           (* An especially dumb ExprRef, just to keep expr stack consistent. *)
         ; FM3Exprs . PushExprStack
@@ -1237,17 +1238,25 @@ MODULE FM3Pass2
         ; HtExprOpnd1 ( ) (* Brand *)
         ; SynthIsUsable2 ( FM3Exprs . ExprStackTopObj (* The REF Type. *) )
 
-      (* Open array type: *) 
-      | Itk . ItkOpenArrayTypeRt 
+      (* Array type: *) 
+      | Itk . ItkArrayTypeRt 
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
+        ; LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN ) 
         ; HtExprRt
-            ( NEW ( FM3Exprs . ExprOpenArrayTypeTyp
-                  , ExpUpKind := Ekt . EkValue
+            ( NEW ( FM3Exprs . ExprBinOpTyp
+                  , ExpUpKind := Ekt . EkType
+                  , ExpOpcode := FM3SrcToks.StkRwARRAY 
                   )
             )
-
-      | Itk . ItkOpenArrayTypeLt
+            
+      | Itk . ItkArrayTypeElmt
       =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
+        ; LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN ) 
+        ; HtExprOpnd2 ( ) 
+
+      | Itk . ItkArrayTypeLt
+      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
+        ; LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN ) 
         ; HtExprOpnd1 ( ) 
 
       (* Subrange type: *) 
