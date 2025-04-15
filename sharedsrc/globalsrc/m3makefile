@@ -1,1 +1,1 @@
-interface("FM3SharedGlobals")
+module("FM3SharedGlobals")

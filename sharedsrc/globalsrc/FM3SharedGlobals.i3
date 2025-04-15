@@ -1,7 +1,7 @@
         
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+(* Copyright 2023..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -29,8 +29,11 @@ INTERFACE FM3SharedGlobals
 
 (* FileTag characters for files: *)
 
-(* For all FM3-specific file formats: Don't compress these. *) 
-; VAR FM3FileTagLt
+(* For all FM3-specific file formats: Don't compress these. *) klkkkkkkkkkk
+
+; CONST FM3FileTagLtT = "FM3"
+
+; CONST FM3FileTagLtOA
     := ARRAY [ 0 .. 2 ] OF Byte
       { VAL ( ORD ( 'F' ) , Byte )
       , VAL ( ORD ( 'M' ) , Byte )
@@ -38,13 +41,21 @@ INTERFACE FM3SharedGlobals
       }
   (* ^For normal forward reading. *) 
 
-; VAR FM3FileTagRtBwd
+; VAR FM3FileTagRtBwdxxx (* Let's not put one on the right end. *) 
     := ARRAY [ 0 .. 2 ] OF Byte
       { VAL ( ORD ( '3' ) , Byte )
       , VAL ( ORD ( 'M' ) , Byte )
       , VAL ( ORD ( 'F' ) , Byte )
       }
   (* For backward reading. *)
+
+; CONST FM3MagicT = "\xA2 , \x0B , \x9F , \xD9"
+
+; CONST FM3MagicOA
+    = ARRAY [ 0 .. 3 ] OF CHAR 
+        { VAL ( 16_A2 , CHAR ) , VAL ( 16_0B , CHAR )
+        , VAL ( 16_9F , CHAR ) , VAL ( 16_D9 , CHAR )
+        }
 
 (* Specific Filekinds: *)
 
