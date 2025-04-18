@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* File OrdSets.mg  Modula-3 source code.                                    *)
-(* Copyright 2010 .. 2020, Rodney M. Bates.                                  *)
+(* Copyright 2010 .. 2025, Rodney M. Bates.                                  *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *) 
 (* -----------------------------------------------------------------------2- *)
