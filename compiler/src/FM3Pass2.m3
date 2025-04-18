@@ -1653,9 +1653,6 @@ MODULE FM3Pass2
     ; VAR LIdentText : TEXT
 
     ; BEGIN (* DidVisitDecl *)
-IF DeclNoI = 20
-THEN LIdentText := "garbage"
-END ; 
         IF DeclRefany # NIL (* Some duplicate decls of DeclNoI also exist? *) 
         THEN (* Dispense with them with error messages. *) 
           LDeclRef := DeclRefany (* Implied NARROW. *)

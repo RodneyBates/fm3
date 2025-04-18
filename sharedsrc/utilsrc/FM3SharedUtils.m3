@@ -31,15 +31,6 @@ MODULE FM3SharedUtils
 ; IMPORT FM3SharedGlobals
 ; IMPORT FM3UnsafeUtils 
 
-; CONST FM3FileTag = "FM3"
-; VAR TagLength := Text . Length ( FM3FileTag )  
-
-; CONST FM3Magic
-    = ARRAY [ 0 .. 3 ] OF CHAR 
-        { VAL ( 16_A2 , CHAR ) , VAL ( 16_0B , CHAR )
-        , VAL ( 16_9F , CHAR ) , VAL ( 16_D9 , CHAR )
-        }
-
 (*EXPORTED*) 
 ; PROCEDURE LongHexImage ( Value : LONGINT ) : TEXT 
 
@@ -215,13 +206,6 @@ MODULE FM3SharedUtils
     ; RETURN LMsg 
     END CatArrT  
 
-(*EXPORTED*) 
-; PROCEDURE FileKindImage ( Kind : FileKindTyp ) : TEXT
-
-  = BEGIN
-      RETURN "\'" & Text . FromChar ( Kind ) & "\'" 
-    END FileKindImage
-
 (*EXPORTED*)
 ; PROCEDURE PutPosImage ( WrT : Wr . T ; Position : FM3Base . tPosition )
 
@@ -269,18 +253,55 @@ MODULE FM3SharedUtils
     END PutTextishArr 
 
 (*EXPORTED*) 
-; PROCEDURE FilePrefix ( Kind : FileKindTyp ) : TEXT 
+; PROCEDURE FileKindImage ( Kind : FM3SharedGlobals . FileKindTyp ) : TEXT
 
-  = VAR LResult : TEXT
+  = BEGIN
+      RETURN "\'" & Text . FromChar ( Kind ) & "\'" 
+    END FileKindImage
+
+(*EXPORTED*) 
+; PROCEDURE FilePrefixT
+    ( Kind : FM3SharedGlobals . FileKindTyp
+    ; Version : FM3SharedGlobals . FileVersionTyp
+    )
+  : TEXT 
+
+  = VAR LTextWrT : TextWr . T
+  ; VAR LResult : TEXT
   
   ; BEGIN
-      LResult
-        := FM3FileTag & Text . FromChar ( Kind ) & Text . FromChars ( FM3Magic )
+      LTextWrT := TextWr . New ( ) 
+    ; Wr . PutString ( LTextWrT , FM3SharedGlobals . FM3FileTagA )
+    ; Wr . PutChar ( LTextWrT , Kind )
+    ; Wr . PutChar ( LTextWrT , Version )
+    ; Wr . PutString ( LTextWrT , FM3SharedGlobals . FM3MagicA )
+    ; LResult := TextWr . ToText ( LTextWrT ) 
     ; RETURN LResult 
-    END FilePrefix
+    END FilePrefixT
 
+; PROCEDURE FilePrefixA
+    ( Kind : FM3SharedGlobals . FileKindTyp
+    ; Version : FM3SharedGlobals . FileVersionTyp
+    )
+  : ARRAY [ 0 .. 7 ] OF CHAR  
+
+  = VAR LResultA : ARRAY [ 0 .. 7 ] OF CHAR
+  
+  ; BEGIN
+      SUBARRAY ( LResultA , 0 , 3 ) := FM3SharedGlobals . FM3FileTagA
+    ; LResultA [ 4 ] := Kind
+    ; LResultA [ 5 ] := Version
+    ; SUBARRAY ( LResultA , 5 , 3 ) := FM3SharedGlobals . FM3MagicA
+    ; RETURN LResultA 
+    END FilePrefixA 
+
+(*EXPORTED*) 
 ; PROCEDURE ReadPrefix
-    ( RdT : Rd . T ; VAR Kind : FileKindTyp ; VAR IsOK : BOOLEAN )
+    ( RdT : Rd . T
+    ; VAR Kind : FM3SharedGlobals . FileKindTyp
+    ; VAR Version : FM3SharedGlobals . FileVersionTyp
+    ; VAR IsOK : BOOLEAN
+    )
 
   = VAR LCharPos : CARDINAL
   ; VAR LChar : CHAR
@@ -297,25 +318,35 @@ MODULE FM3SharedUtils
       ; LOOP
           IF Rd . EOF ( RdT ) THEN RETURN END (*IF*) 
         ; LChar := Rd . GetChar ( RdT )
-        ; IF LChar # Text . GetChar ( FM3FileTag , LCharPos )
+        ; IF LChar # FM3SharedGlobals . FM3FileTagA [ LCharPos ]
           THEN RETURN
           END (*IF*) 
         ; INC ( LCharPos ) 
-        ; IF LCharPos >= TagLength THEN EXIT END (*IF*) 
+        ; IF LCharPos >= NUMBER ( FM3SharedGlobals . FM3FileTagA )
+          THEN EXIT
+          END (*IF*) 
         END (*LOOP*)
 
       (* Get Kind byte: *) 
       ; IF Rd . EOF ( RdT ) THEN RETURN END (*IF*) 
       ; Kind := Rd . GetChar ( RdT )
 
+      (* Get Version byte: *) 
+      ; IF Rd . EOF ( RdT ) THEN RETURN END (*IF*) 
+      ; Version := Rd . GetChar ( RdT )
+
       (* Verify magic number: *) 
       ; LCharPos := 0
       ; LOOP
           IF Rd . EOF ( RdT ) THEN RETURN END (*IF*) 
         ; LChar := Rd . GetChar ( RdT )
-        ; IF LChar # FM3Magic [ LCharPos ] THEN RETURN END (*IF*) 
+        ; IF LChar # FM3SharedGlobals . FM3MagicA [ LCharPos ]
+          THEN RETURN
+          END (*IF*) 
         ; INC ( LCharPos ) 
-        ; IF LCharPos >= NUMBER ( FM3Magic )  THEN EXIT END (*IF*)   
+        ; IF LCharPos >= NUMBER ( FM3SharedGlobals . FM3MagicA )
+          THEN EXIT
+          END (*IF*)   
         END (*LOOP*)
 
       ; IsOK := TRUE 
@@ -353,19 +384,23 @@ MODULE FM3SharedUtils
 
 (*EXPORTED*) 
 ; PROCEDURE OpenResourceRd
-    ( FileName : TEXT := "" ; ExpectedFileKind : FileKindTyp ) 
+    ( FileName : TEXT := ""
+    ; ExpectedFileKind : FM3SharedGlobals . FileKindTyp
+    ) 
   : Rd . T
   RAISES { FatalError , Thread . Alerted } 
 
   = VAR LRelFileName : TEXT
   ; VAR LAbsFileName : TEXT
   ; VAR LRdT : Rd . T
-  ; VAR LFileKind : FileKindTyp 
+  ; VAR LFileKind : FM3SharedGlobals . FileKindTyp 
+  ; VAR LFileVersion : FM3SharedGlobals . FileVersionTyp 
   ; VAR LIsOK : BOOLEAN 
   
   ; BEGIN
       LRdT := OpenRd ( ResourceDirName , FileName )
-    ; ReadPrefix ( LRdT , (*OUT*) LFileKind , (*OUT*) LIsOK )  
+    ; ReadPrefix
+        ( LRdT , (*OUT*) LFileKind , (*OUT*) LFileVersion , (*OUT*) LIsOK )  
     ; IF NOT LIsOK OR LFileKind # ExpectedFileKind
       THEN (* Wrong kind. *) 
         LRelFileName := Libm3Pathname . Join ( ResourceDirName , FileName )
@@ -397,7 +432,7 @@ MODULE FM3SharedUtils
 
 (*EXPORTED*) 
 ; PROCEDURE ReadPickle
-    ( FileName : TEXT ; ExpectedKind : FileKindTyp )
+    ( FileName : TEXT ; ExpectedKind : FM3SharedGlobals . FileKindTyp )
   : REFANY
   RAISES { FatalError , Thread . Alerted } 
 
@@ -442,7 +477,7 @@ MODULE FM3SharedUtils
     END ReadPickle
 
 (*EXPORTED*) 
-; PROCEDURE ReadFsm ( FileName : TEXT ; Kind : FileKindTyp )
+; PROCEDURE ReadFsm ( FileName : TEXT ; Kind : FM3SharedGlobals . FileKindTyp )
   : FM3LexTable . T
   RAISES { Thread . Alerted } 
 
@@ -493,7 +528,7 @@ MODULE FM3SharedUtils
 (*EXPORTED*) 
 ; PROCEDURE ReadSets
     ( FileName : TEXT (* Simple name. *)
-    ; Kind : FileKindTyp
+    ; Kind : FM3SharedGlobals . FileKindTyp
     ; VAR Temp : IntSets . T 
     ; VAR Patch : IntSets . T 
     ; VAR Arg1 : IntSets . T 
@@ -637,12 +672,18 @@ MODULE FM3SharedUtils
       TRY FS . DeleteFile ( FileName )
       EXCEPT OSError . E => (* It didn't exist. *) 
       END (*EXCEPT*)
-    END DeleteFile 
+    END DeleteFile
+
+; VAR Dummy : CHAR 
 
 ; PROCEDURE IntSetsElemImage ( Elem : INTEGER ) : TEXT
-  (* Why do I have to wrap Fmt.Int? *) 
+ (* Why do I have to wrap Fmt.Int for this? *)
 
-  = BEGIN
+(*
+; PROCEDURE IntSetsElemImage ( Elem : IntSets . ValidElemT ) : TEXT
+(* TODO: Change to an OrdSets  ^ that expects OrdSets.ElemT here. *)
+*)
+ = BEGIN
       RETURN Fmt . Int ( Elem ) 
     END IntSetsElemImage
 

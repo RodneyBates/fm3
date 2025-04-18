@@ -13,7 +13,7 @@
 
 IMPORT Fmt, OSError, Rd, Thread, Text, TextWr, Word, Wr;
 
-IMPORT Positions, Strings, IntSets, System;
+IMPORT IntSets;
 
 IMPORT FM3SharedUtils;
 

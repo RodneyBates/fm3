@@ -1994,7 +1994,7 @@ EXPORTS Main
     END EmitFsmPickle
 
 ; (* For calling within a debugger *) 
-  PROCEDURE IntImage ( Val : IntSets . ValidElemT ) : TEXT
+  PROCEDURE IntImage ( Val : IntSets . ElemT ) : TEXT
   
   = BEGIN
       RETURN Fmt . Int ( Val ) 

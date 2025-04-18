@@ -7316,7 +7316,7 @@ GENERIC MODULE OrdSets ( )
 (* ========================= Enumeration of members ======================== *)
 
 ; PROCEDURE ForAllInBitwordDo 
-    ( Bitword : BitwordTyp ; Bit0IElem : IElemTyp ; Proc : ProcOfValidElem ) 
+    ( Bitword : BitwordTyp ; Bit0IElem : IElemTyp ; Proc : ProcOfElem ) 
   RAISES ANY 
 
   = VAR LBitword := Bitword 
@@ -7332,7 +7332,7 @@ GENERIC MODULE OrdSets ( )
     END ForAllInBitwordDo 
 
 (* EXPORTED *) 
-; PROCEDURE ForAllDo ( Set : T ; Proc : ProcOfValidElem )
+; PROCEDURE ForAllDo ( Set : T ; Proc : ProcOfElem )
   RAISES ANY
   (* Callback Proc(m) for every member m of T, in ascending order of ORD(m) *) 
 
@@ -7620,7 +7620,7 @@ GENERIC MODULE OrdSets ( )
         END (* IF *) 
       END FlushRange 
 
-  ; PROCEDURE Visit ( Elem : ValidElemT ) 
+  ; PROCEDURE Visit ( Elem : ElemT ) 
     RAISES { Thread . Alerted , Wr . Failure } 
 
     = VAR LIElem : ValidIElemTyp := ORD ( Elem ) 

@@ -8,8 +8,6 @@
 
 INTERFACE FM3SharedGlobals
 
-; FROM File IMPORT Byte
-
 ; IMPORT IntSets
 
 ; VAR GResourceDirName := "../lib"
@@ -29,33 +27,25 @@ INTERFACE FM3SharedGlobals
 
 (* FileTag characters for files: *)
 
-(* For all FM3-specific file formats: Don't compress these. *) klkkkkkkkkkk
+(* For all FM3-specific file formats: Don't compress these. *) 
 
-; CONST FM3FileTagLtT = "FM3"
+; CONST FM3FileTagT = "FM3"
 
-; CONST FM3FileTagLtOA
-    := ARRAY [ 0 .. 2 ] OF Byte
-      { VAL ( ORD ( 'F' ) , Byte )
-      , VAL ( ORD ( 'M' ) , Byte )
-      , VAL ( ORD ( '3' ) , Byte )
-      }
-  (* ^For normal forward reading. *) 
-
-; VAR FM3FileTagRtBwdxxx (* Let's not put one on the right end. *) 
-    := ARRAY [ 0 .. 2 ] OF Byte
-      { VAL ( ORD ( '3' ) , Byte )
-      , VAL ( ORD ( 'M' ) , Byte )
-      , VAL ( ORD ( 'F' ) , Byte )
-      }
-  (* For backward reading. *)
-
-; CONST FM3MagicT = "\xA2 , \x0B , \x9F , \xD9"
-
-; CONST FM3MagicOA
-    = ARRAY [ 0 .. 3 ] OF CHAR 
-        { VAL ( 16_A2 , CHAR ) , VAL ( 16_0B , CHAR )
-        , VAL ( 16_9F , CHAR ) , VAL ( 16_D9 , CHAR )
+; CONST FM3FileTagA
+    = ARRAY [ 0 .. 2 ] OF CHAR
+        { VAL ( ORD ( 'F' ) , CHAR )
+        , VAL ( ORD ( 'M' ) , CHAR )
+        , VAL ( ORD ( '3' ) , CHAR )
         }
+  (* ^Normal forward reading and writing at BOF. *) 
+
+; CONST FM3MagicT = "\xA2\x0B\x9F"
+
+; CONST FM3MagicA
+    = ARRAY [ 0 ..2 ] OF CHAR 
+        { VAL ( 16_A2 , CHAR ) , VAL ( 16_0B , CHAR ) , VAL ( 16_9F , CHAR ) }
+
+; TYPE FileKindTyp = CHAR
 
 (* Specific Filekinds: *)
 
@@ -65,11 +55,12 @@ INTERFACE FM3SharedGlobals
 ; VAR FM3FileKindM3RwPkl := 'B' (* Lex machine table. *) 
 ; VAR FM3FileKindPgRwPkl := 'B' (* Lex machine table. *)
 ; VAR FM3FileKindCltPkl  := 'B' (* Lex machine table. *)
-  (* Command line option strings. *) 
-; VAR FM3FileKindRdBackLt := 'D' 
-  (* Left end of FM3RdBackFile. *) 
-; VAR FM3FileKindRdBackRt  := 'E' 
-  (* Right end of FM3RdBackFile. *) 
+; VAR FM3FileKindRdBack  := 'D' (* Readback file. *)  
+
+; TYPE FileVersionTyp = CHAR(* Separate numbering for each Kind. *) 
+
+; TYPE PrefixTyp = ARRAY [ 0 .. 7 ] OF CHAR
+    (* 3 For the tag, one for kind char, one for version char, 3 for magic *) 
 
 ; END FM3SharedGlobals
 .

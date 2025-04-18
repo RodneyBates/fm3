@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+(* Copyright 2023..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -20,6 +20,7 @@ MODULE FM3Files
 
 ; IMPORT FM3LexTable 
 ; IMPORT FM3Messages 
+; IMPORT FM3SharedGlobals  
 ; IMPORT FM3SharedUtils 
 
 ; VAR SrcEnc : UniEncoding . Encoding := UniEncoding . Encoding . ISO8859_1
@@ -84,7 +85,8 @@ MODULE FM3Files
     END OpenUniRd
 
 (*EXPORTED*) 
-; PROCEDURE ReadFsm ( NamePrefix : TEXT ; Kind : FM3SharedUtils . FileKindTyp )
+; PROCEDURE ReadFsm
+    ( NamePrefix : TEXT ; Kind : FM3SharedGlobals . FileKindTyp )
   : FM3LexTable . T
   RAISES { Thread . Alerted } 
 

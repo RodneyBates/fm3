@@ -1,5 +1,5 @@
 
-(* -----------------------------------------------------------------------1- *)
+(*---------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2023..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
@@ -16,7 +16,8 @@ INTERFACE FM3SharedUtils
 ; IMPORT IntSets 
 
 ; IMPORT FM3Base 
-; IMPORT FM3LexTable 
+; IMPORT FM3LexTable
+; IMPORT FM3SharedGlobals
 
 ; <*IMPLICIT*>
   EXCEPTION Terminate ( TEXT ) 
@@ -69,11 +70,26 @@ INTERFACE FM3SharedUtils
 
 ; PROCEDURE PutTextishArr ( WrT : Wr . T ; READONLY Arr : ARRAY OF REFANY )
 
-; TYPE FileKindTyp = CHAR
+; PROCEDURE FileKindImage ( Kind : FM3SharedGlobals . FileKindTyp ) : TEXT
 
-; PROCEDURE FileKindImage ( Kind : FileKindTyp ) : TEXT
+; PROCEDURE FilePrefixT
+    ( Kind : FM3SharedGlobals . FileKindTyp
+    ; Version : FM3SharedGlobals . FileVersionTyp
+    )
+  : TEXT 
 
-; PROCEDURE FilePrefix ( Kind : CHAR ) : TEXT
+; PROCEDURE FilePrefixA
+    ( Kind : FM3SharedGlobals . FileKindTyp
+    ; Version : FM3SharedGlobals . FileVersionTyp
+    )
+  : ARRAY [ 0 .. 7 ] OF CHAR  
+
+; PROCEDURE ReadPrefix
+    ( RdT : Rd . T
+    ; VAR Kind : FM3SharedGlobals . FileKindTyp
+    ; VAR Version : FM3SharedGlobals . FileVersionTyp
+    ; VAR IsOK : BOOLEAN
+    )
 
 ; PROCEDURE OpenRd
     ( DirName , FileName , Note1 , Note2 : TEXT := "" )
@@ -81,22 +97,24 @@ INTERFACE FM3SharedUtils
   RAISES { FatalError } 
 
 ; PROCEDURE OpenResourceRd
-    ( FileName : TEXT := "" ; ExpectedFileKind : FileKindTyp )
+    ( FileName : TEXT := ""
+    ; ExpectedFileKind : FM3SharedGlobals . FileKindTyp
+    )
   : Rd . T
   RAISES { FatalError , Thread . Alerted } 
 
 ; PROCEDURE ReadPickle
-    ( FileName : TEXT ; ExpectedKind : FileKindTyp )
+    ( FileName : TEXT ; ExpectedKind : FM3SharedGlobals . FileKindTyp )
   : REFANY
   RAISES { FatalError , Thread . Alerted } 
 
-; PROCEDURE ReadFsm ( FileName : TEXT ; Kind : FileKindTyp )
+; PROCEDURE ReadFsm ( FileName : TEXT ; Kind : FM3SharedGlobals . FileKindTyp )
     : FM3LexTable . T
     RAISES { Thread . Alerted } 
 
 ; PROCEDURE ReadSets
     ( FileName : TEXT
-    ; Kind : FileKindTyp
+    ; Kind : FM3SharedGlobals . FileKindTyp
     ; VAR Temp : IntSets . T 
     ; VAR Patch : IntSets . T 
     ; VAR Arg1 : IntSets . T 

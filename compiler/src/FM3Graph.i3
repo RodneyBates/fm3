@@ -40,7 +40,7 @@ INTERFACE FM3Graph
 
 ; PROCEDURE ArcCt ( Graph : GraphTyp ) : INTEGER 
 
-; TYPE ArcVisitorProc = PROCEDURE ( Arc : ArcTyp )
+; TYPE ArcVisitorProc = PROCEDURE ( Arc : ArcTyp (* Must = IntSets.ElemT. *))
 
 ; PROCEDURE ForAllArcsDo ( Graph : GraphTyp ; VisitArc : ArcVisitorProc )
   (* Call back VisitArc for each arc in Graph. *) 

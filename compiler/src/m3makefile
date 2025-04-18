@@ -19,7 +19,7 @@ include_dir("utils")
 %include_dir("shared")
 include_dir("../../sharedsrc/utilsrc")
 include_dir("../../sharedsrc/globalsrc")
-%include_dir("../../sharedsrc/intsetssrc") %This is already in frontm3.
+include_dir("../../sharedsrc/intsetssrc") %This is already in frontm3.
 include_dir("../../sharedsrc/rdbacksrc")
 include_dir("../../sharedsrc/vararraysrc")
 include_dir("../../sharedsrc/lexsrc")
@@ -27,7 +27,7 @@ include_dir("../../sharedsrc/lexsrc")
 import("m3core")
 import("libm3")
 %import("reusem3") % Part of Cocktail. Apparently nothing from here.
-import("frontm3") % Part of Cocktail. 
+%import("frontm3") % Part of Cocktail. 
 import("libunicode")
 import("libvararray")
 

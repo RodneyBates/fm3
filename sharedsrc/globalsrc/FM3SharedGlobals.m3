@@ -8,7 +8,7 @@
 
 MODULE FM3SharedGlobals
 
-; IMPORT Text 
+; IMPORT Text
 
 ; PROCEDURE StaticCheck (  )
 
@@ -16,10 +16,10 @@ MODULE FM3SharedGlobals
   ; VAR LOK : BOOLEAN 
 
   ; BEGIN (*StaticCheck*)
-      LText := Text . FromChars ( FM3FileTagLtOA )
-    ; LOK := Text . Equal ( LText , FM3FileTagLtT )
+      LText := Text . FromChars ( FM3FileTagA )
+    ; LOK := Text . Equal ( LText , FM3FileTagT )
     ; <* ASSERT LOK *>  
-      LText := Text . FromChars ( FM3MagicOA )
+      LText := Text . FromChars ( FM3MagicA )
     ; LOK := Text . Equal ( LText , FM3MagicT )
     ; <* ASSERT LOK *>  
     END StaticCheck

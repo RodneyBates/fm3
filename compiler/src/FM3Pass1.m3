@@ -84,11 +84,6 @@ MODULE FM3Pass1
 
 ; VAR FileTagVersion := VAL ( ORD ( '1' ) , Byte )  
 
-; CONST LeftFileTagLen
-    = BYTESIZE ( FM3SharedGlobals . FM3FileTagLt )
-    + BYTESIZE ( FM3SharedGlobals . FM3FileKindRdBackLt )
-    + BYTESIZE ( FileTagVersion )
-
 ; CONST ALOSE = FM3Messages . AtomListToOSError
 
 ; PROCEDURE PutBwd ( RdBack : RdBackFile . T ; ValueL : LONGINT )
@@ -99,9 +94,6 @@ MODULE FM3Pass1
 
   = BEGIN
       <* ASSERT RdBack # FM3Globals . P2RdBack *>
-IF ValueL = 238L
-THEN EVAL Coord ( )
-END ; 
       IF TRUE 
       THEN
         TRY
