@@ -9,7 +9,8 @@
 MODULE FM3SharedUtils
 
 ; IMPORT Atom 
-; IMPORT AtomList 
+; IMPORT AtomList
+; IMPORT File 
 ; IMPORT FileRd
 ; IMPORT Fmt 
 ; IMPORT FS 
@@ -289,11 +290,31 @@ MODULE FM3SharedUtils
   
   ; BEGIN
       SUBARRAY ( LResultA , 0 , 3 ) := FM3SharedGlobals . FM3FileTagA
-    ; LResultA [ 4 ] := Kind
-    ; LResultA [ 5 ] := Version
+    ; LResultA [ 3 ] := Kind
+    ; LResultA [ 4 ] := Version
     ; SUBARRAY ( LResultA , 5 , 3 ) := FM3SharedGlobals . FM3MagicA
     ; RETURN LResultA 
     END FilePrefixA 
+
+; PROCEDURE FilePrefixB
+    ( Kind : FM3SharedGlobals . FileKindTyp
+    ; Version : FM3SharedGlobals . FileVersionTyp
+    )
+  : ARRAY [ 0 .. 7 ] OF File . Byte 
+
+  = VAR LResult : ARRAY [ 0 .. 7 ] OF File . Byte
+  
+  ; BEGIN
+      LResult [ 0 ] := ORD ( FM3SharedGlobals . FM3FileTagA [ 0 ] ) 
+    ; LResult [ 1 ] := ORD ( FM3SharedGlobals . FM3FileTagA [ 1 ] ) 
+    ; LResult [ 2 ] := ORD ( FM3SharedGlobals . FM3FileTagA [ 2 ] ) 
+    ; LResult [ 3 ] := ORD ( Kind ) 
+    ; LResult [ 4 ] := ORD ( Version ) 
+    ; LResult [ 5 ] := ORD ( FM3SharedGlobals . FM3MagicA [ 0 ] )
+    ; LResult [ 6 ] := ORD ( FM3SharedGlobals . FM3MagicA [ 1 ] )
+    ; LResult [ 7 ] := ORD ( FM3SharedGlobals . FM3MagicA [ 2 ] )
+    ; RETURN LResult 
+    END FilePrefixB 
 
 (*EXPORTED*) 
 ; PROCEDURE ReadPrefix

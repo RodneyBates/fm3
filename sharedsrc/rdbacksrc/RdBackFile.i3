@@ -1,7 +1,7 @@
         
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+(* Copyright 2023..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -29,7 +29,9 @@ INTERFACE RdBackFile
 
 ; TYPE T <: REFANY
 
-; TYPE ByteTyp = [ 0 .. 16_FF ] 
+; TYPE ByteTyp = [ 0 .. 16_FF ]
+
+(* All lengths and offsets within the file are relative to after the prefix. *) 
 
 ; PROCEDURE Create
     ( Filename : TEXT ; Truncate (* To empty. *) := FALSE ) : T
@@ -45,10 +47,12 @@ INTERFACE RdBackFile
   (* Number of bytes in the file. *) 
 
 ; PROCEDURE MaxLengthL ( RbFile : T ) : LONGCARD RAISES { OSError . E }
-  (* Max LengthL ever was since Create or Open. *) 
+  (* Max LengthL ever was since Create or Open. Eccludes prefix. *) 
 
 ; PROCEDURE IsEmpty ( RbFile : T ) : BOOLEAN RAISES { OSError . E }
   (* Possibly faster than LengthL(F)=0L. *) 
+
+; PROCEDURE Flush ( RbFile : T )
 
 ; PROCEDURE Close ( RbFile : T ; TruncTo : LONGINT )
   (* TruncTo < 0 means max length. *) 

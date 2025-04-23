@@ -9,6 +9,7 @@
 INTERFACE FM3SharedUtils
 
 ; IMPORT AtomList 
+; IMPORT File 
 ; IMPORT Rd
 ; IMPORT Thread
 ; IMPORT Wr
@@ -82,7 +83,13 @@ INTERFACE FM3SharedUtils
     ( Kind : FM3SharedGlobals . FileKindTyp
     ; Version : FM3SharedGlobals . FileVersionTyp
     )
-  : ARRAY [ 0 .. 7 ] OF CHAR  
+  : ARRAY [ 0 .. 7 ] OF CHAR
+
+; PROCEDURE FilePrefixB
+    ( Kind : FM3SharedGlobals . FileKindTyp
+    ; Version : FM3SharedGlobals . FileVersionTyp
+    )
+  : ARRAY [ 0 .. 7 ] OF File . Byte 
 
 ; PROCEDURE ReadPrefix
     ( RdT : Rd . T
