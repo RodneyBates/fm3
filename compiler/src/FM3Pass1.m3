@@ -274,7 +274,7 @@ MODULE FM3Pass1
                )
       ; LFullFileName :=  LFullPass1OutName 
       ; UnitRef ^ . UntPass1OutRdBack
-          := RdBackFile . Create ( LFullPass1OutName , Truncate := TRUE ) 
+          := RdBackFile . Create ( LFullPass1OutName ) 
       ; FM3Globals . P1RdBack := UnitRef ^ . UntPass1OutRdBack
         (* ^Cache for faster access. *)
 
@@ -286,7 +286,7 @@ MODULE FM3Pass1
                ) 
       ; LFullFileName :=  LFullPatchStackName 
       ; UnitRef ^ . UntPatchStackRdBack
-          := RdBackFile . Create ( LFullPatchStackName , Truncate := TRUE )
+          := RdBackFile . Create ( LFullPatchStackName )
       ; FM3Globals . PatchRdBack := UnitRef ^ . UntPatchStackRdBack 
         (* ^Cache for faster access. *) 
       

@@ -12,6 +12,8 @@ INTERFACE FM3UnsafeUtils
    removed, when sizes don't match.
 *) 
 
+; IMPORT File 
+
 ; PROCEDURE AddrToLongInt  ( Arg : ADDRESS ) : LONGINT
 
 ; PROCEDURE RefanyToLongInt  ( Arg : REFANY ) : LONGINT
@@ -30,7 +32,14 @@ INTERFACE FM3UnsafeUtils
 
 ; PROCEDURE LongIntToLongReal  ( Arg : LONGINT ) : LONGREAL 
 
-; PROCEDURE LongIntToExtended  ( Arg : LONGINT ) : EXTENDED 
+; PROCEDURE LongIntToExtended  ( Arg : LONGINT ) : EXTENDED
+
+; TYPE Bytes8Typ = ARRAY [ 0 .. 7 ] OF File . Byte 
+
+; PROCEDURE Bytes8ToLongInt
+    ( VALUE (* This should 8-byte-align Arg. *) Arg : Bytes8Typ ) : LONGINT
+
+; PROCEDURE LongIntToBytes8 ( Arg : LONGINT ) : Bytes8Typ
 
 ; END FM3UnsafeUtils 
 .

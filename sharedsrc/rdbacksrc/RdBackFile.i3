@@ -33,8 +33,7 @@ INTERFACE RdBackFile
 
 (* All lengths and offsets within the file are relative to after the prefix. *) 
 
-; PROCEDURE Create
-    ( Filename : TEXT ; Truncate (* To empty. *) := FALSE ) : T
+; PROCEDURE Create ( Filename : TEXT ) : T
   RAISES { OSError . E , Preexists (* Only if NOT Truncate *) }   
 
 ; PROCEDURE Open ( Filename : TEXT ) : T RAISES { OSError . E }   
@@ -62,6 +61,9 @@ INTERFACE RdBackFile
 
 ; PROCEDURE GetBwd
     ( RbFile : T ; Consume := TRUE ) : ByteTyp RAISES { OSError . E , BOF }
+
+; PROCEDURE Seek ( RbFile : T ; LocationL : LONGINT ) 
+  : LONGINT (* Actually positioned here. *) 
 
 ; PROCEDURE Copy ( RbFile : T ; CopyFileName : TEXT ; TruncTo : LONGINT )
   (* TruncTo < 0 means max length. *)

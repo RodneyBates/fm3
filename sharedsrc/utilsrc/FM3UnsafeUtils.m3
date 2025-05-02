@@ -134,6 +134,27 @@ UNSAFE MODULE FM3UnsafeUtils
         LOOPHOLE ( ADR ( LBuffer [ ExtSkip ] ) , UNTRACED REF EXTENDED ) ^ 
     END LongIntToExtended 
 
+(*EXPORTED:*)
+; PROCEDURE Bytes8ToLongInt
+    ( VALUE (* This should 8-byte-align Arg. *) Arg : Bytes8Typ ) : LONGINT
+
+  = VAR LBuffer : LONGINT 
+
+  ; BEGIN
+      LBuffer := LOOPHOLE ( Arg , LONGINT )  
+    ; RETURN LBuffer  
+    END Bytes8ToLongInt 
+
+(*EXPORTED:*)
+; PROCEDURE LongIntToBytes8 ( Arg : LONGINT ) : Bytes8Typ
+
+  = VAR LBuffer : Bytes8Typ
+
+  ; BEGIN
+      LBuffer := LOOPHOLE ( Arg , Bytes8Typ )  
+    ; RETURN LBuffer  
+    END LongIntToBytes8 
+
 ; BEGIN
     <* ASSERT RealLen = 4 OR RealLen = 8 *> 
     <* ASSERT LongLen = 4 OR LongLen = 8 *> 

@@ -2687,7 +2687,7 @@ MODULE FM3Pass2
                , NIL 
                )
       ; UnitRef ^ . UntPass2OutRdBack
-          := RdBackFile . Create ( LPass2FileFullName , Truncate := TRUE )
+          := RdBackFile . Create ( LPass2FileFullName )
       ; FM3Units . CacheTopUnitValues ( )
       EXCEPT
       | OSError . E ( EMsg ) 

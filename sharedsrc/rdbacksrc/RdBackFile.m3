@@ -32,13 +32,13 @@
    3) Figure out an EOF sentinal or something to avoid the whole copy
       business during close, just to denote the end.
 
-   4) Add a Flush.
 *)
 
 MODULE RdBackFile
 
 ; IMPORT Atom 
-; IMPORT AtomList 
+; IMPORT AtomList
+; IMPORT Fmt 
 ; IMPORT File
 ; IMPORT FS 
 ; IMPORT OSError
@@ -60,18 +60,11 @@ MODULE RdBackFile
 ; TYPE BlockSsTyp = [ 0 .. BlockSize - 1 ] 
 ; TYPE BlockTyp = ARRAY BlockSsTyp OF File . Byte
 
-; TYPE HeaderTyp
-    = RECORD
-        HdrPrefix : ARRAY [ 0 .. 7 ] OF File . Byte 
-        (* Same as FM3SharedGlobals . PrefixTyp *) 
-      ; HdrLengthL : LONGINT := 0L    (* These are relative to the byte no ... *)
-      ; HdrMaxLengthL : LONGINT := 0L (* immediately following the header. *)
-        (* ^N.B. This is not the length of the header.  It is stored in the
-           header and gives the number of active data (i.e. non-header) bytes.
-        *) 
-      END
+; TYPE Bytes8 = ARRAY [ 0 .. 7 ] OF File . Byte
+; CONST PrefixSize = BYTESIZE ( Bytes8 ) 
+; CONST PrefixSizeL = VAL ( PrefixSize , LONGINT ) 
 
-; CONST HeaderSize = BYTESIZE ( HeaderTyp )
+; CONST HeaderSize = PrefixSize + 2 * BYTESIZE ( LONGINT )
 ; CONST HeaderSizeL = VAL ( HeaderSize , LONGINT ) 
 
 (* All lengths and offsets within the file are relative to after the prefix. *) 
@@ -79,11 +72,13 @@ MODULE RdBackFile
 ; REVEAL T
   = BRANDED "RdBackFile.T" REF RECORD 
       RbDiskLengthL : LONGCARD := 0L (* Byte count of the disk file. *)   
-    ; RbBlockNo : INTEGER := - 1 (* Current block number. *)
-    ; RbBlockCt : INTEGER := 0 
-    ; RbBlockNextIn : INTEGER := 0
+    ; RbLengthL : LONGINT := 0L    (* These are relative to the byte no ... *)
+    ; RbMaxLengthL : LONGINT := 0L (* immediately following the header. *)
     ; RbFileName : TEXT := ""
     ; RbFileHandle : RegularFile . T 
+    ; RbBlockNo : INTEGER := 0 (* Current block number. *)
+    ; RbBlockCt : INTEGER := 0 
+    ; RbBlockNextIn : INTEGER := 0
     ; RbIsOpen : BOOLEAN
     ; RbIsDirty : BOOLEAN 
     ; RbCheckLastTok : INTEGER
@@ -91,8 +86,7 @@ MODULE RdBackFile
 (* TODO: The above two fields do not belong in this abstraction, but it's a lot
    of work to put them into a subtype.
 *)
-    ; RbForceAlign64 : LONGINT 
-    ; RbHeader : HeaderTyp (* In-memory contents of file header. *) 
+    ; RbPrefix : ARRAY [ 0 .. 7 ] OF File . Byte 
     ; RbBuffer : BlockTyp  (* In-memory contents of current block. *) 
     END (*T*)
 
@@ -133,7 +127,9 @@ MODULE RdBackFile
     END LogMsg
 
 ; PROCEDURE Raise
-    ( T1 , T2 , T3 , T4 , T5 : TEXT := NIL ; Code : AtomList . T := NIL )
+    ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL
+    ; Code : AtomList . T := NIL
+    )
   RAISES { OSError . E } 
 
   = VAR LMsg : TEXT
@@ -150,12 +146,75 @@ MODULE RdBackFile
     ; IF T3 # NIL THEN Wr . PutText ( LWrT , T3) END (*IF*)
     ; IF T4 # NIL THEN Wr . PutText ( LWrT , T4) END (*IF*)
     ; IF T5 # NIL THEN Wr . PutText ( LWrT , T5) END (*IF*)
+    ; IF T6 # NIL THEN Wr . PutText ( LWrT , T6) END (*IF*)
+    ; IF T7 # NIL THEN Wr . PutText ( LWrT , T7) END (*IF*)
+    ; IF T8 # NIL THEN Wr . PutText ( LWrT , T8) END (*IF*)
     ; LMsg := TextWr . ToText ( LWrT )
     ; LogMsg ( LMsg ) 
     ; LNewAtom := Atom . FromText ( LMsg )
     ; LNewList := AtomList . Cons ( LNewAtom , Code )
     ; RAISE OSError . E ( LNewList ) 
-    END Raise 
+    END Raise
+
+; PROCEDURE ReadHeader ( RbFile : T ; MsgTag : TEXT )
+
+  = VAR LBytes8 : Bytes8 
+
+  ; BEGIN (*ReadHeader*)
+      ReadDisk
+        ( RbFile
+        , 0L
+        , PrefixSize
+        , (*OUT*) RbFile . RbPrefix
+        , MsgTag & " read prefix"
+        )
+    ; ReadDisk
+        ( RbFile
+        , PrefixSizeL
+        , BYTESIZE ( Bytes8 )
+        , (*OUT*) LBytes8
+        , MsgTag & " read length"
+        )
+    ; RbFile . RbLengthL := FM3UnsafeUtils . Bytes8ToLongInt ( LBytes8 ) 
+    ; ReadDisk
+        ( RbFile
+        , VAL ( PrefixSize + BYTESIZE ( Bytes8 ) , LONGINT )  
+        , BYTESIZE ( Bytes8 )
+        , (*OUT*) LBytes8
+        , MsgTag & " read max length" 
+        )
+    ; RbFile . RbMaxLengthL := FM3UnsafeUtils . Bytes8ToLongInt ( LBytes8 ) 
+    END ReadHeader
+
+; PROCEDURE WriteHeader ( RbFile : T ; MsgTag : TEXT )
+
+  = VAR LBytes8 : Bytes8 
+
+  ; BEGIN (*WriteHeader*)
+      WriteDisk
+        ( RbFile
+        , 0L
+        , PrefixSize
+        , RbFile . RbPrefix
+        , MsgTag & " write prefix"
+        ) 
+    ; LBytes8 := FM3UnsafeUtils . LongIntToBytes8 ( RbFile . RbLengthL ) 
+    ; WriteDisk
+        ( RbFile
+        , PrefixSizeL
+        , BYTESIZE ( Bytes8 )
+        , LBytes8
+        , MsgTag & " write length"
+        )
+    ; LBytes8 := FM3UnsafeUtils . LongIntToBytes8 ( RbFile . RbMaxLengthL) 
+    ; WriteDisk
+        ( RbFile
+        , VAL ( PrefixSize + BYTESIZE ( Bytes8 ) , LONGINT )  
+        , BYTESIZE ( Bytes8 )
+        , LBytes8
+        , MsgTag & " write max length" 
+        )
+    END WriteHeader
 
 ; PROCEDURE InnerOpen 
     ( FileName : TEXT
@@ -166,7 +225,7 @@ MODULE RdBackFile
   : T
   RAISES { OSError . E }   
 
-  = VAR LResult : T
+  = VAR LRbFile : T
   ; VAR LStatus : File . Status 
 
   ; BEGIN (*InnerOpen*) 
@@ -174,8 +233,8 @@ MODULE RdBackFile
     ; IF Text . Equal ( FileName , "" )
       THEN Raise ( MsgLabel, ", empty FileName." )
       END (*IF*) 
-    ; LResult := NEW ( T )
-    ; LResult . RbFileName := FileName 
+    ; LRbFile := NEW ( T )
+    ; LRbFile . RbFileName := FileName 
     ; TRY
         TYPECASE  
           FS . OpenFile
@@ -188,24 +247,17 @@ MODULE RdBackFile
         OF NULL
         => Raise ( MsgLabel , ", FS.OpenFile failed for " , FileName , "." )
         | RegularFile . T ( TRegFile ) 
-        => LResult . RbFileHandle := TRegFile
+        => LRbFile . RbFileHandle := TRegFile
          ; LStatus := TRegFile . status ( ) 
          ; IF MustBeEmpty AND LStatus . size > 0L
            THEN
-             TRY LResult . RbFileHandle . close ( ) 
+             TRY LRbFile . RbFileHandle . close ( ) 
              EXCEPT OSError . E 
              => Raise ( MsgLabel , ", file " , FileName , " is not empty." )
              END (*EXCEPT*)
            END (*IF*)
-         ; LResult . RbDiskLengthL := LStatus . size 
-         ; ReadDisk
-             ( LResult
-             , 0L
-             , HeaderSize
-             , (*OUT*) LResult . RbHeader
-             , MsgLabel
-             ) 
-
+         ; LRbFile . RbDiskLengthL := LStatus . size
+         ; ReadHeader ( LRbFile , MsgLabel ) 
          ELSE
            Raise ( MsgLabel , ", " , FileName , " is not a regular file." )
         END (*TYPECASE*)
@@ -214,68 +266,69 @@ MODULE RdBackFile
            ( MsgLabel , ", unable to open " , FileName , "." , Code := Code )
       END (*EXCEPT*)
 
-    ; LResult . RbIsOpen := TRUE
-    ; RETURN LResult 
+    ; LRbFile . RbIsOpen := TRUE
+    ; RETURN LRbFile 
     END InnerOpen  
 
 (*EXPORTED*)
-; PROCEDURE Create
-    ( Filename : TEXT ; Truncate (* To empty. *) := FALSE ) : T
-(*TODO: Eliminate Truncate and treat as always TRUE.  Creating without
-         truncating makes no sense.
-*)
+; PROCEDURE Create ( Filename : TEXT ) : T
   RAISES { OSError . E }   
 
-  = VAR LResult : T
+  = VAR LRbFile : T
 
   ; BEGIN
-      LResult 
-        := InnerOpen ( Filename , "Create" , Truncate , MustBeEmpty := TRUE )
-    ; LResult . RbBlockNo := 0 
-    ; LResult . RbBlockCt := 0 
-    ; LResult . RbHeader . HdrLengthL := 0L 
-    ; LResult . RbHeader . HdrMaxLengthL := 0L
-    ; LResult . RbDiskLengthL := 0L
-    ; LResult . RbBlockNextIn := 0 
-    ; RETURN LResult 
+      LRbFile 
+        := InnerOpen
+             ( Filename , "Create" , Truncate := TRUE , MustBeEmpty := TRUE )
+    ; LRbFile . RbBlockNo := 0 
+    ; LRbFile . RbBlockCt := 0 
+    ; LRbFile . RbLengthL := 0L 
+    ; LRbFile . RbMaxLengthL := 0L
+    ; LRbFile . RbDiskLengthL := 0L
+    ; LRbFile . RbBlockNextIn := 0
+    ; WriteHeader ( LRbFile , "Create" ) 
+    ; RETURN LRbFile 
     END Create  
 
 (*EXPORTED*)
 ; PROCEDURE Open ( Filename : TEXT ) : T RAISES { OSError . E }   
 
-  = VAR LResult : T 
+  = VAR LRbFile : T 
 
   ; BEGIN
-      LResult 
+      LRbFile 
         := InnerOpen 
              ( Filename , "Open" , Truncate := FALSE , MustBeEmpty := FALSE )
-    ; IF LResult . RbHeader . HdrLengthL <= 0L
+    ; IF LRbFile . RbLengthL <= 0L
       THEN 
-        LResult . RbBlockNo := 0 
-      ; LResult . RbBlockCt := 0 
-      ; LResult . RbBlockNextIn := 0
-      (* And RbBuffer is garbage. *)
+        LRbFile . RbBlockNo := 0 
+      ; LRbFile . RbBlockCt := 0 
+      ; LRbFile . RbBlockNextIn := 0
+      (* And RbBuffer is uninitialized. *)
       ELSE 
-        LResult . RbBlockNo
-          := VAL ( ( LResult . RbHeader . HdrLengthL - 1L ) DIV BlockSizeL
+        LRbFile . RbBlockNo
+          := VAL ( ( LRbFile . RbLengthL - 1L ) DIV BlockSizeL
                  , INTEGER
                  ) 
-      ; LResult . RbBlockNextIn
+      ; LRbFile . RbBlockNextIn
           := VAL
-               ( ( ( LResult . RbHeader . HdrLengthL -1L ) MOD BlockSizeL ) + 1L
+               ( ( ( LRbFile . RbLengthL -1L ) MOD BlockSizeL ) + 1L
                , INTEGER
                )
-      ; LResult . RbBlockCt := LResult . RbBlockNo + 1
+      ; LRbFile . RbBlockCt
+         := VAL ( ( LRbFile . RbMaxLengthL - 1L ) DIV BlockSizeL + 1L
+                , INTEGER
+                ) 
       ; ReadDataBlock
-          ( LResult
-          , LResult . RbBlockNo
-          , LResult . RbBlockNextIn
-          , LResult . RbBuffer
+          ( LRbFile
+          , LRbFile . RbBlockNo
+          , LRbFile . RbBlockNextIn
+          , LRbFile . RbBuffer
           , "Open"
           )
-      ; LResult . RbIsDirty := FALSE 
+      ; LRbFile . RbIsDirty := FALSE 
       END (*IF*) 
-    ; RETURN LResult 
+    ; RETURN LRbFile 
     END Open
 
 (*EXPORTED*)
@@ -296,7 +349,7 @@ MODULE RdBackFile
     ; IF NOT RbFile . RbIsOpen
       THEN Raise ( "LengthL, " , RbFile . RbFileName , " is not open." )
       END (*IF*) 
-    ; RETURN RbFile . RbHeader . HdrLengthL  
+    ; RETURN RbFile . RbLengthL  
     END LengthL 
 
 (*EXPORTED*)
@@ -308,22 +361,22 @@ MODULE RdBackFile
     ; IF NOT RbFile . RbIsOpen
       THEN Raise ( "MaxLengthL, " , RbFile . RbFileName , " is not open." )
       END (*IF*) 
-    ; RETURN RbFile . RbHeader . HdrMaxLengthL  
+    ; RETURN RbFile . RbMaxLengthL  
     END MaxLengthL 
 
 (*EXPORTED*)
 ; PROCEDURE IsEmpty ( RbFile : T ) : BOOLEAN RAISES { OSError . E }
-  (* Possibly faster than Length(F)=0L. *) 
+  (* Possibly faster than LengthL(F)=0L. *) 
 
   = BEGIN
       IF RbFile = NIL THEN Raise ( "IsEmpty, NIL file." ) END (*IF*) 
     ; IF NOT RbFile . RbIsOpen
       THEN Raise ( "IsEmpty, " , RbFile . RbFileName , " is not open." )
       END (*IF*) 
-    ; RETURN RbFile . RbHeader . HdrLengthL <= 0L
+    ; RETURN RbFile . RbLengthL <= 0L
     END IsEmpty
     
-; PROCEDURE InnerSeek
+; PROCEDURE SeekDisk
     ( RbFile : T
     ; DiskAddrL : LONGINT (* Absolute in disk file. *) 
     ; MsgTag : TEXT
@@ -334,13 +387,14 @@ MODULE RdBackFile
     (* ^This should be LONGINT, but RegularFile.T.read is behind the times.*)
   ; VAR LCurrent : INTEGER 
   ; VAR LDiskAddr : INTEGER
-  (* ^These two should be LONGINT, but RegularFile.T.seek is behind the times.*)
+  (* ^These 3 should be LONGINT, but RegularFile.T.seek is behind the times.*)
   
   ; BEGIN
       LDiskAddr := VAL ( DiskAddrL , INTEGER )
     ; TRY
-        LCurrent := RbFile . RbFileHandle . seek ( Current , 0 )
-        (* ^Just returs current location. *) 
+        LCurrent
+           := RbFile . RbFileHandle . seek ( (* Relative to: *) Current , 0 )
+        (* ^Just returns current location. *) 
       ; IF LCurrent # LDiskAddr
         THEN 
           LGot
@@ -349,7 +403,15 @@ MODULE RdBackFile
         ; IF LGot # LDiskAddr
           THEN
             Raise
-              ( MsgTag , ", wrong seek length for " , RbFile . RbFileName , "." )
+              ( MsgTag
+              , ", wrong seek address for "
+              , RbFile . RbFileName
+              , ", expected "
+              , Fmt . Int ( LDiskAddr )
+              , ", got "
+              , Fmt . Int ( LGot )
+              , "."
+              )
           END (*IF*) 
         END (*IF*) 
       EXCEPT OSError . E ( Code ) 
@@ -358,13 +420,13 @@ MODULE RdBackFile
            , Code := Code
            ) 
       END (*EXCEPT*) 
-    END InnerSeek 
+    END SeekDisk 
 
 ; PROCEDURE ReadDisk
     ( RbFile : T
     ; DiskAddrL : LONGINT 
     ; Length : INTEGER
-    ; VAR Buffer : BlockTyp
+    ; VAR Buffer : ARRAY OF File . Byte 
     ; MsgTag : TEXT
     )
   RAISES { OSError . E }
@@ -373,7 +435,7 @@ MODULE RdBackFile
   (* ^This should be LONGINT, but RegularFile.T.read is behind the times.*)
 
   ; BEGIN 
-      InnerSeek ( RbFile , DiskAddrL , MsgTag )
+      SeekDisk ( RbFile , DiskAddrL , MsgTag )
     ; TRY
         LGot
           := RbFile . RbFileHandle . read 
@@ -383,7 +445,15 @@ MODULE RdBackFile
       ; IF LGot # Length
         THEN
           Raise
-            ( MsgTag , ", wrong read length for " , RbFile . RbFileName , "." )
+            ( MsgTag
+            , ", wrong read length for "
+            , RbFile . RbFileName
+            , ", expected "
+            , Fmt . Int ( Length )
+            , ", got "
+            , Fmt . Int ( LGot )
+            , "."
+            )
         END (*IF*) 
       EXCEPT OSError . E ( Code ) 
       => Raise
@@ -397,7 +467,7 @@ MODULE RdBackFile
     ( RbFile : T
     ; BlockNo : INTEGER 
     ; Length : INTEGER
-    ; VAR Buffer : BlockTyp
+    ; VAR Buffer : ARRAY OF File . Byte 
     ; MsgTag : TEXT
     )
   RAISES { OSError . E }
@@ -406,8 +476,7 @@ MODULE RdBackFile
 
 
   ; BEGIN 
-      LDiskAddr
-        := VAL ( BlockNo , LONGINT ) * BlockSizeL + VAL ( HeaderSize , LONGINT ) 
+      LDiskAddr := VAL ( BlockNo , LONGINT ) * BlockSizeL + HeaderSizeL  
     ; ReadDisk ( RbFile , LDiskAddr , Length , Buffer , MsgTag ) 
     END ReadDataBlock
 
@@ -415,16 +484,14 @@ MODULE RdBackFile
     ( RbFile : T 
     ; DiskAddrL : LONGINT 
     ; Length : INTEGER
-    ; READONLY Buffer : ARRAY OF CHAR 
+    ; READONLY Buffer : ARRAY OF File . Byte 
     ; MsgTag : TEXT
     )
   RAISES { OSError . E }
 
-  = VAR LFileCoord : LONGINT 
-
-  ; BEGIN
+  = BEGIN
       IF Length <= 0 THEN RETURN END (*IF*)
-    ; InnerSeek ( RbFile , DiskAddrL , MsgTag )
+    ; SeekDisk ( RbFile , DiskAddrL , MsgTag )
     ; TRY RbFile . RbFileHandle . write ( SUBARRAY ( Buffer , 0 , Length ) ) 
       EXCEPT OSError . E ( Code ) 
       => Raise
@@ -433,16 +500,14 @@ MODULE RdBackFile
            ) 
       END (*EXCEPT*)
     ; RbFile . RbDiskLengthL
-        := MAX ( RbFile . RbDiskLengthL
-               , LFileCoord + VAL ( Length , LONGINT )
-               ) 
+        := MAX ( RbFile . RbDiskLengthL , DiskAddrL + VAL ( Length , LONGINT ) ) 
     END WriteDisk
 
 ; PROCEDURE WriteDataBlock
     ( RbFile : T 
     ; BlockNo : INTEGER 
     ; Length : INTEGER
-    ; READONLY Buffer : BlockTyp
+    ; READONLY Buffer : ARRAY OF File . Byte 
     ; MsgTag : TEXT
     )
   RAISES { OSError . E }
@@ -452,8 +517,7 @@ MODULE RdBackFile
   ; BEGIN
       IF Length <= 0 THEN RETURN END (*IF*)
     ; IF BlockNo < 0 THEN RETURN END (*IF*)
-    ; LDiskAddrL
-        := VAL ( BlockNo , LONGINT ) * BlockSizeL + VAL ( HeaderSize , LONGINT )
+    ; LDiskAddrL := VAL ( BlockNo , LONGINT ) * BlockSizeL + HeaderSizeL 
     ; WriteDisk ( RbFile , LDiskAddrL , Length , Buffer , MsgTag )
     ; RbFile . RbDiskLengthL
         := MAX ( RbFile . RbDiskLengthL , LDiskAddrL + VAL ( Length , LONGINT ) )
@@ -477,6 +541,63 @@ MODULE RdBackFile
          the copy operation. *) 
     END TempFileName 
 
+; PROCEDURE BlockLength ( RbFile : T ; BlockNo : INTEGER ) : INTEGER
+
+  = BEGIN
+      RETURN  
+        MIN ( BlockSize
+            , VAL ( RbFile . RbMaxLengthL , INTEGER ) 
+              - BlockNo * BlockSize
+            )
+    END BlockLength 
+      
+(*EXPORTED.*)
+; PROCEDURE Seek ( RbFile : T ; LocationL : LONGINT ) 
+  : LONGINT (* Actually positioned here. *) 
+
+  = VAR LLocationL : LONGINT
+  ; LNewBlockNo : INTEGER 
+  ; LNewNextIn : INTEGER 
+
+  ; BEGIN (*Seek*)
+      IF LocationL < 0L THEN LLocationL := 0L
+      ELSIF LocationL > RbFile . RbMaxLengthL
+      THEN LLocationL := RbFile . RbMaxLengthL
+      ELSE LLocationL := LocationL
+      END (*IF*) 
+    ; IF LLocationL = RbFile . RbLengthL 
+      THEN RETURN LLocationL
+      END (*IF*) 
+    ; LNewBlockNo := VAL ( LLocationL DIV BlockSizeL , INTEGER ) 
+    ; LNewNextIn := VAL ( ( ( LLocationL -1L ) MOD BlockSizeL ) + 1L , INTEGER )
+    ; IF LNewBlockNo # RbFile . RbBlockNo
+      THEN
+        IF RbFile . RbIsDirty
+        THEN 
+          WriteDataBlock
+            ( RbFile 
+            , RbFile . RbBlockNo
+            , BlockLength ( RbFile , LNewBlockNo ) 
+            , RbFile . RbBuffer
+            , "Seek"
+            )
+        END (*IF*) 
+      ; ReadDataBlock
+          ( RbFile
+          , LNewBlockNo
+          , BlockLength ( RbFile , LNewBlockNo ) 
+          , RbFile . RbBuffer
+          , "Copy"
+          )
+      ; RbFile . RbIsDirty := FALSE
+      END (*IF*)
+    ; RbFile . RbLengthL := LLocationL 
+    ; RbFile . RbBlockNo := LNewBlockNo 
+    ; RbFile . RbBlockNextIn := LNewNextIn 
+    ; RbFile . RbIsDirty := FALSE
+    ; RETURN LLocationL
+    END Seek
+
 ; PROCEDURE InnerCopy ( RbFile : T ; CopyFile : T ; TruncTo : LONGINT ) 
   (* PRE: RbFile is open. *)
   (* PRE: TruncTo IN [ 0L .. RbFile . RbMaxLenghtL ] *) 
@@ -488,10 +609,10 @@ MODULE RdBackFile
   ; VAR LBuffer : BlockTyp  
 
   ; BEGIN (*InnerCopy*)
-      LFullBlockCt := VAL ( TruncTo DIV BlockSizeL , INTEGER ) 
+      TruncTo := MIN ( TruncTo , RbFile . RbDiskLengthL ) 
+    ; LFullBlockCt := VAL ( TruncTo DIV BlockSizeL , INTEGER ) 
     ; LPartialBlockSize := VAL ( TruncTo MOD BlockSizeL , INTEGER )
-    ; LTotalBlockCt
-        := LFullBlockCt + ORD ( LPartialBlockSize > 0 )  
+    ; LTotalBlockCt := LFullBlockCt + ORD ( LPartialBlockSize > 0 )  
     ; FOR RBlockNo := 0 TO LFullBlockCt - 1
       DO
         IF RbFile . RbBlockNo = RBlockNo
@@ -546,110 +667,33 @@ MODULE RdBackFile
   ; VAR LCopyFile : T 
 
   ; BEGIN (*Copy*)
-      LCopyFile := Create ( CopyFileName , Truncate := TRUE )
-    ; IF TruncTo < 0L THEN LTruncTo := RbFile . RbHeader . HdrMaxLengthL 
-      ELSE LTruncTo := MIN ( TruncTo , RbFile . RbHeader . HdrMaxLengthL )
+      LCopyFile := Create ( CopyFileName )
+    ; IF TruncTo < 0L THEN LTruncTo := RbFile . RbMaxLengthL 
+      ELSE LTruncTo := MIN ( TruncTo , RbFile . RbMaxLengthL )
       END (*IF*) 
     ; InnerCopy ( RbFile , LCopyFile , LTruncTo ) 
     ; CloseDisk ( LCopyFile ) 
     END Copy
     
-(*EXPORTED.*)
-; PROCEDURE Seek ( RbFile : T ; LocationL : LONGINT ) 
-  : LONGINT (* Actually positioned here. *) 
-
-  = VAR LLocationL : LONGINT
-  ; LNewBlockNo : INTEGER 
-  ; LNewNextIn : INTEGER 
-  ; LLength : INTEGER
-
-  ; BEGIN (*Seek*)
-      IF LocationL < 0L THEN LLocationL := 0L
-      ELSIF LocationL > RbFile . RbHeader . HdrMaxLengthL
-      THEN LLocationL := RbFile . RbHeader . HdrMaxLengthL
-      ELSE LLocationL := LocationL
-      END (*IF*) 
-    ; IF LLocationL = RbFile . RbHeader . HdrLengthL 
-      THEN RETURN LLocationL
-      END (*IF*) 
-    ; LNewBlockNo := VAL ( LocationL DIV BlockSizeL , INTEGER ) 
-    ; LNewNextIn := VAL ( ( ( LocationL -1L ) MOD BlockSizeL ) + 1L , INTEGER )
-    ; IF LNewBlockNo # RbFile . RbBlockNo
-      THEN
-        IF RbFile . RbIsDirty
-        THEN 
-          IF RbFile . RbBlockNo = RbFile . RbBlockCt - 1 
-          THEN
-            LLength
-              := MIN ( RbFile . RbHeader . HdrLengthL  
-                       - VAL ( RbFile . RbBlockNo , LONGINT ) * BlockSizeL
-                     , BlockSizeL
-                     )
-          ELSE LLength := BlockSize
-          END (*IF*) 
-        ; WriteDataBlock
-            ( RbFile 
-            , RbFile . RbBlockNo
-            , LLength 
-            , RbFile . RbBuffer
-            , "Seek"
-            )
-        END (*IF*) 
-      ; IF LNewBlockNo = RbFile . RbBlockCt - 1 
-        THEN
-          LLength
-            := MIN ( RbFile . RbHeader . HdrLengthL 
-                     - VAL ( LNewBlockNo , LONGINT ) * BlockSizeL  
-                   , BlockSizeL
-                   )
-        ELSE LLength := BlockSize
-        END (*IF*) 
-      ; ReadDataBlock
-          ( RbFile , RbFile . RbBlockNo
-          , LLength
-          , RbFile . RbBuffer
-          , "Copy"
-          )
-      ; RbFile . RbIsDirty := FALSE
-      END (*IF*) 
-    ; RbFile . RbIsDirty := FALSE
-    ; RbFile . RbBlockNextIn := LNewNextIn 
-    END Seek
-
 ; PROCEDURE InnerFlushDataBlock ( RbFile : T ; MsgTag : TEXT )
 
   = BEGIN (*InnerFlushDataBlock*)
       WriteDataBlock
         ( RbFile
         , RbFile . RbBlockNo
-        , MIN ( BlockSize
-              , VAL ( RbFile . RbHeader . HdrMaxLengthL , INTEGER ) 
-                - RbFile . RbBlockNo * BlockSize
-              ) 
+        , BlockLength  ( RbFile , RbFile . RbBlockNo )
         , RbFile . RbBuffer
         , MsgTag
         )
     ; RbFile . RbIsDirty := FALSE 
     END InnerFlushDataBlock
-      
-; PROCEDURE InnerFlushHeader ( RbFile : T ; MsgTag : TEXT )
-
-  = BEGIN (*InnerFlushHeader*)
-      WriteDisk
-        ( RbFile
-        , 0L
-        , HeaderSize
-        , RbFile . RbHeader
-        , MsgTag
-        )
-    END InnerFlushHeader
 
 (*EXPORTED.*)
 ; PROCEDURE Flush ( RbFile : T )
 
   = BEGIN (*Flush*)
-      InnerFlushDataBlock ( RbFile , "Flush" ) 
-    ; InnerFlushHeader ( RbFile , "Flush" ) 
+      InnerFlushDataBlock ( RbFile , "Flush data" ) 
+    ; WriteHeader ( RbFile , "Flush" ) 
     END Flush
       
 
@@ -669,18 +713,18 @@ MODULE RdBackFile
     ; IF TruncToL <= 0L 
       THEN
         TruncToL := 0L
-      ; RbFile . RbHeader . HdrMaxLengthL := 0L 
+      ; RbFile . RbMaxLengthL := 0L 
       ; LTruncDiskToL := HeaderSizeL
-      ELSIF TruncToL > RbFile . RbHeader . HdrMaxLengthL
+      ELSIF TruncToL > RbFile . RbMaxLengthL
       THEN
-        TruncToL := RbFile . RbHeader . HdrMaxLengthL
+        TruncToL := RbFile . RbMaxLengthL
       ; LTruncDiskToL := TruncToL + HeaderSizeL
       ELSE 
-        RbFile . RbHeader . HdrMaxLengthL := TruncToL 
+        RbFile . RbMaxLengthL := TruncToL 
       ; LTruncDiskToL := TruncToL + HeaderSizeL
       END (*IF*)
-    ; InnerFlushHeader ( RbFile , "Close" ) 
-    ; IF TruncToL = RbFile . RbHeader . HdrMaxLengthL
+    ; WriteHeader ( RbFile , "Close" ) 
+    ; IF TruncToL = RbFile . RbMaxLengthL
       THEN (* No actual truncation needed. *) 
         CloseDisk ( RbFile )
       ; RETURN
@@ -702,14 +746,14 @@ MODULE RdBackFile
       
         LRbFileName := RbFile . RbFileName (* Just paranoia. *) 
       ; LTempFileName := TempFileName ( LRbFileName ) 
-      ; LTempFile := Create ( LTempFileName , Truncate := FALSE )
+      ; LTempFile := Create ( LTempFileName )
       ; InnerCopy ( RbFile , LTempFile , LTruncDiskToL ) 
       ; CloseDisk ( LTempFile ) (* So it's safe if anything fails later. *) 
       ; CloseDisk ( RbFile ) 
       ; TRY FS . DeleteFile ( LRbFileName )
         EXCEPT OSError . E ( Code ) 
         => Raise
-             ( "Close", ", failure deleting " , LRbFileName , " for rename."
+             ( "Close, failure deleting " , LRbFileName , " for rename."
              , Code := Code
              ) 
         END (*EXCEPT*) 
@@ -735,10 +779,11 @@ MODULE RdBackFile
       END (*IF*) 
 
     ; IF RbFile . RbBlockNextIn >= BlockSize
-      THEN (* RbBlockNextIn is right of the block in RbBuffer, if any. *)
+      THEN (* RbBlockNextIn is right of the current block. *)
+           (* Move to the block to right. *) 
         IF RbFile . RbBlockNo >= 0 (* Block RbBlockNo exists. *)
            AND RbFile . RbIsDirty
-        THEN (* Write to disk. *)
+        THEN (* Byte(s) in current buffer need to be preserved. *)
           WriteDataBlock
              ( RbFile
              , RbFile . RbBlockNo
@@ -747,14 +792,13 @@ MODULE RdBackFile
              , "Put"
              ) 
         END (*IF*)
-      (* Moving rightward to a new block number.  It will, extremely soon,
-         contain a byte not written to disk. *)
+      (* Moving rightward to a new block number.  It will soon be dirty. *)
       ; INC ( RbFile . RbBlockNo ) 
       ; RbFile . RbBlockNextIn := 0
-      ; IF RbFile . RbHeader . HdrMaxLengthL
-           > RbFile . RbHeader . HdrLengthL + 1L 
+      ; IF RbFile . RbMaxLengthL
+           > RbFile . RbLengthL + 1L 
         THEN (* Byte(s) previously stored in the new disk block to the right
-                will be needed, if they are neither overlaid, nor truncated
+                will be needed, in case they are neither overlaid, nor truncated
                 when closing. *) 
           ReadDataBlock
             ( RbFile
@@ -763,7 +807,7 @@ MODULE RdBackFile
             , RbFile . RbBuffer
             , "Put"
             )
-        ; RbFile . RbIsDirty := FALSE 
+     (* ELSE we are moving into a previously non-existing blocl. *)        
         END (*IF*) 
       END (*IF*)
       
@@ -771,10 +815,10 @@ MODULE RdBackFile
     ; RbFile . RbBuffer [ RbFile . RbBlockNextIn ] := Value
     ; RbFile . RbIsDirty := TRUE 
     ; INC ( RbFile . RbBlockNextIn )
-    ; INC ( RbFile . RbHeader . HdrLengthL )
-    ; RbFile . RbHeader . HdrMaxLengthL
-        := MAX ( RbFile . RbHeader . HdrMaxLengthL
-               , RbFile . RbHeader . HdrLengthL
+    ; INC ( RbFile . RbLengthL )
+    ; RbFile . RbMaxLengthL
+        := MAX ( RbFile . RbMaxLengthL
+               , RbFile . RbLengthL
                )   
     END Put 
 
@@ -790,18 +834,21 @@ MODULE RdBackFile
       THEN Raise ( "GetBwd, " , RbFile . RbFileName , " is not open." )
       END (*IF*) 
 
-    ; IF RbFile . RbHeader . HdrLengthL = 0L
+    ; IF RbFile . RbLengthL <= (* < shouldn't happen. *) 0L
       THEN RAISE BOF
       END (*IF*)
 
     (* If necessary, make RbBuffer contain the block to the left. *) 
-    ; IF RbFile . RbBlockNextIn = 0 (* We are left of the block in RbBuffer. *)
-         (* But RbFile not empty, => Block to left exists. *) 
+    ; IF RbFile . RbBlockNextIn <= (* < shouldn't happen. *) 0
+         (* We are left of the current block. *)
+         (* But not at BOF, => Block to left exists.  Move to it. *) 
       THEN
-        IF RbFile . RbHeader . HdrMaxLengthL
-           > RbFile . RbHeader . HdrLengthL + 1L
-        THEN (* Byte(s) in the current buffer will be needed on disk,
-                if they are neither overlaid, nor truncated when closing. *)
+        IF RbFile . RbMaxLengthL
+           > RbFile . RbLengthL + 1L
+           AND RbFile . RbIsDirty
+        THEN (* Byte(s) in current buffer other than #0 need to be preserved,
+                in case they are neither overlaid, nor truncated when closing.
+             *)
           WriteDataBlock
             ( RbFile
             , RbFile . RbBlockNo
@@ -827,32 +874,16 @@ MODULE RdBackFile
     ; DEC ( RbFile . RbBlockNextIn )
     ; LResult := RbFile . RbBuffer [ RbFile . RbBlockNextIn ]
     ; IF Consume
-      THEN DEC ( RbFile . RbHeader . HdrLengthL )
+      THEN DEC ( RbFile . RbLengthL )
       ELSE INC ( RbFile . RbBlockNextIn ) (* Undo the above. *) 
       END (*IF*) 
     ; RETURN LResult 
     END GetBwd
 
-(*EXPORTED.*)
-; PROCEDURE CheckStatic ( )
-
-  = VAR LT : T
-  ; VAR LOk : BOOLEAN 
-
-  ; BEGIN (*CheckStatic*)
-      LT := NEW ( T )
-    ; LOk := ( FM3UnsafeUtils . AddrToLongInt ( ADR ( LT ^ . RbHeader ) ) )
-             MOD VAL ( BYTESIZE ( LONGINT ) , LONGINT ) = 0L
-    ; <* ASSERT LOk*> 
-      LOk := ADR ( LT ^ . RbBuffer ) MOD BYTESIZE ( LONGINT ) = 0L
-    ; <* ASSERT LOk *> 
-    END CheckStatic
-      
 ; BEGIN (*RdBackFile*) 
-    CheckStatic ( ) 
 
 (* Do all this elsewhere.  
-  ; GLogWrT := NIL
+    GLogWrT := NIL
   ; GDoStderr := TRUE 
   ; GDoLog := FALSE
   ; TRY 
