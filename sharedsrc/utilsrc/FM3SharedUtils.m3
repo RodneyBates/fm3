@@ -6,6 +6,8 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
+(* Utility things that may be used by multiple different main programs. *) 
+
 MODULE FM3SharedUtils
 
 ; IMPORT Atom 
@@ -89,7 +91,8 @@ MODULE FM3SharedUtils
   = VAR LResult : TEXT 
 
   ; BEGIN (* AbsFileName *) 
-      IF Libm3Pathname . Absolute ( Name ) 
+      IF Libm3Pathname . Absolute ( Name )
+      (* ^ Is this really necessary? *) 
       THEN RETURN Name 
       ELSE 
         TRY 
@@ -159,54 +162,6 @@ MODULE FM3SharedUtils
     ; RETURN LResult 
     END AtomListToText 
 
-(*EXPORTED*) 
-; PROCEDURE CatStrings
-    ( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : REFANY := NIL ) : TEXT
-  (* Each Tn can be TEXT, Atom.T, or AtomList.T. *) 
-    
-  = VAR LWrT : TextWr . T
-  ; VAR LMsg : TEXT 
-
-  ; BEGIN
-      LWrT := TextWr . New ( ) 
-    ; PutTextish ( LWrT , T0 ) 
-    ; PutTextish ( LWrT , T1 ) 
-    ; PutTextish ( LWrT , T2 ) 
-    ; PutTextish ( LWrT , T3 ) 
-    ; PutTextish ( LWrT , T4 ) 
-    ; PutTextish ( LWrT , T5 ) 
-    ; PutTextish ( LWrT , T6 ) 
-    ; PutTextish ( LWrT , T7 ) 
-    ; PutTextish ( LWrT , T8 )
-    ; LMsg := TextWr . ToText ( LWrT )
-    ; IF LMsg = NIL THEN LMsg := "" END (*IF*) (* Can this happen? *) 
-    ; RETURN LMsg 
-    END CatStrings  
-
-(*EXPORTED*) 
-; PROCEDURE CatArrT
-    ( READONLY Arr : ARRAY OF REFANY ; T0 : TEXT := NIL ) : TEXT
-  (* T0 and each Arr [ I ] can be TEXT, Atom.T, or AtomList.T. *)
-  (* T0 will appear *left* of elements of Arr.  
-     Although this signature order seems very peculiar, it allows message
-     procedures to prepend a tag such as "error", in color, while
-     allowing the rest to be passed multiple levels as one parameter.
-  *) 
-    
-  = VAR LWrT : TextWr . T
-  ; VAR LMsg : TEXT 
-
-  ; BEGIN
-      LWrT := TextWr . New ( )
-    ; PutTextish ( LWrT , T0 ) 
-    ; FOR RI := 0 TO LAST ( Arr )
-      DO PutTextish ( LWrT , Arr [ RI ] )
-      END (*FOR*) 
-    ; LMsg := TextWr . ToText ( LWrT )
-    ; IF LMsg = NIL THEN LMsg := "" END (*IF*) (* Can this happen? *) 
-    ; RETURN LMsg 
-    END CatArrT  
-
 (*EXPORTED*)
 ; PROCEDURE PutPosImage ( WrT : Wr . T ; Position : FM3Base . tPosition )
 
@@ -245,6 +200,7 @@ MODULE FM3SharedUtils
 
 (*EXPORTED*) 
 ; PROCEDURE PutTextishArr ( WrT : Wr . T ; READONLY Arr : ARRAY OF REFANY )
+  (* Each element of Arr can be anything handled by PutTextish. *) 
 
   = BEGIN 
       IF NUMBER ( Arr ) <= 0 THEN RETURN END (*IF*)
@@ -252,6 +208,54 @@ MODULE FM3SharedUtils
       DO PutTextish ( WrT , Arr [ RI ] ) 
       END (*FOR*)
     END PutTextishArr 
+
+(*EXPORTED*) 
+; PROCEDURE CatStrings
+    ( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : REFANY := NIL ) : TEXT
+  (* Each Tn can be anything handled by PutTextish. *) 
+    
+  = VAR LWrT : TextWr . T
+  ; VAR LMsg : TEXT 
+
+  ; BEGIN
+      LWrT := TextWr . New ( ) 
+    ; PutTextish ( LWrT , T0 ) 
+    ; PutTextish ( LWrT , T1 ) 
+    ; PutTextish ( LWrT , T2 ) 
+    ; PutTextish ( LWrT , T3 ) 
+    ; PutTextish ( LWrT , T4 ) 
+    ; PutTextish ( LWrT , T5 ) 
+    ; PutTextish ( LWrT , T6 ) 
+    ; PutTextish ( LWrT , T7 ) 
+    ; PutTextish ( LWrT , T8 )
+    ; LMsg := TextWr . ToText ( LWrT )
+    ; IF LMsg = NIL THEN LMsg := "" END (*IF*) (* Can this happen? *) 
+    ; RETURN LMsg 
+    END CatStrings  
+
+(*EXPORTED*) 
+; PROCEDURE CatArrT
+    ( READONLY Arr : ARRAY OF REFANY ; T0 : TEXT := NIL ) : TEXT
+  (* T0 and each Arr [ I ] can be anything handled by PutTextish. *)
+  (* T0 will appear *left* of elements of Arr.  
+     Although this signature order seems very peculiar, it allows message
+     procedures to prepend a tag such as "error", in color, while
+     allowing the rest to be passed multiple levels as one parameter.
+  *) 
+    
+  = VAR LWrT : TextWr . T
+  ; VAR LMsg : TEXT 
+
+  ; BEGIN
+      LWrT := TextWr . New ( )
+    ; PutTextish ( LWrT , T0 ) 
+    ; FOR RI := 0 TO LAST ( Arr )
+      DO PutTextish ( LWrT , Arr [ RI ] )
+      END (*FOR*) 
+    ; LMsg := TextWr . ToText ( LWrT )
+    ; IF LMsg = NIL THEN LMsg := "" END (*IF*) (* Can this happen? *) 
+    ; RETURN LMsg 
+    END CatArrT  
 
 (*EXPORTED*) 
 ; PROCEDURE FileKindImage ( Kind : FM3SharedGlobals . FileKindTyp ) : TEXT
@@ -264,6 +268,7 @@ MODULE FM3SharedUtils
 ; PROCEDURE FilePrefixT
     ( Kind : FM3SharedGlobals . FileKindTyp
     ; Version : FM3SharedGlobals . FileVersionTyp
+        := FM3SharedGlobals . FM3FileVersion0 
     )
   : TEXT 
 
@@ -283,6 +288,7 @@ MODULE FM3SharedUtils
 ; PROCEDURE FilePrefixA
     ( Kind : FM3SharedGlobals . FileKindTyp
     ; Version : FM3SharedGlobals . FileVersionTyp
+        := FM3SharedGlobals . FM3FileVersion0
     )
   : ARRAY [ 0 .. 7 ] OF CHAR  
 
@@ -299,6 +305,7 @@ MODULE FM3SharedUtils
 ; PROCEDURE FilePrefixB
     ( Kind : FM3SharedGlobals . FileKindTyp
     ; Version : FM3SharedGlobals . FileVersionTyp
+        := FM3SharedGlobals . FM3FileVersion0 
     )
   : ARRAY [ 0 .. 7 ] OF File . Byte 
 
@@ -320,7 +327,7 @@ MODULE FM3SharedUtils
 ; PROCEDURE ReadPrefix
     ( RdT : Rd . T
     ; VAR Kind : FM3SharedGlobals . FileKindTyp
-    ; VAR Version : FM3SharedGlobals . FileVersionTyp
+    ; VAR Version : FM3SharedGlobals . FileVersionTyp 
     ; VAR IsOK : BOOLEAN
     )
 
@@ -407,6 +414,8 @@ MODULE FM3SharedUtils
 ; PROCEDURE OpenResourceRd
     ( FileName : TEXT := ""
     ; ExpectedFileKind : FM3SharedGlobals . FileKindTyp
+    ; ExpectedFileVersion : FM3SharedGlobals . FileVersionTyp
+        := FM3SharedGlobals . FM3FileVersion0
     ) 
   : Rd . T
   RAISES { FatalError , Thread . Alerted } 
@@ -422,38 +431,52 @@ MODULE FM3SharedUtils
       LRdT := OpenRd ( ResourceDirName , FileName )
     ; ReadPrefix
         ( LRdT , (*OUT*) LFileKind , (*OUT*) LFileVersion , (*OUT*) LIsOK )  
-    ; IF NOT LIsOK OR LFileKind # ExpectedFileKind
-      THEN (* Wrong kind. *) 
-        LRelFileName := Libm3Pathname . Join ( ResourceDirName , FileName )
-      ; LAbsFileName := AbsFileName ( LRelFileName )
-      ; IF NOT LIsOK
-        THEN
-          RaiseFatal
-            ( CatStrings 
-                ( "Resource file "
-                , LAbsFileName 
-                , " is not an FM3 internal file." 
-                )
-            )
-        ELSE 
-          RaiseFatal
-            ( CatStrings 
-                ( "Resource file " 
-                , LAbsFileName 
-                , " has wrong kind: " 
-                , FileKindImage ( LFileKind )  
-                , ", expecting " 
-                , FileKindImage ( ExpectedFileKind )  
-                )
-            )
-        END (*IF*) 
+    ; LRelFileName := Libm3Pathname . Join ( ResourceDirName , FileName )
+    ; LAbsFileName := AbsFileName ( LRelFileName )
+    ; IF NOT LIsOK
+      THEN
+        RaiseFatal
+          ( CatStrings 
+              ( "Resource file "
+              , LAbsFileName 
+              , " is not an FM3 internal file." 
+              )
+          )
+      ELSIF LFileKind # ExpectedFileKind 
+      THEN 
+        RaiseFatal
+          ( CatStrings 
+              ( "Resource file " 
+              , LAbsFileName 
+              , " has wrong kind: " 
+              , FileKindImage ( LFileKind )  
+              , ", expecting " 
+              , FileKindImage ( ExpectedFileKind )  
+              )
+          )
+      ELSIF LFileVersion # ExpectedFileVersion 
+      THEN 
+        RaiseFatal
+          ( CatStrings 
+              ( "Resource file " 
+              , LAbsFileName 
+              , " has wrong version: " 
+              , FileKindImage ( LFileVersion )  
+              , ", expecting " 
+              , FileKindImage ( ExpectedFileVersion )  
+              )
+          )
+      ELSE RETURN LRdT 
       END (*IF*)
-    ; RETURN LRdT 
     END OpenResourceRd
 
 (*EXPORTED*) 
 ; PROCEDURE ReadPickle
-    ( FileName : TEXT ; ExpectedKind : FM3SharedGlobals . FileKindTyp )
+    ( FileName : TEXT
+    ; ExpectedFileKind : FM3SharedGlobals . FileKindTyp
+    ; ExpectedFileVersion : FM3SharedGlobals . FileVersionTyp
+        := FM3SharedGlobals . FM3FileVersion0
+    )
   : REFANY
   RAISES { FatalError , Thread . Alerted } 
 
@@ -461,7 +484,8 @@ MODULE FM3SharedUtils
   ; VAR LResult : REFANY 
 
   ; BEGIN
-      LRdT := OpenResourceRd ( FileName , ExpectedKind )
+      LRdT
+        := OpenResourceRd ( FileName , ExpectedFileKind , ExpectedFileVersion )
     ; TRY (*EXCEPT*)
         LResult := Pickle2 . Read ( LRdT ) 
       EXCEPT
@@ -498,15 +522,19 @@ MODULE FM3SharedUtils
     END ReadPickle
 
 (*EXPORTED*) 
-; PROCEDURE ReadFsm ( FileName : TEXT ; Kind : FM3SharedGlobals . FileKindTyp )
+; PROCEDURE ReadFsm
+    ( FileName : TEXT
+    ; ExpectedFileKind : FM3SharedGlobals . FileKindTyp
+    ; ExpectedFileVersion : FM3SharedGlobals . FileVersionTyp 
+        := FM3SharedGlobals . FM3FileVersion0
+    )
   : FM3LexTable . T
   RAISES { Thread . Alerted } 
-
 
   = VAR LRef : REFANY 
 
   ; BEGIN
-      LRef := ReadPickle ( FileName , Kind )
+      LRef := ReadPickle ( FileName , ExpectedFileKind , ExpectedFileVersion )
     ; TYPECASE LRef OF
       | NULL 
         => RaiseFatal

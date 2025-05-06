@@ -49,13 +49,16 @@ INTERFACE FM3SharedGlobals
 
 (* Specific Filekinds: *)
 
-(* These ought to be CONST, but that would preclude applying BYTESIZE. *)
-(* ; VAR FM3FileKindIntPkl := 'A' *) 
-; VAR FM3FileKindTokSetsPkl := 'A'
-; VAR FM3FileKindM3RwPkl := 'B' (* Lex machine table. *) 
-; VAR FM3FileKindPgRwPkl := 'B' (* Lex machine table. *)
-; VAR FM3FileKindCltPkl  := 'B' (* Lex machine table. *)
-; VAR FM3FileKindRdBack  := 'D' (* Readback file. *)  
+(* ; CONST FM3FileKindIntPkl = 'A' *) 
+; CONST FM3FileKindTokSetsPkl = 'A'
+; CONST FM3FileVersionTokSetsPkl = '0'
+; CONST FM3FileKindM3RwPkl = 'B' (* Lex machine table. *) 
+; CONST FM3FileKindPgRwPkl = 'B' (* Lex machine table. *)
+; CONST FM3FileKindCltPkl  = 'B' (* Lex machine table. *)
+; CONST FM3FileKindIntPkl  = 'C'
+; CONST FM3FileKindSrcPkl  = 'D'
+; CONST FM3FileKindRdBack  = 'E' (* Readback file. *)
+; CONST FM3FileVersion0    = '0' 
 
 ; TYPE FileVersionTyp = CHAR(* Separate numbering for each Kind. *) 
 

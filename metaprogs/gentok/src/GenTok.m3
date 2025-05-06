@@ -32,6 +32,7 @@ EXPORTS Main
 ; IMPORT FM3BuildLexMachine 
 ; IMPORT FM3LexTable
 ; IMPORT FM3SharedGlobals 
+; IMPORT FM3SharedUtils 
 ; IMPORT IntSets 
 ; IMPORT Layout
 ; IMPORT VarArray_Int_Refany AS IntRefArray 
@@ -1763,7 +1764,12 @@ EXPORTS Main
              , "Error building " & GIntFsmFullName & ": " & Msg & Wr . EOL  
              ) 
         END (*EXCEPT*) 
-      ; EmitFsmPickle ( GIntFsmFullName , FM3FileKindIntPkl , LIntFsm )  
+      ; EmitFsmPickle
+          ( GIntFsmFullName
+          , FM3SharedGlobals . FM3FileKindIntPkl
+          , FileVersion := '0' 
+          , LexTable := LIntFsm
+          )  
       ELSIF GDoGenSrcFsm
       THEN
         TRY 
@@ -1774,7 +1780,12 @@ EXPORTS Main
              , "Error building " & GSrcFsmFullName & ": " & Msg & Wr . EOL 
              ) 
         END (*EXCEPT*) 
-      ; EmitFsmPickle ( GSrcFsmFullName , FM3FileKindSrcPkl , LSrcFsm )  
+      ; EmitFsmPickle
+          ( GSrcFsmFullName
+          , FM3SharedGlobals . FM3FileKindSrcPkl (* ?? *) 
+          , FileVersion := '0' 
+          , LexTable := LSrcFsm
+          )  
       END (*IF*)
     END Pass1
     
@@ -1913,17 +1924,6 @@ EXPORTS Main
         , VAL ( 16_9F , CHAR ) , VAL ( 16_D9 , CHAR )
         }
 
-(* TODO: Move this somewhere universal & fix it up, maybe date & time, e.g.? *)
-; PROCEDURE FM3FilePrefix ( Kind : CHAR ) : TEXT 
-
-  = VAR LResult : TEXT
-  
-  ; BEGIN
-      LResult
-        := FM3FileTag & Text . FromChar ( Kind ) & Text . FromChars ( FM3Magic )
-    ; RETURN LResult 
-    END FM3FilePrefix 
-
 ; PROCEDURE EmitSetsPickle ( )
 
   = VAR LWrT : Wr . T
@@ -1933,7 +1933,12 @@ EXPORTS Main
     ; TRY (*FINALLY*) 
         TRY (*EXCEPT*)
           Wr . PutText
-            ( LWrT , FM3FilePrefix ( FM3SharedGlobals . FM3FileKindTokSetsPkl ) )
+            ( LWrT
+            , FM3SharedUtils . FilePrefixT
+                ( FM3SharedGlobals . FM3FileKindTokSetsPkl
+                , FM3SharedGlobals . FM3FileVersionTokSetsPkl
+                )
+            )
      (* ; Pickle . Write
             ( LWrT , GTokNamesArrayRef , write16BitWidechar := FALSE )
      *) 
@@ -1972,6 +1977,7 @@ EXPORTS Main
 ; PROCEDURE EmitFsmPickle
     ( FullName : TEXT
     ; FileKind : CHAR 
+    ; FileVersion : CHAR 
     ; LexTable : FM3LexTable . T
     )
 
@@ -1982,7 +1988,7 @@ EXPORTS Main
     ; TRY (*FINALLY*)
         TRY (*EXCEPT*)
           Wr . PutText
-            ( LWrT , (* FM3Utils . *) FM3FilePrefix ( FileKind ) )
+            ( LWrT , FM3SharedUtils . FilePrefixT ( FileKind , FileVersion ) )
         ; Pickle . Write
             ( LWrT , LexTable , write16BitWidechar := FALSE )
         EXCEPT ELSE

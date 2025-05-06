@@ -257,7 +257,6 @@ MODULE RdBackFile
              END (*EXCEPT*)
            END (*IF*)
          ; LRbFile . RbDiskLengthL := LStatus . size
-         ; ReadHeader ( LRbFile , MsgLabel ) 
          ELSE
            Raise ( MsgLabel , ", " , FileName , " is not a regular file." )
         END (*TYPECASE*)
@@ -305,8 +304,9 @@ MODULE RdBackFile
       ; LRbFile . RbBlockCt := 0 
       ; LRbFile . RbBlockNextIn := 0
       (* And RbBuffer is uninitialized. *)
-      ELSE 
-        LRbFile . RbBlockNo
+      ELSE
+        ReadHeader ( LRbFile , "Open" ) 
+      ; LRbFile . RbBlockNo
           := VAL ( ( LRbFile . RbLengthL - 1L ) DIV BlockSizeL
                  , INTEGER
                  ) 

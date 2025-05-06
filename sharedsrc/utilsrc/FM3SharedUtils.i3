@@ -6,6 +6,8 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
+(* Utility things that may be used by multiple different main programs. *) 
+
 INTERFACE FM3SharedUtils
 
 ; IMPORT AtomList 
@@ -49,19 +51,6 @@ INTERFACE FM3SharedUtils
 
 ; PROCEDURE AtomListToText ( List : AtomList . T ): TEXT
 
-; PROCEDURE CatStrings
-    ( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : REFANY := NIL ) : TEXT
-  (* Each Tn can be TEXT, Atom.T, or AtomList.T. *) 
-    
-; PROCEDURE CatArrT
-    ( READONLY Arr : ARRAY OF REFANY ; T0 : TEXT := NIL ) : TEXT
-  (* T0 and each Arr [ I ] can be TEXT, Atom.T, or AtomList.T. *)
-  (* T0 will appear *left* of elements of Arr.  
-     Although this signature order seems very peculiar, it allows message
-     procedures to prepend a tag such as "error", in color, while
-     allowing the rest to be passed multiple levels as one parameter.
-  *) 
-    
 ; PROCEDURE PutPosImage ( WrT : Wr . T ; Position : FM3Base . tPosition )
 
 ; PROCEDURE PutTextish ( WrT : Wr . T ; Textish : REFANY )
@@ -70,24 +59,43 @@ INTERFACE FM3SharedUtils
   *) 
 
 ; PROCEDURE PutTextishArr ( WrT : Wr . T ; READONLY Arr : ARRAY OF REFANY )
+  (* Each element of Arr can be anything handled by PutTextish. *) 
 
+; PROCEDURE CatStrings
+    ( T0 , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : REFANY := NIL ) : TEXT
+  (* Each Tn can be anything handled by PutTextish. *) 
+    
+; PROCEDURE CatArrT
+    ( READONLY Arr : ARRAY OF REFANY ; T0 : TEXT := NIL ) : TEXT
+  (* T0 and each Arr [ I ] can be anything handled by PutTextish. *)
+  (* T0 will appear *left* of elements of Arr.  
+     Although this signature order seems very peculiar, it allows message
+     procedures to prepend a tag such as "error", in color, while
+     allowing the rest to be passed multiple levels as one parameter.
+  *) 
+    
 ; PROCEDURE FileKindImage ( Kind : FM3SharedGlobals . FileKindTyp ) : TEXT
+
+; CONST FileVersionImage = FileKindImage 
 
 ; PROCEDURE FilePrefixT
     ( Kind : FM3SharedGlobals . FileKindTyp
     ; Version : FM3SharedGlobals . FileVersionTyp
+        := FM3SharedGlobals . FM3FileVersion0
     )
   : TEXT 
 
 ; PROCEDURE FilePrefixA
     ( Kind : FM3SharedGlobals . FileKindTyp
     ; Version : FM3SharedGlobals . FileVersionTyp
+        := FM3SharedGlobals . FM3FileVersion0
     )
   : ARRAY [ 0 .. 7 ] OF CHAR
 
 ; PROCEDURE FilePrefixB
     ( Kind : FM3SharedGlobals . FileKindTyp
     ; Version : FM3SharedGlobals . FileVersionTyp
+        := FM3SharedGlobals . FM3FileVersion0
     )
   : ARRAY [ 0 .. 7 ] OF File . Byte 
 
@@ -106,18 +114,29 @@ INTERFACE FM3SharedUtils
 ; PROCEDURE OpenResourceRd
     ( FileName : TEXT := ""
     ; ExpectedFileKind : FM3SharedGlobals . FileKindTyp
+    ; ExpectedFileVersion : FM3SharedGlobals . FileVersionTyp
+        := FM3SharedGlobals . FM3FileVersion0
     )
   : Rd . T
   RAISES { FatalError , Thread . Alerted } 
 
 ; PROCEDURE ReadPickle
-    ( FileName : TEXT ; ExpectedKind : FM3SharedGlobals . FileKindTyp )
+    ( FileName : TEXT
+    ; ExpectedFileKind : FM3SharedGlobals . FileKindTyp
+    ; ExpectedFileVersion : FM3SharedGlobals . FileVersionTyp
+        := FM3SharedGlobals . FM3FileVersion0
+    )
   : REFANY
   RAISES { FatalError , Thread . Alerted } 
 
-; PROCEDURE ReadFsm ( FileName : TEXT ; Kind : FM3SharedGlobals . FileKindTyp )
-    : FM3LexTable . T
-    RAISES { Thread . Alerted } 
+; PROCEDURE ReadFsm
+    ( FileName : TEXT
+    ; ExpectedFileKind : FM3SharedGlobals . FileKindTyp
+    ; ExpectedFileVersion : FM3SharedGlobals . FileVersionTyp
+        := FM3SharedGlobals . FM3FileVersion0
+    )
+  : FM3LexTable . T
+  RAISES { Thread . Alerted } 
 
 ; PROCEDURE ReadSets
     ( FileName : TEXT
