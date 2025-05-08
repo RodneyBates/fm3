@@ -305,7 +305,6 @@ MODULE FM3Pass1
 
     (* Initialize the readback files. *)
 
-(* COMPLETEME: See that RdBack Create adds FM3 file tags and lengths. *)
     ; PutBwd
         ( UnitRef ^ . UntPass1OutRdBack , VAL ( Itk . ItkBOF , LONGINT ) ) 
     ; PutBwd
@@ -371,14 +370,16 @@ MODULE FM3Pass1
       ; FM3Parser . CloseFM3Parser ( )
 (*TODO ^ Do this sometime later? *)
 
-      (* Prepare for possible disassembly later. *) 
+      (* Prepare for possible disassembly later. *)
+(* ** Not needed after rework of RdBackFile. **
       ; FM3Compile . MakePassFileCopy
           ( UnitRef
           , FM3Globals . Pass1OutSuffix
           , UnitRef ^ . UntPass1OutRdBack
           )
         (*^ This copy may be used by disassembly called for by command-line
-            option, a later pass failure, or not at all. *) 
+            option, a later pass failure, or not at all. *)
+** *)
 
       EXCEPT
       | FM3SharedUtils . Terminate ( Arg )
@@ -394,6 +395,7 @@ MODULE FM3Pass1
           )
 
       ; RdBackFile . Flush ( UnitRef ^ . UntPass1OutRdBack ) 
+(* ** Not needed after rework of RdBackFile. **
       ; FM3Compile . MakePassFileCopy
           ( UnitRef
           , FM3Globals . Pass1OutSuffix
@@ -401,6 +403,7 @@ MODULE FM3Pass1
           )
         (* ^This copy will be used immediately to disassemble
             what there is of the failed file. *)
+** *)
       ; DisAsmPass1 ( UnitRef )
 
       ; FM3Messages . FatalArr

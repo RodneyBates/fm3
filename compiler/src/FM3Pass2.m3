@@ -2727,6 +2727,7 @@ MODULE FM3Pass2
 
       ; RdBackFile . Flush ( UnitRef ^ . UntPass2OutRdBack ) 
 
+(* ** Not needed after rework of RdBackFile. **
       (* Prepare for possible disassembly later. *) 
       ; FM3Compile . MakePassFileCopy
           ( UnitRef
@@ -2734,7 +2735,9 @@ MODULE FM3Pass2
           , UnitRef ^ . UntPass2OutRdBack
           )
         (*^ This copy may be used by disassembly called for by command-line
-            option, a later pass failure, or not at all. *) 
+            option, a later pass failure, or not at all. *)
+** *)
+            
       EXCEPT
       | FM3SharedUtils . Terminate ( Arg )
       => (*Re-*) RAISE FM3SharedUtils . Terminate ( Arg ) 
@@ -2748,12 +2751,14 @@ MODULE FM3Pass2
           , VAL ( Itk . ItkLeftEndIncomplete , LONGINT ) 
           )
       ; RdBackFile . Flush ( UnitRef ^ . UntPass2OutRdBack )
-      
+
+(* ** Not needed after rework of RdBackFile. **
       ; FM3Compile . MakePassFileCopy
           ( UnitRef
           , FM3Globals . Pass2OutSuffix
           , UnitRef ^ . UntPass2OutRdBack
           )
+** *)
       ; DisAsmPass2 ( UnitRef , DoEarlierPasses := TRUE )
 
       ; FM3Messages . FatalArr
