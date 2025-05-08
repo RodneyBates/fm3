@@ -255,6 +255,7 @@ MODULE  FM3Compile
   ; VAR LCopyFileFullName : TEXT
   ; VAR LDisAsmFileFullName : TEXT
   ; VAR LDisAsmWrT : Wr . T
+  ; VAR LSaveCoord : LONGINT 
   ; VAR LRdBack : RdBackFile . T
   
   ; BEGIN
@@ -272,13 +273,16 @@ MODULE  FM3Compile
              ( NIL , LPassFileFullName , FM3Globals . DisAsmFileSuffix ) 
     ; LDisAsmWrT := FileWr . Open ( LDisAsmFileFullName )
     ; LRdBack := RdBackFile . Open ( LCopyFileFullName )
+    ; LSaveCoord := RdBackFile . LengthL ( LRdBack )
+    ; EVAL RdBackFile . Seek ( LRdBack , RdBackFile . MaxLengthL ( LRdBack ) )  
 
     ; TRY
         FM3DisAsm . DisAsmWOperands ( LRdBack , LDisAsmWrT , L2R )
+      ; EVAL RdBackFile . Seek ( LRdBack , LSaveCoord )  
     
       ; RdBackFile . Close ( LRdBack , - 1L )      
       ; Wr . Close ( LDisAsmWrT ) 
-      ; FM3SharedUtils . DeleteFile ( LCopyFileFullName )
+      ; FM3SharedUtils . DeleteFile ( LCopyFileFullName ) 
       EXCEPT
       | RdBackFile . BOF
         => 
@@ -392,7 +396,7 @@ MODULE  FM3Compile
           THEN
             FM3SharedUtils . DeleteFile ( LPassFileFullName )
           END (*IF*) 
-        ; FM3SharedUtils . DeleteFile ( LCopyFileFullName )
+        ; FM3SharedUtils . DeleteFile ( LCopyFileFullName )  
         END (*IF*) 
       END (*FOR*) 
     END CleanPassFilesAndCopies

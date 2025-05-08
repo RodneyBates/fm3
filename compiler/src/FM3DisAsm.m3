@@ -500,7 +500,7 @@ MODULE FM3DisAsm
   
   ; BEGIN (* DisAsmWOperands *) 
       FM3SharedUtils . LoadSets ( )
-    ; FetchOptions () 
+    ; FetchOptions ( )
 
     ; TRY 
         LOOP (* Thru' token-with-args groups. *) 

@@ -307,9 +307,9 @@ MODULE FM3SharedUtils
     ; Version : FM3SharedGlobals . FileVersionTyp
         := FM3SharedGlobals . FM3FileVersion0 
     )
-  : ARRAY [ 0 .. 7 ] OF File . Byte 
+  : PrefixBTyp 
 
-  = VAR LResult : ARRAY [ 0 .. 7 ] OF File . Byte
+  = VAR LResult : PrefixBTyp 
   
   ; BEGIN
       LResult [ 0 ] := ORD ( FM3SharedGlobals . FM3FileTagA [ 0 ] ) 
@@ -324,7 +324,7 @@ MODULE FM3SharedUtils
     END FilePrefixB 
 
 (*EXPORTED*) 
-; PROCEDURE ReadPrefix
+; PROCEDURE ReadPrefixR
     ( RdT : Rd . T
     ; VAR Kind : FM3SharedGlobals . FileKindTyp
     ; VAR Version : FM3SharedGlobals . FileVersionTyp 
@@ -383,7 +383,64 @@ MODULE FM3SharedUtils
       | Rd . Failure , Thread . Alerted
       => RETURN 
       END (*EXCEPT*)
-    END ReadPrefix
+    END ReadPrefixR
+
+(*EXPORTED*) 
+; PROCEDURE ParsePrefixB
+    ( PrefixB : PrefixBTyp 
+    ; VAR Kind : FM3SharedGlobals . FileKindTyp
+    ; VAR Version : FM3SharedGlobals . FileVersionTyp 
+    ; VAR IsOK : BOOLEAN
+    )
+
+  = VAR LPrefixPos : CARDINAL
+  ; VAR LCheckPos : CARDINAL 
+  ; VAR LByte : File . Byte 
+
+  ; <*FATAL Rd . EndOfFile *>
+    BEGIN
+      IsOK := FALSE
+    ; LPrefixPos := 0
+    
+    (* Verify tag: *)
+    ; LCheckPos := 0 
+    ; LOOP
+        LByte := PrefixB [ LPrefixPos ]
+      ; IF LByte # FM3SharedGlobals . FM3FileTagB [ LCheckPos ]
+        THEN RETURN
+        END (*IF*) 
+      ; INC ( LPrefixPos ) 
+      ; INC ( LCheckPos ) 
+      ; IF LCheckPos >= NUMBER ( FM3SharedGlobals . FM3FileTagA )
+        THEN EXIT
+        END (*IF*) 
+      END (*LOOP*)
+
+    (* Get Kind byte: *) 
+    ; Kind := VAL ( PrefixB [ LPrefixPos ] , CHAR ) 
+    ; INC ( LPrefixPos )
+    
+   (* Get Version byte: *) 
+    ; Version := VAL ( PrefixB [ LPrefixPos ] , CHAR )
+    ; INC ( LPrefixPos ) 
+
+    (* Verify magic number: *) 
+    ; LCheckPos := 0
+    ; LOOP
+        LByte := PrefixB [ LPrefixPos ]
+      ; IF LByte # FM3SharedGlobals . FM3MagicB [ LCheckPos ]
+        THEN RETURN
+        END (*IF*) 
+      ; INC ( LPrefixPos ) 
+      ; INC ( LCheckPos ) 
+      ; IF LCheckPos >= NUMBER ( FM3SharedGlobals . FM3MagicA )
+        THEN EXIT
+        END (*IF*)   
+      END (*LOOP*)
+
+    ; IsOK := TRUE 
+    ; RETURN
+    END ParsePrefixB
 
 (*EXPORTED*) 
 ; PROCEDURE OpenRd
@@ -410,6 +467,47 @@ MODULE FM3SharedUtils
     ; RETURN LRdT 
     END OpenRd
 
+(*EXPORTED.*)
+; PROCEDURE CheckPrefix
+    ( IsOK : BOOLEAN
+    ; ActualFileKind , ExpectedFileKind : FM3SharedGlobals . FileKindTyp
+    ; ActualFileVersion , ExpectedFileVersion : FM3SharedGlobals . FileVersionTyp
+    ; FileTag , FileName : TEXT 
+    )
+  RAISES { FatalError } 
+
+  = BEGIN (*CheckPrefix*)
+      IF NOT IsOK
+      THEN
+        RaiseFatal
+          ( CatStrings ( FileTag , FileName , " is not an FM3 internal file." ) )
+      ELSIF ActualFileKind # ExpectedFileKind 
+      THEN 
+        RaiseFatal
+          ( CatStrings 
+              ( FileTag
+              , FileName 
+              , " has wrong kind: " 
+              , FileKindImage ( ActualFileKind )  
+              , ", expecting " 
+              , FileKindImage ( ExpectedFileKind )  
+              )
+          )
+      ELSIF ActualFileVersion # ExpectedFileVersion 
+      THEN 
+        RaiseFatal
+          ( CatStrings 
+              ( FileTag
+              , FileName 
+              , " has wrong version: " 
+              , FileKindImage ( ActualFileVersion )  
+              , ", expecting " 
+              , FileKindImage ( ExpectedFileVersion )  
+              )
+          )
+      END (*IF*)
+    END CheckPrefix
+      
 (*EXPORTED*) 
 ; PROCEDURE OpenResourceRd
     ( FileName : TEXT := ""
@@ -429,45 +527,20 @@ MODULE FM3SharedUtils
   
   ; BEGIN
       LRdT := OpenRd ( ResourceDirName , FileName )
-    ; ReadPrefix
+    ; ReadPrefixR
         ( LRdT , (*OUT*) LFileKind , (*OUT*) LFileVersion , (*OUT*) LIsOK )  
     ; LRelFileName := Libm3Pathname . Join ( ResourceDirName , FileName )
     ; LAbsFileName := AbsFileName ( LRelFileName )
-    ; IF NOT LIsOK
-      THEN
-        RaiseFatal
-          ( CatStrings 
-              ( "Resource file "
-              , LAbsFileName 
-              , " is not an FM3 internal file." 
-              )
-          )
-      ELSIF LFileKind # ExpectedFileKind 
-      THEN 
-        RaiseFatal
-          ( CatStrings 
-              ( "Resource file " 
-              , LAbsFileName 
-              , " has wrong kind: " 
-              , FileKindImage ( LFileKind )  
-              , ", expecting " 
-              , FileKindImage ( ExpectedFileKind )  
-              )
-          )
-      ELSIF LFileVersion # ExpectedFileVersion 
-      THEN 
-        RaiseFatal
-          ( CatStrings 
-              ( "Resource file " 
-              , LAbsFileName 
-              , " has wrong version: " 
-              , FileKindImage ( LFileVersion )  
-              , ", expecting " 
-              , FileKindImage ( ExpectedFileVersion )  
-              )
-          )
-      ELSE RETURN LRdT 
-      END (*IF*)
+    ; CheckPrefix
+        ( LIsOK
+        , LFileKind
+        , ExpectedFileKind
+        , LFileVersion
+        , ExpectedFileVersion
+        , "Resource file"
+        , LAbsFileName
+        )
+      ; RETURN LRdT 
     END OpenResourceRd
 
 (*EXPORTED*) 

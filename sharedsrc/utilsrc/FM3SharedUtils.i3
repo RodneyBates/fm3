@@ -76,7 +76,9 @@ INTERFACE FM3SharedUtils
     
 ; PROCEDURE FileKindImage ( Kind : FM3SharedGlobals . FileKindTyp ) : TEXT
 
-; CONST FileVersionImage = FileKindImage 
+; CONST FileVersionImage = FileKindImage
+
+; TYPE PrefixBTyp = ARRAY [ 0 .. 7 ] OF File . Byte 
 
 ; PROCEDURE FilePrefixT
     ( Kind : FM3SharedGlobals . FileKindTyp
@@ -97,18 +99,33 @@ INTERFACE FM3SharedUtils
     ; Version : FM3SharedGlobals . FileVersionTyp
         := FM3SharedGlobals . FM3FileVersion0
     )
-  : ARRAY [ 0 .. 7 ] OF File . Byte 
+  : PrefixBTyp 
 
-; PROCEDURE ReadPrefix
+; PROCEDURE ReadPrefixR
     ( RdT : Rd . T
     ; VAR Kind : FM3SharedGlobals . FileKindTyp
     ; VAR Version : FM3SharedGlobals . FileVersionTyp
     ; VAR IsOK : BOOLEAN
     )
 
+; PROCEDURE ParsePrefixB
+    ( PrefixB : PrefixBTyp 
+    ; VAR Kind : FM3SharedGlobals . FileKindTyp
+    ; VAR Version : FM3SharedGlobals . FileVersionTyp 
+    ; VAR IsOK : BOOLEAN
+    )
+
 ; PROCEDURE OpenRd
     ( DirName , FileName , Note1 , Note2 : TEXT := "" )
   : Rd . T
+  RAISES { FatalError } 
+
+; PROCEDURE CheckPrefix
+    ( IsOK : BOOLEAN
+    ; ActualFileKind , ExpectedFileKind : FM3SharedGlobals . FileKindTyp
+    ; ActualFileVersion , ExpectedFileVersion : FM3SharedGlobals . FileVersionTyp
+    ; FileTag , FileName : TEXT 
+    )
   RAISES { FatalError } 
 
 ; PROCEDURE OpenResourceRd

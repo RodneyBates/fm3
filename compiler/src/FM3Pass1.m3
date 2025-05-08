@@ -366,6 +366,7 @@ MODULE FM3Pass1
           ( UnitRef ^ . UntPass1OutRdBack
           , VAL ( Itk . ItkEOF , LONGINT )
           )
+      ; RdBackFile . Flush ( UnitRef ^ . UntPass1OutRdBack ) 
       
       ; FM3Parser . CloseFM3Parser ( )
 (*TODO ^ Do this sometime later? *)
@@ -392,6 +393,7 @@ MODULE FM3Pass1
           , VAL ( Itk . ItkRightEndIncomplete , LONGINT )
           )
 
+      ; RdBackFile . Flush ( UnitRef ^ . UntPass1OutRdBack ) 
       ; FM3Compile . MakePassFileCopy
           ( UnitRef
           , FM3Globals . Pass1OutSuffix
@@ -431,7 +433,7 @@ MODULE FM3Pass1
 
   ; BEGIN (*FinishPass1*)
 
-    (* Report size and maybe disassemble pass 1 outputfile. *) 
+    (* Report size and maybe disassemble pass 1 output file. *) 
       LPass1FullFileName
         := Pathname . Join
              ( UnitRef ^ . UntBuildDirPath 
@@ -455,7 +457,6 @@ MODULE FM3Pass1
       END (*IF*)
 
 (* Close source file. *) 
-
 
 (* TODO: display code point counts. *)
 

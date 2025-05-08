@@ -49,6 +49,8 @@ MODULE RdBackFile
 ; IMPORT Thread 
 ; IMPORT Wr
 
+; IMPORT FM3SharedGlobals 
+; IMPORT FM3SharedUtils 
 ; IMPORT FM3UnsafeUtils
 
 ; CONST Beginning = RegularFile . Origin . Beginning
@@ -285,19 +287,29 @@ MODULE RdBackFile
     ; LRbFile . RbMaxLengthL := 0L
     ; LRbFile . RbDiskLengthL := 0L
     ; LRbFile . RbBlockNextIn := 0
+    ; LRbFile . RbPrefix
+        := FM3SharedUtils . FilePrefixB
+             ( FM3SharedGlobals .  FM3FileKindRdBack
+             , FM3SharedGlobals .  FM3FileVersion0
+             ) 
     ; WriteHeader ( LRbFile , "Create" ) 
     ; RETURN LRbFile 
     END Create  
 
 (*EXPORTED*)
-; PROCEDURE Open ( Filename : TEXT ) : T RAISES { OSError . E }   
+; PROCEDURE Open ( Filename : TEXT ) : T
+  RAISES { FM3SharedUtils . FatalError , OSError . E }
 
   = VAR LRbFile : T 
+  ; VAR LFileKind : FM3SharedGlobals . FileKindTyp 
+  ; VAR LFileVersion : FM3SharedGlobals . FileVersionTyp 
+  ; VAR LIsOK : BOOLEAN 
 
   ; BEGIN
       LRbFile 
         := InnerOpen 
              ( Filename , "Open" , Truncate := FALSE , MustBeEmpty := FALSE )
+    ; ReadHeader ( LRbFile , "Open" ) 
     ; IF LRbFile . RbLengthL <= 0L
       THEN 
         LRbFile . RbBlockNo := 0 
@@ -305,7 +317,23 @@ MODULE RdBackFile
       ; LRbFile . RbBlockNextIn := 0
       (* And RbBuffer is uninitialized. *)
       ELSE
-        ReadHeader ( LRbFile , "Open" ) 
+        ReadHeader ( LRbFile , "Open" )
+      ; FM3SharedUtils . ParsePrefixB
+          ( LRbFile . RbPrefix
+          , (*OUT*) LFileKind
+          , (*OUT*) LFileVersion
+          , (*OUT*) LIsOK
+          )  
+      ; FM3SharedUtils .CheckPrefix
+          ( LIsOK
+          , LFileKind
+          , FM3SharedGlobals .  FM3FileKindRdBack 
+          , LFileVersion
+          , FM3SharedGlobals .  FM3FileVersion0
+          , "Readbackfile"
+          , LRbFile . RbFileName  
+          ) 
+
       ; LRbFile . RbBlockNo
           := VAL ( ( LRbFile . RbLengthL - 1L ) DIV BlockSizeL
                  , INTEGER
@@ -587,7 +615,7 @@ MODULE RdBackFile
           , LNewBlockNo
           , BlockLength ( RbFile , LNewBlockNo ) 
           , RbFile . RbBuffer
-          , "Copy"
+          , "Seek"
           )
       ; RbFile . RbIsDirty := FALSE
       END (*IF*)
@@ -653,6 +681,11 @@ MODULE RdBackFile
             )
         END (*IF*) 
       END (*IF*)
+    ; WriteHeader ( RbFile , "Copy" ) (* Just for examination at this point. *)  
+    ; CopyFile . RbLengthL := RbFile . RbLengthL 
+    ; CopyFile . RbMaxLengthL := RbFile . RbMaxLengthL 
+    ; CopyFile . RbDiskLengthL := RbFile . RbDiskLengthL 
+    ; WriteHeader ( CopyFile , "Copy" ) 
     END InnerCopy
       
 (*EXPORTED*)

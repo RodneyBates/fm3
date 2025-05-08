@@ -8,6 +8,8 @@
 
 INTERFACE FM3SharedGlobals
 
+; IMPORT File 
+
 ; IMPORT IntSets
 
 ; VAR GResourceDirName := "../lib"
@@ -39,11 +41,22 @@ INTERFACE FM3SharedGlobals
         }
   (* ^Normal forward reading and writing at BOF. *) 
 
+; CONST FM3FileTagB
+    = ARRAY [ 0 .. 2 ] OF File . Byte 
+        { ORD ( 'F' ) 
+        , ORD ( 'M' ) 
+        , ORD ( '3' ) 
+        }
+  (* ^Normal forward reading and writing at BOF. *) 
+
 ; CONST FM3MagicT = "\xA2\x0B\x9F"
 
 ; CONST FM3MagicA
     = ARRAY [ 0 ..2 ] OF CHAR 
         { VAL ( 16_A2 , CHAR ) , VAL ( 16_0B , CHAR ) , VAL ( 16_9F , CHAR ) }
+
+; CONST FM3MagicB
+    = ARRAY [ 0 ..2 ] OF File . Byte { 16_A2 , 16_0B  , 16_9F }
 
 ; TYPE FileKindTyp = CHAR
 

@@ -2725,6 +2725,8 @@ MODULE FM3Pass2
       ; PutBwdP2
           ( UnitRef ^ . UntPass2OutRdBack , VAL ( Itk . ItkEOF , LONGINT ) )
 
+      ; RdBackFile . Flush ( UnitRef ^ . UntPass2OutRdBack ) 
+
       (* Prepare for possible disassembly later. *) 
       ; FM3Compile . MakePassFileCopy
           ( UnitRef
@@ -2745,6 +2747,8 @@ MODULE FM3Pass2
           ( UnitRef ^ . UntPass2OutRdBack
           , VAL ( Itk . ItkLeftEndIncomplete , LONGINT ) 
           )
+      ; RdBackFile . Flush ( UnitRef ^ . UntPass2OutRdBack )
+      
       ; FM3Compile . MakePassFileCopy
           ( UnitRef
           , FM3Globals . Pass2OutSuffix

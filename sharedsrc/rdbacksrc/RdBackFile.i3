@@ -22,7 +22,9 @@
 INTERFACE RdBackFile
 
 ; IMPORT OSError
-; IMPORT Thread 
+; IMPORT Thread
+
+; IMPORT FM3SharedUtils 
 
 ; EXCEPTION Preexists
 ; EXCEPTION BOF 
@@ -36,7 +38,8 @@ INTERFACE RdBackFile
 ; PROCEDURE Create ( Filename : TEXT ) : T
   RAISES { OSError . E , Preexists (* Only if NOT Truncate *) }   
 
-; PROCEDURE Open ( Filename : TEXT ) : T RAISES { OSError . E }   
+; PROCEDURE Open ( Filename : TEXT ) : T 
+  RAISES { FM3SharedUtils . FatalError , OSError . E }
 
 ; PROCEDURE FileName ( RbFile : T ) : TEXT 
   (* Never NIL.  Possibly empty. *) 
