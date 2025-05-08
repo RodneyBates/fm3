@@ -19,7 +19,7 @@
 [31mERROR: [0mIntf.i3[46,13] Reserved identifier "CARDINAL" cannot have a qualifier. (2.8.2).
 [31mERROR: [0mIntf.i3[46,24] Reserved identifier "MUTEX" cannot be a qualifier. (2.8.2).
 [31mERROR: [0mIntf.i3[54,19] Reserved identifier "FALSE" cannot be dereferenced (2.8.2).
-[31mERROR: [0mIntf.i3[59,13] Reserved identifier "ABS" is a function and must have a parameter list.
+[31mERROR: [0mIntf.i3[59,13] Reserved identifier "ABS" is a builtin function and must have a parameter list.
 [31mERROR: [0mIntf.i3[60,17] Reserved identifier "ABS" requires one actual parameter
 [31mERROR: [0mIntf.i3[62,17] Reserved identifier "ABS" requires one actual parameter
 [31mERROR: [0mIntf.i3[63,17] Reserved identifier "ABS" requires one actual parameter
