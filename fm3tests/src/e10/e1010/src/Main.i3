@@ -1,7 +1,0 @@
-INTERFACE Main
-
-; END Main
-.
-
-
-
