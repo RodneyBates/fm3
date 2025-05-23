@@ -82,14 +82,13 @@ ESALL=0
       # $1 is directory containing the file.
       # $2 is file simple name.
       local ES 
-      if [ $ESALL -ne 0 ]; then return; fi
       if [ $doadd = 0 ]  
       then       
         if test -f ${1}/${2}
         then
           git add ${1}/${2} 
           ES=$?
-          if [ ES -ne 0 ]; then ESALL=1; fi
+          if [ ES > 0 ]; then ESALL=1; fi
         fi
       fi
     } 
@@ -208,6 +207,7 @@ else # Do this script.
     checkOneFile ${SRCDIR} FM3Log
     updateOneFile ${SRCDIR} FM3Log
     addOneFile ${SRCDIR} FM3Log
+    addOneFile ${SRCDIR} FM3Log.expected
     
   # Command line source files:
   for SRC in $SOURCES
