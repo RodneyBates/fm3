@@ -337,7 +337,7 @@ MODULE  FM3Compile
               ; Wr . PutText ( LWrT , Wr . EOL )
 
             | FM3Exprs . ExprTyp ( TExpr )
-            =>  Wr . PutText ( LWrT , FM3SharedUtils . RefanyImage ( TExpr ) ) 
+            =>  Wr . PutText ( LWrT , FM3Exprs . RefanyImageMaybe ( TExpr ) ) 
               ; Wr . PutText ( LWrT , Wr . EOL ) 
               ; FM3Exprs . DumpExpr ( TExpr , LWrT , (*IN OUT*) ExprNosDumped )
 

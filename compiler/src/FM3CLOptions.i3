@@ -6,7 +6,11 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-(* Internal representation of command-line options. *) 
+(* Internal representation of command-line options.
+   FM3CLArgs parses the command line and sets global variables herein
+   with the results.  Code anywhere that depends on options tests these
+   global variables to decide what to do.
+*) 
 
 INTERFACE FM3CLOptions
 

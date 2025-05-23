@@ -33,23 +33,25 @@ INTERFACE FM3CLToks
 ; CONST CltDisAsm                                    =    10 (*16_0a *)
 ; CONST CltExprs                                     =    11 (*16_0b *)
 ; CONST CltExprsPasses                               =    12 (*16_0c *)
-; CONST CltKeepPasses                                =    13 (*16_0d *)
-; CONST CltKeep                                      =    14 (*16_0e *)
-; CONST CltOvflo                                     =    15 (*16_0f *)
+; CONST CltExprAddrs                                 =    13 (*16_0d *)
+; CONST CltKeepPasses                                =    14 (*16_0e *)
+; CONST CltKeep                                      =    15 (*16_0f *)
+; CONST CltOvflo                                     =    16 (*16_10 *)
+; CONST CltStdSources                                =    17 (*16_11 *)
 (* Keep intermediate files. *)
-; CONST CltRemoveUnusedDecls                         =    16 (*16_10 *)
-; CONST CltStdErr                                    =    17 (*16_11 *)
+; CONST CltRemoveUnusedDecls                         =    18 (*16_12 *)
+; CONST CltStdErr                                    =    19 (*16_13 *)
 (* Write compilation process messages to stderr. *)
-; CONST CltFM3Log                                    =    18 (*16_12 *)
+; CONST CltFM3Log                                    =    20 (*16_14 *)
 (* Write compilation process messages to compiler log file. *)
-; CONST CltStdOut                                    =    19 (*16_13 *)
+; CONST CltStdOut                                    =    21 (*16_15 *)
 (* Write compiled code messages to stdout. *)
-; CONST CltUnitLog                                   =    20 (*16_14 *)
+; CONST CltUnitLog                                   =    22 (*16_16 *)
 (* Write compiled code messages to unit-specific log file. *)
 (* End of file FM3CLToks.gentok *)
 ; CONST TkMinTok                                     =     0
 
-; CONST TkMaxTok                                     =    20
+; CONST TkMaxTok                                     =    22
 
 ; END FM3CLToks
 .

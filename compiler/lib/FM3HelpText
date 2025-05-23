@@ -124,6 +124,14 @@ Boolean options default to FALSE.
 --[no-]exprs-passes[=]<passNum> ..
        Write expression data structure dump files for pass number(s)
        <passNum> .. in the build directory.
-       Implies --keep-passes with same parameter. 
+       Implies --keep-passes with same parameter.
+       
+--[no-]expr-addrs
+       Include hex addresses in expression dumps. (These will be different
+       in every run, even for equivalent data structure.) Defaults to FALSE.
+
+--[no-]std-sources
+       Include standard units such as Main.i3, Word.[im]3, etc. in the compile.
+       Defaults to TRUE.
        
 

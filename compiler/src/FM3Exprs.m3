@@ -19,9 +19,11 @@ MODULE FM3Exprs
 
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Base
+; IMPORT FM3CLToks AS Clt
+; IMPORT FM3CLOptions 
 ; IMPORT FM3Globals
 ; IMPORT FM3Messages 
-; FROM FM3SharedUtils IMPORT RefanyImage 
+; FROM FM3SharedUtils IMPORT RefanyImage
 ; IMPORT FM3Scopes
 ; IMPORT FM3SharedUtils 
 ; IMPORT FM3SrcToks
@@ -213,7 +215,7 @@ MODULE FM3Exprs
         Wr . PutText ( GWrT , "ExprNo " )
       ; Wr . PutText ( GWrT , Fmt . Int ( Expr . ExpSelfExprNo ) )
       ; Wr . PutChar ( GWrT , ' ' )
-      ; Wr . PutText ( GWrT , RefanyImage ( Expr ) ) 
+      ; Wr . PutText ( GWrT , RefanyImageMaybe ( Expr ) ) 
       ; IF IntSets . IsElement ( Expr . ExpSelfExprNo , GExprNosDumped )
         THEN
           Wr . PutText ( GWrT , ", previously displayed." )
@@ -238,14 +240,20 @@ MODULE FM3Exprs
                   , padChar := '0'
                   , align:= Fmt . Align . Right
                   )
-    END LongHexImage 
+    END LongHexImage
+*)
 
-; <*INLINE*> PROCEDURE RefanyImage ( Value : REFANY ) : TEXT
+(*TODO: Put this somewhere more general? *) 
+(*EXPORTED.*) 
+; PROCEDURE RefanyImageMaybe ( Value : REFANY ) : TEXT
 
   = BEGIN
-      RETURN LongHexImage ( FM3UnsafeUtils . RefanyToLongInt ( Value ) ) 
-    END RefanyImage 
-*) 
+      IF Clt . CltExprAddrs IN FM3CLOptions . OptionTokSet
+      THEN RETURN RefanyImage ( Value )
+      ELSE RETURN "16_****************"
+      END (*IF*) 
+    END RefanyImageMaybe
+ 
 ; PROCEDURE AtomTypImage ( Value : FM3Base . AtomTyp ) : TEXT
 
   = VAR LChars : REF ARRAY OF CHAR
@@ -288,7 +296,7 @@ MODULE FM3Exprs
                 { "ExprNo "
                 , Fmt . Int ( TExprRef . ExpSelfExprNo )
                 , " at "
-                , RefanyImage ( TExprRef )
+                , RefanyImageMaybe ( TExprRef )
                 , " "
                 , FM3Utils . PositionImage ( TExprRef . ExpPosition )
                 }
@@ -305,7 +313,7 @@ MODULE FM3Exprs
     = BEGIN
         Field ( "ExpStackLink" , ExprRefImage ( Expr . ExpStackLink ) ) 
       ; NestedField ( "ExpType" , Expr . ExpType ) 
-      ; Field ( "ExpRefConstVal" , RefanyImage ( Expr . ExpRefConstVal ) )  
+      ; Field ( "ExpRefConstVal" , RefanyImageMaybe ( Expr . ExpRefConstVal ) )  
       ; Field
           ( "ExpScalarConstVal" , Fmt . LongInt ( Expr . ExpScalarConstVal ) )  
       ; Field

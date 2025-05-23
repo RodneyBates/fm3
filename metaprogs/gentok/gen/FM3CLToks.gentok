@@ -38,10 +38,12 @@ CltDisAsmPasses          "disasm-passes" .
 CltDisAsmVerbose         "disasm-verbose" . 
 CltDisAsm                "disasm" .
 CltExprs                 "exprs" . 
-CltExprsPasses           "exprs-passes" . 
+CltExprsPasses           "exprs-passes" .
+CltExprAddrs             "expr-addrs" . 
 CltKeepPasses            "keep-passes" .
 CltKeep                  "keep" .
-CltOvflo                 "check-overflow" . 
+CltOvflo                 "check-overflow" .
+CltStdSources            "std-sources" . 
 (* Keep intermediate files. *)
 CltRemoveUnusedDecls     "remove-unused-decls" .
       

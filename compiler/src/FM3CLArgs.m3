@@ -7,7 +7,7 @@
 (* -----------------------------------------------------------------------2- *)
 
 (* Parsing the command line, its options, arguments, etc. *)
-(* Store decoded values in FM3CLOptions. *) 
+(* Store decoded values in global variables of FM3CLOptions. *) 
 (* See compiler/lib/FM3HelpText. *)
 (* See metaprogs/gentok/gen/FM3CLToks.gentok and generated
    files FM3CLToks.[im]3 and FM3CLToksSrcFsm.pkl in the same directory.
@@ -343,7 +343,10 @@ MODULE FM3CLArgs
         THEN
           FM3CLOptions . OptionsLexTable
             := FM3Files . ReadFsm
-                 ( "Clt" , FM3SharedGlobals . FM3FileKindCltPkl )
+                 ( "Clt" , FM3SharedGlobals . FM3FileKindSrcPkl )
+(* FIXME ^ make gentok produce FM3SharedGlobals . FM3FileKindCltPkl
+           and then expect it here.
+*)
         END (*IF*)
 
       ; PaHasEqualSign := FALSE 
@@ -491,7 +494,9 @@ MODULE FM3CLArgs
         , Clt . CltUnitLog 
         , Clt . CltRemoveUnusedDecls
         , Clt . CltDisAsmVerbose
-        , Clt . CltExprs 
+        , Clt . CltExprs
+        , Clt . CltExprAddrs
+        , Clt . CltStdSources 
         =>  PaNoEqualSign ( )
           ; AssignOptionSetElem 
               ( FM3CLOptions . OptionTokSet , LLexValue , Value := NOT LNo ) 
@@ -691,7 +696,7 @@ MODULE FM3CLArgs
     ; Wr . PutText ( Stdio . stderr , Params . Get ( 0 ) ) 
     ; Wr . PutText ( Stdio . stderr , Wr . EOL )
     ; Wr . PutText
-        ( Stdio . stderr , "    FM3 Modula-3 compiler, version " ) 
+        ( Stdio . stderr , "   Which is FM3 Modula-3 compiler, version " ) 
     ; Wr . PutText ( Stdio . stderr , FM3Version . VersionString ) 
     ; Wr . PutText ( Stdio . stderr , Wr . EOL )
     ; Wr . Flush ( Stdio . stderr ) 
@@ -760,7 +765,7 @@ MODULE FM3CLArgs
       END (*IF*) 
     END DisplayHelp
 
-; CONST OptionTokSetDefault 
+; CONST OptionTokSetDefault (* Ones that default to TRUE. *)  
           = FM3CLOptions . OptionTokSetTyp
              { Clt . CltDisAsmVerbose
              , Clt . CltStdErr 
@@ -768,6 +773,7 @@ MODULE FM3CLArgs
              , Clt . CltFM3Log 
              , Clt . CltStdErr 
              , Clt . CltUnitLog
+             , Clt . CltStdSources 
              }
 
 ; PROCEDURE SetDefaults ( )
