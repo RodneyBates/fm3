@@ -69,10 +69,10 @@ ESALL=0
         rm tmplog0
         if [ $ES -ne 0 ]
         then #compiler crashed.
-          echo $TAG $RED "Compile failed." $PLAIN  
+          echo -e $TAG $RED "Compile failed." $PLAIN  
           ESALL=1  
         else #Compiler run ended normally.
-          echo $TAG $GREEN "Compile finished OK" $PLAIN 
+          echo -e $TAG $GREEN "Compile finished OK" $PLAIN 
         fi
       fi
     }
@@ -99,7 +99,6 @@ ESALL=0
       # $1 is directory containing the file and its expected file ${2}.expected
       # $2 is file simple name.
       local ES 
-      if [ $ESALL -ne 0 ]; then return; fi
       if [ $doupdate = 0 ] 
       then
         if test -f ${1}/${2}
@@ -124,23 +123,25 @@ ESALL=0
       then
         if test -s ${1}/${2}.expected 
         then #Expected file is present and nonempty.
+          DIFFLOG=${2}.diff 
           DIFFCMD="diff -u ${2}.expected ${2}"
-          DIFFLOG=${1}/${2}.diff 
-          echo $TAG "In directory ${1}," | tee -a $TESTLOG
           PREVDIR=`pwd`
           cd ${1}
+          echo $TAG "In directory ${1}," | tee -a $TESTLOG
           echo $TAG "  running" $DIFFCMD | tee -a $TESTLOG 
           $DIFFCMD 2>&1 > $DIFFLOG  
           ES=$?
-          cd $PREVDIR
-          mv $DIFFLOG $TESTDIR
-          if [ ${ES} = 0 ]
+          if [ ${ES} = 0 ] # No differences.
           then
-            echo $TAG $GREEN "  OK." $PLAIN 
+            rm -f ${DIFFLOG}
+            rm -f ${TESTDIR}/${DIFFLOG} # Possible old version.
+            echo -e $TAG $GREEN " OK." $PLAIN 
           else
-            echo $TAG $RED "  File" ${2} not as expected $PLAIN 2>&1 | tee -a $TESTLOG
+            mv $DIFFLOG $TESTDIR
+            echo -e $TAG $RED " File" ${2} not as expected $PLAIN | tee -a $TESTLOG
             ESALL=1
           fi
+          cd $PREVDIR
         elif test -f ${1}/${2}.expected 
         then #expected file exists (but is empty).  Ignore this case.
           echo $TAG Expected file ${1}/${2}.expected "is empty, ignored." 2>&1 | tee -a $TESTLOG
@@ -173,11 +174,11 @@ else # Do this script.
   BUILDDIR="$TESTDIR/build"
 
   # Text attributes:
-  # These are not being interpreted: 
-  #RED="\\033[91m"
-  #GREEN="\\033[92m"
-  #ORANGE="\\033[93m"
-  #PLAIN="\\033[0m"
+  # Why are these different from codes in FM3TextColors.i3? 
+  RED="\\033[31m"
+  GREEN="\\033[32m"
+  ORANGE="\\033[33m"
+  PLAIN="\\033[0m"
 
   # Optional file srcdirs lists directories to look for source files in.
   if test -f srcdirs ; then SRCDIRS=`cat srcdirs`; else SRCDIRS="$SRCDIR"; fi
@@ -257,14 +258,14 @@ else # Do this script.
   if [ $docheck = 0 ] && [ $ESALL -ne 0 ] 
   then # Overall failure
     touch ${TESTDIR}/FAILED 
-    echo $TAG $RED "################ F A I L E D ################" $PLAIN | tee -a $TESTLOG
+    echo -e $TAG $RED "################ F A I L E D ################" $PLAIN | tee -a $TESTLOG
     echo $TAG "---------------- Failed in `pwd`" | tee -a $TESTLOG
     mv $TESTLOG $TESTDIR/testlog #Overlaying the old one. 
     exit 1
   else # Overall success
     touch ${TESTDIR}/SUCCEEDED
     touch ${TESTDIR}/LASTSUCCEEDED
-    echo $TAG $GREEN "---------------- Succeeded in `pwd`" $PLAIN | tee -a $TESTLOG
+    echo -e $TAG $GREEN "---------------- Succeeded in `pwd`" $PLAIN | tee -a $TESTLOG
     mv $TESTLOG $TESTDIR/testlog #Overlaying the old one. 
   fi
 fi 
