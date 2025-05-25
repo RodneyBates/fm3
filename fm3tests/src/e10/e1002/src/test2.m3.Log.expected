@@ -1,0 +1,17 @@
+[31mERROR: [0mtest2.m3 Unable to locate exported source file A.i3
+       Search directories for source files are:
+       "."
+[31mERROR: [0mtest2.m3 Unable to locate exported source file B.i3
+[31mERROR: [0mtest2.m3[13,9] Unable to locate imported source file X.i3
+[31mERROR: [0mtest2.m3[13,13] Unable to locate imported source file Y.i3
+[31mERROR: [0mtest2.m3[15,7] Unable to locate imported source file Mumble.i3
+[31mERROR: [0mtest2.m3[17,2] A procedure in a module must have a body (2.5).
+[31mERROR: [0mtest2.m3[19,16] VALUE formal must have a type and/or a default ((2.2.8)).
+[31mERROR: [0mtest2.m3[19,2] A procedure in a module must have a body (2.5).
+[31mERROR: [0mtest2.m3[21,16] VALUE formal must have a type and/or a default ((2.2.8)).
+[31mERROR: [0mtest2.m3[21,2] A procedure in a module must have a body (2.5).
+[31mERROR: [0mtest2.m3[22,2] A procedure in a module must have a body (2.5).
+[31mERROR: [0mtest2.m3[23,2] A procedure in a module must have a body (2.5).
+[31mERROR: [0mtest2.m3[23,28] Undeclared identifier "U", (2.1).
+[31mERROR: [0mtest2.m3[22,30] Undeclared identifier "U", (2.1).
+[31mERROR: [0mtest2.m3[17,25] Undeclared identifier "R", (2.1).

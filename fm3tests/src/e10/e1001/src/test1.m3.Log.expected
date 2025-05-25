@@ -1,0 +1,20 @@
+[31mERROR: [0mtest1.m3 Unable to locate exported source file A.i3
+       Search directories for source files are:
+       "."
+[31mERROR: [0mtest1.m3 Unable to locate exported source file B.i3
+[31mERROR: [0mtest1.m3[15,9] Unable to locate imported source file X.i3
+[31mERROR: [0mtest1.m3[15,13] Unable to locate imported source file Y.i3
+[31mERROR: [0mtest1.m3[17,7] Unable to locate imported source file Mumble.i3
+[31mERROR: [0mtest1.m3[20,23] VAR formal must have a type (2.2.8).
+[31mERROR: [0mtest1.m3[20,23] VAR formal cannot have a default (2.2.8).
+[31mERROR: [0mtest1.m3[20,2] A procedure in a module must have a body (2.5).
+[31mERROR: [0mtest1.m3[21,2] A procedure in a module must have a body (2.5).
+[31mERROR: [0mtest1.m3[23,16] VALUE formal must have a type and/or a default ((2.2.8)).
+[31mERROR: [0mtest1.m3[23,2] A procedure in a module must have a body (2.5).
+[31mERROR: [0mtest1.m3[25,16] VALUE formal must have a type and/or a default ((2.2.8)).
+[31mERROR: [0mtest1.m3[25,2] A procedure in a module must have a body (2.5).
+[31mERROR: [0mtest1.m3[26,2] A procedure in a module must have a body (2.5).
+[31mERROR: [0mtest1.m3[27,2] A procedure in a module must have a body (2.5).
+[31mERROR: [0mtest1.m3[27,28] Undeclared identifier "U", (2.1).
+[31mERROR: [0mtest1.m3[26,30] Undeclared identifier "U", (2.1).
+[31mERROR: [0mtest1.m3[21,25] Undeclared identifier "R", (2.1).

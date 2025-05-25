@@ -1,0 +1,1 @@
+--no-std-sources --disasm --no-disasm-verbose --exprs --no-expr-addrs
