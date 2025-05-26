@@ -1971,19 +1971,20 @@ RULE
            FM3Pass1 . PutBwd_LCI_ri (* Skip the body. *) 
              ( Itk . ItkSkipLt , $1 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
            INC ( FM3Globals . NextSkipNo ) ;
+         END (*IF*) ; 
          
          (* Don't skip popping formals scope from DeclScopeStack. It was pushed
             there regardless of skipping the extraneous body.
-         *) 
+         *)
          LScopeRefDecl := FM3Scopes . PopDeclScopeRef ( ) ;
+         <* ASSERT LScopeRefDecl . ScpKind = Skt . SkFormals *> 
          <* ASSERT LScopeRefDecl = LScopeRefOpen *> 
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkDeclScopeRt , LScopeRefDecl ^ . ScpSelfScopeNo ) ;
          FM3Pass1 . PutBwd_TIP
            ( Itk . ItkProcDefRt , $3 . Scan . SaAtom , $0 . Scan . Position ) ;
              
-         END (*IF*) 
-       END;
+       END (*Block*) ;
      } .
     
    ProcDeclLt : StkRwPROCEDURE NonreservedIdent Signature 
