@@ -10,6 +10,8 @@ MODULE main
     = RECORD
         RF1 
       END
+
+
 ; TYPE O
     = OBJECT
         OOOOF1 
