@@ -1,4 +1,3 @@
-
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2024..2025  Rodney M. Bates.                                    *)
@@ -468,7 +467,7 @@ MODULE FM3Pass2
 
   = BEGIN
       <* ASSERT FM3Exprs . PopExprStack ( ) # NIL *>  
-<* ASSERT FM3Exprs . PopExprStack ( ) # NIL *>  
+      <* ASSERT FM3Exprs . PopExprStack ( ) # NIL *>  
     END PopExprGE2 
 *)
 
@@ -514,7 +513,7 @@ MODULE FM3Pass2
         ; PutBwdP2 ( P2RdBack , VAL ( NewExprObj . ExpSelfExprNo , LONGINT ) )
         ; PutBwdP2 ( P2RdBack , VAL ( Itk . ItkDefTopExprNo , LONGINT ) )
         ELSE (* Inherit some things from parent expr node. *)
-          (* Assertions inside TYPECASE branches seem to just RETURN *)
+          (* ASSERTs inside TYPECASE branches seem to just RETURN *)
           TYPECASE FM3Exprs . ExprStackTopObj OF 
           | NULL => LParentExpr := NIL 
           | FM3Exprs . ExprTyp ( TParentExpr ) 
@@ -852,7 +851,8 @@ MODULE FM3Pass2
             ) 
         ; RETURN TRUE  
         ELSE 
-          IF NOT FM3Scopes . OpenScopeStackTopRef ^ . ScpInsideDecl 
+          IF
+ FALSE AND   NOT FM3Scopes . OpenScopeStackTopRef ^ . ScpInsideDecl 
           THEN (* Not inside a decl-defining expression. *) 
             CopyOperandsInOrder
               ( FM3Utils . TokenOpndCt ( TokResult . TrTok )
@@ -909,8 +909,6 @@ MODULE FM3Pass2
 
 ; TRY 
       CASE TokResult . TrTok OF
-      | 602
-      => LLongInt := 1L
 
       | Itk . ItkScopeEmpty 
       =>  HtPassTokenThru ( ) 
@@ -1191,13 +1189,16 @@ MODULE FM3Pass2
       (* Brands: *)
 
       | Itk . ItkBrandAbsent
-      =>  HtExprRt
-            ( NEW ( FM3Exprs . ExprTyp
-                  , ExpUpKind := Ekt . EkBrand
-                  , ExpIsLegalRecursive := TRUE
-                  , ExpIsPresent := FALSE 
-                  )
-            ) 
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN 
+            HtExprRt
+              ( NEW ( FM3Exprs . ExprTyp
+                    , ExpUpKind := Ekt . EkBrand
+                    , ExpIsLegalRecursive := TRUE
+                    , ExpIsPresent := FALSE 
+                    )
+              )
+          END (*IF*) 
 
       | Itk . ItkBrandAnon
       =>  WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
@@ -1373,9 +1374,14 @@ MODULE FM3Pass2
             ( HtPass2RdBack , VAL ( LNewExpr . ExpSelfExprNo , LONGINT ) ) 
         ; PutBwdP2 ( HtPass2RdBack , VAL ( Itk . ItkExprTyp , LONGINT ) )
 
+      | Itk . ItkInterfaceRt
+      =>  LUnitRef ^ . UntDeclScopeStackBaseCt := FM3Scopes . DeclScopeStackCt 
+        ; LUnitRef ^ . UntOpenScopeStackBaseCt := FM3Scopes . OpenScopeStackCt 
+        ; HtPassTokenThru ( )
+        
       | Itk . ItkInterfaceLt
-      =>  FM3Scopes . PruneScopeDeclStack ( 0 ) 
-        ; FM3Scopes . PruneScopeOpenStack ( 0 )
+      =>  FM3Scopes . PruneDeclScopeStack ( LUnitRef ^ . UntDeclScopeStackBaseCt ) 
+        ; FM3Scopes . PruneOpenScopeStack ( LUnitRef ^ . UntOpenScopeStackBaseCt )
         ; HtPassTokenThru ( ) 
 
       ELSE (* No special pass2 handling. *)

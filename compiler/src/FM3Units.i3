@@ -152,6 +152,12 @@ INTERFACE FM3Units
       ; UntExpImpCt : FM3Globals . DeclNoTyp := FM3Globals . DeclNoNull 
       ; UntSkipStackBase : INTEGER := 0 
           (* TOS Subscript at beginning and end of unit compile. *) 
+      ; UntExprStackBaseCt : INTEGER := 0 
+          (* TOS Subscript at beginning and end of unit compile. *) 
+      ; UntDeclScopeStackBaseCt : INTEGER := 0 
+          (* TOS Subscript at beginning and end of unit compile. *) 
+      ; UntOpenScopeStackBaseCt : INTEGER := 0 
+          (* TOS Subscript at beginning and end of unit compile. *) 
       ; UntStackDepth : INTEGER := 0
           (* ^Where on the units stack this UnitRef is. *) 
       ; UntSelfUnitNo : FM3Globals . UnitNoTyp := FM3Globals . UnitNoNull

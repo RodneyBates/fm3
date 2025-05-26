@@ -30,7 +30,7 @@ INTERFACE FM3Scopes
    parameter name of a named binding in a call and open when referred-to
    within a procedure body.
 
-   In FM3, a procedure signature and procedure body have separate ScopeType
+   In FM3, a procedure signature and procedure body have separate ScopeTyp
    objects but with disjoint identifier sets. Similarly, a compilation unit
    has a separate scope object for identifiers brought in by EXPORTs or IMPORTs
    and those declared within the unit, with disjoint identifier sets. 
@@ -123,8 +123,8 @@ INTERFACE FM3Scopes
       ; ScpMinDeclNo := FM3Globals . DeclNoNull
       ; ScpSelfScopeNo : FM3Globals . ScopeNoTyp (* A self-reference. *)
       ; ScpOwningDeclNo : FM3Globals . DeclNoTyp
-      ; ScpDeclStackHt : INTEGER := 0
-      ; ScpOpenStackHt : INTEGER := 0
+      ; ScpDeclStackHt : INTEGER := - 1 (* < 0 when nowhere on Decl stack. *) 
+      ; ScpOpenStackHt : INTEGER := - 1 (* < 0 when nowhere on Open stack. *) 
         (* ^Number scopes beneath, where "beneath" is reflexively closed. *)
       ; ScpCurDeclExprStackCt : INTEGER := 0 (* At beginning and end of decl. *)
 (* CHECK ^Do we really need this? *) 
@@ -135,12 +135,10 @@ INTERFACE FM3Scopes
       END (*ScopeTyp*)
 
       (* NOTE 1: This field retains meaning only during handling of a single
-                 declaration within the scope.  It is reinitialized and reused in
-                 later declarations.  It is NIL/Empty/FALSE when not working in
-                 a declaration.
-                 It would more naturally be in a Decl object, but in Pass 2, we
-                 don't yet have one when needed, and when we finally do, there can
-                 be >1.
+                 declaration within the scope.  It is reinitialized and reused in later
+                 declarations.  It is NIL/Empty/FALSE when not working in a declaration.
+                 It would more naturally be in a Decl object, but in Pass 2, we dom't
+                 yet have one when needed, and when we finally do, there can be >1.
       *) 
 
 ; CONST ScopeRefBrand = "ScopeRef0.1" 
@@ -186,11 +184,11 @@ INTERFACE FM3Scopes
       
 ; PROCEDURE PushDeclScopeRef ( ScopeRef : ScopeRefTyp ) 
 ; PROCEDURE PushOpenScopeRef ( ScopeRef : ScopeRefTyp ) 
-; PROCEDURE PruneScopeDeclStack ( ToDepth : INTEGER := 0 )
+; PROCEDURE PruneDeclScopeStack ( ToDepth : INTEGER := 0 )
 
 ; PROCEDURE PopDeclScopeRef ( ) : ScopeRefTyp  
 ; PROCEDURE PopOpenScopeRef ( ) : ScopeRefTyp  
-; PROCEDURE PruneScopeOpenStack ( ToDepth : INTEGER := 0 )
+; PROCEDURE PruneOpenScopeStack ( ToDepth : INTEGER := 0 )
 
 ; END FM3Scopes
 .

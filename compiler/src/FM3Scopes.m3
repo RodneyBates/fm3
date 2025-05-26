@@ -78,8 +78,8 @@ MODULE FM3Scopes
     ; LScopeRef ^ . ScpSelfScopeNo := LScopeNo
     ; LScopeRef ^ . ScpKind := ScopeKind
     ; LScopeRef ^ . ScpPosition := Position
-    ; LScopeRef ^ . ScpDeclStackHt := 0
-    ; LScopeRef ^ . ScpOpenStackHt := 0
+    ; LScopeRef ^ . ScpDeclStackHt := - 1 
+    ; LScopeRef ^ . ScpOpenStackHt := - 1 
  
     ; LScopeRef ^ . ScpDeclIdSet := IntSets . Empty ( )
                     (* ^For a unit, includes [ex|im]ported idents. *) 
@@ -114,7 +114,7 @@ MODULE FM3Scopes
 
   = BEGIN (*PushDeclScopeRef*)
       IF ScopeRef = NIL THEN RETURN END (*IF*)
-    ; <* ASSERT ScopeRef ^ . ScpDeclStackHt = 0 *>
+    ; <* ASSERT ScopeRef ^ . ScpDeclStackHt = - 1 *>
       IF DeclScopeStackTopRef = NIL
       THEN ScopeRef ^ . ScpDeclStackHt := 1 
       ELSE ScopeRef ^ . ScpDeclStackHt
@@ -135,14 +135,14 @@ MODULE FM3Scopes
     ; DeclScopeStackTopRef := LPoppedScopeRef . ScpDeclStackLink
     ; DEC ( DeclScopeStackCt ) 
     ; <* ASSERT ( DeclScopeStackTopRef = NIL ) = ( DeclScopeStackCt = 0 ) *>
-      LPoppedScopeRef . ScpDeclStackHt := 0 
+      LPoppedScopeRef . ScpDeclStackHt := - 1 
     ; RETURN LPoppedScopeRef
     END PopDeclScopeRef 
 
 (*EXPORTED.*)
-; PROCEDURE PruneScopeDeclStack ( ToDepth : INTEGER := 0 )
+; PROCEDURE PruneDeclScopeStack ( ToDepth : INTEGER := 0 )
 
-  = BEGIN (*PruneScopeDeclStack*)
+  = BEGIN (*PruneDeclScopeStack*)
       IF DeclScopeStackCt > ToDepth 
       THEN 
         FM3Messages . FM3LogArr
@@ -160,14 +160,14 @@ MODULE FM3Scopes
       ; REPEAT EVAL PopDeclScopeRef ( ) 
       ; UNTIL DeclScopeStackCt <= ToDepth  
       END (*IF*) 
-   END PruneScopeDeclStack
+   END PruneDeclScopeStack
 
 (*EXPORTED.*)
 ; PROCEDURE PushOpenScopeRef ( ScopeRef : ScopeRefTyp ) 
 
   = BEGIN (*PushOpenScopeRef*)
       IF ScopeRef = NIL THEN RETURN END (*IF*)
-    ; <* ASSERT ScopeRef ^ . ScpOpenStackHt = 0 *>
+    ; <* ASSERT ScopeRef ^ . ScpOpenStackHt = - 1 *>
       IF OpenScopeStackTopRef = NIL
       THEN ScopeRef ^ . ScpOpenStackHt := 1 
       ELSE ScopeRef ^ . ScpOpenStackHt
@@ -188,14 +188,14 @@ MODULE FM3Scopes
     ; OpenScopeStackTopRef := LPoppedScopeRef . ScpOpenScopeStackLink
     ; DEC ( OpenScopeStackCt ) 
     ; <* ASSERT ( OpenScopeStackTopRef = NIL ) = ( OpenScopeStackCt = 0 ) *>
-      LPoppedScopeRef . ScpOpenStackHt := 0 
+      LPoppedScopeRef . ScpOpenStackHt := - 1 
     ; RETURN LPoppedScopeRef
     END PopOpenScopeRef (*EXPORTED.*)
 
 (*EXPORTED.*)
-; PROCEDURE PruneScopeOpenStack ( ToDepth : INTEGER := 0 )
+; PROCEDURE PruneOpenScopeStack ( ToDepth : INTEGER := 0 )
 
-  = BEGIN (*PruneScopeOpenStack*)
+  = BEGIN (*PruneOpenScopeStack*)
       IF OpenScopeStackCt > ToDepth 
       THEN 
         FM3Messages . FM3LogArr
@@ -213,7 +213,7 @@ MODULE FM3Scopes
       ; REPEAT EVAL PopOpenScopeRef ( ) 
       ; UNTIL OpenScopeStackCt <= ToDepth  
       END (*IF*) 
-   END PruneScopeOpenStack
+   END PruneOpenScopeStack
 
 ; BEGIN
     DeclScopeStackTopRef := NIL
