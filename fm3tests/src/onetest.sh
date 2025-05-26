@@ -56,20 +56,20 @@ ESALL=0
         # Optional file named clargs contains compile command line options.
         if test -f clargs
         then CLARGS=`cat clargs`
-        else CLARGS="--disasm --no-disasm-verbose --exprs" 
+        else CLARGS="--disasm --no-disasm-verbose --exprs --no-expr-addrs" 
         fi 
         echo $TAG `$FM3 --version 2>&1` | tee -a $TESTLOG 
         CMD="$FM3 $CLARGS $SOURCES"
         echo $TAG "Running compile in $SRCDIR," | tee -a $TESTLOG 
         echo $TAG "  using command $CMD" | tee -a $TESTLOG 
         cd $SRCDIR
-        $CMD 2>&1 > tmplog0 
+        $CMD 2>&1 | tee tmplog0 
         ES=$?
-        cat tmplog0 | tee -a $TESTLOG
+        cat tmplog0 >> $TESTLOG
         rm tmplog0
         if [ $ES -ne 0 ]
-        then #compiler crashed.
-          echo -e $TAG $RED "Compile failed." $PLAIN  
+        then #compiler failure 
+          echo -e $TAG $RED "Compiler failed." $PLAIN  
           ESALL=1  
         else #Compiler run ended normally.
           echo -e $TAG $GREEN "Compile finished OK" $PLAIN 
@@ -120,8 +120,8 @@ ESALL=0
       # if [ $ESALL -ne 0 ]; then return; fi
       if [ $docheck = 0 ] 
       then
-        if test -s ${1}/${2}.expected 
-        then #Expected file is present and nonempty.
+        if test -f ${1}/${2}.expected 
+        then #Expected file is present.
           DIFFLOG=${2}.diff 
           DIFFCMD="diff -u ${2}.expected ${2}"
           PREVDIR=`pwd`
@@ -141,9 +141,9 @@ ESALL=0
             ESALL=1
           fi
           cd $PREVDIR
-        elif test -f ${1}/${2}.expected 
-        then #expected file exists (but is empty).  Ignore this case.
-          echo $TAG Expected file ${1}/${2}.expected "is empty, ignored." 2>&1 | tee -a $TESTLOG
+        #elif test -f ${1}/${2}.expected 
+        #then #expected file exists (but is empty).  Ignore this case.
+        #  echo $TAG Expected file ${1}/${2}.expected "is empty, ignored." 2>&1 | tee -a $TESTLOG
         else #expected file is missing altogether. 
           echo $TAG Expected file ${1}/${2}.expected is missing. 2>&1 | tee -a $TESTLOG
           ESALL=1
@@ -186,8 +186,9 @@ else # Do this script.
   if test -f sources ; then SOURCES=`cat sources`; else SOURCES="Main.m3"; fi
 
   # Optional file imports list source file simple names that will be compiled
-  # due to IMPORT and EXPORTS. Sheck tem but do not add or update.
-  if test -f imports ; then IMPORTS=`cat imports`; else IMPORTS="Main.i3"; fi
+  # due to IMPORT and EXPORTS. The compiler will find them in a single run,
+  # but check, update, or add results from them 
+  if test -f imports ; then IMPORTS=`cat imports`; else IMPORTS=""; fi
   
   ALLSRCS="$SOURCES $IMPORTS"
 
