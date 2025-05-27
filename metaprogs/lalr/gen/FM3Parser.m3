@@ -2635,7 +2635,7 @@ yyNonterminal := 133;
                          LUnitRef
                            := FM3ExpImp . GetInterface 
                                 ( FM3Units . UnitStackTopRef ^ . UntUnitIdent
-                                , yyAttributeStack^[yyStackPtr] . PaPos
+                                , yyAttributeStack^[yyStackPtr] . PaPos 
                                 , IsExport := TRUE
                                 ) ;
                          FM3ExpImp . ImportAllDecls
@@ -2659,10 +2659,10 @@ yyNonterminal := 133;
                           LUnitRef
                             := FM3ExpImp . GetInterface
                                  ( yyAttributeStack^[yyStackPtr+1] . Scan . SaChars
-                                 , yyAttributeStack^[yyStackPtr+1] . PaPos
+                                 , yyAttributeStack^[yyStackPtr+1] . Scan . Position
                                  , IsExport := TRUE
                                  ) ;
-                         FM3ExpImp . ImportAllDecls ( LUnitRef , yyAttributeStack^[yyStackPtr+1] . PaPos ) ;
+                         FM3ExpImp . ImportAllDecls ( LUnitRef , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ;
                        END (* Block. *) ;  
                      
               | 482,212,274 => (* P54 NonreservedIdent (123): StkIdent .*)

@@ -592,7 +592,7 @@ RULE
          LUnitRef
            := FM3ExpImp . GetInterface 
                 ( FM3Units . UnitStackTopRef ^ . UntUnitIdent
-                , $0 . PaPos
+                , $0 . PaPos 
                 , IsExport := TRUE
                 ) ;
          FM3ExpImp . ImportAllDecls
@@ -612,10 +612,10 @@ RULE
           LUnitRef
             := FM3ExpImp . GetInterface
                  ( $1 . Scan . SaChars
-                 , $1 . PaPos
+                 , $1 . Scan . Position
                  , IsExport := TRUE
                  ) ;
-         FM3ExpImp . ImportAllDecls ( LUnitRef , $1 . PaPos ) ;
+         FM3ExpImp . ImportAllDecls ( LUnitRef , $1 . Scan . Position ) ;
        END (* Block. *) ;  
      } .
 

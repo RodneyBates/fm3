@@ -41,7 +41,7 @@ INTERFACE FM3ExpImp
     ( IntoUnitRef : FM3Units . UnitRefTyp
     ; NewIdentAtom : FM3Base . AtomTyp 
     ; ImportPosition : FM3Base . tPosition 
-    ; IdentInserterText : TEXT 
+    ; DuplicatorKind : TEXT 
     )
   : BOOLEAN (* Check passed. *) 
 
@@ -49,7 +49,7 @@ INTERFACE FM3ExpImp
     ( FromUnitRef : FM3Units . UnitRefTyp
     ; FromUnitDeclNo : FM3Globals . DeclNoTyp
     ; Position : FM3Base . tPosition
-    ; Duplicator : TEXT  
+    ; DuplicatorKind : TEXT  
     )
   : BOOLEAN (* Success. *)
   (* PRE: FromUnitDeclNo leads to a DeclRef in FromUnitRef^. *)

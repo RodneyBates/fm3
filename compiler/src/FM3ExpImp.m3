@@ -1,4 +1,3 @@
-
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2024..2025  Rodney M. Bates.                                    *)
@@ -176,7 +175,7 @@ MODULE FM3ExpImp
     ( IntoUnitRef : FM3Units . UnitRefTyp
     ; NewIdentAtom : FM3Base . AtomTyp 
     ; ImportPosition : FM3Base . tPosition 
-    ; Duplicator : TEXT 
+    ; DuplicatorKind : TEXT 
     )
   : BOOLEAN (* Check passed. *) 
 
@@ -185,7 +184,7 @@ MODULE FM3ExpImp
   ; VAR LPrevDeclRef : FM3Decls . DeclRefTyp
   ; VAR LIdentChars : FM3Atom_OAChars . KeyTyp
   ; VAR LPrevExpImpProxy : FM3ExpImpProxy . T
-  ; VAR LPrevDeclPosition : FM3Base . tPosition 
+  ; VAR LPrevDeclPosition : FM3Base . tPosition
 
   ; BEGIN 
       IF NOT IntSets . IsElement
@@ -236,17 +235,17 @@ MODULE FM3ExpImp
     ; FM3Messages . ErrorArr
         ( ARRAY OF REFANY
             { "Duplicate "
-            , Duplicator 
+            , DuplicatorKind 
             , " of \""
             , LIdentChars
-            , "\", previously from "
+            , "\", previously declared at "
             , LPrevExpImpUnitRef ^ . UntSrcFileSimpleName 
             , ":" 
             , FM3Utils . PositionImage
                 ( LPrevExpImpProxy . EipImportingUnitPosition )
             ,"," 
             , FM3Messages . NLIndent
-            , "declared at "
+            , "duplicate declaration at "
             , LPrevDeclUnitRef ^ . UntSrcFileSimpleName 
             , ":" 
             , FM3Utils . PositionImage ( LPrevDeclPosition ) 
@@ -277,7 +276,7 @@ MODULE FM3ExpImp
     ; FromUnitDeclNo : FM3Globals . DeclNoTyp
     ; ExpImpPosition : FM3Base . tPosition
       (* ^Of the EXPORTS or IMPORT directive's interface identifier. *) 
-    ; Duplicator : TEXT 
+    ; DuplicatorKind : TEXT 
     )
   : BOOLEAN (* Success. *)
   (* PRE: FromUnitDeclNo leads to a DeclRef in FromUnitRef^. *)
@@ -302,7 +301,7 @@ MODULE FM3ExpImp
            ( LIntoUnitRef
            , LIntoIdentAtom
            , ExpImpPosition
-           , Duplicator 
+           , DuplicatorKind 
            )
       THEN (* All is legal, so do the real import. *)
         LProxy . EipUnitNo := FromUnitRef ^ . UntSelfUnitNo 
