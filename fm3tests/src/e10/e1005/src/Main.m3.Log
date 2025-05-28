@@ -2,10 +2,10 @@
        Search directories for source files are:
        "."
 [31mERROR: [0mMain.m3[8,19] Interface Intf has no declaration named "Mumble"
-[31mERROR: [0mMain.m3[19,8] Duplicate declaration of "E1", previously from Lotsa.i3:(1,20),
-       declared at Lotsa.i3:(3,7), (2.5.1)
-[31mERROR: [0mMain.m3[21,8] Duplicate declaration of "Intf", previously from Intf.i3:(5,9),
-       declared at Intf.i3:(1,10), (2.5.1)
+[31mERROR: [0mMain.m3[19,8] Duplicate declaration of "E1", previously introduced at [1,20],
+           original declaration at Lotsa.i3:[3,7], (2.5.1)
+[31mERROR: [0mMain.m3[21,8] Duplicate declaration of "Intf", previously introduced at [5,9],
+           original declaration at Intf.i3:[1,10], (2.5.1)
 [31mERROR: [0mMain.m3[17,13] Undeclared identifier "E2", (2.1).
 [31mERROR: [0mMain.m3[14,16] Undeclared identifier "NoIntf", (2.1).
 [31mERROR: [0mMain.m3[13,16] Undeclared identifier "NoSuch", (2.1).
