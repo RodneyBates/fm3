@@ -1,4 +1,3 @@
-
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2023..2025 Rodney M. Bates.                                     *)
@@ -625,38 +624,36 @@ RULE
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
        $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
        $$ . Scan . SaBuiltinTok := $1 . Scan . SaBuiltinTok ;
+(* FIXME: emit error if it's reserved. *) 
      } .
-(*
-   NonreservedIdent : StkReservedIdent
-     { FM3Pass1 . CheckIllegalReservedIdent
-         ( $1 , "used in this context" ) ;
-     } .  
-*)
 
-   IdentRef : StkIdent
+   IdentRef : StkIdent /* Only in a reference context. */ 
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
        $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
        $$ . Scan . SaBuiltinTok := $1 . Scan . SaBuiltinTok ;
        FM3Pass1 . IdentRefL2R ( $1 ) ;
      } .
 
-   QualIdentRef : StkIdent StkDot StkIdent   
+   QualIdentRef : StkIdent StkDot StkIdent /* Only in a reference context. */  
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
        $$ . Scan . SaAtom := $1 . Scan . SaAtom ;  
        $$ . Scan . SaBuiltinTok := $1 . Scan . SaBuiltinTok ;
        FM3Pass1 . QualIdentRefL2R ( $1 , $3 ) ;
      } .
 
-(* List of one or more comma-separated Idents.*)
-   IdPlusList : IdentRef 
-     { (* PaPass1Coord copied from $1 by parser. *) 
-       $$ . PaInt := 1 ;
-     } . 
-   IdPlusList : IdPlusList StkComma IdentRef
-     { (* PaPass1Coord copied from $1 by parser. *) 
-       $$ . PaInt := $1 . PaInt + 1 ;
-     } .
+(* Qualified or unqualified ident reference. *)
 
+   IdentOrQualRef : IdentRef
+     { $$ . Scan . SaChars := $1 . Scan . SaChars ;
+       $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
+       $$ . Scan . SaBuiltinTok := $1 . Scan . SaBuiltinTok ;
+     } . 
+   IdentOrQualRef : QualIdentRef 
+     { $$ . Scan . SaChars := $1 . Scan . SaChars ;
+       $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
+       $$ . Scan . SaBuiltinTok := $1 . Scan . SaBuiltinTok ;
+     } . 
+   
    (* DeclIdListElems . PaInt > 0 is count of valid Idents. *)
    (* In source syntax, one of these is never empty and always
       comma-separated.  Internally, invalid (reserved or repeated)
@@ -697,38 +694,17 @@ RULE
    IdStarList : /*Empty*/
      { $$ . PaInt := 0 ; } . 
 
-(* Qualified or unqualified ident reference. *)
-
-   MaybeQualIdent : IdentRef
-     { $$ . Scan . SaChars := $1 . Scan . SaChars ;
-       $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
-       $$ . Scan . SaBuiltinTok := $1 . Scan . SaBuiltinTok ;
-
-     } . 
-   MaybeQualIdent : QualIdent 
-     { $$ . Scan . SaChars := $1 . Scan . SaChars ;
-       $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
-       $$ . Scan . SaBuiltinTok := $1 . Scan . SaBuiltinTok ;
-     } . 
-   
-   QualIdent : NonreservedIdent
-     { $$ . Scan . SaChars := $1 . Scan . SaChars ;
-       $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
-       $$ . Scan . SaBuiltinTok := $1 . Scan . SaBuiltinTok ;
-       FM3Pass1 . IdentRefL2R ( $1 ) ;
-     } .
-
 (* List of zero or more comma-separated maybe-qualified Idents. *)
-   MaybeQualIdentStarList : /*Empty*/
+   IdentOrQualRefStarList : /*Empty*/
      { $$ . PaInt := 0 ; } .
-   MaybeQualIdentStarList : MaybeQualIdentPlusList
+   IdentOrQualRefStarList : IdentOrQualRefPlusList
      { $$ . PaInt := $1 . PaInt ; } .
-   MaybeQualIdentPlusList : MaybeQualIdent
+   IdentOrQualRefPlusList : IdentOrQualRef
      { $$ . PaInt := 1 } . 
-   MaybeQualIdentPlusList : MaybeQualIdentPlusList StkComma MaybeQualIdent
+   IdentOrQualRefPlusList : IdentOrQualRefPlusList StkComma IdentOrQualRef
      { $$ . PaInt := $1 . PaInt + 1 ; } .
      
-   TypeId : MaybeQualIdent.
+   TypeId : IdentOrQualRef.
 
    (* Make ROOT and UNTRACED ROOT look to later passes like reserved idents,
       even though they are necessarily reserved words in source syntax,
@@ -802,10 +778,10 @@ RULE
      } .
 
 (* TODO:Maybe combine this with TypeDeclId and others, which differ only in Dkt. *) 
-   ConstDeclId : NonreservedIdent
+   ConstDeclId : StkIdent
      { $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
        $$ . PaInt (* Ident count, 0 if error, else 1. *) 
-         := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkConst , $1 ) ) ;
+         := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkConst , IdAttribute := $1 ) ) ;
      } .
 
    ConstDeclTypeTok : /* Absent or present, all the same. */
@@ -898,10 +874,10 @@ RULE
        END (*IF*) ;  
      } .
  
-   TypeDeclId : NonreservedIdent
+   TypeDeclId : StkIdent
      { $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
        $$ . PaInt (* Ident count, 0 if error, else 1. *)
-         := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkType , $1 ) ) ; 
+         := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkType , IdAttribute := $1 ) ) ; 
      } .
 
    TypeDecl : TypeDeclId TypeRelation Type  
@@ -1171,6 +1147,8 @@ RULE
    RefTypeOptUntraced : StkRwUNTRACED 
      { $$ . PaBool := TRUE (* UNTRACED. *) } .
 
+(* ------------------------------ REF Types ---------------------------- *)
+
    Type : RefTypeOptUntraced Brand StkRwREF Type 
      { FM3Pass1 . PutBwd_LCBP_eCP_rbP
          ( Itk . ItkREFTypeLt
@@ -1283,11 +1261,11 @@ RULE
    EnumLitPlus : EnumLitPlus StkComma EnumLit
      { $$ . PaInt (* Decl count. *):= $1 . PaInt + $3 . PaInt ; } .
      
-   EnumLit : NonreservedIdent
+   EnumLit : StkIdent
      { $$ . PaInt (* Ident count, 0 or 1. *) 
          := ORD ( FM3Pass1 . DeclIdL2R
                     ( Dkt . DkEnumLit
-                    , $1
+                    , IdAttribute := $1
                     , SepTok := Itk . ItkEnumLitListSep
                     , SepPosition := $0 . Scan . Position
                     , PriorIdCt := $-1 . PaInt 
@@ -1424,10 +1402,10 @@ RULE
 
 (* ----------------------------- Method Signatures -------------------------- *)
 
-   MethodDeclLt : NonreservedIdent 
+   MethodDeclLt : StkIdent 
      { $$ . Scan . SaAtom := $1 . Scan . SaAtom ; 
        $$ . PaInt (* Ident count, 0 or 1. *) 
-           := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkMethod , $1 ) ) ;
+           := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkMethod , IdAttribute := $1 ) ) ;
      } . 
 
    MethodDecl : MethodDeclLt Signature 
@@ -1493,7 +1471,7 @@ RULE
 
 (* -------------------------------- Overrides ------------------------------- *)
 
-   OverrideLt : NonreservedIdent 
+   OverrideLt : IdentRef 
      { $$ . PaInt (* override count, 0 or 1. *) 
          := ORD ( FM3Pass1 . CheckIdentNotReserved
                     ( $1
@@ -1876,7 +1854,7 @@ RULE
          ( Itk . ItkRaisesANY , $1 . Scan . Position ) ; 
      } . 
    Raises
-     : StkRwRAISES StkOpenBrace QualIdentStarList StkCloseBrace 
+     : StkRwRAISES StkOpenBrace IdentOrQualRefStarList StkCloseBrace 
      { $$ . PaBool (* Raises set is present. *) := TRUE ;
        $$ . Scan . Position := $1 . Scan . Position ; 
        MakeListPos ( $$ , Itk . ItkRaisesSetLt , $1 . Scan . Position , $3 ) ;
@@ -1987,14 +1965,14 @@ RULE
        END (*Block*) ;
      } .
     
-   ProcDeclLt : StkRwPROCEDURE NonreservedIdent Signature 
+   ProcDeclLt : StkRwPROCEDURE StkIdent Signature 
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
        VAR LScopeKind : Skt ;
        BEGIN
          (* Default coord and position. *) 
          $$ . Scan . SaAtom := $2 . Scan . SaAtom ; 
          $$ . PaInt (* Ident count, 0 or 1. *) 
-           := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkProc , $2 ) ) ;
+           := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkProc , IdAttribute := $2 ) ) ;
        END (*Block*) 
      } . 
 
@@ -2350,7 +2328,13 @@ RULE
   (* Qualified (non-ident) expression . *) 
    E8WOId /* This is not a single ident.  It can have additional selectors. */ 
      : E8WOId StkDot NonreservedIdent
-     { FM3Pass1 . QualIdentRefL2R ( $1 , $3 ) ; } .
+     { FM3Pass1 . PutBwd_LCIP_rip
+         ( Itk . ItkExprDotLt
+         , $1 . PaPass1Coord
+         , $3 . Scan . SaAtom
+         , $2 . Scan . Position 
+         )
+     } .
 
   (* Literals.  *) 
 

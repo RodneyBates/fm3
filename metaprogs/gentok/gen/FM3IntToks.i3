@@ -1516,6 +1516,7 @@ LIST ItkIdPlusList
 ; CONST ItkLong_InsertTernOp2Temp       (*ArgCt: 2*) =  1067 (*16_ab 08 *)
 ; CONST ItkLong_InsertTernOp2Patch      (*ArgCt: 2*) =  1068 (*16_ac 08 *)
 
+(* Atom. *)
 (* FIXED ItkExprDot: *)
 ; CONST ItkExprDotLt                    (*ArgCt: 3*) =  1069 (*16_ad 08 *)
 ; CONST ItkExprDotLtTemp                (*ArgCt: 3*) =  1070 (*16_ae 08 *)

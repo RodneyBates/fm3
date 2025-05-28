@@ -174,13 +174,14 @@ MODULE FM3ExpImp
 ; PROCEDURE CheckDuplicateExpImp
     ( IntoUnitRef : FM3Units . UnitRefTyp
     ; NewIdentAtom : FM3Base . AtomTyp 
-    ; ImportPosition : FM3Base . tPosition 
+    ; ImportPosition : FM3Base . tPosition
+      (* ^Of Ident that brought NewIdentAtom into IntoUnitRef. *)
     ; DuplicatorKind : TEXT 
     )
-  : BOOLEAN (* Check passed. *) 
+  : BOOLEAN (* Check passed. *)
+  (* Check that NewImportAtom does not duplicate one already [ex|im]ported. *) 
 
   = VAR LPrevExpImpUnitRef : FM3Units . UnitRefTyp
-  ; VAR LPrevDeclUnitRef : FM3Units . UnitRefTyp
   ; VAR LPrevDeclRef : FM3Decls . DeclRefTyp
   ; VAR LIdentChars : FM3Atom_OAChars . KeyTyp
   ; VAR LPrevExpImpProxy : FM3ExpImpProxy . T
@@ -214,17 +215,12 @@ MODULE FM3ExpImp
                )
       THEN LIdentChars := NIL
       END (*IF*)
-    ; LPrevDeclUnitRef (* Implicit NARROW. *) 
-        := VarArray_Int_Refany . Fetch
-             ( FM3Units . UnitsMap
-             , LPrevExpImpProxy . EipUnitNo 
-             )
     ; IF LPrevExpImpProxy . EipDeclNo = FM3Globals . DeclNoNull
-      THEN LPrevDeclPosition := LPrevDeclUnitRef ^ . UntUnitIdentPos 
+      THEN LPrevDeclPosition := LPrevExpImpUnitRef ^ . UntUnitIdentPos 
       ELSE
         LPrevDeclRef (*Implied NARROW*) 
           := VarArray_Int_Refany . Fetch
-               ( LPrevDeclUnitRef ^ . UntDeclMap
+               ( LPrevExpImpUnitRef ^ . UntDeclMap
                , LPrevExpImpProxy . EipDeclNo
                )
       ; IF LPrevDeclRef = NIL (* Shouldn't happen. *) 
@@ -238,15 +234,13 @@ MODULE FM3ExpImp
             , DuplicatorKind 
             , " of \""
             , LIdentChars
-            , "\", previously declared at "
-            , LPrevExpImpUnitRef ^ . UntSrcFileSimpleName 
-            , ":" 
+            , "\", previously introduced at "
             , FM3Utils . PositionImage
                 ( LPrevExpImpProxy . EipImportingUnitPosition )
             ,"," 
             , FM3Messages . NLIndent
-            , "duplicate declaration at "
-            , LPrevDeclUnitRef ^ . UntSrcFileSimpleName 
+            , "    original declaration at "
+            , LPrevExpImpUnitRef ^ . UntSrcFileSimpleName 
             , ":" 
             , FM3Utils . PositionImage ( LPrevDeclPosition ) 
             , ", (2.5.1)"
@@ -330,7 +324,7 @@ MODULE FM3ExpImp
   ; VAR LProxy : FM3ExpImpProxy . T 
   ; VAR LFound : BOOLEAN 
 
-  ; BEGIN
+  ; BEGIN (*ImportDeclByIdent*)
       IF FromUnitRef = NIL THEN RETURN FALSE END (*IF*)
     ; IF NOT FromUnitRef ^ . UntState IN FM3Units . UnitStateSetUsable
       THEN RETURN FALSE 
@@ -394,7 +388,7 @@ MODULE FM3ExpImp
       ; LProxy . EipImportingUnitPosition := IdScanAttribute . Position
       ; InsertExpImp ( LIntoUnitRef , LIntoIdentAtom , LProxy ) 
       ; RETURN FALSE 
-      ELSE
+      ELSE (* Valid imported ident. *) 
         RETURN
           ImportDeclByNo
             ( FromUnitRef
@@ -425,7 +419,7 @@ MODULE FM3ExpImp
       ; Elem . EipImportingUnitPosition := ASScanAttr . Position 
       END AssignProxy
  
-  ; BEGIN
+  ; BEGIN (* ImportAS *)
       LIntfUnitRef
         := GetInterface
              ( IntfScanAttr . SaChars

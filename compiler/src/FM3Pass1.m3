@@ -2111,7 +2111,8 @@ MODULE FM3Pass1
     ; PriorIdCt : INTEGER := 0 (* Number of ids to left of this one. *)
     )
   : BOOLEAN (* Use this declared id.  (It's not reserved and not a duplicate
-               in current scope.) *)
+               in current scope.)
+            *)
   (* PRE: IdAttr is for an identifier in a declaring context. *) 
 
   = VAR LAtom : FM3Base . AtomTyp 
@@ -2132,7 +2133,7 @@ MODULE FM3Pass1
                      , IdAttr . Scan . Position
                      , "declaration"
                      )
-        THEN (* It duplicates an export or import. *) 
+        THEN (* It duplicated an export or import. *) 
           RETURN FALSE 
         ELSIF IntSets . IsElement ( LAtom , WScope . ScpDeclIdSet )
         THEN (* It duplicates an earlier decl in this scope. *) 
@@ -2140,8 +2141,9 @@ MODULE FM3Pass1
             := IntSets . Include ( WScope . ScpDuplDeclIdSet , LAtom )
 (* CHECK^ Do we need ScpDuplDeclIdSet? *) 
         (* Write a duplicate Ident token.  The only effect will be to
-           emit an error later, during Pass2, when the position of the original
-           declaring occurence is known. *) 
+           emit an error later, during Pass2, when the position of the
+           original declaring occurence is known.
+        *) 
         ; PutBwd
             ( WunRdBack
             , VAL ( IdAttr . Scan . Position . Column , LONGINT )

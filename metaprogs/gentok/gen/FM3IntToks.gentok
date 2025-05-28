@@ -400,7 +400,7 @@ FIXED
   ItkLong_Insert      POS TernOp1 POS TernOp2 POS .
   
 FIXED
-  ItkExprDot IDENT POS . 
+  ItkExprDot IDENT POS (* Atom. *) .  
   ItkDeref POS . 
   ItkSubscript INT POS (* Number of subscripts. *) 
      Subs INT POS . 
