@@ -66,7 +66,7 @@ ESALL=0
         $CMD 2>&1 | tee tmplog0 
         ES=$?
         cat tmplog0 >> $TESTLOG
-        rm tmplog0
+        # rm tmplog0
         if [ $ES -ne 0 ]
         then #compiler failure 
           echo -e $TAG $RED "Compiler failed." $PLAIN  
