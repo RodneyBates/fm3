@@ -1,5 +1,5 @@
 [31mERROR: [0mI3.i3[8,15] Cyclic import of
-       /home/rodney/proj/m3/fm3/git/fm3tests/src/e10/e1007/src/I1.i3, which at (4,11), imports
-       /home/rodney/proj/m3/fm3/git/fm3tests/src/e10/e1007/src/I2.i3, which at (6,13), imports
+       /home/rodney/proj/m3/fm3/git/fm3tests/src/e10/e1007/src/I1.i3, which at [4,11], imports
+       /home/rodney/proj/m3/fm3/git/fm3tests/src/e10/e1007/src/I2.i3, which at [6,13], imports
        /home/rodney/proj/m3/fm3/git/fm3tests/src/e10/e1007/src/I3.i3.
 
