@@ -1,4 +1,7 @@
-[31mERROR: [0mMain.m3 (14,7) Identifier "INTEGER" is predefined and cannot be redeclared (2.8.2).
-[31mERROR: [0mMain.m3 (21,4) Identifier "INTEGER" is predefined and cannot be redeclared (2.8.2).
-[31mERROR: [0mMain.m3 (23,4) Duplicate declaration of "T1", ignored, original at (20,4).
-[31mERROR: [0mMain.m3 (16,7) Duplicate declaration of "T", ignored, original at (13,7).
+[31mERROR: [0mMain.m3[13,7] Duplicate declaration of "T", previously introduced at [11,0],
+           original declaration at Main.i3:[13,7], (2.5.1)
+[31mERROR: [0mMain.m3[14,7] Reserved identifier "INTEGER" cannot be declared (2.8.2).
+[31mERROR: [0mMain.m3[16,7] Duplicate declaration of "T", previously introduced at [11,0],
+           original declaration at Main.i3:[13,7], (2.5.1)
+[31mERROR: [0mMain.m3[21,4] Reserved identifier "INTEGER" cannot be declared (2.8.2).
+

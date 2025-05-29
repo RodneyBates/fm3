@@ -1,7 +1,14 @@
+Start unit Main.i3
+[32mFM3: [0mCompiling /home/rodney/proj/m3/fm3/git/compiler/AMD64_LINUX/../lib/Main.i3...
+[32mFM3: [0mPass 1 output file Main.i3.FM3Pass1 has 70 bytes.
+[32mFM3: [0mPatch stack Main.i3.FM3Patch peak size = 35 bytes.
+[32mFM3: [0mPass 2 output file Main.i3.FM3Pass2 has 62 bytes.
+[32mFM3: [0mFinished compiling Main.i3.
+End unit Main.i3
 Start unit Main.m3
 [32mFM3: [0mCompiling /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1007/src/Main.m3...
-[32mFM3: [0mPatch stack Main.m3.Patch peak size = 41 bytes.
-[32mFM3: [0mUnnest stack Main.m3.Unnest peak size = 320 bytes.
-[32mFM3: [0mParse pass output file Main.m3.ParsePass has 206 bytes.
+[32mFM3: [0mPass 1 output file Main.m3.FM3Pass1 has 342 bytes.
+[32mFM3: [0mPatch stack Main.m3.FM3Patch peak size = 44 bytes.
+[32mFM3: [0mPass 2 output file Main.m3.FM3Pass2 has 190 bytes.
 [32mFM3: [0mFinished compiling Main.m3.
 End unit Main.m3

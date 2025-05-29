@@ -1,0 +1,40 @@
+[33mscript:[0m  Command entered in directory = /home/rodney/proj/m3/fm3/git/fm3tests/src/e10
+[33mscript:[0m  Test directory is /home/rodney/proj/m3/fm3/git/fm3tests/src/e10/e1001
+[32mRunning [0m/home/rodney/proj/m3/fm3/git/compiler/AMD64_LINUX/FM3 Which is FM3 Modula-3 compiler, version V0.1
+[33mscript:[0m  Compiling in /home/rodney/proj/m3/fm3/git/fm3tests/src/e10/e1001/src,
+[33mscript:[0m    using command "/home/rodney/proj/m3/fm3/git/compiler/AMD64_LINUX/FM3 --disasm --no-disasm-verbose --exprs --no-expr-addrs test1.m3"
+Start unit Main.i3
+[32mFM3: [0mMain.i3 Compiling /home/rodney/proj/m3/fm3/git/compiler/AMD64_LINUX/../lib/Main.i3...
+[32mFM3: [0mMain.i3 Pass 1 output file Main.i3.FM3Pass1 has 70 bytes.
+[32mFM3: [0mMain.i3 Patch stack Main.i3.FM3Patch peak size = 35 bytes.
+[32mFM3: [0mMain.i3 Pass 2 output file Main.i3.FM3Pass2 has 62 bytes.
+[32mFM3: [0mMain.i3 Finished compiling Main.i3.
+End unit Main.i3
+Start unit test1.m3
+[32mFM3: [0mtest1.m3 Compiling /home/rodney/proj/m3/fm3/git/fm3tests/src/e10/e1001/src/test1.m3...
+[31mERROR: [0mtest1.m3[13,8] Unable to locate exported source file A.i3
+       Search directories for source files are:
+       "."
+[31mERROR: [0mtest1.m3[13,12] Unable to locate exported source file B.i3
+[31mERROR: [0mtest1.m3[15,9] Unable to locate imported source file X.i3
+[31mERROR: [0mtest1.m3[15,13] Unable to locate imported source file Y.i3
+[31mERROR: [0mtest1.m3[17,7] Unable to locate imported source file Mumble.i3
+[31mERROR: [0mtest1.m3[20,23] VAR formal must have a type (2.2.8).
+[31mERROR: [0mtest1.m3[20,23] VAR formal cannot have a default (2.2.8).
+[31mERROR: [0mtest1.m3[20,2] A procedure in a module must have a body (2.5).
+[31mERROR: [0mtest1.m3[21,2] A procedure in a module must have a body (2.5).
+[31mERROR: [0mtest1.m3[23,16] VALUE formal must have a type and/or a default ((2.2.8)).
+[31mERROR: [0mtest1.m3[23,2] A procedure in a module must have a body (2.5).
+[31mERROR: [0mtest1.m3[25,16] VALUE formal must have a type and/or a default ((2.2.8)).
+[31mERROR: [0mtest1.m3[25,2] A procedure in a module must have a body (2.5).
+[31mERROR: [0mtest1.m3[26,2] A procedure in a module must have a body (2.5).
+[31mERROR: [0mtest1.m3[27,2] A procedure in a module must have a body (2.5).
+[32mFM3: [0mtest1.m3 Pass 1 output file test1.m3.FM3Pass1 has 809 bytes.
+[31mERROR: [0mtest1.m3[27,28] Undeclared identifier "U", (2.1).
+[31mERROR: [0mtest1.m3[26,30] Undeclared identifier "U", (2.1).
+[31mERROR: [0mtest1.m3[21,25] Undeclared identifier "R", (2.1).
+[32mFM3: [0mtest1.m3 Patch stack test1.m3.FM3Patch peak size = 58 bytes.
+[32mFM3: [0mtest1.m3 Pass 2 output file test1.m3.FM3Pass2 has 473 bytes.
+[32mFM3: [0mtest1.m3 Finished compiling test1.m3.
+End unit test1.m3
+[33mscript:[0m  [32m Compile finished OK [0m

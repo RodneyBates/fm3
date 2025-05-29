@@ -1,0 +1,5 @@
+[31mERROR: [0mMain.m3[13,7] Duplicate declaration of "T", previously introduced at [11,0],
+           original declaration at Main.i3:[13,7], (2.5.1)
+[31mERROR: [0mMain.m3[16,6] Reserved identifier "INTEGER" cannot be declared (2.8.2).
+[31mERROR: [0mMain.m3[23,4] Reserved identifier "INTEGER" cannot be declared (2.8.2).
+[31mERROR: [0mMain.m3[30,4] Variable must have a type and/or an initial value (2.4.3)
