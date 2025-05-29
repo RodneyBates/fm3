@@ -70,7 +70,7 @@ From unit expression map, Expr No 1 16_****************
 .. ExpIsPresent = TRUE
 .. ExpRefTypeIsUntraced = FALSE
 .. (* From subtype ExprIdentRefTyp: *)
-.. ExpIdentDeclNo = 10
+.. ExpIdentDeclNo = 12
 
 
 
@@ -144,7 +144,7 @@ From unit expression map, Expr No 4 16_****************
 .. ExpIsPresent = TRUE
 .. ExpRefTypeIsUntraced = FALSE
 .. (* From subtype ExprIdentRefTyp: *)
-.. ExpIdentDeclNo = 7
+.. ExpIdentDeclNo = 9
 
  (* From subtype ExprBinOpTyp: *)
  ExpBinOpActualsCt = 0
@@ -200,7 +200,7 @@ From unit expression map, Expr No 6 16_****************
 .. ExpIsPresent = TRUE
 .. ExpRefTypeIsUntraced = FALSE
 .. (* From subtype ExprIdentRefTyp: *)
-.. ExpIdentDeclNo = 5
+.. ExpIdentDeclNo = 7
 
  (* From subtype ExprBinOpTyp: *)
  ExpBinOpActualsCt = 0
@@ -258,7 +258,7 @@ From unit expression map, Expr No 9 16_****************
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
  (* From subtype ExprIdentRefTyp: *)
- ExpIdentDeclNo = 9
+ ExpIdentDeclNo = 11
 
 
 From unit expression map, Expr No 10 16_****************
@@ -284,7 +284,7 @@ From unit expression map, Expr No 10 16_****************
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
  (* From subtype ExprIdentRefTyp: *)
- ExpIdentDeclNo = 9
+ ExpIdentDeclNo = 11
 
 
 From unit expression map, Expr No 11 16_****************
@@ -335,7 +335,7 @@ From unit expression map, Expr No 11 16_****************
 .. ExpIsPresent = TRUE
 .. ExpRefTypeIsUntraced = FALSE
 .. (* From subtype ExprIdentRefTyp: *)
-.. ExpIdentDeclNo = 8
+.. ExpIdentDeclNo = 10
 
  (* From subtype ExprBinOpTyp: *)
  ExpBinOpActualsCt = 0
@@ -391,7 +391,7 @@ From unit expression map, Expr No 13 16_****************
 .. ExpIsPresent = TRUE
 .. ExpRefTypeIsUntraced = FALSE
 .. (* From subtype ExprIdentRefTyp: *)
-.. ExpIdentDeclNo = 6
+.. ExpIdentDeclNo = 8
 
  (* From subtype ExprBinOpTyp: *)
  ExpBinOpActualsCt = 0
@@ -447,7 +447,7 @@ From unit expression map, Expr No 15 16_****************
 .. ExpIsPresent = TRUE
 .. ExpRefTypeIsUntraced = FALSE
 .. (* From subtype ExprIdentRefTyp: *)
-.. ExpIdentDeclNo = 4
+.. ExpIdentDeclNo = 6
 
  (* From subtype ExprBinOpTyp: *)
  ExpBinOpActualsCt = 0
@@ -525,7 +525,7 @@ From unit expression map, Expr No 17 16_****************
 .. ExpIsPresent = TRUE
 .. ExpRefTypeIsUntraced = FALSE
 .. (* From subtype ExprIdentRefTyp: *)
-.. ExpIdentDeclNo = 3
+.. ExpIdentDeclNo = 5
 
 
 
