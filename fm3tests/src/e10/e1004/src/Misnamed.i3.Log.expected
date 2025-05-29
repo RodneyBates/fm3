@@ -1,2 +1,2 @@
-[31mERROR: [0mMisnamed.i3[1,10] Interface name "misnamed" does not agree with file name "Misnamed.i3".
-[31mERROR: [0mMisnamed.i3[3,6] Identifier "banname" at end of INTERFACE named "misnamed", at (1,10), must repeat its name (2.5.2).
+[31mERROR: [0mMisnamed.i3[1,10] Interface name "misnamed" does not agree with file name "Misnamed.i3" (FM3 requirement).
+[31mERROR: [0mMisnamed.i3[3,6] Identifier "banname" at end of INTERFACE named "misnamed", at [1,10], must repeat its name (2.5.2).

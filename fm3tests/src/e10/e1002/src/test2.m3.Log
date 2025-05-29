@@ -1,7 +1,7 @@
-[31mERROR: [0mtest2.m3 Unable to locate exported source file A.i3
+[31mERROR: [0mtest2.m3[11,8] Unable to locate exported source file A.i3
        Search directories for source files are:
        "."
-[31mERROR: [0mtest2.m3 Unable to locate exported source file B.i3
+[31mERROR: [0mtest2.m3[11,12] Unable to locate exported source file B.i3
 [31mERROR: [0mtest2.m3[13,9] Unable to locate imported source file X.i3
 [31mERROR: [0mtest2.m3[13,13] Unable to locate imported source file Y.i3
 [31mERROR: [0mtest2.m3[15,7] Unable to locate imported source file Mumble.i3
