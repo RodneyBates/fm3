@@ -166,11 +166,11 @@ MODULE FM3SharedUtils
 ; PROCEDURE PutPosImage ( WrT : Wr . T ; Position : FM3Base . tPosition )
 
   = BEGIN
-      Wr.PutChar ( WrT , '(' )
+      Wr.PutChar ( WrT , '[' )
     ; Wr.PutText ( WrT , Fmt . Int ( Position.Line ) )
     ; Wr.PutChar ( WrT , ',' )
     ; Wr.PutText ( WrT , Fmt . Int ( Position.Column ) )
-    ; Wr.PutChar ( WrT , ')' )
+    ; Wr.PutChar ( WrT , ']' )
     END PutPosImage
 
 (*EXPORTED*) 

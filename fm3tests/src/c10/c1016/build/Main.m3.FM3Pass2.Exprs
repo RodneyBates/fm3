@@ -1,0 +1,366 @@
+From unit expression map, Expr No 0 NIL
+
+From unit expression map, Expr No 1 16_****************
+ ExpStackLink = ExprNo 0 at 16_**************** [14,18]
+ ExpType = NIL
+ ExpRefConstVal = 16_****************
+ ExpScalarConstVal = 0
+ ExpLoTypeInfoRef = 
+ ExpReachedDeclNoSet = {}
+ ExpSelfExprNo = 1
+ ExpPosition = [14,24]
+ ExpOpcode = <RidNull>
+ ExpDownKind = <null>
+ ExpUpKind = reference
+ ExpKind = <null>
+ ExpState = EsUnresolved
+ ExpIsConst = FALSE
+ ExpConstValIsKnown = FALSE
+ ExpIsUsable = TRUE
+ ExpIsLegalRecursive = FALSE
+ ExpIsDesignator = FALSE
+ ExpIsWritable = FALSE
+ ExpIsPresent = TRUE
+ ExpRefTypeIsUntraced = FALSE
+ (* From subtype ExprIdentRefTyp: *)
+ ExpIdentDeclNo = 10
+
+
+From unit expression map, Expr No 2 16_****************
+ ExpStackLink = ExprNo 0 at 16_**************** [14,18]
+ ExpType = NIL
+ ExpRefConstVal = 16_****************
+ ExpScalarConstVal = 0
+ ExpLoTypeInfoRef = 
+ ExpReachedDeclNoSet = {}
+ ExpSelfExprNo = 2
+ ExpPosition = [14,20]
+ ExpOpcode = <RidNull>
+ ExpDownKind = <null>
+ ExpUpKind = reference
+ ExpKind = <null>
+ ExpState = EsUnresolved
+ ExpIsConst = FALSE
+ ExpConstValIsKnown = FALSE
+ ExpIsUsable = TRUE
+ ExpIsLegalRecursive = FALSE
+ ExpIsDesignator = FALSE
+ ExpIsWritable = FALSE
+ ExpIsPresent = TRUE
+ ExpRefTypeIsUntraced = FALSE
+ (* From subtype ExprIdentRefTyp: *)
+ ExpIdentDeclNo = 8
+
+
+From unit expression map, Expr No 3 16_****************
+ ExpStackLink = ExprNo 0 at 16_**************** [14,18]
+ ExpType = NIL
+ ExpRefConstVal = 16_****************
+ ExpScalarConstVal = 0
+ ExpLoTypeInfoRef = 
+ ExpReachedDeclNoSet = {}
+ ExpSelfExprNo = 3
+ ExpPosition = [14,14]
+ ExpOpcode = <RidNull>
+ ExpDownKind = <null>
+ ExpUpKind = reference
+ ExpKind = <null>
+ ExpState = EsUnresolved
+ ExpIsConst = FALSE
+ ExpConstValIsKnown = FALSE
+ ExpIsUsable = TRUE
+ ExpIsLegalRecursive = FALSE
+ ExpIsDesignator = FALSE
+ ExpIsWritable = FALSE
+ ExpIsPresent = TRUE
+ ExpRefTypeIsUntraced = FALSE
+ (* From subtype ExprIdentRefTyp: *)
+ ExpIdentDeclNo = 7
+
+
+From unit expression map, Expr No 4 16_****************
+ ExpStackLink = ExprNo 0 at 16_**************** [13,18]
+ ExpType = NIL
+ ExpRefConstVal = 16_****************
+ ExpScalarConstVal = 0
+ ExpLoTypeInfoRef = 
+ ExpReachedDeclNoSet = {}
+ ExpSelfExprNo = 4
+ ExpPosition = [13,20]
+ ExpOpcode = <RidNull>
+ ExpDownKind = <null>
+ ExpUpKind = reference
+ ExpKind = <null>
+ ExpState = EsUnresolved
+ ExpIsConst = FALSE
+ ExpConstValIsKnown = FALSE
+ ExpIsUsable = TRUE
+ ExpIsLegalRecursive = FALSE
+ ExpIsDesignator = FALSE
+ ExpIsWritable = FALSE
+ ExpIsPresent = TRUE
+ ExpRefTypeIsUntraced = FALSE
+ (* From subtype ExprIdentRefTyp: *)
+ ExpIdentDeclNo = 7
+
+
+From unit expression map, Expr No 5 16_****************
+ ExpStackLink = ExprNo 0 at 16_**************** [13,18]
+ ExpType = NIL
+ ExpRefConstVal = 16_****************
+ ExpScalarConstVal = 0
+ ExpLoTypeInfoRef = 
+ ExpReachedDeclNoSet = {}
+ ExpSelfExprNo = 5
+ ExpPosition = [13,14]
+ ExpOpcode = <RidNull>
+ ExpDownKind = <null>
+ ExpUpKind = reference
+ ExpKind = <null>
+ ExpState = EsUnresolved
+ ExpIsConst = FALSE
+ ExpConstValIsKnown = FALSE
+ ExpIsUsable = TRUE
+ ExpIsLegalRecursive = FALSE
+ ExpIsDesignator = FALSE
+ ExpIsWritable = FALSE
+ ExpIsPresent = TRUE
+ ExpRefTypeIsUntraced = FALSE
+ (* From subtype ExprIdentRefTyp: *)
+ ExpIdentDeclNo = 9
+
+
+From unit expression map, Expr No 6 16_****************
+ ExpStackLink = ExprNo 0 at 16_**************** [12,18]
+ ExpType = NIL
+ ExpRefConstVal = 16_****************
+ ExpScalarConstVal = 0
+ ExpLoTypeInfoRef = 
+ ExpReachedDeclNoSet = {}
+ ExpSelfExprNo = 6
+ ExpPosition = [12,14]
+ ExpOpcode = <RidNull>
+ ExpDownKind = <null>
+ ExpUpKind = reference
+ ExpKind = <null>
+ ExpState = EsUnresolved
+ ExpIsConst = FALSE
+ ExpConstValIsKnown = FALSE
+ ExpIsUsable = TRUE
+ ExpIsLegalRecursive = FALSE
+ ExpIsDesignator = FALSE
+ ExpIsWritable = FALSE
+ ExpIsPresent = TRUE
+ ExpRefTypeIsUntraced = FALSE
+ (* From subtype ExprIdentRefTyp: *)
+ ExpIdentDeclNo = 6
+
+
+From unit expression map, Expr No 7 16_****************
+ ExpStackLink = NIL
+ ExpType = NIL
+ ExpRefConstVal = 16_****************
+ ExpScalarConstVal = 0
+ ExpLoTypeInfoRef = 
+ ExpReachedDeclNoSet = {}
+ ExpSelfExprNo = 7
+ ExpPosition = [11,14]
+ ExpOpcode = <RidNull>
+ ExpDownKind = <null>
+ ExpUpKind = reference
+ ExpKind = <null>
+ ExpState = EsUnresolved
+ ExpIsConst = FALSE
+ ExpConstValIsKnown = FALSE
+ ExpIsUsable = TRUE
+ ExpIsLegalRecursive = FALSE
+ ExpIsDesignator = FALSE
+ ExpIsWritable = FALSE
+ ExpIsPresent = TRUE
+ ExpRefTypeIsUntraced = FALSE
+ (* From subtype ExprIdentRefTyp: *)
+ ExpIdentDeclNo = 5
+
+
+From unit expression map, Expr No 8 16_****************
+ ExpStackLink = ExprNo 0 at 16_**************** [9,14]
+ ExpType = NIL
+ ExpRefConstVal = 16_****************
+ ExpScalarConstVal = 0
+ ExpLoTypeInfoRef = 
+ ExpReachedDeclNoSet = {}
+ ExpSelfExprNo = 8
+ ExpPosition = [9,20]
+ ExpOpcode = <RidNull>
+ ExpDownKind = <null>
+ ExpUpKind = reference
+ ExpKind = <null>
+ ExpState = EsUnresolved
+ ExpIsConst = FALSE
+ ExpConstValIsKnown = FALSE
+ ExpIsUsable = TRUE
+ ExpIsLegalRecursive = FALSE
+ ExpIsDesignator = FALSE
+ ExpIsWritable = FALSE
+ ExpIsPresent = TRUE
+ ExpRefTypeIsUntraced = FALSE
+ (* From subtype ExprIdentRefTyp: *)
+ ExpIdentDeclNo = 4
+
+
+From unit expression map, Expr No 9 16_****************
+ ExpStackLink = ExprNo 0 at 16_**************** [9,14]
+ ExpType = NIL
+ ExpRefConstVal = 16_****************
+ ExpScalarConstVal = 0
+ ExpLoTypeInfoRef = 
+ ExpReachedDeclNoSet = {}
+ ExpSelfExprNo = 9
+ ExpPosition = [9,16]
+ ExpOpcode = <RidNull>
+ ExpDownKind = <null>
+ ExpUpKind = reference
+ ExpKind = <null>
+ ExpState = EsUnresolved
+ ExpIsConst = FALSE
+ ExpConstValIsKnown = FALSE
+ ExpIsUsable = TRUE
+ ExpIsLegalRecursive = FALSE
+ ExpIsDesignator = FALSE
+ ExpIsWritable = FALSE
+ ExpIsPresent = TRUE
+ ExpRefTypeIsUntraced = FALSE
+ (* From subtype ExprIdentRefTyp: *)
+ ExpIdentDeclNo = 3
+
+
+From unit expression map, Expr No 10 16_****************
+ ExpStackLink = ExprNo 0 at 16_**************** [9,14]
+ ExpType = NIL
+ ExpRefConstVal = 16_****************
+ ExpScalarConstVal = 0
+ ExpLoTypeInfoRef = 
+ ExpReachedDeclNoSet = {}
+ ExpSelfExprNo = 10
+ ExpPosition = [9,12]
+ ExpOpcode = <RidNull>
+ ExpDownKind = <null>
+ ExpUpKind = reference
+ ExpKind = <null>
+ ExpState = EsUnresolved
+ ExpIsConst = FALSE
+ ExpConstValIsKnown = FALSE
+ ExpIsUsable = TRUE
+ ExpIsLegalRecursive = FALSE
+ ExpIsDesignator = FALSE
+ ExpIsWritable = FALSE
+ ExpIsPresent = TRUE
+ ExpRefTypeIsUntraced = FALSE
+ (* From subtype ExprIdentRefTyp: *)
+ ExpIdentDeclNo = 8
+
+
+From unit expression map, Expr No 11 16_****************
+ ExpStackLink = ExprNo 0 at 16_**************** [8,14]
+ ExpType = NIL
+ ExpRefConstVal = 16_****************
+ ExpScalarConstVal = 0
+ ExpLoTypeInfoRef = 
+ ExpReachedDeclNoSet = {}
+ ExpSelfExprNo = 11
+ ExpPosition = [8,12]
+ ExpOpcode = <RidNull>
+ ExpDownKind = <null>
+ ExpUpKind = reference
+ ExpKind = <null>
+ ExpState = EsUnresolved
+ ExpIsConst = FALSE
+ ExpConstValIsKnown = FALSE
+ ExpIsUsable = TRUE
+ ExpIsLegalRecursive = FALSE
+ ExpIsDesignator = FALSE
+ ExpIsWritable = FALSE
+ ExpIsPresent = TRUE
+ ExpRefTypeIsUntraced = FALSE
+ (* From subtype ExprIdentRefTyp: *)
+ ExpIdentDeclNo = 7
+
+
+From unit expression map, Expr No 12 16_****************
+ ExpStackLink = NIL
+ ExpType = NIL
+ ExpRefConstVal = 16_****************
+ ExpScalarConstVal = 0
+ ExpLoTypeInfoRef = 
+ ExpReachedDeclNoSet = {}
+ ExpSelfExprNo = 12
+ ExpPosition = [7,12]
+ ExpOpcode = <RidNull>
+ ExpDownKind = <null>
+ ExpUpKind = reference
+ ExpKind = <null>
+ ExpState = EsUnresolved
+ ExpIsConst = FALSE
+ ExpConstValIsKnown = FALSE
+ ExpIsUsable = TRUE
+ ExpIsLegalRecursive = FALSE
+ ExpIsDesignator = FALSE
+ ExpIsWritable = FALSE
+ ExpIsPresent = TRUE
+ ExpRefTypeIsUntraced = FALSE
+ (* From subtype ExprIdentRefTyp: *)
+ ExpIdentDeclNo = 6
+
+
+From unit expression map, Expr No 13 16_****************
+ ExpStackLink = NIL
+ ExpType = NIL
+ ExpRefConstVal = 16_****************
+ ExpScalarConstVal = 0
+ ExpLoTypeInfoRef = 
+ ExpReachedDeclNoSet = {}
+ ExpSelfExprNo = 13
+ ExpPosition = [5,16]
+ ExpOpcode = <RidNull>
+ ExpDownKind = <null>
+ ExpUpKind = reference
+ ExpKind = <null>
+ ExpState = EsUnresolved
+ ExpIsConst = FALSE
+ ExpConstValIsKnown = FALSE
+ ExpIsUsable = TRUE
+ ExpIsLegalRecursive = FALSE
+ ExpIsDesignator = FALSE
+ ExpIsWritable = FALSE
+ ExpIsPresent = TRUE
+ ExpRefTypeIsUntraced = FALSE
+ (* From subtype Expr1OpndTyp: *)
+ ExpOpnd1 = ExprNo 0 16_****************
+.. ExpStackLink = NIL
+.. ExpType = NIL
+.. ExpRefConstVal = 16_****************
+.. ExpScalarConstVal = 0
+.. ExpLoTypeInfoRef = 
+.. ExpReachedDeclNoSet = {}
+.. ExpSelfExprNo = 0
+.. ExpPosition = [65535,65535]
+.. ExpOpcode = <RidNull>
+.. ExpDownKind = <null>
+.. ExpUpKind = <null>
+.. ExpKind = <null>
+.. ExpState = EsUnresolved
+.. ExpIsConst = FALSE
+.. ExpConstValIsKnown = FALSE
+.. ExpIsUsable = TRUE
+.. ExpIsLegalRecursive = FALSE
+.. ExpIsDesignator = FALSE
+.. ExpIsWritable = FALSE
+.. ExpIsPresent = TRUE
+.. ExpRefTypeIsUntraced = FALSE
+.. (* From subtype ExprIdentRefTyp: *)
+.. ExpIdentDeclNo = 0
+
+ (* From subtype ExprDotTyp: *)
+ ExpDotIdAtom = C
+
+

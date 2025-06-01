@@ -1,0 +1,4 @@
+[31mERROR: [0mMain.m3[11,12] Undeclared identifier "Func4", (2.1).
+[31mERROR: [0mMain.m3[9,12] Undeclared identifier "Func3", (2.1).
+[31mERROR: [0mMain.m3[7,12] Undeclared identifier "Func2", (2.1).
+[31mERROR: [0mMain.m3[5,12] Undeclared identifier "Func1", (2.1).

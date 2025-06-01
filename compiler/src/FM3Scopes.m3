@@ -145,7 +145,7 @@ MODULE FM3Scopes
   = BEGIN (*PruneDeclScopeStack*)
       IF DeclScopeStackCt > ToDepth 
       THEN 
-        FM3Messages . FM3LogArr
+        FM3Messages . FM3LogArrUnit
           ( ARRAY OF REFANY
               { "Scope number "
               , Fmt . Int ( DeclScopeStackTopRef ^ . ScpSelfScopeNo )
@@ -198,7 +198,7 @@ MODULE FM3Scopes
   = BEGIN (*PruneOpenScopeStack*)
       IF OpenScopeStackCt > ToDepth 
       THEN 
-        FM3Messages . FM3LogArr
+        FM3Messages . FM3LogArrUnit
           ( ARRAY OF REFANY
               { "Scope number "
               , Fmt . Int ( OpenScopeStackTopRef ^ . ScpSelfScopeNo )

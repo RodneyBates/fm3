@@ -2919,7 +2919,7 @@ yyNonterminal := 166;
                            ( Itk . ItkConstDeclLt , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ;
                        ELSE (* Skip the decl. *) 
                          FM3Pass1 . PutBwd_LCI_ri
-                           ( Itk . ItkSkipLt , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord , FM3Globals . NextSkipNo ) ;
+                           ( Itk . ItkSkipLt , yyAttributeStack^[yyStackPtr+2] . PaPass1Coord , FM3Globals . NextSkipNo ) ;
                          INC ( FM3Globals . NextSkipNo ) ;
                        END (*IF*) ;
                      
@@ -3992,9 +3992,9 @@ yyNonterminal := 241;
                            FM3Messages . ErrorArr
                              ( ARRAY OF REFANY 
                                  { FM3Pass1 . VarLabel [ VAL ( yyAttributeStack^[yyStackPtr+1] . PaByte , Dkt ) ] 
-                                 , " must have a type and/or a default ("
+                                 , " must have a type and/or a default "
                                  , FM3Pass1 . VarSection [ VAL ( yyAttributeStack^[yyStackPtr+1] . PaByte , Dkt ) ]
-                                 , ")." 
+                                 , "." 
                                  } 
                              , yyAttributeStack^[yyStackPtr+1] . Scan . Position
                              ) ; 

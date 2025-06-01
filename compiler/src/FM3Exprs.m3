@@ -764,7 +764,7 @@ MODULE FM3Exprs
   = BEGIN (*PruneExprStack*)
       IF ExprStackCt > ToDepth 
       THEN 
-        FM3Messages . FM3LogArr
+        FM3Messages . FM3LogArrUnit
           ( ARRAY OF REFANY
               { "Expression number "
               , Fmt . Int ( ExprStackTopObj . ExpSelfExprNo )

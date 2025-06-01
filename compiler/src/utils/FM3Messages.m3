@@ -153,8 +153,31 @@ MODULE FM3Messages
     END FM3Log
 
 (*EXPORTED*)
-; PROCEDURE FM3LogArr
+; PROCEDURE FM3LogArr ( READONLY Body : ARRAY OF REFANY )
+  RAISES { FM3SharedUtils . Terminate }
+  (* Only an FM3 label and message. *) 
+
+  = VAR LWrT : Wr . T
+  ; VAR LMsg : TEXT 
+
+  ; <* FATAL Thread . Alerted *>
+    BEGIN
+      LWrT := TextWr . New ( )
+    ; FM3SharedUtils . PutTextishArr ( LWrT , GFM3Label )
+    ; FM3SharedUtils . PutTextishArr ( LWrT , Body ) 
+    ; LMsg := TextWr . ToText ( LWrT ) 
+    
+    ; TRY (*EXCEPT*)
+        PutStdOut ( LMsg ) 
+      ; PutFM3Log ( LMsg ) 
+      EXCEPT Thread . Alerted => END (*EXCEPT*) 
+    END FM3LogArr
+    
+(*EXPORTED*)
+; PROCEDURE FM3LogArrUnit
     ( READONLY Frags : ARRAY OF REFANY ; Pos := FM3Base . PositionNull )
+  RAISES { FM3SharedUtils . Terminate }
+(* Inserts source file and line # of current unit. *) 
 
   = VAR LMsg : TEXT 
 
@@ -164,7 +187,7 @@ MODULE FM3Messages
         PutStdOut ( LMsg ) 
       ; PutFM3Log ( LMsg ) 
       EXCEPT Thread . Alerted => END (*EXCEPT*) 
-    END FM3LogArr
+    END FM3LogArrUnit
     
 (* -------------- Messages about code being compiled. --------------- *)
 

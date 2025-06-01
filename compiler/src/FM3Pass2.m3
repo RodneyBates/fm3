@@ -289,6 +289,7 @@ MODULE FM3Pass2
   ; VAR LUnitRef : FM3Units . UnitRefTyp
   ; VAR LPass1RdBack : RdBackFile . T 
   ; VAR LPatchRdBack : RdBackFile . T
+; VAR LDebug : INTEGER   
 
   ; BEGIN (* GetTokCode *) 
       LUnitRef := FM3Units . UnitStackTopRef
@@ -348,7 +349,7 @@ MODULE FM3Pass2
           PutBwdPatch ( LPatchRdBack , LPatchStackTopCoord )
             (* ^Push the current patch coordinate back on patch stack. *)
         ; LTokenL := FM3Compress . GetBwd ( LPass1RdBack )
-        ; LToken := VAL ( LTokenL , Itk . TokTyp ) 
+        ; LToken := VAL ( LTokenL , Itk . TokTyp )
         ; IF IntSets . IsElement ( LToken , FM3SharedGlobals . GTokSetPatch )
           THEN
 
@@ -667,7 +668,7 @@ MODULE FM3Pass2
       LValueExpr := FM3Exprs . PopExprStack ( )
     ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefExprs [ TRUE ] := LValueExpr
     ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := FALSE 
-      (* ^Type is coming up next. *) 
+      (* ^Type will be coming up next. *) 
     ; IF NOT LValueExpr . ExpIsPresent THEN RETURN END (*IF*) 
     ; IF NOT LValueExpr . ExpIsUsable THEN RETURN END (*IF*) 
     ; IF FALSE 
@@ -722,7 +723,7 @@ MODULE FM3Pass2
   ; VAR HtSkipping : BOOLEAN
   ; VAR LBool : BOOLEAN
 
-  ; PROCEDURE HtIntLit ( LoTypeNo : FM3LoTypes . LoTypeNoTyp )
+  ; PROCEDURE HtNumericLit ( LoTypeNo : FM3LoTypes . LoTypeNoTyp )
     (* Both INTEGER and LONGINT. *)
 
     = VAR LLongInt : LONGINT 
@@ -757,7 +758,7 @@ MODULE FM3Pass2
           ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
           END (*IF*) 
         END (*IF*)
-      END HtIntLit 
+      END HtNumericLit 
 
   ; PROCEDURE HtExprRt ( NewExpr : FM3Exprs . ExprTyp )
 
@@ -907,8 +908,8 @@ MODULE FM3Pass2
     ; HtSkipping
         := VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
 
-; TRY 
-      CASE TokResult . TrTok OF
+; TRY
+      CASE TokResult . TrTok OF     
 
       | Itk . ItkScopeEmpty 
       =>  HtPassTokenThru ( ) 
@@ -1135,10 +1136,19 @@ MODULE FM3Pass2
         ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
 
       | Itk . ItkIntLit
-      => HtIntLit ( FM3LoTypes . LoTypeNoInt ) 
+      => HtNumericLit ( FM3LoTypes . LoTypeNoInt ) 
 
       | Itk . ItkLongIntLit
-      => HtIntLit ( FM3LoTypes . LoTypeNoLong ) 
+      => HtNumericLit ( FM3LoTypes . LoTypeNoLong ) 
+
+      | Itk . ItkRealLit
+      => HtNumericLit ( FM3LoTypes . LoTypeNoReal ) 
+
+      | Itk . ItkLongRealLit
+      => HtNumericLit ( FM3LoTypes . LoTypeNoLongReal ) 
+
+      | Itk . ItkExtendedLit
+      => HtNumericLit ( FM3LoTypes . LoTypeNoExtended ) 
 
       | Itk . ItkTextLitRt
       , Itk . ItkWideTextLitRt
@@ -1600,13 +1610,11 @@ MODULE FM3Pass2
       ; LNewDeclRef . DclIdAtom := DdiAtom 
       ; LNewDeclRef . DclPos := DdiPosition 
       ; LNewDeclRef . DclKind := FM3Decls . DeclKindTyp . DkDuplDecl
-      (* Let's not put it into the map. 
       ; VarArray_Int_Refany . Assign
           ( FM3Units . UnitStackTopRef ^ . UntDeclMap
           , (* Implicit NARROW. *) DeclNoI
           , LNewDeclRef
           )
-      *) 
       END Visit
 
   ; BEGIN (* DuplDeclIdR2L *) 

@@ -52,9 +52,14 @@ INTERFACE FM3Messages
     ( T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8 : TEXT := NIL ) 
   RAISES { Thread . Alerted }
 
-; PROCEDURE FM3LogArr
+; PROCEDURE FM3LogArr ( READONLY Body : ARRAY OF REFANY )
+  RAISES { FM3SharedUtils . Terminate }
+  (* Only an FM3 label and message. *) 
+
+; PROCEDURE FM3LogArrUnit
     ( READONLY Frags : ARRAY OF REFANY ; Pos := FM3Base . PositionNull )
   RAISES { FM3SharedUtils . Terminate }
+(* Inserts source file and line # of current unit. *) 
 
 (* The following is for messages about code being compiled or other
    input being processed.  They go immediately to stdout, if DoStdOut. 
