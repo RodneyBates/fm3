@@ -170,12 +170,12 @@ FIXED
 FIXED 
   ItkObjType POS 2 (* Position of OBJECT. *) .
   ItkSupertype POS 2 (* Position of OBJECT. *) .
-  ItkBrand POS (* With explicit brand value. *) .
+  ItkBrandExplicit POS (* With explicit brand value. *) .
 
 LONE
   ItkSupertypeAbsent POS .
   ItkBrandAbsent POS . 
-  ItkBrandAnon POS (* anonymous brand value. *) . 
+  ItkBrandAnon POS (* anonymous brand value. *) .
 
 LIST
 ItkEnumLitList (* This list alone suffices to delimit an enumeration type. *) . 

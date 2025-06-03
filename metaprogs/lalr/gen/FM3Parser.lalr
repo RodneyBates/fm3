@@ -1140,24 +1140,42 @@ RULE
    Type : StkRidWIDECHAR .
 
 (* ------------------------------- REF Types --------------------------- *)
-
+(*
    RefTypeOptUntraced : /* Empty */
      { $$ . PaBool := FALSE (* Not UNTRACED. *) } .
 
    RefTypeOptUntraced : StkRwUNTRACED 
      { $$ . PaBool := TRUE (* UNTRACED. *) } .
-
+*) 
 (* ------------------------------ REF Types ---------------------------- *)
 
-   Type : RefTypeOptUntraced Brand StkRwREF Type 
+   Type : RefTypeTraced .
+   
+   RefTypeTraced : Brand StkRwREF Type 
      { FM3Pass1 . PutBwd_LCBP_eCP_rbP
          ( Itk . ItkREFTypeLt
          , $1 . PaPass1Coord
-         , $1 . PaBool (* IsUntraced. *) 
+         , FALSE (* IsUntraced. *) 
+         , $1 . Scan . Position
+
+         , $3 . PaPass1Coord 
+         , $2 . Scan . Position
+
+         , $1 . Scan . Position 
+         ) ;
+     } .
+
+   Type : RefTypeUntraced .
+   
+   RefTypeUntraced : StkRwUNTRACED Brand StkRwREF Type 
+     { FM3Pass1 . PutBwd_LCBP_eCP_rbP
+         ( Itk . ItkREFTypeLt
+         , $1 . PaPass1Coord
+         , TRUE (* IsUntraced. *) 
          , $1 . Scan . Position
 
          , $4 . PaPass1Coord 
-         , $4 . Scan . Position
+         , $3 . Scan . Position
 
          , $1 . Scan . Position 
          ) ;
@@ -1520,18 +1538,22 @@ RULE
 
    Brand : StkRwBRANDED Expr
      { $$ . PaPass1Coord := $2 . PaPass1Coord ;
-       $$ . Scan . Position := $2 . Scan . Position
-       (* Just let the presence of Expr speak for itself. *) 
+       $$ . Scan . Position := $2 . Scan . Position ;
+       FM3Pass1 . PutBwd_LCP_rp
+         ( Itk . ItkBrandExplicitLt
+         , $2 . PaPass1Coord
+         , $1 . Scan . Position
+         ) ; 
      } . 
 
 (* ------------------------------ Object Types ------------------------------ *)
-
+(*
    Supertype : /*Empty*/ 
      { $$ . Scan . Position := FM3Scanner . Attribute . Position ;
        FM3Pass1 . PutBwd_LP
          ( Itk . ItkSupertypeAbsent , FM3Scanner . Attribute . Position ) ;
      } . 
-
+*)
    Supertype : TypeId 
      { $$ . Scan . Position := $1 . Scan . Position ;
        FM3Pass1 . PutBwd_LCP_rp
@@ -1543,7 +1565,7 @@ RULE
 
    Supertype : ObjType 
      { $$ . Scan . Position := $1 . Scan . Position ;
-       (* ^The supertype will be nested within this object tyhpe. *) 
+       (* ^The supertype will be nested within this object type. *) 
        FM3Pass1 . PutBwd_LCP_rp
          ( Itk . ItkSupertypeLt
          , $1 . PaPass1Coord 
@@ -1552,7 +1574,10 @@ RULE
      } .
 
 
-   ObjTypeLt : Supertype Brand StkRwOBJECT
+   ObjTypeLt : ObjSubtypeLt
+     { $$ . PaDeclDepth := $1 . PaDeclDepth ; } .
+     
+   ObjSubtypeLt : Supertype Brand StkRwOBJECT
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN 
          $$ . Scan . Position := $1 . Scan . Position ;
@@ -1576,6 +1601,38 @@ RULE
 (* TODO: Store LScopeRef or its ScopeNo in the object type. *) 
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo  ) ;
+       END; 
+     } .
+
+   ObjTypeLt : ObjRootTypeLt  
+     { $$ . PaDeclDepth := $1 . PaDeclDepth ; } .
+     
+   ObjRootTypeLt : Brand StkRwOBJECT
+     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
+       BEGIN 
+         FM3Pass1 . PutBwd_LP
+           ( Itk . ItkSupertypeAbsent , FM3Scanner . Attribute . Position ) ;
+         $$ . Scan . Position := $1 . Scan . Position ;
+         $$ . PaDeclDepth (* DeclParseInfoDepth *) 
+           := FM3Decls . PushDeclParseInfo
+                ( FM3Decls . DeclParseInfoTyp
+                    { DiDeclTok := Itk . ItkFieldDeclLt
+                    , DiIdListTok := Itk . ItkFieldDeclIdListLt
+                    , DiIdSepTok
+                        := Itk . ItkFieldDeclIdListLt + Itk . LtToListSep
+                    , DiKind := Dkt . DkObjField 
+                    }
+                ) ;
+         LScopeRef 
+           := FM3Scopes . NewScopeRef
+                ( FM3Units . UnitStackTopRef
+                , Skt . SkObj
+                , $2 . Scan . Position
+                ) ;
+         FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
+(* TODO: Store LScopeRef or its ScopeNo in the object type. *) 
+         FM3Pass1 . PutBwd_TI
+           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
        END; 
      } .
 

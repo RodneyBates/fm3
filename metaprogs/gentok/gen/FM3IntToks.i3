@@ -449,11 +449,11 @@ ItkROFormalId    IDENT POS .
 ; CONST ItkSupertypeRt                  (*ArgCt: 2*) =   407 (*16_97 03 *)
 
 (* With explicit brand value. *)
-(* FIXED ItkBrand: *)
-; CONST ItkBrandLt                      (*ArgCt: 2*) =   408 (*16_98 03 *)
-; CONST ItkBrandLtTemp                  (*ArgCt: 2*) =   409 (*16_99 03 *)
-; CONST ItkBrandLtPatch                 (*ArgCt: 2*) =   410 (*16_9a 03 *)
-; CONST ItkBrandRt                      (*ArgCt: 2*) =   411 (*16_9b 03 *)
+(* FIXED ItkBrandExplicit: *)
+; CONST ItkBrandExplicitLt              (*ArgCt: 2*) =   408 (*16_98 03 *)
+; CONST ItkBrandExplicitLtTemp          (*ArgCt: 2*) =   409 (*16_99 03 *)
+; CONST ItkBrandExplicitLtPatch         (*ArgCt: 2*) =   410 (*16_9a 03 *)
+; CONST ItkBrandExplicitRt              (*ArgCt: 2*) =   411 (*16_9b 03 *)
 
 (* LONE ItkSupertypeAbsent: *)
 ; CONST ItkSupertypeAbsent              (*ArgCt: 2*) =   412 (*16_9c 03 *)
