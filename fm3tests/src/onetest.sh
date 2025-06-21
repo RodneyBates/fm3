@@ -49,9 +49,9 @@ PLAIN="\\033[0m"
       fi
     }
 
-  function multilog # $1 is messsge
-    {
-      if [ $docompile = 0 ]; then echo -e "$1" | tee -a $TESTLOG; fi
+  function multilog # $1 is message
+    { # put $1 in all action-specified logs.
+      if [ $docompile = 0 ]; then echo -e "$1" | tee -a $TMPCOMPILELOG; fi
       if [ $docheck = 0 ];   then echo -e "$1" | tee -a $CHECKLOG; fi
       if [ $doupdate = 0 ];  then echo -e "$1" | tee -a $UPDATELOG; fi
       if [ $doadd = 0 ];     then echo -e "$1" | tee -a $ADDLOG; fi
@@ -73,22 +73,23 @@ PLAIN="\\033[0m"
         then CLARGS=`/clargs`
         else CLARGS="--disasm --no-disasm-verbose --exprs --no-expr-addrs" 
         fi 
-        echo -e `$FM3 --version 2>&1` | tee -a $TESTLOG 
+        echo -e `$FM3 --version 2>&1` | tee -a $TMPCOMPILELOG 
         CMD="$FM3 $CLARGS $SOURCES"
-        echo -e $TAG "Compiling in $SRCDIR," | tee -a $TESTLOG 
-        echo -e "$TAG   using command \"$CMD\"" | tee -a $TESTLOG 
+        echo -e "$TAG Compiling in $SRCDIR," | tee -a $TMPCOMPILELOG 
+        echo -e "$TAG   using command \"$CMD\"" | tee -a $TMPCOMPILELOG 
         cd $SRCDIR
         $CMD 2>&1 | tee tmplog0 
         ES=$?
-        cat tmplog0 >> $TESTLOG
+        cat tmplog0 >> $TMPCOMPILELOG
         rm tmplog0
         if [ $ES -ne 0 ]
         then #compiler failure 
           echo -e $TAG $RED "Compiler failed." $PLAIN  
           ESALL=1  
         else #Compiler run ended normally.
-          echo -e $TAG $GREEN "Compile finished OK" $PLAIN | tee -a $TESTLOG  
+          echo -e "$TAG $GREEN Compile finished OK" $PLAIN | tee -a $TMPCOMPILELOG  
         fi
+        mv $TMPCOMPILELOG $TESTDIR/compilelog #Overlaying the old one.
       fi
     }
     
@@ -209,7 +210,7 @@ else # Do this script.
     exit
   fi      
 
-  TESTLOG="${TESTDIR}/tmptestlog" # Will rename at end.
+  TMPCOMPILELOG="${TESTDIR}/tmpcompilelog" # Will rename at end.
   # Leave the leftover one around during compile.
   CHECKLOG="${TESTDIR}/checklog"
   if [ $docheck = 0 ]; then rm -f $CHECKLOG; fi # Remove old leftover.
@@ -220,7 +221,7 @@ else # Do this script.
   if [ $docheck = 0 ]
   then rm -f ${TESTDIR}/SUCCEEDED ${TESTDIR}/FAILED ${TESTDIR}/NOTRUN
   fi 
-  multilog "$TAG Initial directory = $STARTDIR"
+  multilog "$TAG Command entered in directory = $STARTDIR"
   multilog "$TAG Test directory is $TESTDIR" 
     
   if [ $ESALL -ne 0 ]; then exit 1; fi
@@ -259,14 +260,14 @@ else # Do this script.
   addOneFile ${SRCDIR} FM3Log
   addOneFile ${SRCDIR} FM3Log.expected
 
-  # Test environment files:
+  # Test-environment files:
   addOneFile ${SRCDIR} srcdirs
   addOneFile ${SRCDIR} sources
   addOneFile ${SRCDIR} imports
   addOneFile ${SRCDIR} streamss
   addOneFile ${SRCDIR} exprs
   # addOneFile ${SRCDIR} donotrun
-  # Weird paradox. Will have to be added and removed manually.  
+  # Weird paradox. donotrun will have to be added and removed manually.  
     
   # Command line source files:
   for SRC in $SOURCES
@@ -290,7 +291,7 @@ else # Do this script.
     addOneFile ${SRCDIR} ${SRC}.Log.expected
   done
 
-  # Handle built files.
+  # Handle compiler-built files.
   for SRC in $ALLSRCS
   do 
     # Do stream files:       
@@ -313,7 +314,7 @@ else # Do this script.
 
   # Summarize:
   if [ $docheck = 0 ] 
-  then # Doing check
+  then # Doing check.  Report results.
     if [ $ESALL -ne 0 ]
     then # Check failure 
       touch ${TESTDIR}/FAILED 
@@ -325,7 +326,8 @@ else # Do this script.
       echo -e "$TAG $GREEN ---------------- Succeeded in `pwd` $PLAIN" | tee -a $CHECKLOG 
     fi
   fi
-  if [ $docompile = 0 ]; then mv $TESTLOG $TESTDIR/testlog; fi #Overlaying the old one.
+
+  # Finish up.
   cd $STARTDIR
   if [ $ESALL -ne 0 ]; then exit 1; fi 
 
