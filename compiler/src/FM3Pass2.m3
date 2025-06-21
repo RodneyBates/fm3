@@ -1,3 +1,4 @@
+
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2024..2025  Rodney M. Bates.                                    *)
@@ -33,11 +34,10 @@ MODULE FM3Pass2
 ; FROM   FM3Compress IMPORT GetBwd
 ; IMPORT FM3Decls
 ; IMPORT FM3Exprs  
-; FROM FM3Exprs IMPORT Est   
+; FROM   FM3Exprs IMPORT Est   
 ; IMPORT FM3Dict_Int_Int
 ; IMPORT FM3ExpImp
 ; IMPORT FM3ExpImpProxy 
-; IMPORT FM3RTFailures 
 ; IMPORT FM3Globals
 ; FROM   FM3Globals IMPORT P2RdBack 
 ; IMPORT FM3Graph 
@@ -45,11 +45,13 @@ MODULE FM3Pass2
 ; IMPORT FM3LoTypes
 ; IMPORT FM3Pass1
 ; IMPORT FM3ReservedIds
+; IMPORT FM3RTFailures 
 ; IMPORT FM3SrcToks 
 ; IMPORT FM3SrcToks AS Stk
 ; IMPORT FM3Std 
 ; FROM   FM3StreamUtils
-    IMPORT GetBwdInt , GetBwdAtom , GetBwdDeclKind , GetBwdPos , GetBwdScopeNo 
+    IMPORT GetBwdInt , GetBwdAtom , GetBwdDeclKind , GetBwdPos , GetBwdScopeNo
+           , GetBwdBool , GetBwdBrandKind 
 ; IMPORT FM3Messages 
 ; FROM   FM3Messages IMPORT FatalArr , ErrorArr , FM3LogArr
 ; IMPORT FM3Scanner
@@ -289,7 +291,6 @@ MODULE FM3Pass2
   ; VAR LUnitRef : FM3Units . UnitRefTyp
   ; VAR LPass1RdBack : RdBackFile . T 
   ; VAR LPatchRdBack : RdBackFile . T
-; VAR LDebug : INTEGER   
 
   ; BEGIN (* GetTokCode *) 
       LUnitRef := FM3Units . UnitStackTopRef
@@ -321,6 +322,9 @@ MODULE FM3Pass2
         
       (* More to be done.  One of three possible actions. *)
       (* Check first for an already patched token on top of the patch stack. *)
+; IF LPass1Coord = 39L
+  THEN LToken := 19
+  END (*IF*)
       ; IF LPass1Coord <= LPatchStackTopCoord
         THEN (* Give caller the token off the patch stack. *)
           <* ASSERT LPass1Coord = LPatchStackTopCoord
@@ -503,7 +507,7 @@ MODULE FM3Pass2
     ; VarArray_Int_Refany . Assign
         ( LUnitRef ^ . UntExprMap , NewExprObj . ExpSelfExprNo , NewExprObj )
     ; WITH WCurDef
-           = LScopeRef ^ . ScpCurDefExprs [ LScopeRef . ScpCurDefIsValue ]
+           = LScopeRef ^ . ScpCurDefExprs [ LScopeRef ^ . ScpCurDefIsValue ]
       DO IF WCurDef  = NIL
         THEN (* NewExprObj is root of expression tree. *)
           WCurDef := NewExprObj
@@ -715,7 +719,7 @@ MODULE FM3Pass2
   ; VAR HtPass2RdBack : RdBackFile . T
   ; VAR LNewExpr , LValueExpr , LPrefixExpr , LListElem : FM3Exprs . ExprTyp
   ; VAR LArgsExpr : FM3Exprs . ExprArgsObj
-  ; VAR LLongInt : LONGINT 
+  ; VAR LLongInt: LONGINT 
   ; VAR LScopeNo : FM3Globals . ScopeNoTyp
   ; VAR LOpcode : FM3SrcToks . TokTyp
   ; VAR LCt : INTEGER 
@@ -779,16 +783,15 @@ MODULE FM3Pass2
     ; VAR LParentExpr : FM3Exprs . Expr1OpndTyp 
 
     ; BEGIN 
-        WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
-        DO IF NOT HtSkipping 
-          THEN
-            LOpnd := FM3Exprs . PopExprStack ( )
-          ; LParentExpr
-              := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . Expr1OpndTyp )
-          ; LParentExpr . ExpOpnd1 := LOpnd
-          ; DefExprLt ( LParentExpr ) 
-          END (*IF*) 
-        END (*WITH*)
+        EVAL GetBwdPos ( TokResult . TrRdBack )
+      ; IF NOT HtSkipping 
+        THEN
+          LOpnd := FM3Exprs . PopExprStack ( )
+        ; LParentExpr
+            := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . Expr1OpndTyp )
+        ; LParentExpr . ExpOpnd1 := LOpnd
+        ; DefExprLt ( LParentExpr ) 
+        END (*IF*) 
       END HtExprOpnd1 
 
   ; PROCEDURE HtExprOpnd2 ( )
@@ -797,16 +800,15 @@ MODULE FM3Pass2
     ; VAR LParentExpr : FM3Exprs . Expr2OpndTyp 
 
     ; BEGIN 
-        WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
-        DO IF NOT HtSkipping 
-          THEN
-            LOpnd := FM3Exprs . PopExprStack ( )
-          ; LParentExpr
-              := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . Expr2OpndTyp )
-          ; LParentExpr . ExpOpnd2 := LOpnd
-          ; DefExprLt ( LParentExpr ) 
-          END (*IF*) 
-        END (*WITH*)
+        EVAL GetBwdPos ( TokResult . TrRdBack )
+      ; IF NOT HtSkipping 
+        THEN
+          LOpnd := FM3Exprs . PopExprStack ( )
+        ; LParentExpr
+            := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . Expr2OpndTyp )
+        ; LParentExpr . ExpOpnd2 := LOpnd
+        ; DefExprLt ( LParentExpr ) 
+        END (*IF*) 
       END HtExprOpnd2
 
   ; <*INLINE*> PROCEDURE IntUnionSelf
@@ -850,7 +852,7 @@ MODULE FM3Pass2
             ( FM3Utils . TokenOpndCt ( TokResult . TrTok )
             , TokResult . TrRdBack
             ) 
-        ; RETURN TRUE  
+        ; RETURN TRUE 
         ELSE 
           IF
  FALSE AND   NOT FM3Scopes . OpenScopeStackTopRef ^ . ScpInsideDecl 
@@ -1173,151 +1175,289 @@ MODULE FM3Pass2
       (* Enumeration type: *) 
 (* FIXME: Some of these need to copy the token and arguments. *)   
       | Itk . ItkEnumTypeRt
-      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
-        ; LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *) 
-        ; HtExprRt
-            ( NEW ( FM3Exprs . ExprEnumTypeTyp , ExpUpKind := Ekt . EkType ) ) 
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN  
+            LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *) 
+          ; HtExprRt
+              ( NEW ( FM3Exprs . ExprEnumTypeTyp , ExpUpKind := Ekt . EkType ) )
+          END (*IF*)
 
       | Itk . ItkEnumTypeLt
-      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
-        ; LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *) 
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *)
+          END (*IF*)  
 
       (* Record type: *) 
       | Itk . ItkRecTypeRt
-      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
-        ; LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *) 
-        ; HtExprRt
-            ( NEW ( FM3Exprs . ExprRecTypeTyp , ExpUpKind := Ekt . EkType ) )
-(* Copy token? *) 
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN 
+            LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *) 
+          ; HtExprRt
+              ( NEW ( FM3Exprs . ExprRecTypeTyp , ExpUpKind := Ekt . EkType ) )
+(* Copy token? *)
+          END (*IF*) 
 
       | Itk . ItkRecTypeLt
-      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
-        ; LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *)
-        ; EVAL GetBwdPos ( TokResult . TrRdBack )
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN  
+            LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *)
+          ; EVAL GetBwdPos ( TokResult . TrRdBack )
 (* Copy token? *)
+          END (*IF*)
 
       (* Brands: *)
 
       | Itk . ItkBrandAbsent
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN 
-            HtExprRt
-              ( NEW ( FM3Exprs . ExprTyp
-                    , ExpUpKind := Ekt . EkBrand
+            WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
+            DO (* There's always an exprssion for a brand, even if it's absent. *) 
+              LNewExpr 
+                := NEW ( FM3Exprs . ExprTyp
+                       , ExpUpKind := Ekt . EkBrand
+                       , ExpIsLegalRecursive := TRUE
+                       , ExpIsPresent := FALSE
+                       , ExpPosition := WPosition 
+                       )
+            ; DefExprRt ( LNewExpr )
+            END (*WITH*) 
+          END (*IF*)
+
+      | Itk . ItkBrandAnon
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN 
+            WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
+            DO
+              LNewExpr
+                := FM3Builtins . BuiltinExpr
+                     ( FM3SrcToks . StkRTUniqueBrand , WPosition ) 
+            ; DefExprRt ( LNewExpr )
+            END (*WITH*)
+          END (*IF*)
+
+      | Itk . ItkBrandExplicitRt 
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN 
+            WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
+            DO
+              LNewExpr
+                := NEW ( FM3Exprs . Expr1OpndTyp
+                       , ExpUpKind := Ekt . EkBrand
+                       , ExpIsLegalRecursive := TRUE
+                       , ExpIsPresent := TRUE  
+                       , ExpPosition := WPosition 
+                       ) 
+            ; DefExprRt ( LNewExpr )
+            END (*WITH*)
+          END (*IF*)
+
+      | Itk . ItkBrandExplicitLt 
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN
+            EVAL GetBwdPos ( TokResult . TrRdBack )
+          END (*IF*)
+
+      (* REF type: *) 
+      | Itk . ItkREFTypeRt 
+      =>  IF HtMaybePassTokenThru ( )
+          THEN 
+            LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN ) 
+          ; HtExprRt
+              ( NEW ( FM3Exprs . Expr2OpndTyp
+                    , ExpUpKind := Ekt . EkRefType
                     , ExpIsLegalRecursive := TRUE
-                    , ExpIsPresent := FALSE 
+                    , ExpRefTypeIsUntraced := LBool
+                    , ExpOpcode := Stk . StkRwREF
+                    , ExpRefTypeIsUntraced := LBool
+                    (* ExpOpnd2 will later be referent. *) 
+                    (* ExpOpnd1 will later be brand. *) 
+                    )
+              )
+          END (*IF*)
+
+      | Itk . ItkREFTypeReferent 
+      =>  IF HtMaybePassTokenThru ( )
+          THEN 
+            HtExprOpnd2 ( ) (* Referent *)
+          END (*IF*) 
+
+      | Itk . ItkREFTypeLt
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN 
+            LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN ) 
+          ; HtExprOpnd1 ( ) (* Brand *)
+          ; SynthIsUsable2 ( FM3Exprs . ExprStackTopObj (* The REF Type. *) )
+          ; <* ASSERT
+                 FM3Exprs . PopExprStack ( ) . ExpUpKind = Ekt . EkSupertype
+            *>
+          END (*IF*) 
+
+      (* Used in both OBJECT type and REF type. *)
+      | Itk . ItkSupertypeAbsent
+      =>  (* No supertype given in source code.  Could turn out a REF type *)
+          IF NOT HtMaybePassTokenThru ( )
+          THEN
+            WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
+            DO
+              LNewExpr 
+                := NEW ( FM3Exprs . ExprTyp
+                       , ExpUpKind := Ekt . EkSupertype
+                       , ExpIsLegalRecursive := TRUE
+                       , ExpIsPresent := TRUE  
+                       , ExpPosition := WPosition 
+                       ) 
+            ; DefExprRt ( LNewExpr )
+            END (*WITH*)
+          END (*IF*) 
+
+      (* OBJECT type: *)
+      | Itk . ItkSupertypeRt  
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN 
+            WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
+            DO
+              LNewExpr
+                := NEW ( FM3Exprs . ExprTyp
+                       , ExpUpKind := Ekt . EkObjType
+                       , ExpIsLegalRecursive := TRUE
+                       , ExpIsPresent := TRUE  
+                       , ExpPosition := WPosition 
+                       ) 
+            ; DefExprRt ( LNewExpr )
+            END (*WITH*)
+          END (*IF*)
+
+      | Itk . ItkSupertypeLt 
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN EVAL GetBwdPos ( TokResult . TrRdBack )
+          END (*IF*) 
+
+
+(* COMPLETEME: ItkBrandAbsent, ItkBrandAnon, ItkBrandExplicit? *)  
+
+      | Itk . ItkObjTypeRt 
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN 
+            VAR LExpr : FM3Exprs . ExprObjTypeTyp
+          ; BEGIN 
+              LExpr
+                := NEW ( FM3Exprs . ExprObjTypeTyp
+                       , ExpUpKind := Ekt . EkObjType
+                       , ExpIsLegalRecursive := TRUE
+                       , ExpOpcode := Stk . StkRwOBJECT 
+                       , ExpOpnd1 := NIL (* Supertype. *) 
+                       , ExpOpnd2 := NIL (* Brand. *)
+                       , ExpObjOverrides := NIL
+                       )
+            ; LExpr . ExpObjBrandKind := GetBwdBrandKind ( TokResult . TrRdBack )
+            ; LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
+            ; LExpr . ExpObjScopeRef
+                := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo )
+            ; <* ASSERT
+                   LExpr . ExpObjScopeRef = FM3Scopes . DeclScopeStackTopRef
+              *>
+              LExpr . ExpPosition := GetBwdPos ( TokResult . TrRdBack )
+            ; HtExprRt ( LExpr )
+            END (* Block. *) 
+          END (*IF*)
+          
+      | Itk . ItkObjTypeLt
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN 
+            EVAL GetBwdBrandKind ( TokResult . TrRdBack )
+          ; LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack )
+          ; <* FM3Scopes . DeclScopeStackTopRef ^ . ScpSelfScopeNo = LScopeNo *> 
+            HtExprOpnd2 ( ) (* Brand *)
+          ; HtExprOpnd1 ( ) (* Supertype *) 
+          ; SynthIsUsable1 ( FM3Exprs . ExprStackTopObj (* The OBJECT Type. *) )
+          ; EVAL GetBwdPos ( TokResult . TrRdBack )
+          END (*IF*)
+          
+      (* Array type: *) 
+      | Itk . ItkArrayTypeRt 
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN  
+            LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN ) 
+          ; HtExprRt
+              ( NEW ( FM3Exprs . ExprBinOpTyp
+                    , ExpUpKind := Ekt . EkType
+                    , ExpOpcode := FM3SrcToks.StkRwARRAY 
+                    )
+              )
+          END (*IF*)
+            
+      | Itk . ItkArrayTypeElmt
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN 
+            LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN ) 
+          ; HtExprOpnd2 ( )
+          END (*IF*) 
+
+      | Itk . ItkArrayTypeLt
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN 
+            LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN ) 
+          ; HtExprOpnd1 ( )
+          END (*IF*) 
+
+      (* Subrange type: *) 
+      | Itk . ItkSubrTypeRt 
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN 
+            HtExprRt
+              ( NEW ( FM3Exprs . ExprSubrTypeTyp , ExpUpKind := Ekt . EkType ) )
+          END (*IF*) 
+
+      | Itk . ItkSubrTypeEllipsis 
+      =>  IF NOT HtMaybePassTokenThru ( ) THEN  HtExprOpnd2 ( )  END (*IF*)
+
+      | Itk . ItkSubrTypeLt 
+      =>  IF NOT HtMaybePassTokenThru ( ) THEN HtExprOpnd1 ( )  END (*IF*)
+
+      (* Unary operators: *) 
+      | Itk . ItkUnaryOpRt 
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN 
+            HtExprRt
+              ( NEW ( FM3Exprs . ExprBinOpTyp
+                    , ExpOpcode := GetBwdInt ( TokResult . TrRdBack )
+                    )
+              )
+          END (*IF*)
+ 
+      | Itk . ItkUnaryOpLt 
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN  
+            LOpcode := GetBwdInt ( TokResult . TrRdBack ) 
+          ; HtExprOpnd1 ( ) (* Only operand. *)
+          ; IF NOT HtSkipping THEN UnaryOp ( LOpcode ) END (*IF*)
+          END (*IF*) 
+
+      (* Binary Operators: *) 
+      | Itk . ItkBinaryOpRt 
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN 
+            HtExprRt
+              ( NEW ( FM3Exprs . ExprBinOpTyp
+                    , ExpOpcode := GetBwdInt ( TokResult . TrRdBack )
                     )
               )
           END (*IF*) 
 
-      | Itk . ItkBrandAnon
-      =>  WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
-          DO IF NOT HtSkipping 
-          THEN 
-            LNewExpr
-              := FM3Builtins . BuiltinExpr
-                   ( FM3SrcToks . StkRTUniqueBrand , WPosition ) 
-          ; DefExprRt ( LNewExpr )
-          END (*IF*)
-        END (*WITH*)
-
-      (* An explicit brand is just an expression. *) 
-
-      (* REF type: *) 
-      | Itk . ItkREFTypeRt 
-      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*)
-        ; LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN ) 
-        ; HtExprRt
-            ( NEW ( FM3Exprs . Expr2OpndTyp
-                  , ExpUpKind := Ekt . EkType
-                  , ExpIsLegalRecursive := TRUE
-                  , ExpRefTypeIsUntraced := LBool
-                  , ExpOpcode := Stk . StkRwREF
-                  , ExpRefTypeIsUntraced := LBool
-                  (* ExpOpnd2 will later be referent. *) 
-                  (* ExpOpnd1 will later be brand. *) 
-                  )
-            ) 
-
-      | Itk . ItkREFTypeReferent 
-      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
-        ; HtExprOpnd2 ( ) (* Referent *)
-
-      | Itk . ItkREFTypeLt
-      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
-        ; LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN ) 
-        ; HtExprOpnd1 ( ) (* Brand *)
-        ; SynthIsUsable2 ( FM3Exprs . ExprStackTopObj (* The REF Type. *) )
-
-      (* Array type: *) 
-      | Itk . ItkArrayTypeRt 
-      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
-        ; LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN ) 
-        ; HtExprRt
-            ( NEW ( FM3Exprs . ExprBinOpTyp
-                  , ExpUpKind := Ekt . EkType
-                  , ExpOpcode := FM3SrcToks.StkRwARRAY 
-                  )
-            )
-            
-      | Itk . ItkArrayTypeElmt
-      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
-        ; LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN ) 
-        ; HtExprOpnd2 ( ) 
-
-      | Itk . ItkArrayTypeLt
-      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
-        ; LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN ) 
-        ; HtExprOpnd1 ( ) 
-
-      (* Subrange type: *) 
-      | Itk . ItkSubrTypeRt 
-      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
-        ; HtExprRt
-            ( NEW ( FM3Exprs . ExprSubrTypeTyp , ExpUpKind := Ekt . EkType ) ) 
-
-      | Itk . ItkSubrTypeEllipsis 
-      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
-        ; HtExprOpnd2 ( )
-
-      | Itk . ItkSubrTypeLt 
-      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*)
-        ; HtExprOpnd1 ( )
-
-      (* Unary operators: *) 
-      | Itk . ItkUnaryOpRt 
-      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*)
-        ; HtExprRt
-            ( NEW ( FM3Exprs . ExprBinOpTyp
-                  , ExpOpcode := GetBwdInt ( TokResult . TrRdBack )
-                  )
-            ) 
- 
-      | Itk . ItkUnaryOpLt 
-      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
-        ; LOpcode := GetBwdInt ( TokResult . TrRdBack ) 
-        ; HtExprOpnd1 ( ) (* Only operand. *)
-        ; IF NOT HtSkipping THEN UnaryOp ( LOpcode ) END (*IF*)
-
-      (* Binary Operators: *) 
-      | Itk . ItkBinaryOpRt 
-      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
-        ; HtExprRt
-            ( NEW ( FM3Exprs . ExprBinOpTyp
-                  , ExpOpcode := GetBwdInt ( TokResult . TrRdBack )
-                  )
-            )
-
       | Itk . ItkBinaryOpOperator
-      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
-        ; LOpcode := GetBwdInt ( TokResult . TrRdBack ) (* Opcode. *) 
-        ; HtExprOpnd2 ( ) (* Right operand. *)
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN 
+            LOpcode := GetBwdInt ( TokResult . TrRdBack ) (* Opcode. *) 
+          ; HtExprOpnd2 ( ) (* Right operand. *)
+          END (*IF*) 
 
       | Itk . ItkBinaryOpLt 
-      =>  IF HtMaybePassTokenThru ( ) THEN RETURN END (*IF*) 
-        ; LOpcode := GetBwdInt ( TokResult . TrRdBack ) 
-        ; HtExprOpnd1 ( ) (* Left operand. *)
-        ; IF NOT HtSkipping THEN BinaryOp ( LOpcode ) END (*IF*)
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN  
+            LOpcode := GetBwdInt ( TokResult . TrRdBack ) 
+          ; HtExprOpnd1 ( ) (* Left operand. *)
+          ; IF NOT HtSkipping THEN BinaryOp ( LOpcode ) END (*IF*)
+          END (*IF*) 
 
       | Itk . ItkCallRt
       , Itk . ItkSubscriptRt 
@@ -1397,8 +1537,12 @@ MODULE FM3Pass2
       ELSE (* No special pass2 handling. *)
         HtPassTokenThru ( ) 
       END (*CASE*)
- EXCEPT ELSE
-   LCt := TokResult . TrTok
+ EXCEPT
+ | FM3RTFailures . Backout ( Msg )   => RAISE  FM3RTFailures . Backout ( Msg ) 
+ | FM3RTFailures . Terminate ( Msg ) => RAISE  FM3RTFailures . Terminate ( Msg ) 
+ | FM3RTFailures . Ignore            => RAISE  FM3RTFailures . Ignore  
+ ELSE
+   LCt := TokResult . TrTok (* A bug catcher. *) 
  END (*EXCEPT*) 
     END HandleTok
 
@@ -2096,8 +2240,8 @@ MODULE FM3Pass2
   ; VAR LUnitTok , LDeclTok : FM3SrcToks . TokTyp
 
   ; BEGIN
-      IF TRUE
-         OR NOT OrigExpr . ExpIsUsable THEN RETURN OrigExpr END (*IF*)
+      IF TRUE (* Disable this for now. *) 
+         OR NOT OrigExpr . ExpIsUsable THEN RETURN OrigExpr END (*IF*) 
     ; TYPECASE OrigExpr OF
       | NULL => RETURN NIL
       | FM3Exprs . ExprArgsObj ( TCallExpr )

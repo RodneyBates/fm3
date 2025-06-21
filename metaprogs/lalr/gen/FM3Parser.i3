@@ -18,8 +18,15 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-    IMPORT FM3IntToks;
-    IMPORT FM3Pass1;
+(* Where is the right place for this? *) 
+  TYPE BrandKindTyp =
+         { BkAbsent (* No BRANDED. *) 
+         , BkAnon (* BRANDED, but no string given. *) 
+         , BkExplicit (* BRANDED, with string following. *)
+         } ;
+         
+  PROCEDURE BrandKindImage ( Kind : BrandKindTyp ) : TEXT ;
+
   
 
 VAR ParsTabName	: TEXT; 

@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+(* Copyright 2023..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -11,7 +11,8 @@ MODULE FM3StreamUtils
 ; IMPORT FM3Base 
 ; IMPORT FM3Compress 
 ; IMPORT FM3Decls
-; IMPORT FM3Globals 
+; IMPORT FM3Globals
+; IMPORT FM3Parser 
 
 ; IMPORT RdBackFile 
 
@@ -77,6 +78,18 @@ MODULE FM3StreamUtils
     END GetBwdPos
     
 (*EXPORTED.*)
+; PROCEDURE GetBwdBool ( RdBack : RdBackFile . T ) : BOOLEAN 
+
+  = VAR LValueL : LONGINT 
+
+  ; BEGIN (*GetBwdBool*)
+      LValueL := FM3Compress . GetBwd ( RdBack )
+    ; IF LValueL = 0L THEN RETURN FALSE
+      ELSE RETURN TRUE
+      END (*IF*) 
+    END GetBwdBool
+    
+(*EXPORTED.*)
 ; PROCEDURE GetBwdDeclKind ( RdBack : RdBackFile . T ) : FM3Decls . DeclKindTyp 
 
   = VAR LResult : FM3Decls . DeclKindTyp 
@@ -85,6 +98,18 @@ MODULE FM3StreamUtils
       LResult := VAL ( FM3Compress . GetBwd ( RdBack ) , FM3Decls . DeclKindTyp )
     ; RETURN LResult 
     END GetBwdDeclKind 
+
+(*EXPORTED.*)
+; PROCEDURE GetBwdBrandKind ( RdBack : RdBackFile . T )
+  : FM3Parser . BrandKindTyp 
+
+  = VAR LResult : FM3Parser . BrandKindTyp 
+
+  ; BEGIN (*GetBwdBrandKind*)
+      LResult
+        := VAL ( FM3Compress . GetBwd ( RdBack ) , FM3Parser . BrandKindTyp )
+    ; RETURN LResult 
+    END GetBwdBrandKind 
 
 ; BEGIN (*FM3StreamUtils*)
   END FM3StreamUtils

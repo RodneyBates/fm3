@@ -82,8 +82,6 @@ MODULE FM3Scopes
     ; LScopeRef ^ . ScpOpenStackHt := - 1 
  
     ; LScopeRef ^ . ScpDeclIdSet := IntSets . Empty ( )
-                    (* ^For a unit, includes [ex|im]ported idents. *) 
-                    (* ^For a procedure w/ body, includes formals. *)
     ; LScopeRef ^ . ScpDeclDict := NIL 
     ; LScopeRef ^ . ScpFormalIdSet := IntSets . Empty ( )  
     ; LScopeRef ^ . ScpRefIdSet := IntSets . Empty ( )  
@@ -120,6 +118,14 @@ MODULE FM3Scopes
       ELSE ScopeRef ^ . ScpDeclStackHt
              := DeclScopeStackTopRef ^ . ScpDeclStackHt + 1
       END (*IF*) 
+
+;  IF ScopeRef ^ . ScpDeclStackHt = 2
+  THEN VAR Debug : INTEGER
+  ; BEGIN
+      Debug := 13
+    END
+  END
+
     ; ScopeRef ^ . ScpDeclStackLink := DeclScopeStackTopRef
     ; DeclScopeStackTopRef := ScopeRef
     ; INC ( DeclScopeStackCt ) 

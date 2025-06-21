@@ -33,8 +33,15 @@ EXPORT
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
-    IMPORT FM3IntToks;
-    IMPORT FM3Pass1;
+(* Where is the right place for this? *) 
+  TYPE BrandKindTyp =
+         { BkAbsent (* No BRANDED. *) 
+         , BkAnon (* BRANDED, but no string given. *) 
+         , BkExplicit (* BRANDED, with string following. *)
+         } ;
+         
+  PROCEDURE BrandKindImage ( Kind : BrandKindTyp ) : TEXT ;
+
   }
 
 /* Stuff to go at front of the parser module, at global scope. */
@@ -65,6 +72,18 @@ GLOBAL
     IMPORT FM3Scopes;
     IMPORT FM3Units;
     FROM FM3Utils IMPORT PositionImage;
+
+    TYPE Bkt = BrandKindTyp ;
+    
+    PROCEDURE BrandKindImage ( Kind : BrandKindTyp ) : TEXT
+
+    = BEGIN
+        CASE Kind OF
+        | Bkt . BkAbsent => RETURN "BkAbsent"
+        | Bkt . BkAnon => RETURN "BkAnon"
+        | Bkt . BkExplicit => RETURN "BkExplicit"
+        END (*CASE*) 
+      END BrandKindImage ; 
   }
 
 /* Global (Notwithstanding "LOCAL",) declarations of the Parser procedure. */ 
@@ -72,6 +91,7 @@ LOCAL
   { TYPE Skt = FM3Scopes . ScopeKindTyp ;
     TYPE Dkt = FM3Decls . DeclKindTyp ; 
     TYPE Ukt = FM3Units . UnitKindTyp ;
+    TYPE Bkt = BrandKindTyp ; 
 
     PROCEDURE Test ( READONLY Attr : tParsAttribute )
     = VAR Debug : INTEGER := 0
@@ -704,19 +724,19 @@ RULE
    IdentOrQualRefPlusList : IdentOrQualRefPlusList StkComma IdentOrQualRef
      { $$ . PaInt := $1 . PaInt + 1 ; } .
      
-   TypeId : IdentOrQualRef.
+   TypeName : IdentOrQualRef .
 
    (* Make ROOT and UNTRACED ROOT look to later passes like reserved idents,
-      even though they are necessarily reserved words in source syntax,
-      because their syntactic contexts differ from those of identifiers:
+      even though they are necessarily reserved words in source syntax, because
+      their set of legal syntactic contexts differ from those of identifiers:
    *) 
 
-   TypeId : StkRwROOT
+   TypeName : StkRwROOT
      { FM3Pass1 . PutBwd_TIP
          ( Itk . ItkReservedIdRef , Stk . RidROOT , $1 . PaPos ) ; 
      } . 
 
-   TypeId : StkRwUNTRACED StkRwROOT
+   TypeName : StkRwUNTRACED StkRwROOT
      { FM3Pass1 . PutBwd_TIP
          ( Itk . ItkReservedIdRef
          , Stk . RidUNTRACEDROOT
@@ -955,7 +975,7 @@ RULE
        END (*IF*) ; 
      } .
 
-   Revelation : TypeId RevelationRelation Type  
+   Revelation : IdentOrQualRef RevelationRelation Type  
      { $$ . PaInt := 1 (* BlockDecl count. *) ;
 (* CHECK^ Do we really want to count this as a block decl?  It occupies a 
           space in the Blockdecl list, but does not introduce a new identifier,
@@ -1117,7 +1137,7 @@ RULE
 
 (* --------------------------------- Types ----------------------------- *)
 
-   Type : TypeId 
+   Type : TypeName 
      { $$ . Scan . SaAtom := $1 . Scan . SaAtom ; (* Needed? *) } . 
 
 (* ------------------------ Builtin type names ---------------------- *)
@@ -1150,32 +1170,48 @@ RULE
 (* ------------------------------ REF Types ---------------------------- *)
 
    Type : RefTypeTraced .
+
+   Type : RefTypeUntraced .
    
-   RefTypeTraced : Brand StkRwREF Type 
+(* L2R parsing can't distinguish the start of a REF from an OBJECT type, and
+   a brand of possibly unbounded complexity can be in between here and where
+   we find out.  In case it turns out later to be OBJECT, we need to
+   consistently reduce something to a Supertype even if it is not explicit
+   in the syntax.  So we reduce empty to SupertypeAbsent regardless of whether
+   it will be REF or OBJECT.  If it's REF, there can actually be no supertype
+   of any kind, but handling of the REF type later will just ignore and
+   discard the SupertypeAbsent. This reduction will only happen if the
+   lookahead is BRANDED, REF, or OBJECT.
+*) 
+   
+   RefTypeTraced : SupertypeAbsent Brand StkRwREF Type 
      { FM3Pass1 . PutBwd_LCBP_eCP_rbP
          ( Itk . ItkREFTypeLt
          , $1 . PaPass1Coord
          , FALSE (* IsUntraced. *) 
          , $1 . Scan . Position
 
-         , $3 . PaPass1Coord 
-         , $2 . Scan . Position
+         , $4 . PaPass1Coord 
+         , $3 . Scan . Position
 
          , $1 . Scan . Position 
          ) ;
      } .
 
-   Type : RefTypeUntraced .
-   
-   RefTypeUntraced : StkRwUNTRACED Brand StkRwREF Type 
+   RefTypeUntraced : StkRwUNTRACED SupertypeAbsent Brand StkRwREF Type
+   /* Here, StkRwUNTRACED is not a reserved ident, but a syntactic
+      delimiter that can occur only in this context. Elsewhere, the
+      pair StkRwUNTRACED StkRwROOT behave like a compound reserved
+      identifier, but won't match this production RHS. 
+   */
      { FM3Pass1 . PutBwd_LCBP_eCP_rbP
          ( Itk . ItkREFTypeLt
          , $1 . PaPass1Coord
          , TRUE (* IsUntraced. *) 
          , $1 . Scan . Position
 
-         , $4 . PaPass1Coord 
-         , $3 . Scan . Position
+         , $5 . PaPass1Coord 
+         , $4 . Scan . Position
 
          , $1 . Scan . Position 
          ) ;
@@ -1477,7 +1513,7 @@ RULE
    OverridePlus : Override  
      { $$ . PaInt (* Override count. *) := $1 . PaInt ; } .
 
-   OverridePlus : OverridePlus StkSemicolon VarDecl
+   OverridePlus : OverridePlus StkSemicolon Override
      { $$ . PaInt (* Override count. *):= $1 . PaInt + $3 . PaInt ;
        FM3Pass1 . PutBwd_ECIP
          ( Itk . ItkOverrideListLt
@@ -1527,18 +1563,22 @@ RULE
 (* --------------------------------- Brands --------------------------------- *)
 
    Brand : /*Empty*/
-     { FM3Pass1 . PutBwd_LP
+     /* Happens when & only when REF or OBJECT is the lookahead. */
+     { $$ . PaByte := ORD ( Bkt . BkAbsent ) ;
+       FM3Pass1 . PutBwd_LP
          ( Itk . ItkBrandAbsent , FM3Scanner . Attribute . Position ) ;
      } . 
 
    Brand : StkRwBRANDED
-     { FM3Pass1 . PutBwd_LP 
+     { $$ . PaByte := ORD ( Bkt . BkAnon ) ;
+       FM3Pass1 . PutBwd_LP 
          ( Itk . ItkBrandAnon , $1 . Scan . Position ) ;
      } . 
 
    Brand : StkRwBRANDED Expr
      { $$ . PaPass1Coord := $2 . PaPass1Coord ;
        $$ . Scan . Position := $2 . Scan . Position ;
+       $$ . PaByte := ORD ( Bkt . BkExplicit ) ;
        FM3Pass1 . PutBwd_LCP_rp
          ( Itk . ItkBrandExplicitLt
          , $2 . PaPass1Coord
@@ -1547,15 +1587,22 @@ RULE
      } . 
 
 (* ------------------------------ Object Types ------------------------------ *)
-(*
-   Supertype : /*Empty*/ 
-     { $$ . Scan . Position := FM3Scanner . Attribute . Position ;
-       FM3Pass1 . PutBwd_LP
+
+   SupertypeAbsent : /* Empty */
+     /* See comments at REF type. */ 
+     { FM3Pass1 . PutBwd_LP
          ( Itk . ItkSupertypeAbsent , FM3Scanner . Attribute . Position ) ;
      } . 
-*)
-   Supertype : TypeId 
-     { $$ . Scan . Position := $1 . Scan . Position ;
+
+   Supertype : SupertypeAbsent { (* Default Position & Coord. *) } .  
+   
+   Supertype : TypeName { (* Default Position & Coord. *) } .  
+   
+   Supertype : ObjType { (* Default Position & Coord. *) } . 
+
+   SupertypeSem : Supertype 
+     { (* Default Position & Coord. *) 
+       (* ^The supertype will end up nested within its object type. *) 
        FM3Pass1 . PutBwd_LCP_rp
          ( Itk . ItkSupertypeLt
          , $1 . PaPass1Coord 
@@ -1563,24 +1610,17 @@ RULE
          ) ;
      } .
 
-   Supertype : ObjType 
-     { $$ . Scan . Position := $1 . Scan . Position ;
-       (* ^The supertype will be nested within this object type. *) 
-       FM3Pass1 . PutBwd_LCP_rp
-         ( Itk . ItkSupertypeLt
-         , $1 . PaPass1Coord 
-         , $1 . Scan . Position
-         ) ;
-     } .
-
-
-   ObjTypeLt : ObjSubtypeLt
-     { $$ . PaDeclDepth := $1 . PaDeclDepth ; } .
+   ObjTypeLt : ObjSubtypeLt /* I.e., it has an explicit supertype. */
+     { $$ . PaDeclDepth := $1 . PaDeclDepth ; 
+       $$ . PaBool := TRUE (* Has explicit subtype. *) ;
+       $$ . PaInt := $1 . PaInt (* Scope num. *) ;  
+       $$ . PaByte := $1 . PaByte (* Brand kind, Bkt. *) ;
+     } . 
      
-   ObjSubtypeLt : Supertype Brand StkRwOBJECT
+   ObjSubtypeLt : SupertypeSem Brand StkRwOBJECT
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN 
-         $$ . Scan . Position := $1 . Scan . Position ;
+         (* Default Position & Coord. *) 
          $$ . PaDeclDepth (* DeclParseInfoDepth *) 
            := FM3Decls . PushDeclParseInfo
                 ( FM3Decls . DeclParseInfoTyp
@@ -1591,28 +1631,34 @@ RULE
                     , DiKind := Dkt . DkObjField 
                     }
                 ) ;
+         $$ . PaByte := $2 . PaByte (* Brand kind, Bkt. *) ;  
+         (* Need the scope now, to count decls. *) 
          LScopeRef 
            := FM3Scopes . NewScopeRef
                 ( FM3Units . UnitStackTopRef
                 , Skt . SkObj
                 , $3 . Scan . Position
                 ) ;
+         $$ . PaInt := LScopeRef ^ . ScpSelfScopeNo ; 
          FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
-(* TODO: Store LScopeRef or its ScopeNo in the object type. *) 
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo  ) ;
        END; 
      } .
 
-   ObjTypeLt : ObjRootTypeLt  
-     { $$ . PaDeclDepth := $1 . PaDeclDepth ; } .
-     
+
+   ObjTypeLt : ObjRootTypeLt
+     /* Its supertype is implicitly ROOT, but syntactically absent. */  
+     { $$ . PaDeclDepth := $1 . PaDeclDepth ; 
+       $$ . PaBool := FALSE (* Has explicit subtype. *) ;
+       $$ . PaInt := $1 . PaInt (* Scope num. *) ; 
+       $$ . PaByte := $1 . PaByte (* Brand kind, Bkt. *) ; 
+     } .
+
    ObjRootTypeLt : Brand StkRwOBJECT
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN 
-         FM3Pass1 . PutBwd_LP
-           ( Itk . ItkSupertypeAbsent , FM3Scanner . Attribute . Position ) ;
-         $$ . Scan . Position := $1 . Scan . Position ;
+         (* Default Position & Coord. *) 
          $$ . PaDeclDepth (* DeclParseInfoDepth *) 
            := FM3Decls . PushDeclParseInfo
                 ( FM3Decls . DeclParseInfoTyp
@@ -1623,14 +1669,16 @@ RULE
                     , DiKind := Dkt . DkObjField 
                     }
                 ) ;
+         $$ . PaByte := $1 . PaByte (* Brand kind, Bkt. *) ;  
+         (* Need the scope now, to count decls. *) 
          LScopeRef 
            := FM3Scopes . NewScopeRef
                 ( FM3Units . UnitStackTopRef
                 , Skt . SkObj
                 , $2 . Scan . Position
                 ) ;
+         $$ . PaInt := LScopeRef ^ . ScpSelfScopeNo ; 
          FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
-(* TODO: Store LScopeRef or its ScopeNo in the object type. *) 
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
        END; 
@@ -1639,21 +1687,23 @@ RULE
    ObjType : ObjTypeLt FieldDeclList MethodDeclList OverrideList StkRwEND
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN
-         $$ . Scan . Position := $1 . Scan . Position ;
+         (* Default Position & Coord. *) 
          LScopeRef := FM3Scopes . PopDeclScopeRef ( ) ;
-         <* ASSERT LScopeRef . ScpKind = Skt . SkObj *>
+         <* ASSERT LScopeRef ^ . ScpKind = Skt . SkObj *>
+         <* ASSERT LScopeRef ^ . ScpSelfScopeNo = $1 . PaInt *> 
+         FM3Pass1 . PutBwd_LCIIP_riip
+           ( Itk . ItkObjTypeLt
+           , $1 . PaPass1Coord
+           , $1 . PaByte (* BrandKind, Bkt. *)
+           , LScopeRef ^ . ScpSelfScopeNo
+           , $1 . Scan . Position 
+           ) ;
          FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ;
-         FM3Pass1 . PutBwd_LCP_rp
-           ( Itk . ItkObjTypeLt
-           , $1 . PaPass1Coord
-           , $1 . Scan . Position
-           ) ;
          <* ASSERT FM3Decls . PopDeclParseInfo ( ) = $1 . PaDeclDepth *> 
        END; 
      } .
-
    Type : ObjType . 
 
 (* ------------------ Procedure Types and Signatures ------------------- *)

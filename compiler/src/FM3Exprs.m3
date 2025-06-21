@@ -22,7 +22,8 @@ MODULE FM3Exprs
 ; IMPORT FM3CLToks AS Clt
 ; IMPORT FM3CLOptions 
 ; IMPORT FM3Globals
-; IMPORT FM3Messages 
+; IMPORT FM3Messages
+; IMPORT FM3Parser 
 ; FROM FM3SharedUtils IMPORT RefanyImage
 ; IMPORT FM3Scopes
 ; IMPORT FM3SharedUtils 
@@ -605,10 +606,16 @@ MODULE FM3Exprs
 
 ; PROCEDURE ExprObjTypeAppend ( Expr : ExprObjTypeTyp )
     = BEGIN
-        Expr1ScopeAppend ( Expr ) 
+        Expr2OpndAppend ( Expr ) 
       ; SubtypeComment ( "ExprObjTypeTyp" )
-      ; Field ( "ExpObjMethods"
-              , FM3Scopes . ScopeRefImage ( Expr . ExpObjMethods )
+      ; Field ( "ExpObjOverrides"
+              , FM3SharedUtils . RefanyImage ( Expr . ExpObjOverrides )
+              )  
+      ; Field ( "ExpObjDecls"
+              , FM3Scopes . ScopeRefImage ( Expr . ExpObjScopeRef )
+              )  
+      ; Field ( "ExpObjDecls"
+              , FM3Parser . BrandKindImage ( Expr . ExpObjBrandKind )
               )  
       END ExprObjTypeAppend 
 
@@ -731,7 +738,7 @@ MODULE FM3Exprs
 
   = BEGIN
       (* Let's crash on trying to push a NIL. *)
-      <* ASSERT NewExpr . ExpStackHt = 0 *>
+      <* ASSERT NewExpr . ExpStackHt = - 1 *>
       IF ExprStackTopObj = NIL
       THEN NewExpr . ExpStackHt := 1
       ELSE NewExpr . ExpStackHt := ExprStackTopObj . ExpStackHt + 1

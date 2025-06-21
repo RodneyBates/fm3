@@ -20,9 +20,10 @@ INTERFACE FM3Exprs
 ; IMPORT IntSets 
 
 ; IMPORT FM3Base
-; FROM   FM3Base IMPORT tPosition 
+; FROM   FM3Base IMPORT tPosition
 ; IMPORT FM3Globals
-; IMPORT FM3LoTypes 
+; IMPORT FM3LoTypes
+; IMPORT FM3Parser 
 ; IMPORT FM3Scopes
 ; IMPORT FM3SrcToks
 
@@ -38,7 +39,10 @@ INTERFACE FM3Exprs
 
 ; TYPE ExprKindTyp (* What kind of definition are we expanding? *) 
    = { EkNull 
-     , EkType 
+     , EkType
+     , EkRefType
+     , EkObjType
+     , EkSupertype 
      , EkProc 
      , EkFunc 
      , EkValue
@@ -90,7 +94,8 @@ INTERFACE FM3Exprs
   (* Constant, if --no-expr-addrs. *) 
 
 ; PROCEDURE ExprImage ( Expr : ExprTyp ) : TEXT 
-  (* Contents of the object. *) 
+  (* Contents of the object. *)
+  
 ; PROCEDURE ResolveNow
     ( Expr : ExprTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp
 
@@ -106,7 +111,7 @@ INTERFACE FM3Exprs
         ExpStackLink : ExprTyp := NIL
         (* Deeper on stack is parent expression.*)
         (* NIL in root expression of a tree. *)
-      ; ExpStackHt : INTEGER := 0 
+      ; ExpStackHt : INTEGER := - 1 
       ; ExpType : ExprTyp := NIL
       ; ExpRefConstVal : REFANY := NIL
       ; ExpScalarConstVal : LONGINT := 0L
@@ -291,8 +296,12 @@ INTERFACE FM3Exprs
 
 ; TYPE ExprObjTypeTyp <: ExprObjTypePublic 
 ; TYPE ExprObjTypePublic 
-    = Expr1ScopeTyp OBJECT
-        ExpObjMethods : FM3Scopes . ScopeRefTyp 
+    = Expr2OpndTyp OBJECT
+     (* ExpOpnd1 is supertype, non-NIL even if defaulted. *)
+     (* ExpOpnd2 is brand, NIL if no BRANDED. *) 
+        ExpObjOverrides : REFANY (* What do we need here? *) 
+      ; ExpObjScopeRef : FM3Scopes . ScopeRefTyp 
+      ; ExpObjBrandKind : FM3Parser . BrandKindTyp 
       END 
 
 (* Constant values: *)

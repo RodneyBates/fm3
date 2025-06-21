@@ -182,15 +182,15 @@ INTERFACE FM3SrcToks
 ; CONST RidREAL                                      =   126 (*16_fe 00 *)
 ; CONST RidREFANY                                    =   127 (*16_ff 00 *)
 ; CONST RidTEXT                                      =   128 (*16_80 01 *)
-; CONST StkMaxType                                   =   129 (*16_81 01 *)
 ; CONST RidWIDECHAR                                  =   129 (*16_81 01 *)
 (* ROOT and UNTRACED behave semantically like reserved identifiers, but
       each occurs in a different set of syntactic contexts from identifiers,
       so they are source-code reserved words.  We convert those during parsing
       into reserved idents with the following Rid atoms.  FM3Scanner
-      will not produce them.
+      will not produce these:
    *)
 ; CONST RidROOT                                      =   130 (*16_82 01 *)
+; CONST StkMaxType                                   =   131 (*16_83 01 *)
 ; CONST StkMaxStatic                                 =   131 (*16_83 01 *)
 ; CONST RidUNTRACEDROOT                              =   131 (*16_83 01 *)
 (* These are operations.  Each instance requires its own ExprTyp

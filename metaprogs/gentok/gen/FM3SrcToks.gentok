@@ -187,17 +187,17 @@ NEXT StkMinType .
    RidREAL             "REAL" . 
    RidREFANY           "REFANY" . 
    RidTEXT             "TEXT" .
-NEXT StkMaxType . 
    RidWIDECHAR         "WIDECHAR" .
 
    (* ROOT and UNTRACED behave semantically like reserved identifiers, but
       each occurs in a different set of syntactic contexts from identifiers,
       so they are source-code reserved words.  We convert those during parsing
       into reserved idents with the following Rid atoms.  FM3Scanner
-      will not produce them.
+      will not produce these:
    *)
    
    RidROOT             "%ROOT" .
+NEXT StkMaxType . 
 NEXT StkMaxStatic . 
    RidUNTRACEDROOT     "%UNTRACED_ROOT" .
 

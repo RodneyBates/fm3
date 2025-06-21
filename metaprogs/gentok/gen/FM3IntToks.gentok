@@ -168,12 +168,20 @@ FIXED
 
 (* Object types. *)
 FIXED 
-  ItkObjType POS 2 (* Position of OBJECT. *) .
+  ItkObjType 
+    (* Supertype, brand, field list, method list, overrides list are all
+       always present and delimit themselves, but we want more info about them.
+    *)
+    INT  (* An enumeration, what kind of brand. *)
+    INT  (* Scope Num. *) 
+    POS (* Position of OBJECT. *)
+  . 
+
   ItkSupertype POS 2 (* Position of OBJECT. *) .
   ItkBrandExplicit POS (* With explicit brand value. *) .
 
 LONE
-  ItkSupertypeAbsent POS .
+  ItkSupertypeAbsent POS 2 (* Position of BRAND, REF, or OBJECT. *) .
   ItkBrandAbsent POS . 
   ItkBrandAnon POS (* anonymous brand value. *) .
 

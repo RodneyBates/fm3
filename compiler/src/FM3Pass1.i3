@@ -18,10 +18,10 @@ INTERFACE FM3Pass1
 ; IMPORT FM3Scanner
 ; IMPORT FM3Scopes
 ; IMPORT FM3SrcToks
-; IMPORT FM3IntToks AS Itk  
+; IMPORT FM3IntToks AS Itk
 
   (* Lalr mandates this type, by name, and its 'Scan' field, Q.V. *)
-(*FIXME: But is this the right place for it? *) 
+(*FIXME: But is this the right place for it? FM3Compile? *) 
 ; TYPE tParsAttribute
     = RECORD
         Scan : FM3Scanner . tScanAttribute

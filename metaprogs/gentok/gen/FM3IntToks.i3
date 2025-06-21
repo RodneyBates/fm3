@@ -434,12 +434,17 @@ ItkROFormalId    IDENT POS .
 ; CONST ItkEnumTypeRt                   (*ArgCt: 3*) =   399 (*16_8f 03 *)
 
 (* Object types. *)
+(* Supertype, brand, field list, method list, overrides list are all
+       always present and delimit themselves, but we want more info about them.
+    *)
+(* An enumeration, what kind of brand. *)
+(* Scope Num. *)
 (* Position of OBJECT. *)
 (* FIXED ItkObjType: *)
-; CONST ItkObjTypeLt                    (*ArgCt: 2*) =   400 (*16_90 03 *)
-; CONST ItkObjTypeLtTemp                (*ArgCt: 2*) =   401 (*16_91 03 *)
-; CONST ItkObjTypeLtPatch               (*ArgCt: 2*) =   402 (*16_92 03 *)
-; CONST ItkObjTypeRt                    (*ArgCt: 2*) =   403 (*16_93 03 *)
+; CONST ItkObjTypeLt                    (*ArgCt: 4*) =   400 (*16_90 03 *)
+; CONST ItkObjTypeLtTemp                (*ArgCt: 4*) =   401 (*16_91 03 *)
+; CONST ItkObjTypeLtPatch               (*ArgCt: 4*) =   402 (*16_92 03 *)
+; CONST ItkObjTypeRt                    (*ArgCt: 4*) =   403 (*16_93 03 *)
 
 (* Position of OBJECT. *)
 (* FIXED ItkSupertype: *)
@@ -455,6 +460,7 @@ ItkROFormalId    IDENT POS .
 ; CONST ItkBrandExplicitLtPatch         (*ArgCt: 2*) =   410 (*16_9a 03 *)
 ; CONST ItkBrandExplicitRt              (*ArgCt: 2*) =   411 (*16_9b 03 *)
 
+(* Position of BRAND, REF, or OBJECT. *)
 (* LONE ItkSupertypeAbsent: *)
 ; CONST ItkSupertypeAbsent              (*ArgCt: 2*) =   412 (*16_9c 03 *)
 (* LONE ItkBrandAbsent: *)

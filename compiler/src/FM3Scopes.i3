@@ -135,10 +135,11 @@ INTERFACE FM3Scopes
       END (*ScopeTyp*)
 
       (* NOTE 1: This field retains meaning only during handling of a single
-                 declaration within the scope.  It is reinitialized and reused in later
-                 declarations.  It is NIL/Empty/FALSE when not working in a declaration.
-                 It would more naturally be in a Decl object, but in Pass 2, we dom't
-                 yet have one when needed, and when we finally do, there can be >1.
+                 declaration within the scope.  It is reinitialized and reused
+                 in later declarations.  It is NIL/Empty/FALSE when not working
+                 in a declaration.  It would more naturally be in a Decl object,
+                 but in Pass 2, we don't yet have one when needed, and when we
+                 finally do, there can be >1.
       *) 
 
 ; CONST ScopeRefBrand = "ScopeRef0.1" 
