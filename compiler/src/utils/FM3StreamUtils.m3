@@ -63,6 +63,8 @@ MODULE FM3StreamUtils
       LResult := VAL ( FM3Compress . GetBwd ( RdBack ) , FM3Base . AtomTyp ) 
     ; RETURN LResult 
     END GetBwdAtom
+
+; VAR GLastPos : FM3Base . tPosition 
     
 (*EXPORTED.*)
 ; PROCEDURE GetBwdPos ( RdBack : RdBackFile . T ) : FM3Base . tPosition 
@@ -73,7 +75,8 @@ MODULE FM3StreamUtils
       LResult . Line
         := VAL ( FM3Compress . GetBwd ( RdBack ) , FM3Base . M2SHORTCARD )  
     ; LResult . Column 
-        := VAL ( FM3Compress . GetBwd ( RdBack ) , FM3Base . M2SHORTCARD )  
+        := VAL ( FM3Compress . GetBwd ( RdBack ) , FM3Base . M2SHORTCARD )
+    ; GLastPos := LResult 
     ; RETURN LResult 
     END GetBwdPos
     

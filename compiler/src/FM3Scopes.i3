@@ -119,7 +119,7 @@ INTERFACE FM3Scopes
       ; ScpCurTypeExpr : REFANY := NIL (* FM3Defs . DeclDefTyp. *) (*1*) 
       ; ScpCurValueExpr : REFANY := NIL (* FM3Defs . DeclDefTyp. *) (*1*)
 ****) 
-      ; ScpDeclCt : FM3Globals . DeclNoTyp := FM3Globals . DeclNoNull
+      ; ScpDeclCt : FM3Globals . DeclNoTyp := - 13 (*FM3Globals . DeclNoNull*) 
       ; ScpMinDeclNo := FM3Globals . DeclNoNull
       ; ScpSelfScopeNo : FM3Globals . ScopeNoTyp (* A self-reference. *)
       ; ScpOwningDeclNo : FM3Globals . DeclNoTyp

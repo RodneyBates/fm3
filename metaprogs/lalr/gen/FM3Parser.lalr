@@ -373,10 +373,10 @@ RULE
            
          LScopeRefDecl := FM3Scopes . PopDeclScopeRef ( ) ;
          <* ASSERT LScopeRefDecl = LScopeRefOpen *> 
+           
+         FM3Pass1 . DeclScopeRtL2R ( LScopeRefDecl ) ;
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkDeclScopeRt , LScopeRefDecl ^ . ScpSelfScopeNo ) ;
-           
-         FM3Pass1 . DeclScopeRtL2R ( LScopeRefOpen ) ;
          FM3Pass1 . CheckUnitFinalId
            ( FM3Units . UnitStackTopRef , $4 . Scan , Ukt . UkInterface ) ; 
          FM3Pass1 . CheckStdUnitPragma ( FM3Units . UnitStackTopRef ) ; 
@@ -453,10 +453,10 @@ RULE
            
          LScopeRefDecl := FM3Scopes . PopDeclScopeRef ( ) ;
          <* ASSERT LScopeRefDecl = LScopeRefOpen *> 
-         FM3Pass1 . PutBwd_TI
-           ( Itk . ItkDeclScopeRt , LScopeRefDecl ^ . ScpSelfScopeNo ) ; 
          
          FM3Pass1 . DeclScopeRtL2R ( LScopeRefDecl ) ;
+         FM3Pass1 . PutBwd_TI
+           ( Itk . ItkDeclScopeRt , LScopeRefDecl ^ . ScpSelfScopeNo ) ; 
          FM3Pass1 . CheckUnitFinalId
            ( FM3Units . UnitStackTopRef , $6 .Scan , Ukt . UkModule ) ; 
          FM3Pass1 . PutBwd_LCIP_eCiP_riP 
@@ -538,7 +538,7 @@ RULE
 
    OptSemicolon : StkSemicolon { $$ . PaPos2 := $1 . Scan . Position ; } .
    OptSemicolon : /*Empty*/
-     { $$ . PaPos2 := $1 . Scan . Position ;
+     { $$ . PaPos2 := FM3Scanner . Attribute . Position ; 
        (* If semicolon is absent, right end of item to left. *) 
      } . 
  
@@ -1289,7 +1289,7 @@ RULE
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN
          LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
-         <* ASSERT LScopeRef . ScpKind = Skt . SkEnum *> 
+         <* ASSERT LScopeRef ^ . ScpKind = Skt . SkEnum *> 
          FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo  ) ;
@@ -1400,7 +1400,7 @@ RULE
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN
          LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
-         <* ASSERT LScopeRef . ScpKind = Skt . SkRec *> 
+         <* ASSERT LScopeRef ^ . ScpKind = Skt . SkRec *> 
          FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ;
@@ -1480,7 +1480,8 @@ RULE
            INC ( FM3Globals . NextSkipNo ) ;
          END (*IF*) ; 
          LScopeRef := FM3Scopes . PopDeclScopeRef ( ) (* Formals. *) ;
-         <* ASSERT LScopeRef . ScpKind = Skt . SkFormals *>
+         <* ASSERT LScopeRef ^ . ScpKind = Skt . SkFormals *>
+         FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ;
        END (*Block*) 
@@ -1712,7 +1713,8 @@ RULE
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN
          LScopeRef := FM3Scopes . PopDeclScopeRef ( ) (* Formals. *) ;
-         <* ASSERT LScopeRef . ScpKind = Skt . SkFormals *> 
+         <* ASSERT LScopeRef ^ . ScpKind = Skt . SkFormals *> 
+         FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ;
          FM3Pass1 . PutBwd_LCP_rp
@@ -1756,8 +1758,7 @@ RULE
      } .
 
    Formals : FormalsLt FormalsList StkCloseParen
-     { FM3Pass1 . DeclScopeRtL2R ( FM3Scopes . DeclScopeStackTopRef ) ;
-       MakeListPos
+     { MakeListPos
          ( $$ , Itk . ItkFormalsListLt , $2 . Scan . Position , $2 ) ;
 (* FIXME^ Maybe different tokens for different formal modes? *)
      } . 
@@ -1967,9 +1968,9 @@ RULE
        MakeListPos ( $$ , Itk . ItkRaisesSetLt , $1 . Scan . Position , $3 ) ;
      } . 
 (* ------------------------------ Procedures ------------------------------ *)
-
    (* Body is absent: *) 
-   OptProcBody : StkSemicolon /* Procedure body is absent in source code. */ 
+   OptProcBody : StkSemicolon
+     /* Procedure body is absent in source code, not necessarily legally. */ 
      { VAR LScopeRefDecl : FM3Scopes . ScopeRefTyp ;
        BEGIN 
          $$ . PaTok1 := Itk . ItkProcDeclLt ;  
@@ -1983,6 +1984,7 @@ RULE
          END (*IF*) ;  
          LScopeRefDecl := FM3Scopes . PopDeclScopeRef ( ) (* Formals. *) ;
          <* ASSERT LScopeRefDecl ^ . ScpKind = Skt . SkFormals *> 
+         FM3Pass1 . DeclScopeRtL2R ( LScopeRefDecl ) ;
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkDeclScopeRt , LScopeRefDecl ^ . ScpSelfScopeNo ) ;
          FM3Pass1 . PutBwd_TIP
@@ -1990,7 +1992,8 @@ RULE
        END (*Block*) 
      } .
 
-   ProcBodyLt : StkEqual /* Procedure has a body in source code. */
+   ProcBodyLt : StkEqual
+     /* Procedure has a body in source code, not necessarily legally. */
      { VAR LFormalsScopeRef : FM3Scopes . ScopeRefTyp ; 
        VAR LBodyScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN
@@ -1998,11 +2001,15 @@ RULE
          $$ . PaTok1 := Itk . ItkProcDefLt ; 
          FM3Pass1 . PutBwd_TP
            ( Itk . ItkProcDefBody , $1 . Scan . Position ) ;
-         (* Make formals (decl)scope also open. *) 
-         LFormalsScopeRef := FM3Scopes . DeclScopeStackTopRef (* Formals. *) ; 
+         (* Make formals decl scope also open. *) 
+         LFormalsScopeRef := FM3Scopes . PopDeclScopeRef ( ) (* Formals. *) ; 
+         FM3Pass1 . DeclScopeRtL2R ( LFormalsScopeRef ) ;
+         FM3Pass1 . PutBwd_TI
+           ( Itk . ItkDeclScopeRt , LFormalsScopeRef ^ . ScpSelfScopeNo  ) ;
          FM3Scopes . PushOpenScopeRef ( LFormalsScopeRef ) ;
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkOpenScopeLt , LFormalsScopeRef ^ . ScpSelfScopeNo ) ;
+           
          (* Create Body scope, for both decls and refs:*)
          LBodyScopeRef 
            := FM3Scopes . NewScopeRef
@@ -2016,12 +2023,10 @@ RULE
          FM3Scopes . PushOpenScopeRef ( LBodyScopeRef ) ;
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkOpenScopeLt , LBodyScopeRef ^ . ScpSelfScopeNo ) ;
-           
-         (* Go ahead and do pass1 handling of the body, to parse and find its end. *) 
        END (*Block*) ; 
      } .
 
-   (* Body exists: *) 
+   (* Body itself: *) 
    OptProcBody : ProcBodyLt ProcBlock NonreservedIdent StkSemicolon 
      { VAR LScopeRefDecl : FM3Scopes . ScopeRefTyp ; 
        VAR LScopeRefOpen : FM3Scopes . ScopeRefTyp ; 
@@ -2033,18 +2038,21 @@ RULE
          <* ASSERT LScopeRefOpen ^ . ScpKind = Skt . SkProcBody *> 
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkOpenScopeRt , LScopeRefOpen ^ . ScpSelfScopeNo ) ;
-
          LScopeRefDecl := FM3Scopes . PopDeclScopeRef ( ) ;
          <* ASSERT LScopeRefDecl = LScopeRefOpen *>
+         FM3Pass1 . DeclScopeRtL2R ( LScopeRefDecl ) ;
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkDeclScopeRt , LScopeRefDecl ^ . ScpSelfScopeNo ) ;
            
-         (* Formals scope: *)
+         (* Formals scope, open only: *)
          LScopeRefOpen := FM3Scopes . PopOpenScopeRef ( ) ; 
          <* ASSERT LScopeRefOpen ^ . ScpKind = Skt . SkFormals *> 
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkOpenScopeRt , LScopeRefOpen ^ . ScpSelfScopeNo ) ;
 
+         FM3Pass1 . PutBwd_TIP
+           ( Itk . ItkProcDefRt , $3 . Scan . SaAtom , $0 . Scan . Position ) ;
+             
          IF NOT FM3Units . CurrentUnitIsModule ( )
          THEN 
            FM3Messages . ErrorArr
@@ -2058,21 +2066,10 @@ RULE
            INC ( FM3Globals . NextSkipNo ) ;
          END (*IF*) ; 
          
-         (* Don't skip popping formals scope from DeclScopeStack. It was pushed
-            there regardless of skipping the extraneous body.
-         *)
-         LScopeRefDecl := FM3Scopes . PopDeclScopeRef ( ) ;
-         <* ASSERT LScopeRefDecl . ScpKind = Skt . SkFormals *> 
-         <* ASSERT LScopeRefDecl = LScopeRefOpen *> 
-         FM3Pass1 . PutBwd_TI
-           ( Itk . ItkDeclScopeRt , LScopeRefDecl ^ . ScpSelfScopeNo ) ;
-         FM3Pass1 . PutBwd_TIP
-           ( Itk . ItkProcDefRt , $3 . Scan . SaAtom , $0 . Scan . Position ) ;
-             
        END (*Block*) ;
      } .
     
-   ProcDeclLt : StkRwPROCEDURE StkIdent Signature 
+   ProcDeclLt : StkRwPROCEDURE StkIdent 
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
        VAR LScopeKind : Skt ;
        BEGIN
@@ -2083,12 +2080,16 @@ RULE
        END (*Block*) 
      } . 
 
-   ProcDecl : ProcDeclLt OptProcBody
+   ProcDecl : ProcDeclLt Signature OptProcBody
      { (* Default coord and position. *)
          $$ . Scan . SaAtom := $1 . Scan . SaAtom ; 
          $$ . PaInt (* Valid decl count. *) := $1 . PaInt ; 
          FM3Pass1 . PutBwd_LCIP
-           ( $2 . PaTok1 , $1 . PaPass1Coord , $1 . Scan . SaAtom , $1 . Scan . Position ) ;
+           ( $3 . PaTok1
+           , $1 . PaPass1Coord
+           , $1 . Scan . SaAtom
+           , $1 . Scan . Position
+           ) ;
      } . 
 
 (* ---------------------------- Expressions ---------------------------- *)

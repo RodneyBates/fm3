@@ -86,7 +86,7 @@ MODULE FM3Scopes
     ; LScopeRef ^ . ScpFormalIdSet := IntSets . Empty ( )  
     ; LScopeRef ^ . ScpRefIdSet := IntSets . Empty ( )  
     ; LScopeRef ^ . ScpDuplDeclIdSet := IntSets . Empty ( )
-    ; LScopeRef ^ . ScpDeclCt := FM3Globals . DeclNoNull  
+    ; LScopeRef ^ . ScpDeclCt := - 27 (* FM3Globals . DeclNoNull*)  
     ; LScopeRef ^ . ScpOwningUnitRef := OwningUnitRef 
     ; LScopeRef ^ . ScpOwningDeclNo := FM3Globals . DeclNoNull
     ; VarArray_Int_Refany . Assign ( LUnitScopeMap , LScopeNo , LScopeRef )
@@ -138,10 +138,10 @@ MODULE FM3Scopes
 
   ; BEGIN (*PopDeclScope*)
       LPoppedScopeRef := DeclScopeStackTopRef 
-    ; DeclScopeStackTopRef := LPoppedScopeRef . ScpDeclStackLink
+    ; DeclScopeStackTopRef := LPoppedScopeRef ^ . ScpDeclStackLink
     ; DEC ( DeclScopeStackCt ) 
     ; <* ASSERT ( DeclScopeStackTopRef = NIL ) = ( DeclScopeStackCt = 0 ) *>
-      LPoppedScopeRef . ScpDeclStackHt := - 1 
+      LPoppedScopeRef ^ . ScpDeclStackHt := - 1 
     ; RETURN LPoppedScopeRef
     END PopDeclScopeRef 
 
@@ -191,10 +191,10 @@ MODULE FM3Scopes
 
   ; BEGIN (*PopOpenScope*)
       LPoppedScopeRef := OpenScopeStackTopRef 
-    ; OpenScopeStackTopRef := LPoppedScopeRef . ScpOpenScopeStackLink
+    ; OpenScopeStackTopRef := LPoppedScopeRef ^ . ScpOpenScopeStackLink
     ; DEC ( OpenScopeStackCt ) 
     ; <* ASSERT ( OpenScopeStackTopRef = NIL ) = ( OpenScopeStackCt = 0 ) *>
-      LPoppedScopeRef . ScpOpenStackHt := - 1 
+      LPoppedScopeRef ^ . ScpOpenStackHt := - 1 
     ; RETURN LPoppedScopeRef
     END PopOpenScopeRef (*EXPORTED.*)
 

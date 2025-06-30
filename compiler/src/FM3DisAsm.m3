@@ -549,7 +549,7 @@ MODULE FM3DisAsm
             | FM3SrcToks . StkLexErrChars
               => (* Throw these away, for now. *) 
                 Wr . PutText ( WrT , Wr . EOL )
-          *) 
+*) 
 
             (* Fixed source terminals. *) 
             | FM3SrcToks . StkRwAND .. FM3SrcToks . StkClosePragma  

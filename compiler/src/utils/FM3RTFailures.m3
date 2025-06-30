@@ -729,7 +729,7 @@ UNSAFE MODULE FM3RTFailures
   ; InitTerminateRef ( ) 
   ; InitAssertionFailureRef ( )
   ; GRuntimeErrorRef := RuntimeError . Self ( )
-  ; GOldBackstop := RTException . SetBackstop ( Backstop )
+  ; GOldBackstop := RTException . SetBackstop ( Backstop ) 
   ; GFailureSync := NEW ( FailureSyncTyp )
   ; GFailureSync . Depth := 0 
   ; GFailureSync . BackstopIdle := NEW ( Thread . Condition ) 

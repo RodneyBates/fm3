@@ -26,7 +26,7 @@ MODULE FM3Graph
 ; TYPE GraphRec
     = RECORD
         GrArcSet : IntSets . T 
-      ; GrNodeCt : INTEGER := -1
+      ; GrNodeCt : INTEGER := - 1
       ; GrNodeInfo : NodesInfoRefTyp := NIL 
       END
       
