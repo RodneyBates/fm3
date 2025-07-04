@@ -17,7 +17,7 @@ INTERFACE FM3Scopes
 ; IMPORT FM3Units
 
 (* A scope and its directly-contained declarations are termed "Open"
-   if the declarations are referred-to by unqualified identifiers,
+   if the declarations can be referred-to by unqualified identifiers,
    which can happen only from inside the scope itself and deeplier-
    nested constructs.
 
@@ -93,8 +93,6 @@ INTERFACE FM3Scopes
         (* ^IdentAtoms declared within, including imports of top-level scope. *)
       ; ScpFormalIdSet : IntSets . T
         (* ^Formal parameter IdentAtoms declared within, if signature scope. *) 
-      ; ScpDuplDeclIdSet : IntSets . T (* IdentAtoms with > 1 declaration. *) 
-(* CHECK ^ Is there any need for this? *) 
       ; ScpRefIdSet : IntSets . T
         (* ^IdentAtoms referenced within.  Gradually pruned to those
            also declared within. *)
@@ -115,6 +113,8 @@ INTERFACE FM3Scopes
         *)
       ; ScpCurDefExprs
           := ARRAY BOOLEAN (*Is value expr*) OF REFANY { NIL , .. } (*1*)
+      ; ScpFormalsScopeRef : ScopeRefTyp
+        (* If this is a proc body scope, poits to its formals scope. *) 
 (****
       ; ScpCurTypeExpr : REFANY := NIL (* FM3Defs . DeclDefTyp. *) (*1*) 
       ; ScpCurValueExpr : REFANY := NIL (* FM3Defs . DeclDefTyp. *) (*1*)

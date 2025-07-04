@@ -1306,6 +1306,7 @@ MODULE FM3Pass3
   *) 
 
   = VAR DdiAtom : FM3Base . AtomTyp
+  ; VAR DdiOrigScopeNo : FM3Scopes . ScopeNoTyp 
   ; VAR DdiPosition : tPosition
 
   ; PROCEDURE Visit ( DeclNoI : INTEGER ; VAR (* IN OUT *) DeclRefany : REFANY )
@@ -1343,6 +1344,7 @@ MODULE FM3Pass3
       VAR LDeclNo : FM3Globals . DeclNoTyp
     ; BEGIN (* Block. *)
         DdiAtom := GetBwdAtom ( P3RdBack )
+      ; DdiOrigScopeNo := GetInt ( TokResult . TrRdBack )
       ; DdiPosition := GetBwdPos ( P3RdBack )
       ; LDeclNo
           := LookupDeclNoInScope

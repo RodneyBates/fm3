@@ -44,6 +44,8 @@ INTERFACE FM3ExpImp
     ; DuplicatorKind : TEXT 
     )
   : BOOLEAN (* Check passed. *) 
+  (* Check that NewImportAtom does not duplicate one already [ex|im]ported. *)
+  (* Emit error return FALSE, if failure. *) 
 
 ; PROCEDURE ImportDeclByNo
     ( FromUnitRef : FM3Units . UnitRefTyp

@@ -1,3 +1,4 @@
+
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2024..2025  Rodney M. Bates.                                    *)
@@ -179,7 +180,8 @@ MODULE FM3ExpImp
     ; DuplicatorKind : TEXT 
     )
   : BOOLEAN (* Check passed. *)
-  (* Check that NewImportAtom does not duplicate one already [ex|im]ported. *) 
+  (* Check that NewImportAtom does not duplicate one already [ex|im]ported. *)
+  (* Emit error return FALSE, if failure. *) 
 
   = VAR LPrevExpImpUnitRef : FM3Units . UnitRefTyp
   ; VAR LPrevDeclRef : FM3Decls . DeclRefTyp

@@ -13,7 +13,6 @@ MODULE FM3Pass1
    2. Replace identifers by numeric atoms. 
    3. Convert to a fully-delimited intermediate token stream, written
       to a file ready to be read backwards.
-
    5. Build a global table of atom-accessed Units.UnitTyp records for
       compilation units,
    6. For each unit, build atom-accessed records for identifiers, scopes,
@@ -80,6 +79,7 @@ MODULE FM3Pass1
 ; CONST PosImage = FM3Utils . PositionImage
 
 ; TYPE Dkt = FM3Decls . DeclKindTyp 
+; TYPE Skt = FM3Scopes . ScopeKindTyp 
 ; TYPE Ukt = FM3Units . UnitKindTyp 
 
 ; VAR FileTagVersion := VAL ( ORD ( '1' ) , Byte )  
@@ -2115,70 +2115,93 @@ MODULE FM3Pass1
             *)
   (* PRE: IdAttr is for an identifier in a declaring context. *) 
 
-  = VAR LAtom : FM3Base . AtomTyp 
+  = VAR LFormalsScopeRef : FM3Scopes . ScopeRefTyp
+  ; VAR LPriorDeclScopeRef : FM3Scopes . ScopeRefTyp
+  ; VAR LAtom : FM3Base . AtomTyp
 
   ; BEGIN (*DeclIdL2R*)
       IF NOT CheckIdentNotReserved
                ( IdAttr , IdAttr . Scan . Position , "be declared" )
-      THEN RETURN FALSE
+      THEN (* Reserved Ident. Message already emitted. *)
+        RETURN FALSE
       END (*IF*) 
     ; LAtom := IdAttr . Scan . SaAtom 
-    ; WITH WScope = FM3Scopes . DeclScopeStackTopRef ^
+    ; WITH WDeclScopeRef = FM3Scopes . DeclScopeStackTopRef 
            , WunRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack 
       DO 
-        IF WScope . ScpOwningUnitRef = FM3Units . UnitStackTopRef 
+        IF WDeclScopeRef . ScpOwningUnitRef = FM3Units . UnitStackTopRef 
            AND NOT FM3ExpImp . CheckDuplicateExpImp
                      ( FM3Units . UnitStackTopRef
                      , LAtom
                      , IdAttr . Scan . Position
                      , "declaration"
                      )
-        THEN (* It duplicated an export or import. *) 
+        THEN (* LAtom duplicates an export or import. Message already emitted. *)
           RETURN FALSE 
-        ELSIF IntSets . IsElement ( LAtom , WScope . ScpDeclIdSet )
-        THEN (* It duplicates an earlier decl in this scope. *) 
-          WScope . ScpDuplDeclIdSet
-            := IntSets . Include ( WScope . ScpDuplDeclIdSet , LAtom )
-(* CHECK^ Do we need ScpDuplDeclIdSet? *) 
-        (* Write a duplicate Ident token.  The only effect will be to
-           emit an error later, during Pass2, when the position of the
-           original declaring occurence is known.
-        *) 
-        ; PutBwd
-            ( WunRdBack
-            , VAL ( IdAttr . Scan . Position . Column , LONGINT )
-            ) 
-        ; PutBwd
-            ( WunRdBack
-            , VAL ( IdAttr . Scan . Position . Line , LONGINT )
-            )
-        ; PutBwd ( WunRdBack , VAL ( LAtom , LONGINT ) ) 
-        ; PutBwd ( WunRdBack , VAL (  Itk . ItkDuplDeclId , LONGINT ) )
-        ; RETURN FALSE (* Caller, Don't use this Id. *)
-
-        ELSE  (* 1st declaration of Ident in scope . *) 
-          WScope . ScpDeclIdSet
-            := IntSets . Include ( WScope . ScpDeclIdSet , LAtom )
-
-        (* Maybe write Separator token: *)
-        ; IF SepTok # Itk . ItkNull AND PriorIdCt > 0
-          THEN 
-            PutBwd ( WunRdBack , VAL ( SepPosition . Column , LONGINT ) ) 
-          ; PutBwd ( WunRdBack , VAL ( SepPosition . Line , LONGINT ) )
-          ; PutBwd ( WunRdBack , VAL ( PriorIdCt , LONGINT ) )
-          ; PutBwd ( WunRdBack , VAL ( SepTok , LONGINT ) )
+        ELSE
+          LFormalsScopeRef := WDeclScopeRef ^ . ScpFormalsScopeRef
+        ; IF LFormalsScopeRef # NIL (* WDeclScopeRef is for a proc body. *) 
+             AND IntSets . IsElement
+                   ( LAtom , LFormalsScopeRef ^ . ScpDeclIdSet )
+          THEN  (* LAtom duplicates a previously declared formal. *)
+            LPriorDeclScopeRef := LFormalsScopeRef
+          ELSIF IntSets . IsElement
+                  ( LAtom , WDeclScopeRef ^ . ScpDeclIdSet )
+          THEN (* LAtom duplicates a previously declared id in this scope. *) 
+            LPriorDeclScopeRef := WDeclScopeRef
+          ELSE 
+            LPriorDeclScopeRef := NIL
           END (*IF*)
 
-        (* Id is valid.  Write Ident token: *)
-        ; PutBwd
-            ( WunRdBack , VAL ( IdAttr . Scan . Position . Column , LONGINT ) ) 
-        ; PutBwd
-            ( WunRdBack , VAL ( IdAttr . Scan . Position . Line , LONGINT ) )
-        ; PutBwd ( WunRdBack , VAL ( IdAttr . Scan . SaBuiltinTok , LONGINT ) ) 
-        ; PutBwd ( WunRdBack , VAL ( LAtom , LONGINT ) ) 
-        ; PutBwd ( WunRdBack , VAL ( ORD ( DeclKind ) , LONGINT ) )
-        ; PutBwd ( WunRdBack , VAL ( Itk . ItkDeclId , LONGINT ) )
-        ; RETURN TRUE (* Caller, Use this decl id. *)
+        ; IF LPriorDeclScopeRef # NIL  
+          THEN (* Write a duplicate Ident token.  The only effect will be to
+                  emit an error later, during Pass2, when the position of the
+                  original declaring occurence is known.
+               *) 
+            PutBwd
+              ( WunRdBack
+              , VAL ( IdAttr . Scan . Position . Column , LONGINT )
+              ) 
+          ; PutBwd
+              ( WunRdBack
+              , VAL ( IdAttr . Scan . Position . Line , LONGINT )
+              )
+          ; PutBwd
+              ( WunRdBack
+              , VAL ( LPriorDeclScopeRef . ScpSelfScopeNo , LONGINT )
+              ) 
+          ; PutBwd ( WunRdBack , VAL ( LAtom , LONGINT ) ) 
+          ; PutBwd ( WunRdBack , VAL ( Itk . ItkDuplDeclId , LONGINT ) )
+          ; RETURN FALSE (* Caller, Don't use this Id. *)
+          ELSE (* 1st declaration of Ident in scope(s) . *) 
+            WDeclScopeRef . ScpDeclIdSet
+              := IntSets . Include ( WDeclScopeRef . ScpDeclIdSet , LAtom )
+
+          (* Maybe write Separator token: *)
+          ; IF SepTok # Itk . ItkNull AND PriorIdCt > 0
+            THEN 
+              PutBwd ( WunRdBack , VAL ( SepPosition . Column , LONGINT ) ) 
+            ; PutBwd ( WunRdBack , VAL ( SepPosition . Line , LONGINT ) )
+            ; PutBwd ( WunRdBack , VAL ( PriorIdCt , LONGINT ) )
+            ; PutBwd ( WunRdBack , VAL ( SepTok , LONGINT ) )
+            END (*IF*)
+
+          (* Id is valid.  Write decl Ident token: *)
+          ; PutBwd
+              ( WunRdBack 
+              , VAL ( IdAttr . Scan . Position . Column , LONGINT ) 
+              ) 
+          ; PutBwd
+              ( WunRdBack 
+              , VAL ( IdAttr . Scan . Position . Line , LONGINT ) 
+              )
+          ; PutBwd 
+              ( WunRdBack , VAL ( IdAttr . Scan . SaBuiltinTok , LONGINT ) ) 
+          ; PutBwd ( WunRdBack , VAL ( LAtom , LONGINT ) ) 
+          ; PutBwd ( WunRdBack , VAL ( ORD ( DeclKind ) , LONGINT ) )
+          ; PutBwd ( WunRdBack , VAL ( Itk . ItkDeclId , LONGINT ) )
+          ; RETURN TRUE (* Caller, Use this decl id. *)
+          END (*IF*)
         END (*IF*)
       END (*WITH*) 
     END DeclIdL2R

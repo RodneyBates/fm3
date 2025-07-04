@@ -1566,6 +1566,9 @@ MODULE FM3Pass2
   *) 
 
   = VAR DdiAtom : FM3Base . AtomTyp
+  ; VAR DdiOrigScopeRef : FM3Scopes . ScopeRefTyp 
+  ; VAR DdiOrigScopeNo : FM3Scopes . ScopeNoTyp 
+
   ; VAR DdiPosition : tPosition
 
   ; PROCEDURE Visit ( DeclNoI : INTEGER ; VAR (* IN OUT *) DeclRefany : REFANY )
@@ -1582,11 +1585,9 @@ MODULE FM3Pass2
       *) 
         LOldDeclRef := DeclRefany (* Implicit NARROW. *) 
       ; LNewDeclRef
-          := FM3Decls . NewDeclRef
-               ( FM3Scopes . DeclScopeStackTopRef , DeclNoI )
+          := FM3Decls . NewDeclRef ( DdiOrigScopeRef , DeclNoI )
       ; LNewDeclRef . DclLink := LOldDeclRef 
-      ; LNewDeclRef . DclSelfScopeRef
-          := FM3Scopes . DeclScopeStackTopRef (* Why not? *)
+      ; LNewDeclRef . DclSelfScopeRef := DdiOrigScopeRef (* Why not? *)
       ; LNewDeclRef . DclIdAtom := DdiAtom 
       ; LNewDeclRef . DclPos := DdiPosition 
       ; LNewDeclRef . DclKind := FM3Decls . DeclKindTyp . DkDuplDecl
@@ -1601,10 +1602,11 @@ MODULE FM3Pass2
       VAR LDeclNo : FM3Globals . DeclNoTyp
     ; BEGIN (* Block. *)
         DdiAtom := GetBwdAtom ( TokResult . TrRdBack )
+      ; DdiOrigScopeNo := GetBwdInt ( TokResult . TrRdBack )
+      ; DdiOrigScopeRef := FM3Scopes . ScopeRefOfScopeNo ( DdiOrigScopeNo ) 
       ; DdiPosition := GetBwdPos ( TokResult . TrRdBack )
       ; LDeclNo
-          := LookupDeclNoInScope
-               ( FM3Scopes . DeclScopeStackTopRef ^ , DdiAtom )
+          := LookupDeclNoInScope ( DdiOrigScopeRef ^ , DdiAtom )
       ; <*ASSERT LDeclNo # FM3Globals . DeclNoNull *>
         VarArray_Int_Refany . CallbackWithElem
           ( FM3Units . UnitStackTopRef ^ . UntDeclMap , LDeclNo , Visit )
@@ -1650,6 +1652,9 @@ MODULE FM3Pass2
         IF DeclRefany # NIL (* Some duplicate decls of DeclNoI also exist? *) 
         THEN (* Dispense with them with error messages. *) 
           LDeclRef := DeclRefany (* Implied NARROW. *)
+        ; IF LDeclRef ^ . DclKind # Dkt . DkDuplDecl
+          THEN <* ASSERT FALSE , "Preexisting non-duplicate decl." *>
+          END (*IF*)  
         ; LIdentText := FM3Units . TextOfIdAtom ( DidAtom ) 
         ; WHILE LDeclRef # NIL
           DO

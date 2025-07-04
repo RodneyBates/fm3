@@ -66,7 +66,7 @@ LONE
   ItkOpenScopeLt INT (* ScopeNo. *) .
   ItkOpenScopeRt INT (* ScopeNo. *) . 
   ItkReservedIdRef IDENT POS 3 (* Rid*, Position. *). 
-  ItkDuplDeclId IDENT POS 3 (* IdAtom, position *) . 
+  ItkDuplDeclId IDENT INT POS 4 (* IdAtom, orig decl's scope no, position *) . 
   ItkDeclId INT IDENT INT POS 5 (* DeclKind, IdAtom, IdStd, position *) .
   ItkDeclNo DECL POS 3 (* DeclNo, position *) .
   ItkDefTopExprNo INT POS (* ExprNo. *)  
