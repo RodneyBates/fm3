@@ -1526,18 +1526,9 @@ RULE
 
 (* -------------------------------- Overrides ------------------------------- *)
 
-   OverrideLt : IdentRef 
-     { $$ . PaInt (* override count, 0 or 1. *) 
-         := ORD ( FM3Pass1 . CheckIdentNotReserved
-                    ( $1
-                    , $1 . Scan .Position
-                    , "denote an overridable method."
-                    )
-                ) ;
-       IF $$ . PaInt > 0
-       THEN FM3Pass1 . PutBwd_TIP
-              ( Itk . ItkIdRefAtom , $1 . Scan . SaAtom , $1 . Scan . Position )
-       END (*IF*) ; 
+   OverrideLt : StkIdent 
+     { $$ . PaInt (* valid ident count, 0 or 1. *)
+              := ORD ( FM3Pass1 . OverrideIdentRefL2R ( $1 ) )
      } . 
 
    Override : OverrideLt StkEqual Expr 
@@ -1688,7 +1679,11 @@ RULE
    ObjType : ObjTypeLt FieldDeclList MethodDeclList OverrideList StkRwEND
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN
-         (* Default Position & Coord. *) 
+         (* Default Position & Coord. *)
+         (* NOTE: This keeps the decl scope of the object type around during
+                  the OverrideList, but it's harmless, because parsing will
+                  ensure there are no decls in the OverrideList.
+         *) 
          LScopeRef := FM3Scopes . PopDeclScopeRef ( ) ;
          <* ASSERT LScopeRef ^ . ScpKind = Skt . SkObj *>
          <* ASSERT LScopeRef ^ . ScpSelfScopeNo = $1 . PaInt *> 

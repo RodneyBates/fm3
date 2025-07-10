@@ -96,6 +96,9 @@ MODULE FM3Pass1
       <* ASSERT RdBack # FM3Globals . P2RdBack *>
       IF TRUE 
       THEN
+IF ValueL = VAL ( Itk . ItkIdRefAtom , LONGINT )
+THEN ValueL := ValueL  
+END (*IF*) ;
         TRY
           FM3Compress . PutBwd ( RdBack , ValueL ) 
         EXCEPT OSError . E ( EMsg )
@@ -327,7 +330,7 @@ MODULE FM3Pass1
     ; UnitRef . UntPatchStackTopCoord := UnitRef . UntPass1OutEmptyCoord
     ; PutBwd
         ( UnitRef ^ . UntPatchStackRdBack
-        , FM3Globals . PatchSackEmptySentinel
+        , FM3Globals . PatchStackEmptySentinel
         )
       (* ^A sentinel for when the patch stack is empty of actual tokens. 
          It's a pseudo patch coordinate atop the initial non-existent token
@@ -2333,7 +2336,7 @@ MODULE FM3Pass1
         ; PutNotUsable ( WScan . SaAtom , WScan . Position )  
         ; RETURN FALSE 
         ELSE
-         PutBwd_TIP ( Itk . ItkIdRefAtom , WScan . SaAtom , WScan . Position ) 
+          PutBwd_TIP ( Itk . ItkOverrideIdAtom , WScan . SaAtom , WScan . Position ) 
         ; RETURN TRUE 
         END (*IF*) 
       END (*WITH*) 

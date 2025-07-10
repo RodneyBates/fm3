@@ -54,8 +54,8 @@ INTERFACE FM3Globals
 (* Suffixes are W/O  '.', so can use Pathname.Join. *) 
 ; CONST PatchStackSuffix = "FM3Patch"
       (* The patch stack, used and emptied during parse pass 1. *)
-; CONST PatchSackEmptySentinel = -1L
-        (* ^An artificial coordinate to the pass 1 output file. *) 
+; CONST PatchStackEmptySentinel = -1L
+        (* ^An artificial coordinate to the patch file. *) 
 ; CONST Pass1OutSuffix = "FM3Pass1" (* Output of pass 1. *)
 ; CONST Pass2OutSuffix = "FM3Pass2" (* Output of pass 2. *) 
 ; CONST Pass3OutSuffix = "FM3Pass3" (* Output of pass 3. *)

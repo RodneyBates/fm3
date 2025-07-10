@@ -361,7 +361,6 @@ MODULE FM3Pass2
         ; PutBwdP2 ( P2RdBack , VAL ( NewExprObj . ExpSelfExprNo , LONGINT ) )
         ; PutBwdP2 ( P2RdBack , VAL ( Itk . ItkDefTopExprNo , LONGINT ) )
         ELSE (* Inherit some things from parent expr node. *)
-          (* ASSERTs inside TYPECASE branches seem to just RETURN *)
           TYPECASE FM3Exprs . ExprStackTopObj OF 
           | NULL => 
           | FM3Exprs . ExprTyp ( TParentExpr ) 
@@ -396,9 +395,11 @@ MODULE FM3Pass2
   ; BEGIN 
       (* Don't pop it. Something else wants it. *) 
       LScopeRef := FM3Scopes . DeclScopeStackTopRef
-    ; <* ASSERT ExprObj
-         = LScopeRef ^ . ScpCurDefExprs [ LScopeRef ^ . ScpCurDefIsValue ]
-      *> 
+(*    ; IF ExprObj
+         # LScopeRef ^ . ScpCurDefExprs [ LScopeRef ^ . ScpCurDefIsValue ]
+      THEN <* ASSERT FALSE *>
+      END (*IF*)
+*)
     END DefExprLt
 
 ; PROCEDURE UnaryOp ( Opcode : FM3Exprs . OpcodeTyp )
@@ -621,10 +622,12 @@ MODULE FM3Pass2
   ; PROCEDURE HtExprOpnd1 ( )
       (* PRE: TOS is 1st (LM) operand, TOS-1 is parent. *) 
     = VAR LOpnd : FM3Exprs . ExprTyp
-    ; VAR LParentExpr : FM3Exprs . Expr1OpndTyp 
+    ; VAR LParentExpr : FM3Exprs . Expr1OpndTyp
+    ; VAR LPosition : tPosition
+
 
     ; BEGIN 
-        EVAL GetBwdPos ( TokResult . TrRdBack )
+        LPosition := GetBwdPos ( TokResult . TrRdBack )
       ; IF NOT HtSkipping 
         THEN
           LOpnd := FM3Exprs . PopExprStack ( )
@@ -1053,9 +1056,8 @@ MODULE FM3Pass2
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN 
             WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
-            DO (* There's always an exprssion for a brand, even if it's absent. *) 
-              LNewExpr 
-                := NEW ( FM3Exprs . ExprTyp
+            DO (* There's always an exprssion for a brand, even if it's absent. *)              LNewExpr 
+                := NEW ( FM3Exprs . ExprObjTypeTyp
                        , ExpUpKind := Ekt . EkBrand
                        , ExpIsLegalRecursive := TRUE
                        , ExpIsPresent := FALSE
@@ -1083,7 +1085,7 @@ MODULE FM3Pass2
             WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
             DO
               LNewExpr
-                := NEW ( FM3Exprs . Expr1OpndTyp
+                := NEW ( FM3Exprs . ExprObjTypeTyp
                        , ExpUpKind := Ekt . EkBrand
                        , ExpIsLegalRecursive := TRUE
                        , ExpIsPresent := TRUE  
@@ -1145,7 +1147,7 @@ MODULE FM3Pass2
                 := NEW ( FM3Exprs . ExprTyp
                        , ExpUpKind := Ekt . EkSupertype
                        , ExpIsLegalRecursive := TRUE
-                       , ExpIsPresent := TRUE  
+                       , ExpIsPresent := FALSE  
                        , ExpPosition := WPosition 
                        ) 
             ; DefExprRt ( LNewExpr )
@@ -1153,30 +1155,33 @@ MODULE FM3Pass2
           END (*IF*) 
 
       (* OBJECT type: *)
-      | Itk . ItkSupertypeRt  
+
+      | Itk . ItkOverrideRt 
       =>  IF NOT HtMaybePassTokenThru ( )
-          THEN 
-            WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
-            DO
-              LNewExpr
-                := NEW ( FM3Exprs . ExprTyp
-                       , ExpUpKind := Ekt . EkObjType
-                       , ExpIsLegalRecursive := TRUE
-                       , ExpIsPresent := TRUE  
-                       , ExpPosition := WPosition 
-                       ) 
-            ; DefExprRt ( LNewExpr )
-            END (*WITH*)
+          THEN
+            LPosition := GetBwdPos ( TokResult . TrRdBack )
           END (*IF*)
-
-      | Itk . ItkSupertypeLt 
+          
+      | Itk . ItkOverrideEquals 
       =>  IF NOT HtMaybePassTokenThru ( )
-          THEN EVAL GetBwdPos ( TokResult . TrRdBack )
-          END (*IF*) 
-
-
-(* COMPLETEME: ItkBrandAbsent, ItkBrandAnon, ItkBrandExplicit? *)  
-
+          THEN
+            LPosition := GetBwdPos ( TokResult . TrRdBack )
+          ; EVAL FM3Exprs . PopExprStack ( ) (*The proc id. *) 
+          END (*IF*)
+          
+      | Itk . ItkOverrideIdAtom  
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN
+            EVAL GetBwdAtom ( TokResult . TrRdBack ) 
+          ; LPosition := GetBwdPos ( TokResult . TrRdBack )
+          END (*IF*)
+          
+      | Itk . ItkOverrideLt  
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN
+            LPosition := GetBwdPos ( TokResult . TrRdBack )
+          END (*IF*)
+          
       | Itk . ItkObjTypeRt 
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN 
@@ -1198,22 +1203,29 @@ MODULE FM3Pass2
             ; <* ASSERT
                    LExpr . ExpObjScopeRef = FM3Scopes . DeclScopeStackTopRef
               *>
-              HtExprRt ( LExpr ) (* Reads position. *) 
+              HtExprRt ( LExpr ) (* Consumes position. *) 
             END (* Block. *) 
           END (*IF*)
           
       | Itk . ItkObjTypeLt
       =>  IF NOT HtMaybePassTokenThru ( )
-          THEN 
+          THEN
             EVAL GetBwdBrandKind ( TokResult . TrRdBack )
           ; LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack )
-          ; <* ASSERT FM3Scopes . DeclScopeStackTopRef ^ . ScpSelfScopeNo
-                      = LScopeNo
-            *> 
-            HtExprOpnd2 ( ) (* Brand *)
-          ; HtExprOpnd1 ( ) (* Supertype *) 
-          ; SynthIsUsable1 ( FM3Exprs . ExprStackTopObj (* The OBJECT Type. *) )
+          (* The object type decl scope was popped by ItkDeclScopeLt. *) 
           ; EVAL GetBwdPos ( TokResult . TrRdBack )
+          END (*IF*)
+          
+      | Itk . ItkSupertypeLt
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN 
+            HtExprOpnd1 ( ) (* Supertype *) 
+          END (*IF*)
+          
+      | Itk . ItkSupertypeRt
+      =>  IF NOT HtMaybePassTokenThru ( )
+          THEN (* Finish the brand: *)
+            HtExprOpnd2 ( ) (* Brand *)
           END (*IF*)
           
       (* Array type: *) 
@@ -1328,7 +1340,7 @@ MODULE FM3Pass2
       , Itk . ItkSubscriptsPlusListSep 
        => LCt := GetBwdInt ( TokResult . TrRdBack ) (* Args count. *) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
-        ; LListElem := FM3Exprs . PopExprStack ( )
+        ; LListElem := FM3Exprs . PopExprStack ( ) 
         ; LArgsExpr 
             := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprArgsObj )
         ; DEC ( LArgsExpr . ExpArgNo )  
@@ -2329,6 +2341,7 @@ MODULE FM3Pass2
           ; LExprIdentRef . ExpUpKind := Ekt . EkRef
           ; LExprObj := LExprIdentRef
           ; DefExprRt ( LExprObj )
+          ; DefExprLt ( LExprObj ) 
           ELSE (* Change to a reference token with DeclNo instead of Atom. *)
             PutBwdP2 ( Wp2RdBack , VAL ( LPosition . Column , LONGINT ) ) 
           ; PutBwdP2 ( Wp2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
@@ -2381,6 +2394,7 @@ MODULE FM3Pass2
               ; LExprRemoteRef . ExpUpKind := Ekt . EkRef
               ; LExprObj := LExprRemoteRef
               ; DefExprRt ( LExprObj )
+              ; DefExprLt ( LExprObj ) 
               ELSE (* Emit an unusable token. *)
                 PushExprIgnore ( LPosition )
               (* Read the following backwards: *) 
@@ -2399,7 +2413,6 @@ MODULE FM3Pass2
         ; PutNotUsable( LIdentRefAtom , LPosition ) 
         END (*IF*)
       END (*WITH*)
-    ; DefExprLt ( LExprObj ) 
     END IdentRefR2L
 
 ; PROCEDURE QualIdentR2L ( Pass1RdBack : RdBackFile . T )
@@ -2807,10 +2820,10 @@ MODULE FM3Pass2
         := RdBackFile . MaxLengthL ( UnitRef ^ . UntPatchStackRdBack )
     ; LPatchCoordL := FM3Compress . GetBwd ( UnitRef ^ . UntPatchStackRdBack )
     (* This is the initial pseudo coord, & patch stack sentinal. *)
-    ; <* ASSERT LPatchCoordL = FM3Globals . PatchSackEmptySentinel 
-                , "Mismatched coordinate sentinel."
-      *>
-      LLengthL := RdBackFile . LengthL ( UnitRef ^ . UntPatchStackRdBack )
+    ; IF LPatchCoordL # FM3Globals . PatchStackEmptySentinel
+      THEN <* ASSERT FALSE , "Mismatched coordinate sentinel." *>
+      END (*IF*) 
+    ; LLengthL := RdBackFile . LengthL ( UnitRef ^ . UntPatchStackRdBack )
     ; RdBackFile . Close (  UnitRef ^ . UntPatchStackRdBack , TruncTo := 0L )
       (* No point in keeping the patch stack.  It has pogo-sticked and 
          now should be devoid of significant content. *)

@@ -75,6 +75,8 @@ LONE
 
 ItkIdRefAtom IDENT POS 3
   (* IdAtom, position. Only non-reserved. Occurs before pass2. *). 
+ItkOverrideIdAtom IDENT POS 3
+  (* IdAtom, position. Only non-reserved. Occurs before pass2. *). 
 ItkIdentRefWDeclNo    DECL POS (* DeclNo, position. Occurs after pass2. *) .
 ItkIdRefUnitNoDeclNo  INT DECL POS (* UnitNo, DeclNo, position. *)
                                   (* Occurs after pass2. *) .
