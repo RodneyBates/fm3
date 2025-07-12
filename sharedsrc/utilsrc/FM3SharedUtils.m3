@@ -85,6 +85,21 @@ MODULE FM3SharedUtils
     ; Wr . Flush ( Stdio . stderr )
     END StandaloneFatalError 
 
+(*EXPORTED:*)
+; PROCEDURE CompareAToT
+    ( READONLY Left : ARRAY OF CHAR ; Right : TEXT ) : FM3Base . CompareTyp
+
+  = VAR LLeftTxt , LRightTxt : TEXT 
+
+  ; BEGIN
+      LLeftTxt := Text . FromChars ( Left )
+    ; IF Right = NIL
+      THEN LRightTxt := ""
+      ELSE LRightTxt := Right
+      END (*IF*) 
+    ; RETURN Text . Compare ( LLeftTxt , LRightTxt ) 
+    END CompareAToT 
+
 (* EXPORTED: *) 
 ; PROCEDURE AbsFileName ( Name : TEXT ) : TEXT 
 

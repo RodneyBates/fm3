@@ -50,7 +50,8 @@ MODULE FM3 EXPORTS Main
         ; FM3SharedUtils . LoadSets ( )
         ; FM3Globals . Init ( ) 
         ; FM3Scanner . Init ( )
-        ; IF Clt . CltStdSources IN FM3CLOptions . OptionTokSet
+        ; IF FALSE (* Rely on EXPORTS to bring these in. *) 
+             AND Clt . CltStdSources IN FM3CLOptions . OptionTokSet
           THEN 
             FM3Compile . CompileOrLoadCLUnit ( "Main.i3" )
 (*        
@@ -62,7 +63,7 @@ MODULE FM3 EXPORTS Main
         ; FM3Globals . Finalize ( ) 
         FINALLY FM3CLArgs . Cleanup ( ) 
         END (*FINALLY*)
-      ; LDebug := 11 (* Ordinary completiogn.*)
+      ; LDebug := 11 (* Ordinary completion.*)
       
       EXCEPT
       | FM3SharedUtils . Terminate ( EMsg ) 

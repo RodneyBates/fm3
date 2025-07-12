@@ -131,7 +131,7 @@ Boolean options default to FALSE.
        in every run, even for equivalent data structure.) Defaults to FALSE.
 
 --[no-]std-sources
-       Include standard units such as Main.i3, Word.[im]3, etc. in the compile.
+       Include Main.i3 in the compile even when exported onlyh implicitly.
        Defaults to TRUE.
        
 

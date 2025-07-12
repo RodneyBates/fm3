@@ -42,6 +42,9 @@ INTERFACE FM3SharedUtils
      Just write to stderror.
   *) 
 
+; PROCEDURE CompareAToT
+    ( READONLY Left : ARRAY OF CHAR ; Right : TEXT ) : FM3Base . CompareTyp
+
 ; PROCEDURE AbsFileName ( Name : TEXT ) : TEXT 
 
 ; PROCEDURE SibDirectoryPath ( FileName : TEXT ; SibDirName : TEXT ) : TEXT

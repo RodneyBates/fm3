@@ -57,6 +57,8 @@ GLOBAL
 (* -----------------------------------------------------------------------2- *)
 
     IMPORT FM3Base;
+    IMPORT FM3CLOptions; 
+    IMPORT FM3CLToks; 
     IMPORT FM3Decls;
     IMPORT FM3Messages;
     IMPORT FM3Globals;
@@ -116,7 +118,7 @@ TOKEN
 
 /* ----------------------- Source code tokens: --------------------------- */ 
 
-(* I tried hard to get this token naming & numbering in just
+(* I tried hard to getg this token naming & numbering in just
    one place, but it is just too much tangential work for the
    benefit.  These are manually copied and edited from generated
    FM3SrcToks.i3, which they must be kept in sync with.  Other
@@ -605,17 +607,25 @@ RULE
 
 (* Exports are handled directly in pass 1, without writing internal tokens. *)
 
-   Exports : /* Empty */ 
+   Exports : /* Empty */
+   /* An implied export. */ 
      { VAR LUnitRef : FM3Units . UnitRefTyp ;
        BEGIN
-         LUnitRef
-           := FM3ExpImp . GetInterface 
-                ( FM3Units . UnitStackTopRef ^ . UntUnitIdent
-                , $0 . PaPos 
-                , IsExport := TRUE
-                ) ;
-         FM3ExpImp . ImportAllDecls
-           ( LUnitRef , $0 . Scan . Position ) ;
+         IF FM3SharedUtils . CompareAToT 
+              ( FM3Units . UnitStackTopRef ^ . UntUnitIdent ^ , "Main" )
+            = FM3Base . CmpEQ
+            AND NOT FM3CLToks . CltStdSources IN FM3CLOptions . OptionTokSet
+         THEN (* Don't bring in Main.i3 when exported implicitly. *)
+         ELSE  
+           LUnitRef
+             := FM3ExpImp . GetInterface 
+                  ( FM3Units . UnitStackTopRef ^ . UntUnitIdent
+                  , $0 . PaPos 
+                  , IsExport := TRUE
+                  ) ;
+           FM3ExpImp . ImportAllDecls
+             ( LUnitRef , $0 . Scan . Position ) ;
+         END (*IF*) ; 
        END (* Block. *) ;  
      } .
 
