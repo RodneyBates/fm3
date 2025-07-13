@@ -1249,7 +1249,7 @@ EXPORTS Main
 
     ; Layout . PutText
         ( GOStream 
-        , "(* Copyright 2023..2024  Rodney M. Bates.                                    *)"
+        , "(* Copyright 2023..2025  Rodney M. Bates.                                    *)"
         )
     ; Layout . PutEol ( GOStream )
 
@@ -1298,10 +1298,11 @@ EXPORTS Main
     ; Layout . PutEol ( GOStream )
     ; Layout . PutText ( GOStream , "   from input file \"" ) 
     ; Layout . PutText ( GOStream , GInputFileName ) 
-    ; Layout . PutText ( GOStream , "\", with command line " ) 
+    ; Layout . PutText
+        ( GOStream , "\", with command line (excluding surrounding quotes)" ) 
     ; Layout . PutEol ( GOStream )
     ; Layout . PutText ( GOStream , "     \"" ) 
-    ; Layout . PutText ( GOStream , ArgListAsText ( ) ) 
+    ; Layout . PutText ( GOStream , FM3SharedUtils . ArgListAsText ( ) ) 
     ; Layout . PutText ( GOStream , "\". *)" ) 
     ; Layout . PutEol ( GOStream )
     ; Layout . PutEol ( GOStream )
@@ -1310,7 +1311,8 @@ EXPORTS Main
 ; PROCEDURE EmitInterfaceProlog ( )
 
   = BEGIN
-      EmitCopyright ( )
+      FM3SharedUtils . EmitCopyright ( Layout . UsedStream ( GOStream ) )
+      (*               ^See comment in EmitModuleProlog. *) 
     ; EmitHeader ( ) 
 
     ; Layout . PutText ( GOStream , "INTERFACE " ) 
@@ -1792,7 +1794,12 @@ EXPORTS Main
 ; PROCEDURE EmitModuleProlog ( )
 
   = BEGIN
-      EmitCopyright ( ) 
+      FM3SharedUtils . EmitCopyright ( Layout . UsedStream ( GOStream ) )
+      (*               ^ This is a bit dicey, bypassing Layout this way, but
+         I am pretty sure we will be fine with line and char numbers starting
+         after the copyright.  It allows using shared EmitCopyright, which
+         works directly on a Wr.T.
+      *) 
     ; EmitHeader ( ) 
 
     ; Layout . PutText ( GOStream , "MODULE " ) 

@@ -28,6 +28,7 @@ MODULE FM3SharedUtils
 ; IMPORT Wr
 
 ; IMPORT IntSets 
+; IMPORT Layout
 
 ; IMPORT FM3Base
 ; IMPORT FM3LexTable 
@@ -835,6 +836,79 @@ MODULE FM3SharedUtils
         := IntSets . Image ( Set , IntSetsElemImage , LinePrefix , MaxLine )
     ; RETURN LResult 
     END IntSetsImage
+
+(*EXPORTED.*)
+; PROCEDURE CurrentYear ( ) : TEXT 
+
+  = BEGIN (*CurrentYear*)
+      RETURN "2025"
+(* TODO: ^Make this adapt. *) 
+    END CurrentYear
+
+(*EXPORTED.*)
+; PROCEDURE EmitCopyright ( WrT : Wr . T )
+
+  = BEGIN
+      Wr . PutText ( WrT , Wr . EOL )
+    ; Wr . PutText
+        ( WrT 
+        , "(* -----------------------------------------------------------------------1- *)"
+        )
+    ; Wr . PutText ( WrT , Wr . EOL )
+    
+    ; Wr . PutText
+        ( WrT 
+        , "(* This file is part of the FM3 Modula-3 compiler.                           *)"
+        )
+    ; Wr . PutText ( WrT , Wr . EOL )
+
+    ; Wr . PutText
+        ( WrT 
+        , "(* Copyright "
+        )
+    ; Wr . PutText
+        ( WrT , CurrentYear ( ) )
+    ; Wr . PutText
+        ( WrT , "        Rodney M. Bates.                                    *)" )
+    ; Wr . PutText ( WrT , Wr . EOL )
+
+    ; Wr . PutText
+        ( WrT 
+        , "(* rodney.m.bates@acm.org                                                    *)"
+        )
+    ; Wr . PutText ( WrT , Wr . EOL )
+
+    ; Wr . PutText
+        ( WrT 
+        , "(* Licensed under the MIT License.                                           *)"
+        )
+    ; Wr . PutText ( WrT , Wr . EOL )
+
+    ; Wr . PutText
+        ( WrT 
+        , "(* -----------------------------------------------------------------------2- *)"
+        )
+    ; Wr . PutText ( WrT , Wr . EOL )
+    ; Wr . PutText ( WrT , Wr . EOL )
+    END EmitCopyright
+
+(*EXPORTED.*)
+; PROCEDURE ArgListAsText ( ) : TEXT
+
+  = VAR LWrT : Wr . T
+  ; VAR LResult : TEXT 
+
+  ; BEGIN
+      LWrT := TextWr . New ( )
+    ; Wr . PutText ( LWrT , Params . Get ( 0 ) ) 
+    ; FOR RArgNo := 1 TO Params . Count - 1
+      DO
+        Wr . PutChar ( LWrT , ' ' )
+      ; Wr . PutText ( LWrT , Params . Get ( RArgNo ) ) 
+      END (*FOR*) 
+    ; LResult := TextWr . ToText ( LWrT )
+    ; RETURN LResult 
+    END ArgListAsText 
 
 ; BEGIN 
     ResourceDirName := DefaultResourceDirName ( )  

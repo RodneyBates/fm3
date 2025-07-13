@@ -192,5 +192,12 @@ INTERFACE FM3SharedUtils
 ; PROCEDURE IntSetsImage
     ( Set : IntSets . T ; LinePrefix : TEXT ; MaxLine : CARDINAL ) : TEXT 
 
+; PROCEDURE CurrentYear ( ) : TEXT
+  (* ^Currently hard coded. 2025-07-12. *) 
+
+; PROCEDURE EmitCopyright ( WrT : Wr . T )
+
+; PROCEDURE ArgListAsText ( ) : TEXT
+
 ; END FM3SharedUtils 
 .

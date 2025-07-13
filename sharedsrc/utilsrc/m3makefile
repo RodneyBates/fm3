@@ -8,6 +8,8 @@
 
 % m3makefile for subdirectory sharedsrc/utilsrc.
 
+include_dir("../layoutsrc")
+
 include_dir("../lexsrc")
 
 include_dir("../globalsrc") 
