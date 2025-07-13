@@ -28,10 +28,11 @@ MODULE FM3 EXPORTS Main
   named in any IMPORT in the export/import closure, the compiler will
   not set up global variable addressing for it in the way that m3gdb depends
   on.  So Don't delete this IMPORT even though it is not needed to compile
-  and will provoke an unused warning.
+  and will provoke an "unused" warning.
 *) 
 ; IMPORT FM3Introspection
 
+; IMPORT FM3Messages 
 ; IMPORT FM3RTFailures 
 ; IMPORT FM3Scanner
 ; IMPORT FM3SharedUtils
@@ -47,6 +48,15 @@ MODULE FM3 EXPORTS Main
       TRY (*EXCEPT*)
         TRY (*FINALLY*)
           FM3CLArgs . Process ( )
+        ; FM3Messages . FM3LogArr
+            ( ARRAY OF REFANY
+                { "Compiling with command line: "
+                , Wr . EOL
+                , "     \"" 
+                , FM3SharedUtils . ArgListAsText ( ) 
+                , "\""
+                }
+            ) 
         ; FM3SharedUtils . LoadSets ( )
         ; FM3Globals . Init ( ) 
         ; FM3Scanner . Init ( )

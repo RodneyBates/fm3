@@ -54,7 +54,6 @@ MODULE FM3Pass2
     IMPORT GetBwdInt , GetBwdAtom , GetBwdDeclKind , GetBwdPos , GetBwdScopeNo
            , GetBwdBool , GetBwdBrandKind 
 ; IMPORT FM3Messages 
-; FROM   FM3Messages IMPORT FatalArr , ErrorArr , FM3LogArr
 ; IMPORT FM3Scanner
 ; IMPORT FM3Scopes
 ; IMPORT FM3SharedGlobals 
@@ -1670,7 +1669,7 @@ MODULE FM3Pass2
         ; LIdentText := FM3Units . TextOfIdAtom ( DidAtom ) 
         ; WHILE LDeclRef # NIL
           DO
-            ErrorArr
+            FM3Messages . ErrorArr
               ( ARRAY OF REFANY
                   { "Duplicate declaration of \""
                   , LIdentText
@@ -2835,7 +2834,7 @@ MODULE FM3Pass2
              )
     ; FM3SharedUtils . DeleteFile ( LPatchFullFileName )
 
-    ; FM3Messages . FM3LogArr
+    ; FM3Messages . InfoArr
         ( ARRAY OF REFANY
             { "Patch stack "
               , UnitRef ^ . UntPatchStackSimpleName
@@ -2870,7 +2869,7 @@ MODULE FM3Pass2
         UnitRef ^ . UntPass2Result := FM3CLArgs . CcPass1OutNotEmpty  
       ; DisAsmPass2 ( UnitRef , DoEarlierPasses := TRUE )
       ; LLengthImage := FM3Base . Int64Image ( LLengthL ) 
-      ; FatalArr
+      ; FM3Messages . FatalArr
           ( ARRAY OF REFANY
               { "Pass 1 output file final size = "
               , LLengthImage
@@ -2903,7 +2902,7 @@ MODULE FM3Pass2
              )
     ; UnitRef ^ . UntMaxPass2OutLength
         := RdBackFile . MaxLengthL ( UnitRef ^ . UntPass2OutRdBack )
-    ; FM3LogArr
+    ; FM3Messages . InfoArr
         ( ARRAY OF REFANY
             { "Pass 2 output file "
             , UnitRef ^ . UntPass2OutSimpleName

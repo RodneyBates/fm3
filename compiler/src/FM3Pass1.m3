@@ -62,7 +62,6 @@ MODULE FM3Pass1
     IMPORT LtToRt , LtToPatch , LtToOne , LtToTwo , LtToOnePatch , LtToTwoPatch
            , LtToListSepPatch 
 ; IMPORT FM3Messages 
-; FROM FM3Messages IMPORT FatalArr , ErrorArr , FM3LogArr
 ; IMPORT FM3Parser
 ; IMPORT FM3PgToks
 ; IMPORT FM3Std 
@@ -102,7 +101,7 @@ END (*IF*) ;
         TRY
           FM3Compress . PutBwd ( RdBack , ValueL ) 
         EXCEPT OSError . E ( EMsg )
-        => FatalArr
+        => FM3Messages . FatalArr
              ( ARRAY OF REFANY
                  { "Unable to write to readback file \""
                  , RdBackFile . FileName ( RdBack )
@@ -133,7 +132,7 @@ END (*IF*) ;
       LUnitRef := FM3Units . UnitStackTopRef 
     ; InitPass1 ( LUnitRef )
     ; LUnitRef ^ . UntPassNosDisAsmed := FM3CLOptions . PassNoSetEmpty 
-    ; FM3LogArr
+    ; FM3Messages . FM3LogArr
         ( ARRAY OF REFANY
             { "Compiling "
             , Pathname . Join
@@ -295,7 +294,7 @@ END (*IF*) ;
       
       EXCEPT
       | OSError . E ( EMsg ) 
-      => FatalArr
+      => FM3Messages . FatalArr
            ( ARRAY OF REFANY
                { "Unable to create build file \""
                , LFullFileName
@@ -449,7 +448,7 @@ END (*IF*) ;
 
     ; UnitRef ^ . UntMaxPass1OutLength
         := RdBackFile . MaxLengthL ( UnitRef ^ . UntPass1OutRdBack )
-    ; FM3LogArr
+    ; FM3Messages . InfoArr
         ( ARRAY OF REFANY
             { "Pass 1 output file "
             , UnitRef ^ . UntPass1OutSimpleName
@@ -2702,7 +2701,7 @@ END (*IF*) ;
       ; <*ASSERT SrtDeclNo = LExpectedToDeclNo *> 
         TRY FM3Dict_Int_Int . FinalizeFixed ( ScopeRef ^ . ScpDeclDict )
         EXCEPT FM3Dict_Int_Int . Error ( EMsg )
-        => FatalArr
+        => FM3Messages . FatalArr
              ( ARRAY OF REFANY
                { "Finalizing Scope at "
                , PosImage ( ScopeRef ^ . ScpPosition )
