@@ -136,22 +136,19 @@ MODULE FM3SharedUtils
       IF FileName = NIL THEN FileName := "" END (*IF*) 
     ; TRY LFileAbs := FS . GetAbsolutePathname ( FileName ) 
       EXCEPT OSError . E ( EMsg )
-      =>
-(*
-
-(* FIXME: Use the multi-executable message system. *) 
-         FM3Messages . FatalArr  
-           ( ARRAY OF REFANY
-               { " Unable to get absolute path of executable at: \""
-               , PathName 
-               , "\""
-               , Wr . EOL
-               , "    OSError.E("
-               , EMsg
-               , ")."
-               }
-           )
-*) 
+      => StandaloneFatalError
+           ( CatArrT 
+               ( ARRAY OF REFANY
+                   { " Unable to get absolute path of executable: \""
+                   , FileName 
+                   , "\""
+                   , Wr . EOL
+                   , "    OSError.E("
+                   , EMsg
+                   , ")."
+                   }
+               )
+           ) 
       END (*EXCEPT*)
     ; LDirAbs := Libm3Pathname . Prefix ( LFileAbs )
     ; LResult := LDirAbs & "/../" & SibDirName  
