@@ -12,6 +12,7 @@ MODULE FM3SharedUtils
 
 ; IMPORT Atom 
 ; IMPORT AtomList
+; IMPORT Date 
 ; IMPORT File 
 ; IMPORT FileRd
 ; IMPORT Fmt 
@@ -24,7 +25,8 @@ MODULE FM3SharedUtils
 ; IMPORT Stdio 
 ; IMPORT Text 
 ; IMPORT TextWr 
-; IMPORT Thread  
+; IMPORT Thread
+; IMPORT Time 
 ; IMPORT Wr
 
 ; IMPORT IntSets 
@@ -840,9 +842,15 @@ MODULE FM3SharedUtils
 (*EXPORTED.*)
 ; PROCEDURE CurrentYear ( ) : TEXT 
 
-  = BEGIN (*CurrentYear*)
-      RETURN "2025"
-(* TODO: ^Make this adapt. *) 
+  = VAR LTimeT : Time.T
+  ; VAR LDateT : Date . T
+  ; VAR LResult : TEXT 
+
+  ; BEGIN (*CurrentYear*)
+      LTimeT := Time . Now ( )
+    ; LDateT := Date . FromTime ( LTimeT )
+    ; LResult := Fmt . Int ( LDateT . year ) 
+    ; RETURN LResult 
     END CurrentYear
 
 (*EXPORTED.*)
@@ -855,13 +863,11 @@ MODULE FM3SharedUtils
         , "(* -----------------------------------------------------------------------1- *)"
         )
     ; Wr . PutText ( WrT , Wr . EOL )
-    
     ; Wr . PutText
         ( WrT 
         , "(* This file is part of the FM3 Modula-3 compiler.                           *)"
         )
     ; Wr . PutText ( WrT , Wr . EOL )
-
     ; Wr . PutText
         ( WrT 
         , "(* Copyright "
@@ -871,19 +877,16 @@ MODULE FM3SharedUtils
     ; Wr . PutText
         ( WrT , "        Rodney M. Bates.                                    *)" )
     ; Wr . PutText ( WrT , Wr . EOL )
-
     ; Wr . PutText
         ( WrT 
         , "(* rodney.m.bates@acm.org                                                    *)"
         )
     ; Wr . PutText ( WrT , Wr . EOL )
-
     ; Wr . PutText
         ( WrT 
         , "(* Licensed under the MIT License.                                           *)"
         )
     ; Wr . PutText ( WrT , Wr . EOL )
-
     ; Wr . PutText
         ( WrT 
         , "(* -----------------------------------------------------------------------2- *)"
