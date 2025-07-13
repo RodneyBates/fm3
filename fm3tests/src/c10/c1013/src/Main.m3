@@ -2,11 +2,11 @@ MODULE Main
 
 (* Permutations of optional parts of object types. *)
 
-; TYPE T1 = OBJECT END 
+; TYPE T1 = OBJECT END
 
 ; TYPE T2 = T1
             BRANDED
-            OBJECT
+            OBJECT (* Nonempty lists NYI, 6/4/2025. *) 
             METHODS
               M1 ( ) 
             OVERRIDES
@@ -22,7 +22,9 @@ MODULE Main
 ; TYPE T = OBJECT NestedField : INTEGER END
            OBJECT END
 
-; PROCEDURE P1 ( ) = BEGIN END P1 
+; PROCEDURE P1 ( )
+  = BEGIN
+    END P1 
 
 ; BEGIN
   END Main
