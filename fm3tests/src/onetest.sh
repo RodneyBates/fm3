@@ -4,11 +4,11 @@
 # No attempt to run the compiled code.
 
 # $1 must be one of "compile", "check", "test", "add", or "update"
-# compile runs a single compile that incldes the  entire test case.
-# check checks output files for presence and expected results.
-# test does compile followed by check.
-# update makes each *.expected file equal to its corresponding output file.
-# add does a git adds for everything to be tracked in the test case.
+# "compile" runs a single compile that includes the entire test case.
+# "check" checks output files for presence and expected results.
+# "test" does compile followed by check.
+# "update" makes each *.expected file equal to its corresponding output file.
+# "add" does a git add for everything to be tracked in the test case.
 
 # $2 is the top directory for the test, named, for example e1011. If omitted, defaults to "."
 
@@ -65,10 +65,10 @@ PLAIN="\\033[0m"
       if [ $docompile = 0 ] 
       then
 
-        # Optional file named fm3 contains path to compiler executable. 
+        # Optional file named "fm3" contains path to compiler executable. 
         if test -f fm3 ; then FM3=`cat fm3`; else FM3="../../FM3"; fi
         FM3=`abspath $FM3`
-        # Optional file named clargs contains compile command line options.
+        # Optional file named "clargs" contains compile command line options.
         if test -f clargs
         then CLARGS=`/clargs`
         else CLARGS="--disasm --no-disasm-verbose --exprs --no-expr-addrs" 
@@ -229,13 +229,13 @@ else # Do this script.
   SRCDIR="$TESTDIR/src"
   BUILDDIR="$TESTDIR/build"
 
-  # Optional file srcdirs lists directories to look for source files in.
+  # Optional file "srcdirs" lists directories to look for source files in.
   if test -f srcdirs ; then SRCDIRS=`cat srcdirs`; else SRCDIRS="$SRCDIR"; fi
 
-  # Optional file sources lists source file simple names for the compile command.
+  # Optional file "sources" lists source file simple names for the compile command.
   if test -f sources ; then SOURCES=`cat sources`; else SOURCES="Main.m3"; fi
 
-  # Optional file imports list source file simple names that will be compiled
+  # Optional file "imports" lists source file simple names that will be compiled
   # due to IMPORT and EXPORTS. The compiler will find them in a single run,
   # but check, update, or add results from them 
   if test -f imports ; then IMPORTS=`cat imports`; else IMPORTS=""; fi
@@ -245,10 +245,10 @@ else # Do this script.
   echo IMPORTS = $IMPORTS
   echo ALLSRCS = $ALLSRCS
 
-  # Optional file streams contains name suffixes of intermediate stream files.
+  # Optional file "streams" contains name suffixes of intermediate stream files.
   if test -f streams; then STREAMS=`streams`; else STREAMS="FM3Pass1 FM3Pass2"; fi
 
-  # Optional file exprs contains name suffixes of data structure dumps files.
+  # Optional file "exprs" contains name suffixes of data structure dumps files.
   if test -f exprs ; then EXPRS=`cat exprs`; else EXPRS="FM3Pass2.Exprs"; fi
 
   # Maybe run the compiler.
@@ -264,7 +264,7 @@ else # Do this script.
   addOneFile ${SRCDIR} srcdirs
   addOneFile ${SRCDIR} sources
   addOneFile ${SRCDIR} imports
-  addOneFile ${SRCDIR} streamss
+  addOneFile ${SRCDIR} streams
   addOneFile ${SRCDIR} exprs
   # addOneFile ${SRCDIR} donotrun
   # Weird paradox. donotrun will have to be added and removed manually.  
