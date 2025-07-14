@@ -270,7 +270,7 @@ MODULE FM3Scanner
         GCurRwValue 
           := FM3LexTable . IncrNext 
                ( GCurRwLexTable , Char , (*IN OUT*) GCurRwState )
-      ELSE (* Keep it that way. *) 
+      ELSE (* Recognized previously. Keep it that way. *) 
       END (*IF*) 
     END ContribToFsm 
 
