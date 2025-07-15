@@ -10,14 +10,14 @@ INTERFACE FM3RTFailures
 
 (* NOTE: This is adapted from Failure.[im]3 from Schutz, which is an
          interactive program with abilities to recover from RT errors.
-         It is undoubtedly overkill for FM3 and probably has bugs that
+         This is undoubtedly overkill for FM3 and probably has bugs that
          would execute if things didn't go through Schutz's Assertions
          module. But it has a thing or two needed by FM3. *) 
 
 (* Support for handling runtime errors and uncaught exceptions (which are
    turned into runtime errors). *)
 
-(* Lots of code in exporting module Failures is invoked, directly or indirectly,
+(* Lots of code in exporting module FM3RTFailures is invoked, directly or indirectly,
    via its registering of a backstop callback with the runtime system. *)
 
 ; IMPORT RT0
@@ -30,14 +30,14 @@ INTERFACE FM3RTFailures
      danger of its being blocked.
      
      Don't raise this, only catch it.  It will be raised inside
-     module Failures. 
+     module FM3RTFailures. 
   *) 
 
 ; <*IMPLICIT*>
   EXCEPTION Ignore
   (* Ignore an unhandled exception or runtime failure, and proceed.
   
-     Don't raise this. It will be raised inside module Failures.
+     Don't raise this. It will be raised inside module FM3RTFailures.
      Catch it at and only at a place where an exception or runtime
      error can be ignored. 
   *) 
@@ -46,7 +46,7 @@ INTERFACE FM3RTFailures
   EXCEPTION Terminate ( TEXT )
   (* Raise to terminate gracefully, even when there are windows up. *)
   
-; TYPE FailureActionTyp = { FaCrash , FaBackout , FaIgnore }
+; TYPE FailureActionTyp = { FaCrash , FaBackoutxxx , FaIgnore }
 ; TYPE FailureActionSetTyp = SET OF FailureActionTyp 
 
 ; TYPE QueryProcTyp 
@@ -55,14 +55,13 @@ INTERFACE FM3RTFailures
       ; StoppedReason : TEXT 
       ; AllowedActions : FailureActionSetTyp
       )
-    : FailureActionTyp
+    : FailureActionTyp (* User requests this action. *) 
 
 (* Return codes: *)
 ; CONST RcNormal = 0 
 ; CONST RcProblem = 1 (* Couldn't find files, etc. *)
-; CONST RcCancelled = 2
-; CONST RcFailure = 3 (* Assertion failure or runtime error. *)
-(* The following result from misuse of the failure handling mechanism: *) 
+; CONST RcFailure = 2 (* Assertion failure or runtime error. *)
+(* The following result from misuse of this failure handling mechanism: *) 
 ; CONST RcBadTerminate = 4 
 ; CONST RcBadBackout = 5 
 ; CONST RcBadIgnore = 6
@@ -89,7 +88,7 @@ INTERFACE FM3RTFailures
 
 ; PROCEDURE ExcNameFromAddr ( ActPtr : ADDRESS ) : TEXT 
   (* Call this from inside an exception handler, passing
-     Compiler . ThisException ( )  as parameter.
+     Compiler . ThisException ( ) as parameter.
   *) 
 
 ; PROCEDURE ExcName

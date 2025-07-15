@@ -39,7 +39,7 @@ UNSAFE MODULE FM3RTFailures
 ; CONST AllowedActions
     = FailureActionSetTyp
         { FailureActionTyp . FaCrash
-        , FailureActionTyp . FaBackout
+      (*, FailureActionTyp . FaBackout This has no meaning in a batch program. *) 
         , FailureActionTyp . FaIgnore 
         } 
 
@@ -331,7 +331,9 @@ UNSAFE MODULE FM3RTFailures
       ; FM3Utils . PutHex ( LWrT , LOOPHOLE ( Act . pc , INTEGER ) ) 
       ; RTProcedureSRC . FromPC
           ( Act . pc
-          , (*VAR*) LProcAddr , (*VAR*) LFileNameS , (*VAR*) LProcNameS
+          , (*VAR*) LProcAddr
+          , (*VAR*) LFileNameS
+          , (*VAR*) LProcNameS
           )
       ; LOffset
           := LOOPHOLE ( Act . pc , INTEGER ) - LOOPHOLE  ( LProcAddr , INTEGER )
@@ -478,7 +480,7 @@ UNSAFE MODULE FM3RTFailures
     ; LActIsFresh := ActIsFresh ( Act )
 
     ; IF LActIsFresh AND Act . exception = GBackoutRef
-      THEN (* Backout raised outside Failures and not handled. *)
+      THEN (* Backout raised outside FM3RTFailures and not handled. *)
         (* This shouldn't happen. *) 
         RTIO . PutText ( Wr . EOL )
       ; RTIO . PutText ( "##### " )
@@ -488,7 +490,7 @@ UNSAFE MODULE FM3RTFailures
       ; RTIO . Flush ( ) 
       ; TerminateBluntly ( RcBadBackout ) <* NORETURN *>
       ELSIF LActIsFresh AND Act . exception = GIgnoreRef
-      THEN (* Ignore raised outside Failures and not handled. *)
+      THEN (* Ignore raised outside FM3RTFailures and not handled. *)
         (* This shouldn't happen. *) 
         RTIO . PutText ( Wr . EOL )
       ; RTIO . PutText ( "##### " )
@@ -550,10 +552,7 @@ UNSAFE MODULE FM3RTFailures
               LAllowedActions := AllowedActions 
             ELSE 
               LAllowedActions
-                := FailureActionSetTyp
-                     { FailureActionTyp . FaCrash
-                     , FailureActionTyp . FaBackout
-                     }
+                := FailureActionSetTyp { FailureActionTyp . FaCrash }
             END (* IF *)
 
           (* Query the user about what to do. *)
@@ -569,7 +568,9 @@ UNSAFE MODULE FM3RTFailures
           (* Query's answer received. *) 
           ; LThreadInfoRef ^ . QueryingActPtr := NIL  
           ; CASE LAction 
-            OF FailureActionTyp . FaBackout 
+            OF
+(* Backout is disabled for FM3. 
+            | FailureActionTyp . FaBackout 
               => (* Change to FM3RTFailures.Backout, which client code
                     can catch to recover from the original exception. *)
                 Act . exception := GBackoutRef
@@ -580,6 +581,7 @@ UNSAFE MODULE FM3RTFailures
            can be anything.  What to do?
 *)
               ; RTException . Raise ( Act )
+*) 
 
             | FailureActionTyp . FaIgnore 
               => (* Change to FM3RTFailures.Ignore, which client code can
