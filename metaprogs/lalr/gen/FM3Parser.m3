@@ -5260,8 +5260,7 @@ PROCEDURE IsContinuation (
          END;
       END;
     END IsContinuation;
-(*
-   compute a set of terminal symbols that can be used to restart
+(* Compute a set of terminal symbols that can be used to restart
    parsing in a given stack configuration. we simulate parsing until
    end of file using a suffix program synthesized by the function
    Continuation. All symbols acceptable in the states reached during

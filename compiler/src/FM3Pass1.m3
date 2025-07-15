@@ -332,7 +332,7 @@ END (*IF*) ;
         , FM3Globals . PatchStackEmptySentinel
         )
       (* ^A sentinel for when the patch stack is empty of actual tokens. 
-         It's a pseudo patch coordinate atop the initial non-existent token
+         It's a pseudo patch-coordinate atop the initial non-existent token
       *)
 
     (* Create unit data structures. *)

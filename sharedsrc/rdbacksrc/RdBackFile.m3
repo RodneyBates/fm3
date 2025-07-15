@@ -287,6 +287,7 @@ MODULE RdBackFile
     ; LRbFile . RbMaxLengthL := 0L
     ; LRbFile . RbDiskLengthL := 0L
     ; LRbFile . RbBlockNextIn := 0
+    ; LRbFile . RbIsDirty := FALSE 
     ; LRbFile . RbPrefix
         := FM3SharedUtils . FilePrefixB
              ( FM3SharedGlobals .  FM3FileKindRdBack
