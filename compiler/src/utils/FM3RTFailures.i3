@@ -23,6 +23,8 @@ INTERFACE FM3RTFailures
 ; IMPORT RT0
 ; IMPORT Thread 
 
+(*TODO: Remove all stuff concerning Backout as an option.  It makes no sense
+        for a batch program.  (Will FM3 ever have an interactive program? *) 
 ; <*IMPLICIT*>
   EXCEPTION Backout ( TEXT )  
   (* Backout and recover from an unhandled exception or runtime failure.
@@ -46,7 +48,7 @@ INTERFACE FM3RTFailures
   EXCEPTION Terminate ( TEXT )
   (* Raise to terminate gracefully, even when there are windows up. *)
   
-; TYPE FailureActionTyp = { FaCrash , FaBackoutxxx , FaIgnore }
+; TYPE FailureActionTyp = { FaCrash , FaBackout , FaIgnore }
 ; TYPE FailureActionSetTyp = SET OF FailureActionTyp 
 
 ; TYPE QueryProcTyp 

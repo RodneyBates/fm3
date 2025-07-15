@@ -552,7 +552,10 @@ UNSAFE MODULE FM3RTFailures
               LAllowedActions := AllowedActions 
             ELSE 
               LAllowedActions
-                := FailureActionSetTyp { FailureActionTyp . FaCrash }
+                := FailureActionSetTyp
+                     { FailureActionTyp . FaCrash
+                  (* , FailureActionTyp . FaBackout *) 
+                     }
             END (* IF *)
 
           (* Query the user about what to do. *)
@@ -569,7 +572,7 @@ UNSAFE MODULE FM3RTFailures
           ; LThreadInfoRef ^ . QueryingActPtr := NIL  
           ; CASE LAction 
             OF
-(* Backout is disabled for FM3. 
+(* Backout is disabled for FM3.  This should not happen. *) 
             | FailureActionTyp . FaBackout 
               => (* Change to FM3RTFailures.Backout, which client code
                     can catch to recover from the original exception. *)
@@ -579,7 +582,6 @@ UNSAFE MODULE FM3RTFailures
            copied to the argument of Backout, which is different from what
            is done here.  But in general, the primary exception to Backout
            can be anything.  What to do?
-*)
               ; RTException . Raise ( Act )
 *) 
 
