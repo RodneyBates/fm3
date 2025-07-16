@@ -19,7 +19,7 @@ UNITNAME FM3IntToks
 
 ABS 210
 (* ^I think source tokens and internal tokens never occur in the same context,
-    but to simplify debugging, give then disjoint ranges.
+    but to simplify debugging, give them disjoint ranges.
 *) 
 
 (* Being low-numbered, these will read and write either forward

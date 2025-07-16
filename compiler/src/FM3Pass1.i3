@@ -238,7 +238,7 @@ INTERFACE FM3Pass1
 
 ; PROCEDURE PutBwd_LCIP_eCp_rip
     ( T : Itk . TokTyp 
-    ; CLt : LONGINT 
+    ; LC : LONGINT 
     ; I : INTEGER 
     ; READONLY Position : tPosition
     ; COne : LONGINT
@@ -246,7 +246,7 @@ INTERFACE FM3Pass1
 
 ; PROCEDURE PutBwd_LCIP_eCP_rip
     ( T : Itk . TokTyp 
-    ; CLt : LONGINT 
+    ; LC : LONGINT 
     ; I : INTEGER 
     ; READONLY PositionLt : tPosition
     ; COne : LONGINT

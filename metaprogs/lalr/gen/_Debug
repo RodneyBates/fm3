@@ -162,7 +162,7 @@ StkIdent
 reduce IdentRef -> StkIdent. {StkOpenParen} ?
 
 
-ignored                     P241 E7 (Reduce) -> StkIdent° {StkOpenParen}
+ignored                     P257 E7 (Reduce) -> StkIdent° {StkOpenParen}
 retained                    P55 IdentRef (Reduce) -> StkIdent° {StkOpenParen}
 
 
@@ -266,10 +266,10 @@ ModuleMiddle OpenDeclList StkRwBEGIN StmtList StkRwEND NonreservedIdent StkDot
 
 
 ignored                     P222 E3 (Reduce) -> E4° {StkPlus}
-retained                    P274 ExprAddOp (Term) -> °StkPlus 
+retained                    P234 ExprAddOp (Term) -> °StkPlus 
 
 ignored                     P222 E3 (Reduce) -> E4° {StkMinus}
-retained                    P275 ExprAddOp (Term) -> °StkMinus 
+retained                    P235 ExprAddOp (Term) -> °StkMinus 
 
 
 State 136
@@ -379,11 +379,11 @@ E4 ExprAddOp
 read   ExprAddOp -> .StkMinus ?
 
 
-ignored                     P224 E3 (Reduce) -> E3Lt E4° {StkPlus}
-retained                    P274 ExprAddOp (Term) -> °StkPlus 
+ignored                     P231 E3 (Reduce) -> E3Lt E4° {StkPlus}
+retained                    P234 ExprAddOp (Term) -> °StkPlus 
 
-ignored                     P224 E3 (Reduce) -> E3Lt E4° {StkMinus}
-retained                    P275 ExprAddOp (Term) -> °StkMinus 
+ignored                     P231 E3 (Reduce) -> E3Lt E4° {StkMinus}
+retained                    P235 ExprAddOp (Term) -> °StkMinus 
 
 
 State 151
@@ -449,8 +449,8 @@ StkOpenParen ActualList StkCloseParen
 read   Actuals -> .StkOpenParen ActualList StkCloseParen ?
 
 
-ignored                     P237 E7 (Reduce) -> E8WOId° {StkOpenParen}
-retained                    P247 Actuals (Term) -> °StkOpenParen ActualList StkCloseParen 
+ignored                     P253 E7 (Reduce) -> E8WOId° {StkOpenParen}
+retained                    P263 Actuals (Term) -> °StkOpenParen ActualList StkCloseParen 
 
 
 State 153
@@ -590,128 +590,128 @@ E8WOId StkDot NonreservedIdent
 reduce E7 -> E8WOId StkDot NonreservedIdent. {StkSlash} ?
 
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwAND}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwAND}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwAND}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwAND}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwDIV}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwDIV}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwDIV}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwDIV}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwEND}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwEND}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwEND}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwEND}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwIN}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwIN}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwIN}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwIN}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwMETHODS}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwMETHODS}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwMETHODS}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwMETHODS}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwMOD}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwMOD}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwMOD}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwMOD}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwNOT}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwNOT}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwNOT}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwNOT}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwOBJECT}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwOBJECT}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwOBJECT}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwOBJECT}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwOR}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwOR}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwOR}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwOR}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwOVERRIDES}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwOVERRIDES}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwOVERRIDES}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwOVERRIDES}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwREF}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwREF}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwREF}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRwREF}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkSemicolon}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkSemicolon}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkSemicolon}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkSemicolon}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkEqual}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkEqual}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkEqual}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkEqual}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkOpenParen}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkOpenParen}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkOpenParen}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkOpenParen}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkCloseParen}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkCloseParen}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkCloseParen}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkCloseParen}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkComma}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkComma}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkComma}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkComma}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkBecomes}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkBecomes}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkBecomes}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkBecomes}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkEllipsis}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkEllipsis}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkEllipsis}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkEllipsis}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkCloseBracket}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkCloseBracket}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkCloseBracket}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkCloseBracket}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkUnequal}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkUnequal}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkUnequal}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkUnequal}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkLess}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkLess}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkLess}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkLess}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkGreater}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkGreater}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkGreater}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkGreater}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkLessEqual}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkLessEqual}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkLessEqual}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkLessEqual}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkGreaterEqual}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkGreaterEqual}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkGreaterEqual}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkGreaterEqual}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkPlus}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkPlus}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkPlus}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkPlus}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkMinus}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkMinus}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkMinus}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkMinus}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkAmpersand}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkAmpersand}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkAmpersand}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkAmpersand}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkStar}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkStar}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkStar}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkStar}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkSlash}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkSlash}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkSlash}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkSlash}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkIdent}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkIdent}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkIdent}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkIdent}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkIntLit}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkIntLit}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkIntLit}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkIntLit}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkLongIntLit}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkLongIntLit}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkLongIntLit}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkLongIntLit}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkBasedLit}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkBasedLit}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkBasedLit}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkBasedLit}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkLongBasedLit}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkLongBasedLit}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkLongBasedLit}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkLongBasedLit}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRealLit}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRealLit}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRealLit}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkRealLit}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkLongRealLit}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkLongRealLit}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkLongRealLit}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkLongRealLit}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkExtendedLit}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkExtendedLit}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkExtendedLit}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkExtendedLit}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkTextLit}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkTextLit}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkTextLit}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkTextLit}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkWideTextLit}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkWideTextLit}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkWideTextLit}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkWideTextLit}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkCharLit}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkCharLit}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkCharLit}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkCharLit}
 
-ignored                     P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkWideCharLit}
-retained                    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkWideCharLit}
+ignored                     P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent° {StkWideCharLit}
+retained                    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent° {StkWideCharLit}
 
 
 State 189
@@ -2264,42 +2264,42 @@ State 86 = {
     P217 E1 (Nonterm) -> °E2 
     P220 E2 (Nonterm) -> °E3 
     P222 E3 (Nonterm) -> °E4 
-    P225 E4 (Nonterm) -> °E5 
-    P228 E5 (Nonterm) -> °E6 
-    P231 E6 (Nonterm) -> °E7 
-    P237 E7 (Nonterm) -> °E8WOId 
-    P255 E8WOId (Term) -> °StkIntLit 
-    P256 E8WOId (Term) -> °StkLongIntLit 
-    P257 E8WOId (Term) -> °StkBasedLit 
-    P258 E8WOId (Term) -> °StkLongBasedLit 
-    P259 E8WOId (Term) -> °StkRealLit 
-    P260 E8WOId (Term) -> °StkLongRealLit 
-    P261 E8WOId (Term) -> °StkExtendedLit 
-    P262 E8WOId (Term) -> °StkCharLit 
-    P263 E8WOId (Term) -> °StkWideCharLit 
-    P264 E8WOId (Term) -> °StkTextLit 
-    P265 E8WOId (Term) -> °StkWideTextLit 
-    P254 E8WOId (9) -> °E8WOId StkDot NonreservedIdent 
-    P266 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
-    P241 E7 (Term) -> °StkIdent 
-    P233 E7 (9) -> °E8WOId StkDeref 
-    P238 E7 (Nonterm) -> °IdentRef StkDeref 
+    P232 E4 (Nonterm) -> °E5 
+    P238 E5 (Nonterm) -> °E6 
+    P245 E6 (Nonterm) -> °E7 
+    P253 E7 (Nonterm) -> °E8WOId 
+    P271 E8WOId (Term) -> °StkIntLit 
+    P272 E8WOId (Term) -> °StkLongIntLit 
+    P273 E8WOId (Term) -> °StkBasedLit 
+    P274 E8WOId (Term) -> °StkLongBasedLit 
+    P275 E8WOId (Term) -> °StkRealLit 
+    P276 E8WOId (Term) -> °StkLongRealLit 
+    P277 E8WOId (Term) -> °StkExtendedLit 
+    P278 E8WOId (Term) -> °StkCharLit 
+    P279 E8WOId (Term) -> °StkWideCharLit 
+    P280 E8WOId (Term) -> °StkTextLit 
+    P281 E8WOId (Term) -> °StkWideTextLit 
+    P270 E8WOId (9) -> °E8WOId StkDot NonreservedIdent 
+    P282 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
+    P257 E7 (Term) -> °StkIdent 
+    P249 E7 (9) -> °E8WOId StkDeref 
+    P254 E7 (Nonterm) -> °IdentRef StkDeref 
     P55 IdentRef (23) -> °StkIdent 
-    P235 E7 (9) -> °E8WOId Actuals 
-    P236 E7 (9) -> °E8WOId StkDot NonreservedIdent 
-    P240 E7 (25) -> °IdentRef Actuals 
-    P242 E7 (Nonterm) -> °QualIdentRef 
+    P251 E7 (9) -> °E8WOId Actuals 
+    P252 E7 (9) -> °E8WOId StkDot NonreservedIdent 
+    P256 E7 (25) -> °IdentRef Actuals 
+    P258 E7 (Nonterm) -> °QualIdentRef 
     P56 QualIdentRef (23) -> °StkIdent StkDot StkIdent 
-    P234 E7 (9) -> °E8WOId Subscripts 
-    P239 E7 (25) -> °IdentRef Subscripts 
-    P232 E6 (Nonterm) -> °ExprUnaryAddOp E7 
-    P281 ExprUnaryAddOp (Term) -> °StkPlus 
-    P282 ExprUnaryAddOp (Term) -> °StkMinus 
-    P230 E5 (Nonterm) -> °E5Lt E6 
-    P229 E5Lt (6) -> °E5 ExprMulOp 
-    P227 E4 (Nonterm) -> °E4Lt E5 
-    P226 E4Lt (5) -> °E4 ExprAddOp 
-    P224 E3 (Nonterm) -> °E3Lt E4 
+    P250 E7 (9) -> °E8WOId Subscripts 
+    P255 E7 (25) -> °IdentRef Subscripts 
+    P246 E6 (Nonterm) -> °ExprUnaryAddOp E7 
+    P247 ExprUnaryAddOp (Term) -> °StkPlus 
+    P248 ExprUnaryAddOp (Term) -> °StkMinus 
+    P244 E5 (Nonterm) -> °E5Lt E6 
+    P239 E5Lt (6) -> °E5 ExprMulOp 
+    P237 E4 (Nonterm) -> °E4Lt E5 
+    P233 E4Lt (5) -> °E4 ExprAddOp 
+    P231 E3 (Nonterm) -> °E3Lt E4 
     P223 E3Lt (4) -> °E3 ExprRelOp 
     P221 E2 (Term) -> °StkRwNOT E3 
     P219 E1 (Nonterm) -> °E1Lt E2 
@@ -2311,87 +2311,87 @@ State 86 = {
 State 87 = { 
     P221 E2 (Nonterm) -> StkRwNOT°E3 
     P222 E3 (Nonterm) -> °E4 
-    P225 E4 (Nonterm) -> °E5 
-    P228 E5 (Nonterm) -> °E6 
-    P231 E6 (Nonterm) -> °E7 
-    P237 E7 (Nonterm) -> °E8WOId 
-    P255 E8WOId (Term) -> °StkIntLit 
-    P256 E8WOId (Term) -> °StkLongIntLit 
-    P257 E8WOId (Term) -> °StkBasedLit 
-    P258 E8WOId (Term) -> °StkLongBasedLit 
-    P259 E8WOId (Term) -> °StkRealLit 
-    P260 E8WOId (Term) -> °StkLongRealLit 
-    P261 E8WOId (Term) -> °StkExtendedLit 
-    P262 E8WOId (Term) -> °StkCharLit 
-    P263 E8WOId (Term) -> °StkWideCharLit 
-    P264 E8WOId (Term) -> °StkTextLit 
-    P265 E8WOId (Term) -> °StkWideTextLit 
-    P254 E8WOId (5) -> °E8WOId StkDot NonreservedIdent 
-    P266 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
-    P241 E7 (Term) -> °StkIdent 
-    P233 E7 (5) -> °E8WOId StkDeref 
-    P238 E7 (Nonterm) -> °IdentRef StkDeref 
+    P232 E4 (Nonterm) -> °E5 
+    P238 E5 (Nonterm) -> °E6 
+    P245 E6 (Nonterm) -> °E7 
+    P253 E7 (Nonterm) -> °E8WOId 
+    P271 E8WOId (Term) -> °StkIntLit 
+    P272 E8WOId (Term) -> °StkLongIntLit 
+    P273 E8WOId (Term) -> °StkBasedLit 
+    P274 E8WOId (Term) -> °StkLongBasedLit 
+    P275 E8WOId (Term) -> °StkRealLit 
+    P276 E8WOId (Term) -> °StkLongRealLit 
+    P277 E8WOId (Term) -> °StkExtendedLit 
+    P278 E8WOId (Term) -> °StkCharLit 
+    P279 E8WOId (Term) -> °StkWideCharLit 
+    P280 E8WOId (Term) -> °StkTextLit 
+    P281 E8WOId (Term) -> °StkWideTextLit 
+    P270 E8WOId (5) -> °E8WOId StkDot NonreservedIdent 
+    P282 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
+    P257 E7 (Term) -> °StkIdent 
+    P249 E7 (5) -> °E8WOId StkDeref 
+    P254 E7 (Nonterm) -> °IdentRef StkDeref 
     P55 IdentRef (19) -> °StkIdent 
-    P235 E7 (5) -> °E8WOId Actuals 
-    P236 E7 (5) -> °E8WOId StkDot NonreservedIdent 
-    P240 E7 (21) -> °IdentRef Actuals 
-    P242 E7 (Nonterm) -> °QualIdentRef 
+    P251 E7 (5) -> °E8WOId Actuals 
+    P252 E7 (5) -> °E8WOId StkDot NonreservedIdent 
+    P256 E7 (21) -> °IdentRef Actuals 
+    P258 E7 (Nonterm) -> °QualIdentRef 
     P56 QualIdentRef (19) -> °StkIdent StkDot StkIdent 
-    P234 E7 (5) -> °E8WOId Subscripts 
-    P239 E7 (21) -> °IdentRef Subscripts 
-    P232 E6 (Nonterm) -> °ExprUnaryAddOp E7 
-    P281 ExprUnaryAddOp (Term) -> °StkPlus 
-    P282 ExprUnaryAddOp (Term) -> °StkMinus 
-    P230 E5 (Nonterm) -> °E5Lt E6 
-    P229 E5Lt (2) -> °E5 ExprMulOp 
-    P227 E4 (Nonterm) -> °E4Lt E5 
-    P226 E4Lt (1) -> °E4 ExprAddOp 
-    P224 E3 (Nonterm) -> °E3Lt E4 
+    P250 E7 (5) -> °E8WOId Subscripts 
+    P255 E7 (21) -> °IdentRef Subscripts 
+    P246 E6 (Nonterm) -> °ExprUnaryAddOp E7 
+    P247 ExprUnaryAddOp (Term) -> °StkPlus 
+    P248 ExprUnaryAddOp (Term) -> °StkMinus 
+    P244 E5 (Nonterm) -> °E5Lt E6 
+    P239 E5Lt (2) -> °E5 ExprMulOp 
+    P237 E4 (Nonterm) -> °E4Lt E5 
+    P233 E4Lt (1) -> °E4 ExprAddOp 
+    P231 E3 (Nonterm) -> °E3Lt E4 
     P223 E3Lt (0) -> °E3 ExprRelOp 
  } 
 
 State 88 = { 
-    P266 E8WOId (Nonterm) -> StkOpenParen°E0 StkCloseParen 
+    P282 E8WOId (Nonterm) -> StkOpenParen°E0 StkCloseParen 
     P214 E0 (Nonterm) -> °E1 
     P217 E1 (Nonterm) -> °E2 
     P220 E2 (Nonterm) -> °E3 
     P222 E3 (Nonterm) -> °E4 
-    P225 E4 (Nonterm) -> °E5 
-    P228 E5 (Nonterm) -> °E6 
-    P231 E6 (Nonterm) -> °E7 
-    P237 E7 (Nonterm) -> °E8WOId 
-    P255 E8WOId (Term) -> °StkIntLit 
-    P256 E8WOId (Term) -> °StkLongIntLit 
-    P257 E8WOId (Term) -> °StkBasedLit 
-    P258 E8WOId (Term) -> °StkLongBasedLit 
-    P259 E8WOId (Term) -> °StkRealLit 
-    P260 E8WOId (Term) -> °StkLongRealLit 
-    P261 E8WOId (Term) -> °StkExtendedLit 
-    P262 E8WOId (Term) -> °StkCharLit 
-    P263 E8WOId (Term) -> °StkWideCharLit 
-    P264 E8WOId (Term) -> °StkTextLit 
-    P265 E8WOId (Term) -> °StkWideTextLit 
-    P254 E8WOId (8) -> °E8WOId StkDot NonreservedIdent 
-    P266 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
-    P241 E7 (Term) -> °StkIdent 
-    P233 E7 (8) -> °E8WOId StkDeref 
-    P238 E7 (Nonterm) -> °IdentRef StkDeref 
+    P232 E4 (Nonterm) -> °E5 
+    P238 E5 (Nonterm) -> °E6 
+    P245 E6 (Nonterm) -> °E7 
+    P253 E7 (Nonterm) -> °E8WOId 
+    P271 E8WOId (Term) -> °StkIntLit 
+    P272 E8WOId (Term) -> °StkLongIntLit 
+    P273 E8WOId (Term) -> °StkBasedLit 
+    P274 E8WOId (Term) -> °StkLongBasedLit 
+    P275 E8WOId (Term) -> °StkRealLit 
+    P276 E8WOId (Term) -> °StkLongRealLit 
+    P277 E8WOId (Term) -> °StkExtendedLit 
+    P278 E8WOId (Term) -> °StkCharLit 
+    P279 E8WOId (Term) -> °StkWideCharLit 
+    P280 E8WOId (Term) -> °StkTextLit 
+    P281 E8WOId (Term) -> °StkWideTextLit 
+    P270 E8WOId (8) -> °E8WOId StkDot NonreservedIdent 
+    P282 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
+    P257 E7 (Term) -> °StkIdent 
+    P249 E7 (8) -> °E8WOId StkDeref 
+    P254 E7 (Nonterm) -> °IdentRef StkDeref 
     P55 IdentRef (22) -> °StkIdent 
-    P235 E7 (8) -> °E8WOId Actuals 
-    P236 E7 (8) -> °E8WOId StkDot NonreservedIdent 
-    P240 E7 (24) -> °IdentRef Actuals 
-    P242 E7 (Nonterm) -> °QualIdentRef 
+    P251 E7 (8) -> °E8WOId Actuals 
+    P252 E7 (8) -> °E8WOId StkDot NonreservedIdent 
+    P256 E7 (24) -> °IdentRef Actuals 
+    P258 E7 (Nonterm) -> °QualIdentRef 
     P56 QualIdentRef (22) -> °StkIdent StkDot StkIdent 
-    P234 E7 (8) -> °E8WOId Subscripts 
-    P239 E7 (24) -> °IdentRef Subscripts 
-    P232 E6 (Nonterm) -> °ExprUnaryAddOp E7 
-    P281 ExprUnaryAddOp (Term) -> °StkPlus 
-    P282 ExprUnaryAddOp (Term) -> °StkMinus 
-    P230 E5 (Nonterm) -> °E5Lt E6 
-    P229 E5Lt (5) -> °E5 ExprMulOp 
-    P227 E4 (Nonterm) -> °E4Lt E5 
-    P226 E4Lt (4) -> °E4 ExprAddOp 
-    P224 E3 (Nonterm) -> °E3Lt E4 
+    P250 E7 (8) -> °E8WOId Subscripts 
+    P255 E7 (24) -> °IdentRef Subscripts 
+    P246 E6 (Nonterm) -> °ExprUnaryAddOp E7 
+    P247 ExprUnaryAddOp (Term) -> °StkPlus 
+    P248 ExprUnaryAddOp (Term) -> °StkMinus 
+    P244 E5 (Nonterm) -> °E5Lt E6 
+    P239 E5Lt (5) -> °E5 ExprMulOp 
+    P237 E4 (Nonterm) -> °E4Lt E5 
+    P233 E4Lt (4) -> °E4 ExprAddOp 
+    P231 E3 (Nonterm) -> °E3Lt E4 
     P223 E3Lt (3) -> °E3 ExprRelOp 
     P221 E2 (Term) -> °StkRwNOT E3 
     P219 E1 (Nonterm) -> °E1Lt E2 
@@ -2401,15 +2401,15 @@ State 88 = {
  } 
 
 State 89 = { 
-    P281 ExprUnaryAddOp (Reduce) -> StkPlus°
+    P247 ExprUnaryAddOp (Reduce) -> StkPlus°
  } 
 
 State 90 = { 
-    P282 ExprUnaryAddOp (Reduce) -> StkMinus°
+    P248 ExprUnaryAddOp (Reduce) -> StkMinus°
  } 
 
 State 91 = { 
-    P241 E7 (Reduce) -> StkIdent°
+    P257 E7 (Reduce) -> StkIdent°
     P55 IdentRef (Reduce) -> StkIdent°
     P56 QualIdentRef (Term) -> StkIdent°StkDot StkIdent 
  } 
@@ -2423,169 +2423,169 @@ State 93 = {
  } 
 
 State 94 = { 
-    P255 E8WOId (Reduce) -> StkIntLit°
+    P271 E8WOId (Reduce) -> StkIntLit°
  } 
 
 State 95 = { 
-    P256 E8WOId (Reduce) -> StkLongIntLit°
+    P272 E8WOId (Reduce) -> StkLongIntLit°
  } 
 
 State 96 = { 
-    P257 E8WOId (Reduce) -> StkBasedLit°
+    P273 E8WOId (Reduce) -> StkBasedLit°
  } 
 
 State 97 = { 
-    P258 E8WOId (Reduce) -> StkLongBasedLit°
+    P274 E8WOId (Reduce) -> StkLongBasedLit°
  } 
 
 State 98 = { 
-    P259 E8WOId (Reduce) -> StkRealLit°
+    P275 E8WOId (Reduce) -> StkRealLit°
  } 
 
 State 99 = { 
-    P260 E8WOId (Reduce) -> StkLongRealLit°
+    P276 E8WOId (Reduce) -> StkLongRealLit°
  } 
 
 State 100 = { 
-    P261 E8WOId (Reduce) -> StkExtendedLit°
+    P277 E8WOId (Reduce) -> StkExtendedLit°
  } 
 
 State 101 = { 
-    P264 E8WOId (Reduce) -> StkTextLit°
+    P280 E8WOId (Reduce) -> StkTextLit°
  } 
 
 State 102 = { 
-    P265 E8WOId (Reduce) -> StkWideTextLit°
+    P281 E8WOId (Reduce) -> StkWideTextLit°
  } 
 
 State 103 = { 
-    P262 E8WOId (Reduce) -> StkCharLit°
+    P278 E8WOId (Reduce) -> StkCharLit°
  } 
 
 State 104 = { 
-    P263 E8WOId (Reduce) -> StkWideCharLit°
+    P279 E8WOId (Reduce) -> StkWideCharLit°
  } 
 
 State 105 = { 
-    P238 E7 (Term) -> IdentRef°StkDeref 
-    P240 E7 (Nonterm) -> IdentRef°Actuals 
-    P247 Actuals (Term) -> °StkOpenParen ActualList StkCloseParen 
-    P239 E7 (Nonterm) -> IdentRef°Subscripts 
-    P243 Subscripts (Term) -> °StkOpenBracket SsPlusList StkCloseBracket 
+    P254 E7 (Term) -> IdentRef°StkDeref 
+    P256 E7 (Nonterm) -> IdentRef°Actuals 
+    P263 Actuals (Term) -> °StkOpenParen ActualList StkCloseParen 
+    P255 E7 (Nonterm) -> IdentRef°Subscripts 
+    P259 Subscripts (Term) -> °StkOpenBracket SsPlusList StkCloseBracket 
  } 
 
 State 106 = { 
-    P247 Actuals (Nonterm) -> StkOpenParen°ActualList StkCloseParen 
-    P248 ActualList (Reduce) -> -Epsilon-.
-    P249 ActualList (Nonterm) -> °Actual 
-    P252 Actual (Nonterm) -> °Expr 
+    P263 Actuals (Nonterm) -> StkOpenParen°ActualList StkCloseParen 
+    P264 ActualList (Reduce) -> -Epsilon-.
+    P265 ActualList (Nonterm) -> °Actual 
+    P268 Actual (Nonterm) -> °Expr 
     P213 Expr (Nonterm) -> °E0 
     P214 E0 (Nonterm) -> °E1 
     P217 E1 (Nonterm) -> °E2 
     P220 E2 (Nonterm) -> °E3 
     P222 E3 (Nonterm) -> °E4 
-    P225 E4 (Nonterm) -> °E5 
-    P228 E5 (Nonterm) -> °E6 
-    P231 E6 (Nonterm) -> °E7 
-    P237 E7 (Nonterm) -> °E8WOId 
-    P255 E8WOId (Term) -> °StkIntLit 
-    P256 E8WOId (Term) -> °StkLongIntLit 
-    P257 E8WOId (Term) -> °StkBasedLit 
-    P258 E8WOId (Term) -> °StkLongBasedLit 
-    P259 E8WOId (Term) -> °StkRealLit 
-    P260 E8WOId (Term) -> °StkLongRealLit 
-    P261 E8WOId (Term) -> °StkExtendedLit 
-    P262 E8WOId (Term) -> °StkCharLit 
-    P263 E8WOId (Term) -> °StkWideCharLit 
-    P264 E8WOId (Term) -> °StkTextLit 
-    P265 E8WOId (Term) -> °StkWideTextLit 
-    P254 E8WOId (12) -> °E8WOId StkDot NonreservedIdent 
-    P266 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
-    P241 E7 (Term) -> °StkIdent 
-    P233 E7 (12) -> °E8WOId StkDeref 
-    P238 E7 (Nonterm) -> °IdentRef StkDeref 
+    P232 E4 (Nonterm) -> °E5 
+    P238 E5 (Nonterm) -> °E6 
+    P245 E6 (Nonterm) -> °E7 
+    P253 E7 (Nonterm) -> °E8WOId 
+    P271 E8WOId (Term) -> °StkIntLit 
+    P272 E8WOId (Term) -> °StkLongIntLit 
+    P273 E8WOId (Term) -> °StkBasedLit 
+    P274 E8WOId (Term) -> °StkLongBasedLit 
+    P275 E8WOId (Term) -> °StkRealLit 
+    P276 E8WOId (Term) -> °StkLongRealLit 
+    P277 E8WOId (Term) -> °StkExtendedLit 
+    P278 E8WOId (Term) -> °StkCharLit 
+    P279 E8WOId (Term) -> °StkWideCharLit 
+    P280 E8WOId (Term) -> °StkTextLit 
+    P281 E8WOId (Term) -> °StkWideTextLit 
+    P270 E8WOId (12) -> °E8WOId StkDot NonreservedIdent 
+    P282 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
+    P257 E7 (Term) -> °StkIdent 
+    P249 E7 (12) -> °E8WOId StkDeref 
+    P254 E7 (Nonterm) -> °IdentRef StkDeref 
     P55 IdentRef (26) -> °StkIdent 
-    P235 E7 (12) -> °E8WOId Actuals 
-    P236 E7 (12) -> °E8WOId StkDot NonreservedIdent 
-    P240 E7 (28) -> °IdentRef Actuals 
-    P242 E7 (Nonterm) -> °QualIdentRef 
+    P251 E7 (12) -> °E8WOId Actuals 
+    P252 E7 (12) -> °E8WOId StkDot NonreservedIdent 
+    P256 E7 (28) -> °IdentRef Actuals 
+    P258 E7 (Nonterm) -> °QualIdentRef 
     P56 QualIdentRef (26) -> °StkIdent StkDot StkIdent 
-    P234 E7 (12) -> °E8WOId Subscripts 
-    P239 E7 (28) -> °IdentRef Subscripts 
-    P232 E6 (Nonterm) -> °ExprUnaryAddOp E7 
-    P281 ExprUnaryAddOp (Term) -> °StkPlus 
-    P282 ExprUnaryAddOp (Term) -> °StkMinus 
-    P230 E5 (Nonterm) -> °E5Lt E6 
-    P229 E5Lt (9) -> °E5 ExprMulOp 
-    P227 E4 (Nonterm) -> °E4Lt E5 
-    P226 E4Lt (8) -> °E4 ExprAddOp 
-    P224 E3 (Nonterm) -> °E3Lt E4 
+    P250 E7 (12) -> °E8WOId Subscripts 
+    P255 E7 (28) -> °IdentRef Subscripts 
+    P246 E6 (Nonterm) -> °ExprUnaryAddOp E7 
+    P247 ExprUnaryAddOp (Term) -> °StkPlus 
+    P248 ExprUnaryAddOp (Term) -> °StkMinus 
+    P244 E5 (Nonterm) -> °E5Lt E6 
+    P239 E5Lt (9) -> °E5 ExprMulOp 
+    P237 E4 (Nonterm) -> °E4Lt E5 
+    P233 E4Lt (8) -> °E4 ExprAddOp 
+    P231 E3 (Nonterm) -> °E3Lt E4 
     P223 E3Lt (7) -> °E3 ExprRelOp 
     P221 E2 (Term) -> °StkRwNOT E3 
     P219 E1 (Nonterm) -> °E1Lt E2 
     P218 E1Lt (5) -> °E1 StkRwAND 
     P216 E0 (Nonterm) -> °E0Lt E1 
     P215 E0Lt (4) -> °E0 StkRwOR 
-    P253 Actual (Nonterm) -> °NonreservedIdent StkBecomes Expr 
+    P269 Actual (Nonterm) -> °NonreservedIdent StkBecomes Expr 
     P54 NonreservedIdent (26) -> °StkIdent 
-    P251 ActualList (Nonterm) -> °ActualListLt Actual 
-    P250 ActualListLt (0) -> °ActualList StkComma 
+    P267 ActualList (Nonterm) -> °ActualListLt Actual 
+    P266 ActualListLt (0) -> °ActualList StkComma 
  } 
 
 State 107 = { 
-    P241 E7 (Reduce) -> StkIdent°
+    P257 E7 (Reduce) -> StkIdent°
     P55 IdentRef (Reduce) -> StkIdent°
     P56 QualIdentRef (Term) -> StkIdent°StkDot StkIdent 
     P54 NonreservedIdent (Reduce) -> StkIdent°
  } 
 
 State 108 = { 
-    P253 Actual (Term) -> NonreservedIdent°StkBecomes Expr 
+    P269 Actual (Term) -> NonreservedIdent°StkBecomes Expr 
  } 
 
 State 109 = { 
-    P253 Actual (Nonterm) -> NonreservedIdent StkBecomes°Expr 
+    P269 Actual (Nonterm) -> NonreservedIdent StkBecomes°Expr 
     P213 Expr (Nonterm) -> °E0 
     P214 E0 (Nonterm) -> °E1 
     P217 E1 (Nonterm) -> °E2 
     P220 E2 (Nonterm) -> °E3 
     P222 E3 (Nonterm) -> °E4 
-    P225 E4 (Nonterm) -> °E5 
-    P228 E5 (Nonterm) -> °E6 
-    P231 E6 (Nonterm) -> °E7 
-    P237 E7 (Nonterm) -> °E8WOId 
-    P255 E8WOId (Term) -> °StkIntLit 
-    P256 E8WOId (Term) -> °StkLongIntLit 
-    P257 E8WOId (Term) -> °StkBasedLit 
-    P258 E8WOId (Term) -> °StkLongBasedLit 
-    P259 E8WOId (Term) -> °StkRealLit 
-    P260 E8WOId (Term) -> °StkLongRealLit 
-    P261 E8WOId (Term) -> °StkExtendedLit 
-    P262 E8WOId (Term) -> °StkCharLit 
-    P263 E8WOId (Term) -> °StkWideCharLit 
-    P264 E8WOId (Term) -> °StkTextLit 
-    P265 E8WOId (Term) -> °StkWideTextLit 
-    P254 E8WOId (9) -> °E8WOId StkDot NonreservedIdent 
-    P266 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
-    P241 E7 (Term) -> °StkIdent 
-    P233 E7 (9) -> °E8WOId StkDeref 
-    P238 E7 (Nonterm) -> °IdentRef StkDeref 
+    P232 E4 (Nonterm) -> °E5 
+    P238 E5 (Nonterm) -> °E6 
+    P245 E6 (Nonterm) -> °E7 
+    P253 E7 (Nonterm) -> °E8WOId 
+    P271 E8WOId (Term) -> °StkIntLit 
+    P272 E8WOId (Term) -> °StkLongIntLit 
+    P273 E8WOId (Term) -> °StkBasedLit 
+    P274 E8WOId (Term) -> °StkLongBasedLit 
+    P275 E8WOId (Term) -> °StkRealLit 
+    P276 E8WOId (Term) -> °StkLongRealLit 
+    P277 E8WOId (Term) -> °StkExtendedLit 
+    P278 E8WOId (Term) -> °StkCharLit 
+    P279 E8WOId (Term) -> °StkWideCharLit 
+    P280 E8WOId (Term) -> °StkTextLit 
+    P281 E8WOId (Term) -> °StkWideTextLit 
+    P270 E8WOId (9) -> °E8WOId StkDot NonreservedIdent 
+    P282 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
+    P257 E7 (Term) -> °StkIdent 
+    P249 E7 (9) -> °E8WOId StkDeref 
+    P254 E7 (Nonterm) -> °IdentRef StkDeref 
     P55 IdentRef (23) -> °StkIdent 
-    P235 E7 (9) -> °E8WOId Actuals 
-    P236 E7 (9) -> °E8WOId StkDot NonreservedIdent 
-    P240 E7 (25) -> °IdentRef Actuals 
-    P242 E7 (Nonterm) -> °QualIdentRef 
+    P251 E7 (9) -> °E8WOId Actuals 
+    P252 E7 (9) -> °E8WOId StkDot NonreservedIdent 
+    P256 E7 (25) -> °IdentRef Actuals 
+    P258 E7 (Nonterm) -> °QualIdentRef 
     P56 QualIdentRef (23) -> °StkIdent StkDot StkIdent 
-    P234 E7 (9) -> °E8WOId Subscripts 
-    P239 E7 (25) -> °IdentRef Subscripts 
-    P232 E6 (Nonterm) -> °ExprUnaryAddOp E7 
-    P281 ExprUnaryAddOp (Term) -> °StkPlus 
-    P282 ExprUnaryAddOp (Term) -> °StkMinus 
-    P230 E5 (Nonterm) -> °E5Lt E6 
-    P229 E5Lt (6) -> °E5 ExprMulOp 
-    P227 E4 (Nonterm) -> °E4Lt E5 
-    P226 E4Lt (5) -> °E4 ExprAddOp 
-    P224 E3 (Nonterm) -> °E3Lt E4 
+    P250 E7 (9) -> °E8WOId Subscripts 
+    P255 E7 (25) -> °IdentRef Subscripts 
+    P246 E6 (Nonterm) -> °ExprUnaryAddOp E7 
+    P247 ExprUnaryAddOp (Term) -> °StkPlus 
+    P248 ExprUnaryAddOp (Term) -> °StkMinus 
+    P244 E5 (Nonterm) -> °E5Lt E6 
+    P239 E5Lt (6) -> °E5 ExprMulOp 
+    P237 E4 (Nonterm) -> °E4Lt E5 
+    P233 E4Lt (5) -> °E4 ExprAddOp 
+    P231 E3 (Nonterm) -> °E3Lt E4 
     P223 E3Lt (4) -> °E3 ExprRelOp 
     P221 E2 (Term) -> °StkRwNOT E3 
     P219 E1 (Nonterm) -> °E1Lt E2 
@@ -2595,11 +2595,11 @@ State 109 = {
  } 
 
 State 110 = { 
-    P242 E7 (Reduce) -> QualIdentRef°
+    P258 E7 (Reduce) -> QualIdentRef°
  } 
 
 State 111 = { 
-    P253 Actual (Reduce) -> NonreservedIdent StkBecomes Expr°
+    P269 Actual (Reduce) -> NonreservedIdent StkBecomes Expr°
  } 
 
 State 112 = { 
@@ -2625,42 +2625,42 @@ State 116 = {
     P217 E1 (Nonterm) -> °E2 
     P220 E2 (Nonterm) -> °E3 
     P222 E3 (Nonterm) -> °E4 
-    P225 E4 (Nonterm) -> °E5 
-    P228 E5 (Nonterm) -> °E6 
-    P231 E6 (Nonterm) -> °E7 
-    P237 E7 (Nonterm) -> °E8WOId 
-    P255 E8WOId (Term) -> °StkIntLit 
-    P256 E8WOId (Term) -> °StkLongIntLit 
-    P257 E8WOId (Term) -> °StkBasedLit 
-    P258 E8WOId (Term) -> °StkLongBasedLit 
-    P259 E8WOId (Term) -> °StkRealLit 
-    P260 E8WOId (Term) -> °StkLongRealLit 
-    P261 E8WOId (Term) -> °StkExtendedLit 
-    P262 E8WOId (Term) -> °StkCharLit 
-    P263 E8WOId (Term) -> °StkWideCharLit 
-    P264 E8WOId (Term) -> °StkTextLit 
-    P265 E8WOId (Term) -> °StkWideTextLit 
-    P254 E8WOId (7) -> °E8WOId StkDot NonreservedIdent 
-    P266 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
-    P241 E7 (Term) -> °StkIdent 
-    P233 E7 (7) -> °E8WOId StkDeref 
-    P238 E7 (Nonterm) -> °IdentRef StkDeref 
+    P232 E4 (Nonterm) -> °E5 
+    P238 E5 (Nonterm) -> °E6 
+    P245 E6 (Nonterm) -> °E7 
+    P253 E7 (Nonterm) -> °E8WOId 
+    P271 E8WOId (Term) -> °StkIntLit 
+    P272 E8WOId (Term) -> °StkLongIntLit 
+    P273 E8WOId (Term) -> °StkBasedLit 
+    P274 E8WOId (Term) -> °StkLongBasedLit 
+    P275 E8WOId (Term) -> °StkRealLit 
+    P276 E8WOId (Term) -> °StkLongRealLit 
+    P277 E8WOId (Term) -> °StkExtendedLit 
+    P278 E8WOId (Term) -> °StkCharLit 
+    P279 E8WOId (Term) -> °StkWideCharLit 
+    P280 E8WOId (Term) -> °StkTextLit 
+    P281 E8WOId (Term) -> °StkWideTextLit 
+    P270 E8WOId (7) -> °E8WOId StkDot NonreservedIdent 
+    P282 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
+    P257 E7 (Term) -> °StkIdent 
+    P249 E7 (7) -> °E8WOId StkDeref 
+    P254 E7 (Nonterm) -> °IdentRef StkDeref 
     P55 IdentRef (21) -> °StkIdent 
-    P235 E7 (7) -> °E8WOId Actuals 
-    P236 E7 (7) -> °E8WOId StkDot NonreservedIdent 
-    P240 E7 (23) -> °IdentRef Actuals 
-    P242 E7 (Nonterm) -> °QualIdentRef 
+    P251 E7 (7) -> °E8WOId Actuals 
+    P252 E7 (7) -> °E8WOId StkDot NonreservedIdent 
+    P256 E7 (23) -> °IdentRef Actuals 
+    P258 E7 (Nonterm) -> °QualIdentRef 
     P56 QualIdentRef (21) -> °StkIdent StkDot StkIdent 
-    P234 E7 (7) -> °E8WOId Subscripts 
-    P239 E7 (23) -> °IdentRef Subscripts 
-    P232 E6 (Nonterm) -> °ExprUnaryAddOp E7 
-    P281 ExprUnaryAddOp (Term) -> °StkPlus 
-    P282 ExprUnaryAddOp (Term) -> °StkMinus 
-    P230 E5 (Nonterm) -> °E5Lt E6 
-    P229 E5Lt (4) -> °E5 ExprMulOp 
-    P227 E4 (Nonterm) -> °E4Lt E5 
-    P226 E4Lt (3) -> °E4 ExprAddOp 
-    P224 E3 (Nonterm) -> °E3Lt E4 
+    P250 E7 (7) -> °E8WOId Subscripts 
+    P255 E7 (23) -> °IdentRef Subscripts 
+    P246 E6 (Nonterm) -> °ExprUnaryAddOp E7 
+    P247 ExprUnaryAddOp (Term) -> °StkPlus 
+    P248 ExprUnaryAddOp (Term) -> °StkMinus 
+    P244 E5 (Nonterm) -> °E5Lt E6 
+    P239 E5Lt (4) -> °E5 ExprMulOp 
+    P237 E4 (Nonterm) -> °E4Lt E5 
+    P233 E4Lt (3) -> °E4 ExprAddOp 
+    P231 E3 (Nonterm) -> °E3Lt E4 
     P223 E3Lt (2) -> °E3 ExprRelOp 
     P221 E2 (Term) -> °StkRwNOT E3 
     P219 E1 (Nonterm) -> °E1Lt E2 
@@ -2680,42 +2680,42 @@ State 119 = {
     P219 E1 (Nonterm) -> E1Lt°E2 
     P220 E2 (Nonterm) -> °E3 
     P222 E3 (Nonterm) -> °E4 
-    P225 E4 (Nonterm) -> °E5 
-    P228 E5 (Nonterm) -> °E6 
-    P231 E6 (Nonterm) -> °E7 
-    P237 E7 (Nonterm) -> °E8WOId 
-    P255 E8WOId (Term) -> °StkIntLit 
-    P256 E8WOId (Term) -> °StkLongIntLit 
-    P257 E8WOId (Term) -> °StkBasedLit 
-    P258 E8WOId (Term) -> °StkLongBasedLit 
-    P259 E8WOId (Term) -> °StkRealLit 
-    P260 E8WOId (Term) -> °StkLongRealLit 
-    P261 E8WOId (Term) -> °StkExtendedLit 
-    P262 E8WOId (Term) -> °StkCharLit 
-    P263 E8WOId (Term) -> °StkWideCharLit 
-    P264 E8WOId (Term) -> °StkTextLit 
-    P265 E8WOId (Term) -> °StkWideTextLit 
-    P254 E8WOId (6) -> °E8WOId StkDot NonreservedIdent 
-    P266 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
-    P241 E7 (Term) -> °StkIdent 
-    P233 E7 (6) -> °E8WOId StkDeref 
-    P238 E7 (Nonterm) -> °IdentRef StkDeref 
+    P232 E4 (Nonterm) -> °E5 
+    P238 E5 (Nonterm) -> °E6 
+    P245 E6 (Nonterm) -> °E7 
+    P253 E7 (Nonterm) -> °E8WOId 
+    P271 E8WOId (Term) -> °StkIntLit 
+    P272 E8WOId (Term) -> °StkLongIntLit 
+    P273 E8WOId (Term) -> °StkBasedLit 
+    P274 E8WOId (Term) -> °StkLongBasedLit 
+    P275 E8WOId (Term) -> °StkRealLit 
+    P276 E8WOId (Term) -> °StkLongRealLit 
+    P277 E8WOId (Term) -> °StkExtendedLit 
+    P278 E8WOId (Term) -> °StkCharLit 
+    P279 E8WOId (Term) -> °StkWideCharLit 
+    P280 E8WOId (Term) -> °StkTextLit 
+    P281 E8WOId (Term) -> °StkWideTextLit 
+    P270 E8WOId (6) -> °E8WOId StkDot NonreservedIdent 
+    P282 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
+    P257 E7 (Term) -> °StkIdent 
+    P249 E7 (6) -> °E8WOId StkDeref 
+    P254 E7 (Nonterm) -> °IdentRef StkDeref 
     P55 IdentRef (20) -> °StkIdent 
-    P235 E7 (6) -> °E8WOId Actuals 
-    P236 E7 (6) -> °E8WOId StkDot NonreservedIdent 
-    P240 E7 (22) -> °IdentRef Actuals 
-    P242 E7 (Nonterm) -> °QualIdentRef 
+    P251 E7 (6) -> °E8WOId Actuals 
+    P252 E7 (6) -> °E8WOId StkDot NonreservedIdent 
+    P256 E7 (22) -> °IdentRef Actuals 
+    P258 E7 (Nonterm) -> °QualIdentRef 
     P56 QualIdentRef (20) -> °StkIdent StkDot StkIdent 
-    P234 E7 (6) -> °E8WOId Subscripts 
-    P239 E7 (22) -> °IdentRef Subscripts 
-    P232 E6 (Nonterm) -> °ExprUnaryAddOp E7 
-    P281 ExprUnaryAddOp (Term) -> °StkPlus 
-    P282 ExprUnaryAddOp (Term) -> °StkMinus 
-    P230 E5 (Nonterm) -> °E5Lt E6 
-    P229 E5Lt (3) -> °E5 ExprMulOp 
-    P227 E4 (Nonterm) -> °E4Lt E5 
-    P226 E4Lt (2) -> °E4 ExprAddOp 
-    P224 E3 (Nonterm) -> °E3Lt E4 
+    P250 E7 (6) -> °E8WOId Subscripts 
+    P255 E7 (22) -> °IdentRef Subscripts 
+    P246 E6 (Nonterm) -> °ExprUnaryAddOp E7 
+    P247 ExprUnaryAddOp (Term) -> °StkPlus 
+    P248 ExprUnaryAddOp (Term) -> °StkMinus 
+    P244 E5 (Nonterm) -> °E5Lt E6 
+    P239 E5Lt (3) -> °E5 ExprMulOp 
+    P237 E4 (Nonterm) -> °E4Lt E5 
+    P233 E4Lt (2) -> °E4 ExprAddOp 
+    P231 E3 (Nonterm) -> °E3Lt E4 
     P223 E3Lt (1) -> °E3 ExprRelOp 
     P221 E2 (Term) -> °StkRwNOT E3 
  } 
@@ -2727,41 +2727,41 @@ State 120 = {
 State 121 = { 
     P220 E2 (Reduce) -> E3°
     P223 E3Lt (Nonterm) -> E3°ExprRelOp 
-    P267 ExprRelOp (Term) -> °StkEqual 
-    P268 ExprRelOp (Term) -> °StkUnequal 
-    P269 ExprRelOp (Term) -> °StkLess 
-    P270 ExprRelOp (Term) -> °StkGreater 
-    P271 ExprRelOp (Term) -> °StkLessEqual 
-    P272 ExprRelOp (Term) -> °StkGreaterEqual 
-    P273 ExprRelOp (Term) -> °StkRwIN 
+    P224 ExprRelOp (Term) -> °StkEqual 
+    P225 ExprRelOp (Term) -> °StkUnequal 
+    P226 ExprRelOp (Term) -> °StkLess 
+    P227 ExprRelOp (Term) -> °StkGreater 
+    P228 ExprRelOp (Term) -> °StkLessEqual 
+    P229 ExprRelOp (Term) -> °StkGreaterEqual 
+    P230 ExprRelOp (Term) -> °StkRwIN 
  } 
 
 State 122 = { 
-    P273 ExprRelOp (Reduce) -> StkRwIN°
+    P230 ExprRelOp (Reduce) -> StkRwIN°
  } 
 
 State 123 = { 
-    P267 ExprRelOp (Reduce) -> StkEqual°
+    P224 ExprRelOp (Reduce) -> StkEqual°
  } 
 
 State 124 = { 
-    P268 ExprRelOp (Reduce) -> StkUnequal°
+    P225 ExprRelOp (Reduce) -> StkUnequal°
  } 
 
 State 125 = { 
-    P269 ExprRelOp (Reduce) -> StkLess°
+    P226 ExprRelOp (Reduce) -> StkLess°
  } 
 
 State 126 = { 
-    P270 ExprRelOp (Reduce) -> StkGreater°
+    P227 ExprRelOp (Reduce) -> StkGreater°
  } 
 
 State 127 = { 
-    P271 ExprRelOp (Reduce) -> StkLessEqual°
+    P228 ExprRelOp (Reduce) -> StkLessEqual°
  } 
 
 State 128 = { 
-    P272 ExprRelOp (Reduce) -> StkGreaterEqual°
+    P229 ExprRelOp (Reduce) -> StkGreaterEqual°
  } 
 
 State 129 = { 
@@ -2770,363 +2770,363 @@ State 129 = {
 
 State 130 = { 
     P222 E3 (Reduce) -> E4°
-    P226 E4Lt (Nonterm) -> E4°ExprAddOp 
-    P274 ExprAddOp (Term) -> °StkPlus 
-    P275 ExprAddOp (Term) -> °StkMinus 
-    P276 ExprAddOp (Term) -> °StkAmpersand 
+    P233 E4Lt (Nonterm) -> E4°ExprAddOp 
+    P234 ExprAddOp (Term) -> °StkPlus 
+    P235 ExprAddOp (Term) -> °StkMinus 
+    P236 ExprAddOp (Term) -> °StkAmpersand 
  } 
 
 State 131 = { 
-    P274 ExprAddOp (Reduce) -> StkPlus°
+    P234 ExprAddOp (Reduce) -> StkPlus°
  } 
 
 State 132 = { 
-    P275 ExprAddOp (Reduce) -> StkMinus°
+    P235 ExprAddOp (Reduce) -> StkMinus°
  } 
 
 State 133 = { 
-    P276 ExprAddOp (Reduce) -> StkAmpersand°
+    P236 ExprAddOp (Reduce) -> StkAmpersand°
  } 
 
 State 134 = { 
-    P226 E4Lt (Reduce) -> E4 ExprAddOp°
+    P233 E4Lt (Reduce) -> E4 ExprAddOp°
  } 
 
 State 135 = { 
-    P224 E3 (Nonterm) -> E3Lt°E4 
-    P225 E4 (Nonterm) -> °E5 
-    P228 E5 (Nonterm) -> °E6 
-    P231 E6 (Nonterm) -> °E7 
-    P237 E7 (Nonterm) -> °E8WOId 
-    P255 E8WOId (Term) -> °StkIntLit 
-    P256 E8WOId (Term) -> °StkLongIntLit 
-    P257 E8WOId (Term) -> °StkBasedLit 
-    P258 E8WOId (Term) -> °StkLongBasedLit 
-    P259 E8WOId (Term) -> °StkRealLit 
-    P260 E8WOId (Term) -> °StkLongRealLit 
-    P261 E8WOId (Term) -> °StkExtendedLit 
-    P262 E8WOId (Term) -> °StkCharLit 
-    P263 E8WOId (Term) -> °StkWideCharLit 
-    P264 E8WOId (Term) -> °StkTextLit 
-    P265 E8WOId (Term) -> °StkWideTextLit 
-    P254 E8WOId (4) -> °E8WOId StkDot NonreservedIdent 
-    P266 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
-    P241 E7 (Term) -> °StkIdent 
-    P233 E7 (4) -> °E8WOId StkDeref 
-    P238 E7 (Nonterm) -> °IdentRef StkDeref 
+    P231 E3 (Nonterm) -> E3Lt°E4 
+    P232 E4 (Nonterm) -> °E5 
+    P238 E5 (Nonterm) -> °E6 
+    P245 E6 (Nonterm) -> °E7 
+    P253 E7 (Nonterm) -> °E8WOId 
+    P271 E8WOId (Term) -> °StkIntLit 
+    P272 E8WOId (Term) -> °StkLongIntLit 
+    P273 E8WOId (Term) -> °StkBasedLit 
+    P274 E8WOId (Term) -> °StkLongBasedLit 
+    P275 E8WOId (Term) -> °StkRealLit 
+    P276 E8WOId (Term) -> °StkLongRealLit 
+    P277 E8WOId (Term) -> °StkExtendedLit 
+    P278 E8WOId (Term) -> °StkCharLit 
+    P279 E8WOId (Term) -> °StkWideCharLit 
+    P280 E8WOId (Term) -> °StkTextLit 
+    P281 E8WOId (Term) -> °StkWideTextLit 
+    P270 E8WOId (4) -> °E8WOId StkDot NonreservedIdent 
+    P282 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
+    P257 E7 (Term) -> °StkIdent 
+    P249 E7 (4) -> °E8WOId StkDeref 
+    P254 E7 (Nonterm) -> °IdentRef StkDeref 
     P55 IdentRef (18) -> °StkIdent 
-    P235 E7 (4) -> °E8WOId Actuals 
-    P236 E7 (4) -> °E8WOId StkDot NonreservedIdent 
-    P240 E7 (20) -> °IdentRef Actuals 
-    P242 E7 (Nonterm) -> °QualIdentRef 
+    P251 E7 (4) -> °E8WOId Actuals 
+    P252 E7 (4) -> °E8WOId StkDot NonreservedIdent 
+    P256 E7 (20) -> °IdentRef Actuals 
+    P258 E7 (Nonterm) -> °QualIdentRef 
     P56 QualIdentRef (18) -> °StkIdent StkDot StkIdent 
-    P234 E7 (4) -> °E8WOId Subscripts 
-    P239 E7 (20) -> °IdentRef Subscripts 
-    P232 E6 (Nonterm) -> °ExprUnaryAddOp E7 
-    P281 ExprUnaryAddOp (Term) -> °StkPlus 
-    P282 ExprUnaryAddOp (Term) -> °StkMinus 
-    P230 E5 (Nonterm) -> °E5Lt E6 
-    P229 E5Lt (1) -> °E5 ExprMulOp 
-    P227 E4 (Nonterm) -> °E4Lt E5 
-    P226 E4Lt (0) -> °E4 ExprAddOp 
+    P250 E7 (4) -> °E8WOId Subscripts 
+    P255 E7 (20) -> °IdentRef Subscripts 
+    P246 E6 (Nonterm) -> °ExprUnaryAddOp E7 
+    P247 ExprUnaryAddOp (Term) -> °StkPlus 
+    P248 ExprUnaryAddOp (Term) -> °StkMinus 
+    P244 E5 (Nonterm) -> °E5Lt E6 
+    P239 E5Lt (1) -> °E5 ExprMulOp 
+    P237 E4 (Nonterm) -> °E4Lt E5 
+    P233 E4Lt (0) -> °E4 ExprAddOp 
  } 
 
 State 136 = { 
-    P224 E3 (Reduce) -> E3Lt E4°
-    P226 E4Lt (Nonterm) -> E4°ExprAddOp 
-    P274 ExprAddOp (Term) -> °StkPlus 
-    P275 ExprAddOp (Term) -> °StkMinus 
-    P276 ExprAddOp (Term) -> °StkAmpersand 
+    P231 E3 (Reduce) -> E3Lt E4°
+    P233 E4Lt (Nonterm) -> E4°ExprAddOp 
+    P234 ExprAddOp (Term) -> °StkPlus 
+    P235 ExprAddOp (Term) -> °StkMinus 
+    P236 ExprAddOp (Term) -> °StkAmpersand 
  } 
 
 State 137 = { 
-    P225 E4 (Reduce) -> E5°
-    P229 E5Lt (Nonterm) -> E5°ExprMulOp 
-    P277 ExprMulOp (Term) -> °StkStar 
-    P278 ExprMulOp (Term) -> °StkSlash 
-    P279 ExprMulOp (Term) -> °StkRwDIV 
-    P280 ExprMulOp (Term) -> °StkRwMOD 
+    P232 E4 (Reduce) -> E5°
+    P239 E5Lt (Nonterm) -> E5°ExprMulOp 
+    P240 ExprMulOp (Term) -> °StkStar 
+    P241 ExprMulOp (Term) -> °StkSlash 
+    P242 ExprMulOp (Term) -> °StkRwDIV 
+    P243 ExprMulOp (Term) -> °StkRwMOD 
  } 
 
 State 138 = { 
-    P279 ExprMulOp (Reduce) -> StkRwDIV°
+    P242 ExprMulOp (Reduce) -> StkRwDIV°
  } 
 
 State 139 = { 
-    P280 ExprMulOp (Reduce) -> StkRwMOD°
+    P243 ExprMulOp (Reduce) -> StkRwMOD°
  } 
 
 State 140 = { 
-    P277 ExprMulOp (Reduce) -> StkStar°
+    P240 ExprMulOp (Reduce) -> StkStar°
  } 
 
 State 141 = { 
-    P278 ExprMulOp (Reduce) -> StkSlash°
+    P241 ExprMulOp (Reduce) -> StkSlash°
  } 
 
 State 142 = { 
-    P229 E5Lt (Reduce) -> E5 ExprMulOp°
+    P239 E5Lt (Reduce) -> E5 ExprMulOp°
  } 
 
 State 143 = { 
-    P227 E4 (Nonterm) -> E4Lt°E5 
-    P228 E5 (Nonterm) -> °E6 
-    P231 E6 (Nonterm) -> °E7 
-    P237 E7 (Nonterm) -> °E8WOId 
-    P255 E8WOId (Term) -> °StkIntLit 
-    P256 E8WOId (Term) -> °StkLongIntLit 
-    P257 E8WOId (Term) -> °StkBasedLit 
-    P258 E8WOId (Term) -> °StkLongBasedLit 
-    P259 E8WOId (Term) -> °StkRealLit 
-    P260 E8WOId (Term) -> °StkLongRealLit 
-    P261 E8WOId (Term) -> °StkExtendedLit 
-    P262 E8WOId (Term) -> °StkCharLit 
-    P263 E8WOId (Term) -> °StkWideCharLit 
-    P264 E8WOId (Term) -> °StkTextLit 
-    P265 E8WOId (Term) -> °StkWideTextLit 
-    P254 E8WOId (3) -> °E8WOId StkDot NonreservedIdent 
-    P266 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
-    P241 E7 (Term) -> °StkIdent 
-    P233 E7 (3) -> °E8WOId StkDeref 
-    P238 E7 (Nonterm) -> °IdentRef StkDeref 
+    P237 E4 (Nonterm) -> E4Lt°E5 
+    P238 E5 (Nonterm) -> °E6 
+    P245 E6 (Nonterm) -> °E7 
+    P253 E7 (Nonterm) -> °E8WOId 
+    P271 E8WOId (Term) -> °StkIntLit 
+    P272 E8WOId (Term) -> °StkLongIntLit 
+    P273 E8WOId (Term) -> °StkBasedLit 
+    P274 E8WOId (Term) -> °StkLongBasedLit 
+    P275 E8WOId (Term) -> °StkRealLit 
+    P276 E8WOId (Term) -> °StkLongRealLit 
+    P277 E8WOId (Term) -> °StkExtendedLit 
+    P278 E8WOId (Term) -> °StkCharLit 
+    P279 E8WOId (Term) -> °StkWideCharLit 
+    P280 E8WOId (Term) -> °StkTextLit 
+    P281 E8WOId (Term) -> °StkWideTextLit 
+    P270 E8WOId (3) -> °E8WOId StkDot NonreservedIdent 
+    P282 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
+    P257 E7 (Term) -> °StkIdent 
+    P249 E7 (3) -> °E8WOId StkDeref 
+    P254 E7 (Nonterm) -> °IdentRef StkDeref 
     P55 IdentRef (17) -> °StkIdent 
-    P235 E7 (3) -> °E8WOId Actuals 
-    P236 E7 (3) -> °E8WOId StkDot NonreservedIdent 
-    P240 E7 (19) -> °IdentRef Actuals 
-    P242 E7 (Nonterm) -> °QualIdentRef 
+    P251 E7 (3) -> °E8WOId Actuals 
+    P252 E7 (3) -> °E8WOId StkDot NonreservedIdent 
+    P256 E7 (19) -> °IdentRef Actuals 
+    P258 E7 (Nonterm) -> °QualIdentRef 
     P56 QualIdentRef (17) -> °StkIdent StkDot StkIdent 
-    P234 E7 (3) -> °E8WOId Subscripts 
-    P239 E7 (19) -> °IdentRef Subscripts 
-    P232 E6 (Nonterm) -> °ExprUnaryAddOp E7 
-    P281 ExprUnaryAddOp (Term) -> °StkPlus 
-    P282 ExprUnaryAddOp (Term) -> °StkMinus 
-    P230 E5 (Nonterm) -> °E5Lt E6 
-    P229 E5Lt (0) -> °E5 ExprMulOp 
+    P250 E7 (3) -> °E8WOId Subscripts 
+    P255 E7 (19) -> °IdentRef Subscripts 
+    P246 E6 (Nonterm) -> °ExprUnaryAddOp E7 
+    P247 ExprUnaryAddOp (Term) -> °StkPlus 
+    P248 ExprUnaryAddOp (Term) -> °StkMinus 
+    P244 E5 (Nonterm) -> °E5Lt E6 
+    P239 E5Lt (0) -> °E5 ExprMulOp 
  } 
 
 State 144 = { 
-    P227 E4 (Reduce) -> E4Lt E5°
-    P229 E5Lt (Nonterm) -> E5°ExprMulOp 
-    P277 ExprMulOp (Term) -> °StkStar 
-    P278 ExprMulOp (Term) -> °StkSlash 
-    P279 ExprMulOp (Term) -> °StkRwDIV 
-    P280 ExprMulOp (Term) -> °StkRwMOD 
+    P237 E4 (Reduce) -> E4Lt E5°
+    P239 E5Lt (Nonterm) -> E5°ExprMulOp 
+    P240 ExprMulOp (Term) -> °StkStar 
+    P241 ExprMulOp (Term) -> °StkSlash 
+    P242 ExprMulOp (Term) -> °StkRwDIV 
+    P243 ExprMulOp (Term) -> °StkRwMOD 
  } 
 
 State 145 = { 
-    P228 E5 (Reduce) -> E6°
+    P238 E5 (Reduce) -> E6°
  } 
 
 State 146 = { 
-    P230 E5 (Nonterm) -> E5Lt°E6 
-    P231 E6 (Nonterm) -> °E7 
-    P237 E7 (Nonterm) -> °E8WOId 
-    P255 E8WOId (Term) -> °StkIntLit 
-    P256 E8WOId (Term) -> °StkLongIntLit 
-    P257 E8WOId (Term) -> °StkBasedLit 
-    P258 E8WOId (Term) -> °StkLongBasedLit 
-    P259 E8WOId (Term) -> °StkRealLit 
-    P260 E8WOId (Term) -> °StkLongRealLit 
-    P261 E8WOId (Term) -> °StkExtendedLit 
-    P262 E8WOId (Term) -> °StkCharLit 
-    P263 E8WOId (Term) -> °StkWideCharLit 
-    P264 E8WOId (Term) -> °StkTextLit 
-    P265 E8WOId (Term) -> °StkWideTextLit 
-    P254 E8WOId (2) -> °E8WOId StkDot NonreservedIdent 
-    P266 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
-    P241 E7 (Term) -> °StkIdent 
-    P233 E7 (2) -> °E8WOId StkDeref 
-    P238 E7 (Nonterm) -> °IdentRef StkDeref 
+    P244 E5 (Nonterm) -> E5Lt°E6 
+    P245 E6 (Nonterm) -> °E7 
+    P253 E7 (Nonterm) -> °E8WOId 
+    P271 E8WOId (Term) -> °StkIntLit 
+    P272 E8WOId (Term) -> °StkLongIntLit 
+    P273 E8WOId (Term) -> °StkBasedLit 
+    P274 E8WOId (Term) -> °StkLongBasedLit 
+    P275 E8WOId (Term) -> °StkRealLit 
+    P276 E8WOId (Term) -> °StkLongRealLit 
+    P277 E8WOId (Term) -> °StkExtendedLit 
+    P278 E8WOId (Term) -> °StkCharLit 
+    P279 E8WOId (Term) -> °StkWideCharLit 
+    P280 E8WOId (Term) -> °StkTextLit 
+    P281 E8WOId (Term) -> °StkWideTextLit 
+    P270 E8WOId (2) -> °E8WOId StkDot NonreservedIdent 
+    P282 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
+    P257 E7 (Term) -> °StkIdent 
+    P249 E7 (2) -> °E8WOId StkDeref 
+    P254 E7 (Nonterm) -> °IdentRef StkDeref 
     P55 IdentRef (16) -> °StkIdent 
-    P235 E7 (2) -> °E8WOId Actuals 
-    P236 E7 (2) -> °E8WOId StkDot NonreservedIdent 
-    P240 E7 (18) -> °IdentRef Actuals 
-    P242 E7 (Nonterm) -> °QualIdentRef 
+    P251 E7 (2) -> °E8WOId Actuals 
+    P252 E7 (2) -> °E8WOId StkDot NonreservedIdent 
+    P256 E7 (18) -> °IdentRef Actuals 
+    P258 E7 (Nonterm) -> °QualIdentRef 
     P56 QualIdentRef (16) -> °StkIdent StkDot StkIdent 
-    P234 E7 (2) -> °E8WOId Subscripts 
-    P239 E7 (18) -> °IdentRef Subscripts 
-    P232 E6 (Nonterm) -> °ExprUnaryAddOp E7 
-    P281 ExprUnaryAddOp (Term) -> °StkPlus 
-    P282 ExprUnaryAddOp (Term) -> °StkMinus 
+    P250 E7 (2) -> °E8WOId Subscripts 
+    P255 E7 (18) -> °IdentRef Subscripts 
+    P246 E6 (Nonterm) -> °ExprUnaryAddOp E7 
+    P247 ExprUnaryAddOp (Term) -> °StkPlus 
+    P248 ExprUnaryAddOp (Term) -> °StkMinus 
  } 
 
 State 147 = { 
-    P230 E5 (Reduce) -> E5Lt E6°
+    P244 E5 (Reduce) -> E5Lt E6°
  } 
 
 State 148 = { 
-    P231 E6 (Reduce) -> E7°
+    P245 E6 (Reduce) -> E7°
  } 
 
 State 149 = { 
-    P232 E6 (Nonterm) -> ExprUnaryAddOp°E7 
-    P237 E7 (Nonterm) -> °E8WOId 
-    P255 E8WOId (Term) -> °StkIntLit 
-    P256 E8WOId (Term) -> °StkLongIntLit 
-    P257 E8WOId (Term) -> °StkBasedLit 
-    P258 E8WOId (Term) -> °StkLongBasedLit 
-    P259 E8WOId (Term) -> °StkRealLit 
-    P260 E8WOId (Term) -> °StkLongRealLit 
-    P261 E8WOId (Term) -> °StkExtendedLit 
-    P262 E8WOId (Term) -> °StkCharLit 
-    P263 E8WOId (Term) -> °StkWideCharLit 
-    P264 E8WOId (Term) -> °StkTextLit 
-    P265 E8WOId (Term) -> °StkWideTextLit 
-    P254 E8WOId (1) -> °E8WOId StkDot NonreservedIdent 
-    P266 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
-    P241 E7 (Term) -> °StkIdent 
-    P233 E7 (1) -> °E8WOId StkDeref 
-    P238 E7 (Nonterm) -> °IdentRef StkDeref 
+    P246 E6 (Nonterm) -> ExprUnaryAddOp°E7 
+    P253 E7 (Nonterm) -> °E8WOId 
+    P271 E8WOId (Term) -> °StkIntLit 
+    P272 E8WOId (Term) -> °StkLongIntLit 
+    P273 E8WOId (Term) -> °StkBasedLit 
+    P274 E8WOId (Term) -> °StkLongBasedLit 
+    P275 E8WOId (Term) -> °StkRealLit 
+    P276 E8WOId (Term) -> °StkLongRealLit 
+    P277 E8WOId (Term) -> °StkExtendedLit 
+    P278 E8WOId (Term) -> °StkCharLit 
+    P279 E8WOId (Term) -> °StkWideCharLit 
+    P280 E8WOId (Term) -> °StkTextLit 
+    P281 E8WOId (Term) -> °StkWideTextLit 
+    P270 E8WOId (1) -> °E8WOId StkDot NonreservedIdent 
+    P282 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
+    P257 E7 (Term) -> °StkIdent 
+    P249 E7 (1) -> °E8WOId StkDeref 
+    P254 E7 (Nonterm) -> °IdentRef StkDeref 
     P55 IdentRef (15) -> °StkIdent 
-    P235 E7 (1) -> °E8WOId Actuals 
-    P236 E7 (1) -> °E8WOId StkDot NonreservedIdent 
-    P240 E7 (17) -> °IdentRef Actuals 
-    P242 E7 (Nonterm) -> °QualIdentRef 
+    P251 E7 (1) -> °E8WOId Actuals 
+    P252 E7 (1) -> °E8WOId StkDot NonreservedIdent 
+    P256 E7 (17) -> °IdentRef Actuals 
+    P258 E7 (Nonterm) -> °QualIdentRef 
     P56 QualIdentRef (15) -> °StkIdent StkDot StkIdent 
-    P234 E7 (1) -> °E8WOId Subscripts 
-    P239 E7 (17) -> °IdentRef Subscripts 
+    P250 E7 (1) -> °E8WOId Subscripts 
+    P255 E7 (17) -> °IdentRef Subscripts 
  } 
 
 State 150 = { 
-    P232 E6 (Reduce) -> ExprUnaryAddOp E7°
+    P246 E6 (Reduce) -> ExprUnaryAddOp E7°
  } 
 
 State 151 = { 
-    P237 E7 (Reduce) -> E8WOId°
-    P254 E8WOId (Term) -> E8WOId°StkDot NonreservedIdent 
-    P233 E7 (Term) -> E8WOId°StkDeref 
-    P235 E7 (Nonterm) -> E8WOId°Actuals 
-    P247 Actuals (Term) -> °StkOpenParen ActualList StkCloseParen 
-    P236 E7 (1) -> E8WOId°StkDot NonreservedIdent 
-    P234 E7 (Nonterm) -> E8WOId°Subscripts 
-    P243 Subscripts (Term) -> °StkOpenBracket SsPlusList StkCloseBracket 
+    P253 E7 (Reduce) -> E8WOId°
+    P270 E8WOId (Term) -> E8WOId°StkDot NonreservedIdent 
+    P249 E7 (Term) -> E8WOId°StkDeref 
+    P251 E7 (Nonterm) -> E8WOId°Actuals 
+    P263 Actuals (Term) -> °StkOpenParen ActualList StkCloseParen 
+    P252 E7 (1) -> E8WOId°StkDot NonreservedIdent 
+    P250 E7 (Nonterm) -> E8WOId°Subscripts 
+    P259 Subscripts (Term) -> °StkOpenBracket SsPlusList StkCloseBracket 
  } 
 
 State 152 = { 
-    P254 E8WOId (Nonterm) -> E8WOId StkDot°NonreservedIdent 
+    P270 E8WOId (Nonterm) -> E8WOId StkDot°NonreservedIdent 
     P54 NonreservedIdent (Term) -> °StkIdent 
-    P236 E7 (0) -> E8WOId StkDot°NonreservedIdent 
+    P252 E7 (0) -> E8WOId StkDot°NonreservedIdent 
  } 
 
 State 153 = { 
-    P254 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent°
-    P236 E7 (Reduce) -> E8WOId StkDot NonreservedIdent°
+    P270 E8WOId (Reduce) -> E8WOId StkDot NonreservedIdent°
+    P252 E7 (Reduce) -> E8WOId StkDot NonreservedIdent°
  } 
 
 State 154 = { 
-    P243 Subscripts (Nonterm) -> StkOpenBracket°SsPlusList StkCloseBracket 
-    P244 SsPlusList (Nonterm) -> °Expr 
+    P259 Subscripts (Nonterm) -> StkOpenBracket°SsPlusList StkCloseBracket 
+    P260 SsPlusList (Nonterm) -> °Expr 
     P213 Expr (Nonterm) -> °E0 
     P214 E0 (Nonterm) -> °E1 
     P217 E1 (Nonterm) -> °E2 
     P220 E2 (Nonterm) -> °E3 
     P222 E3 (Nonterm) -> °E4 
-    P225 E4 (Nonterm) -> °E5 
-    P228 E5 (Nonterm) -> °E6 
-    P231 E6 (Nonterm) -> °E7 
-    P237 E7 (Nonterm) -> °E8WOId 
-    P255 E8WOId (Term) -> °StkIntLit 
-    P256 E8WOId (Term) -> °StkLongIntLit 
-    P257 E8WOId (Term) -> °StkBasedLit 
-    P258 E8WOId (Term) -> °StkLongBasedLit 
-    P259 E8WOId (Term) -> °StkRealLit 
-    P260 E8WOId (Term) -> °StkLongRealLit 
-    P261 E8WOId (Term) -> °StkExtendedLit 
-    P262 E8WOId (Term) -> °StkCharLit 
-    P263 E8WOId (Term) -> °StkWideCharLit 
-    P264 E8WOId (Term) -> °StkTextLit 
-    P265 E8WOId (Term) -> °StkWideTextLit 
-    P254 E8WOId (10) -> °E8WOId StkDot NonreservedIdent 
-    P266 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
-    P241 E7 (Term) -> °StkIdent 
-    P233 E7 (10) -> °E8WOId StkDeref 
-    P238 E7 (Nonterm) -> °IdentRef StkDeref 
+    P232 E4 (Nonterm) -> °E5 
+    P238 E5 (Nonterm) -> °E6 
+    P245 E6 (Nonterm) -> °E7 
+    P253 E7 (Nonterm) -> °E8WOId 
+    P271 E8WOId (Term) -> °StkIntLit 
+    P272 E8WOId (Term) -> °StkLongIntLit 
+    P273 E8WOId (Term) -> °StkBasedLit 
+    P274 E8WOId (Term) -> °StkLongBasedLit 
+    P275 E8WOId (Term) -> °StkRealLit 
+    P276 E8WOId (Term) -> °StkLongRealLit 
+    P277 E8WOId (Term) -> °StkExtendedLit 
+    P278 E8WOId (Term) -> °StkCharLit 
+    P279 E8WOId (Term) -> °StkWideCharLit 
+    P280 E8WOId (Term) -> °StkTextLit 
+    P281 E8WOId (Term) -> °StkWideTextLit 
+    P270 E8WOId (10) -> °E8WOId StkDot NonreservedIdent 
+    P282 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
+    P257 E7 (Term) -> °StkIdent 
+    P249 E7 (10) -> °E8WOId StkDeref 
+    P254 E7 (Nonterm) -> °IdentRef StkDeref 
     P55 IdentRef (24) -> °StkIdent 
-    P235 E7 (10) -> °E8WOId Actuals 
-    P236 E7 (10) -> °E8WOId StkDot NonreservedIdent 
-    P240 E7 (26) -> °IdentRef Actuals 
-    P242 E7 (Nonterm) -> °QualIdentRef 
+    P251 E7 (10) -> °E8WOId Actuals 
+    P252 E7 (10) -> °E8WOId StkDot NonreservedIdent 
+    P256 E7 (26) -> °IdentRef Actuals 
+    P258 E7 (Nonterm) -> °QualIdentRef 
     P56 QualIdentRef (24) -> °StkIdent StkDot StkIdent 
-    P234 E7 (10) -> °E8WOId Subscripts 
-    P239 E7 (26) -> °IdentRef Subscripts 
-    P232 E6 (Nonterm) -> °ExprUnaryAddOp E7 
-    P281 ExprUnaryAddOp (Term) -> °StkPlus 
-    P282 ExprUnaryAddOp (Term) -> °StkMinus 
-    P230 E5 (Nonterm) -> °E5Lt E6 
-    P229 E5Lt (7) -> °E5 ExprMulOp 
-    P227 E4 (Nonterm) -> °E4Lt E5 
-    P226 E4Lt (6) -> °E4 ExprAddOp 
-    P224 E3 (Nonterm) -> °E3Lt E4 
+    P250 E7 (10) -> °E8WOId Subscripts 
+    P255 E7 (26) -> °IdentRef Subscripts 
+    P246 E6 (Nonterm) -> °ExprUnaryAddOp E7 
+    P247 ExprUnaryAddOp (Term) -> °StkPlus 
+    P248 ExprUnaryAddOp (Term) -> °StkMinus 
+    P244 E5 (Nonterm) -> °E5Lt E6 
+    P239 E5Lt (7) -> °E5 ExprMulOp 
+    P237 E4 (Nonterm) -> °E4Lt E5 
+    P233 E4Lt (6) -> °E4 ExprAddOp 
+    P231 E3 (Nonterm) -> °E3Lt E4 
     P223 E3Lt (5) -> °E3 ExprRelOp 
     P221 E2 (Term) -> °StkRwNOT E3 
     P219 E1 (Nonterm) -> °E1Lt E2 
     P218 E1Lt (3) -> °E1 StkRwAND 
     P216 E0 (Nonterm) -> °E0Lt E1 
     P215 E0Lt (2) -> °E0 StkRwOR 
-    P246 SsPlusList (Nonterm) -> °SsPlusListLt Expr 
-    P245 SsPlusListLt (0) -> °SsPlusList StkComma 
+    P262 SsPlusList (Nonterm) -> °SsPlusListLt Expr 
+    P261 SsPlusListLt (0) -> °SsPlusList StkComma 
  } 
 
 State 155 = { 
-    P244 SsPlusList (Reduce) -> Expr°
+    P260 SsPlusList (Reduce) -> Expr°
  } 
 
 State 156 = { 
-    P243 Subscripts (Term) -> StkOpenBracket SsPlusList°StkCloseBracket 
-    P245 SsPlusListLt (Term) -> SsPlusList°StkComma 
+    P259 Subscripts (Term) -> StkOpenBracket SsPlusList°StkCloseBracket 
+    P261 SsPlusListLt (Term) -> SsPlusList°StkComma 
  } 
 
 State 157 = { 
-    P245 SsPlusListLt (Reduce) -> SsPlusList StkComma°
+    P261 SsPlusListLt (Reduce) -> SsPlusList StkComma°
  } 
 
 State 158 = { 
-    P243 Subscripts (Reduce) -> StkOpenBracket SsPlusList StkCloseBracket°
+    P259 Subscripts (Reduce) -> StkOpenBracket SsPlusList StkCloseBracket°
  } 
 
 State 159 = { 
-    P246 SsPlusList (Nonterm) -> SsPlusListLt°Expr 
+    P262 SsPlusList (Nonterm) -> SsPlusListLt°Expr 
     P213 Expr (Nonterm) -> °E0 
     P214 E0 (Nonterm) -> °E1 
     P217 E1 (Nonterm) -> °E2 
     P220 E2 (Nonterm) -> °E3 
     P222 E3 (Nonterm) -> °E4 
-    P225 E4 (Nonterm) -> °E5 
-    P228 E5 (Nonterm) -> °E6 
-    P231 E6 (Nonterm) -> °E7 
-    P237 E7 (Nonterm) -> °E8WOId 
-    P255 E8WOId (Term) -> °StkIntLit 
-    P256 E8WOId (Term) -> °StkLongIntLit 
-    P257 E8WOId (Term) -> °StkBasedLit 
-    P258 E8WOId (Term) -> °StkLongBasedLit 
-    P259 E8WOId (Term) -> °StkRealLit 
-    P260 E8WOId (Term) -> °StkLongRealLit 
-    P261 E8WOId (Term) -> °StkExtendedLit 
-    P262 E8WOId (Term) -> °StkCharLit 
-    P263 E8WOId (Term) -> °StkWideCharLit 
-    P264 E8WOId (Term) -> °StkTextLit 
-    P265 E8WOId (Term) -> °StkWideTextLit 
-    P254 E8WOId (9) -> °E8WOId StkDot NonreservedIdent 
-    P266 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
-    P241 E7 (Term) -> °StkIdent 
-    P233 E7 (9) -> °E8WOId StkDeref 
-    P238 E7 (Nonterm) -> °IdentRef StkDeref 
+    P232 E4 (Nonterm) -> °E5 
+    P238 E5 (Nonterm) -> °E6 
+    P245 E6 (Nonterm) -> °E7 
+    P253 E7 (Nonterm) -> °E8WOId 
+    P271 E8WOId (Term) -> °StkIntLit 
+    P272 E8WOId (Term) -> °StkLongIntLit 
+    P273 E8WOId (Term) -> °StkBasedLit 
+    P274 E8WOId (Term) -> °StkLongBasedLit 
+    P275 E8WOId (Term) -> °StkRealLit 
+    P276 E8WOId (Term) -> °StkLongRealLit 
+    P277 E8WOId (Term) -> °StkExtendedLit 
+    P278 E8WOId (Term) -> °StkCharLit 
+    P279 E8WOId (Term) -> °StkWideCharLit 
+    P280 E8WOId (Term) -> °StkTextLit 
+    P281 E8WOId (Term) -> °StkWideTextLit 
+    P270 E8WOId (9) -> °E8WOId StkDot NonreservedIdent 
+    P282 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
+    P257 E7 (Term) -> °StkIdent 
+    P249 E7 (9) -> °E8WOId StkDeref 
+    P254 E7 (Nonterm) -> °IdentRef StkDeref 
     P55 IdentRef (23) -> °StkIdent 
-    P235 E7 (9) -> °E8WOId Actuals 
-    P236 E7 (9) -> °E8WOId StkDot NonreservedIdent 
-    P240 E7 (25) -> °IdentRef Actuals 
-    P242 E7 (Nonterm) -> °QualIdentRef 
+    P251 E7 (9) -> °E8WOId Actuals 
+    P252 E7 (9) -> °E8WOId StkDot NonreservedIdent 
+    P256 E7 (25) -> °IdentRef Actuals 
+    P258 E7 (Nonterm) -> °QualIdentRef 
     P56 QualIdentRef (23) -> °StkIdent StkDot StkIdent 
-    P234 E7 (9) -> °E8WOId Subscripts 
-    P239 E7 (25) -> °IdentRef Subscripts 
-    P232 E6 (Nonterm) -> °ExprUnaryAddOp E7 
-    P281 ExprUnaryAddOp (Term) -> °StkPlus 
-    P282 ExprUnaryAddOp (Term) -> °StkMinus 
-    P230 E5 (Nonterm) -> °E5Lt E6 
-    P229 E5Lt (6) -> °E5 ExprMulOp 
-    P227 E4 (Nonterm) -> °E4Lt E5 
-    P226 E4Lt (5) -> °E4 ExprAddOp 
-    P224 E3 (Nonterm) -> °E3Lt E4 
+    P250 E7 (9) -> °E8WOId Subscripts 
+    P255 E7 (25) -> °IdentRef Subscripts 
+    P246 E6 (Nonterm) -> °ExprUnaryAddOp E7 
+    P247 ExprUnaryAddOp (Term) -> °StkPlus 
+    P248 ExprUnaryAddOp (Term) -> °StkMinus 
+    P244 E5 (Nonterm) -> °E5Lt E6 
+    P239 E5Lt (6) -> °E5 ExprMulOp 
+    P237 E4 (Nonterm) -> °E4Lt E5 
+    P233 E4Lt (5) -> °E4 ExprAddOp 
+    P231 E3 (Nonterm) -> °E3Lt E4 
     P223 E3Lt (4) -> °E3 ExprRelOp 
     P221 E2 (Term) -> °StkRwNOT E3 
     P219 E1 (Nonterm) -> °E1Lt E2 
@@ -3136,131 +3136,131 @@ State 159 = {
  } 
 
 State 160 = { 
-    P246 SsPlusList (Reduce) -> SsPlusListLt Expr°
+    P262 SsPlusList (Reduce) -> SsPlusListLt Expr°
  } 
 
 State 161 = { 
-    P233 E7 (Reduce) -> E8WOId StkDeref°
+    P249 E7 (Reduce) -> E8WOId StkDeref°
  } 
 
 State 162 = { 
-    P234 E7 (Reduce) -> E8WOId Subscripts°
+    P250 E7 (Reduce) -> E8WOId Subscripts°
  } 
 
 State 163 = { 
-    P235 E7 (Reduce) -> E8WOId Actuals°
+    P251 E7 (Reduce) -> E8WOId Actuals°
  } 
 
 State 164 = { 
-    P252 Actual (Reduce) -> Expr°
+    P268 Actual (Reduce) -> Expr°
  } 
 
 State 165 = { 
-    P247 Actuals (Term) -> StkOpenParen ActualList°StkCloseParen 
-    P250 ActualListLt (Term) -> ActualList°StkComma 
+    P263 Actuals (Term) -> StkOpenParen ActualList°StkCloseParen 
+    P266 ActualListLt (Term) -> ActualList°StkComma 
  } 
 
 State 166 = { 
-    P247 Actuals (Reduce) -> StkOpenParen ActualList StkCloseParen°
+    P263 Actuals (Reduce) -> StkOpenParen ActualList StkCloseParen°
  } 
 
 State 167 = { 
-    P250 ActualListLt (Reduce) -> ActualList StkComma°
+    P266 ActualListLt (Reduce) -> ActualList StkComma°
  } 
 
 State 168 = { 
-    P249 ActualList (Reduce) -> Actual°
+    P265 ActualList (Reduce) -> Actual°
  } 
 
 State 169 = { 
-    P251 ActualList (Nonterm) -> ActualListLt°Actual 
-    P252 Actual (Nonterm) -> °Expr 
+    P267 ActualList (Nonterm) -> ActualListLt°Actual 
+    P268 Actual (Nonterm) -> °Expr 
     P213 Expr (Nonterm) -> °E0 
     P214 E0 (Nonterm) -> °E1 
     P217 E1 (Nonterm) -> °E2 
     P220 E2 (Nonterm) -> °E3 
     P222 E3 (Nonterm) -> °E4 
-    P225 E4 (Nonterm) -> °E5 
-    P228 E5 (Nonterm) -> °E6 
-    P231 E6 (Nonterm) -> °E7 
-    P237 E7 (Nonterm) -> °E8WOId 
-    P255 E8WOId (Term) -> °StkIntLit 
-    P256 E8WOId (Term) -> °StkLongIntLit 
-    P257 E8WOId (Term) -> °StkBasedLit 
-    P258 E8WOId (Term) -> °StkLongBasedLit 
-    P259 E8WOId (Term) -> °StkRealLit 
-    P260 E8WOId (Term) -> °StkLongRealLit 
-    P261 E8WOId (Term) -> °StkExtendedLit 
-    P262 E8WOId (Term) -> °StkCharLit 
-    P263 E8WOId (Term) -> °StkWideCharLit 
-    P264 E8WOId (Term) -> °StkTextLit 
-    P265 E8WOId (Term) -> °StkWideTextLit 
-    P254 E8WOId (10) -> °E8WOId StkDot NonreservedIdent 
-    P266 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
-    P241 E7 (Term) -> °StkIdent 
-    P233 E7 (10) -> °E8WOId StkDeref 
-    P238 E7 (Nonterm) -> °IdentRef StkDeref 
+    P232 E4 (Nonterm) -> °E5 
+    P238 E5 (Nonterm) -> °E6 
+    P245 E6 (Nonterm) -> °E7 
+    P253 E7 (Nonterm) -> °E8WOId 
+    P271 E8WOId (Term) -> °StkIntLit 
+    P272 E8WOId (Term) -> °StkLongIntLit 
+    P273 E8WOId (Term) -> °StkBasedLit 
+    P274 E8WOId (Term) -> °StkLongBasedLit 
+    P275 E8WOId (Term) -> °StkRealLit 
+    P276 E8WOId (Term) -> °StkLongRealLit 
+    P277 E8WOId (Term) -> °StkExtendedLit 
+    P278 E8WOId (Term) -> °StkCharLit 
+    P279 E8WOId (Term) -> °StkWideCharLit 
+    P280 E8WOId (Term) -> °StkTextLit 
+    P281 E8WOId (Term) -> °StkWideTextLit 
+    P270 E8WOId (10) -> °E8WOId StkDot NonreservedIdent 
+    P282 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
+    P257 E7 (Term) -> °StkIdent 
+    P249 E7 (10) -> °E8WOId StkDeref 
+    P254 E7 (Nonterm) -> °IdentRef StkDeref 
     P55 IdentRef (24) -> °StkIdent 
-    P235 E7 (10) -> °E8WOId Actuals 
-    P236 E7 (10) -> °E8WOId StkDot NonreservedIdent 
-    P240 E7 (26) -> °IdentRef Actuals 
-    P242 E7 (Nonterm) -> °QualIdentRef 
+    P251 E7 (10) -> °E8WOId Actuals 
+    P252 E7 (10) -> °E8WOId StkDot NonreservedIdent 
+    P256 E7 (26) -> °IdentRef Actuals 
+    P258 E7 (Nonterm) -> °QualIdentRef 
     P56 QualIdentRef (24) -> °StkIdent StkDot StkIdent 
-    P234 E7 (10) -> °E8WOId Subscripts 
-    P239 E7 (26) -> °IdentRef Subscripts 
-    P232 E6 (Nonterm) -> °ExprUnaryAddOp E7 
-    P281 ExprUnaryAddOp (Term) -> °StkPlus 
-    P282 ExprUnaryAddOp (Term) -> °StkMinus 
-    P230 E5 (Nonterm) -> °E5Lt E6 
-    P229 E5Lt (7) -> °E5 ExprMulOp 
-    P227 E4 (Nonterm) -> °E4Lt E5 
-    P226 E4Lt (6) -> °E4 ExprAddOp 
-    P224 E3 (Nonterm) -> °E3Lt E4 
+    P250 E7 (10) -> °E8WOId Subscripts 
+    P255 E7 (26) -> °IdentRef Subscripts 
+    P246 E6 (Nonterm) -> °ExprUnaryAddOp E7 
+    P247 ExprUnaryAddOp (Term) -> °StkPlus 
+    P248 ExprUnaryAddOp (Term) -> °StkMinus 
+    P244 E5 (Nonterm) -> °E5Lt E6 
+    P239 E5Lt (7) -> °E5 ExprMulOp 
+    P237 E4 (Nonterm) -> °E4Lt E5 
+    P233 E4Lt (6) -> °E4 ExprAddOp 
+    P231 E3 (Nonterm) -> °E3Lt E4 
     P223 E3Lt (5) -> °E3 ExprRelOp 
     P221 E2 (Term) -> °StkRwNOT E3 
     P219 E1 (Nonterm) -> °E1Lt E2 
     P218 E1Lt (3) -> °E1 StkRwAND 
     P216 E0 (Nonterm) -> °E0Lt E1 
     P215 E0Lt (2) -> °E0 StkRwOR 
-    P253 Actual (Nonterm) -> °NonreservedIdent StkBecomes Expr 
+    P269 Actual (Nonterm) -> °NonreservedIdent StkBecomes Expr 
     P54 NonreservedIdent (24) -> °StkIdent 
  } 
 
 State 170 = { 
-    P251 ActualList (Reduce) -> ActualListLt Actual°
+    P267 ActualList (Reduce) -> ActualListLt Actual°
  } 
 
 State 171 = { 
-    P238 E7 (Reduce) -> IdentRef StkDeref°
+    P254 E7 (Reduce) -> IdentRef StkDeref°
  } 
 
 State 172 = { 
-    P239 E7 (Reduce) -> IdentRef Subscripts°
+    P255 E7 (Reduce) -> IdentRef Subscripts°
  } 
 
 State 173 = { 
-    P240 E7 (Reduce) -> IdentRef Actuals°
+    P256 E7 (Reduce) -> IdentRef Actuals°
  } 
 
 State 174 = { 
-    P266 E8WOId (Term) -> StkOpenParen E0°StkCloseParen 
+    P282 E8WOId (Term) -> StkOpenParen E0°StkCloseParen 
     P215 E0Lt (Term) -> E0°StkRwOR 
  } 
 
 State 175 = { 
-    P266 E8WOId (Reduce) -> StkOpenParen E0 StkCloseParen°
+    P282 E8WOId (Reduce) -> StkOpenParen E0 StkCloseParen°
  } 
 
 State 176 = { 
     P221 E2 (Reduce) -> StkRwNOT E3°
     P223 E3Lt (Nonterm) -> E3°ExprRelOp 
-    P267 ExprRelOp (Term) -> °StkEqual 
-    P268 ExprRelOp (Term) -> °StkUnequal 
-    P269 ExprRelOp (Term) -> °StkLess 
-    P270 ExprRelOp (Term) -> °StkGreater 
-    P271 ExprRelOp (Term) -> °StkLessEqual 
-    P272 ExprRelOp (Term) -> °StkGreaterEqual 
-    P273 ExprRelOp (Term) -> °StkRwIN 
+    P224 ExprRelOp (Term) -> °StkEqual 
+    P225 ExprRelOp (Term) -> °StkUnequal 
+    P226 ExprRelOp (Term) -> °StkLess 
+    P227 ExprRelOp (Term) -> °StkGreater 
+    P228 ExprRelOp (Term) -> °StkLessEqual 
+    P229 ExprRelOp (Term) -> °StkGreaterEqual 
+    P230 ExprRelOp (Term) -> °StkRwIN 
  } 
 
 State 177 = { 
@@ -3274,42 +3274,42 @@ State 178 = {
     P217 E1 (Nonterm) -> °E2 
     P220 E2 (Nonterm) -> °E3 
     P222 E3 (Nonterm) -> °E4 
-    P225 E4 (Nonterm) -> °E5 
-    P228 E5 (Nonterm) -> °E6 
-    P231 E6 (Nonterm) -> °E7 
-    P237 E7 (Nonterm) -> °E8WOId 
-    P255 E8WOId (Term) -> °StkIntLit 
-    P256 E8WOId (Term) -> °StkLongIntLit 
-    P257 E8WOId (Term) -> °StkBasedLit 
-    P258 E8WOId (Term) -> °StkLongBasedLit 
-    P259 E8WOId (Term) -> °StkRealLit 
-    P260 E8WOId (Term) -> °StkLongRealLit 
-    P261 E8WOId (Term) -> °StkExtendedLit 
-    P262 E8WOId (Term) -> °StkCharLit 
-    P263 E8WOId (Term) -> °StkWideCharLit 
-    P264 E8WOId (Term) -> °StkTextLit 
-    P265 E8WOId (Term) -> °StkWideTextLit 
-    P254 E8WOId (9) -> °E8WOId StkDot NonreservedIdent 
-    P266 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
-    P241 E7 (Term) -> °StkIdent 
-    P233 E7 (9) -> °E8WOId StkDeref 
-    P238 E7 (Nonterm) -> °IdentRef StkDeref 
+    P232 E4 (Nonterm) -> °E5 
+    P238 E5 (Nonterm) -> °E6 
+    P245 E6 (Nonterm) -> °E7 
+    P253 E7 (Nonterm) -> °E8WOId 
+    P271 E8WOId (Term) -> °StkIntLit 
+    P272 E8WOId (Term) -> °StkLongIntLit 
+    P273 E8WOId (Term) -> °StkBasedLit 
+    P274 E8WOId (Term) -> °StkLongBasedLit 
+    P275 E8WOId (Term) -> °StkRealLit 
+    P276 E8WOId (Term) -> °StkLongRealLit 
+    P277 E8WOId (Term) -> °StkExtendedLit 
+    P278 E8WOId (Term) -> °StkCharLit 
+    P279 E8WOId (Term) -> °StkWideCharLit 
+    P280 E8WOId (Term) -> °StkTextLit 
+    P281 E8WOId (Term) -> °StkWideTextLit 
+    P270 E8WOId (9) -> °E8WOId StkDot NonreservedIdent 
+    P282 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
+    P257 E7 (Term) -> °StkIdent 
+    P249 E7 (9) -> °E8WOId StkDeref 
+    P254 E7 (Nonterm) -> °IdentRef StkDeref 
     P55 IdentRef (23) -> °StkIdent 
-    P235 E7 (9) -> °E8WOId Actuals 
-    P236 E7 (9) -> °E8WOId StkDot NonreservedIdent 
-    P240 E7 (25) -> °IdentRef Actuals 
-    P242 E7 (Nonterm) -> °QualIdentRef 
+    P251 E7 (9) -> °E8WOId Actuals 
+    P252 E7 (9) -> °E8WOId StkDot NonreservedIdent 
+    P256 E7 (25) -> °IdentRef Actuals 
+    P258 E7 (Nonterm) -> °QualIdentRef 
     P56 QualIdentRef (23) -> °StkIdent StkDot StkIdent 
-    P234 E7 (9) -> °E8WOId Subscripts 
-    P239 E7 (25) -> °IdentRef Subscripts 
-    P232 E6 (Nonterm) -> °ExprUnaryAddOp E7 
-    P281 ExprUnaryAddOp (Term) -> °StkPlus 
-    P282 ExprUnaryAddOp (Term) -> °StkMinus 
-    P230 E5 (Nonterm) -> °E5Lt E6 
-    P229 E5Lt (6) -> °E5 ExprMulOp 
-    P227 E4 (Nonterm) -> °E4Lt E5 
-    P226 E4Lt (5) -> °E4 ExprAddOp 
-    P224 E3 (Nonterm) -> °E3Lt E4 
+    P250 E7 (9) -> °E8WOId Subscripts 
+    P255 E7 (25) -> °IdentRef Subscripts 
+    P246 E6 (Nonterm) -> °ExprUnaryAddOp E7 
+    P247 ExprUnaryAddOp (Term) -> °StkPlus 
+    P248 ExprUnaryAddOp (Term) -> °StkMinus 
+    P244 E5 (Nonterm) -> °E5Lt E6 
+    P239 E5Lt (6) -> °E5 ExprMulOp 
+    P237 E4 (Nonterm) -> °E4Lt E5 
+    P233 E4Lt (5) -> °E4 ExprAddOp 
+    P231 E3 (Nonterm) -> °E3Lt E4 
     P223 E3Lt (4) -> °E3 ExprRelOp 
     P221 E2 (Term) -> °StkRwNOT E3 
     P219 E1 (Nonterm) -> °E1Lt E2 
@@ -3342,42 +3342,42 @@ State 183 = {
     P217 E1 (Nonterm) -> °E2 
     P220 E2 (Nonterm) -> °E3 
     P222 E3 (Nonterm) -> °E4 
-    P225 E4 (Nonterm) -> °E5 
-    P228 E5 (Nonterm) -> °E6 
-    P231 E6 (Nonterm) -> °E7 
-    P237 E7 (Nonterm) -> °E8WOId 
-    P255 E8WOId (Term) -> °StkIntLit 
-    P256 E8WOId (Term) -> °StkLongIntLit 
-    P257 E8WOId (Term) -> °StkBasedLit 
-    P258 E8WOId (Term) -> °StkLongBasedLit 
-    P259 E8WOId (Term) -> °StkRealLit 
-    P260 E8WOId (Term) -> °StkLongRealLit 
-    P261 E8WOId (Term) -> °StkExtendedLit 
-    P262 E8WOId (Term) -> °StkCharLit 
-    P263 E8WOId (Term) -> °StkWideCharLit 
-    P264 E8WOId (Term) -> °StkTextLit 
-    P265 E8WOId (Term) -> °StkWideTextLit 
-    P254 E8WOId (10) -> °E8WOId StkDot NonreservedIdent 
-    P266 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
-    P241 E7 (Term) -> °StkIdent 
-    P233 E7 (10) -> °E8WOId StkDeref 
-    P238 E7 (Nonterm) -> °IdentRef StkDeref 
+    P232 E4 (Nonterm) -> °E5 
+    P238 E5 (Nonterm) -> °E6 
+    P245 E6 (Nonterm) -> °E7 
+    P253 E7 (Nonterm) -> °E8WOId 
+    P271 E8WOId (Term) -> °StkIntLit 
+    P272 E8WOId (Term) -> °StkLongIntLit 
+    P273 E8WOId (Term) -> °StkBasedLit 
+    P274 E8WOId (Term) -> °StkLongBasedLit 
+    P275 E8WOId (Term) -> °StkRealLit 
+    P276 E8WOId (Term) -> °StkLongRealLit 
+    P277 E8WOId (Term) -> °StkExtendedLit 
+    P278 E8WOId (Term) -> °StkCharLit 
+    P279 E8WOId (Term) -> °StkWideCharLit 
+    P280 E8WOId (Term) -> °StkTextLit 
+    P281 E8WOId (Term) -> °StkWideTextLit 
+    P270 E8WOId (10) -> °E8WOId StkDot NonreservedIdent 
+    P282 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
+    P257 E7 (Term) -> °StkIdent 
+    P249 E7 (10) -> °E8WOId StkDeref 
+    P254 E7 (Nonterm) -> °IdentRef StkDeref 
     P55 IdentRef (24) -> °StkIdent 
-    P235 E7 (10) -> °E8WOId Actuals 
-    P236 E7 (10) -> °E8WOId StkDot NonreservedIdent 
-    P240 E7 (26) -> °IdentRef Actuals 
-    P242 E7 (Nonterm) -> °QualIdentRef 
+    P251 E7 (10) -> °E8WOId Actuals 
+    P252 E7 (10) -> °E8WOId StkDot NonreservedIdent 
+    P256 E7 (26) -> °IdentRef Actuals 
+    P258 E7 (Nonterm) -> °QualIdentRef 
     P56 QualIdentRef (24) -> °StkIdent StkDot StkIdent 
-    P234 E7 (10) -> °E8WOId Subscripts 
-    P239 E7 (26) -> °IdentRef Subscripts 
-    P232 E6 (Nonterm) -> °ExprUnaryAddOp E7 
-    P281 ExprUnaryAddOp (Term) -> °StkPlus 
-    P282 ExprUnaryAddOp (Term) -> °StkMinus 
-    P230 E5 (Nonterm) -> °E5Lt E6 
-    P229 E5Lt (7) -> °E5 ExprMulOp 
-    P227 E4 (Nonterm) -> °E4Lt E5 
-    P226 E4Lt (6) -> °E4 ExprAddOp 
-    P224 E3 (Nonterm) -> °E3Lt E4 
+    P250 E7 (10) -> °E8WOId Subscripts 
+    P255 E7 (26) -> °IdentRef Subscripts 
+    P246 E6 (Nonterm) -> °ExprUnaryAddOp E7 
+    P247 ExprUnaryAddOp (Term) -> °StkPlus 
+    P248 ExprUnaryAddOp (Term) -> °StkMinus 
+    P244 E5 (Nonterm) -> °E5Lt E6 
+    P239 E5Lt (7) -> °E5 ExprMulOp 
+    P237 E4 (Nonterm) -> °E4Lt E5 
+    P233 E4Lt (6) -> °E4 ExprAddOp 
+    P231 E3 (Nonterm) -> °E3Lt E4 
     P223 E3Lt (5) -> °E3 ExprRelOp 
     P221 E2 (Term) -> °StkRwNOT E3 
     P219 E1 (Nonterm) -> °E1Lt E2 
@@ -4202,42 +4202,42 @@ State 282 = {
     P217 E1 (Nonterm) -> °E2 
     P220 E2 (Nonterm) -> °E3 
     P222 E3 (Nonterm) -> °E4 
-    P225 E4 (Nonterm) -> °E5 
-    P228 E5 (Nonterm) -> °E6 
-    P231 E6 (Nonterm) -> °E7 
-    P237 E7 (Nonterm) -> °E8WOId 
-    P255 E8WOId (Term) -> °StkIntLit 
-    P256 E8WOId (Term) -> °StkLongIntLit 
-    P257 E8WOId (Term) -> °StkBasedLit 
-    P258 E8WOId (Term) -> °StkLongBasedLit 
-    P259 E8WOId (Term) -> °StkRealLit 
-    P260 E8WOId (Term) -> °StkLongRealLit 
-    P261 E8WOId (Term) -> °StkExtendedLit 
-    P262 E8WOId (Term) -> °StkCharLit 
-    P263 E8WOId (Term) -> °StkWideCharLit 
-    P264 E8WOId (Term) -> °StkTextLit 
-    P265 E8WOId (Term) -> °StkWideTextLit 
-    P254 E8WOId (9) -> °E8WOId StkDot NonreservedIdent 
-    P266 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
-    P241 E7 (Term) -> °StkIdent 
-    P233 E7 (9) -> °E8WOId StkDeref 
-    P238 E7 (Nonterm) -> °IdentRef StkDeref 
+    P232 E4 (Nonterm) -> °E5 
+    P238 E5 (Nonterm) -> °E6 
+    P245 E6 (Nonterm) -> °E7 
+    P253 E7 (Nonterm) -> °E8WOId 
+    P271 E8WOId (Term) -> °StkIntLit 
+    P272 E8WOId (Term) -> °StkLongIntLit 
+    P273 E8WOId (Term) -> °StkBasedLit 
+    P274 E8WOId (Term) -> °StkLongBasedLit 
+    P275 E8WOId (Term) -> °StkRealLit 
+    P276 E8WOId (Term) -> °StkLongRealLit 
+    P277 E8WOId (Term) -> °StkExtendedLit 
+    P278 E8WOId (Term) -> °StkCharLit 
+    P279 E8WOId (Term) -> °StkWideCharLit 
+    P280 E8WOId (Term) -> °StkTextLit 
+    P281 E8WOId (Term) -> °StkWideTextLit 
+    P270 E8WOId (9) -> °E8WOId StkDot NonreservedIdent 
+    P282 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
+    P257 E7 (Term) -> °StkIdent 
+    P249 E7 (9) -> °E8WOId StkDeref 
+    P254 E7 (Nonterm) -> °IdentRef StkDeref 
     P55 IdentRef (23) -> °StkIdent 
-    P235 E7 (9) -> °E8WOId Actuals 
-    P236 E7 (9) -> °E8WOId StkDot NonreservedIdent 
-    P240 E7 (25) -> °IdentRef Actuals 
-    P242 E7 (Nonterm) -> °QualIdentRef 
+    P251 E7 (9) -> °E8WOId Actuals 
+    P252 E7 (9) -> °E8WOId StkDot NonreservedIdent 
+    P256 E7 (25) -> °IdentRef Actuals 
+    P258 E7 (Nonterm) -> °QualIdentRef 
     P56 QualIdentRef (23) -> °StkIdent StkDot StkIdent 
-    P234 E7 (9) -> °E8WOId Subscripts 
-    P239 E7 (25) -> °IdentRef Subscripts 
-    P232 E6 (Nonterm) -> °ExprUnaryAddOp E7 
-    P281 ExprUnaryAddOp (Term) -> °StkPlus 
-    P282 ExprUnaryAddOp (Term) -> °StkMinus 
-    P230 E5 (Nonterm) -> °E5Lt E6 
-    P229 E5Lt (6) -> °E5 ExprMulOp 
-    P227 E4 (Nonterm) -> °E4Lt E5 
-    P226 E4Lt (5) -> °E4 ExprAddOp 
-    P224 E3 (Nonterm) -> °E3Lt E4 
+    P250 E7 (9) -> °E8WOId Subscripts 
+    P255 E7 (25) -> °IdentRef Subscripts 
+    P246 E6 (Nonterm) -> °ExprUnaryAddOp E7 
+    P247 ExprUnaryAddOp (Term) -> °StkPlus 
+    P248 ExprUnaryAddOp (Term) -> °StkMinus 
+    P244 E5 (Nonterm) -> °E5Lt E6 
+    P239 E5Lt (6) -> °E5 ExprMulOp 
+    P237 E4 (Nonterm) -> °E4Lt E5 
+    P233 E4Lt (5) -> °E4 ExprAddOp 
+    P231 E3 (Nonterm) -> °E3Lt E4 
     P223 E3Lt (4) -> °E3 ExprRelOp 
     P221 E2 (Term) -> °StkRwNOT E3 
     P219 E1 (Nonterm) -> °E1Lt E2 
@@ -4319,42 +4319,42 @@ State 296 = {
     P217 E1 (Nonterm) -> °E2 
     P220 E2 (Nonterm) -> °E3 
     P222 E3 (Nonterm) -> °E4 
-    P225 E4 (Nonterm) -> °E5 
-    P228 E5 (Nonterm) -> °E6 
-    P231 E6 (Nonterm) -> °E7 
-    P237 E7 (Nonterm) -> °E8WOId 
-    P255 E8WOId (Term) -> °StkIntLit 
-    P256 E8WOId (Term) -> °StkLongIntLit 
-    P257 E8WOId (Term) -> °StkBasedLit 
-    P258 E8WOId (Term) -> °StkLongBasedLit 
-    P259 E8WOId (Term) -> °StkRealLit 
-    P260 E8WOId (Term) -> °StkLongRealLit 
-    P261 E8WOId (Term) -> °StkExtendedLit 
-    P262 E8WOId (Term) -> °StkCharLit 
-    P263 E8WOId (Term) -> °StkWideCharLit 
-    P264 E8WOId (Term) -> °StkTextLit 
-    P265 E8WOId (Term) -> °StkWideTextLit 
-    P254 E8WOId (9) -> °E8WOId StkDot NonreservedIdent 
-    P266 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
-    P241 E7 (Term) -> °StkIdent 
-    P233 E7 (9) -> °E8WOId StkDeref 
-    P238 E7 (Nonterm) -> °IdentRef StkDeref 
+    P232 E4 (Nonterm) -> °E5 
+    P238 E5 (Nonterm) -> °E6 
+    P245 E6 (Nonterm) -> °E7 
+    P253 E7 (Nonterm) -> °E8WOId 
+    P271 E8WOId (Term) -> °StkIntLit 
+    P272 E8WOId (Term) -> °StkLongIntLit 
+    P273 E8WOId (Term) -> °StkBasedLit 
+    P274 E8WOId (Term) -> °StkLongBasedLit 
+    P275 E8WOId (Term) -> °StkRealLit 
+    P276 E8WOId (Term) -> °StkLongRealLit 
+    P277 E8WOId (Term) -> °StkExtendedLit 
+    P278 E8WOId (Term) -> °StkCharLit 
+    P279 E8WOId (Term) -> °StkWideCharLit 
+    P280 E8WOId (Term) -> °StkTextLit 
+    P281 E8WOId (Term) -> °StkWideTextLit 
+    P270 E8WOId (9) -> °E8WOId StkDot NonreservedIdent 
+    P282 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
+    P257 E7 (Term) -> °StkIdent 
+    P249 E7 (9) -> °E8WOId StkDeref 
+    P254 E7 (Nonterm) -> °IdentRef StkDeref 
     P55 IdentRef (23) -> °StkIdent 
-    P235 E7 (9) -> °E8WOId Actuals 
-    P236 E7 (9) -> °E8WOId StkDot NonreservedIdent 
-    P240 E7 (25) -> °IdentRef Actuals 
-    P242 E7 (Nonterm) -> °QualIdentRef 
+    P251 E7 (9) -> °E8WOId Actuals 
+    P252 E7 (9) -> °E8WOId StkDot NonreservedIdent 
+    P256 E7 (25) -> °IdentRef Actuals 
+    P258 E7 (Nonterm) -> °QualIdentRef 
     P56 QualIdentRef (23) -> °StkIdent StkDot StkIdent 
-    P234 E7 (9) -> °E8WOId Subscripts 
-    P239 E7 (25) -> °IdentRef Subscripts 
-    P232 E6 (Nonterm) -> °ExprUnaryAddOp E7 
-    P281 ExprUnaryAddOp (Term) -> °StkPlus 
-    P282 ExprUnaryAddOp (Term) -> °StkMinus 
-    P230 E5 (Nonterm) -> °E5Lt E6 
-    P229 E5Lt (6) -> °E5 ExprMulOp 
-    P227 E4 (Nonterm) -> °E4Lt E5 
-    P226 E4Lt (5) -> °E4 ExprAddOp 
-    P224 E3 (Nonterm) -> °E3Lt E4 
+    P250 E7 (9) -> °E8WOId Subscripts 
+    P255 E7 (25) -> °IdentRef Subscripts 
+    P246 E6 (Nonterm) -> °ExprUnaryAddOp E7 
+    P247 ExprUnaryAddOp (Term) -> °StkPlus 
+    P248 ExprUnaryAddOp (Term) -> °StkMinus 
+    P244 E5 (Nonterm) -> °E5Lt E6 
+    P239 E5Lt (6) -> °E5 ExprMulOp 
+    P237 E4 (Nonterm) -> °E4Lt E5 
+    P233 E4Lt (5) -> °E4 ExprAddOp 
+    P231 E3 (Nonterm) -> °E3Lt E4 
     P223 E3Lt (4) -> °E3 ExprRelOp 
     P221 E2 (Term) -> °StkRwNOT E3 
     P219 E1 (Nonterm) -> °E1Lt E2 
@@ -4519,42 +4519,42 @@ State 327 = {
     P217 E1 (Nonterm) -> °E2 
     P220 E2 (Nonterm) -> °E3 
     P222 E3 (Nonterm) -> °E4 
-    P225 E4 (Nonterm) -> °E5 
-    P228 E5 (Nonterm) -> °E6 
-    P231 E6 (Nonterm) -> °E7 
-    P237 E7 (Nonterm) -> °E8WOId 
-    P255 E8WOId (Term) -> °StkIntLit 
-    P256 E8WOId (Term) -> °StkLongIntLit 
-    P257 E8WOId (Term) -> °StkBasedLit 
-    P258 E8WOId (Term) -> °StkLongBasedLit 
-    P259 E8WOId (Term) -> °StkRealLit 
-    P260 E8WOId (Term) -> °StkLongRealLit 
-    P261 E8WOId (Term) -> °StkExtendedLit 
-    P262 E8WOId (Term) -> °StkCharLit 
-    P263 E8WOId (Term) -> °StkWideCharLit 
-    P264 E8WOId (Term) -> °StkTextLit 
-    P265 E8WOId (Term) -> °StkWideTextLit 
-    P254 E8WOId (9) -> °E8WOId StkDot NonreservedIdent 
-    P266 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
-    P241 E7 (Term) -> °StkIdent 
-    P233 E7 (9) -> °E8WOId StkDeref 
-    P238 E7 (Nonterm) -> °IdentRef StkDeref 
+    P232 E4 (Nonterm) -> °E5 
+    P238 E5 (Nonterm) -> °E6 
+    P245 E6 (Nonterm) -> °E7 
+    P253 E7 (Nonterm) -> °E8WOId 
+    P271 E8WOId (Term) -> °StkIntLit 
+    P272 E8WOId (Term) -> °StkLongIntLit 
+    P273 E8WOId (Term) -> °StkBasedLit 
+    P274 E8WOId (Term) -> °StkLongBasedLit 
+    P275 E8WOId (Term) -> °StkRealLit 
+    P276 E8WOId (Term) -> °StkLongRealLit 
+    P277 E8WOId (Term) -> °StkExtendedLit 
+    P278 E8WOId (Term) -> °StkCharLit 
+    P279 E8WOId (Term) -> °StkWideCharLit 
+    P280 E8WOId (Term) -> °StkTextLit 
+    P281 E8WOId (Term) -> °StkWideTextLit 
+    P270 E8WOId (9) -> °E8WOId StkDot NonreservedIdent 
+    P282 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
+    P257 E7 (Term) -> °StkIdent 
+    P249 E7 (9) -> °E8WOId StkDeref 
+    P254 E7 (Nonterm) -> °IdentRef StkDeref 
     P55 IdentRef (23) -> °StkIdent 
-    P235 E7 (9) -> °E8WOId Actuals 
-    P236 E7 (9) -> °E8WOId StkDot NonreservedIdent 
-    P240 E7 (25) -> °IdentRef Actuals 
-    P242 E7 (Nonterm) -> °QualIdentRef 
+    P251 E7 (9) -> °E8WOId Actuals 
+    P252 E7 (9) -> °E8WOId StkDot NonreservedIdent 
+    P256 E7 (25) -> °IdentRef Actuals 
+    P258 E7 (Nonterm) -> °QualIdentRef 
     P56 QualIdentRef (23) -> °StkIdent StkDot StkIdent 
-    P234 E7 (9) -> °E8WOId Subscripts 
-    P239 E7 (25) -> °IdentRef Subscripts 
-    P232 E6 (Nonterm) -> °ExprUnaryAddOp E7 
-    P281 ExprUnaryAddOp (Term) -> °StkPlus 
-    P282 ExprUnaryAddOp (Term) -> °StkMinus 
-    P230 E5 (Nonterm) -> °E5Lt E6 
-    P229 E5Lt (6) -> °E5 ExprMulOp 
-    P227 E4 (Nonterm) -> °E4Lt E5 
-    P226 E4Lt (5) -> °E4 ExprAddOp 
-    P224 E3 (Nonterm) -> °E3Lt E4 
+    P250 E7 (9) -> °E8WOId Subscripts 
+    P255 E7 (25) -> °IdentRef Subscripts 
+    P246 E6 (Nonterm) -> °ExprUnaryAddOp E7 
+    P247 ExprUnaryAddOp (Term) -> °StkPlus 
+    P248 ExprUnaryAddOp (Term) -> °StkMinus 
+    P244 E5 (Nonterm) -> °E5Lt E6 
+    P239 E5Lt (6) -> °E5 ExprMulOp 
+    P237 E4 (Nonterm) -> °E4Lt E5 
+    P233 E4Lt (5) -> °E4 ExprAddOp 
+    P231 E3 (Nonterm) -> °E3Lt E4 
     P223 E3Lt (4) -> °E3 ExprRelOp 
     P221 E2 (Term) -> °StkRwNOT E3 
     P219 E1 (Nonterm) -> °E1Lt E2 
@@ -4954,42 +4954,42 @@ State 378 = {
     P217 E1 (Nonterm) -> °E2 
     P220 E2 (Nonterm) -> °E3 
     P222 E3 (Nonterm) -> °E4 
-    P225 E4 (Nonterm) -> °E5 
-    P228 E5 (Nonterm) -> °E6 
-    P231 E6 (Nonterm) -> °E7 
-    P237 E7 (Nonterm) -> °E8WOId 
-    P255 E8WOId (Term) -> °StkIntLit 
-    P256 E8WOId (Term) -> °StkLongIntLit 
-    P257 E8WOId (Term) -> °StkBasedLit 
-    P258 E8WOId (Term) -> °StkLongBasedLit 
-    P259 E8WOId (Term) -> °StkRealLit 
-    P260 E8WOId (Term) -> °StkLongRealLit 
-    P261 E8WOId (Term) -> °StkExtendedLit 
-    P262 E8WOId (Term) -> °StkCharLit 
-    P263 E8WOId (Term) -> °StkWideCharLit 
-    P264 E8WOId (Term) -> °StkTextLit 
-    P265 E8WOId (Term) -> °StkWideTextLit 
-    P254 E8WOId (14) -> °E8WOId StkDot NonreservedIdent 
-    P266 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
-    P241 E7 (Term) -> °StkIdent 
-    P233 E7 (14) -> °E8WOId StkDeref 
-    P238 E7 (Nonterm) -> °IdentRef StkDeref 
+    P232 E4 (Nonterm) -> °E5 
+    P238 E5 (Nonterm) -> °E6 
+    P245 E6 (Nonterm) -> °E7 
+    P253 E7 (Nonterm) -> °E8WOId 
+    P271 E8WOId (Term) -> °StkIntLit 
+    P272 E8WOId (Term) -> °StkLongIntLit 
+    P273 E8WOId (Term) -> °StkBasedLit 
+    P274 E8WOId (Term) -> °StkLongBasedLit 
+    P275 E8WOId (Term) -> °StkRealLit 
+    P276 E8WOId (Term) -> °StkLongRealLit 
+    P277 E8WOId (Term) -> °StkExtendedLit 
+    P278 E8WOId (Term) -> °StkCharLit 
+    P279 E8WOId (Term) -> °StkWideCharLit 
+    P280 E8WOId (Term) -> °StkTextLit 
+    P281 E8WOId (Term) -> °StkWideTextLit 
+    P270 E8WOId (14) -> °E8WOId StkDot NonreservedIdent 
+    P282 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
+    P257 E7 (Term) -> °StkIdent 
+    P249 E7 (14) -> °E8WOId StkDeref 
+    P254 E7 (Nonterm) -> °IdentRef StkDeref 
     P55 IdentRef (28) -> °StkIdent 
-    P235 E7 (14) -> °E8WOId Actuals 
-    P236 E7 (14) -> °E8WOId StkDot NonreservedIdent 
-    P240 E7 (30) -> °IdentRef Actuals 
-    P242 E7 (Nonterm) -> °QualIdentRef 
+    P251 E7 (14) -> °E8WOId Actuals 
+    P252 E7 (14) -> °E8WOId StkDot NonreservedIdent 
+    P256 E7 (30) -> °IdentRef Actuals 
+    P258 E7 (Nonterm) -> °QualIdentRef 
     P56 QualIdentRef (28) -> °StkIdent StkDot StkIdent 
-    P234 E7 (14) -> °E8WOId Subscripts 
-    P239 E7 (30) -> °IdentRef Subscripts 
-    P232 E6 (Nonterm) -> °ExprUnaryAddOp E7 
-    P281 ExprUnaryAddOp (Term) -> °StkPlus 
-    P282 ExprUnaryAddOp (Term) -> °StkMinus 
-    P230 E5 (Nonterm) -> °E5Lt E6 
-    P229 E5Lt (11) -> °E5 ExprMulOp 
-    P227 E4 (Nonterm) -> °E4Lt E5 
-    P226 E4Lt (10) -> °E4 ExprAddOp 
-    P224 E3 (Nonterm) -> °E3Lt E4 
+    P250 E7 (14) -> °E8WOId Subscripts 
+    P255 E7 (30) -> °IdentRef Subscripts 
+    P246 E6 (Nonterm) -> °ExprUnaryAddOp E7 
+    P247 ExprUnaryAddOp (Term) -> °StkPlus 
+    P248 ExprUnaryAddOp (Term) -> °StkMinus 
+    P244 E5 (Nonterm) -> °E5Lt E6 
+    P239 E5Lt (11) -> °E5 ExprMulOp 
+    P237 E4 (Nonterm) -> °E4Lt E5 
+    P233 E4Lt (10) -> °E4 ExprAddOp 
+    P231 E3 (Nonterm) -> °E3Lt E4 
     P223 E3Lt (9) -> °E3 ExprRelOp 
     P221 E2 (Term) -> °StkRwNOT E3 
     P219 E1 (Nonterm) -> °E1Lt E2 
@@ -5019,42 +5019,42 @@ State 382 = {
     P217 E1 (Nonterm) -> °E2 
     P220 E2 (Nonterm) -> °E3 
     P222 E3 (Nonterm) -> °E4 
-    P225 E4 (Nonterm) -> °E5 
-    P228 E5 (Nonterm) -> °E6 
-    P231 E6 (Nonterm) -> °E7 
-    P237 E7 (Nonterm) -> °E8WOId 
-    P255 E8WOId (Term) -> °StkIntLit 
-    P256 E8WOId (Term) -> °StkLongIntLit 
-    P257 E8WOId (Term) -> °StkBasedLit 
-    P258 E8WOId (Term) -> °StkLongBasedLit 
-    P259 E8WOId (Term) -> °StkRealLit 
-    P260 E8WOId (Term) -> °StkLongRealLit 
-    P261 E8WOId (Term) -> °StkExtendedLit 
-    P262 E8WOId (Term) -> °StkCharLit 
-    P263 E8WOId (Term) -> °StkWideCharLit 
-    P264 E8WOId (Term) -> °StkTextLit 
-    P265 E8WOId (Term) -> °StkWideTextLit 
-    P254 E8WOId (9) -> °E8WOId StkDot NonreservedIdent 
-    P266 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
-    P241 E7 (Term) -> °StkIdent 
-    P233 E7 (9) -> °E8WOId StkDeref 
-    P238 E7 (Nonterm) -> °IdentRef StkDeref 
+    P232 E4 (Nonterm) -> °E5 
+    P238 E5 (Nonterm) -> °E6 
+    P245 E6 (Nonterm) -> °E7 
+    P253 E7 (Nonterm) -> °E8WOId 
+    P271 E8WOId (Term) -> °StkIntLit 
+    P272 E8WOId (Term) -> °StkLongIntLit 
+    P273 E8WOId (Term) -> °StkBasedLit 
+    P274 E8WOId (Term) -> °StkLongBasedLit 
+    P275 E8WOId (Term) -> °StkRealLit 
+    P276 E8WOId (Term) -> °StkLongRealLit 
+    P277 E8WOId (Term) -> °StkExtendedLit 
+    P278 E8WOId (Term) -> °StkCharLit 
+    P279 E8WOId (Term) -> °StkWideCharLit 
+    P280 E8WOId (Term) -> °StkTextLit 
+    P281 E8WOId (Term) -> °StkWideTextLit 
+    P270 E8WOId (9) -> °E8WOId StkDot NonreservedIdent 
+    P282 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
+    P257 E7 (Term) -> °StkIdent 
+    P249 E7 (9) -> °E8WOId StkDeref 
+    P254 E7 (Nonterm) -> °IdentRef StkDeref 
     P55 IdentRef (23) -> °StkIdent 
-    P235 E7 (9) -> °E8WOId Actuals 
-    P236 E7 (9) -> °E8WOId StkDot NonreservedIdent 
-    P240 E7 (25) -> °IdentRef Actuals 
-    P242 E7 (Nonterm) -> °QualIdentRef 
+    P251 E7 (9) -> °E8WOId Actuals 
+    P252 E7 (9) -> °E8WOId StkDot NonreservedIdent 
+    P256 E7 (25) -> °IdentRef Actuals 
+    P258 E7 (Nonterm) -> °QualIdentRef 
     P56 QualIdentRef (23) -> °StkIdent StkDot StkIdent 
-    P234 E7 (9) -> °E8WOId Subscripts 
-    P239 E7 (25) -> °IdentRef Subscripts 
-    P232 E6 (Nonterm) -> °ExprUnaryAddOp E7 
-    P281 ExprUnaryAddOp (Term) -> °StkPlus 
-    P282 ExprUnaryAddOp (Term) -> °StkMinus 
-    P230 E5 (Nonterm) -> °E5Lt E6 
-    P229 E5Lt (6) -> °E5 ExprMulOp 
-    P227 E4 (Nonterm) -> °E4Lt E5 
-    P226 E4Lt (5) -> °E4 ExprAddOp 
-    P224 E3 (Nonterm) -> °E3Lt E4 
+    P250 E7 (9) -> °E8WOId Subscripts 
+    P255 E7 (25) -> °IdentRef Subscripts 
+    P246 E6 (Nonterm) -> °ExprUnaryAddOp E7 
+    P247 ExprUnaryAddOp (Term) -> °StkPlus 
+    P248 ExprUnaryAddOp (Term) -> °StkMinus 
+    P244 E5 (Nonterm) -> °E5Lt E6 
+    P239 E5Lt (6) -> °E5 ExprMulOp 
+    P237 E4 (Nonterm) -> °E4Lt E5 
+    P233 E4Lt (5) -> °E4 ExprAddOp 
+    P231 E3 (Nonterm) -> °E3Lt E4 
     P223 E3Lt (4) -> °E3 ExprRelOp 
     P221 E2 (Term) -> °StkRwNOT E3 
     P219 E1 (Nonterm) -> °E1Lt E2 
@@ -5095,42 +5095,42 @@ State 388 = {
     P217 E1 (Nonterm) -> °E2 
     P220 E2 (Nonterm) -> °E3 
     P222 E3 (Nonterm) -> °E4 
-    P225 E4 (Nonterm) -> °E5 
-    P228 E5 (Nonterm) -> °E6 
-    P231 E6 (Nonterm) -> °E7 
-    P237 E7 (Nonterm) -> °E8WOId 
-    P255 E8WOId (Term) -> °StkIntLit 
-    P256 E8WOId (Term) -> °StkLongIntLit 
-    P257 E8WOId (Term) -> °StkBasedLit 
-    P258 E8WOId (Term) -> °StkLongBasedLit 
-    P259 E8WOId (Term) -> °StkRealLit 
-    P260 E8WOId (Term) -> °StkLongRealLit 
-    P261 E8WOId (Term) -> °StkExtendedLit 
-    P262 E8WOId (Term) -> °StkCharLit 
-    P263 E8WOId (Term) -> °StkWideCharLit 
-    P264 E8WOId (Term) -> °StkTextLit 
-    P265 E8WOId (Term) -> °StkWideTextLit 
-    P254 E8WOId (11) -> °E8WOId StkDot NonreservedIdent 
-    P266 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
-    P241 E7 (Term) -> °StkIdent 
-    P233 E7 (11) -> °E8WOId StkDeref 
-    P238 E7 (Nonterm) -> °IdentRef StkDeref 
+    P232 E4 (Nonterm) -> °E5 
+    P238 E5 (Nonterm) -> °E6 
+    P245 E6 (Nonterm) -> °E7 
+    P253 E7 (Nonterm) -> °E8WOId 
+    P271 E8WOId (Term) -> °StkIntLit 
+    P272 E8WOId (Term) -> °StkLongIntLit 
+    P273 E8WOId (Term) -> °StkBasedLit 
+    P274 E8WOId (Term) -> °StkLongBasedLit 
+    P275 E8WOId (Term) -> °StkRealLit 
+    P276 E8WOId (Term) -> °StkLongRealLit 
+    P277 E8WOId (Term) -> °StkExtendedLit 
+    P278 E8WOId (Term) -> °StkCharLit 
+    P279 E8WOId (Term) -> °StkWideCharLit 
+    P280 E8WOId (Term) -> °StkTextLit 
+    P281 E8WOId (Term) -> °StkWideTextLit 
+    P270 E8WOId (11) -> °E8WOId StkDot NonreservedIdent 
+    P282 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
+    P257 E7 (Term) -> °StkIdent 
+    P249 E7 (11) -> °E8WOId StkDeref 
+    P254 E7 (Nonterm) -> °IdentRef StkDeref 
     P55 IdentRef (25) -> °StkIdent 
-    P235 E7 (11) -> °E8WOId Actuals 
-    P236 E7 (11) -> °E8WOId StkDot NonreservedIdent 
-    P240 E7 (27) -> °IdentRef Actuals 
-    P242 E7 (Nonterm) -> °QualIdentRef 
+    P251 E7 (11) -> °E8WOId Actuals 
+    P252 E7 (11) -> °E8WOId StkDot NonreservedIdent 
+    P256 E7 (27) -> °IdentRef Actuals 
+    P258 E7 (Nonterm) -> °QualIdentRef 
     P56 QualIdentRef (25) -> °StkIdent StkDot StkIdent 
-    P234 E7 (11) -> °E8WOId Subscripts 
-    P239 E7 (27) -> °IdentRef Subscripts 
-    P232 E6 (Nonterm) -> °ExprUnaryAddOp E7 
-    P281 ExprUnaryAddOp (Term) -> °StkPlus 
-    P282 ExprUnaryAddOp (Term) -> °StkMinus 
-    P230 E5 (Nonterm) -> °E5Lt E6 
-    P229 E5Lt (8) -> °E5 ExprMulOp 
-    P227 E4 (Nonterm) -> °E4Lt E5 
-    P226 E4Lt (7) -> °E4 ExprAddOp 
-    P224 E3 (Nonterm) -> °E3Lt E4 
+    P250 E7 (11) -> °E8WOId Subscripts 
+    P255 E7 (27) -> °IdentRef Subscripts 
+    P246 E6 (Nonterm) -> °ExprUnaryAddOp E7 
+    P247 ExprUnaryAddOp (Term) -> °StkPlus 
+    P248 ExprUnaryAddOp (Term) -> °StkMinus 
+    P244 E5 (Nonterm) -> °E5Lt E6 
+    P239 E5Lt (8) -> °E5 ExprMulOp 
+    P237 E4 (Nonterm) -> °E4Lt E5 
+    P233 E4Lt (7) -> °E4 ExprAddOp 
+    P231 E3 (Nonterm) -> °E3Lt E4 
     P223 E3Lt (6) -> °E3 ExprRelOp 
     P221 E2 (Term) -> °StkRwNOT E3 
     P219 E1 (Nonterm) -> °E1Lt E2 
@@ -5317,42 +5317,42 @@ State 416 = {
     P217 E1 (Nonterm) -> °E2 
     P220 E2 (Nonterm) -> °E3 
     P222 E3 (Nonterm) -> °E4 
-    P225 E4 (Nonterm) -> °E5 
-    P228 E5 (Nonterm) -> °E6 
-    P231 E6 (Nonterm) -> °E7 
-    P237 E7 (Nonterm) -> °E8WOId 
-    P255 E8WOId (Term) -> °StkIntLit 
-    P256 E8WOId (Term) -> °StkLongIntLit 
-    P257 E8WOId (Term) -> °StkBasedLit 
-    P258 E8WOId (Term) -> °StkLongBasedLit 
-    P259 E8WOId (Term) -> °StkRealLit 
-    P260 E8WOId (Term) -> °StkLongRealLit 
-    P261 E8WOId (Term) -> °StkExtendedLit 
-    P262 E8WOId (Term) -> °StkCharLit 
-    P263 E8WOId (Term) -> °StkWideCharLit 
-    P264 E8WOId (Term) -> °StkTextLit 
-    P265 E8WOId (Term) -> °StkWideTextLit 
-    P254 E8WOId (14) -> °E8WOId StkDot NonreservedIdent 
-    P266 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
-    P241 E7 (Term) -> °StkIdent 
-    P233 E7 (14) -> °E8WOId StkDeref 
-    P238 E7 (Nonterm) -> °IdentRef StkDeref 
+    P232 E4 (Nonterm) -> °E5 
+    P238 E5 (Nonterm) -> °E6 
+    P245 E6 (Nonterm) -> °E7 
+    P253 E7 (Nonterm) -> °E8WOId 
+    P271 E8WOId (Term) -> °StkIntLit 
+    P272 E8WOId (Term) -> °StkLongIntLit 
+    P273 E8WOId (Term) -> °StkBasedLit 
+    P274 E8WOId (Term) -> °StkLongBasedLit 
+    P275 E8WOId (Term) -> °StkRealLit 
+    P276 E8WOId (Term) -> °StkLongRealLit 
+    P277 E8WOId (Term) -> °StkExtendedLit 
+    P278 E8WOId (Term) -> °StkCharLit 
+    P279 E8WOId (Term) -> °StkWideCharLit 
+    P280 E8WOId (Term) -> °StkTextLit 
+    P281 E8WOId (Term) -> °StkWideTextLit 
+    P270 E8WOId (14) -> °E8WOId StkDot NonreservedIdent 
+    P282 E8WOId (Term) -> °StkOpenParen E0 StkCloseParen 
+    P257 E7 (Term) -> °StkIdent 
+    P249 E7 (14) -> °E8WOId StkDeref 
+    P254 E7 (Nonterm) -> °IdentRef StkDeref 
     P55 IdentRef (28) -> °StkIdent 
-    P235 E7 (14) -> °E8WOId Actuals 
-    P236 E7 (14) -> °E8WOId StkDot NonreservedIdent 
-    P240 E7 (30) -> °IdentRef Actuals 
-    P242 E7 (Nonterm) -> °QualIdentRef 
+    P251 E7 (14) -> °E8WOId Actuals 
+    P252 E7 (14) -> °E8WOId StkDot NonreservedIdent 
+    P256 E7 (30) -> °IdentRef Actuals 
+    P258 E7 (Nonterm) -> °QualIdentRef 
     P56 QualIdentRef (28) -> °StkIdent StkDot StkIdent 
-    P234 E7 (14) -> °E8WOId Subscripts 
-    P239 E7 (30) -> °IdentRef Subscripts 
-    P232 E6 (Nonterm) -> °ExprUnaryAddOp E7 
-    P281 ExprUnaryAddOp (Term) -> °StkPlus 
-    P282 ExprUnaryAddOp (Term) -> °StkMinus 
-    P230 E5 (Nonterm) -> °E5Lt E6 
-    P229 E5Lt (11) -> °E5 ExprMulOp 
-    P227 E4 (Nonterm) -> °E4Lt E5 
-    P226 E4Lt (10) -> °E4 ExprAddOp 
-    P224 E3 (Nonterm) -> °E3Lt E4 
+    P250 E7 (14) -> °E8WOId Subscripts 
+    P255 E7 (30) -> °IdentRef Subscripts 
+    P246 E6 (Nonterm) -> °ExprUnaryAddOp E7 
+    P247 ExprUnaryAddOp (Term) -> °StkPlus 
+    P248 ExprUnaryAddOp (Term) -> °StkMinus 
+    P244 E5 (Nonterm) -> °E5Lt E6 
+    P239 E5Lt (11) -> °E5 ExprMulOp 
+    P237 E4 (Nonterm) -> °E4Lt E5 
+    P233 E4Lt (10) -> °E4 ExprAddOp 
+    P231 E3 (Nonterm) -> °E3Lt E4 
     P223 E3Lt (9) -> °E3 ExprRelOp 
     P221 E2 (Term) -> °StkRwNOT E3 
     P219 E1 (Nonterm) -> °E1Lt E2 
@@ -5563,45 +5563,45 @@ State 43: (StkEqual->(A520,P79)) (StkColon->(A520,P79)) (ConstDeclTypeTok->(A44)
 State 44: (StkEqual->(A522,P81)) (StkColon->(A45)) (OptConstDeclType->(A146))
 State 45: (StkRwARRAY->(A46)) (StkRwBRANDED->(A85)) (StkRwOBJECT->(A614,P173)) (StkRwPROCEDURE->(A86)) (StkRwRECORD->(A277,P157)) (StkRwREF->(A617,P176)) (StkRwROOT->(A278,P68)) (StkRwUNTRACED->(A89)) (StkOpenBrace->(A280,P145)) (StkIdent->(A93)) (IdentRef->(A360,P57)) (QualIdentRef->(A361,P58)) (IdentOrQualRef->(A362,P67)) (TypeName->(A94)) (Type->(A417,P80)) (StkRidADDRESS->(A364,P118)) (StkRidBOOLEAN->(A365,P119)) (StkRidCARDINAL->(A366,P120)) (StkRidCHAR->(A367,P121)) (StkRidEXTENDED->(A368,P122)) (StkRidINTEGER->(A369,P123)) (StkRidLONGCARD->(A370,P124)) (StkRidLONGINT->(A371,P125)) (StkRidLONGREAL->(A372,P126)) (StkRidMUTEX->(A373,P127)) (StkRidNULL->(A374,P128)) (StkRidREAL->(A375,P129)) (StkRidREFANY->(A376,P130)) (StkRidTEXT->(A377,P131)) (StkRidTYPECODE->(A378,P132)) (StkRidWIDECHAR->(A379,P133)) (RefTypeTraced->(A380,P134)) (RefTypeUntraced->(A381,P135)) (SupertypeAbsent->(A95)) (Brand->(A98)) (OpenArrayType->(A383,P138)) (OpenArrayTypeLt->(A99)) (FixedArrayType->(A385,P141)) (FixedArrayTypeLt->(A100)) (EnumTypeLt->(A101)) (EnumType->(A389,P152)) (RecTypeLt->(A105)) (Supertype->(A392,P180)) (ObjType->(A111)) (SupertypeSem->(A112)) (ObjSubtypeLt->(A393,P181)) (ObjTypeLt->(A114)) (ObjRootTypeLt->(A411,P183))
 State 46: (StkRwOF->(A236,P139)) (StkOpenBracket->(A47)) (SubrType->(A84))
-State 47: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P281)) (StkMinus->(A238,P282)) (StkIdent->(A50)) (StkIntLit->(A240,P255)) (StkLongIntLit->(A241,P256)) (StkBasedLit->(A242,P257)) (StkLongBasedLit->(A243,P258)) (StkRealLit->(A244,P259)) (StkLongRealLit->(A245,P260)) (StkExtendedLit->(A246,P261)) (StkTextLit->(A247,P264)) (StkWideTextLit->(A248,P265)) (StkCharLit->(A249,P262)) (StkWideCharLit->(A250,P263)) (IdentRef->(A52)) (QualIdentRef->(A338,P242)) (Expr->(A81)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P228)) (E5Lt->(A69)) (E7->(A347,P231)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
-State 48: (StkOpenParen->(A49)) (StkPlus->(A237,P281)) (StkMinus->(A238,P282)) (StkIdent->(A50)) (StkIntLit->(A240,P255)) (StkLongIntLit->(A241,P256)) (StkBasedLit->(A242,P257)) (StkLongBasedLit->(A243,P258)) (StkRealLit->(A244,P259)) (StkLongRealLit->(A245,P260)) (StkExtendedLit->(A246,P261)) (StkTextLit->(A247,P264)) (StkWideTextLit->(A248,P265)) (StkCharLit->(A249,P262)) (StkWideCharLit->(A250,P263)) (IdentRef->(A52)) (QualIdentRef->(A338,P242)) (E3->(A80)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P228)) (E5Lt->(A69)) (E7->(A347,P231)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
-State 49: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P281)) (StkMinus->(A238,P282)) (StkIdent->(A50)) (StkIntLit->(A240,P255)) (StkLongIntLit->(A241,P256)) (StkBasedLit->(A242,P257)) (StkLongBasedLit->(A243,P258)) (StkRealLit->(A244,P259)) (StkLongRealLit->(A245,P260)) (StkExtendedLit->(A246,P261)) (StkTextLit->(A247,P264)) (StkWideTextLit->(A248,P265)) (StkCharLit->(A249,P262)) (StkWideCharLit->(A250,P263)) (IdentRef->(A52)) (QualIdentRef->(A338,P242)) (E0->(A79)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P228)) (E5Lt->(A69)) (E7->(A347,P231)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
-State 50: (StkRwAND->(A682,P241)) (StkRwDIV->(A682,P241)) (StkRwEND->(A682,P241)) (StkRwIN->(A682,P241)) (StkRwMETHODS->(A682,P241)) (StkRwMOD->(A682,P241)) (StkRwNOT->(A682,P241)) (StkRwOBJECT->(A682,P241)) (StkRwOR->(A682,P241)) (StkRwOVERRIDES->(A682,P241)) (StkRwREF->(A682,P241)) (StkSemicolon->(A682,P241)) (StkDot->(A51)) (StkEqual->(A682,P241)) (StkOpenParen->(A496,P55)) (StkCloseParen->(A682,P241)) (StkComma->(A682,P241)) (StkBecomes->(A682,P241)) (StkEllipsis->(A682,P241)) (StkOpenBracket->(A496,P55)) (StkCloseBracket->(A682,P241)) (StkUnequal->(A682,P241)) (StkLess->(A682,P241)) (StkGreater->(A682,P241)) (StkLessEqual->(A682,P241)) (StkGreaterEqual->(A682,P241)) (StkPlus->(A682,P241)) (StkMinus->(A682,P241)) (StkAmpersand->(A682,P241)) (StkStar->(A682,P241)) (StkSlash->(A682,P241)) (StkDeref->(A496,P55)) (StkIdent->(A682,P241)) (StkIntLit->(A682,P241)) (StkLongIntLit->(A682,P241)) (StkBasedLit->(A682,P241)) (StkLongBasedLit->(A682,P241)) (StkRealLit->(A682,P241)) (StkLongRealLit->(A682,P241)) (StkExtendedLit->(A682,P241)) (StkTextLit->(A682,P241)) (StkWideTextLit->(A682,P241)) (StkCharLit->(A682,P241)) (StkWideCharLit->(A682,P241))
+State 47: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P247)) (StkMinus->(A238,P248)) (StkIdent->(A50)) (StkIntLit->(A240,P271)) (StkLongIntLit->(A241,P272)) (StkBasedLit->(A242,P273)) (StkLongBasedLit->(A243,P274)) (StkRealLit->(A244,P275)) (StkLongRealLit->(A245,P276)) (StkExtendedLit->(A246,P277)) (StkTextLit->(A247,P280)) (StkWideTextLit->(A248,P281)) (StkCharLit->(A249,P278)) (StkWideCharLit->(A250,P279)) (IdentRef->(A52)) (QualIdentRef->(A338,P258)) (Expr->(A81)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P238)) (E5Lt->(A69)) (E7->(A347,P245)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
+State 48: (StkOpenParen->(A49)) (StkPlus->(A237,P247)) (StkMinus->(A238,P248)) (StkIdent->(A50)) (StkIntLit->(A240,P271)) (StkLongIntLit->(A241,P272)) (StkBasedLit->(A242,P273)) (StkLongBasedLit->(A243,P274)) (StkRealLit->(A244,P275)) (StkLongRealLit->(A245,P276)) (StkExtendedLit->(A246,P277)) (StkTextLit->(A247,P280)) (StkWideTextLit->(A248,P281)) (StkCharLit->(A249,P278)) (StkWideCharLit->(A250,P279)) (IdentRef->(A52)) (QualIdentRef->(A338,P258)) (E3->(A80)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P238)) (E5Lt->(A69)) (E7->(A347,P245)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
+State 49: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P247)) (StkMinus->(A238,P248)) (StkIdent->(A50)) (StkIntLit->(A240,P271)) (StkLongIntLit->(A241,P272)) (StkBasedLit->(A242,P273)) (StkLongBasedLit->(A243,P274)) (StkRealLit->(A244,P275)) (StkLongRealLit->(A245,P276)) (StkExtendedLit->(A246,P277)) (StkTextLit->(A247,P280)) (StkWideTextLit->(A248,P281)) (StkCharLit->(A249,P278)) (StkWideCharLit->(A250,P279)) (IdentRef->(A52)) (QualIdentRef->(A338,P258)) (E0->(A79)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P238)) (E5Lt->(A69)) (E7->(A347,P245)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
+State 50: (StkRwAND->(A698,P257)) (StkRwDIV->(A698,P257)) (StkRwEND->(A698,P257)) (StkRwIN->(A698,P257)) (StkRwMETHODS->(A698,P257)) (StkRwMOD->(A698,P257)) (StkRwNOT->(A698,P257)) (StkRwOBJECT->(A698,P257)) (StkRwOR->(A698,P257)) (StkRwOVERRIDES->(A698,P257)) (StkRwREF->(A698,P257)) (StkSemicolon->(A698,P257)) (StkDot->(A51)) (StkEqual->(A698,P257)) (StkOpenParen->(A496,P55)) (StkCloseParen->(A698,P257)) (StkComma->(A698,P257)) (StkBecomes->(A698,P257)) (StkEllipsis->(A698,P257)) (StkOpenBracket->(A496,P55)) (StkCloseBracket->(A698,P257)) (StkUnequal->(A698,P257)) (StkLess->(A698,P257)) (StkGreater->(A698,P257)) (StkLessEqual->(A698,P257)) (StkGreaterEqual->(A698,P257)) (StkPlus->(A698,P257)) (StkMinus->(A698,P257)) (StkAmpersand->(A698,P257)) (StkStar->(A698,P257)) (StkSlash->(A698,P257)) (StkDeref->(A496,P55)) (StkIdent->(A698,P257)) (StkIntLit->(A698,P257)) (StkLongIntLit->(A698,P257)) (StkBasedLit->(A698,P257)) (StkLongBasedLit->(A698,P257)) (StkRealLit->(A698,P257)) (StkLongRealLit->(A698,P257)) (StkExtendedLit->(A698,P257)) (StkTextLit->(A698,P257)) (StkWideTextLit->(A698,P257)) (StkCharLit->(A698,P257)) (StkWideCharLit->(A698,P257))
 State 51: (StkIdent->(A239,P56))
-State 52: (StkOpenParen->(A53)) (StkOpenBracket->(A74)) (StkDeref->(A272,P238)) (Subscripts->(A356,P239)) (Actuals->(A357,P240))
-State 53: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkCloseParen->(A689,P248)) (StkComma->(A689,P248)) (StkPlus->(A237,P281)) (StkMinus->(A238,P282)) (StkIdent->(A54)) (StkIntLit->(A240,P255)) (StkLongIntLit->(A241,P256)) (StkBasedLit->(A242,P257)) (StkLongBasedLit->(A243,P258)) (StkRealLit->(A244,P259)) (StkLongRealLit->(A245,P260)) (StkExtendedLit->(A246,P261)) (StkTextLit->(A247,P264)) (StkWideTextLit->(A248,P265)) (StkCharLit->(A249,P262)) (StkWideCharLit->(A250,P263)) (NonreservedIdent->(A55)) (IdentRef->(A52)) (QualIdentRef->(A338,P242)) (Expr->(A353,P252)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P228)) (E5Lt->(A69)) (E7->(A347,P231)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71)) (ActualList->(A77)) (Actual->(A354,P249)) (ActualListLt->(A78))
-State 54: (StkRwAND->(A682,P241)) (StkRwDIV->(A682,P241)) (StkRwIN->(A682,P241)) (StkRwMOD->(A682,P241)) (StkRwOR->(A682,P241)) (StkDot->(A51)) (StkEqual->(A682,P241)) (StkOpenParen->(A496,P55)) (StkCloseParen->(A682,P241)) (StkComma->(A682,P241)) (StkBecomes->(A495,P54)) (StkOpenBracket->(A496,P55)) (StkUnequal->(A682,P241)) (StkLess->(A682,P241)) (StkGreater->(A682,P241)) (StkLessEqual->(A682,P241)) (StkGreaterEqual->(A682,P241)) (StkPlus->(A682,P241)) (StkMinus->(A682,P241)) (StkAmpersand->(A682,P241)) (StkStar->(A682,P241)) (StkSlash->(A682,P241)) (StkDeref->(A496,P55))
+State 52: (StkOpenParen->(A53)) (StkOpenBracket->(A74)) (StkDeref->(A272,P254)) (Subscripts->(A356,P255)) (Actuals->(A357,P256))
+State 53: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkCloseParen->(A705,P264)) (StkComma->(A705,P264)) (StkPlus->(A237,P247)) (StkMinus->(A238,P248)) (StkIdent->(A54)) (StkIntLit->(A240,P271)) (StkLongIntLit->(A241,P272)) (StkBasedLit->(A242,P273)) (StkLongBasedLit->(A243,P274)) (StkRealLit->(A244,P275)) (StkLongRealLit->(A245,P276)) (StkExtendedLit->(A246,P277)) (StkTextLit->(A247,P280)) (StkWideTextLit->(A248,P281)) (StkCharLit->(A249,P278)) (StkWideCharLit->(A250,P279)) (NonreservedIdent->(A55)) (IdentRef->(A52)) (QualIdentRef->(A338,P258)) (Expr->(A353,P268)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P238)) (E5Lt->(A69)) (E7->(A347,P245)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71)) (ActualList->(A77)) (Actual->(A354,P265)) (ActualListLt->(A78))
+State 54: (StkRwAND->(A698,P257)) (StkRwDIV->(A698,P257)) (StkRwIN->(A698,P257)) (StkRwMOD->(A698,P257)) (StkRwOR->(A698,P257)) (StkDot->(A51)) (StkEqual->(A698,P257)) (StkOpenParen->(A496,P55)) (StkCloseParen->(A698,P257)) (StkComma->(A698,P257)) (StkBecomes->(A495,P54)) (StkOpenBracket->(A496,P55)) (StkUnequal->(A698,P257)) (StkLess->(A698,P257)) (StkGreater->(A698,P257)) (StkLessEqual->(A698,P257)) (StkGreaterEqual->(A698,P257)) (StkPlus->(A698,P257)) (StkMinus->(A698,P257)) (StkAmpersand->(A698,P257)) (StkStar->(A698,P257)) (StkSlash->(A698,P257)) (StkDeref->(A496,P55))
 State 55: (StkBecomes->(A56))
-State 56: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P281)) (StkMinus->(A238,P282)) (StkIdent->(A50)) (StkIntLit->(A240,P255)) (StkLongIntLit->(A241,P256)) (StkBasedLit->(A242,P257)) (StkLongBasedLit->(A243,P258)) (StkRealLit->(A244,P259)) (StkLongRealLit->(A245,P260)) (StkExtendedLit->(A246,P261)) (StkTextLit->(A247,P264)) (StkWideTextLit->(A248,P265)) (StkCharLit->(A249,P262)) (StkWideCharLit->(A250,P263)) (IdentRef->(A52)) (QualIdentRef->(A338,P242)) (Expr->(A339,P253)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P228)) (E5Lt->(A69)) (E7->(A347,P231)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
+State 56: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P247)) (StkMinus->(A238,P248)) (StkIdent->(A50)) (StkIntLit->(A240,P271)) (StkLongIntLit->(A241,P272)) (StkBasedLit->(A242,P273)) (StkLongBasedLit->(A243,P274)) (StkRealLit->(A244,P275)) (StkLongRealLit->(A245,P276)) (StkExtendedLit->(A246,P277)) (StkTextLit->(A247,P280)) (StkWideTextLit->(A248,P281)) (StkCharLit->(A249,P278)) (StkWideCharLit->(A250,P279)) (IdentRef->(A52)) (QualIdentRef->(A338,P258)) (Expr->(A339,P269)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P238)) (E5Lt->(A69)) (E7->(A347,P245)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
 State 57: (StkRwEND->(A654,P213)) (StkRwMETHODS->(A654,P213)) (StkRwNOT->(A654,P213)) (StkRwOBJECT->(A654,P213)) (StkRwOR->(A251,P215)) (StkRwOVERRIDES->(A654,P213)) (StkRwREF->(A654,P213)) (StkSemicolon->(A654,P213)) (StkOpenParen->(A654,P213)) (StkCloseParen->(A654,P213)) (StkComma->(A654,P213)) (StkBecomes->(A654,P213)) (StkEllipsis->(A654,P213)) (StkCloseBracket->(A654,P213)) (StkPlus->(A654,P213)) (StkMinus->(A654,P213)) (StkIdent->(A654,P213)) (StkIntLit->(A654,P213)) (StkLongIntLit->(A654,P213)) (StkBasedLit->(A654,P213)) (StkLongBasedLit->(A654,P213)) (StkRealLit->(A654,P213)) (StkLongRealLit->(A654,P213)) (StkExtendedLit->(A654,P213)) (StkTextLit->(A654,P213)) (StkWideTextLit->(A654,P213)) (StkCharLit->(A654,P213)) (StkWideCharLit->(A654,P213))
 State 58: (StkRwAND->(A252,P218)) (StkRwEND->(A655,P214)) (StkRwMETHODS->(A655,P214)) (StkRwNOT->(A655,P214)) (StkRwOBJECT->(A655,P214)) (StkRwOR->(A655,P214)) (StkRwOVERRIDES->(A655,P214)) (StkRwREF->(A655,P214)) (StkSemicolon->(A655,P214)) (StkOpenParen->(A655,P214)) (StkCloseParen->(A655,P214)) (StkComma->(A655,P214)) (StkBecomes->(A655,P214)) (StkEllipsis->(A655,P214)) (StkCloseBracket->(A655,P214)) (StkPlus->(A655,P214)) (StkMinus->(A655,P214)) (StkIdent->(A655,P214)) (StkIntLit->(A655,P214)) (StkLongIntLit->(A655,P214)) (StkBasedLit->(A655,P214)) (StkLongBasedLit->(A655,P214)) (StkRealLit->(A655,P214)) (StkLongRealLit->(A655,P214)) (StkExtendedLit->(A655,P214)) (StkTextLit->(A655,P214)) (StkWideTextLit->(A655,P214)) (StkCharLit->(A655,P214)) (StkWideCharLit->(A655,P214))
-State 59: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P281)) (StkMinus->(A238,P282)) (StkIdent->(A50)) (StkIntLit->(A240,P255)) (StkLongIntLit->(A241,P256)) (StkBasedLit->(A242,P257)) (StkLongBasedLit->(A243,P258)) (StkRealLit->(A244,P259)) (StkLongRealLit->(A245,P260)) (StkExtendedLit->(A246,P261)) (StkTextLit->(A247,P264)) (StkWideTextLit->(A248,P265)) (StkCharLit->(A249,P262)) (StkWideCharLit->(A250,P263)) (IdentRef->(A52)) (QualIdentRef->(A338,P242)) (E1->(A60)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P228)) (E5Lt->(A69)) (E7->(A347,P231)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
+State 59: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P247)) (StkMinus->(A238,P248)) (StkIdent->(A50)) (StkIntLit->(A240,P271)) (StkLongIntLit->(A241,P272)) (StkBasedLit->(A242,P273)) (StkLongBasedLit->(A243,P274)) (StkRealLit->(A244,P275)) (StkLongRealLit->(A245,P276)) (StkExtendedLit->(A246,P277)) (StkTextLit->(A247,P280)) (StkWideTextLit->(A248,P281)) (StkCharLit->(A249,P278)) (StkWideCharLit->(A250,P279)) (IdentRef->(A52)) (QualIdentRef->(A338,P258)) (E1->(A60)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P238)) (E5Lt->(A69)) (E7->(A347,P245)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
 State 60: (StkRwAND->(A252,P218)) (StkRwEND->(A657,P216)) (StkRwMETHODS->(A657,P216)) (StkRwNOT->(A657,P216)) (StkRwOBJECT->(A657,P216)) (StkRwOR->(A657,P216)) (StkRwOVERRIDES->(A657,P216)) (StkRwREF->(A657,P216)) (StkSemicolon->(A657,P216)) (StkOpenParen->(A657,P216)) (StkCloseParen->(A657,P216)) (StkComma->(A657,P216)) (StkBecomes->(A657,P216)) (StkEllipsis->(A657,P216)) (StkCloseBracket->(A657,P216)) (StkPlus->(A657,P216)) (StkMinus->(A657,P216)) (StkIdent->(A657,P216)) (StkIntLit->(A657,P216)) (StkLongIntLit->(A657,P216)) (StkBasedLit->(A657,P216)) (StkLongBasedLit->(A657,P216)) (StkRealLit->(A657,P216)) (StkLongRealLit->(A657,P216)) (StkExtendedLit->(A657,P216)) (StkTextLit->(A657,P216)) (StkWideTextLit->(A657,P216)) (StkCharLit->(A657,P216)) (StkWideCharLit->(A657,P216))
-State 61: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P281)) (StkMinus->(A238,P282)) (StkIdent->(A50)) (StkIntLit->(A240,P255)) (StkLongIntLit->(A241,P256)) (StkBasedLit->(A242,P257)) (StkLongBasedLit->(A243,P258)) (StkRealLit->(A244,P259)) (StkLongRealLit->(A245,P260)) (StkExtendedLit->(A246,P261)) (StkTextLit->(A247,P264)) (StkWideTextLit->(A248,P265)) (StkCharLit->(A249,P262)) (StkWideCharLit->(A250,P263)) (IdentRef->(A52)) (QualIdentRef->(A338,P242)) (E2->(A341,P219)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P228)) (E5Lt->(A69)) (E7->(A347,P231)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
-State 62: (StkRwAND->(A661,P220)) (StkRwEND->(A661,P220)) (StkRwIN->(A253,P273)) (StkRwMETHODS->(A661,P220)) (StkRwNOT->(A661,P220)) (StkRwOBJECT->(A661,P220)) (StkRwOR->(A661,P220)) (StkRwOVERRIDES->(A661,P220)) (StkRwREF->(A661,P220)) (StkSemicolon->(A661,P220)) (StkEqual->(A254,P267)) (StkOpenParen->(A661,P220)) (StkCloseParen->(A661,P220)) (StkComma->(A661,P220)) (StkBecomes->(A661,P220)) (StkEllipsis->(A661,P220)) (StkCloseBracket->(A661,P220)) (StkUnequal->(A255,P268)) (StkLess->(A256,P269)) (StkGreater->(A257,P270)) (StkLessEqual->(A258,P271)) (StkGreaterEqual->(A259,P272)) (StkPlus->(A661,P220)) (StkMinus->(A661,P220)) (StkIdent->(A661,P220)) (StkIntLit->(A661,P220)) (StkLongIntLit->(A661,P220)) (StkBasedLit->(A661,P220)) (StkLongBasedLit->(A661,P220)) (StkRealLit->(A661,P220)) (StkLongRealLit->(A661,P220)) (StkExtendedLit->(A661,P220)) (StkTextLit->(A661,P220)) (StkWideTextLit->(A661,P220)) (StkCharLit->(A661,P220)) (StkWideCharLit->(A661,P220)) (ExprRelOp->(A342,P223))
-State 63: (StkRwAND->(A663,P222)) (StkRwEND->(A663,P222)) (StkRwIN->(A663,P222)) (StkRwMETHODS->(A663,P222)) (StkRwNOT->(A663,P222)) (StkRwOBJECT->(A663,P222)) (StkRwOR->(A663,P222)) (StkRwOVERRIDES->(A663,P222)) (StkRwREF->(A663,P222)) (StkSemicolon->(A663,P222)) (StkEqual->(A663,P222)) (StkOpenParen->(A663,P222)) (StkCloseParen->(A663,P222)) (StkComma->(A663,P222)) (StkBecomes->(A663,P222)) (StkEllipsis->(A663,P222)) (StkCloseBracket->(A663,P222)) (StkUnequal->(A663,P222)) (StkLess->(A663,P222)) (StkGreater->(A663,P222)) (StkLessEqual->(A663,P222)) (StkGreaterEqual->(A663,P222)) (StkPlus->(A260,P274)) (StkMinus->(A261,P275)) (StkAmpersand->(A262,P276)) (StkIdent->(A663,P222)) (StkIntLit->(A663,P222)) (StkLongIntLit->(A663,P222)) (StkBasedLit->(A663,P222)) (StkLongBasedLit->(A663,P222)) (StkRealLit->(A663,P222)) (StkLongRealLit->(A663,P222)) (StkExtendedLit->(A663,P222)) (StkTextLit->(A663,P222)) (StkWideTextLit->(A663,P222)) (StkCharLit->(A663,P222)) (StkWideCharLit->(A663,P222)) (ExprAddOp->(A343,P226))
-State 64: (StkOpenParen->(A49)) (StkPlus->(A237,P281)) (StkMinus->(A238,P282)) (StkIdent->(A50)) (StkIntLit->(A240,P255)) (StkLongIntLit->(A241,P256)) (StkBasedLit->(A242,P257)) (StkLongBasedLit->(A243,P258)) (StkRealLit->(A244,P259)) (StkLongRealLit->(A245,P260)) (StkExtendedLit->(A246,P261)) (StkTextLit->(A247,P264)) (StkWideTextLit->(A248,P265)) (StkCharLit->(A249,P262)) (StkWideCharLit->(A250,P263)) (IdentRef->(A52)) (QualIdentRef->(A338,P242)) (E4->(A65)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P228)) (E5Lt->(A69)) (E7->(A347,P231)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
-State 65: (StkRwAND->(A665,P224)) (StkRwEND->(A665,P224)) (StkRwIN->(A665,P224)) (StkRwMETHODS->(A665,P224)) (StkRwNOT->(A665,P224)) (StkRwOBJECT->(A665,P224)) (StkRwOR->(A665,P224)) (StkRwOVERRIDES->(A665,P224)) (StkRwREF->(A665,P224)) (StkSemicolon->(A665,P224)) (StkEqual->(A665,P224)) (StkOpenParen->(A665,P224)) (StkCloseParen->(A665,P224)) (StkComma->(A665,P224)) (StkBecomes->(A665,P224)) (StkEllipsis->(A665,P224)) (StkCloseBracket->(A665,P224)) (StkUnequal->(A665,P224)) (StkLess->(A665,P224)) (StkGreater->(A665,P224)) (StkLessEqual->(A665,P224)) (StkGreaterEqual->(A665,P224)) (StkPlus->(A260,P274)) (StkMinus->(A261,P275)) (StkAmpersand->(A262,P276)) (StkIdent->(A665,P224)) (StkIntLit->(A665,P224)) (StkLongIntLit->(A665,P224)) (StkBasedLit->(A665,P224)) (StkLongBasedLit->(A665,P224)) (StkRealLit->(A665,P224)) (StkLongRealLit->(A665,P224)) (StkExtendedLit->(A665,P224)) (StkTextLit->(A665,P224)) (StkWideTextLit->(A665,P224)) (StkCharLit->(A665,P224)) (StkWideCharLit->(A665,P224)) (ExprAddOp->(A343,P226))
-State 66: (StkRwAND->(A666,P225)) (StkRwDIV->(A263,P279)) (StkRwEND->(A666,P225)) (StkRwIN->(A666,P225)) (StkRwMETHODS->(A666,P225)) (StkRwMOD->(A264,P280)) (StkRwNOT->(A666,P225)) (StkRwOBJECT->(A666,P225)) (StkRwOR->(A666,P225)) (StkRwOVERRIDES->(A666,P225)) (StkRwREF->(A666,P225)) (StkSemicolon->(A666,P225)) (StkEqual->(A666,P225)) (StkOpenParen->(A666,P225)) (StkCloseParen->(A666,P225)) (StkComma->(A666,P225)) (StkBecomes->(A666,P225)) (StkEllipsis->(A666,P225)) (StkCloseBracket->(A666,P225)) (StkUnequal->(A666,P225)) (StkLess->(A666,P225)) (StkGreater->(A666,P225)) (StkLessEqual->(A666,P225)) (StkGreaterEqual->(A666,P225)) (StkPlus->(A666,P225)) (StkMinus->(A666,P225)) (StkAmpersand->(A666,P225)) (StkStar->(A265,P277)) (StkSlash->(A266,P278)) (StkIdent->(A666,P225)) (StkIntLit->(A666,P225)) (StkLongIntLit->(A666,P225)) (StkBasedLit->(A666,P225)) (StkLongBasedLit->(A666,P225)) (StkRealLit->(A666,P225)) (StkLongRealLit->(A666,P225)) (StkExtendedLit->(A666,P225)) (StkTextLit->(A666,P225)) (StkWideTextLit->(A666,P225)) (StkCharLit->(A666,P225)) (StkWideCharLit->(A666,P225)) (ExprMulOp->(A344,P229))
-State 67: (StkOpenParen->(A49)) (StkPlus->(A237,P281)) (StkMinus->(A238,P282)) (StkIdent->(A50)) (StkIntLit->(A240,P255)) (StkLongIntLit->(A241,P256)) (StkBasedLit->(A242,P257)) (StkLongBasedLit->(A243,P258)) (StkRealLit->(A244,P259)) (StkLongRealLit->(A245,P260)) (StkExtendedLit->(A246,P261)) (StkTextLit->(A247,P264)) (StkWideTextLit->(A248,P265)) (StkCharLit->(A249,P262)) (StkWideCharLit->(A250,P263)) (IdentRef->(A52)) (QualIdentRef->(A338,P242)) (E5->(A68)) (E6->(A345,P228)) (E5Lt->(A69)) (E7->(A347,P231)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
-State 68: (StkRwAND->(A668,P227)) (StkRwDIV->(A263,P279)) (StkRwEND->(A668,P227)) (StkRwIN->(A668,P227)) (StkRwMETHODS->(A668,P227)) (StkRwMOD->(A264,P280)) (StkRwNOT->(A668,P227)) (StkRwOBJECT->(A668,P227)) (StkRwOR->(A668,P227)) (StkRwOVERRIDES->(A668,P227)) (StkRwREF->(A668,P227)) (StkSemicolon->(A668,P227)) (StkEqual->(A668,P227)) (StkOpenParen->(A668,P227)) (StkCloseParen->(A668,P227)) (StkComma->(A668,P227)) (StkBecomes->(A668,P227)) (StkEllipsis->(A668,P227)) (StkCloseBracket->(A668,P227)) (StkUnequal->(A668,P227)) (StkLess->(A668,P227)) (StkGreater->(A668,P227)) (StkLessEqual->(A668,P227)) (StkGreaterEqual->(A668,P227)) (StkPlus->(A668,P227)) (StkMinus->(A668,P227)) (StkAmpersand->(A668,P227)) (StkStar->(A265,P277)) (StkSlash->(A266,P278)) (StkIdent->(A668,P227)) (StkIntLit->(A668,P227)) (StkLongIntLit->(A668,P227)) (StkBasedLit->(A668,P227)) (StkLongBasedLit->(A668,P227)) (StkRealLit->(A668,P227)) (StkLongRealLit->(A668,P227)) (StkExtendedLit->(A668,P227)) (StkTextLit->(A668,P227)) (StkWideTextLit->(A668,P227)) (StkCharLit->(A668,P227)) (StkWideCharLit->(A668,P227)) (ExprMulOp->(A344,P229))
-State 69: (StkOpenParen->(A49)) (StkPlus->(A237,P281)) (StkMinus->(A238,P282)) (StkIdent->(A50)) (StkIntLit->(A240,P255)) (StkLongIntLit->(A241,P256)) (StkBasedLit->(A242,P257)) (StkLongBasedLit->(A243,P258)) (StkRealLit->(A244,P259)) (StkLongRealLit->(A245,P260)) (StkExtendedLit->(A246,P261)) (StkTextLit->(A247,P264)) (StkWideTextLit->(A248,P265)) (StkCharLit->(A249,P262)) (StkWideCharLit->(A250,P263)) (IdentRef->(A52)) (QualIdentRef->(A338,P242)) (E6->(A346,P230)) (E7->(A347,P231)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
-State 70: (StkOpenParen->(A49)) (StkIdent->(A50)) (StkIntLit->(A240,P255)) (StkLongIntLit->(A241,P256)) (StkBasedLit->(A242,P257)) (StkLongBasedLit->(A243,P258)) (StkRealLit->(A244,P259)) (StkLongRealLit->(A245,P260)) (StkExtendedLit->(A246,P261)) (StkTextLit->(A247,P264)) (StkWideTextLit->(A248,P265)) (StkCharLit->(A249,P262)) (StkWideCharLit->(A250,P263)) (IdentRef->(A52)) (QualIdentRef->(A338,P242)) (E7->(A348,P232)) (E8WOId->(A71))
-State 71: (StkRwAND->(A678,P237)) (StkRwDIV->(A678,P237)) (StkRwEND->(A678,P237)) (StkRwIN->(A678,P237)) (StkRwMETHODS->(A678,P237)) (StkRwMOD->(A678,P237)) (StkRwNOT->(A678,P237)) (StkRwOBJECT->(A678,P237)) (StkRwOR->(A678,P237)) (StkRwOVERRIDES->(A678,P237)) (StkRwREF->(A678,P237)) (StkSemicolon->(A678,P237)) (StkDot->(A72)) (StkEqual->(A678,P237)) (StkOpenParen->(A53)) (StkCloseParen->(A678,P237)) (StkComma->(A678,P237)) (StkBecomes->(A678,P237)) (StkEllipsis->(A678,P237)) (StkOpenBracket->(A74)) (StkCloseBracket->(A678,P237)) (StkUnequal->(A678,P237)) (StkLess->(A678,P237)) (StkGreater->(A678,P237)) (StkLessEqual->(A678,P237)) (StkGreaterEqual->(A678,P237)) (StkPlus->(A678,P237)) (StkMinus->(A678,P237)) (StkAmpersand->(A678,P237)) (StkStar->(A678,P237)) (StkSlash->(A678,P237)) (StkDeref->(A269,P233)) (StkIdent->(A678,P237)) (StkIntLit->(A678,P237)) (StkLongIntLit->(A678,P237)) (StkBasedLit->(A678,P237)) (StkLongBasedLit->(A678,P237)) (StkRealLit->(A678,P237)) (StkLongRealLit->(A678,P237)) (StkExtendedLit->(A678,P237)) (StkTextLit->(A678,P237)) (StkWideTextLit->(A678,P237)) (StkCharLit->(A678,P237)) (StkWideCharLit->(A678,P237)) (Subscripts->(A351,P234)) (Actuals->(A352,P235))
+State 61: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P247)) (StkMinus->(A238,P248)) (StkIdent->(A50)) (StkIntLit->(A240,P271)) (StkLongIntLit->(A241,P272)) (StkBasedLit->(A242,P273)) (StkLongBasedLit->(A243,P274)) (StkRealLit->(A244,P275)) (StkLongRealLit->(A245,P276)) (StkExtendedLit->(A246,P277)) (StkTextLit->(A247,P280)) (StkWideTextLit->(A248,P281)) (StkCharLit->(A249,P278)) (StkWideCharLit->(A250,P279)) (IdentRef->(A52)) (QualIdentRef->(A338,P258)) (E2->(A341,P219)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P238)) (E5Lt->(A69)) (E7->(A347,P245)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
+State 62: (StkRwAND->(A661,P220)) (StkRwEND->(A661,P220)) (StkRwIN->(A253,P230)) (StkRwMETHODS->(A661,P220)) (StkRwNOT->(A661,P220)) (StkRwOBJECT->(A661,P220)) (StkRwOR->(A661,P220)) (StkRwOVERRIDES->(A661,P220)) (StkRwREF->(A661,P220)) (StkSemicolon->(A661,P220)) (StkEqual->(A254,P224)) (StkOpenParen->(A661,P220)) (StkCloseParen->(A661,P220)) (StkComma->(A661,P220)) (StkBecomes->(A661,P220)) (StkEllipsis->(A661,P220)) (StkCloseBracket->(A661,P220)) (StkUnequal->(A255,P225)) (StkLess->(A256,P226)) (StkGreater->(A257,P227)) (StkLessEqual->(A258,P228)) (StkGreaterEqual->(A259,P229)) (StkPlus->(A661,P220)) (StkMinus->(A661,P220)) (StkIdent->(A661,P220)) (StkIntLit->(A661,P220)) (StkLongIntLit->(A661,P220)) (StkBasedLit->(A661,P220)) (StkLongBasedLit->(A661,P220)) (StkRealLit->(A661,P220)) (StkLongRealLit->(A661,P220)) (StkExtendedLit->(A661,P220)) (StkTextLit->(A661,P220)) (StkWideTextLit->(A661,P220)) (StkCharLit->(A661,P220)) (StkWideCharLit->(A661,P220)) (ExprRelOp->(A342,P223))
+State 63: (StkRwAND->(A663,P222)) (StkRwEND->(A663,P222)) (StkRwIN->(A663,P222)) (StkRwMETHODS->(A663,P222)) (StkRwNOT->(A663,P222)) (StkRwOBJECT->(A663,P222)) (StkRwOR->(A663,P222)) (StkRwOVERRIDES->(A663,P222)) (StkRwREF->(A663,P222)) (StkSemicolon->(A663,P222)) (StkEqual->(A663,P222)) (StkOpenParen->(A663,P222)) (StkCloseParen->(A663,P222)) (StkComma->(A663,P222)) (StkBecomes->(A663,P222)) (StkEllipsis->(A663,P222)) (StkCloseBracket->(A663,P222)) (StkUnequal->(A663,P222)) (StkLess->(A663,P222)) (StkGreater->(A663,P222)) (StkLessEqual->(A663,P222)) (StkGreaterEqual->(A663,P222)) (StkPlus->(A260,P234)) (StkMinus->(A261,P235)) (StkAmpersand->(A262,P236)) (StkIdent->(A663,P222)) (StkIntLit->(A663,P222)) (StkLongIntLit->(A663,P222)) (StkBasedLit->(A663,P222)) (StkLongBasedLit->(A663,P222)) (StkRealLit->(A663,P222)) (StkLongRealLit->(A663,P222)) (StkExtendedLit->(A663,P222)) (StkTextLit->(A663,P222)) (StkWideTextLit->(A663,P222)) (StkCharLit->(A663,P222)) (StkWideCharLit->(A663,P222)) (ExprAddOp->(A343,P233))
+State 64: (StkOpenParen->(A49)) (StkPlus->(A237,P247)) (StkMinus->(A238,P248)) (StkIdent->(A50)) (StkIntLit->(A240,P271)) (StkLongIntLit->(A241,P272)) (StkBasedLit->(A242,P273)) (StkLongBasedLit->(A243,P274)) (StkRealLit->(A244,P275)) (StkLongRealLit->(A245,P276)) (StkExtendedLit->(A246,P277)) (StkTextLit->(A247,P280)) (StkWideTextLit->(A248,P281)) (StkCharLit->(A249,P278)) (StkWideCharLit->(A250,P279)) (IdentRef->(A52)) (QualIdentRef->(A338,P258)) (E4->(A65)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P238)) (E5Lt->(A69)) (E7->(A347,P245)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
+State 65: (StkRwAND->(A672,P231)) (StkRwEND->(A672,P231)) (StkRwIN->(A672,P231)) (StkRwMETHODS->(A672,P231)) (StkRwNOT->(A672,P231)) (StkRwOBJECT->(A672,P231)) (StkRwOR->(A672,P231)) (StkRwOVERRIDES->(A672,P231)) (StkRwREF->(A672,P231)) (StkSemicolon->(A672,P231)) (StkEqual->(A672,P231)) (StkOpenParen->(A672,P231)) (StkCloseParen->(A672,P231)) (StkComma->(A672,P231)) (StkBecomes->(A672,P231)) (StkEllipsis->(A672,P231)) (StkCloseBracket->(A672,P231)) (StkUnequal->(A672,P231)) (StkLess->(A672,P231)) (StkGreater->(A672,P231)) (StkLessEqual->(A672,P231)) (StkGreaterEqual->(A672,P231)) (StkPlus->(A260,P234)) (StkMinus->(A261,P235)) (StkAmpersand->(A262,P236)) (StkIdent->(A672,P231)) (StkIntLit->(A672,P231)) (StkLongIntLit->(A672,P231)) (StkBasedLit->(A672,P231)) (StkLongBasedLit->(A672,P231)) (StkRealLit->(A672,P231)) (StkLongRealLit->(A672,P231)) (StkExtendedLit->(A672,P231)) (StkTextLit->(A672,P231)) (StkWideTextLit->(A672,P231)) (StkCharLit->(A672,P231)) (StkWideCharLit->(A672,P231)) (ExprAddOp->(A343,P233))
+State 66: (StkRwAND->(A673,P232)) (StkRwDIV->(A263,P242)) (StkRwEND->(A673,P232)) (StkRwIN->(A673,P232)) (StkRwMETHODS->(A673,P232)) (StkRwMOD->(A264,P243)) (StkRwNOT->(A673,P232)) (StkRwOBJECT->(A673,P232)) (StkRwOR->(A673,P232)) (StkRwOVERRIDES->(A673,P232)) (StkRwREF->(A673,P232)) (StkSemicolon->(A673,P232)) (StkEqual->(A673,P232)) (StkOpenParen->(A673,P232)) (StkCloseParen->(A673,P232)) (StkComma->(A673,P232)) (StkBecomes->(A673,P232)) (StkEllipsis->(A673,P232)) (StkCloseBracket->(A673,P232)) (StkUnequal->(A673,P232)) (StkLess->(A673,P232)) (StkGreater->(A673,P232)) (StkLessEqual->(A673,P232)) (StkGreaterEqual->(A673,P232)) (StkPlus->(A673,P232)) (StkMinus->(A673,P232)) (StkAmpersand->(A673,P232)) (StkStar->(A265,P240)) (StkSlash->(A266,P241)) (StkIdent->(A673,P232)) (StkIntLit->(A673,P232)) (StkLongIntLit->(A673,P232)) (StkBasedLit->(A673,P232)) (StkLongBasedLit->(A673,P232)) (StkRealLit->(A673,P232)) (StkLongRealLit->(A673,P232)) (StkExtendedLit->(A673,P232)) (StkTextLit->(A673,P232)) (StkWideTextLit->(A673,P232)) (StkCharLit->(A673,P232)) (StkWideCharLit->(A673,P232)) (ExprMulOp->(A344,P239))
+State 67: (StkOpenParen->(A49)) (StkPlus->(A237,P247)) (StkMinus->(A238,P248)) (StkIdent->(A50)) (StkIntLit->(A240,P271)) (StkLongIntLit->(A241,P272)) (StkBasedLit->(A242,P273)) (StkLongBasedLit->(A243,P274)) (StkRealLit->(A244,P275)) (StkLongRealLit->(A245,P276)) (StkExtendedLit->(A246,P277)) (StkTextLit->(A247,P280)) (StkWideTextLit->(A248,P281)) (StkCharLit->(A249,P278)) (StkWideCharLit->(A250,P279)) (IdentRef->(A52)) (QualIdentRef->(A338,P258)) (E5->(A68)) (E6->(A345,P238)) (E5Lt->(A69)) (E7->(A347,P245)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
+State 68: (StkRwAND->(A678,P237)) (StkRwDIV->(A263,P242)) (StkRwEND->(A678,P237)) (StkRwIN->(A678,P237)) (StkRwMETHODS->(A678,P237)) (StkRwMOD->(A264,P243)) (StkRwNOT->(A678,P237)) (StkRwOBJECT->(A678,P237)) (StkRwOR->(A678,P237)) (StkRwOVERRIDES->(A678,P237)) (StkRwREF->(A678,P237)) (StkSemicolon->(A678,P237)) (StkEqual->(A678,P237)) (StkOpenParen->(A678,P237)) (StkCloseParen->(A678,P237)) (StkComma->(A678,P237)) (StkBecomes->(A678,P237)) (StkEllipsis->(A678,P237)) (StkCloseBracket->(A678,P237)) (StkUnequal->(A678,P237)) (StkLess->(A678,P237)) (StkGreater->(A678,P237)) (StkLessEqual->(A678,P237)) (StkGreaterEqual->(A678,P237)) (StkPlus->(A678,P237)) (StkMinus->(A678,P237)) (StkAmpersand->(A678,P237)) (StkStar->(A265,P240)) (StkSlash->(A266,P241)) (StkIdent->(A678,P237)) (StkIntLit->(A678,P237)) (StkLongIntLit->(A678,P237)) (StkBasedLit->(A678,P237)) (StkLongBasedLit->(A678,P237)) (StkRealLit->(A678,P237)) (StkLongRealLit->(A678,P237)) (StkExtendedLit->(A678,P237)) (StkTextLit->(A678,P237)) (StkWideTextLit->(A678,P237)) (StkCharLit->(A678,P237)) (StkWideCharLit->(A678,P237)) (ExprMulOp->(A344,P239))
+State 69: (StkOpenParen->(A49)) (StkPlus->(A237,P247)) (StkMinus->(A238,P248)) (StkIdent->(A50)) (StkIntLit->(A240,P271)) (StkLongIntLit->(A241,P272)) (StkBasedLit->(A242,P273)) (StkLongBasedLit->(A243,P274)) (StkRealLit->(A244,P275)) (StkLongRealLit->(A245,P276)) (StkExtendedLit->(A246,P277)) (StkTextLit->(A247,P280)) (StkWideTextLit->(A248,P281)) (StkCharLit->(A249,P278)) (StkWideCharLit->(A250,P279)) (IdentRef->(A52)) (QualIdentRef->(A338,P258)) (E6->(A346,P244)) (E7->(A347,P245)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
+State 70: (StkOpenParen->(A49)) (StkIdent->(A50)) (StkIntLit->(A240,P271)) (StkLongIntLit->(A241,P272)) (StkBasedLit->(A242,P273)) (StkLongBasedLit->(A243,P274)) (StkRealLit->(A244,P275)) (StkLongRealLit->(A245,P276)) (StkExtendedLit->(A246,P277)) (StkTextLit->(A247,P280)) (StkWideTextLit->(A248,P281)) (StkCharLit->(A249,P278)) (StkWideCharLit->(A250,P279)) (IdentRef->(A52)) (QualIdentRef->(A338,P258)) (E7->(A348,P246)) (E8WOId->(A71))
+State 71: (StkRwAND->(A694,P253)) (StkRwDIV->(A694,P253)) (StkRwEND->(A694,P253)) (StkRwIN->(A694,P253)) (StkRwMETHODS->(A694,P253)) (StkRwMOD->(A694,P253)) (StkRwNOT->(A694,P253)) (StkRwOBJECT->(A694,P253)) (StkRwOR->(A694,P253)) (StkRwOVERRIDES->(A694,P253)) (StkRwREF->(A694,P253)) (StkSemicolon->(A694,P253)) (StkDot->(A72)) (StkEqual->(A694,P253)) (StkOpenParen->(A53)) (StkCloseParen->(A694,P253)) (StkComma->(A694,P253)) (StkBecomes->(A694,P253)) (StkEllipsis->(A694,P253)) (StkOpenBracket->(A74)) (StkCloseBracket->(A694,P253)) (StkUnequal->(A694,P253)) (StkLess->(A694,P253)) (StkGreater->(A694,P253)) (StkLessEqual->(A694,P253)) (StkGreaterEqual->(A694,P253)) (StkPlus->(A694,P253)) (StkMinus->(A694,P253)) (StkAmpersand->(A694,P253)) (StkStar->(A694,P253)) (StkSlash->(A694,P253)) (StkDeref->(A269,P249)) (StkIdent->(A694,P253)) (StkIntLit->(A694,P253)) (StkLongIntLit->(A694,P253)) (StkBasedLit->(A694,P253)) (StkLongBasedLit->(A694,P253)) (StkRealLit->(A694,P253)) (StkLongRealLit->(A694,P253)) (StkExtendedLit->(A694,P253)) (StkTextLit->(A694,P253)) (StkWideTextLit->(A694,P253)) (StkCharLit->(A694,P253)) (StkWideCharLit->(A694,P253)) (Subscripts->(A351,P250)) (Actuals->(A352,P251))
 State 72: (StkIdent->(A218,P54)) (NonreservedIdent->(A73))
-State 73: (StkRwAND->(A677,P236)) (StkRwDIV->(A677,P236)) (StkRwEND->(A677,P236)) (StkRwIN->(A677,P236)) (StkRwMETHODS->(A677,P236)) (StkRwMOD->(A677,P236)) (StkRwNOT->(A677,P236)) (StkRwOBJECT->(A677,P236)) (StkRwOR->(A677,P236)) (StkRwOVERRIDES->(A677,P236)) (StkRwREF->(A677,P236)) (StkSemicolon->(A677,P236)) (StkDot->(A695,P254)) (StkEqual->(A677,P236)) (StkOpenParen->(A677,P236)) (StkCloseParen->(A677,P236)) (StkComma->(A677,P236)) (StkBecomes->(A677,P236)) (StkEllipsis->(A677,P236)) (StkOpenBracket->(A695,P254)) (StkCloseBracket->(A677,P236)) (StkUnequal->(A677,P236)) (StkLess->(A677,P236)) (StkGreater->(A677,P236)) (StkLessEqual->(A677,P236)) (StkGreaterEqual->(A677,P236)) (StkPlus->(A677,P236)) (StkMinus->(A677,P236)) (StkAmpersand->(A677,P236)) (StkStar->(A677,P236)) (StkSlash->(A677,P236)) (StkDeref->(A695,P254)) (StkIdent->(A677,P236)) (StkIntLit->(A677,P236)) (StkLongIntLit->(A677,P236)) (StkBasedLit->(A677,P236)) (StkLongBasedLit->(A677,P236)) (StkRealLit->(A677,P236)) (StkLongRealLit->(A677,P236)) (StkExtendedLit->(A677,P236)) (StkTextLit->(A677,P236)) (StkWideTextLit->(A677,P236)) (StkCharLit->(A677,P236)) (StkWideCharLit->(A677,P236))
-State 74: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P281)) (StkMinus->(A238,P282)) (StkIdent->(A50)) (StkIntLit->(A240,P255)) (StkLongIntLit->(A241,P256)) (StkBasedLit->(A242,P257)) (StkLongBasedLit->(A243,P258)) (StkRealLit->(A244,P259)) (StkLongRealLit->(A245,P260)) (StkExtendedLit->(A246,P261)) (StkTextLit->(A247,P264)) (StkWideTextLit->(A248,P265)) (StkCharLit->(A249,P262)) (StkWideCharLit->(A250,P263)) (IdentRef->(A52)) (QualIdentRef->(A338,P242)) (Expr->(A349,P244)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P228)) (E5Lt->(A69)) (E7->(A347,P231)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71)) (SsPlusList->(A75)) (SsPlusListLt->(A76))
-State 75: (StkComma->(A267,P245)) (StkCloseBracket->(A268,P243))
-State 76: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P281)) (StkMinus->(A238,P282)) (StkIdent->(A50)) (StkIntLit->(A240,P255)) (StkLongIntLit->(A241,P256)) (StkBasedLit->(A242,P257)) (StkLongBasedLit->(A243,P258)) (StkRealLit->(A244,P259)) (StkLongRealLit->(A245,P260)) (StkExtendedLit->(A246,P261)) (StkTextLit->(A247,P264)) (StkWideTextLit->(A248,P265)) (StkCharLit->(A249,P262)) (StkWideCharLit->(A250,P263)) (IdentRef->(A52)) (QualIdentRef->(A338,P242)) (Expr->(A350,P246)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P228)) (E5Lt->(A69)) (E7->(A347,P231)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
-State 77: (StkCloseParen->(A270,P247)) (StkComma->(A271,P250))
-State 78: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P281)) (StkMinus->(A238,P282)) (StkIdent->(A54)) (StkIntLit->(A240,P255)) (StkLongIntLit->(A241,P256)) (StkBasedLit->(A242,P257)) (StkLongBasedLit->(A243,P258)) (StkRealLit->(A244,P259)) (StkLongRealLit->(A245,P260)) (StkExtendedLit->(A246,P261)) (StkTextLit->(A247,P264)) (StkWideTextLit->(A248,P265)) (StkCharLit->(A249,P262)) (StkWideCharLit->(A250,P263)) (NonreservedIdent->(A55)) (IdentRef->(A52)) (QualIdentRef->(A338,P242)) (Expr->(A353,P252)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P228)) (E5Lt->(A69)) (E7->(A347,P231)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71)) (Actual->(A355,P251))
-State 79: (StkRwOR->(A251,P215)) (StkCloseParen->(A273,P266))
-State 80: (StkRwAND->(A662,P221)) (StkRwEND->(A662,P221)) (StkRwIN->(A253,P273)) (StkRwMETHODS->(A662,P221)) (StkRwNOT->(A662,P221)) (StkRwOBJECT->(A662,P221)) (StkRwOR->(A662,P221)) (StkRwOVERRIDES->(A662,P221)) (StkRwREF->(A662,P221)) (StkSemicolon->(A662,P221)) (StkEqual->(A254,P267)) (StkOpenParen->(A662,P221)) (StkCloseParen->(A662,P221)) (StkComma->(A662,P221)) (StkBecomes->(A662,P221)) (StkEllipsis->(A662,P221)) (StkCloseBracket->(A662,P221)) (StkUnequal->(A255,P268)) (StkLess->(A256,P269)) (StkGreater->(A257,P270)) (StkLessEqual->(A258,P271)) (StkGreaterEqual->(A259,P272)) (StkPlus->(A662,P221)) (StkMinus->(A662,P221)) (StkIdent->(A662,P221)) (StkIntLit->(A662,P221)) (StkLongIntLit->(A662,P221)) (StkBasedLit->(A662,P221)) (StkLongBasedLit->(A662,P221)) (StkRealLit->(A662,P221)) (StkLongRealLit->(A662,P221)) (StkExtendedLit->(A662,P221)) (StkTextLit->(A662,P221)) (StkWideTextLit->(A662,P221)) (StkCharLit->(A662,P221)) (StkWideCharLit->(A662,P221)) (ExprRelOp->(A342,P223))
+State 73: (StkRwAND->(A693,P252)) (StkRwDIV->(A693,P252)) (StkRwEND->(A693,P252)) (StkRwIN->(A693,P252)) (StkRwMETHODS->(A693,P252)) (StkRwMOD->(A693,P252)) (StkRwNOT->(A693,P252)) (StkRwOBJECT->(A693,P252)) (StkRwOR->(A693,P252)) (StkRwOVERRIDES->(A693,P252)) (StkRwREF->(A693,P252)) (StkSemicolon->(A693,P252)) (StkDot->(A711,P270)) (StkEqual->(A693,P252)) (StkOpenParen->(A693,P252)) (StkCloseParen->(A693,P252)) (StkComma->(A693,P252)) (StkBecomes->(A693,P252)) (StkEllipsis->(A693,P252)) (StkOpenBracket->(A711,P270)) (StkCloseBracket->(A693,P252)) (StkUnequal->(A693,P252)) (StkLess->(A693,P252)) (StkGreater->(A693,P252)) (StkLessEqual->(A693,P252)) (StkGreaterEqual->(A693,P252)) (StkPlus->(A693,P252)) (StkMinus->(A693,P252)) (StkAmpersand->(A693,P252)) (StkStar->(A693,P252)) (StkSlash->(A693,P252)) (StkDeref->(A711,P270)) (StkIdent->(A693,P252)) (StkIntLit->(A693,P252)) (StkLongIntLit->(A693,P252)) (StkBasedLit->(A693,P252)) (StkLongBasedLit->(A693,P252)) (StkRealLit->(A693,P252)) (StkLongRealLit->(A693,P252)) (StkExtendedLit->(A693,P252)) (StkTextLit->(A693,P252)) (StkWideTextLit->(A693,P252)) (StkCharLit->(A693,P252)) (StkWideCharLit->(A693,P252))
+State 74: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P247)) (StkMinus->(A238,P248)) (StkIdent->(A50)) (StkIntLit->(A240,P271)) (StkLongIntLit->(A241,P272)) (StkBasedLit->(A242,P273)) (StkLongBasedLit->(A243,P274)) (StkRealLit->(A244,P275)) (StkLongRealLit->(A245,P276)) (StkExtendedLit->(A246,P277)) (StkTextLit->(A247,P280)) (StkWideTextLit->(A248,P281)) (StkCharLit->(A249,P278)) (StkWideCharLit->(A250,P279)) (IdentRef->(A52)) (QualIdentRef->(A338,P258)) (Expr->(A349,P260)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P238)) (E5Lt->(A69)) (E7->(A347,P245)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71)) (SsPlusList->(A75)) (SsPlusListLt->(A76))
+State 75: (StkComma->(A267,P261)) (StkCloseBracket->(A268,P259))
+State 76: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P247)) (StkMinus->(A238,P248)) (StkIdent->(A50)) (StkIntLit->(A240,P271)) (StkLongIntLit->(A241,P272)) (StkBasedLit->(A242,P273)) (StkLongBasedLit->(A243,P274)) (StkRealLit->(A244,P275)) (StkLongRealLit->(A245,P276)) (StkExtendedLit->(A246,P277)) (StkTextLit->(A247,P280)) (StkWideTextLit->(A248,P281)) (StkCharLit->(A249,P278)) (StkWideCharLit->(A250,P279)) (IdentRef->(A52)) (QualIdentRef->(A338,P258)) (Expr->(A350,P262)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P238)) (E5Lt->(A69)) (E7->(A347,P245)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
+State 77: (StkCloseParen->(A270,P263)) (StkComma->(A271,P266))
+State 78: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P247)) (StkMinus->(A238,P248)) (StkIdent->(A54)) (StkIntLit->(A240,P271)) (StkLongIntLit->(A241,P272)) (StkBasedLit->(A242,P273)) (StkLongBasedLit->(A243,P274)) (StkRealLit->(A244,P275)) (StkLongRealLit->(A245,P276)) (StkExtendedLit->(A246,P277)) (StkTextLit->(A247,P280)) (StkWideTextLit->(A248,P281)) (StkCharLit->(A249,P278)) (StkWideCharLit->(A250,P279)) (NonreservedIdent->(A55)) (IdentRef->(A52)) (QualIdentRef->(A338,P258)) (Expr->(A353,P268)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P238)) (E5Lt->(A69)) (E7->(A347,P245)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71)) (Actual->(A355,P267))
+State 79: (StkRwOR->(A251,P215)) (StkCloseParen->(A273,P282))
+State 80: (StkRwAND->(A662,P221)) (StkRwEND->(A662,P221)) (StkRwIN->(A253,P230)) (StkRwMETHODS->(A662,P221)) (StkRwNOT->(A662,P221)) (StkRwOBJECT->(A662,P221)) (StkRwOR->(A662,P221)) (StkRwOVERRIDES->(A662,P221)) (StkRwREF->(A662,P221)) (StkSemicolon->(A662,P221)) (StkEqual->(A254,P224)) (StkOpenParen->(A662,P221)) (StkCloseParen->(A662,P221)) (StkComma->(A662,P221)) (StkBecomes->(A662,P221)) (StkEllipsis->(A662,P221)) (StkCloseBracket->(A662,P221)) (StkUnequal->(A255,P225)) (StkLess->(A256,P226)) (StkGreater->(A257,P227)) (StkLessEqual->(A258,P228)) (StkGreaterEqual->(A259,P229)) (StkPlus->(A662,P221)) (StkMinus->(A662,P221)) (StkIdent->(A662,P221)) (StkIntLit->(A662,P221)) (StkLongIntLit->(A662,P221)) (StkBasedLit->(A662,P221)) (StkLongBasedLit->(A662,P221)) (StkRealLit->(A662,P221)) (StkLongRealLit->(A662,P221)) (StkExtendedLit->(A662,P221)) (StkTextLit->(A662,P221)) (StkWideTextLit->(A662,P221)) (StkCharLit->(A662,P221)) (StkWideCharLit->(A662,P221)) (ExprRelOp->(A342,P223))
 State 81: (StkEllipsis->(A82))
-State 82: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P281)) (StkMinus->(A238,P282)) (StkIdent->(A50)) (StkIntLit->(A240,P255)) (StkLongIntLit->(A241,P256)) (StkBasedLit->(A242,P257)) (StkLongBasedLit->(A243,P258)) (StkRealLit->(A244,P259)) (StkLongRealLit->(A245,P260)) (StkExtendedLit->(A246,P261)) (StkTextLit->(A247,P264)) (StkWideTextLit->(A248,P265)) (StkCharLit->(A249,P262)) (StkWideCharLit->(A250,P263)) (IdentRef->(A52)) (QualIdentRef->(A338,P242)) (Expr->(A83)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P228)) (E5Lt->(A69)) (E7->(A347,P231)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
+State 82: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P247)) (StkMinus->(A238,P248)) (StkIdent->(A50)) (StkIntLit->(A240,P271)) (StkLongIntLit->(A241,P272)) (StkBasedLit->(A242,P273)) (StkLongBasedLit->(A243,P274)) (StkRealLit->(A244,P275)) (StkLongRealLit->(A245,P276)) (StkExtendedLit->(A246,P277)) (StkTextLit->(A247,P280)) (StkWideTextLit->(A248,P281)) (StkCharLit->(A249,P278)) (StkWideCharLit->(A250,P279)) (IdentRef->(A52)) (QualIdentRef->(A338,P258)) (Expr->(A83)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P238)) (E5Lt->(A69)) (E7->(A347,P245)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
 State 83: (StkCloseBracket->(A274,P144))
 State 84: (StkRwOF->(A275,P142))
-State 85: (StkRwNOT->(A48)) (StkRwOBJECT->(A615,P174)) (StkRwREF->(A615,P174)) (StkOpenParen->(A49)) (StkPlus->(A237,P281)) (StkMinus->(A238,P282)) (StkIdent->(A50)) (StkIntLit->(A240,P255)) (StkLongIntLit->(A241,P256)) (StkBasedLit->(A242,P257)) (StkLongBasedLit->(A243,P258)) (StkRealLit->(A244,P259)) (StkLongRealLit->(A245,P260)) (StkExtendedLit->(A246,P261)) (StkTextLit->(A247,P264)) (StkWideTextLit->(A248,P265)) (StkCharLit->(A249,P262)) (StkWideCharLit->(A250,P263)) (IdentRef->(A52)) (QualIdentRef->(A338,P242)) (Expr->(A358,P175)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P228)) (E5Lt->(A69)) (E7->(A347,P231)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
+State 85: (StkRwNOT->(A48)) (StkRwOBJECT->(A615,P174)) (StkRwREF->(A615,P174)) (StkOpenParen->(A49)) (StkPlus->(A237,P247)) (StkMinus->(A238,P248)) (StkIdent->(A50)) (StkIntLit->(A240,P271)) (StkLongIntLit->(A241,P272)) (StkBasedLit->(A242,P273)) (StkLongBasedLit->(A243,P274)) (StkRealLit->(A244,P275)) (StkLongRealLit->(A245,P276)) (StkExtendedLit->(A246,P277)) (StkTextLit->(A247,P280)) (StkWideTextLit->(A248,P281)) (StkCharLit->(A249,P278)) (StkWideCharLit->(A250,P279)) (IdentRef->(A52)) (QualIdentRef->(A338,P258)) (Expr->(A358,P175)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P238)) (E5Lt->(A69)) (E7->(A347,P245)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
 State 86: (StkOpenParen->(A276,P189)) (Signature->(A359,P187)) (Formals->(A87)) (FormalsLt->(A120))
 State 87: (StkRwEND->(A644,P203)) (StkRwMETHODS->(A644,P203)) (StkRwOVERRIDES->(A644,P203)) (StkRwRAISES->(A644,P203)) (StkSemicolon->(A644,P203)) (StkEqual->(A644,P203)) (StkCloseParen->(A644,P203)) (StkColon->(A88)) (StkBecomes->(A644,P203)) (ResultType->(A140))
 State 88: (StkRwARRAY->(A46)) (StkRwBRANDED->(A85)) (StkRwOBJECT->(A614,P173)) (StkRwPROCEDURE->(A86)) (StkRwRECORD->(A277,P157)) (StkRwREF->(A617,P176)) (StkRwROOT->(A278,P68)) (StkRwUNTRACED->(A89)) (StkOpenBrace->(A280,P145)) (StkIdent->(A93)) (IdentRef->(A360,P57)) (QualIdentRef->(A361,P58)) (IdentOrQualRef->(A362,P67)) (TypeName->(A94)) (Type->(A413,P202)) (StkRidADDRESS->(A364,P118)) (StkRidBOOLEAN->(A365,P119)) (StkRidCARDINAL->(A366,P120)) (StkRidCHAR->(A367,P121)) (StkRidEXTENDED->(A368,P122)) (StkRidINTEGER->(A369,P123)) (StkRidLONGCARD->(A370,P124)) (StkRidLONGINT->(A371,P125)) (StkRidLONGREAL->(A372,P126)) (StkRidMUTEX->(A373,P127)) (StkRidNULL->(A374,P128)) (StkRidREAL->(A375,P129)) (StkRidREFANY->(A376,P130)) (StkRidTEXT->(A377,P131)) (StkRidTYPECODE->(A378,P132)) (StkRidWIDECHAR->(A379,P133)) (RefTypeTraced->(A380,P134)) (RefTypeUntraced->(A381,P135)) (SupertypeAbsent->(A95)) (Brand->(A98)) (OpenArrayType->(A383,P138)) (OpenArrayTypeLt->(A99)) (FixedArrayType->(A385,P141)) (FixedArrayTypeLt->(A100)) (EnumTypeLt->(A101)) (EnumType->(A389,P152)) (RecTypeLt->(A105)) (Supertype->(A392,P180)) (ObjType->(A111)) (SupertypeSem->(A112)) (ObjSubtypeLt->(A393,P181)) (ObjTypeLt->(A114)) (ObjRootTypeLt->(A411,P183))
@@ -5643,13 +5643,13 @@ State 123: (StkRwREADONLY->(A288,P198)) (StkRwVALUE->(A289,P196)) (StkRwVAR->(A2
 State 124: (StkIdent->(A284,P59)) (DeclIdListElems->(A106)) (VarDeclIds->(A397,P199))
 State 125: (StkSemicolon->(A552,P111)) (StkCloseParen->(A552,P111)) (StkColon->(A110)) (StkBecomes->(A552,P111)) (OptDeclType->(A398,P200))
 State 126: (StkSemicolon->(A555,P114)) (StkCloseParen->(A555,P114)) (StkBecomes->(A127)) (OptDeclValue->(A400,P201))
-State 127: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P281)) (StkMinus->(A238,P282)) (StkIdent->(A50)) (StkIntLit->(A240,P255)) (StkLongIntLit->(A241,P256)) (StkBasedLit->(A242,P257)) (StkLongBasedLit->(A243,P258)) (StkRealLit->(A244,P259)) (StkLongRealLit->(A245,P260)) (StkExtendedLit->(A246,P261)) (StkTextLit->(A247,P264)) (StkWideTextLit->(A248,P265)) (StkCharLit->(A249,P262)) (StkWideCharLit->(A250,P263)) (IdentRef->(A52)) (QualIdentRef->(A338,P242)) (Expr->(A399,P113)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P228)) (E5Lt->(A69)) (E7->(A347,P231)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
+State 127: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P247)) (StkMinus->(A238,P248)) (StkIdent->(A50)) (StkIntLit->(A240,P271)) (StkLongIntLit->(A241,P272)) (StkBasedLit->(A242,P273)) (StkLongBasedLit->(A243,P274)) (StkRealLit->(A244,P275)) (StkLongRealLit->(A245,P276)) (StkExtendedLit->(A246,P277)) (StkTextLit->(A247,P280)) (StkWideTextLit->(A248,P281)) (StkCharLit->(A249,P278)) (StkWideCharLit->(A250,P279)) (IdentRef->(A52)) (QualIdentRef->(A338,P258)) (Expr->(A399,P113)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P238)) (E5Lt->(A69)) (E7->(A347,P245)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
 State 128: (StkRwEND->(A607,P166)) (StkRwOVERRIDES->(A129)) (OverrideList->(A134))
 State 129: (StkRwEND->(A608,P167)) (StkIdent->(A292,P171)) (OverridePlus->(A130)) (Override->(A408,P169)) (OverrideLt->(A132))
 State 130: (StkRwEND->(A475,P34)) (StkSemicolon->(A131)) (OptSemicolon->(A407,P168))
 State 131: (StkRwEND->(A474,P33)) (StkIdent->(A292,P171)) (Override->(A405,P170)) (OverrideLt->(A132))
 State 132: (StkEqual->(A133))
-State 133: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P281)) (StkMinus->(A238,P282)) (StkIdent->(A50)) (StkIntLit->(A240,P255)) (StkLongIntLit->(A241,P256)) (StkBasedLit->(A242,P257)) (StkLongBasedLit->(A243,P258)) (StkRealLit->(A244,P259)) (StkLongRealLit->(A245,P260)) (StkExtendedLit->(A246,P261)) (StkTextLit->(A247,P264)) (StkWideTextLit->(A248,P265)) (StkCharLit->(A249,P262)) (StkWideCharLit->(A250,P263)) (IdentRef->(A52)) (QualIdentRef->(A338,P242)) (Expr->(A406,P172)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P228)) (E5Lt->(A69)) (E7->(A347,P231)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
+State 133: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P247)) (StkMinus->(A238,P248)) (StkIdent->(A50)) (StkIntLit->(A240,P271)) (StkLongIntLit->(A241,P272)) (StkBasedLit->(A242,P273)) (StkLongBasedLit->(A243,P274)) (StkRealLit->(A244,P275)) (StkLongRealLit->(A245,P276)) (StkExtendedLit->(A246,P277)) (StkTextLit->(A247,P280)) (StkWideTextLit->(A248,P281)) (StkCharLit->(A249,P278)) (StkWideCharLit->(A250,P279)) (IdentRef->(A52)) (QualIdentRef->(A338,P258)) (Expr->(A406,P172)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P238)) (E5Lt->(A69)) (E7->(A347,P245)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
 State 134: (StkRwEND->(A293,P185))
 State 135: (StkRwEND->(A475,P34)) (StkRwMETHODS->(A475,P34)) (StkRwOVERRIDES->(A475,P34)) (StkSemicolon->(A136)) (OptSemicolon->(A410,P154))
 State 136: (StkRwEND->(A474,P33)) (StkRwMETHODS->(A474,P33)) (StkRwOVERRIDES->(A474,P33)) (StkIdent->(A284,P59)) (DeclIdListElems->(A106)) (VarDecl->(A409,P156)) (VarDeclIds->(A108))
@@ -5664,7 +5664,7 @@ State 144: (StkComma->(A145)) (StkCloseBrace->(A505,P64))
 State 145: (StkIdent->(A93)) (IdentRef->(A360,P57)) (QualIdentRef->(A361,P58)) (IdentOrQualRef->(A415,P66))
 State 146: (StkEqual->(A523,P82)) (ConstDeclValueTok->(A147))
 State 147: (StkEqual->(A148))
-State 148: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P281)) (StkMinus->(A238,P282)) (StkIdent->(A50)) (StkIntLit->(A240,P255)) (StkLongIntLit->(A241,P256)) (StkBasedLit->(A242,P257)) (StkLongBasedLit->(A243,P258)) (StkRealLit->(A244,P259)) (StkLongRealLit->(A245,P260)) (StkExtendedLit->(A246,P261)) (StkTextLit->(A247,P264)) (StkWideTextLit->(A248,P265)) (StkCharLit->(A249,P262)) (StkWideCharLit->(A250,P263)) (IdentRef->(A52)) (QualIdentRef->(A338,P242)) (Expr->(A418,P83)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P228)) (E5Lt->(A69)) (E7->(A347,P231)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
+State 148: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P247)) (StkMinus->(A238,P248)) (StkIdent->(A50)) (StkIntLit->(A240,P271)) (StkLongIntLit->(A241,P272)) (StkBasedLit->(A242,P273)) (StkLongBasedLit->(A243,P274)) (StkRealLit->(A244,P275)) (StkLongRealLit->(A245,P276)) (StkExtendedLit->(A246,P277)) (StkTextLit->(A247,P280)) (StkWideTextLit->(A248,P281)) (StkCharLit->(A249,P278)) (StkWideCharLit->(A250,P279)) (IdentRef->(A52)) (QualIdentRef->(A338,P258)) (Expr->(A418,P83)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P238)) (E5Lt->(A69)) (E7->(A347,P245)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
 State 149: (StkSemicolon->(A297,P76))
 State 150: (StkRwBEGIN->(A529,P88)) (StkRwCONST->(A529,P88)) (StkRwEND->(A529,P88)) (StkRwPROCEDURE->(A529,P88)) (StkRwREVEAL->(A529,P88)) (StkRwTYPE->(A529,P88)) (StkRwVAR->(A529,P88)) (StkIdent->(A298,P92)) (TypeDeclList->(A420,P87)) (TypeDeclPlus->(A151)) (TypeDecl->(A155)) (TypeDeclId->(A153))
 State 151: (StkRwBEGIN->(A530,P89)) (StkRwCONST->(A530,P89)) (StkRwEND->(A530,P89)) (StkRwPROCEDURE->(A530,P89)) (StkRwREVEAL->(A530,P89)) (StkRwTYPE->(A530,P89)) (StkRwVAR->(A530,P89)) (StkIdent->(A298,P92)) (TypeDecl->(A152)) (TypeDeclId->(A153))
@@ -5689,12 +5689,12 @@ State 169: (StkIdent->(A218,P54)) (NonreservedIdent->(A170))
 State 170: (StkSemicolon->(A311,P209))
 State 171: (StkRwBEGIN->(A734,P293)) (StkRwCONST->(A228,P72)) (StkRwPROCEDURE->(A36)) (StkRwREVEAL->(A230,P96)) (StkRwTYPE->(A231,P86)) (StkRwVAR->(A232,P103)) (OpenDeclList->(A172)) (ConstDeclGroupLt->(A40)) (ConstDeclGroup->(A419,P287)) (TypeDeclGroupLt->(A150)) (TypeDeclGroup->(A422,P288)) (RevelationGroupLt->(A156)) (RevelationGroup->(A425,P292)) (VarDeclGroupLt->(A162)) (VarDeclGroup->(A427,P290)) (ProcDeclLt->(A166)) (ProcDecl->(A434,P291)) (BlockDecl->(A435,P295)) (ExceptDeclGroup->(A436,P289)) (BlockDeclPlus->(A179)) (BlockDeclPlusSepLt->(A180))
 State 172: (StkRwBEGIN->(A173))
-State 173: (StkRwEND->(A739,P298)) (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P281)) (StkMinus->(A238,P282)) (StkIdent->(A50)) (StkIntLit->(A240,P255)) (StkLongIntLit->(A241,P256)) (StkBasedLit->(A242,P257)) (StkLongBasedLit->(A243,P258)) (StkRealLit->(A244,P259)) (StkLongRealLit->(A245,P260)) (StkExtendedLit->(A246,P261)) (StkTextLit->(A247,P264)) (StkWideTextLit->(A248,P265)) (StkCharLit->(A249,P262)) (StkWideCharLit->(A250,P263)) (StmtList->(A174)) (IdentRef->(A52)) (QualIdentRef->(A338,P242)) (Expr->(A175)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P228)) (E5Lt->(A69)) (E7->(A347,P231)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71)) (StmtPlus->(A177)) (Stmt->(A431,P300)) (StmtPlusSepLt->(A178)) (AssignStmt->(A433,P303))
+State 173: (StkRwEND->(A739,P298)) (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P247)) (StkMinus->(A238,P248)) (StkIdent->(A50)) (StkIntLit->(A240,P271)) (StkLongIntLit->(A241,P272)) (StkBasedLit->(A242,P273)) (StkLongBasedLit->(A243,P274)) (StkRealLit->(A244,P275)) (StkLongRealLit->(A245,P276)) (StkExtendedLit->(A246,P277)) (StkTextLit->(A247,P280)) (StkWideTextLit->(A248,P281)) (StkCharLit->(A249,P278)) (StkWideCharLit->(A250,P279)) (StmtList->(A174)) (IdentRef->(A52)) (QualIdentRef->(A338,P258)) (Expr->(A175)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P238)) (E5Lt->(A69)) (E7->(A347,P245)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71)) (StmtPlus->(A177)) (Stmt->(A431,P300)) (StmtPlusSepLt->(A178)) (AssignStmt->(A433,P303))
 State 174: (StkRwEND->(A312,P286))
 State 175: (StkBecomes->(A176))
-State 176: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P281)) (StkMinus->(A238,P282)) (StkIdent->(A50)) (StkIntLit->(A240,P255)) (StkLongIntLit->(A241,P256)) (StkBasedLit->(A242,P257)) (StkLongBasedLit->(A243,P258)) (StkRealLit->(A244,P259)) (StkLongRealLit->(A245,P260)) (StkExtendedLit->(A246,P261)) (StkTextLit->(A247,P264)) (StkWideTextLit->(A248,P265)) (StkCharLit->(A249,P262)) (StkWideCharLit->(A250,P263)) (IdentRef->(A52)) (QualIdentRef->(A338,P242)) (Expr->(A429,P304)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P228)) (E5Lt->(A69)) (E7->(A347,P231)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
+State 176: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P247)) (StkMinus->(A238,P248)) (StkIdent->(A50)) (StkIntLit->(A240,P271)) (StkLongIntLit->(A241,P272)) (StkBasedLit->(A242,P273)) (StkLongBasedLit->(A243,P274)) (StkRealLit->(A244,P275)) (StkLongRealLit->(A245,P276)) (StkExtendedLit->(A246,P277)) (StkTextLit->(A247,P280)) (StkWideTextLit->(A248,P281)) (StkCharLit->(A249,P278)) (StkWideCharLit->(A250,P279)) (IdentRef->(A52)) (QualIdentRef->(A338,P258)) (Expr->(A429,P304)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P238)) (E5Lt->(A69)) (E7->(A347,P245)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71))
 State 177: (StkRwEND->(A740,P299)) (StkRwNOT->(A475,P34)) (StkSemicolon->(A313,P33)) (StkOpenParen->(A475,P34)) (StkPlus->(A475,P34)) (StkMinus->(A475,P34)) (StkIdent->(A475,P34)) (StkIntLit->(A475,P34)) (StkLongIntLit->(A475,P34)) (StkBasedLit->(A475,P34)) (StkLongBasedLit->(A475,P34)) (StkRealLit->(A475,P34)) (StkLongRealLit->(A475,P34)) (StkExtendedLit->(A475,P34)) (StkTextLit->(A475,P34)) (StkWideTextLit->(A475,P34)) (StkCharLit->(A475,P34)) (StkWideCharLit->(A475,P34)) (OptSemicolon->(A430,P301))
-State 178: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P281)) (StkMinus->(A238,P282)) (StkIdent->(A50)) (StkIntLit->(A240,P255)) (StkLongIntLit->(A241,P256)) (StkBasedLit->(A242,P257)) (StkLongBasedLit->(A243,P258)) (StkRealLit->(A244,P259)) (StkLongRealLit->(A245,P260)) (StkExtendedLit->(A246,P261)) (StkTextLit->(A247,P264)) (StkWideTextLit->(A248,P265)) (StkCharLit->(A249,P262)) (StkWideCharLit->(A250,P263)) (IdentRef->(A52)) (QualIdentRef->(A338,P242)) (Expr->(A175)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P228)) (E5Lt->(A69)) (E7->(A347,P231)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71)) (Stmt->(A432,P302)) (AssignStmt->(A433,P303))
+State 178: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P247)) (StkMinus->(A238,P248)) (StkIdent->(A50)) (StkIntLit->(A240,P271)) (StkLongIntLit->(A241,P272)) (StkBasedLit->(A242,P273)) (StkLongBasedLit->(A243,P274)) (StkRealLit->(A244,P275)) (StkLongRealLit->(A245,P276)) (StkExtendedLit->(A246,P277)) (StkTextLit->(A247,P280)) (StkWideTextLit->(A248,P281)) (StkCharLit->(A249,P278)) (StkWideCharLit->(A250,P279)) (IdentRef->(A52)) (QualIdentRef->(A338,P258)) (Expr->(A175)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P238)) (E5Lt->(A69)) (E7->(A347,P245)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71)) (Stmt->(A432,P302)) (AssignStmt->(A433,P303))
 State 179: (StkRwBEGIN->(A735,P294)) (StkRwCONST->(A737,P296)) (StkRwEND->(A735,P294)) (StkRwPROCEDURE->(A737,P296)) (StkRwREVEAL->(A737,P296)) (StkRwTYPE->(A737,P296)) (StkRwVAR->(A737,P296))
 State 180: (StkRwCONST->(A228,P72)) (StkRwPROCEDURE->(A36)) (StkRwREVEAL->(A230,P96)) (StkRwTYPE->(A231,P86)) (StkRwVAR->(A232,P103)) (ConstDeclGroupLt->(A40)) (ConstDeclGroup->(A419,P287)) (TypeDeclGroupLt->(A150)) (TypeDeclGroup->(A422,P288)) (RevelationGroupLt->(A156)) (RevelationGroup->(A425,P292)) (VarDeclGroupLt->(A162)) (VarDeclGroup->(A427,P290)) (ProcDeclLt->(A166)) (ProcDecl->(A434,P291)) (BlockDecl->(A437,P297)) (ExceptDeclGroup->(A436,P289))
 State 181: (StkRwEXPORTS->(A182)) (StkSemicolon->(A490,P49)) (StkEqual->(A185)) (Exports->(A190))
@@ -5711,7 +5711,7 @@ State 191: (StkRwBEGIN->(A478,P37)) (StkRwCONST->(A478,P37)) (StkRwFROM->(A478,P
 State 192: (StkRwBEGIN->(A489,P48)) (StkRwCONST->(A489,P48)) (StkRwFROM->(A17)) (StkRwIMPORT->(A19)) (StkRwPROCEDURE->(A489,P48)) (StkRwREVEAL->(A489,P48)) (StkRwTYPE->(A489,P48)) (StkRwVAR->(A489,P48)) (ExpImpDone->(A441,P24)) (Import->(A333,P38)) (FromImportLt->(A24))
 State 193: (StkRwBEGIN->(A734,P293)) (StkRwCONST->(A228,P72)) (StkRwPROCEDURE->(A36)) (StkRwREVEAL->(A230,P96)) (StkRwTYPE->(A231,P86)) (StkRwVAR->(A232,P103)) (OpenDeclList->(A194)) (ConstDeclGroupLt->(A40)) (ConstDeclGroup->(A419,P287)) (TypeDeclGroupLt->(A150)) (TypeDeclGroup->(A422,P288)) (RevelationGroupLt->(A156)) (RevelationGroup->(A425,P292)) (VarDeclGroupLt->(A162)) (VarDeclGroup->(A427,P290)) (ProcDeclLt->(A166)) (ProcDecl->(A434,P291)) (BlockDecl->(A435,P295)) (ExceptDeclGroup->(A436,P289)) (BlockDeclPlus->(A179)) (BlockDeclPlusSepLt->(A180))
 State 194: (StkRwBEGIN->(A195))
-State 195: (StkRwEND->(A739,P298)) (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P281)) (StkMinus->(A238,P282)) (StkIdent->(A50)) (StkIntLit->(A240,P255)) (StkLongIntLit->(A241,P256)) (StkBasedLit->(A242,P257)) (StkLongBasedLit->(A243,P258)) (StkRealLit->(A244,P259)) (StkLongRealLit->(A245,P260)) (StkExtendedLit->(A246,P261)) (StkTextLit->(A247,P264)) (StkWideTextLit->(A248,P265)) (StkCharLit->(A249,P262)) (StkWideCharLit->(A250,P263)) (StmtList->(A196)) (IdentRef->(A52)) (QualIdentRef->(A338,P242)) (Expr->(A175)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P228)) (E5Lt->(A69)) (E7->(A347,P231)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71)) (StmtPlus->(A177)) (Stmt->(A431,P300)) (StmtPlusSepLt->(A178)) (AssignStmt->(A433,P303))
+State 195: (StkRwEND->(A739,P298)) (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A237,P247)) (StkMinus->(A238,P248)) (StkIdent->(A50)) (StkIntLit->(A240,P271)) (StkLongIntLit->(A241,P272)) (StkBasedLit->(A242,P273)) (StkLongBasedLit->(A243,P274)) (StkRealLit->(A244,P275)) (StkLongRealLit->(A245,P276)) (StkExtendedLit->(A246,P277)) (StkTextLit->(A247,P280)) (StkWideTextLit->(A248,P281)) (StkCharLit->(A249,P278)) (StkWideCharLit->(A250,P279)) (StmtList->(A196)) (IdentRef->(A52)) (QualIdentRef->(A338,P258)) (Expr->(A175)) (E0->(A57)) (E1->(A58)) (E0Lt->(A59)) (E2->(A340,P217)) (E1Lt->(A61)) (E3->(A62)) (E4->(A63)) (E3Lt->(A64)) (E5->(A66)) (E4Lt->(A67)) (E6->(A345,P238)) (E5Lt->(A69)) (E7->(A347,P245)) (ExprUnaryAddOp->(A70)) (E8WOId->(A71)) (StmtPlus->(A177)) (Stmt->(A431,P300)) (StmtPlusSepLt->(A178)) (AssignStmt->(A433,P303))
 State 196: (StkRwEND->(A197))
 State 197: (StkIdent->(A218,P54)) (NonreservedIdent->(A198))
 State 198: (StkDot->(A315,P25))

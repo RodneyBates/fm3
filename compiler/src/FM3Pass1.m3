@@ -1007,6 +1007,7 @@ END (*IF*) ;
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( T + Itk . LtToRt , LONGINT ) ) 
+
       ; PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
@@ -1092,7 +1093,8 @@ END (*IF*) ;
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
-      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) )
+      
       ; PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
       ; PutBwd ( WRdBack , C ) 
@@ -1157,6 +1159,7 @@ END (*IF*) ;
 
 (*EXPORTED:*)
 ; PROCEDURE PutBwd_LCPI_rpi
+(* REVIEW Why the rpi order? why not rip? *) 
     ( T : Itk . TokTyp 
     ; C : LONGINT 
     ; READONLY Position : tPosition 
@@ -1365,39 +1368,7 @@ END (*IF*) ;
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
       END (*WITH*) 
     END PutBwd_LCIP_eCiP_riP
-(*
-(*EXPORTED:*)
-; PROCEDURE PutBwd_LCIP_eCP_rip
-    ( T : Itk . TokTyp 
-    ; LC : LONGINT 
-    ; I : INTEGER 
-    ; READONLY LPos : tPosition
-    ; EC : LONGINT 
-    ; READONLY EPos : tPosition
-    ; READONLY RPos : tPosition
-    )
 
-  = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
-      DO 
-        PutBwd ( WRdBack , VAL ( RPos . Column , LONGINT ) ) 
-      ; PutBwd ( WRdBack , VAL ( RPos . Line , LONGINT ) ) 
-      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
-      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) )
-
-      ; PutBwd ( WRdBack , VAL ( EPos . Column , LONGINT ) ) 
-      ; PutBwd ( WRdBack , VAL ( EPos . Line , LONGINT ) ) 
-      ; PutBwd ( WRdBack , EC ) 
-      ; PutBwd ( WRdBack , VAL ( T + LtToOnePatch , LONGINT ) )
-      
-      ; PutBwd ( WRdBack , VAL ( LPos . Column , LONGINT ) ) 
-      ; PutBwd ( WRdBack , VAL ( LPos . Line , LONGINT ) ) 
-      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
-      ; PutBwd ( WRdBack , LC ) 
-      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
-      END (*WITH*) 
-    END PutBwd_LCIP_eCP_rip
-*)
 (*EXPORTED:*)
 ; PROCEDURE PutBwd_LCIP_eCip_rip
     ( T : Itk . TokTyp 
@@ -1505,7 +1476,7 @@ END (*IF*) ;
 (*EXPORTED:*)
 ; PROCEDURE PutBwd_LCP_eCP_rP
    ( T : Itk . TokTyp
-   ; CLt : LONGINT
+   ; LC : LONGINT
    ; READONLY PositionLt : tPosition
    ; CEins : LONGINT
    ; READONLY PositionEins : tPosition
@@ -1517,14 +1488,16 @@ END (*IF*) ;
       DO 
         PutBwd ( WRdBack , VAL ( PositionRt . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( PositionRt . Line , LONGINT ) ) 
-      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) )
+      
       ; PutBwd ( WRdBack , VAL ( PositionEins . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( PositionEins . Line , LONGINT ) ) 
       ; PutBwd ( WRdBack , CEins ) 
-      ; PutBwd ( WRdBack , VAL ( T + LtToOnePatch , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToOnePatch , LONGINT ) )
+      
       ; PutBwd ( WRdBack , VAL ( PositionLt . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( PositionLt . Line , LONGINT ) ) 
-      ; PutBwd ( WRdBack , CLt ) 
+      ; PutBwd ( WRdBack , LC ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
       END (*WITH*) 
     END PutBwd_LCP_eCP_rP
