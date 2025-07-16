@@ -24,9 +24,12 @@ MODULE FM3Utils
 
 ; IMPORT FM3Atom_OAChars 
 ; IMPORT FM3Base
+; IMPORT FM3CLOptions 
+; IMPORT FM3CLToks AS Clt
 ; IMPORT FM3IntToks AS Itk
 ; IMPORT FM3OpenArray_Char 
-; IMPORT FM3SharedGlobals 
+; IMPORT FM3SharedGlobals
+; IMPORT FM3SharedUtils 
 ; IMPORT FM3SrcToks
 
 ; TYPE IntRangeTyp = IntRanges . RangeTyp
@@ -461,6 +464,19 @@ MODULE FM3Utils
       END (*FOR*) 
     END PutOACharsWr 
 
+(*EXPORTED.*) 
+; PROCEDURE RefanyImage ( Value : REFANY ) : TEXT
+  (* All asterisks, if --no-expr-addrs. *) 
+
+  = BEGIN
+      IF Value = NIL
+      THEN RETURN "NIL" 
+      ELSIF Clt . CltExprAddrs IN FM3CLOptions . OptionTokSet
+      THEN RETURN FM3SharedUtils . RefanyImage ( Value )
+      ELSE RETURN "16_****************"
+      END (*IF*) 
+    END RefanyImage
+ 
 ; BEGIN
   END FM3Utils 
 .

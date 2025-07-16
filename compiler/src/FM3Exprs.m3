@@ -24,7 +24,6 @@ MODULE FM3Exprs
 ; IMPORT FM3Globals
 ; IMPORT FM3Messages
 ; IMPORT FM3Parser 
-; FROM FM3SharedUtils IMPORT RefanyImage
 ; IMPORT FM3Scopes
 ; IMPORT FM3SharedUtils 
 ; IMPORT FM3SrcToks
@@ -216,7 +215,7 @@ MODULE FM3Exprs
         Wr . PutText ( GWrT , "ExprNo " )
       ; Wr . PutText ( GWrT , Fmt . Int ( Expr . ExpSelfExprNo ) )
       ; Wr . PutChar ( GWrT , ' ' )
-      ; Wr . PutText ( GWrT , RefanyImageMaybe ( Expr ) ) 
+      ; Wr . PutText ( GWrT , FM3Utils . RefanyImage ( Expr ) ) 
       ; IF IntSets . IsElement ( Expr . ExpSelfExprNo , GExprNosDumped )
         THEN
           Wr . PutText ( GWrT , ", previously displayed." )
@@ -244,17 +243,6 @@ MODULE FM3Exprs
     END LongHexImage
 *)
 
-(*TODO: Put this somewhere more general? *) 
-(*EXPORTED.*) 
-; PROCEDURE RefanyImageMaybe ( Value : REFANY ) : TEXT
-
-  = BEGIN
-      IF Clt . CltExprAddrs IN FM3CLOptions . OptionTokSet
-      THEN RETURN RefanyImage ( Value )
-      ELSE RETURN "16_****************"
-      END (*IF*) 
-    END RefanyImageMaybe
- 
 ; PROCEDURE AtomTypImage ( Value : FM3Base . AtomTyp ) : TEXT
 
   = VAR LChars : REF ARRAY OF CHAR
@@ -297,13 +285,13 @@ MODULE FM3Exprs
                 { "ExprNo "
                 , Fmt . Int ( TExprRef . ExpSelfExprNo )
                 , " at "
-                , RefanyImageMaybe ( TExprRef )
+                , FM3Utils . RefanyImage ( TExprRef )
                 , " "
                 , FM3Utils . PositionImage ( TExprRef . ExpPosition )
                 }
             ) 
         ; RETURN LResult 
-      ELSE RETURN "Not an ExprRef: " & RefanyImage ( ExprRef )
+      ELSE RETURN "Not an ExprRef: " & FM3SharedUtils . RefanyImage ( ExprRef )
       END (*TYPECASE*) 
     END ExprRefImage
 
@@ -314,7 +302,7 @@ MODULE FM3Exprs
     = BEGIN
         Field ( "ExpStackLink" , ExprRefImage ( Expr . ExpStackLink ) ) 
       ; NestedField ( "ExpType" , Expr . ExpType ) 
-      ; Field ( "ExpRefConstVal" , RefanyImageMaybe ( Expr . ExpRefConstVal ) )  
+      ; Field ( "ExpRefConstVal" , FM3Utils . RefanyImage ( Expr . ExpRefConstVal ) )  
       ; Field
           ( "ExpScalarConstVal" , Fmt . LongInt ( Expr . ExpScalarConstVal ) )  
       ; Field
@@ -609,7 +597,7 @@ MODULE FM3Exprs
         Expr2OpndAppend ( Expr ) 
       ; SubtypeComment ( "ExprObjTypeTyp" )
       ; Field ( "ExpObjOverrides"
-              , FM3SharedUtils . RefanyImage ( Expr . ExpObjOverrides )
+              , FM3Utils . RefanyImage ( Expr . ExpObjOverrides )
               )  
       ; Field ( "ExpObjDecls"
               , FM3Scopes . ScopeRefImage ( Expr . ExpObjScopeRef )
@@ -803,7 +791,6 @@ MODULE FM3Exprs
       ELSE RETURN FALSE
       END (* TYPECASE*)
     END IsNumericType 
-      
 
 ; BEGIN
     GIndentStrings [ 0 ] := "" 

@@ -90,9 +90,6 @@ INTERFACE FM3Exprs
 ; PROCEDURE DumpExpr
     ( Expr : ExprTyp ; WrT : Wr . T ; VAR (*IN OUT*) ExprNosDumped : IntSets . T )
     
-; PROCEDURE RefanyImageMaybe ( Value : REFANY ) : TEXT
-  (* Constant, if --no-expr-addrs. *) 
-
 ; PROCEDURE ExprImage ( Expr : ExprTyp ) : TEXT 
   (* Contents of the object. *)
   

@@ -74,5 +74,8 @@ INTERFACE FM3Utils
 
 ; PROCEDURE PutOACharsWr ( WrT : Wr . T ; CharsRef : FM3OpenArray_Char . T ) 
 
+; PROCEDURE RefanyImage ( Value : REFANY ) : TEXT
+  (* All asterisks, if --no-expr-addrs. *) 
+
 ; END FM3Utils
 .

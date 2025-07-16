@@ -45,7 +45,7 @@ MODULE FM3Scopes
             { "ScopeNo " 
             , Fmt . Int ( ScopeRef ^ . ScpSelfScopeNo ) 
             , " at " 
-            , FM3SharedUtils . RefanyImage ( ScopeRef )
+            , FM3Utils . RefanyImage ( ScopeRef )
             , " "
             , FM3Utils . PositionImage ( ScopeRef ^ . ScpPosition )
             }

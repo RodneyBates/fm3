@@ -474,7 +474,7 @@ MODULE FM3DisAsm
       ; Wr . PutChar ( WrT , ')' )
       ; DobPosArg ( 1 ) 
       ; IF DoString
-        THEN
+        THEN (* Display the string. *) 
           Wr . PutText ( WrT , Wr . EOL ) 
         ; Wr . PutText ( WrT , "    ("  )
         ; LArgL := FM3Compress . GetBwd ( RBT ) (* Right char count. *)
@@ -669,7 +669,7 @@ MODULE FM3DisAsm
             =>  DobText ( DoString := FALSE , Wide := TRUE ) 
 
             | FM3IntToks . ItkWideTextLitRt
-            =>  DobText ( DoString := NOT FALSE , Wide := TRUE ) 
+            =>  DobText ( DoString := FALSE , Wide := TRUE ) 
 
             ELSE (* Of outer CASE. *) 
               CASE LToken OF 
