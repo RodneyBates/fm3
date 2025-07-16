@@ -3,7 +3,7 @@ From unit expression map, Expr No 0 NIL
 From unit expression map, Expr No 1 16_****************
  ExpStackLink = NIL
  ExpType = NIL
- ExpRefConstVal = 16_****************
+ ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
@@ -27,15 +27,15 @@ From unit expression map, Expr No 1 16_****************
  (* From subtype Expr2OpndTyp: *)
  ExpOpnd2 = NIL
  (* From subtype ExprObjTypeTyp: *)
- ExpObjOverrides = 16_0000000000000000
- ExpObjDecls = ScopeNo 5 at 16_0000000020680d48 [16,12]
+ ExpObjOverrides = NIL
+ ExpObjDecls = ScopeNo 5 at 16_**************** [16,12]
  ExpObjDecls = BkExplicit
 
 
 From unit expression map, Expr No 2 16_****************
  ExpStackLink = ExprNo 1 at 16_**************** [15,12]
  ExpType = NIL
- ExpRefConstVal = 16_****************
+ ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
@@ -61,7 +61,7 @@ From unit expression map, Expr No 2 16_****************
 From unit expression map, Expr No 3 16_****************
  ExpStackLink = ExprNo 1 at 16_**************** [15,12]
  ExpType = NIL
- ExpRefConstVal = 16_****************
+ ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
@@ -85,7 +85,7 @@ From unit expression map, Expr No 3 16_****************
  (* From subtype Expr2OpndTyp: *)
  ExpOpnd2 = NIL
  (* From subtype ExprObjTypeTyp: *)
- ExpObjOverrides = 16_0000000000000000
+ ExpObjOverrides = NIL
  ExpObjDecls = NIL
  ExpObjDecls = BkAbsent
 
@@ -93,7 +93,7 @@ From unit expression map, Expr No 3 16_****************
 From unit expression map, Expr No 4 16_****************
  ExpStackLink = ExprNo 3 at 16_**************** [15,12]
  ExpType = NIL
- ExpRefConstVal = 16_****************
+ ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
@@ -116,7 +116,7 @@ From unit expression map, Expr No 4 16_****************
  ExpOpnd1 = ExprNo 6 16_****************
 .. ExpStackLink = ExprNo 4 at 16_**************** [7,12]
 .. ExpType = NIL
-.. ExpRefConstVal = 16_****************
+.. ExpRefConstVal = NIL
 .. ExpScalarConstVal = 0
 .. ExpLoTypeInfoRef = 
 .. ExpReachedDeclNoSet = {}
@@ -142,7 +142,7 @@ From unit expression map, Expr No 4 16_****************
  ExpOpnd2 = ExprNo 5 16_****************
 .. ExpStackLink = ExprNo 4 at 16_**************** [7,12]
 .. ExpType = NIL
-.. ExpRefConstVal = 16_****************
+.. ExpRefConstVal = NIL
 .. ExpScalarConstVal = 0
 .. ExpLoTypeInfoRef = 
 .. ExpReachedDeclNoSet = {}
@@ -174,15 +174,15 @@ From unit expression map, Expr No 4 16_****************
 .. ExpQuadOpOpnd4 = NIL
 
  (* From subtype ExprObjTypeTyp: *)
- ExpObjOverrides = 16_0000000000000000
- ExpObjDecls = ScopeNo 3 at 16_00000000206a32d8 [9,12]
+ ExpObjOverrides = NIL
+ ExpObjDecls = ScopeNo 3 at 16_**************** [9,12]
  ExpObjDecls = BkAnon
 
 
 From unit expression map, Expr No 7 16_****************
  ExpStackLink = ExprNo 3 at 16_**************** [15,12]
  ExpType = NIL
- ExpRefConstVal = 16_****************
+ ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
@@ -206,15 +206,15 @@ From unit expression map, Expr No 7 16_****************
  (* From subtype Expr2OpndTyp: *)
  ExpOpnd2 = NIL
  (* From subtype ExprObjTypeTyp: *)
- ExpObjOverrides = 16_0000000000000000
- ExpObjDecls = ScopeNo 2 at 16_00000000206a3230 [5,12]
+ ExpObjOverrides = NIL
+ ExpObjDecls = ScopeNo 2 at 16_**************** [5,12]
  ExpObjDecls = BkAbsent
 
 
 From unit expression map, Expr No 8 16_****************
  ExpStackLink = ExprNo 7 at 16_**************** [5,12]
  ExpType = NIL
- ExpRefConstVal = 16_****************
+ ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
@@ -238,7 +238,7 @@ From unit expression map, Expr No 8 16_****************
  (* From subtype Expr2OpndTyp: *)
  ExpOpnd2 = NIL
  (* From subtype ExprObjTypeTyp: *)
- ExpObjOverrides = 16_0000000000000000
+ ExpObjOverrides = NIL
  ExpObjDecls = NIL
  ExpObjDecls = BkAbsent
 
