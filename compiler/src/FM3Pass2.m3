@@ -1762,18 +1762,12 @@ MODULE FM3Pass2
     ; DidAtom := GetBwdAtom ( TokResult . TrRdBack )
     ; DidStdTok := GetBwdInt ( TokResult . TrRdBack )
     ; DidPosition := GetBwdPos ( TokResult . TrRdBack )
-; IF DidAtom = 4
-  THEN DidAtom := 4
-  END 
     ; IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
       THEN (* We are skipping output. *) RETURN FM3Globals . DeclNoNull 
       END (*IF*) 
 
     ; WITH Wp2RdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack
       DO 
-  IF FM3Scopes . DeclScopeStackTopRef = NIL
-  THEN RETURN FM3Globals . DeclNoNull
-  END (*IF*) ;  
         DidDeclNo
           := LookupDeclNoInScope
                ( FM3Scopes . DeclScopeStackTopRef ^ , DidAtom ) 

@@ -93,24 +93,18 @@ MODULE FM3Pass1
 
   = BEGIN
       <* ASSERT RdBack # FM3Globals . P2RdBack *>
-      IF TRUE 
-      THEN
-IF ValueL = VAL ( Itk . ItkIdRefAtom , LONGINT )
-THEN ValueL := ValueL  
-END (*IF*) ;
-        TRY
-          FM3Compress . PutBwd ( RdBack , ValueL ) 
-        EXCEPT OSError . E ( EMsg )
-        => FM3Messages . FatalArr
-             ( ARRAY OF REFANY
-                 { "Unable to write to readback file \""
-                 , RdBackFile . FileName ( RdBack )
-                 , "\", " 
-                 , ALOSE ( EMsg ) , "."  
-                 }
-             ) 
-        END (*EXCEPT*) 
-      END (*IF*)
+      TRY
+        FM3Compress . PutBwd ( RdBack , ValueL ) 
+      EXCEPT OSError . E ( EMsg )
+      => FM3Messages . FatalArr
+           ( ARRAY OF REFANY
+               { "Unable to write to readback file \""
+               , RdBackFile . FileName ( RdBack )
+               , "\", " 
+               , ALOSE ( EMsg ) , "."  
+               }
+           ) 
+      END (*EXCEPT*) 
     END PutBwd
 (*
 (*EXPORTED.*)
@@ -2619,7 +2613,7 @@ END (*IF*) ;
 
   ; BEGIN (*DeclScopeRtL2R*)
       VAR LUnitRef : FM3Units . UnitRefTyp
-    ; VAR LOwningScopeRef : FM3Scopes . ScopeRefTyp
+    ; VAR LContainingScopeRef : FM3Scopes . ScopeRefTyp
     ; VAR LEscapingRefSet : IntSets . T 
     ; VAR LDeclCt : INTEGER
     ; VAR LExpectedToDeclNo : INTEGER 
@@ -2645,12 +2639,12 @@ END (*IF*) ;
       ; ScopeRef ^ . ScpRefIdSet 
           := IntSets . Intersection
                ( ScopeRef ^ . ScpRefIdSet , ScopeRef ^ . ScpDeclIdSet )
-      ; LOwningScopeRef := ScopeRef ^ . ScpOpenScopeStackLink
-      ; IF LOwningScopeRef # NIL
+      ; LContainingScopeRef := ScopeRef ^ . ScpOpenScopeStackLink
+      ; IF LContainingScopeRef # NIL
         THEN
-          LOwningScopeRef ^ . ScpRefIdSet
+          LContainingScopeRef ^ . ScpRefIdSet
             := IntSets . Union
-                 ( LOwningScopeRef ^ . ScpRefIdSet , LEscapingRefSet ) 
+                 ( LContainingScopeRef ^ . ScpRefIdSet , LEscapingRefSet ) 
         END (*IF*)
       ; LUnitRef := ScopeRef ^ . ScpOwningUnitRef
       ; IF Clt . CltRemoveUnusedDecls IN FM3CLOptions . OptionTokSet
@@ -2659,7 +2653,8 @@ END (*IF*) ;
         THEN ScopeRef ^ . ScpDeclIdSet := ScopeRef ^ . ScpRefIdSet
         END (*IF*)
 
-      ; LDeclCt := IntSets . Card ( ScopeRef ^ . ScpDeclIdSet ) 
+      ; LDeclCt := IntSets . Card ( ScopeRef ^ . ScpDeclIdSet )
+      (* Duplicate formal ids not included. *) 
       (* LDeclCt is exactly the needed dictionary size. *)
       ; ScopeRef ^ . ScpDeclCt := LDeclCt 
       ; ScopeRef ^ . ScpDeclDict 

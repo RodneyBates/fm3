@@ -35,10 +35,10 @@ INTERFACE RdBackFile
 
 (* All lengths and offsets within the file are relative to after the prefix. *) 
 
-; PROCEDURE Create ( Filename : TEXT ) : T
+; PROCEDURE Create ( FileName : TEXT ) : T
   RAISES { OSError . E , Preexists (* Only if NOT Truncate *) }   
 
-; PROCEDURE Open ( Filename : TEXT ) : T 
+; PROCEDURE Open ( FileName : TEXT ) : T 
   RAISES { FM3SharedUtils . FatalError , OSError . E }
 
 ; PROCEDURE FileName ( RbFile : T ) : TEXT 

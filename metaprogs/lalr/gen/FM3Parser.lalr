@@ -1489,7 +1489,7 @@ RULE
 
 (* ------------------------------ Override Lists ---------------------------- *)
 
-   OverrideList : /*Empty*/
+   OverrideList : /*Empty*/ /* No "OVERRIDES". */
       { FM3Pass1 . MakeListEmpty 
           ( $$
           , Itk . ItkOverrideListLt
@@ -1497,7 +1497,7 @@ RULE
           ) ; 
       } .
 
-   OverrideList : StkRwOVERRIDES 
+   OverrideList : StkRwOVERRIDES /* "OVERRIDES" but none follow. */ 
       { FM3Pass1 . PutBwd_LIP_rip
           ( Itk . ItkOverrideListLt , 0 , $1 . Scan . Position ) ; 
       } .
