@@ -1610,34 +1610,10 @@ RULE
      } . 
      
    ObjSubtypeLt : SupertypeSem Brand StkRwOBJECT
-     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
-       BEGIN 
-         (* Default Position & Coord. *) 
-         $$ . PaDeclDepth (* DeclParseInfoDepth *) 
-           := FM3Decls . PushDeclParseInfo
-                ( FM3Decls . DeclParseInfoTyp
-                    { DiDeclTok := Itk . ItkFieldDeclLt
-                    , DiIdListTok := Itk . ItkFieldDeclIdListLt
-                    , DiIdSepTok
-                        := Itk . ItkFieldDeclIdListLt + Itk . LtToListSep
-                    , DiKind := Dkt . DkObjField 
-                    }
-                ) ;
-         $$ . PaByte := $2 . PaByte (* Brand kind, Bkt. *) ;  
-         (* Need the scope now, to count decls. *) 
-         LScopeRef 
-           := FM3Scopes . NewScopeRef
-                ( FM3Units . UnitStackTopRef
-                , Skt . SkObj
-                , $3 . Scan . Position
-                ) ;
-         $$ . PaInt := LScopeRef ^ . ScpSelfScopeNo ; 
-         FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
-         FM3Pass1 . PutBwd_TI
-           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo  ) ;
-       END; 
+     { (* Default Position & Coord. *) 
+       FM3Pass1 . ObjTypeLtL2R
+         ( $$ , $2 . PaByte (* Brand kind, Bkt. *) , $3 . Scan . Position ) ;   
      } .
-
 
    ObjTypeLt : ObjRootTypeLt
      /* Its supertype is implicitly ROOT, but syntactically absent. */  
@@ -1648,32 +1624,9 @@ RULE
      } .
 
    ObjRootTypeLt : Brand StkRwOBJECT
-     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
-       BEGIN 
-         (* Default Position & Coord. *) 
-         $$ . PaDeclDepth (* DeclParseInfoDepth *) 
-           := FM3Decls . PushDeclParseInfo
-                ( FM3Decls . DeclParseInfoTyp
-                    { DiDeclTok := Itk . ItkFieldDeclLt
-                    , DiIdListTok := Itk . ItkFieldDeclIdListLt
-                    , DiIdSepTok
-                        := Itk . ItkFieldDeclIdListLt + Itk . LtToListSep
-                    , DiKind := Dkt . DkObjField 
-                    }
-                ) ;
-         $$ . PaByte := $1 . PaByte (* Brand kind, Bkt. *) ;  
-         (* Need the scope now, to count decls. *) 
-         LScopeRef 
-           := FM3Scopes . NewScopeRef
-                ( FM3Units . UnitStackTopRef
-                , Skt . SkObj
-                , $2 . Scan . Position
-                ) ;
-         $$ . PaInt := LScopeRef ^ . ScpSelfScopeNo ; 
-         FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
-         FM3Pass1 . PutBwd_TI
-           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
-       END; 
+     { (* Default Position & Coord. *) 
+       FM3Pass1 . ObjTypeLtL2R
+         ( $$ , $1 . PaByte (* Brand kind, Bkt. *) , $2 . Scan . Position ) ;   
      } .
 
    ObjType : ObjTypeLt FieldDeclList MethodDeclList OverrideList StkRwEND

@@ -36,7 +36,7 @@ INTERFACE FM3Pass1
       ; PaPos2 : FM3Base . tPosition 
       ; PaTok1 : FM3Base . TokTyp 
       ; PaTok2 : FM3Base . TokTyp 
-      ; PaByte : [ 0 .. 16_FF ] 
+      ; PaByte : FM3Base . Card8Typ 
       ; PaBool : BOOLEAN 
       END (* tParsAttribute *)
 
@@ -500,6 +500,12 @@ INTERFACE FM3Pass1
      exactly the needed size, and load it up with mappings of the idents
      declared in the scope, using a contiguously-numbered range of DeclNos.
   *) 
+
+; PROCEDURE ObjTypeLtL2R
+    ( VAR LHSAttr : tParsAttribute
+    ; BrandKind : FM3Base . Card8Typ (* FM3Parser . BrandKindTyp. *) 
+    ; Position : tPosition
+    ) 
 
 ; PROCEDURE DisAsmPass1 ( UnitRef : FM3Units . UnitRefTyp )
   RAISES { RdBackFile . BOF }

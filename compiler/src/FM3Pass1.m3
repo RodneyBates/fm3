@@ -2683,6 +2683,40 @@ MODULE FM3Pass1
 
 (* ----------------------- Procedure signatures --------------------- *)
 
+(* ---------------------------- Object types ------------------------ *)
+
+(*EXPORTED.*)
+; PROCEDURE ObjTypeLtL2R
+    ( VAR LHSAttr : tParsAttribute
+    ; BrandKind : FM3Base . Card8Typ (* FM3Parser . BrandKindTyp. *) 
+    ; Position : tPosition
+    ) 
+
+  = VAR LScopeRef : FM3Scopes . ScopeRefTyp
+  ; VAR LResult : INTEGER 
+  
+  ; BEGIN 
+      LHSAttr . PaDeclDepth (* DeclParseInfoDepth *) 
+        := FM3Decls . PushDeclParseInfo
+             ( FM3Decls . DeclParseInfoTyp
+                 { DiDeclTok := Itk . ItkFieldDeclLt
+                 , DiIdListTok := Itk . ItkFieldDeclIdListLt
+                 , DiIdSepTok := Itk . ItkFieldDeclIdListLt + Itk . LtToListSep
+                 , DiKind := Dkt . DkObjField 
+                 }
+             ) 
+    ; LHSAttr . PaByte := BrandKind
+      (* Need the scope now, to collect decl id atoms. *) 
+    ; LScopeRef 
+        := FM3Scopes . NewScopeRef
+             ( FM3Units . UnitStackTopRef
+             , Skt . SkObj
+             , Position
+             ) 
+    ; LHSAttr . PaInt := LScopeRef ^ . ScpSelfScopeNo  
+    ; FM3Scopes . PushDeclScopeRef ( LScopeRef ) 
+    ; PutBwd_TI ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo  ) 
+    END ObjTypeLtL2R  
 
 ; BEGIN (*FM3Pass1*)
     InitVarInfo ( )

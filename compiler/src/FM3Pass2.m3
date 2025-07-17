@@ -1202,7 +1202,7 @@ MODULE FM3Pass2
             ; <* ASSERT
                    LExpr . ExpObjScopeRef = FM3Scopes . DeclScopeStackTopRef
               *>
-              HtExprRt ( LExpr ) (* Consumes position. *) 
+              HtExprRt ( LExpr ) (* Consumes position and stores in LExpr. *) 
             END (* Block. *) 
           END (*IF*)
           
