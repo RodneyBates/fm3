@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the Flint Hills Modula-3 compiler, FM3.              *)
-(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+(* Copyright 2023..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -18,10 +18,8 @@ INTERFACE FM3BuildLexMachine
 
 ; EXCEPTION Error ( TEXT ) 
 
-(* VISIBLE *) 
 ; PROCEDURE MakeEmpty ( ) 
 
-(* VISIBLE *) 
 ; PROCEDURE AddPair 
     ( AddString : TEXT 
     ; Value : FM3LexTable . ValueTyp 
@@ -34,7 +32,6 @@ INTERFACE FM3BuildLexMachine
      and 2) duplicate values with ReverseMap
 *) 
 
-(* VISIBLE *) 
 ; PROCEDURE Build ( ) : FM3LexTable . T RAISES { Error } 
 
 ; END FM3BuildLexMachine 

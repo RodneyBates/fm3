@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the Flint Hills Modula-3 compiler, FM3.              *)
-(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+(* Copyright 2023..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -128,7 +128,7 @@ MODULE FM3BuildLexMachine
         ; LCharSs := CharSs + 1  
         END (* IF *) 
       ; ApRecurse 
-          ( (* VAR *) MultState . MapRef ^ [ LChar ] 
+          ( (*IN OUT*) MultState . MapRef ^ [ LChar ] 
           , String 
           , LCharSs 
           , Value 
@@ -139,7 +139,7 @@ MODULE FM3BuildLexMachine
       END ApMapElem 
 
   ; PROCEDURE ApRecurse 
-      ( VAR State : TempStateTyp 
+      ( VAR (*IN OUT*) State : TempStateTyp 
       ; String : TEXT 
       ; CharSs : INTEGER 
       ; Value : FM3LexTable . ValueTyp 
@@ -194,7 +194,7 @@ MODULE FM3BuildLexMachine
 
   ; BEGIN (* AddPair *)  
       ApRecurse 
-        ( (* VAR *) GMachine 
+        ( (*IN OUT*) GMachine 
         , AddString 
         , CharSs := 0 
         , Value := Value 

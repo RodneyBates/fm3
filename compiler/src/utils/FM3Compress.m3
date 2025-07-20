@@ -28,10 +28,10 @@ UNSAFE MODULE FM3Compress
    more-significant, sign bits, but Write procedures do not produce these. 
 *)   
 
+; IMPORT Long
 ; IMPORT OSError 
 ; IMPORT RdBackFile 
 ; FROM RdBackFile IMPORT ByteTyp  
-; IMPORT Long
 ; IMPORT Wr
 
 ; IMPORT FM3Units 
@@ -77,10 +77,6 @@ UNSAFE MODULE FM3Compress
   = VAR LSignBitsL : LONGINT
 
   ; BEGIN
-
-IF ValueL = 1L
-THEN LSignBitsL := 0L
-END ; 
       LSignBitsL := DivL ( ValueL , TwoTo6thL )
                  (* ^Shift right 6 bits, with sign extension. *) 
     ; IF LSignBitsL # 16_FFFFFFFFFFFFFFFFL AND LSignBitsL # 0L

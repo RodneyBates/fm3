@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2024        Rodney M. Bates.                                    *)
+(* Copyright 2024..2025  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
@@ -29,11 +29,11 @@ INTERFACE FM3CTIntArith
   RAISES { ArithError } (* If the value won't fit. *) 
 
 ; PROCEDURE UnOp
-    ( Arg : T ; Opcode : FM3Exprs . OpcodeTyp ; IsInt : BOOLEAN ) : T
+    ( Arg : T ; Opcode : FM3SrcToks . TokTyp ; IsM3Int : BOOLEAN ) : T
   RAISES { ArithError , Unimplemented } 
 
 ; PROCEDURE BinOp
-    ( Lt , Rt : T ; Opcode : FM3Exprs . OpcodeTyp ; IsInt : BOOLEAN ) : T
+    ( Lt , Rt : T ; Opcode : FM3SrcToks . TokTyp ; IsM3Int : BOOLEAN ) : T
   RAISES { Unimplemented , ArithError }
 
 ; PROCEDURE Extract
@@ -48,7 +48,7 @@ INTERFACE FM3CTIntArith
      RT INTEGER, which will be be taken from CT Target options.  Opcodes
      of functions in  Word or Long will do Modula-3 overflow-less modulo
      INTEGER or LONGINT. Opcodes for operator symbols will raise ArithError
-     IFF called-for by CT option.
+     IFF called-for by CT global option.
   *) 
 ;
  END FM3CTIntArith

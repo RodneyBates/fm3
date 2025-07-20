@@ -58,7 +58,7 @@ INTERFACE FM3IntToks
         (* ^Add this to Rt tokcode to get corresponding LtPatch tokcode. *)
 
 (* ^I think source tokens and internal tokens never occur in the same context,
-    but to simplify debugging, give then disjoint ranges.
+    but to simplify debugging, give them disjoint ranges.
 *)
 (* Being low-numbered, these will read and write either forward
    or backward, without value change.

@@ -85,6 +85,9 @@ MODULE FM3Pass1
 
 ; CONST ALOSE = FM3Messages . AtomListToOSError
 
+(*TODO: Consistify formal names of PutBwd* procs, including Pos for Position. *)
+(*TODO: Move PutBwd procs to a separate package. *)
+
 ; PROCEDURE PutBwd ( RdBack : RdBackFile . T ; ValueL : LONGINT )
   (* Wrap FM3Compress . PutBwd
      1. Catch OSError.E.
