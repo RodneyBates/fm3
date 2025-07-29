@@ -3,7 +3,7 @@ From unit expression map, Expr No 0 NIL
 From unit expression map, Expr No 1 16_****************
  ExpStackLink = NIL
  ExpType = NIL
- ExpRefConstVal = 16_****************
+ ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
@@ -28,7 +28,7 @@ From unit expression map, Expr No 1 16_****************
 From unit expression map, Expr No 2 16_****************
  ExpStackLink = NIL
  ExpType = NIL
- ExpRefConstVal = 16_****************
+ ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}

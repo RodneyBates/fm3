@@ -6,14 +6,13 @@ MODULE c1002 EXPORTS Main , MFFg
     ; READONLY FRO : LONGINT
     ; VAR FVar : INTEGER )
 
-  = (*CONST T1 = t2 *)
-(*
-  ; *) TYPE RT
+  = CONST T1 = t2 
+
+  ; TYPE RT
     = RECORD
         RF1 : INTEGER
       ; RF2 : INTEGER
       END 
-
 
   ; BEGIN (*P*)
       Q := 0 
