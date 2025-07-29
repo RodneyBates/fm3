@@ -74,6 +74,8 @@ INTERFACE FM3Scopes
     , ScopeKindTyp . SkInterface 
     , ScopeKindTyp . SkModule 
     , ScopeKindTyp . SkBlock
+    , ScopeKindTyp . SkProcBody
+    , ScopeKindTyp . SkBlock
     } 
 
 ; CONST ScopeKindSetBinding = SET OF ScopeKindTyp

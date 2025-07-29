@@ -1586,13 +1586,11 @@ RULE
          ( Itk . ItkSupertypeAbsent , FM3Scanner . Attribute . Position ) ;
      } . 
 
-   Supertype : SupertypeAbsent { (* Default Position & Coord. *) } .  
+   SupertypePresent : TypeName { (* Default Position & Coord. *) } .  
    
-   Supertype : TypeName { (* Default Position & Coord. *) } .  
-   
-   Supertype : ObjType { (* Default Position & Coord. *) } . 
+   SupertypePresent : ObjType { (* Default Position & Coord. *) } . 
 
-   SupertypeSem : Supertype 
+   SupertypeSem : SupertypePresent  
      { (* Default Position & Coord. *) 
        (* ^The supertype will end up nested within its object type. *) 
        FM3Pass1 . PutBwd_LCP_rp
@@ -1623,7 +1621,7 @@ RULE
        $$ . PaByte := $1 . PaByte (* Brand kind, Bkt. *) ; 
      } .
 
-   ObjRootTypeLt : Brand StkRwOBJECT
+   ObjRootTypeLt : SupertypeAbsent Brand StkRwOBJECT
      { (* Default Position & Coord. *) 
        FM3Pass1 . ObjTypeLtL2R
          ( $$ , $1 . PaByte (* Brand kind, Bkt. *) , $2 . Scan . Position ) ;   

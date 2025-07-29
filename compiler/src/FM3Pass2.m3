@@ -77,7 +77,11 @@ MODULE FM3Pass2
       <* ASSERT RdBack = P2RdBack *>
       IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0 
       THEN (* We are skipping output. *) RETURN
-      END (*IF*) 
+      END (*IF*)
+
+; IF ValueL = 11L
+  THEN ValueL := 11L
+  END 
     ; TRY
         FM3Compress . PutBwd ( RdBack , ValueL ) 
       EXCEPT OSError . E ( EMsg )
@@ -158,7 +162,7 @@ MODULE FM3Pass2
           PutBwdPatch ( LPatchRdBack , LPatchStackTopCoord )
             (* ^Push the current patch coordinate back on patch stack, just
                for stack consistency. *)
-        ; Result . TrRdBack := NIL
+        ; Result . TrRdBack:= NIL
         ; Result . TrTok := Itk . ItkBOF
         ; RETURN 
         END (*IF*)
@@ -1055,7 +1059,8 @@ MODULE FM3Pass2
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN 
             WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
-            DO (* There's always an exprssion for a brand, even if it's absent. *)              LNewExpr 
+            DO (* There's always an expression for a brand, even if it's absent. *)
+              LNewExpr 
                 := NEW ( FM3Exprs . ExprObjTypeTyp
                        , ExpUpKind := Ekt . EkBrand
                        , ExpIsLegalRecursive := TRUE
@@ -1090,7 +1095,7 @@ MODULE FM3Pass2
                        , ExpIsPresent := TRUE  
                        , ExpPosition := WPosition 
                        ) 
-            ; DefExprRt ( LNewExpr )
+         (* ; DefExprRt ( LNewExpr ) *)
             END (*WITH*)
           END (*IF*)
 
@@ -1102,7 +1107,7 @@ MODULE FM3Pass2
 
       (* REF type: *) 
       | Itk . ItkREFTypeRt 
-      =>  IF HtMaybePassTokenThru ( )
+      =>  IF NOT HtMaybePassTokenThru ( )
           THEN 
             LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN ) 
           ; HtExprRt
@@ -1119,7 +1124,7 @@ MODULE FM3Pass2
           END (*IF*)
 
       | Itk . ItkREFTypeReferent 
-      =>  IF HtMaybePassTokenThru ( )
+      =>  IF NOT HtMaybePassTokenThru ( )
           THEN 
             HtExprOpnd2 ( ) (* Referent *)
           END (*IF*) 
@@ -1127,12 +1132,18 @@ MODULE FM3Pass2
       | Itk . ItkREFTypeLt
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN 
-            LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN ) 
+            LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN )
+          ; IF FM3Exprs . ExprStackTopObj . ExpUpKind # Ekt . EkSupertype
+            THEN <* ASSERT FALSE , "Ref type has no absent supertype" *>
+            END (*IF*)
+          ; EVAL FM3Exprs . PopExprStack ( )
+            (* ^Of REF type, a supertype  is bogus.  Ignore it. *)
+          ; IF NOT FM3Exprs . ExprStackTopObj . ExpUpKind
+                   IN FM3Exprs . EkSetBrand 
+            THEN <* ASSERT FALSE , "Ref type has no brand expr. " *>
+            END (*IF*)
           ; HtExprOpnd1 ( ) (* Brand *)
           ; SynthIsUsable2 ( FM3Exprs . ExprStackTopObj (* The REF Type. *) )
-          ; <* ASSERT
-                 FM3Exprs . PopExprStack ( ) . ExpUpKind = Ekt . EkSupertype
-            *>
           END (*IF*) 
 
       (* Used in both OBJECT type and REF type. *)
@@ -1701,21 +1712,24 @@ MODULE FM3Pass2
           
       ; CASE DidDeclKind OF
         | Dkt . DkVar
-        =>  <* ASSERT FM3Scopes . DeclScopeStackTopRef ^ . ScpKind
-                      IN FM3Scopes . ScopeKindSetOpen
-            *>
+        =>  IF NOT FM3Scopes . DeclScopeStackTopRef ^ . ScpKind
+                   IN FM3Scopes . ScopeKindSetOpen
+            THEN <* ASSERT FALSE , "VAR decl not in open decl scope" *> 
+            END (*IF*)
 
         | Dkt . DkConst
-        =>  <* ASSERT FM3Scopes . DeclScopeStackTopRef ^ . ScpKind
-                      IN FM3Scopes . ScopeKindSetOpen
-            *>
+        =>  IF NOT FM3Scopes . DeclScopeStackTopRef ^ . ScpKind
+                   IN FM3Scopes . ScopeKindSetOpen
+            THEN <* ASSERT FALSE , "CONST decl not in open decl scope" *> 
+            END (*IF*)
 
         | Dkt . DkType                        
         , Dkt . DkProc
         , Dkt . DkReveal 
-        =>  <* ASSERT FM3Scopes . DeclScopeStackTopRef ^ . ScpKind
-                      IN FM3Scopes . ScopeKindSetOpen
-            *>
+        =>  IF NOT FM3Scopes . DeclScopeStackTopRef ^ . ScpKind
+                   IN FM3Scopes . ScopeKindSetOpen
+            THEN <* ASSERT FALSE , "Ddecl not in open decl scope" *> 
+            END (*IF*)
 
         | Dkt . DkVALUEFormal
         , Dkt . DkVARFormal
@@ -1723,9 +1737,10 @@ MODULE FM3Pass2
         , Dkt . DkRecField
         , Dkt . DkObjField
         , Dkt . DkMethod
-        =>  <* ASSERT NOT FM3Scopes . DeclScopeStackTopRef ^ . ScpKind
-                          IN FM3Scopes . ScopeKindSetOpen
-            *>
+        =>  IF FM3Scopes . DeclScopeStackTopRef ^ . ScpKind
+               IN FM3Scopes . ScopeKindSetOpen
+            THEN <* ASSERT FALSE , "Qual decl in open decl scope" *> 
+            END (*IF*)
 
         | Dkt . DkExc
         , Dkt . DkEnumLit

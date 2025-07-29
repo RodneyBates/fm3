@@ -65,6 +65,9 @@ INTERFACE FM3Exprs
 
 ; CONST EkSetConst = EkSetTyp { Ekt . EkConst } 
 
+; CONST EkSetBrand
+    = EkSetTyp { Ekt . EkBrand , Ekt . EkValue , Ekt . EkConst } 
+
 ; CONST EkSetTypeOrValue = EkSetTyp { Ekt . EkValue , Ekt . EkValue } 
 
 ; PROCEDURE KindSetCard ( KindSet : ExprKindSetTyp ) : INTEGER 

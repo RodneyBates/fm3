@@ -367,7 +367,7 @@ MODULE FM3Builtins
         , Stk . StkPd_Long_LeftRotate    
         , Stk . StkPdRightRotate
         , Stk . StkPd_Long_RightRotate 
-         => WITH WProp = GOpPropertiesArray [ ROp]
+         => WITH WProp = GOpPropertiesArray [ ROp ]
            DO WProp . OpOpndCt := 2 
            ; WProp . OpExprKind := Ekt . EkValue
            ; WProp . OpLtOpndKindsAllowed := FM3Exprs . EkSetValue 
@@ -376,7 +376,7 @@ MODULE FM3Builtins
 
         | Stk . StkPdInsert
         , Stk . StkPd_Long_Insert       
-        => WITH WProp = GOpPropertiesArray [ ROp]
+        => WITH WProp = GOpPropertiesArray [ ROp ]
            DO WProp . OpOpndCt := 4 
            ; WProp . OpExprKind := Ekt . EkValue 
            ; WProp . OpLtOpndKindsAllowed := FM3Exprs . EkSetValue 
@@ -384,15 +384,15 @@ MODULE FM3Builtins
            (* 3rd and 4th opnds are implicitly EkSetValue. *) 
            END (*WITH*)
         | Stk . StkRTUniqueBrand  
-         => WITH WProp = GOpPropertiesArray [ ROp]
+         => WITH WProp = GOpPropertiesArray [ ROp ]
            DO WProp . OpOpndCt := 0
-           ; WProp . OpExprKind := Ekt . EkValue
+           ; WProp . OpExprKind := Ekt . EkBrand
            ; WProp . OpLtOpndKindsAllowed := FM3Exprs . EkSetTyp { }  
            ; WProp . OpRtOpndKindsAllowed := FM3Exprs . EkSetTyp { } 
            END (*WITH*) 
         ELSE
-(* TODO: CM3 warns not all values handled.  Fint out what is missing. *) 
-          WITH WProp = GOpPropertiesArray [ ROp]
+(* TODO: CM3 warns not all values handled.  Find out what is missing. *) 
+          WITH WProp = GOpPropertiesArray [ ROp ]
           DO WProp . OpOpndCt := 0 
           ; WProp . OpExprKind := Ekt . EkNull 
           ; WProp . OpLtOpndKindsAllowed := FM3Exprs . EkSetTyp { } 
