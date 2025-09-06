@@ -1,3 +1,4 @@
+
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2023..2025 Rodney M. Bates.                                     *)
@@ -26,6 +27,7 @@ PARSER FM3Parser
 /* Stuff to go into the front of the parser interface. */ 
 EXPORT
   {
+  
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2023..2025 Rodney M. Bates.                                     *)
@@ -1080,7 +1082,7 @@ RULE
      
    OptDeclType : /*Empty*/
      { $$ . PaBool (* Present. *) := FALSE (* Absent. *) ;
-       $$ . Scan . Position := $0 . Scan . Position ;
+       $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
        FM3Pass1 . PutBwd_LP
          ( Itk . ItkDeclTypeAbsent , $0 . Scan . Position ) ; 
      } .
@@ -1100,14 +1102,14 @@ RULE
      
    OptDeclValue : /*Empty*/
      { $$ . PaBool (* Present. *) := FALSE (* Absent. *) ;
-       $$ . Scan . Position := $0 . Scan . Position ; 
+       $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
        FM3Pass1 . PutBwd_LP
          ( Itk . ItkDeclValAbsent , $0 . Scan . Position ) ; 
      } . 
 
    VarDecl : VarDeclIds DeclType OptDeclType DeclValue OptDeclValue  
      { IF FM3Pass1 . RequireTypeAndOrValue
-            ( $1 . Scan . Position , $3 . PaBool , $5 . PaBool ) 
+            ( $5 . Scan . Position , $3 . PaBool , $5 . PaBool ) 
        (* ^Check this even if there are no valid ids. *)
           AND $1 . PaInt > 0 
        THEN
@@ -1795,7 +1797,8 @@ RULE
      } .
 
    FormalType /* At Left of type. */ : FormalLt VarDeclIds 
-     { (* Default position and coord. *)
+     { (* Default coord. *)
+       $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
        $$ . PaByte := $1 . PaByte (* Decl kind. *) ; 
        $$ . PaTok2 := $1 . PaTok2 (* Lt tok of formal. *) ;
        $$ . PaDeclDepth := $1 . PaDeclDepth (* DeclParseInfoDepth. *) ;
@@ -1807,7 +1810,8 @@ RULE
      } .
 
    FormalValue /* At left of value. */ : FormalType OptDeclType 
-     { (* Default position and coord. *)
+     { (* default coord. *)
+       $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
        $$ . PaByte := $1 . PaByte (* Decl kind. *) ; 
        $$ . PaTok2 := $1 . PaTok2 (* Lt tok of formal. *) ;
        $$ . PaDeclDepth := $1 . PaDeclDepth (* DeclParseInfoDepth. *) ;
@@ -1832,14 +1836,14 @@ RULE
        $$ . PaByte := $1 . PaByte (* Decl kind. *) ; 
        $$ . PaTok2 := $1 . PaTok2 (* Lt tok of formal. *) ;
        $$ . PaDeclDepth := $1 . PaDeclDepth (* DeclParseInfoDepth. *) ;
-       $$ . PaBool := $1 . PaBool OR $2 . PaBool (* Type or val is present. *) ;
        $$ . PaInt := $1 . PaInt ; 
 
        IF VAL ( $1 . PaByte , Dkt ) = Dkt . DkVARFormal   
        THEN 
-         $$ . PaBool (* OK. *) := $1 . PaBool AND NOT $2 . PaBool ; 
+         $$ . PaBool (* OK. *) := $1 . PaBool AND NOT $1 . PaBool ; 
          IF $2 . PaBool (* value is present? *) 
          THEN
+           $$ . PaBool (* OK. *) := FALSE ; 
            FM3Messages . ErrorArr
              ( ARRAY OF REFANY 
                  { "VAR formal cannot have a default (2.2.8)." }
@@ -1849,10 +1853,10 @@ RULE
        ELSE (* VALUE or READONLY *)
          $$ . PaBool (* OK. *)
            := FM3Pass1 . RequireTypeAndOrValue
-                ( $1 . Scan . Position , $1 . PaBool , $2 . PaBool ) 
+                ( $2 . Scan . Position , $1 . PaBool , $2 . PaBool ) 
        END (*IF*)
      ; IF $$ . PaBool    
-       THEN 
+       THEN (* Emit the declaration. *) 
          FM3Pass1 . PutBwd_LCP_rp 
            ( FM3Decls . TopDeclParseInfo ( ) . DiDeclTok 
            , $1 . PaPass1Coord
