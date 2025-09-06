@@ -2046,7 +2046,7 @@ MODULE FM3Pass1
     END AtomOfStdId
 
 (*EXPORTED.*)
-; PROCEDURE CheckIdentNotReserved
+; PROCEDURE VerifyIdentNotReserved
     ( READONLY IdAttr : tParsAttribute
     ; Position : tPosition 
     ; IllegalPastParticiple : TEXT
@@ -2054,7 +2054,7 @@ MODULE FM3Pass1
   : BOOLEAN (* It's OK. *)
   (* POST: FALSE result => Error message has been generated. *)  
 
-  = BEGIN (*CheckIdentNotReserved*)
+  = BEGIN (*VerifyIdentNotReserved*)
       IF IntSets . IsElement
            ( IdAttr . Scan . SaBuiltinTok , FM3Std . ReservedIdSet ) 
       THEN 
@@ -2071,7 +2071,7 @@ MODULE FM3Pass1
       ; RETURN FALSE (* Not OK. *)
       ELSE RETURN TRUE (* It's OK *) 
       END (*IF*) 
-    END CheckIdentNotReserved
+    END VerifyIdentNotReserved
 
 (*EXPORTED.*)
 ; PROCEDURE DeclIdL2R 
@@ -2092,7 +2092,7 @@ MODULE FM3Pass1
   ; VAR LAtom : FM3Base . AtomTyp
 
   ; BEGIN (*DeclIdL2R*)
-      IF NOT CheckIdentNotReserved
+      IF NOT VerifyIdentNotReserved
                ( IdAttr , IdAttr . Scan . Position , "be declared" )
       THEN (* Reserved Ident. Message already emitted. *)
         RETURN FALSE
@@ -2108,7 +2108,7 @@ MODULE FM3Pass1
                      , IdAttr . Scan . Position
                      , "declaration"
                      )
-        THEN (* LAtom duplicates an export or import. Message already emitted. *)
+        THEN (* LAtom duplicates export or import. Message already emitted. *)
           RETURN FALSE 
         ELSE
           LFormalsScopeRef := WDeclScopeRef ^ . ScpFormalsScopeRef
@@ -2336,10 +2336,10 @@ MODULE FM3Pass1
   ; BEGIN (*QualIdentRefL2R*)
       WITH WunRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
       DO LIsLegal
-           := CheckIdentNotReserved
+           := VerifyIdentNotReserved
                 ( LtIdAttr , LtIdAttr . Scan . Position , "have a qualifier." )
       ; LIsLegal
-          := CheckIdentNotReserved
+          := VerifyIdentNotReserved
                ( RtIdAttr , RtIdAttr . Scan . Position , "be a qualifier." )
              AND LIsLegal
       ; IF NOT LIsLegal 

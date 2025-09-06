@@ -432,7 +432,7 @@ INTERFACE FM3Pass1
     ( ScopeKind : FM3Scopes . ScopeKindTyp ; Position : FM3Base . tPosition )
   : FM3Scopes . ScopeRefTyp 
 
-; PROCEDURE CheckIdentNotReserved
+; PROCEDURE VerifyIdentNotReserved
     ( READONLY IdAttr : tParsAttribute
     ; Position : tPosition 
     ; IllegalPastParticiple : TEXT

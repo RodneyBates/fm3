@@ -314,7 +314,7 @@ RULE
 
    InterfaceLt : OptUnsafe StkRwINTERFACE NonreservedIdent IntfPragmas
      { VAR LUnitRef : FM3Units . UnitRefTyp ; 
-       VAR LScopeRef : FM3Scopes . ScopeRefTyp ;  
+       VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN
          (* Default Coord. *) 
          $$ . Scan . Position := $2 . Scan . Position ; 
@@ -1847,30 +1847,20 @@ RULE
              ) ;
          END (*IF*) ;
        ELSE (* VALUE or READONLY *)
-         $$ . PaBool (* OK. *) := $1 . PaBool OR $2 . PaBool ; 
-         IF NOT $$ . PaBool (* Has type and/or value. *)
-         THEN 
-           FM3Messages . ErrorArr
-             ( ARRAY OF REFANY 
-                 { FM3Pass1 . VarLabel [ VAL ( $1 . PaByte , Dkt ) ] 
-                 , " must have a type and/or a default "
-                 , FM3Pass1 . VarSection [ VAL ( $1 . PaByte , Dkt ) ]
-                 , "." 
-                 } 
-             , $1 . Scan . Position
-             ) ; 
-         END (*IF*)
-       END (*IF*) ;  
-       IF $$ . PaBool    
+         $$ . PaBool (* OK. *)
+           := FM3Pass1 . RequireTypeAndOrValue
+                ( $1 . Scan . Position , $1 . PaBool , $2 . PaBool ) 
+       END (*IF*)
+     ; IF $$ . PaBool    
        THEN 
          FM3Pass1 . PutBwd_LCP_rp 
            ( FM3Decls . TopDeclParseInfo ( ) . DiDeclTok 
            , $1 . PaPass1Coord
            , $1 . Scan . Position
            ) ;
-       ELSE (* Skip the decl, excluding possibly multiple idents. *)
+       ELSE (* Skip the decl, except for the idents. *)
          FM3Pass1 . PutBwd_LCI_ri
-           ( Itk . ItkSkipLt , $2 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
+           ( Itk . ItkSkipLt , $1 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
          INC ( FM3Globals . NextSkipNo ) ;
        END (*IF*) ;
        <* ASSERT FM3Decls . PopDeclParseInfo ( ) = $1 . PaDeclDepth *>
@@ -2246,7 +2236,7 @@ RULE
    E7 : E8WOId /* No selector. */ . 
 
    E7 : IdentRef StkDeref 
-     { IF FM3Pass1 . CheckIdentNotReserved
+     { IF FM3Pass1 . VerifyIdentNotReserved
             ( $1 , $2 . Scan . Position , "be dereferenced" ) 
        THEN (* OK *) 
          FM3Pass1 . PutBwd_LCP_rp
@@ -2260,7 +2250,7 @@ RULE
      } .
      
    E7 : IdentRef Subscripts 
-     { IF FM3Pass1 . CheckIdentNotReserved
+     { IF FM3Pass1 . VerifyIdentNotReserved
             ( $1 , $2 . Scan . Position , "be subscripted" ) 
        THEN (* OK *)
          FM3Pass1 . PutBwd_LCIP_eCip_rip
