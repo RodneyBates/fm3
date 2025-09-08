@@ -106,11 +106,16 @@ MODULE FM3StreamUtils
 ; PROCEDURE GetBwdBrandKind ( RdBack : RdBackFile . T )
   : FM3Parser . BrandKindTyp 
 
-  = VAR LResult : FM3Parser . BrandKindTyp 
+  = VAR LLongValue : LONGINT
+  ; VAR LResult : FM3Parser . BrandKindTyp 
 
   ; BEGIN (*GetBwdBrandKind*)
-      LResult
-        := VAL ( FM3Compress . GetBwd ( RdBack ) , FM3Parser . BrandKindTyp )
+      LLongValue := FM3Compress . GetBwd ( RdBack )
+    ; IF LLongValue < 0L
+         OR LLongValue > VAL ( ORD ( LAST ( FM3Parser . BrandKindTyp ) ) , LONGINT )
+      THEN <* ASSERT FALSE *>
+      END (*IF*)  
+    ; LResult := VAL ( LLongValue , FM3Parser . BrandKindTyp )
     ; RETURN LResult 
     END GetBwdBrandKind 
 
