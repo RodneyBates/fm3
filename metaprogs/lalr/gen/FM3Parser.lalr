@@ -1626,7 +1626,7 @@ RULE
    ObjRootTypeLt : SupertypeAbsent Brand StkRwOBJECT
      { (* Default Position & Coord. *) 
        FM3Pass1 . ObjTypeLtL2R
-         ( $$ , $1 . PaByte (* Brand kind, Bkt. *) , $2 . Scan . Position ) ;   
+         ( $$ , $2 . PaByte (* Brand kind, Bkt. *) , $2 . Scan . Position ) ;   
      } .
 
    ObjType : ObjTypeLt FieldDeclList MethodDeclList OverrideList StkRwEND

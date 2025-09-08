@@ -3791,7 +3791,7 @@ yyNonterminal := 209;
                 (* line 1627 of "FM3Parser.lalr" *)
                  (* Default Position & Coord. *) 
                        FM3Pass1 . ObjTypeLtL2R
-                         ( yySynAttribute , yyAttributeStack^[yyStackPtr+1] . PaByte (* Brand kind, Bkt. *) , yyAttributeStack^[yyStackPtr+2] . Scan . Position ) ;   
+                         ( yySynAttribute , yyAttributeStack^[yyStackPtr+2] . PaByte (* Brand kind, Bkt. *) , yyAttributeStack^[yyStackPtr+2] . Scan . Position ) ;   
                      
               | 624,292 => (* P184 ObjType (234): ObjTypeLt FieldDeclList MethodDeclList OverrideList StkRwEND .*)
                 DEC (yyStackPtr, 5); yyNonterminal := 234;
