@@ -1,5 +1,4 @@
-[31mERROR: [0mMain.m3[29,8] Duplicate declaration of "T", previously introduced at [1,0],
-           original declaration at Main.i3:[13,7], (2.5.1)
+[32mINFO:  [0mMain.m3 Pass 1 output file Main.m3.FM3Pass1 has 1410 bytes.
 [31mERROR: [0mMain.m3[27,12] Operand of "UnaryMinus" must be a value expression.
 [31mERROR: [0mMain.m3[26,12] Operand of "UnaryPlus" must be a value expression.
 [31mERROR: [0mMain.m3[24,12] Left operand of "MOD" must be a value expression.
@@ -54,3 +53,5 @@
        "S" [27,8]
        "Q" [24,8]
        "R" [26,8]
+[32mINFO:  [0mMain.m3 Patch stack Main.m3.FM3Patch peak size = 39 bytes.
+[32mINFO:  [0mMain.m3 Pass 2 output file Main.m3.FM3Pass2 has 750 bytes.

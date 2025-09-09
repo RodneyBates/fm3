@@ -1,0 +1,13 @@
+ ItkEOF()
+ ItkLeftEnd()
+ ItkInterfaceLt(L1(16_1),[1,0])
+ ItkDeclScopeLt(L1(16_1))
+ ItkOpenScopeLt(L1(16_1))
+ ItkOpenDeclListLt(L0(16_0),[1,4])
+ ItkOpenDeclListRt(L0(16_0),[1,4])
+ ItkOpenScopeRt(L1(16_1))
+ ItkDeclScopeRt(L1(16_1))
+ ItkInterfaceRt(L1(16_1),[1,0])
+ ItkRightEnd()
+ ItkBOF()
+     0
