@@ -241,7 +241,7 @@ MODULE FM3ExpImp
                 ( LPrevExpImpProxy . EipImportingUnitPosition )
             ,"," 
             , FM3Messages . NLIndent
-            , "    original declaration at "
+            , "  original declaration at "
             , LPrevExpImpUnitRef ^ . UntSrcFileSimpleName 
             , ":" 
             , FM3Utils . PositionImage ( LPrevDeclPosition ) 
@@ -500,13 +500,21 @@ MODULE FM3ExpImp
 (*EXPORTED.*)
 ; PROCEDURE Done ( ) 
 
-  = BEGIN
-      VarArray_Int_ExpImpProxy . Compact
-        ( FM3Units . UnitStackTopRef ^ . UntExpImpMap )
-    ; FM3Units . UnitStackTopRef ^ . UntNextDeclNo
-        := VarArray_Int_ExpImpProxy . TouchedRange
-             ( FM3Units . UnitStackTopRef ^ . UntExpImpMap  ) . Hi
-           + 1 
+  = VAR LUnitRef : FM3Units . UnitRefTyp
+
+  ; BEGIN
+      LUnitRef := FM3Units . UnitStackTopRef 
+    ; VarArray_Int_ExpImpProxy . Compact ( LUnitRef ^ . UntExpImpMap )
+    ; LUnitRef ^ . UntNextDeclNo
+        := VarArray_Int_ExpImpProxy . TouchedRange ( LUnitRef ^ . UntExpImpMap )
+           . Hi
+           + 1
+    ; FM3Messages . FM3LogArr
+        ( ARRAY OF REFANY
+            { "Compiling " , LUnitRef ^ . UntSrcFileSimpleName , " ..." }
+
+
+)
     END Done 
 
 ; BEGIN (*FM3ExpImp*)

@@ -129,16 +129,6 @@ MODULE FM3Pass1
       LUnitRef := FM3Units . UnitStackTopRef 
     ; InitPass1 ( LUnitRef )
     ; LUnitRef ^ . UntPassNosDisAsmed := FM3CLOptions . PassNoSetEmpty 
-    ; FM3Messages . FM3LogArr
-        ( ARRAY OF REFANY
-            { "Compiling "
-            , Pathname . Join
-                ( LUnitRef ^ . UntSrcFilePath
-                , LUnitRef ^ . UntSrcFileSimpleName
-                ) 
-            , "..."
-            }
-        )
     ; TranslatePass1 ( LUnitRef ) 
     ; FinishPass1 ( LUnitRef ) 
     END RunPass1
@@ -248,7 +238,6 @@ MODULE FM3Pass1
         END (*IF*) 
       END (*EXCEPT*)
     ; FM3Messages . SetUnitLog ( UnitRef ^ . UntLogWrT )
-    ; FM3Messages . StartUnit ( UnitRef ^ . UntSrcFileSimpleName ) 
 
     (* Create build files for the pass. *) 
     ; UnitRef ^ . UntPass1OutSimpleName

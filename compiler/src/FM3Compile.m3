@@ -400,7 +400,19 @@ MODULE  FM3Compile
 ; PROCEDURE CompileUnitFromSrc ( UnitRef : FM3Units . UnitRefTyp )
 
   = BEGIN (*CompileUnitFromSrc*)
-      UnitRef ^ . UntSkipStackBase
+      FM3Messages . FM3LogArr
+        ( ARRAY OF REFANY
+            { "Getting dependencies of "
+            , FM3Messages . NLIndent
+            , "  " 
+            , Pathname . Join
+                ( UnitRef ^ . UntSrcFilePath
+                , UnitRef ^ . UntSrcFileSimpleName
+                ) 
+            , " ..."
+            }
+        )
+    ; UnitRef ^ . UntSkipStackBase
         := VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi 
     ; FM3Pass1 . RunPass1 ( )
     ; FM3Pass2 . RunPass2 ( )
@@ -419,7 +431,6 @@ MODULE  FM3Compile
             { "Finished compiling " , UnitRef ^ . UntSrcFileSimpleName , "." }
         )
     ; Wr . Close ( UnitRef ^ . UntLogWrT ) 
-    ; FM3Messages . EndUnit ( UnitRef . UntSrcFileSimpleName ) 
     END CompileUnitFromSrc
 
 (*EXPORTED*)

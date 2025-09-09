@@ -89,11 +89,11 @@ MODULE FM3Messages
     END PutFM3Log 
 
 ; VAR GFM3LabelT := 
-        FM3TextColors . FGDkGreen & "FM3: " & FM3TextColors . Reset
+        FM3TextColors . FGDkGreen & "FM3:   " & FM3TextColors . Reset
 
 ; VAR GFM3Label := ARRAY [ 0 .. 2 ] OF REFANY
         { FM3TextColors . FGDkGreen 
-        , "FM3: "
+        , "FM3:   "
         , FM3TextColors . Reset 
         }
 
@@ -249,7 +249,7 @@ MODULE FM3Messages
   ; BEGIN
       LMsg
         := FM3SharedUtils . CatStrings
-             ( "Info: "
+             ( "Info:  "
              , T1 , T2 , T3 , T4 , T5 , T6 , T7 , T8
              ) 
     ; PutStdOut ( LMsg )
@@ -258,7 +258,7 @@ MODULE FM3Messages
 
 ; VAR GInfoLabel := ARRAY [ 0 .. 2 ] OF REFANY 
         { FM3TextColors . FGDkGreen 
-        , "INFO: "
+        , "INFO:  "
         , FM3TextColors . Reset 
         }
 

@@ -51,8 +51,8 @@ MODULE FM3 EXPORTS Main
         ; FM3Messages . FM3LogArr
             ( ARRAY OF REFANY
                 { "Compiling with command line: "
-                , Wr . EOL
-                , "     \"" 
+                , FM3Messages . NLIndent
+                , "  " 
                 , FM3SharedUtils . ArgListAsText ( ) 
                 , "\""
                 }
