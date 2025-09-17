@@ -1,0 +1,86 @@
+From unit expression map, Expr No 0 NIL
+
+From unit expression map, Expr No 1 16_****************
+ ExpStackLink = NIL
+ ExpType = NIL
+ ExpRefConstVal = NIL
+ ExpScalarConstVal = 0
+ ExpLoTypeInfoRef = 
+ ExpReachedDeclNoSet = {}
+ ExpSelfExprNo = 1
+ ExpPosition = [9,17]
+ ExpOpcode = <RidNull>
+ ExpDownKind = <null>
+ ExpUpKind = type
+ ExpKind = <null>
+ ExpState = EsUnresolved
+ ExpIsConst = FALSE
+ ExpConstValIsKnown = FALSE
+ ExpIsUsable = TRUE
+ ExpIsLegalRecursive = FALSE
+ ExpIsDesignator = FALSE
+ ExpIsWritable = FALSE
+ ExpIsPresent = TRUE
+ ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
+ (* From subtype Expr1ScopeTyp: *)
+ ExpScopeRef1 = ScopeNo 4 at 16_**************** [9,17]
+ (* From subtype ExprEnumTypeTyp: *)
+
+
+From unit expression map, Expr No 2 16_****************
+ ExpStackLink = NIL
+ ExpType = NIL
+ ExpRefConstVal = NIL
+ ExpScalarConstVal = 0
+ ExpLoTypeInfoRef = 
+ ExpReachedDeclNoSet = {}
+ ExpSelfExprNo = 2
+ ExpPosition = [7,20]
+ ExpOpcode = <RidNull>
+ ExpDownKind = <null>
+ ExpUpKind = type
+ ExpKind = <null>
+ ExpState = EsUnresolved
+ ExpIsConst = FALSE
+ ExpConstValIsKnown = FALSE
+ ExpIsUsable = TRUE
+ ExpIsLegalRecursive = FALSE
+ ExpIsDesignator = FALSE
+ ExpIsWritable = FALSE
+ ExpIsPresent = TRUE
+ ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
+ (* From subtype Expr1ScopeTyp: *)
+ ExpScopeRef1 = ScopeNo 3 at 16_**************** [7,20]
+ (* From subtype ExprEnumTypeTyp: *)
+
+
+From unit expression map, Expr No 3 16_****************
+ ExpStackLink = NIL
+ ExpType = NIL
+ ExpRefConstVal = NIL
+ ExpScalarConstVal = 0
+ ExpLoTypeInfoRef = 
+ ExpReachedDeclNoSet = {}
+ ExpSelfExprNo = 3
+ ExpPosition = [5,16]
+ ExpOpcode = <RidNull>
+ ExpDownKind = <null>
+ ExpUpKind = type
+ ExpKind = <null>
+ ExpState = EsUnresolved
+ ExpIsConst = FALSE
+ ExpConstValIsKnown = FALSE
+ ExpIsUsable = TRUE
+ ExpIsLegalRecursive = FALSE
+ ExpIsDesignator = FALSE
+ ExpIsWritable = FALSE
+ ExpIsPresent = TRUE
+ ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
+ (* From subtype Expr1ScopeTyp: *)
+ ExpScopeRef1 = ScopeNo 2 at 16_**************** [5,16]
+ (* From subtype ExprEnumTypeTyp: *)
+
+
