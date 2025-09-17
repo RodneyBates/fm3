@@ -1293,15 +1293,17 @@ RULE
          LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
          <* ASSERT LScopeRef ^ . ScpKind = Skt . SkEnum *> 
          FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
-         FM3Pass1 . PutBwd_TI
-           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo  ) ;
-         <* ASSERT FM3Scopes . PopDeclScopeRef ( ) = LScopeRef *>
          FM3Pass1 . MakeListPos
            ( LHSAttr := $$ 
            , TokLt := Itk . ItkEnumLitListLt
            , Position := $1 . Scan . Position
            , ElemsAttr := $2 
            ) ; 
+         FM3Pass1 . PutBwd_LCIP_rip
+           ( Itk . ItkEnumTypeLt , $1 . PaPass1Coord , $2 . PaInt , $1 . Scan . Position ) ;
+         FM3Pass1 . PutBwd_TI
+           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo  ) ;
+         <* ASSERT FM3Scopes . PopDeclScopeRef ( ) = LScopeRef *>
        END; 
      } .
 
@@ -1392,7 +1394,6 @@ RULE
                 , $1 . Scan . Position
                 ) ;
          FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
-(* TODO: Store LScopeRef or its ScopeNo in the record type. *) 
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo  ) ;
        END; 

@@ -2624,29 +2624,41 @@ MODULE FM3Pass1
 
     ; BEGIN (* Block. *)
 (*      <* ASSERT ScopeRef = FM3Scopes . DeclScopeStackTopRef *> *)
-      (* Move Idents ref'd but not declared here out to parent lookup scope. *)
-        LEscapingRefSet
-          := IntSets . Difference 
-               ( ScopeRef ^ . ScpRefIdSet , ScopeRef ^ . ScpDeclIdSet ) 
-      ; ScopeRef ^ . ScpRefIdSet 
-          := IntSets . Intersection
-               ( ScopeRef ^ . ScpRefIdSet , ScopeRef ^ . ScpDeclIdSet )
-      ; LContainingScopeRef := ScopeRef ^ . ScpOpenScopeStackLink
+        LUnitRef := ScopeRef ^ . ScpOwningUnitRef
+      (* Move Idents ref'd but to decls in this scope out to 
+         containing lookup scope.
+      *)
+      ; IF ScopeRef = FM3Scopes . OpenScopeStackTopRef
+        THEN (* A ref herein can refer to a decl herein. *) 
+          LEscapingRefSet
+            := IntSets . Difference 
+                 ( ScopeRef ^ . ScpRefIdSet , ScopeRef ^ . ScpDeclIdSet ) 
+        ; ScopeRef ^ . ScpRefIdSet 
+            := IntSets . Intersection
+                 ( ScopeRef ^ . ScpRefIdSet , ScopeRef ^ . ScpDeclIdSet )
+        ; LContainingScopeRef := ScopeRef ^ . ScpOpenScopeStackLink
+        ; IF Clt . CltRemoveUnusedDecls IN FM3CLOptions . OptionTokSet
+             AND LUnitRef ^ . UntScopeRef = ScopeRef
+             AND FM3Units . CurrentUnitIsModule ( ) 
+          THEN (* It's a module. *) 
+            ScopeRef ^ . ScpDeclIdSet 
+              := IntSets . Difference
+                   ( ScopeRef ^ . ScpDeclIdSet , LEscapingRefSet )
+          END (*IF*)
+        ELSE (* refs never refer to decls in ScopeRef. *)
+          LEscapingRefSet := ScopeRef ^ . ScpRefIdSet
+        ; ScopeRef ^ . ScpRefIdSet := IntSets . Empty ( ) 
+        ; LContainingScopeRef := FM3Scopes . OpenScopeStackTopRef  
+        END (*IF*) 
       ; IF LContainingScopeRef # NIL
         THEN
           LContainingScopeRef ^ . ScpRefIdSet
             := IntSets . Union
                  ( LContainingScopeRef ^ . ScpRefIdSet , LEscapingRefSet ) 
         END (*IF*)
-      ; LUnitRef := ScopeRef ^ . ScpOwningUnitRef
-      ; IF Clt . CltRemoveUnusedDecls IN FM3CLOptions . OptionTokSet
-           AND LUnitRef ^ . UntScopeRef = ScopeRef
-           AND FM3Units . CurrentUnitIsModule ( ) 
-        THEN ScopeRef ^ . ScpDeclIdSet := ScopeRef ^ . ScpRefIdSet
-        END (*IF*)
 
       ; LDeclCt := IntSets . Card ( ScopeRef ^ . ScpDeclIdSet )
-      (* Duplicate formal ids not included. *) 
+      (* Duplicate declared idents not included. *) 
       (* LDeclCt is exactly the needed dictionary size. *)
       ; ScopeRef ^ . ScpDeclCt := LDeclCt 
       ; ScopeRef ^ . ScpDeclDict 

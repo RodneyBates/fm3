@@ -25,7 +25,7 @@ But for many years,. I have felt a vague but nagging disillusionment.
 The amount of back and forth, around and around traversal required, to
 access every simple property of anything, seems excessive. This both
 as measured by the amount of code to be written and the amount to be
-executed.  And of course, jumping around lkike this this likely leads
+executed.  And of course, jumping around like this this likely leads
 to large workng sets too.  I kept wondering how a modern tree compiler
 would compare to an old fashioned stream compiler.
 

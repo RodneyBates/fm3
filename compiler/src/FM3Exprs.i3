@@ -136,6 +136,7 @@ INTERFACE FM3Exprs
       ; ExpIsWritable : BOOLEAN := FALSE
       ; ExpIsPresent : BOOLEAN := TRUE  
       ; ExpRefTypeIsUntraced : BOOLEAN := FALSE   
+      ; ExpArrayTypeIsOpen : BOOLEAN := FALSE   
       METHODS
         appendDump ( )  
       ; resolve ( ExprKind : ExprKindTyp ) : ExprStateTyp (* final. *) 

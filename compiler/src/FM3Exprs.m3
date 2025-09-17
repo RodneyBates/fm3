@@ -329,6 +329,8 @@ MODULE FM3Exprs
       ; Field ( "ExpIsPresent" , Fmt . Bool ( Expr . ExpIsPresent ) )  
       ; Field
           ( "ExpRefTypeIsUntraced" , Fmt . Bool ( Expr . ExpRefTypeIsUntraced ) )
+      ; Field
+          ( "ExpArrayTypeIsOpen" , Fmt . Bool ( Expr . ExpArrayTypeIsOpen ) )
       END ExprAppend
 
 ; REVEAL Expr1OpndTyp

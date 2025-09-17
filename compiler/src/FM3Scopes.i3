@@ -94,7 +94,7 @@ INTERFACE FM3Scopes
       ; ScpDeclIdSet : IntSets . T
         (* ^IdentAtoms declared within, including imports of top-level scope. *)
       ; ScpFormalIdSet : IntSets . T
-        (* ^Formal parameter IdentAtoms declared within, if signature scope. *) 
+        (* ^Formal parameter IdentAtoms declared within a signature scope. *) 
       ; ScpRefIdSet : IntSets . T
         (* ^IdentAtoms referenced within.  Gradually pruned to those
            also declared within. *)

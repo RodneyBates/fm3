@@ -43,6 +43,7 @@ MODULE FM3Pass2
 ; IMPORT FM3Graph 
 ; IMPORT FM3IntToks AS Itk
 ; IMPORT FM3LoTypes
+; IMPORT FM3Parser 
 ; IMPORT FM3Patch 
 ; IMPORT FM3Pass1
 ; IMPORT FM3ReservedIds
@@ -569,6 +570,7 @@ MODULE FM3Pass2
   ; VAR LOpcode : FM3SrcToks . TokTyp
   ; VAR LCt : INTEGER 
   ; VAR LPosition : tPosition
+  ; VAR LBrandKind : FM3Parser . BrandKindTyp 
   ; VAR HtSkipping : BOOLEAN
   ; VAR LBool : BOOLEAN
 
@@ -1022,17 +1024,24 @@ MODULE FM3Pass2
 
       (* Enumeration type: *) 
 (* FIXME: Some of these need to copy the token and arguments. *)   
-      | Itk . ItkEnumTypeRt
+      | Itk . ItkEnumLitListRt
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN  
-            LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *) 
+            LLongInt := GetBwd ( TokResult . TrRdBack ) (* Enum lit count. *) 
           ; HtExprRt
-              ( NEW ( FM3Exprs . ExprEnumTypeTyp , ExpUpKind := Ekt . EkType ) )
+              ( NEW
+                  ( FM3Exprs . ExprEnumTypeTyp
+                  , ExpUpKind := Ekt . EkType 
+                  , ExpScopeRef1 := FM3Scopes . DeclScopeStackTopRef
+                  )
+              ) 
           END (*IF*)
 
-      | Itk . ItkEnumTypeLt
+      | Itk . ItkEnumLitListLt
       =>  IF NOT HtMaybePassTokenThru ( )
-          THEN LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *)
+          THEN
+            LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *)
+          ; LPosition := GetBwdPos ( TokResult . TrRdBack ) 
           END (*IF*)  
 
       (* Record type: *) 
@@ -1041,7 +1050,12 @@ MODULE FM3Pass2
           THEN 
             LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *) 
           ; HtExprRt
-              ( NEW ( FM3Exprs . ExprRecTypeTyp , ExpUpKind := Ekt . EkType ) )
+              ( NEW
+                  ( FM3Exprs . ExprRecTypeTyp
+                  , ExpUpKind := Ekt . EkType
+                  , ExpScopeRef1 := FM3Scopes . DeclScopeStackTopRef
+                  )
+              )
 (* Copy token? *)
           END (*IF*) 
 
@@ -1049,7 +1063,7 @@ MODULE FM3Pass2
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN  
             LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *)
-          ; EVAL GetBwdPos ( TokResult . TrRdBack )
+          ; LPosition := GetBwdPos ( TokResult . TrRdBack )
 (* Copy token? *)
           END (*IF*)
 
@@ -1058,17 +1072,16 @@ MODULE FM3Pass2
       | Itk . ItkBrandAbsent
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN 
-            WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
-            DO (* There's always an expression for a brand, even if it's absent. *)
-              LNewExpr 
-                := NEW ( FM3Exprs . ExprObjTypeTyp
-                       , ExpUpKind := Ekt . EkBrand
-                       , ExpIsLegalRecursive := TRUE
-                       , ExpIsPresent := FALSE
-                       , ExpPosition := WPosition 
-                       )
-            ; DefExprRt ( LNewExpr )
-            END (*WITH*) 
+            LPosition := GetBwdPos ( TokResult . TrRdBack )
+            (* There's always an expression for a brand, even if it's absent. *)
+          ; LNewExpr 
+              := NEW ( FM3Exprs . ExprObjTypeTyp
+                     , ExpUpKind := Ekt . EkBrand
+                     , ExpIsLegalRecursive := TRUE
+                     , ExpIsPresent := FALSE
+                     , ExpPosition := LPosition 
+                     )
+          ; DefExprRt ( LNewExpr )
           END (*IF*)
 
       | Itk . ItkBrandAnon
@@ -1197,7 +1210,9 @@ MODULE FM3Pass2
           THEN 
             VAR LExpr : FM3Exprs . ExprObjTypeTyp
           ; BEGIN 
-              LExpr
+              LBrandKind := GetBwdBrandKind ( TokResult . TrRdBack )
+            ; LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
+            ; LExpr
                 := NEW ( FM3Exprs . ExprObjTypeTyp
                        , ExpUpKind := Ekt . EkObjType
                        , ExpIsLegalRecursive := TRUE
@@ -1205,9 +1220,10 @@ MODULE FM3Pass2
                        , ExpOpnd1 := NIL (* Supertype. *) 
                        , ExpOpnd2 := NIL (* Brand. *)
                        , ExpObjOverrides := NIL
+                       , ExpObjBrandKind := LBrandKind
+                       , ExpObjScopeRef
+                           := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo )
                        )
-            ; LExpr . ExpObjBrandKind := GetBwdBrandKind ( TokResult . TrRdBack )
-            ; LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
             ; LExpr . ExpObjScopeRef
                 := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo )
             ; <* ASSERT
@@ -1246,7 +1262,8 @@ MODULE FM3Pass2
           ; HtExprRt
               ( NEW ( FM3Exprs . ExprBinOpTyp
                     , ExpUpKind := Ekt . EkType
-                    , ExpOpcode := FM3SrcToks.StkRwARRAY 
+                    , ExpOpcode := FM3SrcToks.StkRwARRAY
+                    , ExpArrayTypeIsOpen := LBool 
                     )
               )
           END (*IF*)
@@ -1282,7 +1299,7 @@ MODULE FM3Pass2
       (* Unary operators: *) 
       | Itk . ItkUnaryOpRt 
       =>  IF NOT HtMaybePassTokenThru ( )
-          THEN 
+          THEN
             HtExprRt
               ( NEW ( FM3Exprs . ExprBinOpTyp
                     , ExpOpcode := GetBwdInt ( TokResult . TrRdBack )
@@ -1397,7 +1414,16 @@ MODULE FM3Pass2
       | Itk . ItkInterfaceLt
       =>  FM3Scopes . PruneDeclScopeStack ( LUnitRef ^ . UntDeclScopeStackBaseCt ) 
         ; FM3Scopes . PruneOpenScopeStack ( LUnitRef ^ . UntOpenScopeStackBaseCt )
-        ; HtPassTokenThru ( ) 
+        ; HtPassTokenThru ( )
+
+      (* Discard these tokens: *)
+      | Itk . ItkEnumTypeRt
+      , Itk . ItkEnumTypeLt 
+      => FM3Patch . DiscardOperands
+           ( FM3Utils . TokenOpndCt ( TokResult . TrTok )
+           , TokResult . TrRdBack
+           ) 
+
 
       ELSE (* No special pass2 handling. *)
         HtPassTokenThru ( ) 
