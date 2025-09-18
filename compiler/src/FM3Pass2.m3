@@ -1889,7 +1889,12 @@ MODULE FM3Pass2
   = VAR LOpenScopeRef : FM3Scopes . ScopeRefTyp
 
   ; BEGIN
-      LOpenScopeRef := FM3Scopes . OpenScopeStackTopRef
+      (* Design change to build expr objects, in or out of an expression.
+         Eventually strip out all the calls and false cases.
+      *) 
+      RETURN TRUE
+      
+    ; LOpenScopeRef := FM3Scopes . OpenScopeStackTopRef
     ; IF LOpenScopeRef = NIL THEN RETURN FALSE END (*IF*)
     ; RETURN LOpenScopeRef ^ . ScpInsideDecl  
     END AreInsideADecl
@@ -2377,6 +2382,7 @@ MODULE FM3Pass2
           ; DefExprRt ( LExprObj )
           ; DefExprLt ( LExprObj ) 
           ELSE (* Change to a reference token with DeclNo instead of Atom. *)
+(* Proably remove this case, since we are building Expr objects everywhere. *) 
             PutBwdP2 ( Wp2RdBack , VAL ( LPosition . Column , LONGINT ) ) 
           ; PutBwdP2 ( Wp2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
           ; PutBwdP2 ( Wp2RdBack , VAL ( LRefDeclNo , LONGINT ) ) 
