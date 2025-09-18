@@ -3,7 +3,7 @@ From unit expression map, Expr No 0 NIL
 From unit expression map, Expr No 1 16_****************
  ExpStackLink = ExprNo 0 at 16_**************** [14,18]
  ExpType = NIL
- ExpRefConstVal = 16_****************
+ ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
@@ -22,14 +22,15 @@ From unit expression map, Expr No 1 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprIdentRefTyp: *)
- ExpIdentDeclNo = 10
+ ExpIdentDeclNo = 8
 
 
 From unit expression map, Expr No 2 16_****************
  ExpStackLink = ExprNo 0 at 16_**************** [14,18]
  ExpType = NIL
- ExpRefConstVal = 16_****************
+ ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
@@ -48,14 +49,15 @@ From unit expression map, Expr No 2 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprIdentRefTyp: *)
- ExpIdentDeclNo = 8
+ ExpIdentDeclNo = 6
 
 
 From unit expression map, Expr No 3 16_****************
  ExpStackLink = ExprNo 0 at 16_**************** [14,18]
  ExpType = NIL
- ExpRefConstVal = 16_****************
+ ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
@@ -74,14 +76,15 @@ From unit expression map, Expr No 3 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprIdentRefTyp: *)
- ExpIdentDeclNo = 7
+ ExpIdentDeclNo = 5
 
 
 From unit expression map, Expr No 4 16_****************
  ExpStackLink = ExprNo 0 at 16_**************** [13,18]
  ExpType = NIL
- ExpRefConstVal = 16_****************
+ ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
@@ -100,14 +103,15 @@ From unit expression map, Expr No 4 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprIdentRefTyp: *)
- ExpIdentDeclNo = 7
+ ExpIdentDeclNo = 5
 
 
 From unit expression map, Expr No 5 16_****************
  ExpStackLink = ExprNo 0 at 16_**************** [13,18]
  ExpType = NIL
- ExpRefConstVal = 16_****************
+ ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
@@ -126,14 +130,15 @@ From unit expression map, Expr No 5 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprIdentRefTyp: *)
- ExpIdentDeclNo = 9
+ ExpIdentDeclNo = 7
 
 
 From unit expression map, Expr No 6 16_****************
  ExpStackLink = ExprNo 0 at 16_**************** [12,18]
  ExpType = NIL
- ExpRefConstVal = 16_****************
+ ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
@@ -152,14 +157,15 @@ From unit expression map, Expr No 6 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprIdentRefTyp: *)
- ExpIdentDeclNo = 6
+ ExpIdentDeclNo = 4
 
 
 From unit expression map, Expr No 7 16_****************
  ExpStackLink = NIL
  ExpType = NIL
- ExpRefConstVal = 16_****************
+ ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
@@ -178,14 +184,15 @@ From unit expression map, Expr No 7 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprIdentRefTyp: *)
- ExpIdentDeclNo = 5
+ ExpIdentDeclNo = 3
 
 
 From unit expression map, Expr No 8 16_****************
  ExpStackLink = ExprNo 0 at 16_**************** [9,14]
  ExpType = NIL
- ExpRefConstVal = 16_****************
+ ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
@@ -204,14 +211,15 @@ From unit expression map, Expr No 8 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprIdentRefTyp: *)
- ExpIdentDeclNo = 4
+ ExpIdentDeclNo = 2
 
 
 From unit expression map, Expr No 9 16_****************
  ExpStackLink = ExprNo 0 at 16_**************** [9,14]
  ExpType = NIL
- ExpRefConstVal = 16_****************
+ ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
@@ -230,14 +238,15 @@ From unit expression map, Expr No 9 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprIdentRefTyp: *)
- ExpIdentDeclNo = 3
+ ExpIdentDeclNo = 1
 
 
 From unit expression map, Expr No 10 16_****************
  ExpStackLink = ExprNo 0 at 16_**************** [9,14]
  ExpType = NIL
- ExpRefConstVal = 16_****************
+ ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
@@ -256,14 +265,15 @@ From unit expression map, Expr No 10 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprIdentRefTyp: *)
- ExpIdentDeclNo = 8
+ ExpIdentDeclNo = 6
 
 
 From unit expression map, Expr No 11 16_****************
  ExpStackLink = ExprNo 0 at 16_**************** [8,14]
  ExpType = NIL
- ExpRefConstVal = 16_****************
+ ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
@@ -282,14 +292,15 @@ From unit expression map, Expr No 11 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprIdentRefTyp: *)
- ExpIdentDeclNo = 7
+ ExpIdentDeclNo = 5
 
 
 From unit expression map, Expr No 12 16_****************
  ExpStackLink = NIL
  ExpType = NIL
- ExpRefConstVal = 16_****************
+ ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
@@ -308,14 +319,15 @@ From unit expression map, Expr No 12 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprIdentRefTyp: *)
- ExpIdentDeclNo = 6
+ ExpIdentDeclNo = 4
 
 
 From unit expression map, Expr No 13 16_****************
  ExpStackLink = NIL
  ExpType = NIL
- ExpRefConstVal = 16_****************
+ ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
@@ -334,19 +346,20 @@ From unit expression map, Expr No 13 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype Expr1OpndTyp: *)
- ExpOpnd1 = ExprNo 0 16_****************
-.. ExpStackLink = NIL
+ ExpOpnd1 = ExprNo 14 16_****************
+.. ExpStackLink = ExprNo 13 at 16_**************** [5,16]
 .. ExpType = NIL
-.. ExpRefConstVal = 16_****************
+.. ExpRefConstVal = NIL
 .. ExpScalarConstVal = 0
 .. ExpLoTypeInfoRef = 
 .. ExpReachedDeclNoSet = {}
-.. ExpSelfExprNo = 0
-.. ExpPosition = [65535,65535]
+.. ExpSelfExprNo = 14
+.. ExpPosition = [5,12]
 .. ExpOpcode = <RidNull>
 .. ExpDownKind = <null>
-.. ExpUpKind = <null>
+.. ExpUpKind = reference
 .. ExpKind = <null>
 .. ExpState = EsUnresolved
 .. ExpIsConst = FALSE
@@ -357,8 +370,9 @@ From unit expression map, Expr No 13 16_****************
 .. ExpIsWritable = FALSE
 .. ExpIsPresent = TRUE
 .. ExpRefTypeIsUntraced = FALSE
+.. ExpArrayTypeIsOpen = FALSE
 .. (* From subtype ExprIdentRefTyp: *)
-.. ExpIdentDeclNo = 0
+.. ExpIdentDeclNo = 2
 
  (* From subtype ExprDotTyp: *)
  ExpDotIdAtom = C
