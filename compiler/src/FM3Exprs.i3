@@ -111,7 +111,7 @@ INTERFACE FM3Exprs
         ExpStackLink : ExprTyp := NIL
         (* Deeper on stack is parent expression.*)
         (* NIL in root expression of a tree. *)
-      ; ExpStackHt : INTEGER := - 1 
+      ; ExpStackHt : INTEGER := 0  
       ; ExpType : ExprTyp := NIL
       ; ExpRefConstVal : REFANY := NIL
       ; ExpScalarConstVal : LONGINT := 0L

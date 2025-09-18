@@ -728,8 +728,10 @@ MODULE FM3Exprs
 
   = BEGIN
       (* Let's crash on trying to push a NIL. *)
-      <* ASSERT NewExpr . ExpStackHt = - 1 *>
-      IF ExprStackTopObj = NIL
+      IF NewExpr . ExpStackHt # 0 (* It's already somewhere on the stack *)  
+      THEN <* ASSERT FALSE *>
+      END (*IF*) 
+    ; IF ExprStackTopObj = NIL
       THEN NewExpr . ExpStackHt := 1
       ELSE NewExpr . ExpStackHt := ExprStackTopObj . ExpStackHt + 1
       END (*IF*)
