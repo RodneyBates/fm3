@@ -38,11 +38,36 @@ INTERFACE FM3Exprs
 *)
 
 ; TYPE ExprKindTyp (* What kind of definition are we expanding? *) 
-   = { EkNull 
-     , EkType
-     , EkRefType
+   = { EkNull
+     , EkReservedxxx
+(* TODO: ^Split this into several. *) 
+     , EkLiteral
+(*
+     , EkLongintLit
+     , EkRealLit
+     , EkLongLit
+     , EkExtendedLit 
+     , EkCharLit
+     , EkWideCharLit
+     , EkTextLit
+     , EkWideTextLit
+*)     
+     , EkIdentRef
+     , EkQualIdentRef
+     , EkRemoteRef 
+     , EkEnumType
+     , EkRecType
+     , EkArrayType
      , EkObjType
-     , EkSupertype 
+     , EkSubrType (* Subrange *) 
+     , EkRefType
+     , EkType
+     , EkSupertype
+     , EkUnop
+     , EkBinop
+     , EkCall
+     , EkSubscript
+     
      , EkProc 
      , EkFunc 
      , EkValue
@@ -51,6 +76,8 @@ INTERFACE FM3Exprs
      , EkRef 
      }
 ; TYPE Ekt = ExprKindTyp
+
+; PROCEDURE ExprKindImage ( Kind : ExprKindTyp ) : TEXT 
 
 ; PROCEDURE ExprKindMessage ( Kind : ExprKindTyp ) : TEXT
   (* These are for constructing user messages. *) 

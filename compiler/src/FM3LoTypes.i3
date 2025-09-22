@@ -41,7 +41,7 @@ INTERFACE FM3LoTypes
 ; CONST LoTypeNoAddr       = 19
 
 ; TYPE SizeTyp = [ 0 .. 65 ] (* 65 for multi-unit things. *)
-; TYPE AlignTyp = [ 0 .. 64 ] (* 65 for multi-unit things. *)
+; TYPE AlignTyp = [ 0 .. 64 ] 
 
 ; TYPE LoTypeInfoTyp
     = RECORD

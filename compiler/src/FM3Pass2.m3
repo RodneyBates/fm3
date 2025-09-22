@@ -333,6 +333,7 @@ MODULE FM3Pass2
 
   ; BEGIN 
       LNewObj := NEW ( FM3Exprs . ExprTyp )
+    ; LNewObj . ExpKind := Ekt . EkNull 
     ; LNewObj . ExpPosition := Position
     ; LNewObj . ExpIsUsable := FALSE 
     ; FM3Exprs . PushExprStack ( LNewObj ) 
@@ -424,8 +425,11 @@ MODULE FM3Pass2
           , LUnOpExpr . ExpPosition
           )
       ; LUnOpExpr . ExpIsUsable := FALSE
-      ELSE  
-        LUnOpExpr . ExpIsConst := LUnOpExpr . ExpOpnd1 . ExpIsConst
+      ELSE
+        LUnOpExpr . ExpKind := Ekt . EkUnop
+      ; LUnOpExpr . ExpKind := FM3Builtins . OpExprKind ( Opcode )  
+      ; LUnOpExpr . ExpUpKind := Ekt . EkValue 
+      ; LUnOpExpr . ExpIsConst := LUnOpExpr . ExpOpnd1 . ExpIsConst
       ; LUnOpExpr . ExpReachedDeclNoSet
           := LUnOpExpr . ExpOpnd1 . ExpReachedDeclNoSet 
       END (*IF*) 
@@ -466,7 +470,10 @@ MODULE FM3Pass2
       END (*IF*)
     ; IF LBinOpExpr . ExpIsUsable
       THEN
-        LBinOpExpr . ExpIsConst
+        LBinOpExpr . ExpKind := Ekt . EkBinop
+      ; LBinOpExpr . ExpKind := FM3Builtins . OpExprKind ( Opcode )  
+      ; LBinOpExpr . ExpUpKind := Ekt . EkValue 
+      ; LBinOpExpr . ExpIsConst
           := LOpnd1 . ExpIsConst
                AND LOpnd2 . ExpIsConst
                AND IntSets . IsElement
@@ -574,6 +581,93 @@ MODULE FM3Pass2
   ; VAR HtSkipping : BOOLEAN
   ; VAR LBool : BOOLEAN
 
+  ; PROCEDURE HtCallOrSubscript ( Kind : FM3Exprs . ExprKindTyp )
+
+    = VAR LArgsExpr : FM3Exprs . ExprArgsObj
+
+    ; BEGIN 
+        LCt := GetBwdInt ( TokResult . TrRdBack ) (* Args/Ss count. *) 
+      ; LPosition := GetBwdPos ( TokResult . TrRdBack )
+      ; LArgsExpr := NEW ( FM3Exprs . ExprArgsObj )
+      ; LArgsExpr . ExpKind := Kind
+      ; LArgsExpr . ExpUpKind := Ekt . EkValue 
+      ; LArgsExpr . ExpArgsList
+          := NEW ( REF ARRAY OF FM3Exprs . ExprTyp , LCt )
+      ; LArgsExpr . ExpArgNo := LCt
+      ; LArgsExpr . ExpPosition := LPosition
+      ; FM3Exprs . PushExprStack ( LArgsExpr )
+      END HtCallOrSubscript  
+
+  ; PROCEDURE HtLiteral ( )
+
+    = VAR LLongInt : LONGINT 
+    ; VAR LOpcode : INTEGER
+    ; VAR LLoTypeNo : INTEGER
+    ; VAR LPosition : tPosition
+
+    ; BEGIN
+        LOpcode := VAL ( GetBwd ( TokResult . TrRdBack ), INTEGER )
+      ; CASE LOpcode OF
+        | Stk . StkIntLit
+        , Stk . StkBasedLit
+        => LLoTypeNo := FM3LoTypes . LoTypeNoInt  
+
+        | Stk . StkLongIntLit
+        , Stk . StkLongBasedLit
+        => LLoTypeNo := FM3LoTypes . LoTypeNoLong 
+
+        | Stk . StkCharLit
+        => LLoTypeNo := FM3LoTypes . LoTypeNoU8 
+
+        | Stk . StkWideCharLit
+        => LLoTypeNo := FM3LoTypes . LoTypeNoU16 
+
+        | Stk . StkRealLit
+        => LLoTypeNo := FM3LoTypes . LoTypeNoReal  
+
+        | Stk . StkLongRealLit
+        => LLoTypeNo := FM3LoTypes . LoTypeNoLongReal  
+
+        | Stk . StkExtendedLit
+        => LLoTypeNo := FM3LoTypes . LoTypeNoExtended  
+
+        | Stk . StkTextLit
+        , Stk . StkWideTextLit 
+        => LLoTypeNo := FM3LoTypes . LoTypeNoAddr  
+
+        END (*CASE*) 
+      ; LLongInt := GetBwd ( TokResult . TrRdBack )
+      ; LPosition := GetBwdPos ( TokResult . TrRdBack )
+      ; IF NOT HtSkipping 
+        THEN
+          IF AreInsideADecl ( )
+          THEN 
+            WITH LExpr = NEW ( FM3Exprs . ExprConstValueTyp ) 
+            DO 
+              LExpr . ExpScalarConstVal := LLongInt
+            ; LExpr . ExpLoTypeInfoRef
+                := VarArray_Int_Refany . Fetch
+                     ( FM3LoTypes . LoTypeMap , LLoTypeNo )  
+            ; LExpr . ExpPosition := LPosition
+            ; LExpr . ExpKind := Ekt . EkLiteral
+            ; LExpr . ExpOpcode := LOpcode 
+            ; LExpr . ExpUpKind := Ekt . EkValue 
+            ; LExpr . ExpIsConst := TRUE 
+            ; LExpr . ExpConstValIsKnown := TRUE 
+            ; LExpr . ExpIsLegalRecursive := TRUE
+            ; LExpr . ExpState := Est . EsResolved
+            ; DefExprRt ( LExpr )
+            END (*WITH*)
+          ELSE
+(* DECIDE: Do we want just one token code with a LoTyp operand here? *) 
+            PutBwdP2 ( HtPass2RdBack , VAL ( LPosition . Column , LONGINT ) ) 
+          ; PutBwdP2 ( HtPass2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
+          ; PutBwdP2 ( HtPass2RdBack , LLongInt )
+          ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
+          END (*IF*) 
+        END (*IF*)
+      END HtLiteral 
+
   ; PROCEDURE HtNumericLit ( LoTypeNo : FM3LoTypes . LoTypeNoTyp )
     (* Both INTEGER and LONGINT. *)
 
@@ -594,6 +688,7 @@ MODULE FM3Pass2
                 := VarArray_Int_Refany . Fetch
                      ( FM3LoTypes . LoTypeMap , LoTypeNo )  
             ; LExpr . ExpPosition := LPosition
+            ; LExpr . ExpKind := Ekt . EkLiteral  
             ; LExpr . ExpUpKind := Ekt . EkValue 
             ; LExpr . ExpIsConst := TRUE 
             ; LExpr . ExpConstValIsKnown := TRUE 
@@ -855,6 +950,7 @@ MODULE FM3Pass2
           (* An especially dumb ExprRef, just to keep expr stack consistent. *)
         ; FM3Exprs . PushExprStack
             ( NEW ( FM3Exprs . ExprTyp
+                  , ExpKind := Ekt . EkNull 
                   , ExpIsPresent := FALSE
                   , ExpPosition := LPosition
                   )
@@ -938,6 +1034,7 @@ MODULE FM3Pass2
           ; LNewExpr . ExpOpcode := GetBwdAtom ( TokResult . TrRdBack )
           ; LNewExpr . ExpPosition := GetBwdPos ( TokResult . TrRdBack )
           ; LNewExpr . ExpIsLegalRecursive := TRUE
+          ; LNewExpr . ExpKind := Ekt . EkNull  
           ; LNewExpr . ExpUpKind
               := FM3Builtins . OpExprKind ( LNewExpr . ExpOpcode ) 
           (* Other properties computed later. *) 
@@ -953,6 +1050,7 @@ MODULE FM3Pass2
         ; LNewExpr . ExpOpcode := GetBwdAtom ( TokResult . TrRdBack )
         ; LNewExpr . ExpPosition := GetBwdPos ( TokResult . TrRdBack )
         ; LNewExpr . ExpIsLegalRecursive := TRUE
+        ; LNewExpr . ExpKind := Ekt . EkNull
         ; LNewExpr . ExpUpKind := Ekt . EkNull
         ; LNewExpr . ExpIsUsable := FALSE 
         ; DefExprRt ( LNewExpr )
@@ -986,37 +1084,55 @@ MODULE FM3Pass2
            )
         ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
 
+      | Itk . ItkLiteral
+      => HtLiteral ( ) 
+(*      
+
       | Itk . ItkIntLit
-      => HtNumericLit ( FM3LoTypes . LoTypeNoInt ) 
+      , Itk . ItkBasedLit
+      => HtLiteral ( FM3LoTypes . LoTypeNoInt ) 
 
       | Itk . ItkLongIntLit
-      => HtNumericLit ( FM3LoTypes . LoTypeNoLong ) 
+      , Itk . ItkLongBasedLit
+      => HtLiteral ( FM3LoTypes . LoTypeNoLong )
+
+      | Itk . ItkCharLit
+      => HtLiteral ( FM3LoTypes . LoTypeNoU8 )
+
+      | Itk . ItkWideCharLit
+      => HtLiteral ( FM3LoTypes . LoTypeNoU16 )
 
       | Itk . ItkRealLit
-      => HtNumericLit ( FM3LoTypes . LoTypeNoReal ) 
+      => HtLiteral ( FM3LoTypes . LoTypeNoReal ) 
 
       | Itk . ItkLongRealLit
-      => HtNumericLit ( FM3LoTypes . LoTypeNoLongReal ) 
+      => HtLiteral ( FM3LoTypes . LoTypeNoLongReal ) 
 
       | Itk . ItkExtendedLit
-      => HtNumericLit ( FM3LoTypes . LoTypeNoExtended ) 
+      => HtLiteral ( FM3LoTypes . LoTypeNoExtended ) 
+
+      | Itk . ItkTextLitRt
+      , Itk . ItkWideTextLitRt 
+      => HtLiteral ( FM3LoTypes . LoTypeNoAddr ) 
 
       | Itk . ItkTextLitRt
       , Itk . ItkWideTextLitRt
-      =>  LCt := GetBwdInt ( TokResult . TrRdBack ) (* ^Atom, actually. *) 
+      =>  LLongInt
+            := FM3Compress . GetBwd ( TokResult . TrRdBack ) (* ^Atom. *)  
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; IF NOT HtSkipping 
           THEN
             DefExprRt
               ( NEW ( FM3Exprs . ExprTyp
+                    , ExpKind := Ekt . EkLiteral
                     , ExpUpKind := Ekt . EkValue
-                    , ExpScalarConstVal := VAL ( LCt , LONGINT ) 
+                    , ExpScalarConstVal := LLongInt
+                    (* No base in an Expr? *) 
                     , ExpOpcode := TokResult . TrTok 
                     , ExpPosition := LPosition 
                     )
               )
           END (*IF*) 
-
       | Itk . ItkTextLitLt
       , Itk . ItkWideTextLitLt
       => FM3Patch . DiscardOperands
@@ -1029,13 +1145,14 @@ MODULE FM3Pass2
           THEN  
             LLongInt := GetBwd ( TokResult . TrRdBack ) (* Enum lit count. *) 
           ; HtExprRt
-              ( NEW
-                  ( FM3Exprs . ExprEnumTypeTyp
-                  , ExpUpKind := Ekt . EkType 
-                  , ExpScopeRef1 := FM3Scopes . DeclScopeStackTopRef
-                  )
+              ( NEW ( FM3Exprs . ExprEnumTypeTyp
+                    , ExpUpKind := Ekt . EkEnumType 
+                    , ExpUpKind := Ekt . EkType 
+                    , ExpScopeRef1 := FM3Scopes . DeclScopeStackTopRef
+                    )
               ) 
           END (*IF*)
+*) 
 
       | Itk . ItkEnumLitListLt
       =>  IF NOT HtMaybePassTokenThru ( )
@@ -1050,11 +1167,11 @@ MODULE FM3Pass2
           THEN 
             LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *) 
           ; HtExprRt
-              ( NEW
-                  ( FM3Exprs . ExprRecTypeTyp
-                  , ExpUpKind := Ekt . EkType
-                  , ExpScopeRef1 := FM3Scopes . DeclScopeStackTopRef
-                  )
+              ( NEW ( FM3Exprs . ExprRecTypeTyp
+                    , ExpUpKind := Ekt . EkRecType
+                    , ExpUpKind := Ekt . EkType
+                    , ExpScopeRef1 := FM3Scopes . DeclScopeStackTopRef
+                    )
               )
 (* Copy token? *)
           END (*IF*) 
@@ -1076,6 +1193,7 @@ MODULE FM3Pass2
             (* There's always an expression for a brand, even if it's absent. *)
           ; LNewExpr 
               := NEW ( FM3Exprs . ExprObjTypeTyp
+                     , ExpKind := Ekt . EkBrand
                      , ExpUpKind := Ekt . EkBrand
                      , ExpIsLegalRecursive := TRUE
                      , ExpIsPresent := FALSE
@@ -1103,6 +1221,7 @@ MODULE FM3Pass2
             DO
               LNewExpr
                 := NEW ( FM3Exprs . ExprObjTypeTyp
+                       , ExpKind := Ekt . EkBrand
                        , ExpUpKind := Ekt . EkBrand
                        , ExpIsLegalRecursive := TRUE
                        , ExpIsPresent := TRUE  
@@ -1125,7 +1244,8 @@ MODULE FM3Pass2
             LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN ) 
           ; HtExprRt
               ( NEW ( FM3Exprs . Expr2OpndTyp
-                    , ExpUpKind := Ekt . EkRefType
+                    , ExpKind := Ekt . EkRefType
+                    , ExpUpKind := Ekt . EkType
                     , ExpIsLegalRecursive := TRUE
                     , ExpRefTypeIsUntraced := LBool
                     , ExpOpcode := Stk . StkRwREF
@@ -1168,6 +1288,7 @@ MODULE FM3Pass2
             DO
               LNewExpr 
                 := NEW ( FM3Exprs . ExprTyp
+                       , ExpKind := Ekt . EkSupertype
                        , ExpUpKind := Ekt . EkSupertype
                        , ExpIsLegalRecursive := TRUE
                        , ExpIsPresent := FALSE  
@@ -1214,7 +1335,8 @@ MODULE FM3Pass2
             ; LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
             ; LExpr
                 := NEW ( FM3Exprs . ExprObjTypeTyp
-                       , ExpUpKind := Ekt . EkObjType
+                       , ExpKind := Ekt . EkObjType
+                       , ExpUpKind := Ekt . EkType
                        , ExpIsLegalRecursive := TRUE
                        , ExpOpcode := Stk . StkRwOBJECT 
                        , ExpOpnd1 := NIL (* Supertype. *) 
@@ -1261,6 +1383,7 @@ MODULE FM3Pass2
             LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN ) 
           ; HtExprRt
               ( NEW ( FM3Exprs . ExprBinOpTyp
+                    , ExpKind := Ekt . EkArrayType
                     , ExpUpKind := Ekt . EkType
                     , ExpOpcode := FM3SrcToks.StkRwARRAY
                     , ExpArrayTypeIsOpen := LBool 
@@ -1287,7 +1410,11 @@ MODULE FM3Pass2
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN 
             HtExprRt
-              ( NEW ( FM3Exprs . ExprSubrTypeTyp , ExpUpKind := Ekt . EkType ) )
+              ( NEW ( FM3Exprs . ExprSubrTypeTyp
+                    , ExpKind := Ekt . EkSubrType
+                    , ExpUpKind := Ekt . EkType
+                    )
+              )
           END (*IF*) 
 
       | Itk . ItkSubrTypeEllipsis 
@@ -1311,7 +1438,7 @@ MODULE FM3Pass2
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN  
             LOpcode := GetBwdInt ( TokResult . TrRdBack ) 
-          ; HtExprOpnd1 ( ) (* Only operand. *)
+          ; HtExprOpnd1 ( ) (* The only operand. *)
           ; IF NOT HtSkipping THEN UnaryOp ( LOpcode ) END (*IF*)
           END (*IF*) 
 
@@ -1342,15 +1469,10 @@ MODULE FM3Pass2
           END (*IF*) 
 
       | Itk . ItkCallRt
-      , Itk . ItkSubscriptRt 
-      =>  LCt := GetBwdInt ( TokResult . TrRdBack ) (* Args count. *) 
-        ; LPosition := GetBwdPos ( TokResult . TrRdBack )
-        ; LArgsExpr := NEW ( FM3Exprs . ExprArgsObj )
-        ; LArgsExpr . ExpArgsList
-            := NEW ( REF ARRAY OF FM3Exprs . ExprTyp , LCt )
-        ; LArgsExpr . ExpArgNo := LCt
-        ; LArgsExpr . ExpPosition := LPosition
-        ; FM3Exprs . PushExprStack ( LArgsExpr )
+      => HtCallOrSubscript ( Ekt . EkCall )
+      
+      | Itk . ItkSubscriptRt 
+      => HtCallOrSubscript ( Ekt . EkSubscript ) 
 
       | Itk . ItkActualsListRt
       , Itk . ItkSubscriptsPlusListRt 
@@ -2377,7 +2499,9 @@ MODULE FM3Pass2
           ; LExprIdentRef := NEW ( FM3Exprs . ExprIdentRefTyp )
           ; LExprIdentRef . ExpIdentDeclNo := LRefDeclNo 
           ; LExprIdentRef . ExpPosition := LPosition
-          ; LExprIdentRef . ExpUpKind := Ekt . EkRef
+          ; LExprIdentRef . ExpKind := Ekt . EkIdentRef
+          ; LExprIdentRef . ExpUpKind := Ekt . EkNull
+(* TODO     ^ Compute this            *) 
           ; LExprObj := LExprIdentRef
           ; DefExprRt ( LExprObj )
           ; DefExprLt ( LExprObj ) 
@@ -2431,7 +2555,9 @@ MODULE FM3Pass2
               ; LExprRemoteRef . ExpRemoteUnitNo := LUnitNo 
               ; LExprRemoteRef . ExpRemoteDeclNo := LRefDeclNo 
               ; LExprRemoteRef . ExpPosition := LPosition
-              ; LExprRemoteRef . ExpUpKind := Ekt . EkRef
+              ; LExprRemoteRef . ExpKind := Ekt . EkIdentRef
+(* TODO     ^ Compute this            *) 
+              ; LExprRemoteRef . ExpUpKind := Ekt . EkNull
               ; LExprObj := LExprRemoteRef
               ; DefExprRt ( LExprObj )
               ; DefExprLt ( LExprObj ) 
@@ -2499,7 +2625,9 @@ MODULE FM3Pass2
             ; DefExprRt ( WDotExpr )
             ; WLtExpr . ExpIdentDeclNo := LRefDeclNoLt 
             ; WLtExpr . ExpPosition := LPosLt
-            ; WLtExpr . ExpUpKind := Ekt . EkRef
+            ; WLtExpr . ExpKind := Ekt . EkQualIdentRef 
+            ; WLtExpr . ExpUpKind := Ekt . EkNull
+(* TODO     ^ Compute this            *) 
             ; DefExprRt ( WLtExpr )
             END (*WITH*)
           ; EVAL FM3Exprs . PopExprStack ( ) (* WLtExpr *) 
@@ -2586,7 +2714,9 @@ MODULE FM3Pass2
                   := LIntfUnitRef ^ . UntSelfUnitNo 
               ; LExprRemoteRef . ExpRemoteDeclNo := LRemoteDeclNoInt 
               ; LExprRemoteRef . ExpPosition := LPosLt
-              ; LExprRemoteRef . ExpUpKind := Ekt . EkRef
+              ; LExprRemoteRef . ExpKind := Ekt . EkQualIdentRef
+              ; LExprRemoteRef . ExpUpKind := Ekt . EkNull
+(* TODO     ^ Compute this            *) 
               ; DefExprRt ( LExprRemoteRef )
               ELSE 
                 PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
@@ -2636,7 +2766,9 @@ MODULE FM3Pass2
               ; WLtExpr . ExpRemoteUnitNo := LUnitNoLt 
               ; WLtExpr . ExpRemoteDeclNo := LRefDeclNoLt 
               ; WLtExpr . ExpPosition := LPosLt
-              ; WLtExpr . ExpUpKind := Ekt . EkRef
+              ; WLtExpr . ExpKind := Ekt . EkRemoteRef
+              ; WLtExpr . ExpUpKind := Ekt . EkNull
+(* TODO     ^ Compute this            *) 
               ; DefExprRt ( WLtExpr ) (* Which pushes. *)
               END (*WITH*)
             ; EVAL FM3Exprs . PopExprStack ( ) (* The WLtExpr. *) 

@@ -442,7 +442,11 @@ MODULE FM3DisAsm
     ; VAR LBase : FM3Fmt . Base
 
     ; BEGIN
-        LBaseL := FM3Compress . GetBwd ( RBT )
+(* For now, the base argument is omitted from these cases.
+   This wants it after the value, but Pass2 wants it before.
+   *)
+   RETURN 
+      ; LBaseL := FM3Compress . GetBwd ( RBT )
       ; CASE LBaseL OF
         (* Scanner always provides 16. *)  
 (* FIXME^ Get the actual base somehow. *) 
@@ -497,6 +501,7 @@ MODULE FM3DisAsm
       END DobText
 
   ; VAR LArgL : LONGINT 
+  ; VAR LArgI : INTEGER 
   
   ; BEGIN (* DisAsmWOperands *) 
       FM3SharedUtils . LoadSets ( )
@@ -588,6 +593,23 @@ MODULE FM3DisAsm
               ; Wr . PutChar ( WrT , ')' )
               ; Wr . PutText ( WrT , Wr . EOL )
 
+            | FM3IntToks . ItkLiteral
+            =>  Wr . PutChar ( WrT , ' ' ) 
+              ; Wr . PutText ( WrT , FM3IntToks . Name ( LToken ) )
+              ; Wr . PutChar ( WrT , '(' )
+              ; LArgI := VAL ( FM3Compress . GetBwd ( RBT ) , INTEGER ) 
+              ; Wr . PutText ( WrT , FM3IntToks . Name ( LArgI ) )
+              ; Wr . PutText ( WrT , FM3IntToks . Image ( LArgI ) )
+              ; Wr . PutChar ( WrT , ',' )
+              ; LArgL := FM3Compress . GetBwd ( RBT )
+              ; Wr . PutText ( WrT , "(16_" )
+              ; Wr . PutText
+                  ( WrT , FM3Fmt . LongUnsigned ( LArgL , base := 16 ) )
+              ; Wr . PutChar ( WrT , ')' )
+              ; DobPosArg ( 2 ) 
+              ; Wr . PutChar ( WrT , ')' )
+              ; Wr . PutText ( WrT , Wr . EOL )
+(*
             | FM3IntToks . ItkIntLit 
             , FM3IntToks . ItkLongIntLit 
             , FM3IntToks . ItkBasedLit 
@@ -670,6 +692,7 @@ MODULE FM3DisAsm
 
             | FM3IntToks . ItkWideTextLitRt
             =>  DobText ( DoString := FALSE , Wide := TRUE ) 
+*)
 
             ELSE (* Of outer CASE. *) 
               CASE LToken OF 

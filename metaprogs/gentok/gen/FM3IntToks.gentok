@@ -433,21 +433,9 @@ LONE
 LONE 
   ItkExprTyp INT (* ExprNo *) 
 
-  (* The values of all scalar literals are LOOPHOLEd to LONGINT. *)
-  ItkIntLit INT POS .
-  ItkLongIntLit INT POS .
-  ItkBasedLit INT INT POS (* value, base. *) .
-  ItkLongBasedLit INT INT POS (* value. base *).
-  ItkRealLit INT POS .
-  ItkLongRealLit INT POS .
-  ItkExtendedLit INT POS .
-  ItkCharLit     INT POS .
-  ItkWideCharLit INT POS .
-  
-FIXED
-  ItkTextLit     INT POS (* value atom, Char count. *) .
-  ItkWideTextLit INT POS (* value atom, Char count. *) .
-
+  (* The values of all scalar literals are LOOPHOLEd to LONGINT. *) 
+  ItkLiteral     INT INT POS (* Opcode, value, Position. *) 
+  (* Opcode is the Stk*Lit token. *) 
 
 LIST ItkActualsList . 
 LONE ItkActualsListEmpty .

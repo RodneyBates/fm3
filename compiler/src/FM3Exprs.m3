@@ -30,25 +30,68 @@ MODULE FM3Exprs
 ; IMPORT FM3Units 
 ; IMPORT FM3Utils
 
+(*EXPORTED.*)
+; PROCEDURE ExprKindImage ( Kind : ExprKindTyp ) : TEXT 
+
+  = BEGIN (*ExprKindImage*)
+      CASE Kind OF
+      | ExprKindTyp . EkNull => RETURN "EkNull" 
+      | ExprKindTyp . EkLiteral => RETURN "EkLiteral"
+(* 
+      | ExprKindTyp . EkIntLit => RETURN "EkIntLit" 
+      | ExprKindTyp . EkLongintLit => RETURN "EkLongintLit" 
+      | ExprKindTyp . EkRealLit => RETURN "EkRealLit" 
+      | ExprKindTyp . EkLongLit => RETURN "EkLongLit" 
+      | ExprKindTyp . EkExtendedLit => RETURN "EkExtendedLit" 
+      | ExprKindTyp . EkCharLit => RETURN "EkCharLit" 
+      | ExprKindTyp . EkWideCharLit => RETURN "EkWideCharLit" 
+      | ExprKindTyp . EkTextLit => RETURN "EkTextLit" 
+      | ExprKindTyp . EkWideTextLit => RETURN "EkWideTextLit"
+*)
+      | ExprKindTyp . EkIdentRef => RETURN "EkIdentRef" 
+      | ExprKindTyp . EkQualIdentRef => RETURN "EkQualIdentRef" 
+      | ExprKindTyp . EkRemoteRef => RETURN "EkRemoteRef"  
+      | ExprKindTyp . EkEnumType => RETURN "EkEnumType" 
+      | ExprKindTyp . EkRecType => RETURN "EkRecType" 
+      | ExprKindTyp . EkArrayType => RETURN "EkArrayType" 
+      | ExprKindTyp . EkObjType => RETURN "EkObjType" 
+      | ExprKindTyp . EkSubrType => RETURN "EkSubrType"  
+      | ExprKindTyp . EkRefType => RETURN "EkRefType" 
+      | ExprKindTyp . EkType => RETURN "EkType" 
+      | ExprKindTyp . EkSupertype => RETURN "EkSupertype" 
+      | ExprKindTyp . EkUnop => RETURN "EkUnop" 
+      | ExprKindTyp . EkBinop => RETURN "EkBinop" 
+      | ExprKindTyp . EkCall => RETURN "EkCall" 
+      | ExprKindTyp . EkSubscript => RETURN "EkSubscript" 
+      | ExprKindTyp . EkProc => RETURN "EkProc"  
+      | ExprKindTyp . EkFunc => RETURN "EkFunc"  
+      | ExprKindTyp . EkValue => RETURN "EkValue" 
+      | ExprKindTyp . EkBrand => RETURN "EkBrand"  
+      | ExprKindTyp . EkConst => RETURN "EkConst"  
+      | ExprKindTyp . EkRef => RETURN "EkRef"  
+      ELSE RETURN "<Unknown ExprKindImage>"
+      END (*CASE*) 
+    END ExprKindImage
+
 (* EXPORTED.*) 
 ; PROCEDURE ExprKindMessage ( Kind : ExprKindTyp ) : TEXT
   (* These are for constructing user messages. *) 
 
   = BEGIN
       CASE Kind OF 
-      | Ekt . EkNull
+      | ExprKindTyp . EkNull
        => RETURN "<null>" 
-      | Ekt . EkType 
+      | ExprKindTyp . EkType 
        => RETURN "type" 
-      | Ekt . EkProc 
+      | ExprKindTyp . EkProc 
        => RETURN "procedure" 
-      | Ekt . EkFunc
+      | ExprKindTyp . EkFunc
        => RETURN "function" 
-      | Ekt . EkValue 
+      | ExprKindTyp . EkValue 
        => RETURN "value" 
-      | Ekt . EkConst 
+      | ExprKindTyp . EkConst 
        => RETURN "constant" 
-      | Ekt . EkRef 
+      | ExprKindTyp . EkRef 
        => RETURN "reference" 
       ELSE RETURN "<unknown>"
       END (*CASE *) 
@@ -315,9 +358,9 @@ MODULE FM3Exprs
       ; Field ( "ExpSelfExprNo" , Fmt . Int ( Expr . ExpSelfExprNo ) ) 
       ; Field ( "ExpPosition" , FM3Utils . PositionImage ( Expr . ExpPosition ) )
       ; Field ( "ExpOpcode" , FM3SrcToks . Image ( Expr . ExpOpcode ) )  
-      ; Field ( "ExpDownKind" , ExprKindMessage ( Expr . ExpDownKind ) ) 
-      ; Field ( "ExpUpKind" , ExprKindMessage ( Expr . ExpUpKind ) ) 
-      ; Field ( "ExpKind" , ExprKindMessage ( Expr . ExpKind ) )  
+      ; Field ( "ExpDownKind" , ExprKindImage ( Expr . ExpDownKind ) ) 
+      ; Field ( "ExpUpKind" , ExprKindImage ( Expr . ExpUpKind ) ) 
+      ; Field ( "ExpKind" , ExprKindImage ( Expr . ExpKind ) )  
       ; Field ( "ExpState" , ExprStateImage ( Expr . ExpState ) )  
       ; Field ( "ExpIsConst" , Fmt . Bool ( Expr . ExpIsConst ) )  
       ; Field ( "ExpConstValIsKnown" , Fmt . Bool ( Expr . ExpConstValIsKnown ) )

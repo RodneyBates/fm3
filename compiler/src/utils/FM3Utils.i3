@@ -57,6 +57,7 @@ INTERFACE FM3Utils
   (* Insert quotes and escapes. *) 
 
 ; PROCEDURE SwitchTokL2R ( Tok : FM3IntToks . TokTyp ) : FM3IntToks . TokTyp
+  (* Switch left and right tokens. *) 
 
 ; PROCEDURE TextToRefArrayChars ( TextVal : TEXT) : REF ARRAY OF CHAR
   (* WARNING: Don't try this unless you know there are no characters

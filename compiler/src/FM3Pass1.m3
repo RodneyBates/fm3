@@ -663,8 +663,10 @@ MODULE FM3Pass1
       ; PutBwd
           ( WRdBack , VAL ( ParsAttr . Scan . SaAtom , LONGINT ) )
       ; PutBwd
-          ( WRdBack , VAL ( Itk . ItkTextLitLt , LONGINT ) )
-(* Don't put the chars in the stream.
+          ( WRdBack , VAL ( ParsAttr . Scan . SaTok , LONGINT ) )
+      ; PutBwd
+          ( WRdBack , VAL ( Itk . ItkLiteral , LONGINT ) )
+(* Don't put the chars in the stream.  An atom arg instead.
       ; PutBwd ( WRdBack , VAL ( LNumber , LONGINT ) )
       ; FOR RI := LNumber - 1 TO 0 BY - 1 (* LM Char near EOF. *) 
         DO
@@ -674,7 +676,6 @@ MODULE FM3Pass1
             )
         END (*FOR*) 
       ; PutBwd ( WRdBack , VAL ( LNumber , LONGINT ) )
-*)
 
       ; PutBwd
           ( WRdBack , VAL ( ParsAttr . Scan . Position . Column , LONGINT ) )
@@ -684,6 +685,7 @@ MODULE FM3Pass1
           ( WRdBack , VAL ( ParsAttr . Scan . SaAtom , LONGINT ) )
       ; PutBwd
           ( WRdBack , VAL ( Itk . ItkTextLitRt , LONGINT ) )
+*)
       END (*WITH*) 
     END PutBwd_TextLit 
     
@@ -702,9 +704,11 @@ MODULE FM3Pass1
       ; PutBwd
           ( WRdBack , VAL ( ParsAttr . Scan . SaAtom , LONGINT ) )
       ; PutBwd
-          ( WRdBack , VAL ( Itk . ItkWideTextLitLt , LONGINT ) )
+          ( WRdBack , VAL ( ParsAttr . Scan . SaTok , LONGINT ) )
+      ; PutBwd
+          ( WRdBack , VAL ( Itk . ItkLiteral , LONGINT ) )
           
-(* Don't put the chars in the stream.
+(* Don't put the chars in the stream.  An atom arg instead. 
       ; PutBwd ( WRdBack , VAL ( LNumber , LONGINT ) )
       ; FOR RI := LNumber - 1 TO 0 BY - 1 (* LM Char near EOF. *)
         DO
@@ -714,7 +718,6 @@ MODULE FM3Pass1
             ) 
         END (*FOR*) 
       ; PutBwd ( WRdBack , VAL ( LNumber , LONGINT ) )
-*)
       ; PutBwd
           ( WRdBack , VAL ( ParsAttr . Scan . Position . Column , LONGINT ) )
       ; PutBwd
@@ -723,6 +726,7 @@ MODULE FM3Pass1
           ( WRdBack , VAL ( ParsAttr . Scan . SaAtom , LONGINT ) )
       ; PutBwd
           ( WRdBack , VAL ( Itk . ItkWideTextLitRt , LONGINT ) )
+*)
       END (*WITH*) 
     END PutBwd_WideTextLit 
     
@@ -900,6 +904,25 @@ MODULE FM3Pass1
       ; PutBwd ( WRdBack , VAL ( T , LONGINT ) ) 
       END (*WITH*) 
     END PutBwd_LNNP
+
+(*EXPORTED:*)
+; PROCEDURE PutBwd_LINP
+    ( T : Itk . TokTyp
+    ; I : INTEGER
+    ; N : LONGINT
+    ; READONLY Position : tPosition
+    )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , N ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T , LONGINT ) ) 
+      END (*WITH*) 
+    END PutBwd_LINP
 
 (*EXPORTED:*)
 ; PROCEDURE PutBwd_LP_rp

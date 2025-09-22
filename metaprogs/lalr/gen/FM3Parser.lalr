@@ -2410,71 +2410,74 @@ RULE
   (* Literals.  *) 
 
    E8WOId : StkIntLit
-     { FM3Pass1 . PutBwd_LNP
-         ( Itk . ItkIntLit
+     { FM3Pass1 . PutBwd_LINP
+         ( Itk . ItkLiteral
+         , Stk . StkIntLit 
          , $1 . Scan . SaArgValue 
          , $1 . Scan . Position
          ) ;
      } .  
    E8WOId : StkLongIntLit
-     { FM3Pass1 . PutBwd_LNP 
-         ( Itk . ItkLongIntLit
+     { FM3Pass1 . PutBwd_LINP 
+         ( Itk . ItkLiteral
+         , Stk . StkLongIntLit 
          , $1 . Scan . SaArgValue 
          , $1 . Scan . Position
          ) ;
      } .  
    E8WOId : StkBasedLit
-     { FM3Pass1 . PutBwd_LNNP 
-         ( Itk . ItkBasedLit
+     { FM3Pass1 . PutBwd_LINP 
+         ( Itk . ItkLiteral
+         , Stk . StkBasedLit 
          , $1 . Scan . SaArgValue 
-         , 16L (* Base--default.*) 
-(* FIXME ^ Get the real base from the scanner.
-           As of 2024-4-5, only FM3DisAsm uses this. *) 
          , $1 . Scan . Position
          ) ;
      } .   
    E8WOId : StkLongBasedLit
-     { FM3Pass1 . PutBwd_LNNP 
-         ( Itk . ItkLongBasedLit
+     { FM3Pass1 . PutBwd_LINP 
+         ( Itk . ItkLiteral 
+         , Stk . StkLongBasedLit
          , $1 . Scan . SaArgValue 
-         , 16L (* Base--default.*) 
-(* FIXME ^ Get the real base from the scanner.
-           As of 2024-4-5, only FM3DisAsm uses this. *) 
          , $1 . Scan . Position
          ) ;
      } .  
    E8WOId : StkRealLit
-     { FM3Pass1 . PutBwd_LNP 
-         ( Itk . ItkRealLit
+     { FM3Pass1 . PutBwd_LINP 
+         ( Itk . ItkLiteral
+         , Stk . StkRealLit 
          , $1 . Scan . SaArgValue 
          , $1 . Scan . Position
          ) ;
      } . 
    E8WOId : StkLongRealLit
-     { FM3Pass1 . PutBwd_LNP 
-         ( Itk . ItkLongRealLit
+     { FM3Pass1 . PutBwd_LINP 
+         ( Itk . ItkLiteral 
+         , Stk . StkLongRealLit 
          , $1 . Scan . SaArgValue 
          , $1 . Scan . Position
          ) ;
      } . 
    E8WOId : StkExtendedLit
-     { FM3Pass1 . PutBwd_LNP 
-         ( Itk . ItkExtendedLit
+     { FM3Pass1 . PutBwd_LINP 
+         ( Itk . ItkLiteral
+         , Stk . StkExtendedLit 
          , $1 . Scan . SaArgValue 
          , $1 . Scan . Position
          ) ;
      } .
      
    E8WOId : StkCharLit
-     { FM3Pass1 . PutBwd_LNP 
-         ( Itk . ItkCharLit
+     { FM3Pass1 . PutBwd_LINP 
+         ( Itk . ItkLiteral 
+         , Stk . StkCharLit 
          , $1 . Scan . SaArgValue 
          , $1 . Scan . Position
          ) ;
      } .  
    E8WOId : StkWideCharLit
-     { FM3Pass1 . PutBwd_LNP 
-         ( Itk . ItkWideCharLit
+     { FM3Pass1 . PutBwd_LINP 
+         ( Itk . ItkLiteral 
+         , Stk . StkWideCharLit 
          , $1 . Scan . SaArgValue 
          , $1 . Scan . Position
          ) ;

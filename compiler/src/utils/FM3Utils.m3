@@ -341,14 +341,11 @@ MODULE FM3Utils
 *)
 
 (* EXPORTED: *) 
-; PROCEDURE SwitchTokL2R ( Tok : Itk . TokTyp ) : Itk . TokTyp 
+; PROCEDURE SwitchTokL2R ( Tok : Itk . TokTyp ) : Itk . TokTyp
+  (* Switch left and right tokens. *) 
 
   = BEGIN
       CASE Tok OF
-      | Itk . ItkTextLitLt => RETURN Itk . ItkTextLitRt 
-      | Itk . ItkTextLitRt => RETURN Itk . ItkTextLitLt 
-      | Itk . ItkWideTextLitLt => RETURN Itk . ItkWideTextLitRt 
-      | Itk . ItkWideTextLitRt => RETURN Itk . ItkWideTextLitLt
       ELSE RETURN Tok
       END (*CASE*) 
     END SwitchTokL2R 

@@ -124,17 +124,17 @@ INTERFACE FM3Pass1
    A capital letter denotes a value that is passed to the PutBwd_<x> procedure
    as a parameter.  The parameters to the procedure are in the same order
    as the capital letters in the procedure name.
-   A lower case letter denotes a value derived from the previous capical case-
+   A lower case letter denotes a value derived from the previous capital case-
    homonym of itself.
 
-   For a capital-letter token, the token parameter is always the left token of
+   For a capital-letter arg, the token parameter is always the left token of
    a (possibly singleton) group of related tokens.  For a lower-case-letter
    token, the PutBwd_* procedure  uses the previously passed in token as a base,
    converting as for a capital.
 
    The specific letter denotes which member of the token group, as follows: 
 
-     L,l  Left token
+     L,l  Left token or lone token
      R,r  Right token
      E,e  1st infix token or list separator token
      Z,z  2nd infix token
@@ -168,6 +168,13 @@ INTERFACE FM3Pass1
 
 ; PROCEDURE PutBwd_LNNP
     ( T : Itk . TokTyp ; N1 , N2 : LONGINT ; READONLY Position : tPosition )
+
+; PROCEDURE PutBwd_LINP
+    ( T : Itk . TokTyp
+    ; I : INTEGER
+    ; N : LONGINT
+    ; READONLY Position : tPosition
+    )
 
 ; PROCEDURE PutBwd_LP_rp
     ( T : Itk . TokTyp ; READONLY Position : tPosition )
