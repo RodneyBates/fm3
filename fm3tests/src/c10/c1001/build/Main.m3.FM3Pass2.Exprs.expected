@@ -10,9 +10,9 @@ From unit expression map, Expr No 1 16_****************
  ExpSelfExprNo = 1
  ExpPosition = [5,46]
  ExpOpcode = BOOLEAN
- ExpDownKind = <null>
- ExpUpKind = <null>
- ExpKind = <null>
+ ExpDownKind = EkNull
+ ExpUpKind = EkNull
+ ExpKind = EkNull
  ExpState = EsUnresolved
  ExpIsConst = FALSE
  ExpConstValIsKnown = FALSE
@@ -22,6 +22,7 @@ From unit expression map, Expr No 1 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprReservedIdRefTyp: *)
 
 
@@ -35,9 +36,9 @@ From unit expression map, Expr No 2 16_****************
  ExpSelfExprNo = 2
  ExpPosition = [5,27]
  ExpOpcode = INTEGER
- ExpDownKind = <null>
- ExpUpKind = <null>
- ExpKind = <null>
+ ExpDownKind = EkNull
+ ExpUpKind = EkNull
+ ExpKind = EkNull
  ExpState = EsUnresolved
  ExpIsConst = FALSE
  ExpConstValIsKnown = FALSE
@@ -47,6 +48,7 @@ From unit expression map, Expr No 2 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprReservedIdRefTyp: *)
 
 
