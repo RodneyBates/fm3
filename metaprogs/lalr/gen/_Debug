@@ -784,9 +784,9 @@ FormalsLt = 242
 FormalsList = 243
 FormalPlus = 244
 Formal = 245
-FormalLt = 246
-FormalType = 247
-FormalValue = 248
+FormalMode = 246
+FormalIds = 247
+FormalType = 248
 OptProcBody = 249
 ProcBodyLt = 250
 ProcBlock = 251
@@ -3154,26 +3154,26 @@ State 267 = {
     P190 FormalsList (Reduce) -> -Epsilon-.
     P191 FormalsList (Nonterm) -> °FormalPlus OptSemicolon 
     P192 FormalPlus (Nonterm) -> °Formal 
-    P200 Formal (Nonterm) -> °FormalValue OptDeclValue 
-    P199 FormalValue (Nonterm) -> °FormalType OptDeclType 
-    P198 FormalType (Nonterm) -> °FormalLt VarDeclIds 
-    P194 FormalLt (Reduce) -> -Epsilon-.
-    P195 FormalLt (Term) -> °StkRwVALUE 
-    P196 FormalLt (Term) -> °StkRwVAR 
-    P197 FormalLt (Term) -> °StkRwREADONLY 
+    P200 Formal (Nonterm) -> °FormalType OptDeclValue 
+    P199 FormalType (Nonterm) -> °FormalIds OptDeclType 
+    P198 FormalIds (Nonterm) -> °FormalMode VarDeclIds 
+    P194 FormalMode (Reduce) -> -Epsilon-.
+    P195 FormalMode (Term) -> °StkRwVALUE 
+    P196 FormalMode (Term) -> °StkRwVAR 
+    P197 FormalMode (Term) -> °StkRwREADONLY 
     P193 FormalPlus (2) -> °FormalPlus StkSemicolon Formal 
  } 
 
 State 268 = { 
-    P197 FormalLt (Reduce) -> StkRwREADONLY°
+    P197 FormalMode (Reduce) -> StkRwREADONLY°
  } 
 
 State 269 = { 
-    P195 FormalLt (Reduce) -> StkRwVALUE°
+    P195 FormalMode (Reduce) -> StkRwVALUE°
  } 
 
 State 270 = { 
-    P196 FormalLt (Reduce) -> StkRwVAR°
+    P196 FormalMode (Reduce) -> StkRwVAR°
  } 
 
 State 271 = { 
@@ -3194,13 +3194,13 @@ State 273 = {
 State 274 = { 
     P33 OptSemicolon (Reduce) -> StkSemicolon°
     P193 FormalPlus (Nonterm) -> FormalPlus StkSemicolon°Formal 
-    P200 Formal (Nonterm) -> °FormalValue OptDeclValue 
-    P199 FormalValue (Nonterm) -> °FormalType OptDeclType 
-    P198 FormalType (Nonterm) -> °FormalLt VarDeclIds 
-    P194 FormalLt (Reduce) -> -Epsilon-.
-    P195 FormalLt (Term) -> °StkRwVALUE 
-    P196 FormalLt (Term) -> °StkRwVAR 
-    P197 FormalLt (Term) -> °StkRwREADONLY 
+    P200 Formal (Nonterm) -> °FormalType OptDeclValue 
+    P199 FormalType (Nonterm) -> °FormalIds OptDeclType 
+    P198 FormalIds (Nonterm) -> °FormalMode VarDeclIds 
+    P194 FormalMode (Reduce) -> -Epsilon-.
+    P195 FormalMode (Term) -> °StkRwVALUE 
+    P196 FormalMode (Term) -> °StkRwVAR 
+    P197 FormalMode (Term) -> °StkRwREADONLY 
  } 
 
 State 275 = { 
@@ -3208,28 +3208,28 @@ State 275 = {
  } 
 
 State 276 = { 
-    P198 FormalType (Nonterm) -> FormalLt°VarDeclIds 
+    P198 FormalIds (Nonterm) -> FormalMode°VarDeclIds 
     P116 VarDeclIds (Nonterm) -> °DeclIdListElems 
     P59 DeclIdListElems (Term) -> °StkIdent 
     P60 DeclIdListElems (1) -> °DeclIdListElems StkComma StkIdent 
  } 
 
 State 277 = { 
-    P198 FormalType (Reduce) -> FormalLt VarDeclIds°
+    P198 FormalIds (Reduce) -> FormalMode VarDeclIds°
  } 
 
 State 278 = { 
-    P199 FormalValue (Nonterm) -> FormalType°OptDeclType 
+    P199 FormalType (Nonterm) -> FormalIds°OptDeclType 
     P111 OptDeclType (Reduce) -> -Epsilon-.
     P110 OptDeclType (Term) -> °StkColon Type 
  } 
 
 State 279 = { 
-    P199 FormalValue (Reduce) -> FormalType OptDeclType°
+    P199 FormalType (Reduce) -> FormalIds OptDeclType°
  } 
 
 State 280 = { 
-    P200 Formal (Nonterm) -> FormalValue°OptDeclValue 
+    P200 Formal (Nonterm) -> FormalType°OptDeclValue 
     P114 OptDeclValue (Reduce) -> -Epsilon-.
     P113 OptDeclValue (Term) -> °StkBecomes Expr 
  } 
@@ -3290,7 +3290,7 @@ State 282 = {
  } 
 
 State 283 = { 
-    P200 Formal (Reduce) -> FormalValue OptDeclValue°
+    P200 Formal (Reduce) -> FormalType OptDeclValue°
  } 
 
 State 284 = { 
@@ -4666,10 +4666,10 @@ State 115: (StkRwEND->(A600,P160)) (StkRwOVERRIDES->(A600,P160)) (StkIdent->(A28
 State 116: (StkRwEND->(A474,P34)) (StkRwOVERRIDES->(A474,P34)) (StkSemicolon->(A117)) (OptSemicolon->(A402,P161))
 State 117: (StkRwEND->(A473,P33)) (StkRwOVERRIDES->(A473,P33)) (StkIdent->(A286,P164)) (MethodDecl->(A393,P163)) (MethodDeclLt->(A118))
 State 118: (StkOpenParen->(A275,P188)) (Signature->(A394,P165)) (Formals->(A86)) (FormalsLt->(A119))
-State 119: (StkRwREADONLY->(A287,P197)) (StkRwVALUE->(A288,P195)) (StkRwVAR->(A289,P196)) (StkCloseParen->(A630,P190)) (StkIdent->(A634,P194)) (FormalsList->(A120)) (FormalPlus->(A121)) (Formal->(A401,P192)) (FormalLt->(A123)) (FormalType->(A124)) (FormalValue->(A125))
+State 119: (StkRwREADONLY->(A287,P197)) (StkRwVALUE->(A288,P195)) (StkRwVAR->(A289,P196)) (StkCloseParen->(A630,P190)) (StkIdent->(A634,P194)) (FormalsList->(A120)) (FormalPlus->(A121)) (Formal->(A401,P192)) (FormalMode->(A123)) (FormalIds->(A124)) (FormalType->(A125))
 State 120: (StkCloseParen->(A290,P189))
 State 121: (StkSemicolon->(A122)) (StkCloseParen->(A474,P34)) (OptSemicolon->(A400,P191))
-State 122: (StkRwREADONLY->(A287,P197)) (StkRwVALUE->(A288,P195)) (StkRwVAR->(A289,P196)) (StkCloseParen->(A473,P33)) (StkIdent->(A634,P194)) (Formal->(A395,P193)) (FormalLt->(A123)) (FormalType->(A124)) (FormalValue->(A125))
+State 122: (StkRwREADONLY->(A287,P197)) (StkRwVALUE->(A288,P195)) (StkRwVAR->(A289,P196)) (StkCloseParen->(A473,P33)) (StkIdent->(A634,P194)) (Formal->(A395,P193)) (FormalMode->(A123)) (FormalIds->(A124)) (FormalType->(A125))
 State 123: (StkIdent->(A283,P59)) (DeclIdListElems->(A105)) (VarDeclIds->(A396,P198))
 State 124: (StkSemicolon->(A551,P111)) (StkCloseParen->(A551,P111)) (StkColon->(A109)) (StkBecomes->(A551,P111)) (OptDeclType->(A397,P199))
 State 125: (StkSemicolon->(A554,P114)) (StkCloseParen->(A554,P114)) (StkBecomes->(A126)) (OptDeclValue->(A399,P200))

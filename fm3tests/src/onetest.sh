@@ -87,7 +87,7 @@ PLAIN="\\033[0m"
           echo -e $TAG $RED "Compiler failed." $PLAIN  
           ESALL=1  
         else #Compiler run ended normally.
-          echo -e "$TAG $GREEN Compile finished OK" $PLAIN | tee -a $TMPCOMPILELOG  
+          echo -e "$TAG ${GREEN}Compile finished OK" $PLAIN | tee -a $TMPCOMPILELOG  
         fi
         mv $TMPCOMPILELOG $TESTDIR/compilelog #Overlaying the old one.
       fi
@@ -241,9 +241,9 @@ else # Do this script.
   if test -f imports ; then IMPORTS=`cat imports`; else IMPORTS=""; fi
   
   ALLSRCS="$SOURCES $IMPORTS"
-  echo SOURCES = $SOURCES
-  echo IMPORTS = $IMPORTS
-  echo ALLSRCS = $ALLSRCS
+  echo -e $TAG " SOURCES = $SOURCES"
+  echo -e $TAG " IMPORTS = $IMPORTS"
+  echo -e $TAG " ALLSRCS = $ALLSRCS"
 
   # Optional file "streams" contains name suffixes of intermediate stream files.
   if test -f streams; then STREAMS=`streams`; else STREAMS="FM3Pass1 FM3Pass2"; fi
