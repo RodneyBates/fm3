@@ -10,9 +10,9 @@ From unit expression map, Expr No 1 16_****************
  ExpSelfExprNo = 1
  ExpPosition = [22,11]
  ExpOpcode = OBJECT
- ExpDownKind = <null>
- ExpUpKind = <unknown>
- ExpKind = <null>
+ ExpDownKind = EkNull
+ ExpUpKind = EkType
+ ExpKind = EkObjType
  ExpState = EsUnresolved
  ExpIsConst = FALSE
  ExpConstValIsKnown = FALSE
@@ -22,6 +22,7 @@ From unit expression map, Expr No 1 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype Expr1OpndTyp: *)
  ExpOpnd1 = NIL
  (* From subtype Expr2OpndTyp: *)
@@ -35,9 +36,9 @@ From unit expression map, Expr No 1 16_****************
 .. ExpSelfExprNo = 2
 .. ExpPosition = [23,11]
 .. ExpOpcode = <RidNull>
-.. ExpDownKind = <null>
-.. ExpUpKind = <unknown>
-.. ExpKind = <null>
+.. ExpDownKind = EkNull
+.. ExpUpKind = EkBrand
+.. ExpKind = EkBrand
 .. ExpState = EsUnresolved
 .. ExpIsConst = FALSE
 .. ExpConstValIsKnown = FALSE
@@ -47,6 +48,7 @@ From unit expression map, Expr No 1 16_****************
 .. ExpIsWritable = FALSE
 .. ExpIsPresent = FALSE
 .. ExpRefTypeIsUntraced = FALSE
+.. ExpArrayTypeIsOpen = FALSE
 .. (* From subtype Expr1OpndTyp: *)
 .. ExpOpnd1 = NIL
 .. (* From subtype Expr2OpndTyp: *)
@@ -72,9 +74,9 @@ From unit expression map, Expr No 3 16_****************
  ExpSelfExprNo = 3
  ExpPosition = [22,11]
  ExpOpcode = OBJECT
- ExpDownKind = <null>
- ExpUpKind = <unknown>
- ExpKind = <null>
+ ExpDownKind = EkNull
+ ExpUpKind = EkType
+ ExpKind = EkObjType
  ExpState = EsUnresolved
  ExpIsConst = FALSE
  ExpConstValIsKnown = FALSE
@@ -84,6 +86,7 @@ From unit expression map, Expr No 3 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype Expr1OpndTyp: *)
  ExpOpnd1 = NIL
  (* From subtype Expr2OpndTyp: *)
@@ -104,9 +107,9 @@ From unit expression map, Expr No 4 16_****************
  ExpSelfExprNo = 4
  ExpPosition = [22,32]
  ExpOpcode = INTEGER
- ExpDownKind = <null>
- ExpUpKind = <null>
- ExpKind = <null>
+ ExpDownKind = EkNull
+ ExpUpKind = EkNull
+ ExpKind = EkNull
  ExpState = EsUnresolved
  ExpIsConst = FALSE
  ExpConstValIsKnown = FALSE
@@ -116,6 +119,7 @@ From unit expression map, Expr No 4 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprReservedIdRefTyp: *)
 
 
@@ -129,9 +133,9 @@ From unit expression map, Expr No 5 16_****************
  ExpSelfExprNo = 5
  ExpPosition = [22,11]
  ExpOpcode = <RidNull>
- ExpDownKind = <null>
- ExpUpKind = <unknown>
- ExpKind = <null>
+ ExpDownKind = EkNull
+ ExpUpKind = EkBrand
+ ExpKind = EkBrand
  ExpState = EsUnresolved
  ExpIsConst = FALSE
  ExpConstValIsKnown = FALSE
@@ -141,6 +145,7 @@ From unit expression map, Expr No 5 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = FALSE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype Expr1OpndTyp: *)
  ExpOpnd1 = ExprNo 6 16_****************
 .. ExpStackLink = ExprNo 5 at 16_**************** [22,11]
@@ -152,9 +157,9 @@ From unit expression map, Expr No 5 16_****************
 .. ExpSelfExprNo = 6
 .. ExpPosition = [22,11]
 .. ExpOpcode = <RidNull>
-.. ExpDownKind = <null>
-.. ExpUpKind = <unknown>
-.. ExpKind = <null>
+.. ExpDownKind = EkNull
+.. ExpUpKind = EkSupertype
+.. ExpKind = EkSupertype
 .. ExpState = EsUnresolved
 .. ExpIsConst = FALSE
 .. ExpConstValIsKnown = FALSE
@@ -164,6 +169,7 @@ From unit expression map, Expr No 5 16_****************
 .. ExpIsWritable = FALSE
 .. ExpIsPresent = FALSE
 .. ExpRefTypeIsUntraced = FALSE
+.. ExpArrayTypeIsOpen = FALSE
 
  (* From subtype Expr2OpndTyp: *)
  ExpOpnd2 = NIL
@@ -183,9 +189,9 @@ From unit expression map, Expr No 7 16_****************
  ExpSelfExprNo = 7
  ExpPosition = [15,12]
  ExpOpcode = OBJECT
- ExpDownKind = <null>
- ExpUpKind = <unknown>
- ExpKind = <null>
+ ExpDownKind = EkNull
+ ExpUpKind = EkType
+ ExpKind = EkObjType
  ExpState = EsUnresolved
  ExpIsConst = FALSE
  ExpConstValIsKnown = FALSE
@@ -195,6 +201,7 @@ From unit expression map, Expr No 7 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype Expr1OpndTyp: *)
  ExpOpnd1 = NIL
  (* From subtype Expr2OpndTyp: *)
@@ -215,9 +222,9 @@ From unit expression map, Expr No 8 16_****************
  ExpSelfExprNo = 8
  ExpPosition = [19,19]
  ExpOpcode = <RidNull>
- ExpDownKind = <null>
- ExpUpKind = reference
- ExpKind = <null>
+ ExpDownKind = EkNull
+ ExpUpKind = EkNull
+ ExpKind = EkIdentRef
  ExpState = EsUnresolved
  ExpIsConst = FALSE
  ExpConstValIsKnown = FALSE
@@ -227,6 +234,7 @@ From unit expression map, Expr No 8 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprIdentRefTyp: *)
  ExpIdentDeclNo = 6
 
@@ -241,9 +249,9 @@ From unit expression map, Expr No 9 16_****************
  ExpSelfExprNo = 9
  ExpPosition = [15,12]
  ExpOpcode = <RidNull>
- ExpDownKind = <null>
- ExpUpKind = <unknown>
- ExpKind = <null>
+ ExpDownKind = EkNull
+ ExpUpKind = EkSupertype
+ ExpKind = EkSupertype
  ExpState = EsUnresolved
  ExpIsConst = FALSE
  ExpConstValIsKnown = FALSE
@@ -253,6 +261,7 @@ From unit expression map, Expr No 9 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = FALSE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
 
 
 From unit expression map, Expr No 10 16_****************
@@ -265,9 +274,9 @@ From unit expression map, Expr No 10 16_****************
  ExpSelfExprNo = 10
  ExpPosition = [7,12]
  ExpOpcode = OBJECT
- ExpDownKind = <null>
- ExpUpKind = <unknown>
- ExpKind = <null>
+ ExpDownKind = EkNull
+ ExpUpKind = EkType
+ ExpKind = EkObjType
  ExpState = EsUnresolved
  ExpIsConst = FALSE
  ExpConstValIsKnown = FALSE
@@ -277,6 +286,7 @@ From unit expression map, Expr No 10 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype Expr1OpndTyp: *)
  ExpOpnd1 = ExprNo 12 16_****************
 .. ExpStackLink = ExprNo 10 at 16_**************** [7,12]
@@ -288,9 +298,9 @@ From unit expression map, Expr No 10 16_****************
 .. ExpSelfExprNo = 12
 .. ExpPosition = [7,12]
 .. ExpOpcode = <RidNull>
-.. ExpDownKind = <null>
-.. ExpUpKind = reference
-.. ExpKind = <null>
+.. ExpDownKind = EkNull
+.. ExpUpKind = EkNull
+.. ExpKind = EkIdentRef
 .. ExpState = EsUnresolved
 .. ExpIsConst = FALSE
 .. ExpConstValIsKnown = FALSE
@@ -300,6 +310,7 @@ From unit expression map, Expr No 10 16_****************
 .. ExpIsWritable = FALSE
 .. ExpIsPresent = TRUE
 .. ExpRefTypeIsUntraced = FALSE
+.. ExpArrayTypeIsOpen = FALSE
 .. (* From subtype ExprIdentRefTyp: *)
 .. ExpIdentDeclNo = 3
 
@@ -314,9 +325,9 @@ From unit expression map, Expr No 10 16_****************
 .. ExpSelfExprNo = 11
 .. ExpPosition = [8,12]
 .. ExpOpcode = StkRTUniqueBrand
-.. ExpDownKind = <null>
-.. ExpUpKind = <unknown>
-.. ExpKind = <null>
+.. ExpDownKind = EkNull
+.. ExpUpKind = EkBrand
+.. ExpKind = EkNull
 .. ExpState = EsUnresolved
 .. ExpIsConst = FALSE
 .. ExpConstValIsKnown = FALSE
@@ -326,6 +337,7 @@ From unit expression map, Expr No 10 16_****************
 .. ExpIsWritable = FALSE
 .. ExpIsPresent = TRUE
 .. ExpRefTypeIsUntraced = FALSE
+.. ExpArrayTypeIsOpen = FALSE
 .. (* From subtype Expr1OpndTyp: *)
 .. ExpOpnd1 = NIL
 .. (* From subtype Expr2OpndTyp: *)
@@ -354,9 +366,9 @@ From unit expression map, Expr No 13 16_****************
  ExpSelfExprNo = 13
  ExpPosition = [5,12]
  ExpOpcode = OBJECT
- ExpDownKind = <null>
- ExpUpKind = <unknown>
- ExpKind = <null>
+ ExpDownKind = EkNull
+ ExpUpKind = EkType
+ ExpKind = EkObjType
  ExpState = EsUnresolved
  ExpIsConst = FALSE
  ExpConstValIsKnown = FALSE
@@ -366,6 +378,7 @@ From unit expression map, Expr No 13 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype Expr1OpndTyp: *)
  ExpOpnd1 = NIL
  (* From subtype Expr2OpndTyp: *)
@@ -386,9 +399,9 @@ From unit expression map, Expr No 14 16_****************
  ExpSelfExprNo = 14
  ExpPosition = [5,12]
  ExpOpcode = <RidNull>
- ExpDownKind = <null>
- ExpUpKind = <unknown>
- ExpKind = <null>
+ ExpDownKind = EkNull
+ ExpUpKind = EkBrand
+ ExpKind = EkBrand
  ExpState = EsUnresolved
  ExpIsConst = FALSE
  ExpConstValIsKnown = FALSE
@@ -398,6 +411,7 @@ From unit expression map, Expr No 14 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = FALSE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype Expr1OpndTyp: *)
  ExpOpnd1 = NIL
  (* From subtype Expr2OpndTyp: *)
@@ -418,9 +432,9 @@ From unit expression map, Expr No 15 16_****************
  ExpSelfExprNo = 15
  ExpPosition = [5,12]
  ExpOpcode = <RidNull>
- ExpDownKind = <null>
- ExpUpKind = <unknown>
- ExpKind = <null>
+ ExpDownKind = EkNull
+ ExpUpKind = EkSupertype
+ ExpKind = EkSupertype
  ExpState = EsUnresolved
  ExpIsConst = FALSE
  ExpConstValIsKnown = FALSE
@@ -430,5 +444,6 @@ From unit expression map, Expr No 15 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = FALSE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
 
 

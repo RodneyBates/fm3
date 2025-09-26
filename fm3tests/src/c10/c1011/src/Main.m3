@@ -22,7 +22,7 @@ MODULE Main
   ; U1 : REAL = 1.2 
   ; T1 : CHAR = 'L'    (* Duplicate declaration . *) 
   ; V1 = FALSE 
-
+ 
 ; BEGIN
   END Main 
 .
