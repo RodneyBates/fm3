@@ -24,7 +24,7 @@ From unit expression map, Expr No 1 16_****************
  ExpRefTypeIsUntraced = FALSE
  ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprRemoteRefTyp: *)
- ExpRemoteUnitNo = 3
+ ExpRemoteUnitNo = 2
  ExpRemoteDeclNo = 1
 
 
@@ -52,7 +52,7 @@ From unit expression map, Expr No 2 16_****************
  ExpRefTypeIsUntraced = FALSE
  ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprIdentRefTyp: *)
- ExpIdentDeclNo = 6
+ ExpIdentDeclNo = 5
 
 
 From unit expression map, Expr No 3 16_****************
@@ -79,7 +79,7 @@ From unit expression map, Expr No 3 16_****************
  ExpRefTypeIsUntraced = FALSE
  ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprIdentRefTyp: *)
- ExpIdentDeclNo = 6
+ ExpIdentDeclNo = 5
 
 
 From unit expression map, Expr No 4 16_****************
@@ -106,7 +106,7 @@ From unit expression map, Expr No 4 16_****************
  ExpRefTypeIsUntraced = FALSE
  ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprIdentRefTyp: *)
- ExpIdentDeclNo = 6
+ ExpIdentDeclNo = 5
 
 
 From unit expression map, Expr No 5 16_****************
@@ -133,7 +133,7 @@ From unit expression map, Expr No 5 16_****************
  ExpRefTypeIsUntraced = FALSE
  ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprIdentRefTyp: *)
- ExpIdentDeclNo = 9
+ ExpIdentDeclNo = 8
 
 
 From unit expression map, Expr No 6 16_****************
@@ -160,7 +160,7 @@ From unit expression map, Expr No 6 16_****************
  ExpRefTypeIsUntraced = FALSE
  ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprIdentRefTyp: *)
- ExpIdentDeclNo = 6
+ ExpIdentDeclNo = 5
 
 
 From unit expression map, Expr No 7 16_****************
@@ -187,7 +187,7 @@ From unit expression map, Expr No 7 16_****************
  ExpRefTypeIsUntraced = FALSE
  ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprIdentRefTyp: *)
- ExpIdentDeclNo = 8
+ ExpIdentDeclNo = 7
 
 
 From unit expression map, Expr No 8 16_****************
@@ -214,7 +214,7 @@ From unit expression map, Expr No 8 16_****************
  ExpRefTypeIsUntraced = FALSE
  ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprIdentRefTyp: *)
- ExpIdentDeclNo = 6
+ ExpIdentDeclNo = 5
 
 
 From unit expression map, Expr No 9 16_****************
@@ -241,7 +241,7 @@ From unit expression map, Expr No 9 16_****************
  ExpRefTypeIsUntraced = FALSE
  ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprIdentRefTyp: *)
- ExpIdentDeclNo = 7
+ ExpIdentDeclNo = 6
 
 
 From unit expression map, Expr No 10 16_****************
@@ -268,7 +268,7 @@ From unit expression map, Expr No 10 16_****************
  ExpRefTypeIsUntraced = FALSE
  ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprIdentRefTyp: *)
- ExpIdentDeclNo = 6
+ ExpIdentDeclNo = 5
 
 
 From unit expression map, Expr No 11 16_****************

@@ -4,7 +4,7 @@ From unit expression map, Expr No 1 16_****************
  ExpStackLink = NIL
  ExpType = NIL
  ExpRefConstVal = NIL
- ExpScalarConstVal = 31
+ ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
  ExpSelfExprNo = 1

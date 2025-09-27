@@ -8,7 +8,7 @@
  ItkOpenDeclListRt(L1(16_1),[3,2])
  ItkConstDeclLtPatch(C10,[3,8])
  ItkConstDeclRt([3,8])
- ItkIntLit(16_1f(31),[3,13])
+ ItkLiteral(96 StkIntLit,(16_1f),[3,13])
  ItkConstDeclValue([3,11])
  ItkDeclTypeAbsent([3,11])
  ItkConstDeclType([3,11])

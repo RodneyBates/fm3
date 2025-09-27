@@ -1,0 +1,54 @@
+From unit expression map, Expr No 0 NIL
+
+From unit expression map, Expr No 1 16_****************
+ ExpStackLink = NIL
+ ExpType = NIL
+ ExpRefConstVal = NIL
+ ExpScalarConstVal = 4
+ ExpLoTypeInfoRef = 
+ ExpReachedDeclNoSet = {}
+ ExpSelfExprNo = 1
+ ExpPosition = [4,13]
+ ExpOpcode = StkIntLit
+ ExpDownKind = EkNull
+ ExpUpKind = EkValue
+ ExpKind = EkLiteral
+ ExpState = EsResolved 
+ ExpIsConst = TRUE
+ ExpConstValIsKnown = TRUE
+ ExpIsUsable = TRUE
+ ExpIsLegalRecursive = TRUE
+ ExpIsDesignator = FALSE
+ ExpIsWritable = FALSE
+ ExpIsPresent = TRUE
+ ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
+ (* From subtype ExprConstValueTyp: *)
+
+
+From unit expression map, Expr No 2 16_****************
+ ExpStackLink = NIL
+ ExpType = NIL
+ ExpRefConstVal = NIL
+ ExpScalarConstVal = 23
+ ExpLoTypeInfoRef = 
+ ExpReachedDeclNoSet = {}
+ ExpSelfExprNo = 2
+ ExpPosition = [3,13]
+ ExpOpcode = StkIntLit
+ ExpDownKind = EkNull
+ ExpUpKind = EkValue
+ ExpKind = EkLiteral
+ ExpState = EsResolved 
+ ExpIsConst = TRUE
+ ExpConstValIsKnown = TRUE
+ ExpIsUsable = TRUE
+ ExpIsLegalRecursive = TRUE
+ ExpIsDesignator = FALSE
+ ExpIsWritable = FALSE
+ ExpIsPresent = TRUE
+ ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
+ (* From subtype ExprConstValueTyp: *)
+
+

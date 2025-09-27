@@ -1,6 +1,6 @@
 MODULE Main
 
-(* Test various ways of referencint things in other interfaces. *) 
+(* Test various ways of referencing things in other interfaces. *) 
 
 ; IMPORT I1
 ; IMPORT I1 AS IA1
