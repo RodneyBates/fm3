@@ -1,5 +1,0 @@
-[31mERROR: [0mMain.m3 (16,6) Identifier "INTEGER" is predefined and cannot be redeclared (2.8.2).
-[31mERROR: [0mMain.m3 (23,4) Identifier "INTEGER" is predefined and cannot be redeclared (2.8.2).
-[31mERROR: [0mMain.m3[30,4] Variable must have a type and/or an initial value. (2.4.3)
-[31mERROR: [0mMain.m3 (25,4) Duplicate declaration of "V1", ignored, original at (22,4).
-[31mERROR: [0mMain.m3 (18,6) Duplicate declaration of "V0", ignored, original at (15,6).
