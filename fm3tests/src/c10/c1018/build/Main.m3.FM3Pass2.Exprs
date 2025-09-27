@@ -24,7 +24,7 @@ From unit expression map, Expr No 1 16_****************
  ExpRefTypeIsUntraced = FALSE
  ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprRemoteRefTyp: *)
- ExpRemoteUnitNo = 3
+ ExpRemoteUnitNo = 2
  ExpRemoteDeclNo = 1
 
 
@@ -52,7 +52,7 @@ From unit expression map, Expr No 2 16_****************
  ExpRefTypeIsUntraced = FALSE
  ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprRemoteRefTyp: *)
- ExpRemoteUnitNo = 3
+ ExpRemoteUnitNo = 2
  ExpRemoteDeclNo = 1
 
 
@@ -80,7 +80,7 @@ From unit expression map, Expr No 3 16_****************
  ExpRefTypeIsUntraced = FALSE
  ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprRemoteRefTyp: *)
- ExpRemoteUnitNo = 3
+ ExpRemoteUnitNo = 2
  ExpRemoteDeclNo = 1
 
 
