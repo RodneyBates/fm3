@@ -70,7 +70,7 @@ PLAIN="\\033[0m"
         FM3=`abspath $FM3`
         # Optional file named "clargs" contains compile command line options.
         if test -f clargs
-        then CLARGS=`/clargs`
+        then CLARGS=`cat clargs`
         else CLARGS="--no-disasm-verbose --disasm --exprs --no-expr-addrs --no-std-sources" 
         fi 
         echo -e `$FM3 --version 2>&1` | tee -a $TMPCOMPILELOG 
