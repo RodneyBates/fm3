@@ -10,7 +10,7 @@
  ItkOpenDeclListLtPatch(C10,L5(16_5),[5,2])
  ItkOpenDeclListRt(L5(16_5),[5,2])
  ItkProcDefLtPatch(C618,Id7"P1",[25,2])
- ItkProcDefRt(Id7"P1",[25,15])
+ ItkProcDefRt(Id7"P1",[27,8])
  ItkOpenScopeRt(L8(16_8))
  ItkDeclScopeRt(L9(16_9))
  ItkOpenScopeRt(L9(16_9))

@@ -45,7 +45,7 @@
  ItkOpenScopeRt(L3(16_3))
  ItkDeclScopeRt(L3(16_3))
  ItkOpenScopeRt(L2(16_2))
- ItkProcDefRt(Id2"P",[5,14])
+ ItkProcDefRt(Id2"P",[7,8])
  ItkOpenDeclListRt(L1(16_1),[5,2])
  ItkModuleBegin(L1(16_1),[9,2])
  ItkStmtListLt(L0(16_0),[10,2])
