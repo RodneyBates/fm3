@@ -1,2 +1,5 @@
 [31mERROR: [0mMisnamed.i3[1,10] Interface name "misnamed" does not agree with file name "Misnamed.i3" (FM3 requirement).
 [31mERROR: [0mMisnamed.i3[3,6] Identifier "banname" at end of INTERFACE named "misnamed", at [1,10], must repeat its name (2.5.2).
+[32mINFO:  [0mMisnamed.i3 Pass 1 output file Misnamed.i3.FM3Pass1 has 41 bytes.
+[32mINFO:  [0mMisnamed.i3 Patch stack Misnamed.i3.FM3Patch peak size = 19 bytes.
+[32mINFO:  [0mMisnamed.i3 Pass 2 output file Misnamed.i3.FM3Pass2 has 40 bytes.

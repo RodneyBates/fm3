@@ -3,16 +3,16 @@ From unit expression map, Expr No 0 NIL
 From unit expression map, Expr No 1 16_****************
  ExpStackLink = NIL
  ExpType = NIL
- ExpRefConstVal = 16_****************
+ ExpRefConstVal = NIL
  ExpScalarConstVal = 31
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
  ExpSelfExprNo = 1
  ExpPosition = [3,13]
- ExpOpcode = <RidNull>
- ExpDownKind = <null>
- ExpUpKind = value
- ExpKind = <null>
+ ExpOpcode = StkIntLit
+ ExpDownKind = EkNull
+ ExpUpKind = EkValue
+ ExpKind = EkLiteral
  ExpState = EsResolved 
  ExpIsConst = TRUE
  ExpConstValIsKnown = TRUE
@@ -22,6 +22,7 @@ From unit expression map, Expr No 1 16_****************
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
  ExpRefTypeIsUntraced = FALSE
+ ExpArrayTypeIsOpen = FALSE
  (* From subtype ExprConstValueTyp: *)
 
 

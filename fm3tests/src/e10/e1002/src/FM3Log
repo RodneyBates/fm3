@@ -1,14 +1,6 @@
-Start unit Main.i3
-[32mFM3: [0mMain.i3 Compiling /home/rodney/proj/m3/fm3/git/compiler/AMD64_LINUX/../lib/Main.i3...
-[32mFM3: [0mMain.i3 Pass 1 output file Main.i3.FM3Pass1 has 70 bytes.
-[32mFM3: [0mMain.i3 Patch stack Main.i3.FM3Patch peak size = 35 bytes.
-[32mFM3: [0mMain.i3 Pass 2 output file Main.i3.FM3Pass2 has 62 bytes.
-[32mFM3: [0mMain.i3 Finished compiling Main.i3.
-End unit Main.i3
-Start unit test2.m3
-[32mFM3: [0mtest2.m3 Compiling /home/rodney/proj/m3/fm3/git/fm3tests/src/e10/e1002/src/test2.m3...
-[32mFM3: [0mtest2.m3 Pass 1 output file test2.m3.FM3Pass1 has 683 bytes.
-[32mFM3: [0mtest2.m3 Patch stack test2.m3.FM3Patch peak size = 58 bytes.
-[32mFM3: [0mtest2.m3 Pass 2 output file test2.m3.FM3Pass2 has 420 bytes.
-[32mFM3: [0mtest2.m3 Finished compiling test2.m3.
-End unit test2.m3
+[32mFM3:   [0mCompiling with command line: 
+         /home/rodney/proj/m3/fm3/git/compiler/AMD64_LINUX/FM3 --disasm --no-disasm-verbose --exprs --no-expr-addrs --no-std-sources test2.m3"
+[32mFM3:   [0mGetting dependencies of 
+         /home/rodney/proj/m3/fm3/git/fm3tests/src/e10/e1002/src/test2.m3 ...
+[32mFM3:   [0mCompiling test2.m3 ...
+[32mFM3:   [0mFinished compiling test2.m3.
