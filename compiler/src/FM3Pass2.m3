@@ -170,9 +170,6 @@ MODULE FM3Pass2
         
       (* More to be done.  One of three possible actions. *)
       (* Check first for an already patched token on top of the patch stack. *)
-; IF LPass1Coord = 39L
-  THEN LToken := 19
-  END (*IF*)
       ; IF LPass1Coord <= LPatchStackTopCoord
         THEN (* Give caller the token off the patch stack. *)
           <* ASSERT LPass1Coord = LPatchStackTopCoord
@@ -400,11 +397,6 @@ MODULE FM3Pass2
   ; BEGIN 
       (* Don't pop it. Something else wants it. *) 
       LScopeRef := FM3Scopes . DeclScopeStackTopRef
-(*    ; IF ExprObj
-         # LScopeRef ^ . ScpCurDefExprs [ LScopeRef ^ . ScpCurDefIsValue ]
-      THEN <* ASSERT FALSE *>
-      END (*IF*)
-*)
     END DefExprLt
 
 ; PROCEDURE UnaryOp ( Opcode : FM3Exprs . OpcodeTyp )
@@ -1534,8 +1526,10 @@ MODULE FM3Pass2
         ; HtPassTokenThru ( )
         
       | Itk . ItkInterfaceLt
-      =>  FM3Scopes . PruneDeclScopeStack ( LUnitRef ^ . UntDeclScopeStackBaseCt ) 
-        ; FM3Scopes . PruneOpenScopeStack ( LUnitRef ^ . UntOpenScopeStackBaseCt )
+      =>  FM3Scopes . PruneDeclScopeStack
+            ( LUnitRef ^ . UntDeclScopeStackBaseCt ) 
+        ; FM3Scopes . PruneOpenScopeStack
+            ( LUnitRef ^ . UntOpenScopeStackBaseCt )
         ; HtPassTokenThru ( )
 
       (* Discard these tokens: *)
@@ -1654,7 +1648,8 @@ MODULE FM3Pass2
           DO 
             Wr . PutText ( LWrT , FM3Messages . NLIndent )
           ; Wr . PutChar ( LWrT , '\"' )
-          ; LDeclNo := SCC [ RI ] + OslScopeRef ^ . ScpMinDeclNo (* Remove bias. *) 
+          ; LDeclNo
+              := SCC [ RI ] + OslScopeRef ^ . ScpMinDeclNo (* Remove bias. *) 
           ; LDeclRefn (* Implicit NARROW. *) 
               := VarArray_Int_Refany . Fetch
                    ( FM3Units . UnitStackTopRef ^ . UntDeclMap , LDeclNo )  
@@ -1666,7 +1661,8 @@ MODULE FM3Pass2
                   )
               ) 
           ; Wr . PutText ( LWrT , "\" " ) 
-          ; Wr . PutText ( LWrT , FM3Utils . PositionImage ( LDeclRefn . DclPos ) )
+          ; Wr . PutText
+              ( LWrT , FM3Utils . PositionImage ( LDeclRefn . DclPos ) )
           ; LDeclRefn ^ . DclIsUsable := FALSE 
           END (*FOR*) 
         END (*IF*) 
@@ -1990,7 +1986,9 @@ MODULE FM3Pass2
     END BadIdentMessage
 
 ; PROCEDURE PutNotUsable 
-    ( IdentRefAtom : FM3Base . AtomTyp ; READONLY Position : FM3Base . tPosition )
+    ( IdentRefAtom : FM3Base . AtomTyp
+    ; READONLY Position : FM3Base . tPosition
+    )
 
   = BEGIN
       IF AreInsideADecl ( )
@@ -2035,7 +2033,7 @@ MODULE FM3Pass2
     ; IF RefDeclNo >= LScopeMinDeclNo + LOpenScopeRef ^ . ScpDeclCt
       THEN RETURN
       END (*IF*)
-    (* The ref is to the current open scope.  Would it be legal in a recursion? *) 
+    (* Ref is to the current open scope.  Would it be legal in a recursion? *) 
     ; TYPECASE FM3Exprs . ExprStackTopObj OF 
       NULL => 
       | FM3Exprs . ExprTyp ( TRefExpr ) 
@@ -2506,7 +2504,7 @@ MODULE FM3Pass2
           ; DefExprRt ( LExprObj )
           ; DefExprLt ( LExprObj ) 
           ELSE (* Change to a reference token with DeclNo instead of Atom. *)
-(* Proably remove this case, since we are building Expr objects everywhere. *) 
+(* Probably remove this case, since we are building Expr objects everywhere. *) 
             PutBwdP2 ( Wp2RdBack , VAL ( LPosition . Column , LONGINT ) ) 
           ; PutBwdP2 ( Wp2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
           ; PutBwdP2 ( Wp2RdBack , VAL ( LRefDeclNo , LONGINT ) ) 
@@ -2914,17 +2912,6 @@ MODULE FM3Pass2
 
       ; RdBackFile . Flush ( UnitRef ^ . UntPass2OutRdBack ) 
 
-(* ** Not needed after rework of RdBackFile. **
-      (* Prepare for possible disassembly later. *) 
-      ; FM3Compile . MakePassFileCopy
-          ( UnitRef
-          , FM3Globals . Pass2OutSuffix
-          , UnitRef ^ . UntPass2OutRdBack
-          )
-        (*^ This copy may be used by disassembly called for by command-line
-            option, a later pass failure, or not at all. *)
-** *)
-            
       EXCEPT
       | FM3SharedUtils . Terminate ( Arg )
       => (*Re-*) RAISE FM3SharedUtils . Terminate ( Arg ) 
@@ -2944,13 +2931,6 @@ MODULE FM3Pass2
           )
       ; RdBackFile . Flush ( UnitRef ^ . UntPass2OutRdBack )
 
-(* ** Not needed after rework of RdBackFile. **
-      ; FM3Compile . MakePassFileCopy
-          ( UnitRef
-          , FM3Globals . Pass2OutSuffix
-          , UnitRef ^ . UntPass2OutRdBack
-          )
-** *)
       ; DisAsmPass2 ( UnitRef , DoEarlierPasses := TRUE )
 
       ; FM3Messages . FatalArr
@@ -3052,19 +3032,6 @@ MODULE FM3Pass2
               }
           )
       END (*IF*)
-
-(* This is now deferred until compile cleanup: 
-    ; IF NOT FM3Base . PassNo1 IN FM3CLArgs . PassNosToKeep 
-      THEN 
-        FM3SharedUtils . DeleteFile
-          ( Pathname . Join
-              ( UnitRef ^ . UntBuildDirPath 
-              , UnitRef ^ . UntPass1OutSimpleName
-              , NIL 
-              )
-          ) 
-      END (*IF*)
-*) 
 
     (* Report size and maybe disassemble pass 2 output file. *) 
     ; LPass2FullFileName

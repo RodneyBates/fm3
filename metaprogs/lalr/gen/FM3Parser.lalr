@@ -8,10 +8,11 @@
 
 (* File FM3Parser.lalr.  lalr specification for FM3Parser. *)
 
-(* WARNING: Do not put a lone single quote in brace-enclosed code, e.g., do not
-            write "{ (* Don't do this. *) }".  This probably applies to double
-            quote too.  lalr will run to the end of its internal buffer looking
-            for the quote's mate and give an unclosed-string error.
+(* WARNING: Do not put a lone single quote anywhere inside brace-enclosed code,
+            e.g., do not write "{ (* Don't do this. *) }".  This probably
+            applies to double quote too.  lalr will run to the end of its
+            internal buffer looking for the quote's mate and give an
+            unclosed-string error.
 *)
 
 (* Use metaprogram lalr to generate FM3Parser.i3, FM3Parser.m3, and
@@ -1206,7 +1207,7 @@ RULE
    /* Here, StkRwUNTRACED is not a reserved ident, but a syntactic
       delimiter that can occur only in this context. Elsewhere, the
       pair StkRwUNTRACED StkRwROOT behave like a compound reserved
-      identifier, but won't match this production RHS. 
+      identifier, but won't match this production's RHS. 
    */
      { FM3Pass1 . PutBwd_LCBP_eCP_rbP
          ( Itk . ItkREFTypeLt
@@ -1679,6 +1680,7 @@ RULE
    Signature : Formals ResultType Raises
      { VAR LToken : Itk . TokTyp ;
        BEGIN
+         $$ . Scan . SaAtom := $0 . Scan . SaAtom ; 
          IF $2 . PaBool (* Is present. *) 
          THEN LToken := Itk . ItkSignatureFuncLt
          ELSE LToken := Itk . ItkSignatureProperLt 
@@ -1794,10 +1796,6 @@ RULE
               ) ;
      } .
 
-   (* This is confusing.  OptDeclType, FormalType, and, confusingly,
-      FormalValue all carry type-is-present in their PaBool, in order
-      to get both  it and value-is-present to Formal.
-   *) 
    FormalIds /* Parsing at Left of type. */ : FormalMode VarDeclIds 
      { (* Default coord. *)
        $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
@@ -1938,7 +1936,7 @@ RULE
            FM3Messages . ErrorArr
              ( ARRAY OF REFANY
                  { "A procedure in a module must have a body (2.5)." } 
-             , $0 . Scan . Position
+             , $1 . Scan . Position
              ) ;
          END (*IF*) ;  
          LScopeRefDecl := FM3Scopes . PopDeclScopeRef ( ) (* Formals. *) ;
@@ -1947,7 +1945,7 @@ RULE
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkDeclScopeRt , LScopeRefDecl ^ . ScpSelfScopeNo ) ;
          FM3Pass1 . PutBwd_TIP
-           ( Itk . ItkProcDeclRt , $0 . Scan . SaAtom , $0 . Scan . Position ) ;
+           ( Itk . ItkProcDeclRt , $0 . Scan . SaAtom , $1 . Scan . Position ) ;
        END (*Block*) 
      } .
 
@@ -1986,7 +1984,7 @@ RULE
        END (*Block*) ; 
      } .
 
-   (* Body itself: *) 
+   (* A Present procedure body: *) 
    OptProcBody : ProcBodyLt ProcBlock NonreservedIdent StkSemicolon 
      { VAR LScopeRefDecl : FM3Scopes . ScopeRefTyp ; 
        VAR LScopeRefOpen : FM3Scopes . ScopeRefTyp ; 
@@ -2011,7 +2009,11 @@ RULE
            ( Itk . ItkOpenScopeRt , LScopeRefOpen ^ . ScpSelfScopeNo ) ;
 
          FM3Pass1 . PutBwd_TIP
-           ( Itk . ItkProcDefRt , $3 . Scan . SaAtom , $0 . Scan . Position ) ;
+           ( Itk . ItkProcDefRt
+           , $3 . Scan . SaAtom
+             (* ^NB! this is the *final* ident of the procedure. *) 
+           , $3 . Scan . Position
+           ) ;
              
          IF NOT FM3Units . CurrentUnitIsModule ( )
          THEN 
