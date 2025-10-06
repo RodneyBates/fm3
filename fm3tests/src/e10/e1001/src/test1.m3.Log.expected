@@ -14,7 +14,7 @@
 [31mERROR: [0mtest1.m3[26,0] A procedure in a module must have a body (2.5).
 [31mERROR: [0mtest1.m3[27,0] A procedure in a module must have a body (2.5).
 [31mERROR: [0mtest1.m3[29,0] A procedure in a module must have a body (2.5).
-[32mINFO:  [0mtest1.m3 Pass 1 output file test1.m3.FM3Pass1 has 880 bytes.
+[32mINFO:  [0mtest1.m3 Pass 1 output file test1.m3.FM3Pass1 has 874 bytes.
 [31mERROR: [0mtest1.m3[27,28] Undeclared identifier "U", (2.1).
 [31mERROR: [0mtest1.m3[26,30] Undeclared identifier "U", (2.1).
 [31mERROR: [0mtest1.m3[21,25] Undeclared identifier "R", (2.1).
@@ -24,4 +24,4 @@
 [31mERROR: [0mtest1.m3[26,12] Duplicate declaration of "P", ignored, original at [20,12].
 [31mERROR: [0mtest1.m3[27,12] Duplicate declaration of "P", ignored, original at [20,12].
 [32mINFO:  [0mtest1.m3 Patch stack test1.m3.FM3Patch peak size = 58 bytes.
-[32mINFO:  [0mtest1.m3 Pass 2 output file test1.m3.FM3Pass2 has 578 bytes.
+[32mINFO:  [0mtest1.m3 Pass 2 output file test1.m3.FM3Pass2 has 572 bytes.
