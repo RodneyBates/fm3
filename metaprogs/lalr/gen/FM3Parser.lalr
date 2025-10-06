@@ -1469,7 +1469,7 @@ RULE
      } . 
 
    MethodDecl : MethodDeclLt Signature 
-     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
+     { VAR LFormalsScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN
          $$ . PaInt (* Valid method count. *) := $1 . PaInt ; 
          IF $$ . PaInt > 0
@@ -1482,14 +1482,14 @@ RULE
              ) ;
          ELSE (* Method Id was invalid. *) 
            FM3Pass1 . PutBwd_LCI_ri
-             ( Itk . ItkSkipLt , $2 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
+             ( Itk . ItkSkipLt , $1 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
            INC ( FM3Globals . NextSkipNo ) ;
          END (*IF*) ; 
-         LScopeRef := FM3Scopes . PopDeclScopeRef ( ) (* Formals. *) ;
-         <* ASSERT LScopeRef ^ . ScpKind = Skt . SkFormals *>
-         FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
-         FM3Pass1 . PutBwd_TI
-           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ;
+         LFormalsScopeRef := FM3Scopes . PopDeclScopeRef ( ) (* Formals. *) ;
+         IF LFormalsScopeRef = NIL
+            OR LFormalsScopeRef ^ . ScpKind # Skt . SkFormals
+         THEN <* ASSERT FALSE , "No formals scope at right of method decl." *>
+         END (*IF*) ; 
        END (*Block*) 
      } . 
 
@@ -1662,20 +1662,20 @@ RULE
 (* ------------------ Procedure Types and Signatures ------------------- *)
 
    Type : StkRwPROCEDURE Signature  
-     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
+     { VAR LFormalsScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN
-         LScopeRef := FM3Scopes . PopDeclScopeRef ( ) (* Formals. *) ;
-         <* ASSERT LScopeRef ^ . ScpKind = Skt . SkFormals *> 
-         FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
-         FM3Pass1 . PutBwd_TI
-           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ;
+         LFormalsScopeRef := FM3Scopes . PopDeclScopeRef ( ) (* Formals. *) ;
+         IF LFormalsScopeRef = NIL
+            OR LFormalsScopeRef ^ . ScpKind # Skt . SkFormals
+         THEN <* ASSERT FALSE , "No formals scope at right of proc type." *>
+         END (*IF*) ; 
          FM3Pass1 . PutBwd_LCP_rp
            ( Itk . ItkProcTypeLt , $1 . PaPass1Coord , $1 . Scan . Position ) ;
        END (*Block*)
      } . 
 
 (* Procedure signature (Without PROCEDURE or Ident).
-   Works for procedure decl, procedure definition, type decl, method decl. *)  
+   Works for proc decl, proc definition, proc type decl, method decl. *)  
 
    Signature : Formals ResultType Raises
      { VAR LToken : Itk . TokTyp ;
@@ -1711,9 +1711,25 @@ RULE
      } .
 
    Formals : FormalsLt FormalsList StkCloseParen
-     { MakeListPos
-         ( $$ , Itk . ItkFormalsListLt , $2 . Scan . Position , $2 ) ;
+     { VAR LFormalsScopeRef : FM3Scopes . ScopeRefTyp ; 
+       BEGIN
+         MakeListPos
+           ( $$ , Itk . ItkFormalsListLt , $2 . Scan . Position , $2 ) ;
 (* FIXME^ Maybe different tokens for different formal modes? *)
+         LFormalsScopeRef := FM3Scopes . DeclScopeStackTopRef ;
+         IF LFormalsScopeRef = NIL
+            OR LFormalsScopeRef . ScpKind # Skt . SkFormals
+         THEN <* ASSERT FALSE , "No formals scope at right end." *>
+         END (*IF*) ; 
+         FM3Pass1 . DeclScopeRtL2R ( LFormalsScopeRef ) ;
+         FM3Pass1 . PutBwd_TI
+           ( Itk . ItkDeclScopeRt , LFormalsScopeRef ^ . ScpSelfScopeNo  ) ;
+         (* ^Write the formals' ItkDeclScopeRt here, where it will be part of
+            what is skipped, should a proc body be skipped.  But leave the scope
+            on pass1's scope stack 'til we know whether there is a proc body, so
+            the body scope can be made to point to it.
+         *)
+       END (*Block*) 
      } . 
 
    FormalsList : /* Empty formals list. */
@@ -1928,7 +1944,7 @@ RULE
    (* Body is absent: *) 
    OptProcBody : StkSemicolon
      /* Procedure body is absent in source code, not necessarily legally. */ 
-     { VAR LScopeRefDecl : FM3Scopes . ScopeRefTyp ;
+     { VAR LFormalsScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN 
          $$ . PaTok1 := Itk . ItkProcDeclLt ;  
          IF FM3Units . CurrentUnitIsModule ( )
@@ -1939,11 +1955,14 @@ RULE
              , $1 . Scan . Position
              ) ;
          END (*IF*) ;  
-         LScopeRefDecl := FM3Scopes . PopDeclScopeRef ( ) (* Formals. *) ;
-         <* ASSERT LScopeRefDecl ^ . ScpKind = Skt . SkFormals *> 
-         FM3Pass1 . DeclScopeRtL2R ( LScopeRefDecl ) ;
-         FM3Pass1 . PutBwd_TI
-           ( Itk . ItkDeclScopeRt , LScopeRefDecl ^ . ScpSelfScopeNo ) ;
+         LFormalsScopeRef := FM3Scopes . PopDeclScopeRef ( ) (* Formals. *) ;
+         IF LFormalsScopeRef = NIL
+            OR LFormalsScopeRef ^ . ScpKind # Skt . SkFormals
+         THEN <* ASSERT FALSE , "No formals scope at right of proc decl." *>
+         END (*IF*) ; 
+         (* The ItkDeclScopeRt for the formals scope was already written at
+            the rt end of the signature. 
+         *) 
          FM3Pass1 . PutBwd_TIP
            ( Itk . ItkProcDeclRt , $0 . Scan . SaAtom , $1 . Scan . Position ) ;
        END (*Block*) 
@@ -1958,23 +1977,22 @@ RULE
          $$ . PaTok1 := Itk . ItkProcDefLt ; 
          FM3Pass1 . PutBwd_TP
            ( Itk . ItkProcDefBody , $1 . Scan . Position ) ;
-         (* Make formals decl scope also open. *) 
-         LFormalsScopeRef := FM3Scopes . PopDeclScopeRef ( ) (* Formals. *) ; 
-         FM3Pass1 . DeclScopeRtL2R ( LFormalsScopeRef ) ;
-         FM3Pass1 . PutBwd_TI
-           ( Itk . ItkDeclScopeRt , LFormalsScopeRef ^ . ScpSelfScopeNo  ) ;
-         FM3Scopes . PushOpenScopeRef ( LFormalsScopeRef ) ;
-         FM3Pass1 . PutBwd_TI
-           ( Itk . ItkOpenScopeLt , LFormalsScopeRef ^ . ScpSelfScopeNo ) ;
-           
-         (* Create Body scope, for both decls and refs:*)
+
+         LFormalsScopeRef := FM3Scopes . PopDeclScopeRef ( ) (* Formals. *) ;
+         IF LFormalsScopeRef = NIL
+            OR LFormalsScopeRef ^ . ScpKind # Skt . SkFormals
+         THEN <* ASSERT FALSE , "No formals scope at left of proc body." *>
+         END (*IF*) ; 
+
+         (* Create Body scope, for both decls and refs & push on both stacks. *)
          LBodyScopeRef 
            := FM3Scopes . NewScopeRef
                 ( FM3Units . UnitStackTopRef
                 , Skt . SkProcBody  
                 , $1 . Scan . Position 
                 ) ;
-         LBodyScopeRef ^ . ScpFormalsScopeRef := LFormalsScopeRef ; 
+         LBodyScopeRef ^ . ScpFormalsScopeRef := LFormalsScopeRef ;
+         (* ^Hang the formals' scope off the body scope. *) 
          FM3Scopes . PushDeclScopeRef ( LBodyScopeRef ) ;
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkDeclScopeLt , LBodyScopeRef ^ . ScpSelfScopeNo ) ; 
@@ -1992,8 +2010,11 @@ RULE
          (* Default Coord and position. *) 
          $$ . PaTok1 := $1 . PaTok1 ;
          (* Body Scope: *) 
-         LScopeRefOpen := FM3Scopes . PopOpenScopeRef ( ) ; 
-         <* ASSERT LScopeRefOpen ^ . ScpKind = Skt . SkProcBody *> 
+         LScopeRefOpen := FM3Scopes . PopOpenScopeRef ( ) ;
+         (* ^Proc body scope. *) 
+         IF FM3Pass1 .  ProcBodyFormalsScope ( LScopeRefOpen ) = NIL
+         THEN <* ASSERT FALSE , "No formals scope at end of proc body." *>
+         END (*IF*) ; 
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkOpenScopeRt , LScopeRefOpen ^ . ScpSelfScopeNo ) ;
          LScopeRefDecl := FM3Scopes . PopDeclScopeRef ( ) ;
@@ -2002,12 +2023,6 @@ RULE
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkDeclScopeRt , LScopeRefDecl ^ . ScpSelfScopeNo ) ;
            
-         (* Formals scope, open only: *)
-         LScopeRefOpen := FM3Scopes . PopOpenScopeRef ( ) ; 
-         <* ASSERT LScopeRefOpen ^ . ScpKind = Skt . SkFormals *> 
-         FM3Pass1 . PutBwd_TI
-           ( Itk . ItkOpenScopeRt , LScopeRefOpen ^ . ScpSelfScopeNo ) ;
-
          FM3Pass1 . PutBwd_TIP
            ( Itk . ItkProcDefRt
            , $3 . Scan . SaAtom

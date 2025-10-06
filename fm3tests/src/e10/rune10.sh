@@ -18,6 +18,7 @@ runtest e1007
 runtest e1008 
 runtest e1009 
 runtest e1010 
-runtest e1011 
+runtest e1011
+runtest e1012 
 
 

@@ -439,6 +439,12 @@ INTERFACE FM3Pass1
     ( ScopeKind : FM3Scopes . ScopeKindTyp ; Position : FM3Base . tPosition )
   : FM3Scopes . ScopeRefTyp 
 
+; PROCEDURE ProcBodyFormalsScope ( ScopeRef : FM3Scopes . ScopeRefTyp )
+    : FM3Scopes . ScopeRefTyp
+    (* NIL if ScopeRef is not a proc body scope.  May assert fail if
+       it's not valid.  Else the formals scope of the proc body.
+    *) 
+
 ; PROCEDURE VerifyIdentNotReserved
     ( READONLY IdAttr : tParsAttribute
     ; Position : tPosition 

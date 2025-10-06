@@ -99,8 +99,7 @@ INTERFACE FM3Scopes
         (* ^IdentAtoms referenced within.  Gradually pruned to those
            also declared within. *)
       ; ScpDeclDict : FM3Dict_Int_Int . FixedTyp
-        (* ^IdentAtom to Decl no.
-            Includes formals, if signature or proc body scope. *)
+        (* ^IdentAtom to Decl no. *) 
         (* INVARIANT: Once ScpDeclIdSet and ScpDeclDict are both complete,
            Atom is in one IFF in the other.
         *)
@@ -116,7 +115,9 @@ INTERFACE FM3Scopes
       ; ScpCurDefExprs
           := ARRAY BOOLEAN (*Is value expr*) OF REFANY { NIL , .. } (*1*)
       ; ScpFormalsScopeRef : ScopeRefTyp
-        (* If this is a proc body scope, poits to its formals scope. *) 
+        (* When we are inside a proc body and this is its body scope,
+           points to its formals scope.
+        *) 
 (****
       ; ScpCurTypeExpr : REFANY := NIL (* FM3Defs . DeclDefTyp. *) (*1*) 
       ; ScpCurValueExpr : REFANY := NIL (* FM3Defs . DeclDefTyp. *) (*1*)

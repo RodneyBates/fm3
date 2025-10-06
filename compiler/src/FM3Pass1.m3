@@ -2033,7 +2033,6 @@ MODULE FM3Pass1
 
 (* These are called by the parser: *) 
 
-(*EXPORTED.*)
 ; PROCEDURE ScopeEmpty 
     ( ScopeKind : FM3Scopes . ScopeKindTyp ; Position : FM3Base . tPosition )
   : FM3Scopes . ScopeRefTyp 
@@ -2043,7 +2042,32 @@ MODULE FM3Pass1
         FM3Scopes . NewScopeRef
           ( FM3Units . UnitStackTopRef , ScopeKind , Position ) 
     END ScopeEmpty
+    
+(*EXPORTED.*)
+; PROCEDURE ProcBodyFormalsScope ( ScopeRef : FM3Scopes . ScopeRefTyp )
+    : FM3Scopes . ScopeRefTyp
+    (* NIL if ScopeRef is not a proc body scope.  May assert fail if
+       it's not valid.  Else the formals scope of the proc body.
+    *) 
 
+  = BEGIN
+      IF ScopeRef = NIL THEN RETURN NIL END (*IF*) 
+    ; IF ScopeRef ^ . ScpKind # Skt . SkProcBody 
+      THEN
+        IF ScopeRef ^ . ScpFormalsScopeRef # NIL
+        THEN <* ASSERT FALSE , "Non-proc-body scope has formals scope."*>
+        ELSE RETURN NIL 
+        END (*IF*) 
+      END (*IF*) 
+    ; IF ScopeRef ^ . ScpFormalsScopeRef = NIL 
+      THEN <* ASSERT FALSE , "Proc body scope has no formals scope."*> 
+      END (*IF*) 
+    ; IF ScopeRef ^ . ScpFormalsScopeRef ^ . ScpKind # Skt . SkFormals 
+      THEN <* ASSERT FALSE , "Formals scope of proc body has wrong kind."*> 
+      END (*IF*)
+    ; RETURN ScopeRef ^ . ScpFormalsScopeRef 
+    END ProcBodyFormalsScope
+ 
 (* Left-to-right scope handling.  These are called by the parser. *)
 
 ; PROCEDURE AtomOfStdId
@@ -2123,7 +2147,7 @@ MODULE FM3Pass1
         THEN (* LAtom duplicates export or import. Message already emitted. *)
           RETURN FALSE 
         ELSE
-          LFormalsScopeRef := WDeclScopeRef ^ . ScpFormalsScopeRef
+          LFormalsScopeRef := ProcBodyFormalsScope ( WDeclScopeRef ) 
         ; IF LFormalsScopeRef # NIL (* WDeclScopeRef is for a proc body. *) 
              AND IntSets . IsElement
                    ( LAtom , LFormalsScopeRef ^ . ScpDeclIdSet )

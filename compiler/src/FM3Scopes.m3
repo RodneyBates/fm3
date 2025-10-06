@@ -111,8 +111,10 @@ MODULE FM3Scopes
 
   = BEGIN (*PushDeclScopeRef*)
       IF ScopeRef = NIL THEN RETURN END (*IF*)
-    ; <* ASSERT ScopeRef ^ . ScpDeclStackHt = - 1 *>
-      IF DeclScopeStackTopRef = NIL
+    ; IF ScopeRef ^ . ScpDeclStackHt # - 1 
+      THEN <* ASSERT FALSE , "Scope repushed on decl scope stack." *>
+      END (*IF*) 
+    ; IF DeclScopeStackTopRef = NIL
       THEN ScopeRef ^ . ScpDeclStackHt := 1 
       ELSE ScopeRef ^ . ScpDeclStackHt
              := DeclScopeStackTopRef ^ . ScpDeclStackHt + 1
