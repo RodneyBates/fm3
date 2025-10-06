@@ -29,7 +29,7 @@
 [31mERROR: [0mIntf.i3[78,21] Reserved identifier "SUBARRAY" requires three actual parameters
 [31mERROR: [0mIntf.i3[80,21] Reserved identifier "SUBARRAY" requires three actual parameters
 [31mERROR: [0mIntf.i3[92,6] Identifier "Intfyy" at end of INTERFACE named "Intfxx", at [1,10], must repeat its name (2.5.2).
-[32mINFO:  [0mIntf.i3 Pass 1 output file Intf.i3.FM3Pass1 has 6711 bytes.
+[32mINFO:  [0mIntf.i3 Pass 1 output file Intf.i3.FM3Pass1 has 6710 bytes.
 [31mERROR: [0mIntf.i3[76,6] Duplicate declaration of "S1", ignored, original at [75,6].
 [31mERROR: [0mIntf.i3[78,6] Duplicate declaration of "S1", ignored, original at [75,6].
 [31mERROR: [0mIntf.i3[79,6] Duplicate declaration of "S1", ignored, original at [75,6].

@@ -1,6 +1,7 @@
 INTERFACE Intfxx
 
 (* FM3 test INTERFACE case for errors detected in Pass1. *)
+
 ; VAR Va : R1
 ; VAR Vb := C0
 
@@ -11,7 +12,6 @@ INTERFACE Intfxx
 
 ; PROCEDURE Body ( ) = BEGIN END Body 
 ; PROCEDURE Nobody ( ) 
-
 ; TYPE Ra = RECORD S : R1 ; T := C0 END 
 ; TYPE R = RECORD S ; T END
 ; TYPE Obja = OBJECT METHODS m ( F : CHAR ) END
@@ -45,7 +45,7 @@ INTERFACE Intfxx
 ; CONST C3b = Fake . S
 ; CONST C3 = CARDINAL . MUTEX
 
-; VAR Fake : Ra
+; VAR Fake : Ra 
 
 ; CONST C3b = Fake . S
 
@@ -88,9 +88,7 @@ INTERFACE Intfxx
 ; TYPE T3 = BRANDED "Brand3" REF R3 
 ; TYPE T4 = UNTRACED REF R4 
 ; TYPE T1 = UNTRACED BRANDED "Brand5" REF R5
-
 ; TYPE T0 = REF Not_R1
-
 ; END Intfyy
 .
   
