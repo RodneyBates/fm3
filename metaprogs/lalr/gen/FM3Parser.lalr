@@ -1872,6 +1872,8 @@ RULE
            FM3Pass1 . PutBwd_LCI_ri
              ( Itk . ItkSkipLt , $2 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
            INC ( FM3Globals . NextSkipNo ) ;
+           FM3Pass1 . PutBwd_TP
+             ( Itk . ItkDeclValAbsent , $2 . Scan . Position ) ; 
          ELSE (* Emit the declaration. *) 
            FM3Pass1 . PutBwd_LCP_rp 
              ( FM3Decls . TopDeclParseInfo ( ) . DiDeclTok 
