@@ -1,6 +1,41 @@
 [31mERROR: [0mIntf.i3[1,10] Interface name "Intfxx" does not agree with file name "Intf.i3" (FM3 requirement).
-[31mERROR: [0mIntf.i3[22,29] Reserved identifier "CHAR" cannot be declared (2.8.2).
-[31mERROR: [0mIntf.i3[95,6] Identifier "Intfyy" at end of INTERFACE named "Intfxx", at [1,10], must repeat its name (2.5.2).
-[32mINFO:  [0mIntf.i3 Pass 1 output file Intf.i3.FM3Pass1 has 176 bytes.
-[32mINFO:  [0mIntf.i3 Patch stack Intf.i3.FM3Patch peak size = 63 bytes.
-[32mINFO:  [0mIntf.i3 Pass 2 output file Intf.i3.FM3Pass2 has 103 bytes.
+[31mERROR: [0mIntf.i3[10,0] Variable must have a type and/or an initial value (2.4.3)
+[31mERROR: [0mIntf.i3[11,18] VALUE formal must have a type and/or a default (2.2.8)
+[31mERROR: [0mIntf.i3[11,20] VAR formal must have a type (2.2.8).
+[31mERROR: [0mIntf.i3[11,45] READONLY formal must have a type and/or a default (2.2.8)
+[31mERROR: [0mIntf.i3[11,55] VALUE formal must have a type and/or a default (2.2.8)
+[31mERROR: [0mIntf.i3[13,21] A procedure in an interface must not have a body (2.5.2).
+[31mERROR: [0mIntf.i3[16,20] Record field must have a type and/or a default (2.2.4)
+[31mERROR: [0mIntf.i3[16,24] Record field must have a type and/or a default (2.2.4)
+[31mERROR: [0mIntf.i3[18,34] VALUE formal must have a type and/or a default (2.2.8)
+[31mERROR: [0mIntf.i3[19,27] Object field must have a type and/or a default (2.2.9)
+[31mERROR: [0mIntf.i3[20,35] VALUE formal must have a type and/or a default (2.2.8)
+[31mERROR: [0mIntf.i3[21,29] Reserved identifier "CHAR" cannot be declared (2.8.2).
+[31mERROR: [0mIntf.i3[26,8] Reserved identifier "INTEGER" cannot be declared (2.8.2).
+[31mERROR: [0mIntf.i3[32,18] Reserved identifier "REAL" is not a function and cannot be called 
+[31mERROR: [0mIntf.i3[40,18] Reserved identifier "CHAR" cannot be subscripted (2.8.2).
+[31mERROR: [0mIntf.i3[46,13] Reserved identifier "CARDINAL" cannot have a qualifier. (2.8.2).
+[31mERROR: [0mIntf.i3[46,24] Reserved identifier "MUTEX" cannot be a qualifier. (2.8.2).
+[31mERROR: [0mIntf.i3[54,19] Reserved identifier "FALSE" cannot be dereferenced (2.8.2).
+[31mERROR: [0mIntf.i3[59,13] Reserved identifier "ABS" is a builtin function and must have a parameter list.
+[31mERROR: [0mIntf.i3[60,17] Reserved identifier "ABS" requires one actual parameter
+[31mERROR: [0mIntf.i3[62,17] Reserved identifier "ABS" requires one actual parameter
+[31mERROR: [0mIntf.i3[63,17] Reserved identifier "ABS" requires one actual parameter
+[31mERROR: [0mIntf.i3[65,17] Reserved identifier "MIN" requires two actual parameters
+[31mERROR: [0mIntf.i3[67,17] Reserved identifier "MIN" requires two actual parameters
+[31mERROR: [0mIntf.i3[69,16] Reserved identifier "NEW" requires one or more actual parameters
+[31mERROR: [0mIntf.i3[75,21] Reserved identifier "SUBARRAY" requires three actual parameters
+[31mERROR: [0mIntf.i3[76,21] Reserved identifier "SUBARRAY" requires three actual parameters
+[31mERROR: [0mIntf.i3[78,21] Reserved identifier "SUBARRAY" requires three actual parameters
+[31mERROR: [0mIntf.i3[80,21] Reserved identifier "SUBARRAY" requires three actual parameters
+[31mERROR: [0mIntf.i3[92,6] Identifier "Intfyy" at end of INTERFACE named "Intfxx", at [1,10], must repeat its name (2.5.2).
+[32mINFO:  [0mIntf.i3 Pass 1 output file Intf.i3.FM3Pass1 has 6711 bytes.
+[31mERROR: [0mIntf.i3[76,6] Duplicate declaration of "S1", ignored, original at [75,6].
+[31mERROR: [0mIntf.i3[78,6] Duplicate declaration of "S1", ignored, original at [75,6].
+[31mERROR: [0mIntf.i3[79,6] Duplicate declaration of "S1", ignored, original at [75,6].
+[31mERROR: [0mIntf.i3[80,6] Duplicate declaration of "S1", ignored, original at [75,6].
+[31mERROR: [0mIntf.i3[50,8] Duplicate declaration of "C3b", ignored, original at [45,8].
+[31mERROR: [0mIntf.i3[48,6] Duplicate declaration of "Fake", ignored, original at [42,6].
+[31mERROR: [0mIntf.i3[29,12] Illegal recursive declaration: "real"
+[32mINFO:  [0mIntf.i3 Patch stack Intf.i3.FM3Patch peak size = 85 bytes.
+[32mINFO:  [0mIntf.i3 Pass 2 output file Intf.i3.FM3Pass2 has 3447 bytes.
