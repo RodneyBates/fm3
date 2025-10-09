@@ -73,7 +73,8 @@ MODULE FM3 EXPORTS Main
         ; FM3Globals . Finalize ( ) 
         FINALLY FM3CLArgs . Cleanup ( ) 
         END (*FINALLY*)
-      ; LDebug := 11 (* Ordinary completion.*)
+      ; LDebug := 0 (* Normal completion.*)
+      ; RTProcess . Exit ( 0 ) 
       
       EXCEPT
       | FM3SharedUtils . Terminate ( EMsg ) 
@@ -85,7 +86,7 @@ MODULE FM3 EXPORTS Main
           END (*IF*) 
         ; Wr . Flush ( Stdio . stderr )
         ; LDebug := 13 (* Complete by exception Terminate. *) 
-        ; RTProcess . Exit ( 11 ) 
+        ; RTProcess . Exit ( 13 ) 
          
       | FM3SharedUtils . AllocationFailure ( EMsg ) 
       =>  Wr . PutText ( Stdio . stderr , Wr . EOL )

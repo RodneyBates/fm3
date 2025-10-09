@@ -78,10 +78,13 @@ PLAIN="\\033[0m"
         echo -e "$TAG Compiling in $SRCDIR," | tee -a $TMPCOMPILELOG 
         echo -e "$TAG   using command \"$CMD\"" | tee -a $TMPCOMPILELOG 
         cd $SRCDIR
-        $CMD 2>&1 | tee tmplog0 
+        $CMD 2>&1 > tmplog0 
         ES=$?
+        echo -e $TAG " Compiler exit status = " $ES >>tmplog0         
+        cat tmplog0
         cat tmplog0 >> $TMPCOMPILELOG
         rm tmplog0
+
         if [ $ES -ne 0 ]
         then #compiler failure 
           echo -e $TAG $RED "Compiler failed." $PLAIN  
@@ -313,7 +316,7 @@ else # Do this script.
   done # Sources
 
   # Summarize:
-  if [ $docheck = 0 ] 
+  if [ $docheck = 0 ] || [ $docompile = 0 ]
   then # Doing check.  Report results.
     if [ $ESALL -ne 0 ]
     then # Check failure 

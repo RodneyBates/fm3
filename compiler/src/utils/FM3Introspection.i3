@@ -48,7 +48,5 @@ INTERFACE FM3Introspection
 ; PROCEDURE IntSetsImage ( Set : IntSets . T  ) : TEXT
 
 ; END FM3Introspection
-  .
 
-
-  
+.
