@@ -411,11 +411,13 @@ MODULE FM3Exprs
         OVERRIDES appendDump := ExprMultiOpndAppend END
 
 ; PROCEDURE ExprMultiOpndAppend ( Expr : ExprMultiOpndTyp )
-    = BEGIN 
+    = BEGIN
+(*
         ExprAppend ( Expr ) 
       ; SubtypeComment ( "ExprMultiOpndTyp" )
       ; Field ( "ExpOpnds" , "" ) 
-      ; AppendExprList ( Expr . ExpOpnds ) 
+      ; AppendExprList ( Expr . ExpOpnds )
+*) 
       END ExprMultiOpndAppend
 
 (* Identifier references: *) 

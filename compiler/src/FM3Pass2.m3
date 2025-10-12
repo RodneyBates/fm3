@@ -64,7 +64,8 @@ MODULE FM3Pass2
 ; IMPORT RdBackFile
 
 ; TYPE Ekt = FM3Exprs . ExprKindTyp
-; TYPE EkSetTyp = FM3Exprs . EkSetTyp 
+; TYPE EkSetTyp = FM3Exprs . EkSetTyp
+; TYPE Skt = FM3Scopes . ScopeKindTyp 
 ; TYPE Ust = FM3Units . UnitStateTyp
 ; TYPE Dkt = FM3Decls . DeclKindTyp 
 
@@ -583,8 +584,7 @@ MODULE FM3Pass2
       ; LArgsExpr := NEW ( FM3Exprs . ExprArgsObj )
       ; LArgsExpr . ExpKind := Kind
       ; LArgsExpr . ExpUpKind := Ekt . EkValue 
-      ; LArgsExpr . ExpArgsList
-          := NEW ( REF ARRAY OF FM3Exprs . ExprTyp , LCt )
+      ; LArgsExpr . ExpArgsList := NEW ( FM3Exprs . ExprListRefTyp , LCt )
       ; LArgsExpr . ExpArgNo := LCt
       ; LArgsExpr . ExpPosition := LPosition
       ; FM3Exprs . PushExprStack ( LArgsExpr )
@@ -906,7 +906,7 @@ MODULE FM3Pass2
         ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefExprs
             := ARRAY BOOLEAN OF REFANY { NIL , .. }
         ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := TRUE
-            (* ^Value def coming up next. *)
+            (* ^Value def coming up next, R2L. *)
         ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDeclExprStackCt
             := FM3Exprs . ExprStackCt 
         ; HtPassTokenThru ( )
@@ -1016,7 +1016,7 @@ MODULE FM3Pass2
       | Itk . ItkDeclId
       => EVAL DeclIdR2L ( TokResult )
 
-(* FIXME: We now use different tokens for different declkinds, eg.
+(* FIXME: We currently use different tokens for different declkinds, eg.
     ItkVALUEFormalIdListElem.  But is that necessary? *)
 
       | Itk . ItkReservedIdRef
@@ -1129,27 +1129,30 @@ MODULE FM3Pass2
       , Itk . ItkWideTextLitLt
       => FM3Patch . DiscardOperands
            ( 3 (* Atom, position. *) , TokResult . TrRdBack ) 
-
+*)
       (* Enumeration type: *) 
 (* FIXME: Some of these need to copy the token and arguments. *)   
       | Itk . ItkEnumLitListRt
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN  
-            LLongInt := GetBwd ( TokResult . TrRdBack ) (* Enum lit count. *) 
-          ; HtExprRt
+            LCt := GetBwdInt ( TokResult . TrRdBack ) (* Enum lit count. *)
+          ; LScopeRef := FM3Scopes . DeclScopeStackTopRef
+          ; IF LScopeRef = NIL
+            OR LScopeRef . ScpKind # Skt . SkEnum
+            THEN <* ASSERT FALSE , "No enum decl scope at left end." *>
+            END (*IF*) 
+          ; HtExprRt (* Which will get and store the position. *) 
               ( NEW ( FM3Exprs . ExprEnumTypeTyp
                     , ExpUpKind := Ekt . EkEnumType 
-                    , ExpUpKind := Ekt . EkType 
-                    , ExpScopeRef1 := FM3Scopes . DeclScopeStackTopRef
+                    , ExpScopeRef1 := LScopeRef 
                     )
               ) 
           END (*IF*)
-*) 
 
       | Itk . ItkEnumLitListLt
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN
-            LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *)
+            LCt := GetBwdInt ( TokResult . TrRdBack ) (* Field count. *)
           ; LPosition := GetBwdPos ( TokResult . TrRdBack ) 
           END (*IF*)  
 
@@ -1478,7 +1481,7 @@ MODULE FM3Pass2
           END (*IF*) 
 
       | Itk . ItkActualsListSep
-      , Itk . ItkSubscriptsPlusListSep 
+      , Itk . ItkSubscriptsPlusListSep
        => LCt := GetBwdInt ( TokResult . TrRdBack ) (* Args count. *) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; LListElem := FM3Exprs . PopExprStack ( ) 
@@ -1487,8 +1490,10 @@ MODULE FM3Pass2
         ; DEC ( LArgsExpr . ExpArgNo )  
         ; LArgsExpr . ExpArgsList ^ [ LArgsExpr . ExpArgNo ] := LListElem
 
+   (* | Itk . ItkEnumLitListSep *)
+      
       | Itk . ItkActualsListLt
-      , Itk . ItkSubscriptsPlusListLt 
+      , Itk . ItkSubscriptsPlusListLt
        => LCt := GetBwdInt ( TokResult . TrRdBack ) (* Args count. *) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; IF LCt > 0
@@ -1782,7 +1787,7 @@ MODULE FM3Pass2
     
 ; PROCEDURE DeclIdR2L ( READONLY TokResult : TokResultTyp )
   : FM3Globals . DeclNoTyp
-  (* ^This will be the only decl of DeclIdAtom in its scope. *) 
+  (* ^This will be the only decl of DeclIdAtom in top decl scope. *) 
 
   = VAR DidAtom : FM3Base . AtomTyp
   ; VAR DidStdTok : FM3SrcToks . TokTyp 
@@ -1795,12 +1800,12 @@ MODULE FM3Pass2
 
     = VAR LScopeRef : FM3Scopes . ScopeRefTyp
 
-    ; BEGIN
+    ; BEGIN (* DidVisitRefNo *) 
         LScopeRef := FM3Scopes . DeclScopeStackTopRef 
       ; FM3Graph . AddArc
           ( (*IN OUT*) LScopeRef ^ . ScpDeclGraph
           , DidDeclNo - LScopeRef ^ . ScpMinDeclNo
-            (* ^Bias to zero in graph. *) 
+            (* v^Bias decl nos to zero in graph. *) 
           , RefNoI - LScopeRef ^ . ScpMinDeclNo
           )
       END DidVisitRefNo 
@@ -1858,13 +1863,13 @@ MODULE FM3Pass2
         | Dkt . DkVar
         =>  IF NOT FM3Scopes . DeclScopeStackTopRef ^ . ScpKind
                    IN FM3Scopes . ScopeKindSetOpen
-            THEN <* ASSERT FALSE , "VAR decl not in open decl scope" *> 
+            THEN <* ASSERT FALSE , "VAR decl in non-open decl scope" *> 
             END (*IF*)
 
         | Dkt . DkConst
         =>  IF NOT FM3Scopes . DeclScopeStackTopRef ^ . ScpKind
                    IN FM3Scopes . ScopeKindSetOpen
-            THEN <* ASSERT FALSE , "CONST decl not in open decl scope" *> 
+            THEN <* ASSERT FALSE , "CONST decl in non-open decl scope" *> 
             END (*IF*)
 
         | Dkt . DkType                        
@@ -1872,7 +1877,7 @@ MODULE FM3Pass2
         , Dkt . DkReveal 
         =>  IF NOT FM3Scopes . DeclScopeStackTopRef ^ . ScpKind
                    IN FM3Scopes . ScopeKindSetOpen
-            THEN <* ASSERT FALSE , "Ddecl not in open decl scope" *> 
+            THEN <* ASSERT FALSE , "Decl in non-open decl scope" *> 
             END (*IF*)
 
         | Dkt . DkVALUEFormal
@@ -1888,9 +1893,13 @@ MODULE FM3Pass2
 
         | Dkt . DkExc
         , Dkt . DkEnumLit
-        =>  <* ASSERT NOT FM3Scopes . DeclScopeStackTopRef ^ . ScpKind
-                          IN FM3Scopes . ScopeKindSetOpen
-            *>
+        =>  IF FM3Scopes . DeclScopeStackTopRef ^ . ScpKind
+               IN FM3Scopes . ScopeKindSetOpen
+            THEN <* ASSERT FALSE
+                 , "Exception or enum lit declared in open decl scope"
+                 *>
+            END (*IF*) 
+
 (* COMPLETEME *)
             
         | Dkt . DkNull
@@ -1925,21 +1934,21 @@ MODULE FM3Pass2
       THEN (* We are skipping output. *) RETURN FM3Globals . DeclNoNull 
       END (*IF*) 
 
-    ; WITH Wp2RdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack
+    ; WITH WOutRdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack
       DO 
         DidDeclNo
           := LookupDeclNoInScope
                ( FM3Scopes . DeclScopeStackTopRef ^ , DidAtom ) 
       ; <*ASSERT DidDeclNo # FM3Globals . DeclNoNull *>
         VarArray_Int_Refany . CallbackWithElem 
-          ( FM3Units . UnitStackTopRef ^ . UntDeclMap
+          ( FM3Units . UnitStackTopRef ^ . UntDeclMap 
           , DidDeclNo
           , DidVisitDecl
           )
-      ; PutBwdP2 ( Wp2RdBack , VAL ( DidPosition . Column , LONGINT ) ) 
-      ; PutBwdP2 ( Wp2RdBack , VAL ( DidPosition . Line , LONGINT ) ) 
-      ; PutBwdP2 ( Wp2RdBack , VAL ( DidDeclNo , LONGINT ) ) 
-      ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkDeclNo , LONGINT ) )
+      ; PutBwdP2 ( WOutRdBack , VAL ( DidPosition . Column , LONGINT ) ) 
+      ; PutBwdP2 ( WOutRdBack , VAL ( DidPosition . Line , LONGINT ) ) 
+      ; PutBwdP2 ( WOutRdBack , VAL ( DidDeclNo , LONGINT ) ) 
+      ; PutBwdP2 ( WOutRdBack , VAL ( Itk . ItkDeclNo , LONGINT ) )
       ; RETURN DidDeclNo
       END (*WITH*) 
     END DeclIdR2L
@@ -1994,12 +2003,12 @@ MODULE FM3Pass2
       IF AreInsideADecl ( )
       THEN PushExprIgnore ( Position )
       ELSE 
-        WITH Wp2RdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack
+        WITH WOutRdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack
         DO 
-          PutBwdP2 ( Wp2RdBack , VAL ( Position . Column , LONGINT ) ) 
-        ; PutBwdP2 ( Wp2RdBack , VAL ( Position . Line , LONGINT ) ) 
-        ; PutBwdP2 ( Wp2RdBack , VAL ( IdentRefAtom , LONGINT ) ) 
-        ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkIdRefAtomNotUsable , LONGINT ) )
+          PutBwdP2 ( WOutRdBack , VAL ( Position . Column , LONGINT ) ) 
+        ; PutBwdP2 ( WOutRdBack , VAL ( Position . Line , LONGINT ) ) 
+        ; PutBwdP2 ( WOutRdBack , VAL ( IdentRefAtom , LONGINT ) ) 
+        ; PutBwdP2 ( WOutRdBack , VAL ( Itk . ItkIdRefAtomNotUsable , LONGINT ) )
         END (*WITH*)
       END (*IF*) 
     END PutNotUsable
@@ -2483,7 +2492,7 @@ MODULE FM3Pass2
     ; IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
       THEN (* We are skipping output. *) RETURN 
       END (*IF*)
-    ; WITH Wp2RdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack 
+    ; WITH WOutRdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack 
       DO
       
         (* Look for a reference to a decl in an enclosing* open scope. *) 
@@ -2505,10 +2514,10 @@ MODULE FM3Pass2
           ; DefExprLt ( LExprObj ) 
           ELSE (* Change to a reference token with DeclNo instead of Atom. *)
 (* Probably remove this case, since we are building Expr objects everywhere. *) 
-            PutBwdP2 ( Wp2RdBack , VAL ( LPosition . Column , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LRefDeclNo , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkIdentRefWDeclNo , LONGINT ) )
+            PutBwdP2 ( WOutRdBack , VAL ( LPosition . Column , LONGINT ) ) 
+          ; PutBwdP2 ( WOutRdBack , VAL ( LPosition . Line , LONGINT ) ) 
+          ; PutBwdP2 ( WOutRdBack , VAL ( LRefDeclNo , LONGINT ) ) 
+          ; PutBwdP2 ( WOutRdBack , VAL ( Itk . ItkIdentRefWDeclNo , LONGINT ) )
           END (*IF*)
           
         (* Look for something [ex|im]ported. *) 
@@ -2562,11 +2571,11 @@ MODULE FM3Pass2
               ELSE (* Emit an unusable token. *)
                 PushExprIgnore ( LPosition )
               (* Read the following backwards: *) 
-              ; PutBwdP2 ( Wp2RdBack , VAL ( LPosition . Column , LONGINT ) ) 
-              ; PutBwdP2 ( Wp2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
-              ; PutBwdP2 ( Wp2RdBack , VAL ( LRefDeclNo , LONGINT ) ) 
-              ; PutBwdP2 ( Wp2RdBack , VAL ( LUnitNo , LONGINT ) ) 
-              ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExpImpRef , LONGINT ) )
+              ; PutBwdP2 ( WOutRdBack , VAL ( LPosition . Column , LONGINT ) ) 
+              ; PutBwdP2 ( WOutRdBack , VAL ( LPosition . Line , LONGINT ) ) 
+              ; PutBwdP2 ( WOutRdBack , VAL ( LRefDeclNo , LONGINT ) ) 
+              ; PutBwdP2 ( WOutRdBack , VAL ( LUnitNo , LONGINT ) ) 
+              ; PutBwdP2 ( WOutRdBack , VAL ( Itk . ItkExpImpRef , LONGINT ) )
               END (*IF*) 
             END (*IF*)
           ELSE (* It was already unusable. *) 
@@ -2603,7 +2612,7 @@ MODULE FM3Pass2
     ; IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
       THEN (* We are skipping output. *) RETURN 
       END (*IF*) 
-    ; WITH Wp2RdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack 
+    ; WITH WOutRdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack 
       DO
       
       (* Look for a left reference to a decl in an enclosing open scope. *) 
@@ -2632,20 +2641,20 @@ MODULE FM3Pass2
           ELSE (* Emit tokens for a dot Id applied to a DeclNo Id reference. *)
 
           (* Turn the qualident into separate Id ref and dot Id. *)
-            PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LAtomRt , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExprDotRt , LONGINT ) )
+            PutBwdP2 ( WOutRdBack , VAL ( LPosRt . Column , LONGINT ) ) 
+          ; PutBwdP2 ( WOutRdBack , VAL ( LPosRt . Line , LONGINT ) ) 
+          ; PutBwdP2 ( WOutRdBack , VAL ( LAtomRt , LONGINT ) ) 
+          ; PutBwdP2 ( WOutRdBack , VAL ( Itk . ItkExprDotRt , LONGINT ) )
 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Column , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Line , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LRefDeclNoLt , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkIdentRefWDeclNo , LONGINT ) )
+          ; PutBwdP2 ( WOutRdBack , VAL ( LPosLt . Column , LONGINT ) ) 
+          ; PutBwdP2 ( WOutRdBack , VAL ( LPosLt . Line , LONGINT ) ) 
+          ; PutBwdP2 ( WOutRdBack , VAL ( LRefDeclNoLt , LONGINT ) ) 
+          ; PutBwdP2 ( WOutRdBack , VAL ( Itk . ItkIdentRefWDeclNo , LONGINT ) )
 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( LAtomRt , LONGINT ) ) 
-          ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExprDotLt , LONGINT ) )
+          ; PutBwdP2 ( WOutRdBack , VAL ( LPosRt . Column , LONGINT ) ) 
+          ; PutBwdP2 ( WOutRdBack , VAL ( LPosRt . Line , LONGINT ) ) 
+          ; PutBwdP2 ( WOutRdBack , VAL ( LAtomRt , LONGINT ) ) 
+          ; PutBwdP2 ( WOutRdBack , VAL ( Itk . ItkExprDotLt , LONGINT ) )
           END (*IF*) 
 
         (* Look for something [ex|im]ported. *) 
@@ -2717,15 +2726,15 @@ MODULE FM3Pass2
 (* TODO     ^ Compute this            *) 
               ; DefExprRt ( LExprRemoteRef )
               ELSE 
-                PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
-              ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
-              ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Column , LONGINT ) ) 
-              ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Line , LONGINT ) ) 
-              ; PutBwdP2 ( Wp2RdBack , VAL ( LRemoteDeclNoInt , LONGINT ) ) 
+                PutBwdP2 ( WOutRdBack , VAL ( LPosRt . Column , LONGINT ) ) 
+              ; PutBwdP2 ( WOutRdBack , VAL ( LPosRt . Line , LONGINT ) ) 
+              ; PutBwdP2 ( WOutRdBack , VAL ( LPosLt . Column , LONGINT ) ) 
+              ; PutBwdP2 ( WOutRdBack , VAL ( LPosLt . Line , LONGINT ) ) 
+              ; PutBwdP2 ( WOutRdBack , VAL ( LRemoteDeclNoInt , LONGINT ) ) 
               ; PutBwdP2
-                  ( Wp2RdBack , VAL ( LIntfUnitRef ^ . UntSelfUnitNo , LONGINT ) ) 
+                  ( WOutRdBack , VAL ( LIntfUnitRef ^ . UntSelfUnitNo , LONGINT ) ) 
               ; PutBwdP2
-                  ( Wp2RdBack , VAL ( Itk . ItkQualIdUnitNoDeclNo , LONGINT ) )
+                  ( WOutRdBack , VAL ( Itk . ItkQualIdUnitNoDeclNo , LONGINT ) )
               END (*IF*) 
             ELSE (* Right ident is not known in left-named interface. *)
               IF NOT FM3Atom_OAChars . Key
@@ -2771,24 +2780,24 @@ MODULE FM3Pass2
               END (*WITH*)
             ; EVAL FM3Exprs . PopExprStack ( ) (* The WLtExpr. *) 
             ELSE 
-              PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
-            ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
-            ; PutBwdP2 ( Wp2RdBack , VAL ( LAtomRt , LONGINT ) ) 
-            ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExprDotRt , LONGINT ) )
+              PutBwdP2 ( WOutRdBack , VAL ( LPosRt . Column , LONGINT ) ) 
+            ; PutBwdP2 ( WOutRdBack , VAL ( LPosRt . Line , LONGINT ) ) 
+            ; PutBwdP2 ( WOutRdBack , VAL ( LAtomRt , LONGINT ) ) 
+            ; PutBwdP2 ( WOutRdBack , VAL ( Itk . ItkExprDotRt , LONGINT ) )
 
-            ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
-            ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
-            ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Column , LONGINT ) ) 
-            ; PutBwdP2 ( Wp2RdBack , VAL ( LPosLt . Line , LONGINT ) ) 
-            ; PutBwdP2 ( Wp2RdBack , VAL ( LRefDeclNoLt , LONGINT ) ) 
-            ; PutBwdP2 ( Wp2RdBack , VAL ( LUnitNoLt , LONGINT ) ) 
-            ; PutBwdP2 ( Wp2RdBack , VAL
+            ; PutBwdP2 ( WOutRdBack , VAL ( LPosRt . Column , LONGINT ) ) 
+            ; PutBwdP2 ( WOutRdBack , VAL ( LPosRt . Line , LONGINT ) ) 
+            ; PutBwdP2 ( WOutRdBack , VAL ( LPosLt . Column , LONGINT ) ) 
+            ; PutBwdP2 ( WOutRdBack , VAL ( LPosLt . Line , LONGINT ) ) 
+            ; PutBwdP2 ( WOutRdBack , VAL ( LRefDeclNoLt , LONGINT ) ) 
+            ; PutBwdP2 ( WOutRdBack , VAL ( LUnitNoLt , LONGINT ) ) 
+            ; PutBwdP2 ( WOutRdBack , VAL
                 ( Itk . ItkQualIdUnitNoDeclNo , LONGINT ) )
 
-            ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Column , LONGINT ) ) 
-            ; PutBwdP2 ( Wp2RdBack , VAL ( LPosRt . Line , LONGINT ) ) 
-            ; PutBwdP2 ( Wp2RdBack , VAL ( LAtomRt , LONGINT ) ) 
-            ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkExprDotLt , LONGINT ) )
+            ; PutBwdP2 ( WOutRdBack , VAL ( LPosRt . Column , LONGINT ) ) 
+            ; PutBwdP2 ( WOutRdBack , VAL ( LPosRt . Line , LONGINT ) ) 
+            ; PutBwdP2 ( WOutRdBack , VAL ( LAtomRt , LONGINT ) ) 
+            ; PutBwdP2 ( WOutRdBack , VAL ( Itk . ItkExprDotLt , LONGINT ) )
             END (*IF*) 
           ; RETURN 
           END (*IF*)

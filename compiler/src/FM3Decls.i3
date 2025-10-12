@@ -53,7 +53,8 @@ INTERFACE FM3Decls
            exclusive of a single node of some other DeclKind. 
         *) 
       ; DclOwningScopeRef : FM3Globals . ScopeRefTyp (* Containing scope *) 
-      ; DclSelfScopeRef : FM3Globals . ScopeRefTyp (* If this declares a scope *)
+      ; DclSelfScopeRef : FM3Globals . ScopeRefTyp
+        (* ^If this declares a scope *)
       ; DclDefType : FM3Exprs . ExprTyp := NIL 
       ; DclDefValue : FM3Exprs . ExprTyp := NIL 
       ; DclIdAtom : FM3Base . AtomTyp

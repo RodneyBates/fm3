@@ -2130,7 +2130,7 @@ MODULE FM3Pass1
   ; BEGIN (*DeclIdL2R*)
       IF NOT VerifyIdentNotReserved
                ( IdAttr , IdAttr . Scan . Position , "be declared" )
-      THEN (* Reserved Ident. Message already emitted. *)
+      THEN (* Reserved Ident. Message has already been emitted. *)
         RETURN FALSE
       END (*IF*) 
     ; LAtom := IdAttr . Scan . SaAtom 
@@ -2671,12 +2671,12 @@ MODULE FM3Pass1
 
     ; BEGIN (* Block. *)
 (*      <* ASSERT ScopeRef = FM3Scopes . DeclScopeStackTopRef *> *)
-        LUnitRef := ScopeRef ^ . ScpOwningUnitRef
-      (* Move Idents ref'd but to decls in this scope out to 
-         containing lookup scope.
-      *)
+        LUnitRef := ScopeRef ^ . ScpOwningUnitRef 
       ; IF ScopeRef = FM3Scopes . OpenScopeStackTopRef
         THEN (* A ref herein can refer to a decl herein. *) 
+        (* Move Idents ref'd but to decls in this scope out to 
+           containing lookup scope.
+        *)
           LEscapingRefSet
             := IntSets . Difference 
                  ( ScopeRef ^ . ScpRefIdSet , ScopeRef ^ . ScpDeclIdSet ) 

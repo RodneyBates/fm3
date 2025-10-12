@@ -13,6 +13,14 @@ INTERFACE FM3Exprs
    a single scope, these can refer to each other left-to-right, right-to-left,
    and cyclically.  This can require an arbitrary mix of jumping leftward
    and rigthward.  So we build in-memory, linked data structure for them.
+
+   Remember that in Modula3, programmer-written constructs that define types
+   are expressions along with value-computing expressions, and each can contain
+   one of the other.  So they are all part of what's called "expressions".
+
+   Some expressions contain things that are not strictly expressions, but are
+   needed as components, e.g. field lists. also data structure for them is
+   defined here.
 *)
 
 ; IMPORT Wr
@@ -118,7 +126,10 @@ INTERFACE FM3Exprs
   (* ExprNo, REF, and Position. *) 
 
 ; PROCEDURE DumpExpr
-    ( Expr : ExprTyp ; WrT : Wr . T ; VAR (*IN OUT*) ExprNosDumped : IntSets . T )
+    ( Expr : ExprTyp
+    ; WrT : Wr . T
+    ; VAR (*IN OUT*) ExprNosDumped : IntSets . T
+    )
     
 ; PROCEDURE ExprImage ( Expr : ExprTyp ) : TEXT 
   (* Contents of the object. *)
@@ -138,7 +149,6 @@ INTERFACE FM3Exprs
         ExpStackLink : ExprTyp := NIL
         (* Deeper on stack is parent expression.*)
         (* NIL in root expression of a tree. *)
-      ; ExpStackHt : INTEGER := 0  
       ; ExpType : ExprTyp := NIL
       ; ExpRefConstVal : REFANY := NIL
       ; ExpScalarConstVal : LONGINT := 0L
@@ -147,13 +157,61 @@ INTERFACE FM3Exprs
         (* ^DeclNos of ids declared in the same open scope and reached on
             paths that do not allow recursive declaration .
         *) 
-      ; ExpSelfExprNo : INTEGER (* < 0 for builtin ops. *) 
+      ; ExpOpnd1 : ExprTyp (* Left operand when binary. *)
+      ; ExpOpnd2 : ExprTyp (* Right Operand when binary. *) 
+      ; ExpOpnd3 : ExprTyp 
+      ; ExpQuadOpOpnd3 : ExprTyp 
+      ; ExpQuadOpOpnd4 : ExprTyp 
+        (* This can denote a ternary operator, in which case we use this
+           type with ExpQuadOpOpnd4 field just going unused.
+        *) 
+      ; ExpBinOpLtOpndKindsAllowed := ExprKindSetTyp { } 
+      ; ExpBinOpRtOpndKindsAllowed := ExprKindSetTyp { }
+        (* This can denote a unary operator, in which case we use this
+           type with 2nd operand fields just going unused.
+        *) 
+      ; ExpAddrReferent : ExprTyp := NIL (* Redundant to Opnd1? *) 
+      ; ExpOpenArrayElemType : ExprTyp := NIL (* Redundant to Opnd1? *)
+      ; ExpRangeBase : ExprTyp := NIL 
+      ; ExpSubrLo : ExprTyp := NIL 
+      ; ExpSubrHi : ExprTyp := NIL 
+      ; ExpDefElmtType : ExprTyp 
+      ; ExpDefSsType : ExprTyp (* NIL means open array. *)
+     (* ExpOpnd1 is supertype, non-NIL even if defaulted. *)
+     (* ExpOpnd2 is brand, NIL if no BRANDED. *) 
+      ; ExpObjOverrides : REFANY (* What do we need here? *) 
+      ; ExpObjScopeRef : FM3Scopes . ScopeRefTyp 
+      ; ExpObjBrandKind : FM3Parser . BrandKindTyp 
+      ; ExpScopeRef1 : FM3Scopes . ScopeRefTyp 
+      ; ExpArgPrefix : ExprTyp 
+      ; ExpArgsList : ExprListRefTyp
+
+
+      ; ExpQualDeclNoLt : FM3Globals . DeclNoTyp 
+      ; ExpDefDeclNo : FM3Globals . DeclNoTyp := FM3Globals . DeclNoNull
+      ; ExpQualIdAtomRt : FM3Base . AtomTyp 
+      ; ExpIdentDeclNo : FM3Globals . DeclNoTyp
+        (* ^ABS ( ExpIdentDeclNo < 0 ) is builtin opcode. *)
+      ; ExpRemoteUnitNo : FM3Globals . UnitNoTyp 
+      ; ExpRemoteDeclNo : FM3Globals . DeclNoTyp 
+      ; ExpDefIntfUnitNo : FM3Globals . UnitNoTyp := FM3Globals . UnitNoNull
+      ; ExpDefIntfDeclNo : FM3Globals . DeclNoTyp := FM3Globals . DeclNoNull
       ; ExpPosition : tPosition := FM3Base . PositionNull
       ; ExpOpcode : OpcodeTyp := FM3SrcToks . RidNull
+      ; ExpDotIdAtom : FM3Base . AtomTyp
+      ; ExpArgNo : INTEGER (* # of actuals still to be linked in. *) 
+      ; ExpBinOpActualsCt : INTEGER 
+      ; ExpStackHt : INTEGER := 0  
+      ; ExpSelfExprNo : INTEGER (* < 0 for builtin ops. *)
+
+
+
       ; ExpDownKind := Ekt . EkNull (* Inherited. *) 
       ; ExpUpKind := Ekt . EkNull (* Synthesized. *) 
       ; ExpKind : ExprKindTyp := Ekt . EkNull
       ; ExpState : ExprStateTyp := Est . EsUnresolved
+
+
       ; ExpIsConst : BOOLEAN := FALSE
       ; ExpConstValIsKnown : BOOLEAN := FALSE
       ; ExpIsUsable : BOOLEAN := TRUE
@@ -163,7 +221,10 @@ INTERFACE FM3Exprs
       ; ExpIsWritable : BOOLEAN := FALSE
       ; ExpIsPresent : BOOLEAN := TRUE  
       ; ExpRefTypeIsUntraced : BOOLEAN := FALSE   
-      ; ExpArrayTypeIsOpen : BOOLEAN := FALSE   
+      ; ExpArrayTypeIsOpen : BOOLEAN := FALSE
+      ; ExpREFIsUntraced : BOOLEAN 
+
+
       METHODS
         appendDump ( )  
       ; resolve ( ExprKind : ExprKindTyp ) : ExprStateTyp (* final. *) 
@@ -173,75 +234,53 @@ INTERFACE FM3Exprs
 ; TYPE Expr1OpndTyp <: Expr1OpndPublic
 ; TYPE Expr1OpndPublic
     =  ExprTyp OBJECT
-         ExpOpnd1 : ExprTyp (* Left operand when binary. *) 
       END 
 
 ; TYPE Expr2OpndTyp <: Expr2OpndPublic 
 ; TYPE Expr2OpndPublic
     =  Expr1OpndTyp OBJECT
-         ExpOpnd2 : ExprTyp (* Right Operand when binary. *) 
      END 
 
 ; TYPE Expr3OpndTyp <: Expr3OpndPublic 
 ; TYPE Expr3OpndPublic
     =  Expr2OpndTyp OBJECT
-         ExpOpnd3 : ExprTyp 
      END 
 
 ; TYPE ExprMultiOpndTyp <: ExprMultiOpndPublic 
 ; TYPE ExprMultiOpndPublic
     =  ExprTyp OBJECT
-         ExpOpnds : ExprListRefTyp  
      END 
 
 (* Identifier references: *) 
 ; TYPE ExprIdentRefTyp <: ExprIdentRefPublic 
 ; TYPE ExprIdentRefPublic (* Not builtin. *) 
     = ExprTyp OBJECT
-        ExpIdentDeclNo : FM3Globals . DeclNoTyp
-        (* ABS ( ExpIdentDeclNo < 0 ) is builtin opcode. *)
       END 
 
 ; TYPE ExprRemoteRefTyp <: ExprRemoteRefPublic 
 ; TYPE ExprRemoteRefPublic
     = ExprTyp OBJECT
-        ExpRemoteUnitNo : FM3Globals . UnitNoTyp 
-      ; ExpRemoteDeclNo : FM3Globals . DeclNoTyp 
       END 
 
 ; TYPE ExprQualIdDeclNoAtomTyp <: ExprQualIdDeclNoAtomPublic 
 ; TYPE ExprQualIdDeclNoAtomPublic
     = ExprTyp OBJECT
-        ExpQualDeclNoLt : FM3Globals . DeclNoTyp 
-      ; ExpQualIdAtomRt : FM3Base . AtomTyp 
       END
 
 ; TYPE ExprDotTyp <: ExprDotPublic 
 ; TYPE ExprDotPublic
     = Expr1OpndTyp OBJECT
-        ExpDotIdAtom : FM3Base . AtomTyp
       END
 
 (* Either a constant expression or one whose type is of interest. *) 
 ; TYPE ExprBinOpTyp <: ExprBinOpPublic 
 ; TYPE ExprBinOpPublic
     = Expr2OpndTyp OBJECT
-        ExpBinOpActualsCt : INTEGER 
-      ; ExpBinOpLtOpndKindsAllowed := ExprKindSetTyp { } 
-      ; ExpBinOpRtOpndKindsAllowed := ExprKindSetTyp { }
-        (* This can denote a unary operator, in which case we use this
-           type with 2nd operand fields just going unused.
-        *) 
       END
 
 ; TYPE ExprQuadOpTyp <: ExprQuadOpPublic 
 ; TYPE ExprQuadOpPublic
     = ExprBinOpTyp OBJECT
-        ExpQuadOpOpnd3 : ExprTyp 
-      ; ExpQuadOpOpnd4 : ExprTyp 
-        (* This can denote a ternary operator, in which case we use this
-           type with ExpQuadOpOpnd4 field just going unused.
-        *) 
       END
 
 (* ExprArgsObj is used both for a call (with actuals) and a subscripted array.
@@ -250,9 +289,6 @@ INTERFACE FM3Exprs
 ; TYPE ExprArgsObj <: ExprArgsPublic 
 ; TYPE ExprArgsPublic
     = ExprTyp OBJECT
-        ExpArgPrefix : ExprTyp 
-      ; ExpArgsList : ExprListRefTyp 
-      ; ExpArgNo : INTEGER (* # of actuals still to be linked in. *) 
       END
 
 ; TYPE ExprReservedIdRefTyp <: ExprReservedIdRefPublic 
@@ -276,7 +312,6 @@ INTERFACE FM3Exprs
 ; TYPE ExprAddrTypeTyp <: ExprAddrTypePublic 
 ; TYPE ExprAddrTypePublic (* Simple address type. *) 
     = Expr1OpndTyp OBJECT
-        ExpAddrReferent : ExprTyp := NIL (* Redundant to Opnd1? *) 
       END
 
 ; TYPE ExprREFTypeTyp <: ExprREFTypePublic 
@@ -284,34 +319,26 @@ INTERFACE FM3Exprs
     = Expr2OpndTyp OBJECT
         (* ExpOpnd1 is brand expression. *) 
         (* ExpOpnd2 is referent type or supertype. *) 
-        ExpREFIsUntraced : BOOLEAN 
       END
 
 ; TYPE ExprOpenArrayTypeTyp <: ExprOpenArrayTypePublic 
 ; TYPE ExprOpenArrayTypePublic (* REF type. *) 
     = Expr1OpndTyp OBJECT
-        ExpOpenArrayElemType : ExprTyp := NIL (* Redundant to Opnd1? *)
       END
 
 ; TYPE ExprSubrTypeTyp <: ExprSubrTypePublic 
 ; TYPE ExprSubrTypePublic (* Subrange *) 
     = Expr3OpndTyp OBJECT
-        ExpRangeBase : ExprTyp := NIL 
-      ; ExpSubrLo : ExprTyp := NIL 
-      ; ExpSubrHi : ExprTyp := NIL 
       END
 
 ; TYPE ExprArrayTypeTyp <: ExprArrayTypePublic 
 ; TYPE ExprArrayTypePublic
     = ExprTyp OBJECT
-        ExpDefElmtType : ExprTyp 
-      ; ExpDefSsType : ExprTyp (* NIL means open array. *)
       END
 
 ; TYPE Expr1ScopeTyp <: Expr1ScopePublic 
 ; TYPE Expr1ScopePublic
     = ExprTyp OBJECT
-        ExpScopeRef1 : FM3Scopes . ScopeRefTyp 
       END 
 
 ; TYPE ExprRecTypeTyp <: ExprRecTypePublic 
@@ -325,11 +352,6 @@ INTERFACE FM3Exprs
 ; TYPE ExprObjTypeTyp <: ExprObjTypePublic 
 ; TYPE ExprObjTypePublic 
     = Expr2OpndTyp OBJECT
-     (* ExpOpnd1 is supertype, non-NIL even if defaulted. *)
-     (* ExpOpnd2 is brand, NIL if no BRANDED. *) 
-        ExpObjOverrides : REFANY (* What do we need here? *) 
-      ; ExpObjScopeRef : FM3Scopes . ScopeRefTyp 
-      ; ExpObjBrandKind : FM3Parser . BrandKindTyp 
       END 
 
 (* Constant values: *)
@@ -342,14 +364,11 @@ INTERFACE FM3Exprs
 ; TYPE ExprDeclIdTyp <: ExprDeclIdPublic 
 ; TYPE ExprDeclIdPublic (* Reference to something declared in this unit. *)
     = ExprTyp OBJECT
-        ExpDefDeclNo : FM3Globals . DeclNoTyp := FM3Globals . DeclNoNull
       END 
 
 ; TYPE ExprExpImpDeclIdTyp <: ExprExpImpDeclIdPublic 
 ; TYPE ExprExpImpDeclIdPublic (* Reference to something declared in another unit. *) 
     = ExprTyp OBJECT
-        ExpDefIntfUnitNo : FM3Globals . UnitNoTyp := FM3Globals . UnitNoNull
-      ; ExpDefIntfDeclNo : FM3Globals . DeclNoTyp := FM3Globals . DeclNoNull
       END
 
 (* Expression operations: *)
