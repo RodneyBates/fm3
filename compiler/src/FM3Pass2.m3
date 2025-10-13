@@ -1153,7 +1153,7 @@ MODULE FM3Pass2
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN
             LCt := GetBwdInt ( TokResult . TrRdBack ) (* Field count. *)
-          ; LPosition := GetBwdPos ( TokResult . TrRdBack ) 
+          ; LPosition := GetBwdPos ( TokResult . TrRdBack )
           END (*IF*)  
 
       (* Record type: *) 
@@ -1898,7 +1898,13 @@ MODULE FM3Pass2
             THEN <* ASSERT FALSE
                  , "Exception or enum lit declared in open decl scope"
                  *>
-            END (*IF*) 
+            END (*IF*)
+(* TODO: Create an expression for the enumlit value with 
+            ExpScalarConstVal 
+              := LDeclRef ^ . DclSelfDeclNo
+                 - LDeclRef ^ . DclOwningScopeRef ^ . ScpMinDeclNo
+         and set LDeclRef ^ . DclDefValue to point to it.
+*) 
 
 (* COMPLETEME *)
             
