@@ -99,16 +99,21 @@ MODULE FM3DisAsm
   = VAR LTokenL : LONGINT
   ; VAR LToken : INTEGER 
 
-  ; PROCEDURE DibPutOpnd ( Label : TEXT ) RAISES { RdBackFile . BOF } 
+  ; PROCEDURE DibPutOpnd ( Label : TEXT )
+    : INTEGER
+    RAISES { RdBackFile . BOF } 
 
     = VAR LOpndL : LONGINT
+    ; VAR LOpndI : INTEGER 
     
     ; BEGIN
         LOpndL := ReadAndPutPrefix ( RBT , WrT )
+      ; LOpndI := VAL ( LOpndL , INTEGER ) 
       ; Wr . PutText ( WrT , OpndIndent ) 
       ; Wr . PutText ( WrT , Label ) 
       ; Wr . PutText ( WrT , Fmt . LongInt ( LOpndL ) )
       ; Wr . PutText ( WrT , Wr . EOL )
+      ; RETURN LOpndI 
       END DibPutOpnd  
 
   ; BEGIN (* DumpInterpretBwd *) 
@@ -129,9 +134,9 @@ MODULE FM3DisAsm
             ; Wr . PutText ( WrT , FM3SrcToks . Image ( LToken ) )
             ; Wr . PutText ( WrT , Wr . EOL )
 
-            ; DibPutOpnd ( "Atom: " )  
-            ; DibPutOpnd ( "Line: " )  
-            ; DibPutOpnd ( "Column: " )  
+            ; EVAL DibPutOpnd ( "Atom: " )  
+            ; EVAL DibPutOpnd ( "Line: " )  
+            ; EVAL DibPutOpnd ( "Column: " )  
 (*
             ; CASE Token OF
      (* Keep these consistent with Fm3ParsePass.UnnestStk: *) 
@@ -176,26 +181,35 @@ MODULE FM3DisAsm
             ; Wr . PutText ( WrT , FM3IntToks . Name ( LToken ) ) 
             ; Wr . PutText ( WrT , Wr . EOL )
             ; IF IntSets . IsElement ( LToken , GTokSetPatch )
-              THEN DibPutOpnd ( "Patch coord: " )
-              END (*IF*) 
+              THEN EVAL DibPutOpnd ( "Patch coord: " )
+              END (*IF*)
+            ; CASE LToken OF
+              | FM3IntToks . ItkDeclScopeLt 
+              , FM3IntToks . ItkDeclScopeRt 
+              , FM3IntToks . ItkOpenScopeLt 
+              , FM3IntToks . ItkDeclScopeRt
+              =>
+              ELSE
+              END (*CASE*) 
+              
             ; IF IntSets . IsElement ( LToken , GTokSetGE1Arg )
               THEN
-                DibPutOpnd ( "Opnd 0: " ) 
+                EVAL DibPutOpnd ( "Opnd 0: " )
               END (*IF*) 
             ; IF IntSets . IsElement ( LToken , GTokSetGE2Args )
-              THEN DibPutOpnd ( "Opnd 1: " ) 
+              THEN EVAL DibPutOpnd ( "Opnd 1: " ) 
               END (*IF*) 
             ; IF IntSets . IsElement ( LToken , GTokSetGE3Args )
-              THEN DibPutOpnd ( "Opnd 2: " ) 
+              THEN EVAL DibPutOpnd ( "Opnd 2: " ) 
               END (*IF*) 
             ; IF IntSets . IsElement ( LToken , GTokSetGE4Args )
-              THEN DibPutOpnd ( "Opnd 3: " ) 
+              THEN EVAL DibPutOpnd ( "Opnd 3: " ) 
               END (*IF*) 
             ; IF IntSets . IsElement ( LToken , GTokSetGE5Args )
-              THEN DibPutOpnd ( "Opnd 4: " ) 
+              THEN EVAL DibPutOpnd ( "Opnd 4: " ) 
               END (*IF*) 
             ; IF IntSets . IsElement ( LToken , GTokSetGE6Args )
-              THEN DibPutOpnd ( "Opnd 5: " ) 
+              THEN EVAL DibPutOpnd ( "Opnd 5: " ) 
               END (*IF*) 
             ; Wr . PutText ( WrT , Wr . EOL )
             
