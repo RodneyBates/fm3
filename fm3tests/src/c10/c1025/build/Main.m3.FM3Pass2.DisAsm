@@ -56,7 +56,7 @@
  ItkVarDeclIdListLt(L1(16_1),[20,6])
  ItkDeclNo(D7,[20,6])
  ItkVarDeclIdListRt(L1(16_1),[20,6])
- ItkVarDeclType([20,6])
+ ItkVarDeclType([20,8])
  ItkDeclTypeAbsent([20,8])
  ItkVarDeclValue([20,8])
  ItkExprTyp(L0(16_0))

@@ -46,7 +46,7 @@
  ItkIdRefAtom(Id2"A",[20,13])
  ItkVarDeclValue([20,8])
  ItkDeclTypeAbsent([20,8])
- ItkVarDeclType([20,6])
+ ItkVarDeclType([20,8])
  ItkVarDeclIdListLtPatch(C299,L1(16_1),[20,6])
  ItkVarDeclIdListRt(L1(16_1),[20,6])
  ItkDeclId(L10(16_a),Id8"V",L-9223372036854775808(16_8000000000000000),[20,6])
