@@ -634,7 +634,7 @@ MODULE FM3Pass2
         THEN
           IF AreInsideADecl ( )
           THEN 
-            WITH LExpr = NEW ( FM3Exprs . ExprConstValueTyp ) 
+            WITH LExpr = NEW ( FM3Exprs . ExprTyp ) 
             DO 
               LExpr . ExpScalarConstVal := LLongInt
             ; LExpr . ExpLoTypeInfoRef
@@ -673,7 +673,7 @@ MODULE FM3Pass2
         THEN
           IF AreInsideADecl ( )
           THEN 
-            WITH LExpr = NEW ( FM3Exprs . ExprConstValueTyp ) 
+            WITH LExpr = NEW ( FM3Exprs . ExprTyp ) 
             DO 
               LExpr . ExpScalarConstVal := LLongInt
             ; LExpr . ExpLoTypeInfoRef

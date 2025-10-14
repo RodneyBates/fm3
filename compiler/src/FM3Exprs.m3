@@ -171,7 +171,7 @@ MODULE FM3Exprs
 ; TYPE IndentStringsTyp = ARRAY [ 0 .. 1 ] OF TEXT
 ; VAR GIndentStrings : IndentStringsTyp 
 ; CONST IndentBase0
-    = ".. 2.. 4.. 6.. 8..10..12..14..16..18..20..22..24..26..28..30..32..34..36..38  "
+    = " .. 2.. 4.. 6.. 8..10..12..14..16..18..20..22..24..26..28..30..32..34..36..38  "
 ; CONST IndentBase1 
     = "   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |  "
 
@@ -344,20 +344,55 @@ MODULE FM3Exprs
 ; PROCEDURE ExprAppend ( Expr : ExprTyp )
     = BEGIN
         Field ( "ExpStackLink" , ExprRefImage ( Expr . ExpStackLink ) ) 
-      ; NestedField ( "ExpType" , Expr . ExpType ) 
       ; Field ( "ExpRefConstVal" , FM3Utils . RefanyImage ( Expr . ExpRefConstVal ) )  
-      ; Field
-          ( "ExpScalarConstVal" , Fmt . LongInt ( Expr . ExpScalarConstVal ) )  
-      ; Field
-          ( "ExpLoTypeInfoRef"
-          , "" (* LoTypeInfoRefTypImage ( Expr . ExpLoTypeInfoRef ) *)
-          )
+      ; Field ( "ExpScalarConstVal" , Fmt . LongInt ( Expr . ExpScalarConstVal ) )  
+      ; Field ( "ExpLoTypeInfoRef"
+              , "" (* LoTypeInfoRefTypImage ( Expr . ExpLoTypeInfoRef ) *)
+              )
       ; Field ( "ExpReachedDeclNoSet"
               , IntSets . Image ( Expr . ExpReachedDeclNoSet , IntSetsElemImage )
+              )
+      ; Field ( "ExpBinOpLtOpndKindsAllowed" 
+              , ExprKindSetMessage ( Expr . ExpBinOpLtOpndKindsAllowed ) 
+              )
+      ; Field ( "ExpBinOpRtOpndKindsAllowed" 
+              , ExprKindSetMessage ( Expr . ExpBinOpRtOpndKindsAllowed ) 
+              )
+      ; Field ( "ExpArgsList" , "" )
+      ; AppendExprList ( Expr . ExpArgsList ) 
+
+      ; Field ( "ExpObjOverrides"
+              , FM3Utils . RefanyImage ( Expr . ExpObjOverrides )
+              )  
+      ; Field ( "ExpObjDecls"
+              , FM3Scopes . ScopeRefImage ( Expr . ExpObjScopeRef )
+              )  
+      ; Field ( "ExpObjBrandKind"
+              , FM3Parser . BrandKindImage ( Expr . ExpObjBrandKind )
+              )  
+      ; Field ( "ExpScopeRef1"
+              , FM3Scopes . ScopeRefImage ( Expr . ExpScopeRef1 )
               ) 
-      ; Field ( "ExpSelfExprNo" , Fmt . Int ( Expr . ExpSelfExprNo ) ) 
+
+
+      ; Field ( "ExpQualDeclNoLt" , Fmt . Int ( Expr . ExpQualDeclNoLt ) ) 
+      ; Field ( "ExpDefDeclNo" , Fmt . Int ( Expr . ExpDefDeclNo ) )  
+      ; Field ( "ExpQualIdAtomRt" , AtomTypImage ( Expr . ExpQualIdAtomRt ) ) 
+      ; Field ( "ExpIdentDeclNo" , Fmt . Int ( Expr . ExpIdentDeclNo ) ) 
+      ; Field ( "ExpRemoteUnitNo" , Fmt . Int ( Expr . ExpRemoteUnitNo ) ) 
+      ; Field ( "ExpRemoteDeclNo" , Fmt . Int ( Expr . ExpRemoteDeclNo ) ) 
+      ; Field ( "ExpDefIntfUnitNo" , Fmt . Int ( Expr . ExpDefIntfUnitNo ) )  
+      ; Field ( "ExpDefIntfDeclNo" , Fmt . Int ( Expr . ExpDefIntfDeclNo ) )   
+
       ; Field ( "ExpPosition" , FM3Utils . PositionImage ( Expr . ExpPosition ) )
       ; Field ( "ExpOpcode" , FM3SrcToks . Image ( Expr . ExpOpcode ) )  
+      ; Field ( "ExpDotIdAtom" , AtomTypImage ( Expr . ExpDotIdAtom ) ) 
+      ; Field ( "ExpArgNo" , Fmt . Int ( Expr . ExpArgNo ) )  
+      ; Field ( "ExpBinOpActualsCt" , Fmt . Int ( Expr . ExpBinOpActualsCt ) )
+      ; Field ( "ExpStackHt" , Fmt . Int ( Expr . ExpStackHt ) ) 
+
+
+      ; Field ( "ExpSelfExprNo" , Fmt . Int ( Expr . ExpSelfExprNo ) ) 
       ; Field ( "ExpDownKind" , ExprKindImage ( Expr . ExpDownKind ) ) 
       ; Field ( "ExpUpKind" , ExprKindImage ( Expr . ExpUpKind ) ) 
       ; Field ( "ExpKind" , ExprKindImage ( Expr . ExpKind ) )  
@@ -365,15 +400,29 @@ MODULE FM3Exprs
       ; Field ( "ExpIsConst" , Fmt . Bool ( Expr . ExpIsConst ) )  
       ; Field ( "ExpConstValIsKnown" , Fmt . Bool ( Expr . ExpConstValIsKnown ) )
       ; Field ( "ExpIsUsable" , Fmt . Bool ( Expr . ExpIsUsable ) ) 
-      ; Field
-          ( "ExpIsLegalRecursive" , Fmt . Bool ( Expr . ExpIsLegalRecursive ) )
+      ; Field ( "ExpIsLegalRecursive" , Fmt . Bool ( Expr . ExpIsLegalRecursive ) )
       ; Field ( "ExpIsDesignator" , Fmt . Bool ( Expr . ExpIsDesignator ) ) 
       ; Field ( "ExpIsWritable" , Fmt . Bool ( Expr . ExpIsWritable ) )  
       ; Field ( "ExpIsPresent" , Fmt . Bool ( Expr . ExpIsPresent ) )  
-      ; Field
-          ( "ExpRefTypeIsUntraced" , Fmt . Bool ( Expr . ExpRefTypeIsUntraced ) )
-      ; Field
-          ( "ExpArrayTypeIsOpen" , Fmt . Bool ( Expr . ExpArrayTypeIsOpen ) )
+      ; Field ( "ExpREFIsUntraced" , Fmt . Bool ( Expr . ExpREFIsUntraced ) )
+      ; Field ( "ExpRefTypeIsUntraced" , Fmt . Bool ( Expr . ExpRefTypeIsUntraced ) )
+      ; Field ( "ExpArrayTypeIsOpen" , Fmt . Bool ( Expr . ExpArrayTypeIsOpen ) )
+
+      ; NestedField ( "ExpType" , Expr . ExpType ) 
+      ; NestedField ( "ExpOpnd1" , Expr . ExpOpnd1 ) 
+      ; NestedField ( "ExpOpnd2" , Expr . ExpOpnd2 ) 
+      ; NestedField ( "ExpOpnd3" , Expr . ExpOpnd3 ) 
+      ; NestedField ( "ExpQuadOpOpnd3" , Expr . ExpQuadOpOpnd3 ) 
+      ; NestedField ( "ExpQuadOpOpnd4" , Expr . ExpQuadOpOpnd4 ) 
+      ; NestedField ( "ExpAddrReferent" , Expr . ExpAddrReferent ) 
+      ; NestedField ( "ExpOpenArrayElemType" , Expr . ExpOpenArrayElemType ) 
+      ; NestedField ( "ExpRangeBase" , Expr . ExpRangeBase ) 
+      ; NestedField ( "ExpSubrLo" , Expr . ExpSubrLo ) 
+      ; NestedField ( "ExpSubrHi" , Expr . ExpSubrHi ) 
+      ; NestedField ( "ExpDefElmtType" , Expr . ExpDefElmtType ) 
+      ; NestedField ( "ExpDefSsType" , Expr . ExpDefSsType ) 
+      ; NestedField ( "ExpArgPrefix" , Expr . ExpArgPrefix ) 
+
       END ExprAppend
 
 ; REVEAL Expr1OpndTyp
@@ -383,7 +432,6 @@ MODULE FM3Exprs
     = BEGIN 
         ExprAppend ( Expr )
       ; SubtypeComment ( "Expr1OpndTyp" )
-      ; NestedField ( "ExpOpnd1" , Expr . ExpOpnd1 ) 
       END Expr1OpndAppend
 
 ; REVEAL Expr2OpndTyp
@@ -393,7 +441,6 @@ MODULE FM3Exprs
     = BEGIN 
         Expr1OpndAppend ( Expr ) 
       ; SubtypeComment ( "Expr2OpndTyp" )
-      ; NestedField ( "ExpOpnd2" , Expr . ExpOpnd2 ) 
       END Expr2OpndAppend
 
 ; REVEAL Expr3OpndTyp
@@ -403,7 +450,6 @@ MODULE FM3Exprs
     = BEGIN 
         Expr2OpndAppend ( Expr ) 
       ; SubtypeComment ( "Expr3OpndTyp" )
-      ; NestedField ( "ExpOpnd3" , Expr . ExpOpnd3 ) 
       END Expr3OpndAppend
 
 ; REVEAL ExprMultiOpndTyp
@@ -429,7 +475,6 @@ MODULE FM3Exprs
     = BEGIN 
         ExprAppend ( Expr ) 
       ; SubtypeComment ( "ExprIdentRefTyp" )
-      ; Field ( "ExpIdentDeclNo" , Fmt . Int ( Expr . ExpIdentDeclNo ) ) 
       END ExprIdentRefAppend (* Not builtin. *) 
 
 ; REVEAL ExprRemoteRefTyp
@@ -440,8 +485,6 @@ MODULE FM3Exprs
     = BEGIN 
         ExprAppend ( Expr ) 
       ; SubtypeComment ( "ExprRemoteRefTyp" )
-      ; Field ( "ExpRemoteUnitNo" , Fmt . Int ( Expr . ExpRemoteUnitNo ) ) 
-      ; Field ( "ExpRemoteDeclNo" , Fmt . Int ( Expr . ExpRemoteDeclNo ) ) 
       END ExprRemoteRefAppend
 
 ; REVEAL ExprQualIdDeclNoAtomTyp
@@ -452,8 +495,6 @@ MODULE FM3Exprs
     = BEGIN 
         ExprAppend ( Expr ) 
       ; SubtypeComment ( "ExprQualIdDeclNoAtomTyp" )
-      ; Field ( "ExpQualDeclNoLt" , Fmt . Int ( Expr . ExpQualDeclNoLt ) ) 
-      ; Field ( "ExpQualIdAtomRt" , AtomTypImage ( Expr . ExpQualIdAtomRt ) ) 
       END ExprQualIdDeclNoAtomAppend
 
 ; REVEAL ExprDotTyp
@@ -463,7 +504,6 @@ MODULE FM3Exprs
     = BEGIN 
         Expr1OpndAppend ( Expr ) 
       ; SubtypeComment ( "ExprDotTyp" )
-      ; Field ( "ExpDotIdAtom" , AtomTypImage ( Expr . ExpDotIdAtom ) ) 
       END ExprDotAppend
 
 (* Either a constant expression or one whose type is of interest. *) 
@@ -474,15 +514,6 @@ MODULE FM3Exprs
     = BEGIN 
         Expr2OpndAppend ( Expr ) 
       ; SubtypeComment ( "ExprBinOpTyp" )
-      ; Field ( "ExpBinOpActualsCt" , Fmt . Int ( Expr . ExpBinOpActualsCt ) )
-      ; Field
-          ( "ExpBinOpLtOpndKindsAllowed" 
-          , ExprKindSetMessage ( Expr . ExpBinOpLtOpndKindsAllowed ) 
-          )
-      ; Field
-          ( "ExpBinOpRtOpndKindsAllowed" 
-          , ExprKindSetMessage ( Expr . ExpBinOpRtOpndKindsAllowed ) 
-          )
       END ExprBinOpAppend
 
 (* Three or 4 operands: *) 
@@ -493,8 +524,6 @@ MODULE FM3Exprs
     = BEGIN 
         ExprBinOpAppend ( Expr ) 
       ; SubtypeComment ( "ExprQuadOpTyp" )
-      ; NestedField ( "ExpQuadOpOpnd3" , Expr . ExpQuadOpOpnd3 ) 
-      ; NestedField ( "ExpQuadOpOpnd4" , Expr . ExpQuadOpOpnd4 ) 
       END ExprQuadOpAppend
 
 ; REVEAL ExprArgsObj
@@ -504,10 +533,6 @@ MODULE FM3Exprs
     = BEGIN 
         ExprAppend ( Expr ) 
       ; SubtypeComment ( "ExprArgsObj" )
-      ; NestedField ( "ExpArgPrefix" , Expr . ExpArgPrefix ) 
-      ; Field ( "ExpArgsList" , "" )
-      ; AppendExprList ( Expr . ExpArgsList ) 
-      ; Field ( "ExpArgNo" , Fmt . Int ( Expr . ExpArgNo ) )  
       END ExprArgsAppend
 
 ; REVEAL ExprReservedIdRefTyp
@@ -554,7 +579,6 @@ MODULE FM3Exprs
     = BEGIN 
         Expr1OpndAppend ( Expr ) 
       ; SubtypeComment ( "ExprAddrTypeTyp" )
-      ; NestedField ( "ExpAddrReferent" , Expr . ExpAddrReferent ) 
       END ExprAddrTypeAppend (* REF type. *) 
 
 ; REVEAL ExprREFTypeTyp
@@ -575,7 +599,6 @@ MODULE FM3Exprs
     = BEGIN 
         Expr1OpndAppend ( Expr ) 
       ; SubtypeComment ( "ExprOpenArrayTypeTyp" )
-      ; NestedField ( "ExpOpenArrayElemType" , Expr . ExpOpenArrayElemType ) 
       END ExprOpenArrayTypeAppend (* REF type. *) 
 
 ; REVEAL ExprSubrTypeTyp
@@ -586,9 +609,6 @@ MODULE FM3Exprs
     = BEGIN 
         Expr3OpndAppend ( Expr ) 
       ; SubtypeComment ( "ExprSubrTypeTyp" )
-      ; NestedField ( "ExpRangeBase" , Expr . ExpRangeBase ) 
-      ; NestedField ( "ExpSubrLo" , Expr . ExpSubrLo ) 
-      ; NestedField ( "ExpSubrHi" , Expr . ExpSubrHi ) 
       END ExprSubrTypeAppend (* Subrange *) 
 
 ; REVEAL ExprArrayTypeTyp
@@ -599,8 +619,6 @@ MODULE FM3Exprs
     = BEGIN 
         ExprAppend ( Expr ) 
       ; SubtypeComment ( "ExprArrayTypeTyp" )
-      ; NestedField ( "ExpDefElmtType" , Expr . ExpDefElmtType ) 
-      ; NestedField ( "ExpDefSsType" , Expr . ExpDefSsType ) 
       END ExprArrayTypeAppend
 
 ; REVEAL Expr1ScopeTyp
@@ -610,9 +628,6 @@ MODULE FM3Exprs
     = BEGIN 
         ExprAppend ( Expr ) 
       ; SubtypeComment ( "Expr1ScopeTyp" )
-      ; Field ( "ExpScopeRef1"
-              , FM3Scopes . ScopeRefImage ( Expr . ExpScopeRef1 )
-              ) 
       END Expr1ScopeAppend
 
 ; REVEAL ExprRecTypeTyp
@@ -643,50 +658,28 @@ MODULE FM3Exprs
     = BEGIN
         Expr2OpndAppend ( Expr ) 
       ; SubtypeComment ( "ExprObjTypeTyp" )
-      ; Field ( "ExpObjOverrides"
-              , FM3Utils . RefanyImage ( Expr . ExpObjOverrides )
-              )  
-      ; Field ( "ExpObjDecls"
-              , FM3Scopes . ScopeRefImage ( Expr . ExpObjScopeRef )
-              )  
-      ; Field ( "ExpObjDecls"
-              , FM3Parser . BrandKindImage ( Expr . ExpObjBrandKind )
-              )  
       END ExprObjTypeAppend 
 
 (* Constant values: *)
-; REVEAL ExprConstValueTyp
-    = ExprConstValuePublic BRANDED OBJECT
-        OVERRIDES appendDump := ExprConstValueAppend END
-
-; PROCEDURE ExprConstValueAppend ( Expr : ExprConstValueTyp )
+; PROCEDURE ExprConstValueAppend ( Expr : ExprTyp )
     = BEGIN
         ExprAppend ( Expr ) 
       ; SubtypeComment ( "ExprConstValueTyp" )
       END ExprConstValueAppend
 
 (* References in source code: *) 
-; REVEAL ExprDeclIdTyp
-    = ExprDeclIdPublic BRANDED OBJECT
-        OVERRIDES appendDump := ExprDeclIdAppend END
 
-; PROCEDURE ExprDeclIdAppend ( Expr : ExprDeclIdTyp )
+; PROCEDURE ExprDeclIdAppend ( Expr : ExprTyp )
     = BEGIN 
         ExprAppend ( Expr ) 
       ; SubtypeComment ( "ExprDeclIdTyp" )
-      ; Field ( "ExpDefDeclNo" , Fmt . Int ( Expr . ExpDefDeclNo ) )  
       END ExprDeclIdAppend (* Reference to something declared in this unit. *)
 
-; REVEAL ExprExpImpDeclIdTyp
-    = ExprExpImpDeclIdPublic BRANDED OBJECT
-        OVERRIDES appendDump := ExprExpImpDeclIdAppend END
 
-; PROCEDURE ExprExpImpDeclIdAppend ( Expr : ExprExpImpDeclIdTyp )
+; PROCEDURE ExprExpImpDeclIdAppend ( Expr : ExprTyp )
     = BEGIN 
         ExprAppend ( Expr ) 
       ; SubtypeComment ( "ExprExpImpDeclIdTyp" )
-      ; Field ( "ExpDefIntfUnitNo" , Fmt . Int ( Expr . ExpDefIntfUnitNo ) )  
-      ; Field ( "ExpDefIntfDeclNo" , Fmt . Int ( Expr . ExpDefIntfDeclNo ) )   
      END ExprExpImpDeclIdAppend
      (* ^Reference to something declared in another unit. *) 
 

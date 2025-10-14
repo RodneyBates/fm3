@@ -353,7 +353,7 @@ INTERFACE FM3Exprs
 ; TYPE ExprObjTypePublic 
     = Expr2OpndTyp OBJECT
       END 
-
+(*
 (* Constant values: *)
 ; TYPE ExprConstValueTyp <: ExprConstValuePublic 
 ; TYPE ExprConstValuePublic
@@ -370,6 +370,9 @@ INTERFACE FM3Exprs
 ; TYPE ExprExpImpDeclIdPublic (* Reference to something declared in another unit. *) 
     = ExprTyp OBJECT
       END
+
+************** End of to-be-removed subtypes of ExprTyp. *) 
+
 
 (* Expression operations: *)
 (* Either a constant expression or one whose type is of interest. *) 
