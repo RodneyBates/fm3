@@ -2,14 +2,32 @@ From unit expression map, Expr No 0 NIL
 
 From unit expression map, Expr No 1 16_****************
  ExpStackLink = NIL
- ExpType = NIL
  ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
- ExpSelfExprNo = 1
+ ExpBinOpLtOpndKindsAllowed = <nothing>
+ ExpBinOpRtOpndKindsAllowed = <nothing>
+ ExpArgsList = 
+ ExpObjOverrides = NIL
+ ExpObjDecls = ScopeNo 3 at 16_**************** [16,6]
+ ExpObjBrandKind = BkAbsent
+ ExpScopeRef1 = NIL
+ ExpQualDeclNoLt = 0
+ ExpDefDeclNo = -9223372036854775808
+ ExpQualIdAtomRt = <NIL>
+ ExpIdentDeclNo = 0
+ ExpRemoteUnitNo = 0
+ ExpRemoteDeclNo = 0
+ ExpDefIntfUnitNo = 0
+ ExpDefIntfDeclNo = -9223372036854775808
  ExpPosition = [16,6]
  ExpOpcode = OBJECT
+ ExpDotIdAtom = <NIL>
+ ExpArgNo = 0
+ ExpBinOpActualsCt = 0
+ ExpStackHt = 1
+ ExpSelfExprNo = 1
  ExpDownKind = EkNull
  ExpUpKind = EkType
  ExpKind = EkObjType
@@ -21,28 +39,56 @@ From unit expression map, Expr No 1 16_****************
  ExpIsDesignator = FALSE
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
+ ExpREFIsUntraced = FALSE
  ExpRefTypeIsUntraced = FALSE
  ExpArrayTypeIsOpen = FALSE
- (* From subtype Expr1OpndTyp: *)
+ ExpType = NIL
  ExpOpnd1 = NIL
- (* From subtype Expr2OpndTyp: *)
  ExpOpnd2 = NIL
+ ExpOpnd3 = NIL
+ ExpQuadOpOpnd3 = NIL
+ ExpQuadOpOpnd4 = NIL
+ ExpAddrReferent = NIL
+ ExpOpenArrayElemType = NIL
+ ExpRangeBase = NIL
+ ExpSubrLo = NIL
+ ExpSubrHi = NIL
+ ExpDefElmtType = NIL
+ ExpDefSsType = NIL
+ ExpArgPrefix = NIL
+ (* From subtype Expr1OpndTyp: *)
+ (* From subtype Expr2OpndTyp: *)
  (* From subtype ExprObjTypeTyp: *)
- ExpObjOverrides = NIL
- ExpObjDecls = ScopeNo 3 at 16_**************** [16,6]
- ExpObjDecls = BkAbsent
 
 
 From unit expression map, Expr No 2 16_****************
  ExpStackLink = ExprNo 1 at 16_**************** [16,6]
- ExpType = NIL
  ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
- ExpSelfExprNo = 2
+ ExpBinOpLtOpndKindsAllowed = <nothing>
+ ExpBinOpRtOpndKindsAllowed = <nothing>
+ ExpArgsList = 
+ ExpObjOverrides = NIL
+ ExpObjDecls = NIL
+ ExpObjBrandKind = BkAbsent
+ ExpScopeRef1 = NIL
+ ExpQualDeclNoLt = 0
+ ExpDefDeclNo = -9223372036854775808
+ ExpQualIdAtomRt = <NIL>
+ ExpIdentDeclNo = 0
+ ExpRemoteUnitNo = 0
+ ExpRemoteDeclNo = 0
+ ExpDefIntfUnitNo = 0
+ ExpDefIntfDeclNo = -9223372036854775808
  ExpPosition = [16,6]
  ExpOpcode = <RidNull>
+ ExpDotIdAtom = <NIL>
+ ExpArgNo = 0
+ ExpBinOpActualsCt = 0
+ ExpStackHt = 2
+ ExpSelfExprNo = 2
  ExpDownKind = EkNull
  ExpUpKind = EkBrand
  ExpKind = EkBrand
@@ -54,28 +100,56 @@ From unit expression map, Expr No 2 16_****************
  ExpIsDesignator = FALSE
  ExpIsWritable = FALSE
  ExpIsPresent = FALSE
+ ExpREFIsUntraced = FALSE
  ExpRefTypeIsUntraced = FALSE
  ExpArrayTypeIsOpen = FALSE
- (* From subtype Expr1OpndTyp: *)
+ ExpType = NIL
  ExpOpnd1 = NIL
- (* From subtype Expr2OpndTyp: *)
  ExpOpnd2 = NIL
+ ExpOpnd3 = NIL
+ ExpQuadOpOpnd3 = NIL
+ ExpQuadOpOpnd4 = NIL
+ ExpAddrReferent = NIL
+ ExpOpenArrayElemType = NIL
+ ExpRangeBase = NIL
+ ExpSubrLo = NIL
+ ExpSubrHi = NIL
+ ExpDefElmtType = NIL
+ ExpDefSsType = NIL
+ ExpArgPrefix = NIL
+ (* From subtype Expr1OpndTyp: *)
+ (* From subtype Expr2OpndTyp: *)
  (* From subtype ExprObjTypeTyp: *)
- ExpObjOverrides = NIL
- ExpObjDecls = NIL
- ExpObjDecls = BkAbsent
 
 
 From unit expression map, Expr No 3 16_****************
  ExpStackLink = ExprNo 2 at 16_**************** [16,6]
- ExpType = NIL
  ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
- ExpSelfExprNo = 3
+ ExpBinOpLtOpndKindsAllowed = <nothing>
+ ExpBinOpRtOpndKindsAllowed = <nothing>
+ ExpArgsList = 
+ ExpObjOverrides = NIL
+ ExpObjDecls = NIL
+ ExpObjBrandKind = BkAbsent
+ ExpScopeRef1 = NIL
+ ExpQualDeclNoLt = 0
+ ExpDefDeclNo = -9223372036854775808
+ ExpQualIdAtomRt = <NIL>
+ ExpIdentDeclNo = 0
+ ExpRemoteUnitNo = 0
+ ExpRemoteDeclNo = 0
+ ExpDefIntfUnitNo = 0
+ ExpDefIntfDeclNo = -9223372036854775808
  ExpPosition = [16,6]
  ExpOpcode = <RidNull>
+ ExpDotIdAtom = <NIL>
+ ExpArgNo = 0
+ ExpBinOpActualsCt = 0
+ ExpStackHt = 0
+ ExpSelfExprNo = 3
  ExpDownKind = EkNull
  ExpUpKind = EkSupertype
  ExpKind = EkSupertype
@@ -87,20 +161,53 @@ From unit expression map, Expr No 3 16_****************
  ExpIsDesignator = FALSE
  ExpIsWritable = FALSE
  ExpIsPresent = FALSE
+ ExpREFIsUntraced = FALSE
  ExpRefTypeIsUntraced = FALSE
  ExpArrayTypeIsOpen = FALSE
+ ExpType = NIL
+ ExpOpnd1 = NIL
+ ExpOpnd2 = NIL
+ ExpOpnd3 = NIL
+ ExpQuadOpOpnd3 = NIL
+ ExpQuadOpOpnd4 = NIL
+ ExpAddrReferent = NIL
+ ExpOpenArrayElemType = NIL
+ ExpRangeBase = NIL
+ ExpSubrLo = NIL
+ ExpSubrHi = NIL
+ ExpDefElmtType = NIL
+ ExpDefSsType = NIL
+ ExpArgPrefix = NIL
 
 
 From unit expression map, Expr No 4 16_****************
  ExpStackLink = ExprNo 2 at 16_**************** [16,6]
- ExpType = NIL
  ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
- ExpSelfExprNo = 4
+ ExpBinOpLtOpndKindsAllowed = <nothing>
+ ExpBinOpRtOpndKindsAllowed = <nothing>
+ ExpArgsList = 
+ ExpObjOverrides = NIL
+ ExpObjDecls = NIL
+ ExpObjBrandKind = BkAbsent
+ ExpScopeRef1 = ScopeNo 1 at 16_**************** [1,0]
+ ExpQualDeclNoLt = 0
+ ExpDefDeclNo = -9223372036854775808
+ ExpQualIdAtomRt = <NIL>
+ ExpIdentDeclNo = 0
+ ExpRemoteUnitNo = 0
+ ExpRemoteDeclNo = 0
+ ExpDefIntfUnitNo = 0
+ ExpDefIntfDeclNo = -9223372036854775808
  ExpPosition = [10,6]
  ExpOpcode = <RidNull>
+ ExpDotIdAtom = <NIL>
+ ExpArgNo = 0
+ ExpBinOpActualsCt = 0
+ ExpStackHt = 0
+ ExpSelfExprNo = 4
  ExpDownKind = EkNull
  ExpUpKind = EkType
  ExpKind = EkNull
@@ -112,10 +219,24 @@ From unit expression map, Expr No 4 16_****************
  ExpIsDesignator = FALSE
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
+ ExpREFIsUntraced = FALSE
  ExpRefTypeIsUntraced = FALSE
  ExpArrayTypeIsOpen = FALSE
+ ExpType = NIL
+ ExpOpnd1 = NIL
+ ExpOpnd2 = NIL
+ ExpOpnd3 = NIL
+ ExpQuadOpOpnd3 = NIL
+ ExpQuadOpOpnd4 = NIL
+ ExpAddrReferent = NIL
+ ExpOpenArrayElemType = NIL
+ ExpRangeBase = NIL
+ ExpSubrLo = NIL
+ ExpSubrHi = NIL
+ ExpDefElmtType = NIL
+ ExpDefSsType = NIL
+ ExpArgPrefix = NIL
  (* From subtype Expr1ScopeTyp: *)
- ExpScopeRef1 = ScopeNo 1 at 16_**************** [1,0]
  (* From subtype ExprRecTypeTyp: *)
 
 
