@@ -1072,7 +1072,7 @@ RULE
      { $$ . Scan . Position := $0 . Scan . Position ;
        FM3Pass1 . PutBwd_EP 
          ( FM3Decls . TopDeclParseInfo ( ) . DiDeclTok
-         , $0 . Scan . Position 
+         , FM3Scanner . Attribute . Position 
          ) ;
      } .
      
@@ -1092,7 +1092,7 @@ RULE
      { $$ . Scan . Position := $0 . Scan . Position ;
        FM3Pass1 . PutBwd_ZP 
          ( FM3Decls . TopDeclParseInfo ( ) . DiDeclTok
-         , $0 . Scan . Position 
+         , FM3Scanner . Attribute . Position
          ) ;
      } .
      

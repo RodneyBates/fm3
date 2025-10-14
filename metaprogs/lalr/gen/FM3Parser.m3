@@ -3183,7 +3183,7 @@ yyNonterminal := 186;
                  yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr] . Scan . Position ;
                        FM3Pass1 . PutBwd_EP 
                          ( FM3Decls . TopDeclParseInfo ( ) . DiDeclTok
-                         , yyAttributeStack^[yyStackPtr] . Scan . Position 
+                         , FM3Scanner . Attribute . Position 
                          ) ;
                      
               | 550,390 => (* P110 OptDeclType (187): StkColon Type .*)
@@ -3210,7 +3210,7 @@ yyNonterminal := 188;
                  yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr] . Scan . Position ;
                        FM3Pass1 . PutBwd_ZP 
                          ( FM3Decls . TopDeclParseInfo ( ) . DiDeclTok
-                         , yyAttributeStack^[yyStackPtr] . Scan . Position 
+                         , FM3Scanner . Attribute . Position
                          ) ;
                      
               | 553,398 => (* P113 OptDeclValue (189): StkBecomes Expr .*)
