@@ -116,7 +116,7 @@
  ItkDeclValAbsent([5,0])
  ItkVarDeclValue([5,0])
  ItkDeclTypeAbsent([5,0])
- ItkVarDeclType([3,6])
+ ItkVarDeclType([5,0])
  ItkVarDeclIdListLtPatch(C10,L1(16_1),[3,6])
  ItkVarDeclIdListRt(L1(16_1),[3,6])
  ItkDeclId(L10(16_a),Id2"V0",L-9223372036854775808(16_8000000000000000),[3,6])
