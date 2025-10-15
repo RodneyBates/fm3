@@ -10,7 +10,7 @@
 
 (* These build FM3Expr.ExprTyp objects for builtin things.
    This happens in Pass2, when references to declared entities
-   can not yet be followed, so types are not known in general.
+   can not yet been followed, so types are not known in general.
    Builtin types and builtin constants (whose types are always
    builtin) have types set, but other builtins not.
 
@@ -404,9 +404,9 @@ MODULE FM3Builtins
 
 ; PROCEDURE NewOpExpr
     ( Opcode : FM3SrcToks . TokTyp ; Position : tPosition )
-  : FM3Exprs . ExprBinOpTyp
+  : FM3Exprs . ExprTyp
 
-  = VAR LResult : FM3Exprs . ExprQuadOpTyp
+  = VAR LResult : FM3Exprs . ExprTyp
 
   ; BEGIN
       CASE Opcode OF
@@ -414,13 +414,13 @@ MODULE FM3Builtins
       , Stk . StkPd_Long_Extract
       , Stk . StkPdInsert
       , Stk . StkPd_Long_Insert
-      => LResult := NEW ( FM3Exprs . ExprQuadOpTyp )
+      => LResult := NEW ( FM3Exprs . ExprTyp )
       ; LResult . ExpQuadOpOpnd3 := NIL 
       ; LResult . ExpQuadOpOpnd4 := NIL
       | Stk . StkRTUniqueBrand
-      => LResult := NEW ( FM3Exprs . ExprQuadOpTyp )
+      => LResult := NEW ( FM3Exprs . ExprTyp )
 (* TODO: ^V Use an appropriate Expr type. *) 
-      ELSE LResult := NEW ( FM3Exprs . ExprQuadOpTyp )
+      ELSE LResult := NEW ( FM3Exprs . ExprTyp )
       END (*CASE *) 
     ; LResult . ExpOpnd1 := NIL 
     ; LResult . ExpOpnd2 := NIL 

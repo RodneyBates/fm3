@@ -452,142 +452,142 @@ MODULE FM3ReservedIds
       END InitRes  
 
   ; BEGIN (*Init*)
-      InitRes ( Stk . RidABS , NEW ( Ex . Expr1OpndTyp ) , Ekt . EkFunc )
+      InitRes ( Stk . RidABS , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
     ; InitRidABS ( )
 
-    ; InitRes ( Stk . RidADDRESS , NEW ( Ex . ExprAddrTypeTyp ) , Ekt . EkType )
+    ; InitRes ( Stk . RidADDRESS , NEW ( Ex . ExprTyp ) , Ekt . EkType )
     ; InitRidADDRESS ( )
 
-    ; InitRes ( Stk . RidADR , NEW ( Ex . ExprBinOpTyp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidADR , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
     ; InitRidADR ( )
 
-    ; InitRes ( Stk . RidADRSIZE , NEW ( Ex . ExprBinOpTyp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidADRSIZE , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
     ; InitRidADRSIZE ( )
 
-    ; InitRes ( Stk . RidBITSIZE , NEW ( Ex . ExprBinOpTyp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidBITSIZE , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
     ; InitRidBITSIZE ( )
 
-    ; InitRes ( Stk . RidBOOLEAN , NEW ( Ex . ExprIntTypeTyp ) , Ekt . EkType )
+    ; InitRes ( Stk . RidBOOLEAN , NEW ( Ex . ExprTyp ) , Ekt . EkType )
     ; InitRidBOOLEAN ( )
 
-    ; InitRes ( Stk . RidBYTESIZE , NEW ( Ex . ExprBinOpTyp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidBYTESIZE , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
     ; InitRidBYTESIZE ( )
 
-    ; InitRes ( Stk . RidCARDINAL , NEW ( Ex . ExprIntTypeTyp ) , Ekt . EkType )
+    ; InitRes ( Stk . RidCARDINAL , NEW ( Ex . ExprTyp ) , Ekt . EkType )
     ; InitRidCARDINAL ( )
 
-    ; InitRes ( Stk . RidCEILING , NEW ( Ex . ExprBinOpTyp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidCEILING , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
     ; InitRidCEILING ( )
 
-    ; InitRes ( Stk . RidCHAR , NEW ( Ex . ExprIntTypeTyp ) , Ekt . EkType )
+    ; InitRes ( Stk . RidCHAR , NEW ( Ex . ExprTyp ) , Ekt . EkType )
     ; InitRidCHAR ( )
 
-    ; InitRes ( Stk . RidDEC , NEW ( Ex . ExprBinOpTyp ) , Ekt . EkProc )
+    ; InitRes ( Stk . RidDEC , NEW ( Ex . ExprTyp ) , Ekt . EkProc )
     ; InitRidDEC ( )
 
-    ; InitRes ( Stk . RidDISPOSE , NEW ( Ex . ExprBinOpTyp ) , Ekt . EkProc )
+    ; InitRes ( Stk . RidDISPOSE , NEW ( Ex . ExprTyp ) , Ekt . EkProc )
     ; InitRidDISPOSE ( )
 
-    ; InitRes ( Stk . RidEXTENDED , NEW ( Ex . ExprFloatTypeTyp ) , Ekt . EkType )
+    ; InitRes ( Stk . RidEXTENDED , NEW ( Ex . ExprTyp ) , Ekt . EkType )
     ; InitRidEXTENDED ( )
 
     ; InitRes ( Stk . RidFALSE , NEW ( Ex . ExprTyp ) , Ekt . EkConst )
     ; InitRidFALSE ( )
 
-    ; InitRes ( Stk . RidFIRST , NEW ( Ex . ExprBinOpTyp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidFIRST , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
     ; InitRidFIRST ( )
 
-    ; InitRes ( Stk . RidFLOAT , NEW ( Ex . ExprBinOpTyp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidFLOAT , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
     ; InitRidFLOAT ( )
 
-    ; InitRes ( Stk . RidFLOOR , NEW ( Ex . ExprBinOpTyp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidFLOOR , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
     ; InitRidFLOOR ( )
 
-    ; InitRes ( Stk . RidINC , NEW ( Ex . ExprBinOpTyp ) , Ekt . EkProc )
+    ; InitRes ( Stk . RidINC , NEW ( Ex . ExprTyp ) , Ekt . EkProc )
     ; InitRidINC ( )
 
-    ; InitRes ( Stk . RidINTEGER , NEW ( Ex . ExprIntTypeTyp ) , Ekt . EkType )
+    ; InitRes ( Stk . RidINTEGER , NEW ( Ex . ExprTyp ) , Ekt . EkType )
     ; InitRidINTEGER ( )
 
-    ; InitRes ( Stk . RidISTYPE , NEW ( Ex . ExprBinOpTyp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidISTYPE , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
     ; InitRidISTYPE ( )
 
-    ; InitRes ( Stk . RidLAST , NEW ( Ex . ExprBinOpTyp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidLAST , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
     ; InitRidLAST ( )
 
-    ; InitRes ( Stk . RidLONGCARD , NEW ( Ex . ExprIntTypeTyp ) , Ekt . EkType )
+    ; InitRes ( Stk . RidLONGCARD , NEW ( Ex . ExprTyp ) , Ekt . EkType )
     ; InitRidLONGCARD ( )
 
-    ; InitRes ( Stk . RidLONGINT , NEW ( Ex . ExprIntTypeTyp ) , Ekt . EkType )
+    ; InitRes ( Stk . RidLONGINT , NEW ( Ex . ExprTyp ) , Ekt . EkType )
     ; InitRidLONGINT ( )
 
-    ; InitRes ( Stk . RidLONGREAL , NEW ( Ex . ExprFloatTypeTyp ) , Ekt . EkType )
+    ; InitRes ( Stk . RidLONGREAL , NEW ( Ex . ExprTyp ) , Ekt . EkType )
     ; InitRidLONGREAL ( )
 
-    ; InitRes ( Stk . RidLOOPHOLE , NEW ( Ex . ExprBinOpTyp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidLOOPHOLE , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
     ; InitRidLOOPHOLE ( )
 
-    ; InitRes ( Stk . RidMAX , NEW ( Ex . ExprBinOpTyp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidMAX , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
     ; InitRidMAX ( )
 
-    ; InitRes ( Stk . RidMIN , NEW ( Ex . ExprBinOpTyp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidMIN , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
     ; InitRidMIN ( )
 
-    ; InitRes ( Stk . RidMUTEX , NEW ( Ex . ExprAddrTypeTyp ) , Ekt . EkType )
+    ; InitRes ( Stk . RidMUTEX , NEW ( Ex . ExprTyp ) , Ekt . EkType )
     ; InitRidMUTEX ( )
 
-    ; InitRes ( Stk . RidNARROW , NEW ( Ex . ExprBinOpTyp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidNARROW , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
     ; InitRidNARROW ( )
 
-    ; InitRes ( Stk . RidNEW , NEW ( Ex . ExprMultiOpndTyp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidNEW , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
     ; InitRidNEW ( )
 
-    ; InitRes ( Stk . RidNIL , NEW ( Ex . ExprAddrTypeTyp ) , Ekt . EkConst )
+    ; InitRes ( Stk . RidNIL , NEW ( Ex . ExprTyp ) , Ekt . EkConst )
     ; InitRidNIL ( )
 
-    ; InitRes ( Stk . RidNULL , NEW ( Ex . ExprAddrTypeTyp ) , Ekt . EkType )
+    ; InitRes ( Stk . RidNULL , NEW ( Ex . ExprTyp ) , Ekt . EkType )
     ; InitRidNULL ( )
 
-    ; InitRes ( Stk . RidNUMBER , NEW ( Ex . ExprBinOpTyp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidNUMBER , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
     ; InitRidNUMBER ( )
 
-    ; InitRes ( Stk . RidORD , NEW ( Ex . ExprBinOpTyp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidORD , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
     ; InitRidORD ( )
 
-    ; InitRes ( Stk . RidREAL , NEW ( Ex . ExprFloatTypeTyp ) , Ekt . EkType )
+    ; InitRes ( Stk . RidREAL , NEW ( Ex . ExprTyp ) , Ekt . EkType )
     ; InitRidREAL ( )
 
-    ; InitRes ( Stk . RidREFANY , NEW ( Ex . ExprAddrTypeTyp ) , Ekt . EkType )
+    ; InitRes ( Stk . RidREFANY , NEW ( Ex . ExprTyp ) , Ekt . EkType )
     ; InitRidREFANY ( )
 
-    ; InitRes ( Stk . RidROUND , NEW ( Ex . ExprBinOpTyp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidROUND , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
     ; InitRidROUND ( )
 
-    ; InitRes ( Stk . RidSUBARRAY , NEW ( Ex . Expr3OpndTyp) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidSUBARRAY , NEW ( Ex . ExprTyp) , Ekt . EkFunc )
     ; InitRidSUBARRAY ( )
 
-    ; InitRes ( Stk . RidTEXT , NEW ( Ex . ExprAddrTypeTyp ) , Ekt . EkType )
+    ; InitRes ( Stk . RidTEXT , NEW ( Ex . ExprTyp ) , Ekt . EkType )
     ; InitRidTEXT ( )
 
     ; InitRes ( Stk . RidTRUE , NEW ( Ex . ExprTyp ) , Ekt . EkConst )
     ; InitRidTRUE ( )
 
-    ; InitRes ( Stk . RidTRUNC , NEW ( Ex . Expr2OpndTyp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidTRUNC , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
     ; InitRidTRUNC ( )
 
-    ; InitRes ( Stk . RidTYPECODE , NEW ( Ex . ExprBinOpTyp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidTYPECODE , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
     ; InitRidTYPECODE ( )
 
-    ; InitRes ( Stk . RidVAL , NEW ( Ex . ExprBinOpTyp ) , Ekt . EkFunc )
+    ; InitRes ( Stk . RidVAL , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
     ; InitRidVAL ( )
 
-    ; InitRes ( Stk . RidWIDECHAR , NEW ( Ex . ExprIntTypeTyp ) , Ekt . EkType )
+    ; InitRes ( Stk . RidWIDECHAR , NEW ( Ex . ExprTyp ) , Ekt . EkType )
     ; InitRidWIDECHAR ( )
 
-    ; InitRes ( Stk . RidROOT , NEW ( Ex . ExprAddrTypeTyp ) , Ekt . EkType )
+    ; InitRes ( Stk . RidROOT , NEW ( Ex . ExprTyp ) , Ekt . EkType )
     ; InitRidROOT ( )
 
-    ; InitRes ( Stk . RidUNTRACEDROOT , NEW ( Ex . ExprAddrTypeTyp ) , Ekt . EkType )
+    ; InitRes ( Stk . RidUNTRACEDROOT , NEW ( Ex . ExprTyp ) , Ekt . EkType )
     ; InitRidUNTRACEDROOT ( )
     END Init 
 

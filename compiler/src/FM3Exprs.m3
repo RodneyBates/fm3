@@ -65,6 +65,9 @@ MODULE FM3Exprs
       | ExprKindTyp . EkBinOp => RETURN "EkBinOp" 
       | ExprKindTyp . EkCall => RETURN "EkCall" 
       | ExprKindTyp . EkSubscript => RETURN "EkSubscript" 
+      | ExprKindTyp . EkIntType => RETURN "EkIntType"  
+      | ExprKindTyp . EkAddrType => RETURN "EkAddrType"  
+      | ExprKindTyp . EkFloatType => RETURN "EkFloatType"  
       | ExprKindTyp . EkProc => RETURN "EkProc"  
       | ExprKindTyp . EkFunc => RETURN "EkFunc"  
       | ExprKindTyp . EkValue => RETURN "EkValue" 
@@ -431,276 +434,6 @@ MODULE FM3Exprs
 
       END ExprAppend
 
-; REVEAL Expr1OpndTyp
-    = Expr1OpndPublic BRANDED OBJECT OVERRIDES appendDump := Expr1OpndAppend END
-
-; PROCEDURE Expr1OpndAppend ( Expr : Expr1OpndTyp )
-    = BEGIN 
-        ExprAppend ( Expr )
-      ; SubtypeComment ( "Expr1OpndTyp" )
-      END Expr1OpndAppend
-
-; REVEAL Expr2OpndTyp
-    = Expr2OpndPublic BRANDED OBJECT OVERRIDES appendDump := Expr2OpndAppend END
-
-; PROCEDURE Expr2OpndAppend ( Expr : Expr2OpndTyp )
-    = BEGIN 
-        Expr1OpndAppend ( Expr ) 
-      ; SubtypeComment ( "Expr2OpndTyp" )
-      END Expr2OpndAppend
-
-; REVEAL Expr3OpndTyp
-    = Expr3OpndPublic BRANDED OBJECT OVERRIDES appendDump := Expr3OpndAppend END
-
-; PROCEDURE Expr3OpndAppend ( Expr : Expr3OpndTyp )
-    = BEGIN 
-        Expr2OpndAppend ( Expr ) 
-      ; SubtypeComment ( "Expr3OpndTyp" )
-      END Expr3OpndAppend
-
-; REVEAL ExprMultiOpndTyp
-    = ExprMultiOpndPublic BRANDED OBJECT
-        OVERRIDES appendDump := ExprMultiOpndAppend END
-
-; PROCEDURE ExprMultiOpndAppend ( Expr : ExprMultiOpndTyp )
-    = BEGIN
-
-        ExprAppend ( Expr ) 
-      ; SubtypeComment ( "ExprMultiOpndTyp" )
- 
-      END ExprMultiOpndAppend
-
-(* Identifier references: *) 
-; REVEAL ExprIdentRefTyp
-    = ExprIdentRefPublic BRANDED OBJECT
-        OVERRIDES appendDump := ExprIdentRefAppend END
-
-; PROCEDURE ExprIdentRefAppend ( Expr : ExprIdentRefTyp )
-    = BEGIN 
-        ExprAppend ( Expr ) 
-      ; SubtypeComment ( "ExprIdentRefTyp" )
-      END ExprIdentRefAppend (* Not builtin. *) 
-
-; REVEAL ExprRemoteRefTyp
-    = ExprRemoteRefPublic BRANDED OBJECT
-        OVERRIDES appendDump := ExprRemoteRefAppend END
-
-; PROCEDURE ExprRemoteRefAppend ( Expr : ExprRemoteRefTyp )
-    = BEGIN 
-        ExprAppend ( Expr ) 
-      ; SubtypeComment ( "ExprRemoteRefTyp" )
-      END ExprRemoteRefAppend
-
-; REVEAL ExprQualIdDeclNoAtomTyp
-    = ExprQualIdDeclNoAtomPublic BRANDED OBJECT
-        OVERRIDES appendDump := ExprQualIdDeclNoAtomAppend END
-
-; PROCEDURE ExprQualIdDeclNoAtomAppend ( Expr : ExprQualIdDeclNoAtomTyp )
-    = BEGIN 
-        ExprAppend ( Expr ) 
-      ; SubtypeComment ( "ExprQualIdDeclNoAtomTyp" )
-      END ExprQualIdDeclNoAtomAppend
-
-; REVEAL ExprDotTyp
-    = ExprDotPublic BRANDED OBJECT OVERRIDES appendDump := ExprDotAppend END
-
-; PROCEDURE ExprDotAppend ( Expr : ExprDotTyp )
-    = BEGIN 
-        Expr1OpndAppend ( Expr ) 
-      ; SubtypeComment ( "ExprDotTyp" )
-      END ExprDotAppend
-
-(* Either a constant expression or one whose type is of interest. *) 
-; REVEAL ExprBinOpTyp
-    = ExprBinOpPublic BRANDED OBJECT OVERRIDES appendDump := ExprBinOpAppend END
-
-; PROCEDURE ExprBinOpAppend ( Expr : ExprBinOpTyp )
-    = BEGIN 
-        Expr2OpndAppend ( Expr ) 
-      ; SubtypeComment ( "ExprBinOpTyp" )
-      END ExprBinOpAppend
-
-(* Three or 4 operands: *) 
-; REVEAL ExprQuadOpTyp
-    = ExprQuadOpPublic BRANDED OBJECT OVERRIDES appendDump := ExprQuadOpAppend END
-
-; PROCEDURE ExprQuadOpAppend ( Expr : ExprQuadOpTyp )
-    = BEGIN 
-        ExprBinOpAppend ( Expr ) 
-      ; SubtypeComment ( "ExprQuadOpTyp" )
-      END ExprQuadOpAppend
-
-; REVEAL ExprArgsObj
-    = ExprArgsPublic BRANDED OBJECT OVERRIDES appendDump := ExprArgsAppend END
-
-; PROCEDURE ExprArgsAppend ( Expr : ExprArgsObj )
-    = BEGIN 
-        ExprAppend ( Expr ) 
-      ; SubtypeComment ( "ExprArgsObj" )
-      END ExprArgsAppend
-
-; REVEAL ExprReservedIdRefTyp
-    = ExprReservedIdRefPublic BRANDED OBJECT
-        OVERRIDES appendDump := ExprReservedIdRefAppend END
-
-; PROCEDURE ExprReservedIdRefAppend ( Expr : ExprReservedIdRefTyp )
-    = BEGIN
-        ExprAppend ( Expr )  
-      ; SubtypeComment ( "ExprReservedIdRefTyp" )
-      END ExprReservedIdRefAppend
-
-(* Constants: *)
-
-(* Builtin types: *)
-
-; REVEAL ExprIntTypeTyp
-    = ExprIntTypePublic BRANDED OBJECT
-        OVERRIDES appendDump := ExprIntTypeAppend END
-
-; PROCEDURE ExprIntTypeAppend ( Expr : ExprIntTypeTyp )
-    = BEGIN
-        ExprAppend ( Expr ) 
-      ; SubtypeComment ( "ExprIntTypeTyp" )
-      END ExprIntTypeAppend 
-
-; REVEAL ExprFloatTypeTyp
-    = ExprFloatTypePublic BRANDED OBJECT
-        OVERRIDES appendDump := ExprFloatTypeAppend END
-
-; PROCEDURE ExprFloatTypeAppend ( Expr : ExprFloatTypeTyp )
-    = BEGIN
-        ExprAppend ( Expr ) 
-      ; SubtypeComment ( "ExprFloatTypeTyp" )
-      END ExprFloatTypeAppend 
-
-(* Type constructors: *)
-
-; REVEAL ExprAddrTypeTyp
-    = ExprAddrTypePublic BRANDED OBJECT
-      OVERRIDES appendDump := ExprAddrTypeAppend END
-
-; PROCEDURE ExprAddrTypeAppend ( Expr : ExprAddrTypeTyp )
-    = BEGIN 
-        Expr1OpndAppend ( Expr ) 
-      ; SubtypeComment ( "ExprAddrTypeTyp" )
-      END ExprAddrTypeAppend (* REF type. *) 
-
-; REVEAL ExprREFTypeTyp
-    = ExprREFTypePublic BRANDED OBJECT
-        OVERRIDES appendDump := ExprREFTypeAppend END
-
-; PROCEDURE ExprREFTypeAppend ( Expr : ExprREFTypeTyp )
-    = BEGIN 
-        Expr2OpndAppend ( Expr ) 
-      ; SubtypeComment ( "ExprREFTypeTyp" )
-      END ExprREFTypeAppend (* REF type. *) 
-
-; REVEAL ExprOpenArrayTypeTyp
-    = ExprOpenArrayTypePublic BRANDED OBJECT
-        OVERRIDES appendDump := ExprOpenArrayTypeAppend END
-
-; PROCEDURE ExprOpenArrayTypeAppend ( Expr : ExprOpenArrayTypeTyp )
-    = BEGIN 
-        Expr1OpndAppend ( Expr ) 
-      ; SubtypeComment ( "ExprOpenArrayTypeTyp" )
-      END ExprOpenArrayTypeAppend (* REF type. *) 
-
-; REVEAL ExprSubrTypeTyp
-    = ExprSubrTypePublic BRANDED OBJECT
-        OVERRIDES appendDump := ExprSubrTypeAppend END
-
-; PROCEDURE ExprSubrTypeAppend ( Expr : ExprSubrTypeTyp )
-    = BEGIN 
-        Expr3OpndAppend ( Expr ) 
-      ; SubtypeComment ( "ExprSubrTypeTyp" )
-      END ExprSubrTypeAppend (* Subrange *) 
-
-; REVEAL ExprArrayTypeTyp
-    = ExprArrayTypePublic BRANDED OBJECT
-        OVERRIDES appendDump := ExprArrayTypeAppend END
-
-; PROCEDURE ExprArrayTypeAppend ( Expr : ExprArrayTypeTyp )
-    = BEGIN 
-        ExprAppend ( Expr ) 
-      ; SubtypeComment ( "ExprArrayTypeTyp" )
-      END ExprArrayTypeAppend
-
-; REVEAL Expr1ScopeTyp
-    = Expr1ScopePublic BRANDED OBJECT
-        OVERRIDES appendDump := Expr1ScopeAppend END
-; PROCEDURE Expr1ScopeAppend ( Expr : Expr1ScopeTyp )
-    = BEGIN 
-        ExprAppend ( Expr ) 
-      ; SubtypeComment ( "Expr1ScopeTyp" )
-      END Expr1ScopeAppend
-
-; REVEAL ExprRecTypeTyp
-    = ExprRecTypePublic BRANDED OBJECT
-        OVERRIDES appendDump := ExprRecTypeAppend END
-
-; PROCEDURE ExprRecTypeAppend ( Expr : ExprRecTypeTyp )
-    = BEGIN
-        Expr1ScopeAppend ( Expr ) 
-      ; SubtypeComment ( "ExprRecTypeTyp" )
-      END ExprRecTypeAppend 
-
-; REVEAL ExprEnumTypeTyp
-    = ExprEnumTypePublic BRANDED OBJECT
-        OVERRIDES appendDump := ExprEnumTypeAppend END
-
-; PROCEDURE ExprEnumTypeAppend ( Expr : ExprEnumTypeTyp )
-    = BEGIN
-        Expr1ScopeAppend ( Expr ) 
-      ; SubtypeComment ( "ExprEnumTypeTyp" )
-      END ExprEnumTypeAppend 
-
-; REVEAL ExprObjTypeTyp
-    = ExprObjTypePublic BRANDED OBJECT
-        OVERRIDES appendDump := ExprObjTypeAppend END
-
-; PROCEDURE ExprObjTypeAppend ( Expr : ExprObjTypeTyp )
-    = BEGIN
-        Expr2OpndAppend ( Expr ) 
-      ; SubtypeComment ( "ExprObjTypeTyp" )
-      END ExprObjTypeAppend 
-
-(* Constant values: *)
-; REVEAL ExprConstValueTyp
-    = ExprConstValuePublic BRANDED OBJECT
-        OVERRIDES appendDump := ExprConstValueAppend END
-
-; PROCEDURE ExprConstValueAppend ( Expr : ExprTyp )
-    = BEGIN
-        ExprAppend ( Expr ) 
-      ; SubtypeComment ( "ExprConstValueTyp" )
-      END ExprConstValueAppend
-
-(* References in source code: *) 
-
-; REVEAL ExprDeclIdTyp
-    = ExprDeclIdPublic BRANDED OBJECT
-        OVERRIDES appendDump := ExprDeclIdAppend END
-
-; PROCEDURE ExprDeclIdAppend ( Expr : ExprTyp )
-    = BEGIN 
-        ExprAppend ( Expr ) 
-      ; SubtypeComment ( "ExprDeclIdTyp" )
-      END ExprDeclIdAppend (* Reference to something declared in this unit. *)
-
-
-; REVEAL ExprExpImpDeclIdTyp
-    = ExprExpImpDeclIdPublic BRANDED OBJECT
-        OVERRIDES appendDump := ExprExpImpDeclIdAppend END
-
-; PROCEDURE ExprExpImpDeclIdAppend ( Expr : ExprTyp )
-    = BEGIN 
-        ExprAppend ( Expr ) 
-      ; SubtypeComment ( "ExprExpImpDeclIdTyp" )
-     END ExprExpImpDeclIdAppend
-     (* ^Reference to something declared in another unit. *) 
-
-(* Types in the compiled code, not in the compiler. *)
-
 (* EXPORTED.*) 
 ; PROCEDURE ResolveNow
     ( Expr : ExprTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp
@@ -838,16 +571,19 @@ MODULE FM3Exprs
 ; PROCEDURE IsNumericType ( Expr : ExprTyp ) : BOOLEAN 
 
   = BEGIN
-      TYPECASE Expr OF
-      | NULL => RETURN FALSE
-      | ExprSubrTypeTyp ( TSubr )
-      => RETURN IsNumericType ( TSubr . ExpRangeBase )
-      | ExprIntTypeTyp
-      , ExprAddrTypeTyp (* Can happen in UNSAFE units. *) 
-      , ExprFloatTypeTyp
-      => RETURN TRUE
-      ELSE RETURN FALSE
-      END (* TYPECASE*)
+      IF Expr = NIL
+      THEN RETURN FALSE
+      ELSE 
+        CASE Expr . ExpKind OF
+        | Ekt . EkSubrType
+        => RETURN IsNumericType ( Expr . ExpRangeBase )
+        | Ekt . EkIntType
+        , Ekt . EkAddrType 
+        , Ekt . EkFloatType 
+        => RETURN TRUE
+        ELSE RETURN FALSE
+        END (* CASE*)
+      END (*IF*) 
     END IsNumericType 
 
 ; BEGIN

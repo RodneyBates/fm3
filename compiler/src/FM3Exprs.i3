@@ -77,6 +77,10 @@ INTERFACE FM3Exprs
      , EkBinOp
      , EkCall
      , EkSubscript
+
+     , EkIntType
+     , EkAddrType
+     , EkFloatType 
      
      , EkProc 
      , EkFunc 
@@ -231,149 +235,6 @@ INTERFACE FM3Exprs
         appendDump ( )  
       ; resolve ( ExprKind : ExprKindTyp ) : ExprStateTyp (* final. *) 
       END
-
-(* Add some operand links. *)
-; TYPE Expr1OpndTyp <: Expr1OpndPublic
-; TYPE Expr1OpndPublic
-    =  ExprTyp OBJECT
-      END 
-
-; TYPE Expr2OpndTyp <: Expr2OpndPublic 
-; TYPE Expr2OpndPublic
-    =  Expr1OpndTyp OBJECT
-     END 
-
-; TYPE Expr3OpndTyp <: Expr3OpndPublic 
-; TYPE Expr3OpndPublic
-    =  Expr2OpndTyp OBJECT
-     END 
-
-; TYPE ExprMultiOpndTyp <: ExprMultiOpndPublic 
-; TYPE ExprMultiOpndPublic
-    =  ExprTyp OBJECT
-     END 
-
-(* Identifier references: *) 
-; TYPE ExprIdentRefTyp <: ExprIdentRefPublic 
-; TYPE ExprIdentRefPublic (* Not builtin. *) 
-    = ExprTyp OBJECT
-      END 
-
-; TYPE ExprRemoteRefTyp <: ExprRemoteRefPublic 
-; TYPE ExprRemoteRefPublic
-    = ExprTyp OBJECT
-      END 
-
-; TYPE ExprQualIdDeclNoAtomTyp <: ExprQualIdDeclNoAtomPublic 
-; TYPE ExprQualIdDeclNoAtomPublic
-    = ExprTyp OBJECT
-      END
-
-; TYPE ExprDotTyp <: ExprDotPublic 
-; TYPE ExprDotPublic
-    = Expr1OpndTyp OBJECT
-      END
-
-(* Either a constant expression or one whose type is of interest. *) 
-; TYPE ExprBinOpTyp <: ExprBinOpPublic 
-; TYPE ExprBinOpPublic
-    = Expr2OpndTyp OBJECT
-      END
-
-; TYPE ExprQuadOpTyp <: ExprQuadOpPublic 
-; TYPE ExprQuadOpPublic
-    = ExprBinOpTyp OBJECT
-      END
-
-(* ExprArgsObj is used both for a call (with actuals) and a subscripted array.
-   "Arg" is used in the names to refer to either.
-*)
-; TYPE ExprArgsObj <: ExprArgsPublic 
-; TYPE ExprArgsPublic
-    = ExprTyp OBJECT
-      END
-
-; TYPE ExprReservedIdRefTyp <: ExprReservedIdRefPublic 
-; TYPE ExprReservedIdRefPublic
-    = ExprTyp OBJECT
-        (* Use the ExpOpcode field. *)  
-      END 
-
-(* Constants: *)
-
-(* Builtin types: *)
-
-; TYPE ExprIntTypeTyp <: ExprIntTypePublic 
-; TYPE ExprIntTypePublic = ExprTyp OBJECT END
-
-; TYPE ExprFloatTypeTyp <: ExprFloatTypePublic 
-; TYPE ExprFloatTypePublic = ExprTyp OBJECT END
-
-(* Type constructors: *)
-
-; TYPE ExprAddrTypeTyp <: ExprAddrTypePublic 
-; TYPE ExprAddrTypePublic (* Simple address type. *) 
-    = Expr1OpndTyp OBJECT
-      END
-
-; TYPE ExprREFTypeTyp <: ExprREFTypePublic 
-; TYPE ExprREFTypePublic (* REF type. *) 
-    = Expr2OpndTyp OBJECT
-        (* ExpOpnd1 is brand expression. *) 
-        (* ExpOpnd2 is referent type or supertype. *) 
-      END
-
-; TYPE ExprOpenArrayTypeTyp <: ExprOpenArrayTypePublic 
-; TYPE ExprOpenArrayTypePublic (* REF type. *) 
-    = Expr1OpndTyp OBJECT
-      END
-
-; TYPE ExprSubrTypeTyp <: ExprSubrTypePublic 
-; TYPE ExprSubrTypePublic (* Subrange *) 
-    = Expr3OpndTyp OBJECT
-      END
-
-; TYPE ExprArrayTypeTyp <: ExprArrayTypePublic 
-; TYPE ExprArrayTypePublic
-    = ExprTyp OBJECT
-      END
-
-; TYPE Expr1ScopeTyp <: Expr1ScopePublic 
-; TYPE Expr1ScopePublic
-    = ExprTyp OBJECT
-      END 
-
-; TYPE ExprRecTypeTyp <: ExprRecTypePublic 
-; TYPE ExprRecTypePublic 
-    = Expr1ScopeTyp OBJECT END 
-
-; TYPE ExprEnumTypeTyp <: ExprEnumTypePublic 
-; TYPE ExprEnumTypePublic 
-    = Expr1ScopeTyp OBJECT END 
-
-; TYPE ExprObjTypeTyp <: ExprObjTypePublic 
-; TYPE ExprObjTypePublic 
-    = Expr2OpndTyp OBJECT
-      END 
-
-(* Constant values: *)
-; TYPE ExprConstValueTyp <: ExprConstValuePublic 
-; TYPE ExprConstValuePublic
-    = ExprTyp OBJECT END
-(*CHECK: Any need for this? ExpIsConst should suffice. *) 
-
-(* References: *) 
-; TYPE ExprDeclIdTyp <: ExprDeclIdPublic 
-; TYPE ExprDeclIdPublic (* Reference to something declared in this unit. *)
-    = ExprTyp OBJECT
-      END 
-
-; TYPE ExprExpImpDeclIdTyp <: ExprExpImpDeclIdPublic 
-; TYPE ExprExpImpDeclIdPublic (* Reference to something declared in another unit. *) 
-    = ExprTyp OBJECT
-      END
-      
-(************** End of to-be-removed subtypes of ExprTyp. *) 
 
 
 (* Expression operations: *)

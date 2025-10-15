@@ -403,11 +403,11 @@ MODULE FM3Pass2
 ; PROCEDURE UnaryOp ( Opcode : FM3Exprs . OpcodeTyp )
   (* PRE: Not skipping, *) 
 
-  = VAR LUnOpExpr : FM3Exprs . Expr2OpndTyp
+  = VAR LUnOpExpr : FM3Exprs . ExprTyp
 
   ; BEGIN
       LUnOpExpr
-        := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . Expr2OpndTyp )
+        := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprTyp )
     ; IF NOT LUnOpExpr . ExpOpnd1 . ExpUpKind
              IN EkSetTyp { Ekt . EkValue , Ekt . EkConst }
       THEN
@@ -431,12 +431,12 @@ MODULE FM3Pass2
 ; PROCEDURE BinaryOp ( Opcode : FM3Exprs . OpcodeTyp )
   (* PRE: Not skipping, *) 
 
-  = VAR LBinOpExpr : FM3Exprs . Expr2OpndTyp
+  = VAR LBinOpExpr : FM3Exprs . ExprTyp
   ; VAR LOpnd1 , LOpnd2 : FM3Exprs . ExprTyp 
 
   ; BEGIN
       LBinOpExpr
-        := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . Expr2OpndTyp )
+        := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprTyp )
     ; LOpnd1 := LBinOpExpr . ExpOpnd1 
     ; LOpnd2 := LBinOpExpr . ExpOpnd2 
     ; IF NOT LOpnd1 . ExpUpKind
@@ -564,7 +564,7 @@ MODULE FM3Pass2
   ; VAR HtPass1RdBack : RdBackFile . T 
   ; VAR HtPass2RdBack : RdBackFile . T
   ; VAR LNewExpr , LValueExpr , LPrefixExpr , LListElem : FM3Exprs . ExprTyp
-  ; VAR LArgsExpr : FM3Exprs . ExprArgsObj
+  ; VAR LArgsExpr : FM3Exprs . ExprTyp
   ; VAR LLongInt: LONGINT 
   ; VAR LScopeNo : FM3Globals . ScopeNoTyp
   ; VAR LOpcode : FM3SrcToks . TokTyp
@@ -576,7 +576,7 @@ MODULE FM3Pass2
 
   ; PROCEDURE HtCallOrSubscript ( Kind : FM3Exprs . ExprKindTyp )
 
-    = VAR LArgsExpr : FM3Exprs . ExprArgsObj
+    = VAR LArgsExpr : FM3Exprs . ExprTyp
 
     ; BEGIN 
         LCt := GetBwdInt ( TokResult . TrRdBack ) (* Args/Ss count. *) 
@@ -714,7 +714,7 @@ MODULE FM3Pass2
   ; PROCEDURE HtExprOpnd1 ( )
       (* PRE: TOS is 1st (LM) operand, TOS-1 is parent. *) 
     = VAR LOpnd : FM3Exprs . ExprTyp
-    ; VAR LParentExpr : FM3Exprs . Expr1OpndTyp
+    ; VAR LParentExpr : FM3Exprs . ExprTyp
     ; VAR LPosition : tPosition
 
 
@@ -724,7 +724,7 @@ MODULE FM3Pass2
         THEN
           LOpnd := FM3Exprs . PopExprStack ( )
         ; LParentExpr
-            := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . Expr1OpndTyp )
+            := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprTyp )
         ; LParentExpr . ExpOpnd1 := LOpnd
         ; DefExprLt ( LParentExpr ) 
         END (*IF*) 
@@ -733,7 +733,7 @@ MODULE FM3Pass2
   ; PROCEDURE HtExprOpnd2 ( )
       (* PRE: TOS is 2nd operand, TOS-1 is parent. *) 
     = VAR LOpnd : FM3Exprs . ExprTyp
-    ; VAR LParentExpr : FM3Exprs . Expr2OpndTyp 
+    ; VAR LParentExpr : FM3Exprs . ExprTyp 
 
     ; BEGIN 
         EVAL GetBwdPos ( TokResult . TrRdBack )
@@ -741,7 +741,7 @@ MODULE FM3Pass2
         THEN
           LOpnd := FM3Exprs . PopExprStack ( )
         ; LParentExpr
-            := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . Expr2OpndTyp )
+            := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprTyp )
         ; LParentExpr . ExpOpnd2 := LOpnd
         ; DefExprLt ( LParentExpr ) 
         END (*IF*) 
@@ -1325,7 +1325,7 @@ MODULE FM3Pass2
       | Itk . ItkObjTypeRt 
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN 
-            VAR LExpr : FM3Exprs . ExprObjTypeTyp
+            VAR LExpr : FM3Exprs . ExprTyp
           ; BEGIN 
               LBrandKind := GetBwdBrandKind ( TokResult . TrRdBack )
             ; LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
@@ -1479,7 +1479,7 @@ MODULE FM3Pass2
         ; IF LCt > 0
           THEN 
             LArgsExpr 
-              := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprArgsObj )
+              := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprTyp )
           ; <* ASSERT LCt = LArgsExpr . ExpArgNo *>
           END (*IF*) 
 
@@ -1489,7 +1489,7 @@ MODULE FM3Pass2
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; LListElem := FM3Exprs . PopExprStack ( ) 
         ; LArgsExpr 
-            := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprArgsObj )
+            := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprTyp )
         ; DEC ( LArgsExpr . ExpArgNo )  
         ; LArgsExpr . ExpArgsList ^ [ LArgsExpr . ExpArgNo ] := LListElem
 
@@ -1503,7 +1503,7 @@ MODULE FM3Pass2
           THEN 
             LListElem := FM3Exprs . PopExprStack ( ) (* LM actual. *) 
           ; LArgsExpr 
-              := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprArgsObj )
+              := NARROW ( FM3Exprs . ExprStackTopObj , FM3Exprs . ExprTyp )
           ; <* ASSERT LArgsExpr . ExpArgNo = 1 *> 
             DEC ( LArgsExpr . ExpArgNo )
           ; LArgsExpr . ExpArgsList ^ [ LArgsExpr . ExpArgNo ] := LListElem
@@ -1515,7 +1515,7 @@ MODULE FM3Pass2
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; LPrefixExpr := FM3Exprs . PopExprStack ( ) (* Procedure or array *) 
         ; LArgsExpr
-            := NARROW ( FM3Exprs . PopExprStack ( ) , FM3Exprs . ExprArgsObj )
+            := NARROW ( FM3Exprs . PopExprStack ( ) , FM3Exprs . ExprTyp )
         ; <* ASSERT LPosition = LArgsExpr . ExpPosition *>
           <* ASSERT LArgsExpr . ExpArgNo = 0 *>
           LArgsExpr . ExpArgPrefix := LPrefixExpr
@@ -1962,21 +1962,21 @@ MODULE FM3Pass2
       END (*WITH*) 
     END DeclIdR2L
 
-; PROCEDURE SynthIsUsable1 ( Parent : FM3Exprs . Expr1OpndTyp )
+; PROCEDURE SynthIsUsable1 ( Parent : FM3Exprs . ExprTyp )
 
   = BEGIN (*SynthIsUsable1*)
       Parent . ExpIsUsable
         := Parent . ExpIsUsable AND Parent . ExpOpnd1 . ExpIsUsable 
     END SynthIsUsable1        
 
-; PROCEDURE SynthIsUsable2 ( Parent : FM3Exprs . Expr2OpndTyp )
+; PROCEDURE SynthIsUsable2 ( Parent : FM3Exprs . ExprTyp )
 
   = BEGIN (*SynthIsUsable2*)
       Parent . ExpIsUsable
         := Parent . ExpIsUsable AND Parent . ExpOpnd2 . ExpIsUsable 
     END SynthIsUsable2        
 
-; PROCEDURE SynthIsUsable12 ( Parent : FM3Exprs . Expr2OpndTyp )
+; PROCEDURE SynthIsUsable12 ( Parent : FM3Exprs . ExprTyp )
 
   = BEGIN (*SynthIsUsable12*)
       Parent . ExpIsUsable
@@ -2200,7 +2200,7 @@ MODULE FM3Pass2
       TYPECASE OpExpr OF
       | NULL => RETURN TRUE
       
-      | FM3Exprs . ExprBinOpTyp ( TOpExpr )
+      | FM3Exprs . ExprTyp ( TOpExpr )
       =>  LOK := TRUE
         ; IF NOT CheckParamKind
                    ( TOpExpr . ExpOpnd1
@@ -2224,7 +2224,7 @@ MODULE FM3Pass2
         ; TYPECASE OpExpr OF
           | NULL =>
           
-          | FM3Exprs . ExprQuadOpTyp ( TQuadOpExpr )
+          | FM3Exprs . ExprTyp ( TQuadOpExpr )
           =>  IF NOT CheckParamKind
                       ( TQuadOpExpr . ExpQuadOpOpnd3 
                       , TQuadOpExpr . ExpOpcode
@@ -2262,9 +2262,9 @@ MODULE FM3Pass2
      conversion of OrigExpr.
   *) 
 
-  = VAR LCallExpr : FM3Exprs . ExprArgsObj 
+  = VAR LCallExpr : FM3Exprs . ExprTyp 
   ; VAR LOpnd1 , LOpnd2 : FM3Exprs . ExprTyp 
-  ; VAR LNewExpr : FM3Exprs . ExprBinOpTyp
+  ; VAR LNewExpr : FM3Exprs . ExprTyp
   ; VAR LPluralSuffix : TEXT
   ; VAR LActualsCt : INTEGER
   ; VAR LUnitTok , LDeclTok : FM3SrcToks . TokTyp
@@ -2274,7 +2274,7 @@ MODULE FM3Pass2
          OR NOT OrigExpr . ExpIsUsable THEN RETURN OrigExpr END (*IF*) 
     ; TYPECASE OrigExpr OF
       | NULL => RETURN NIL
-      | FM3Exprs . ExprArgsObj ( TCallExpr )
+      | FM3Exprs . ExprTyp ( TCallExpr )
       =>  LCallExpr := TCallExpr 
       ELSE RETURN OrigExpr
       END (*TYPECASE*) 
@@ -2284,11 +2284,11 @@ MODULE FM3Pass2
     
       | NULL => <* ASSERT FALSE , "NIL ExpArgPrefix of ExprArgsObj." *> 
 
-      | FM3Exprs . ExprReservedIdRefTyp ( TReservedIdRef )  
+      | FM3Exprs . ExprTyp ( TReservedIdRef )  
        => LUnitTok := FM3Base . TokNull 
         ; LDeclTok := TReservedIdRef . ExpOpcode  
 
-      | FM3Exprs . ExprIdentRefTyp ( TExprIdentRef )  
+      | FM3Exprs . ExprTyp ( TExprIdentRef )  
        => GetStdToks 
             ( FM3Units . UnitStackTopRef ^ . UntSelfUnitNo 
             , TExprIdentRef . ExpIdentDeclNo 
@@ -2296,7 +2296,7 @@ MODULE FM3Pass2
             , (*OUT*) LDeclTok 
             ) 
 
-      | FM3Exprs . ExprRemoteRefTyp ( TExprRemoteRef ) 
+      | FM3Exprs . ExprTyp ( TExprRemoteRef ) 
        => GetStdToks 
             ( TExprRemoteRef . ExpRemoteUnitNo 
             , TExprRemoteRef . ExpRemoteDeclNo 
@@ -2485,8 +2485,8 @@ MODULE FM3Pass2
 
   = VAR LExpImpUnitRef : FM3Units . UnitRefTyp
   ; VAR LExprObj : FM3Exprs . ExprTyp 
-  ; VAR LExprIdentRef : FM3Exprs . ExprIdentRefTyp 
-  ; VAR LExprRemoteRef : FM3Exprs . ExprRemoteRefTyp 
+  ; VAR LExprIdentRef : FM3Exprs . ExprTyp 
+  ; VAR LExprRemoteRef : FM3Exprs . ExprTyp 
   ; VAR LUnitRef : FM3Units . UnitRefTyp 
   ; VAR LUnitNo : FM3Globals . UnitNoTyp
   ; VAR LIdentRefAtom : FM3Base . AtomTyp
@@ -2567,7 +2567,7 @@ MODULE FM3Pass2
             ELSE (* A remote decl brought in by EXPORTS or FROM I IMPORT. *)
               IF AreInsideADecl ( )   
               THEN (* Create an ExprIdNo node. *) 
-                LExprRemoteRef := NEW ( FM3Exprs . ExprRemoteRefTyp )
+                LExprRemoteRef := NEW ( FM3Exprs . ExprTyp )
               ; LExprRemoteRef . ExpRemoteUnitNo := LUnitNo 
               ; LExprRemoteRef . ExpRemoteDeclNo := LRefDeclNo 
               ; LExprRemoteRef . ExpPosition := LPosition
@@ -2603,7 +2603,7 @@ MODULE FM3Pass2
   *) 
 
   = VAR LIntfUnitRef : FM3Units . UnitRefTyp
-  ; VAR LExprRemoteRef : FM3Exprs . ExprRemoteRefTyp 
+  ; VAR LExprRemoteRef : FM3Exprs . ExprTyp 
   ; VAR LIdentChars : FM3Atom_OAChars . KeyTyp 
   ; VAR LUnitNoLt : FM3Globals . UnitNoTyp
   ; VAR LRefDeclNoLt : FM3Globals . DeclNoTyp
