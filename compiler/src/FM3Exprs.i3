@@ -62,6 +62,7 @@ INTERFACE FM3Exprs
 *)     
      , EkIdentRef
      , EkQualIdentRef
+     , EkReservedIdent 
      , EkRemoteRef 
      , EkEnumType
      , EkRecType
@@ -71,8 +72,9 @@ INTERFACE FM3Exprs
      , EkRefType
      , EkType
      , EkSupertype
-     , EkUnop
-     , EkBinop
+     , EkDot
+     , EkUnOp
+     , EkBinOp
      , EkCall
      , EkSubscript
      
@@ -353,7 +355,7 @@ INTERFACE FM3Exprs
 ; TYPE ExprObjTypePublic 
     = Expr2OpndTyp OBJECT
       END 
-(*
+
 (* Constant values: *)
 ; TYPE ExprConstValueTyp <: ExprConstValuePublic 
 ; TYPE ExprConstValuePublic
@@ -370,8 +372,8 @@ INTERFACE FM3Exprs
 ; TYPE ExprExpImpDeclIdPublic (* Reference to something declared in another unit. *) 
     = ExprTyp OBJECT
       END
-
-************** End of to-be-removed subtypes of ExprTyp. *) 
+      
+(************** End of to-be-removed subtypes of ExprTyp. *) 
 
 
 (* Expression operations: *)

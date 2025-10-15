@@ -419,7 +419,7 @@ MODULE FM3Pass2
           )
       ; LUnOpExpr . ExpIsUsable := FALSE
       ELSE
-        LUnOpExpr . ExpKind := Ekt . EkUnop
+        LUnOpExpr . ExpKind := Ekt . EkUnOp
       ; LUnOpExpr . ExpKind := FM3Builtins . OpExprKind ( Opcode )  
       ; LUnOpExpr . ExpUpKind := Ekt . EkValue 
       ; LUnOpExpr . ExpIsConst := LUnOpExpr . ExpOpnd1 . ExpIsConst
@@ -463,7 +463,7 @@ MODULE FM3Pass2
       END (*IF*)
     ; IF LBinOpExpr . ExpIsUsable
       THEN
-        LBinOpExpr . ExpKind := Ekt . EkBinop
+        LBinOpExpr . ExpKind := Ekt . EkBinOp
       ; LBinOpExpr . ExpKind := FM3Builtins . OpExprKind ( Opcode )  
       ; LBinOpExpr . ExpUpKind := Ekt . EkValue 
       ; LBinOpExpr . ExpIsConst
@@ -581,7 +581,7 @@ MODULE FM3Pass2
     ; BEGIN 
         LCt := GetBwdInt ( TokResult . TrRdBack ) (* Args/Ss count. *) 
       ; LPosition := GetBwdPos ( TokResult . TrRdBack )
-      ; LArgsExpr := NEW ( FM3Exprs . ExprArgsObj )
+      ; LArgsExpr := NEW ( FM3Exprs . ExprTyp )
       ; LArgsExpr . ExpKind := Kind
       ; LArgsExpr . ExpUpKind := Ekt . EkValue 
       ; LArgsExpr . ExpArgsList := NEW ( FM3Exprs . ExprListRefTyp , LCt )
@@ -1022,11 +1022,11 @@ MODULE FM3Pass2
       | Itk . ItkReservedIdRef
       =>  IF InsideDecl ( )
           THEN
-            LNewExpr := NEW ( FM3Exprs . ExprReservedIdRefTyp ) 
+            LNewExpr := NEW ( FM3Exprs . ExprTyp ) 
           ; LNewExpr . ExpOpcode := GetBwdAtom ( TokResult . TrRdBack )
           ; LNewExpr . ExpPosition := GetBwdPos ( TokResult . TrRdBack )
           ; LNewExpr . ExpIsLegalRecursive := TRUE
-          ; LNewExpr . ExpKind := Ekt . EkNull  
+          ; LNewExpr . ExpKind := Ekt . EkReservedIdent  
           ; LNewExpr . ExpUpKind
               := FM3Builtins . OpExprKind ( LNewExpr . ExpOpcode ) 
           (* Other properties computed later. *) 
@@ -1142,7 +1142,8 @@ MODULE FM3Pass2
             THEN <* ASSERT FALSE , "No enum decl scope at left end." *>
             END (*IF*) 
           ; HtExprRt (* Which will get and store the position. *) 
-              ( NEW ( FM3Exprs . ExprEnumTypeTyp
+              ( NEW ( FM3Exprs . ExprTyp
+                    , ExpKind := Ekt . EkEnumType 
                     , ExpUpKind := Ekt . EkEnumType 
                     , ExpScopeRef1 := LScopeRef 
                     )
@@ -1162,8 +1163,8 @@ MODULE FM3Pass2
           THEN 
             LLongInt := GetBwd ( TokResult . TrRdBack ) (* Field count. *) 
           ; HtExprRt
-              ( NEW ( FM3Exprs . ExprRecTypeTyp
-                    , ExpUpKind := Ekt . EkRecType
+              ( NEW ( FM3Exprs . ExprTyp
+                    , ExpKind := Ekt . EkRecType
                     , ExpUpKind := Ekt . EkType
                     , ExpScopeRef1 := FM3Scopes . DeclScopeStackTopRef
                     )
@@ -1187,7 +1188,7 @@ MODULE FM3Pass2
             LPosition := GetBwdPos ( TokResult . TrRdBack )
             (* There's always an expression for a brand, even if it's absent. *)
           ; LNewExpr 
-              := NEW ( FM3Exprs . ExprObjTypeTyp
+              := NEW ( FM3Exprs . ExprTyp
                      , ExpKind := Ekt . EkBrand
                      , ExpUpKind := Ekt . EkBrand
                      , ExpIsLegalRecursive := TRUE
@@ -1215,7 +1216,7 @@ MODULE FM3Pass2
             WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
             DO
               LNewExpr
-                := NEW ( FM3Exprs . ExprObjTypeTyp
+                := NEW ( FM3Exprs . ExprTyp
                        , ExpKind := Ekt . EkBrand
                        , ExpUpKind := Ekt . EkBrand
                        , ExpIsLegalRecursive := TRUE
@@ -1238,7 +1239,7 @@ MODULE FM3Pass2
           THEN 
             LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN ) 
           ; HtExprRt
-              ( NEW ( FM3Exprs . Expr2OpndTyp
+              ( NEW ( FM3Exprs . ExprTyp
                     , ExpKind := Ekt . EkRefType
                     , ExpUpKind := Ekt . EkType
                     , ExpIsLegalRecursive := TRUE
@@ -1329,7 +1330,7 @@ MODULE FM3Pass2
               LBrandKind := GetBwdBrandKind ( TokResult . TrRdBack )
             ; LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
             ; LExpr
-                := NEW ( FM3Exprs . ExprObjTypeTyp
+                := NEW ( FM3Exprs . ExprTyp
                        , ExpKind := Ekt . EkObjType
                        , ExpUpKind := Ekt . EkType
                        , ExpIsLegalRecursive := TRUE
@@ -1377,7 +1378,7 @@ MODULE FM3Pass2
           THEN  
             LBool := VAL ( GetBwd ( TokResult . TrRdBack ) , BOOLEAN ) 
           ; HtExprRt
-              ( NEW ( FM3Exprs . ExprBinOpTyp
+              ( NEW ( FM3Exprs . ExprTyp
                     , ExpKind := Ekt . EkArrayType
                     , ExpUpKind := Ekt . EkType
                     , ExpOpcode := FM3SrcToks.StkRwARRAY
@@ -1405,7 +1406,7 @@ MODULE FM3Pass2
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN 
             HtExprRt
-              ( NEW ( FM3Exprs . ExprSubrTypeTyp
+              ( NEW ( FM3Exprs . ExprTyp
                     , ExpKind := Ekt . EkSubrType
                     , ExpUpKind := Ekt . EkType
                     )
@@ -1423,7 +1424,8 @@ MODULE FM3Pass2
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN
             HtExprRt
-              ( NEW ( FM3Exprs . ExprBinOpTyp
+              ( NEW ( FM3Exprs . ExprTyp
+                    , ExpKind := Ekt . EkUnOp
                     , ExpOpcode := GetBwdInt ( TokResult . TrRdBack )
                     )
               )
@@ -1442,8 +1444,9 @@ MODULE FM3Pass2
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN 
             HtExprRt
-              ( NEW ( FM3Exprs . ExprBinOpTyp
+              ( NEW ( FM3Exprs . ExprTyp
                     , ExpOpcode := GetBwdInt ( TokResult . TrRdBack )
+                    , ExpKind := Ekt . EkBinOp
                     )
               )
           END (*IF*) 
@@ -2509,7 +2512,7 @@ MODULE FM3Pass2
         ; IF AreInsideADecl ( )
           THEN (* Create an ExprIdentRefTyp node. *) 
             CheckRecursiveRef ( LRefDeclNo )
-          ; LExprIdentRef := NEW ( FM3Exprs . ExprIdentRefTyp )
+          ; LExprIdentRef := NEW ( FM3Exprs . ExprTyp )
           ; LExprIdentRef . ExpIdentDeclNo := LRefDeclNo 
           ; LExprIdentRef . ExpPosition := LPosition
           ; LExprIdentRef . ExpKind := Ekt . EkIdentRef
@@ -2568,7 +2571,7 @@ MODULE FM3Pass2
               ; LExprRemoteRef . ExpRemoteUnitNo := LUnitNo 
               ; LExprRemoteRef . ExpRemoteDeclNo := LRefDeclNo 
               ; LExprRemoteRef . ExpPosition := LPosition
-              ; LExprRemoteRef . ExpKind := Ekt . EkIdentRef
+              ; LExprRemoteRef . ExpKind := Ekt . EkRemoteRef
 (* TODO     ^ Compute this            *) 
               ; LExprRemoteRef . ExpUpKind := Ekt . EkNull
               ; LExprObj := LExprRemoteRef
@@ -2628,12 +2631,13 @@ MODULE FM3Pass2
           IF AreInsideADecl ( ) 
           THEN (* Create an ExprIdNo node. *) 
             CheckRecursiveRef ( LRefDeclNo )
-          ; WITH WDotExpr = NEW ( FM3Exprs . ExprDotTyp )
-                 , WLtExpr = NEW ( FM3Exprs . ExprIdentRefTyp )
+          ; WITH WDotExpr = NEW ( FM3Exprs . ExprTyp )
+                 , WLtExpr = NEW ( FM3Exprs . ExprTyp )
             DO 
               WDotExpr . ExpOpnd1 := WLtExpr 
             ; WDotExpr . ExpDotIdAtom := LAtomRt
             ; WDotExpr . ExpPosition := LPosRt
+            ; WDotExpr . ExpKind := Ekt . EkDot
             ; WDotExpr . ExpUpKind := Ekt . EkRef
             ; DefExprRt ( WDotExpr )
             ; WLtExpr . ExpIdentDeclNo := LRefDeclNoLt 
@@ -2722,12 +2726,12 @@ MODULE FM3Pass2
               *>
               IF AreInsideADecl ( )
               THEN
-                LExprRemoteRef := NEW ( FM3Exprs . ExprRemoteRefTyp )
+                LExprRemoteRef := NEW ( FM3Exprs . ExprTyp )
               ; LExprRemoteRef . ExpRemoteUnitNo
                   := LIntfUnitRef ^ . UntSelfUnitNo 
               ; LExprRemoteRef . ExpRemoteDeclNo := LRemoteDeclNoInt 
               ; LExprRemoteRef . ExpPosition := LPosLt
-              ; LExprRemoteRef . ExpKind := Ekt . EkQualIdentRef
+              ; LExprRemoteRef . ExpKind := Ekt . EkRemoteRef
               ; LExprRemoteRef . ExpUpKind := Ekt . EkNull
 (* TODO     ^ Compute this            *) 
               ; DefExprRt ( LExprRemoteRef )
@@ -2768,12 +2772,13 @@ MODULE FM3Pass2
             IF AreInsideADecl ( )
             THEN 
             (* Turn it into separate QualId ref and dot Id *) 
-              WITH WDotExpr = NEW ( FM3Exprs . ExprDotTyp )
-              , WLtExpr = NEW ( FM3Exprs . ExprRemoteRefTyp )
+              WITH WDotExpr = NEW ( FM3Exprs . ExprTyp )
+              , WLtExpr = NEW ( FM3Exprs . ExprTyp )
               DO 
                 WDotExpr . ExpDotIdAtom := LAtomRt
               ; WDotExpr . ExpOpnd1 := WLtExpr 
               ; WDotExpr . ExpPosition := LPosRt
+              ; WDotExpr . ExpKind := Ekt . EkDot
               ; WDotExpr . ExpUpKind := Ekt . EkRef
               ; DefExprRt ( WDotExpr ) (* Which pushes. *) 
               ; WLtExpr . ExpRemoteUnitNo := LUnitNoLt 

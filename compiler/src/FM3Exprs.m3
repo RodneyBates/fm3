@@ -49,7 +49,8 @@ MODULE FM3Exprs
       | ExprKindTyp . EkWideTextLit => RETURN "EkWideTextLit"
 *)
       | ExprKindTyp . EkIdentRef => RETURN "EkIdentRef" 
-      | ExprKindTyp . EkQualIdentRef => RETURN "EkQualIdentRef" 
+      | ExprKindTyp . EkQualIdentRef => RETURN "EkQualIdentRef"
+      | ExprKindTyp . EkReservedIdent => RETURN "EkReservedIdent"
       | ExprKindTyp . EkRemoteRef => RETURN "EkRemoteRef"  
       | ExprKindTyp . EkEnumType => RETURN "EkEnumType" 
       | ExprKindTyp . EkRecType => RETURN "EkRecType" 
@@ -59,8 +60,9 @@ MODULE FM3Exprs
       | ExprKindTyp . EkRefType => RETURN "EkRefType" 
       | ExprKindTyp . EkType => RETURN "EkType" 
       | ExprKindTyp . EkSupertype => RETURN "EkSupertype" 
-      | ExprKindTyp . EkUnop => RETURN "EkUnop" 
-      | ExprKindTyp . EkBinop => RETURN "EkBinop" 
+      | ExprKindTyp . EkUnOp => RETURN "EkUnOp" 
+      | ExprKindTyp . EkDot => RETURN "EkDot" 
+      | ExprKindTyp . EkBinOp => RETURN "EkBinOp" 
       | ExprKindTyp . EkCall => RETURN "EkCall" 
       | ExprKindTyp . EkSubscript => RETURN "EkSubscript" 
       | ExprKindTyp . EkProc => RETURN "EkProc"  
@@ -300,7 +302,11 @@ MODULE FM3Exprs
              , (*OUT*) LChars
              )
     ; IF LFound
-      THEN LResult := Text . FromChars ( LChars ^ )
+      THEN
+        IF LChars = NIL
+        THEN LResult := "<NIL>" 
+        ELSE LResult := Text . FromChars ( LChars ^ )
+        END (*IF*) 
       ELSE LResult := "<NotFound>"
       END (*IF*)
     ; RETURN LResult 
@@ -458,12 +464,10 @@ MODULE FM3Exprs
 
 ; PROCEDURE ExprMultiOpndAppend ( Expr : ExprMultiOpndTyp )
     = BEGIN
-(*
+
         ExprAppend ( Expr ) 
       ; SubtypeComment ( "ExprMultiOpndTyp" )
-      ; Field ( "ExpOpnds" , "" ) 
-      ; AppendExprList ( Expr . ExpOpnds )
-*) 
+ 
       END ExprMultiOpndAppend
 
 (* Identifier references: *) 
@@ -661,6 +665,10 @@ MODULE FM3Exprs
       END ExprObjTypeAppend 
 
 (* Constant values: *)
+; REVEAL ExprConstValueTyp
+    = ExprConstValuePublic BRANDED OBJECT
+        OVERRIDES appendDump := ExprConstValueAppend END
+
 ; PROCEDURE ExprConstValueAppend ( Expr : ExprTyp )
     = BEGIN
         ExprAppend ( Expr ) 
@@ -669,12 +677,20 @@ MODULE FM3Exprs
 
 (* References in source code: *) 
 
+; REVEAL ExprDeclIdTyp
+    = ExprDeclIdPublic BRANDED OBJECT
+        OVERRIDES appendDump := ExprDeclIdAppend END
+
 ; PROCEDURE ExprDeclIdAppend ( Expr : ExprTyp )
     = BEGIN 
         ExprAppend ( Expr ) 
       ; SubtypeComment ( "ExprDeclIdTyp" )
       END ExprDeclIdAppend (* Reference to something declared in this unit. *)
 
+
+; REVEAL ExprExpImpDeclIdTyp
+    = ExprExpImpDeclIdPublic BRANDED OBJECT
+        OVERRIDES appendDump := ExprExpImpDeclIdAppend END
 
 ; PROCEDURE ExprExpImpDeclIdAppend ( Expr : ExprTyp )
     = BEGIN 
