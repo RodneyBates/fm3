@@ -236,7 +236,6 @@ INTERFACE FM3Exprs
       ; resolve ( ExprKind : ExprKindTyp ) : ExprStateTyp (* final. *) 
       END
 
-
 (* Expression operations: *)
 (* Either a constant expression or one whose type is of interest. *) 
 

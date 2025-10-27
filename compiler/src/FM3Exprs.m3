@@ -211,6 +211,8 @@ MODULE FM3Exprs
 ; PROCEDURE SubtypeComment ( Text : TEXT ) 
 
   = BEGIN
+
+RETURN ; 
       Wr . PutText ( GWrT , GIndentStrings [ ORD ( GDepth MOD 5 = 0 ) ] )
     ; Wr . PutText ( GWrT , " (* From subtype " ) 
     ; Wr . PutText ( GWrT , Text ) 
