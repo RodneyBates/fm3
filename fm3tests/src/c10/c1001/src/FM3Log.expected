@@ -1,5 +1,5 @@
 [32mFM3:   [0mCompiling with command line: 
-         /home/rodney/proj/m3/fm3/git/compiler/AMD64_LINUX/FM3 --no-disasm-verbose --disasm --exprs --no-expr-addrs --no-std-sources Main.m3"
+         "/home/rodney/proj/m3/fm3/git/compiler/AMD64_LINUX/FM3 --no-disasm-verbose --disasm --exprs --no-expr-addrs --no-std-sources Main.m3"
 [32mFM3:   [0mGetting dependencies of 
          /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1001/src/Main.m3 ...
 [32mFM3:   [0mCompiling Main.m3 ...

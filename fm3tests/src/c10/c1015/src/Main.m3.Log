@@ -1,39 +1,4 @@
 [32mINFO:  [0mMain.m3 Pass 1 output file Main.m3.FM3Pass1 has 1410 bytes.
-[31mERROR: [0mMain.m3[27,12] Operand of "UnaryMinus" must be a value expression.
-[31mERROR: [0mMain.m3[26,12] Operand of "UnaryPlus" must be a value expression.
-[31mERROR: [0mMain.m3[24,12] Left operand of "MOD" must be a value expression.
-[31mERROR: [0mMain.m3[24,18] Right Operand of "MOD" must be a value expression.
-[31mERROR: [0mMain.m3[23,12] Left operand of "DIV" must be a value expression.
-[31mERROR: [0mMain.m3[23,18] Right Operand of "DIV" must be a value expression.
-[31mERROR: [0mMain.m3[22,12] Left operand of "/" must be a value expression.
-[31mERROR: [0mMain.m3[22,16] Right Operand of "/" must be a value expression.
-[31mERROR: [0mMain.m3[21,12] Left operand of "*" must be a value expression.
-[31mERROR: [0mMain.m3[21,16] Right Operand of "*" must be a value expression.
-[31mERROR: [0mMain.m3[19,12] Left operand of "&" must be a value expression.
-[31mERROR: [0mMain.m3[19,16] Right Operand of "&" must be a value expression.
-[31mERROR: [0mMain.m3[18,12] Left operand of "-" must be a value expression.
-[31mERROR: [0mMain.m3[18,16] Right Operand of "-" must be a value expression.
-[31mERROR: [0mMain.m3[17,12] Left operand of "+" must be a value expression.
-[31mERROR: [0mMain.m3[17,16] Right Operand of "+" must be a value expression.
-[31mERROR: [0mMain.m3[15,12] Left operand of "IN" must be a value expression.
-[31mERROR: [0mMain.m3[15,17] Right Operand of "IN" must be a value expression.
-[31mERROR: [0mMain.m3[14,12] Left operand of ">=" must be a value expression.
-[31mERROR: [0mMain.m3[14,17] Right Operand of ">=" must be a value expression.
-[31mERROR: [0mMain.m3[13,12] Left operand of ">" must be a value expression.
-[31mERROR: [0mMain.m3[13,16] Right Operand of ">" must be a value expression.
-[31mERROR: [0mMain.m3[12,12] Left operand of "<=" must be a value expression.
-[31mERROR: [0mMain.m3[12,17] Right Operand of "<=" must be a value expression.
-[31mERROR: [0mMain.m3[11,12] Left operand of "<" must be a value expression.
-[31mERROR: [0mMain.m3[11,16] Right Operand of "<" must be a value expression.
-[31mERROR: [0mMain.m3[10,12] Left operand of "#" must be a value expression.
-[31mERROR: [0mMain.m3[10,16] Right Operand of "#" must be a value expression.
-[31mERROR: [0mMain.m3[9,12] Left operand of "=" must be a value expression.
-[31mERROR: [0mMain.m3[9,16] Right Operand of "=" must be a value expression.
-[31mERROR: [0mMain.m3[7,12] Operand of "NOT" must be a value expression.
-[31mERROR: [0mMain.m3[6,12] Left operand of "AND" must be a value expression.
-[31mERROR: [0mMain.m3[6,18] Right Operand of "AND" must be a value expression.
-[31mERROR: [0mMain.m3[5,12] Left operand of "OR" must be a value expression.
-[31mERROR: [0mMain.m3[5,17] Right Operand of "OR" must be a value expression.
 [31mERROR: [0mMain.m3[5,8] Illegal recursive declarations: "A", also involving
        "B" [6,8]
        "C" [7,8]

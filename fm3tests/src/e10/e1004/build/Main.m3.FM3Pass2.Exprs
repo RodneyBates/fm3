@@ -56,9 +56,6 @@ From unit expression map, Expr No 1 16_****************
  ExpDefElmtType = NIL
  ExpDefSsType = NIL
  ExpArgPrefix = NIL
- (* From subtype Expr1OpndTyp: *)
- (* From subtype Expr2OpndTyp: *)
- (* From subtype ExprObjTypeTyp: *)
 
 
 From unit expression map, Expr No 2 16_****************
@@ -90,7 +87,7 @@ From unit expression map, Expr No 2 16_****************
  ExpStackHt = 2
  ExpSelfExprNo = 2
  ExpDownKind = EkNull
- ExpUpKind = EkBrand
+ ExpUpKind = EkConst
  ExpKind = EkBrand
  ExpState = EsUnresolved
  ExpIsConst = FALSE
@@ -117,9 +114,6 @@ From unit expression map, Expr No 2 16_****************
  ExpDefElmtType = NIL
  ExpDefSsType = NIL
  ExpArgPrefix = NIL
- (* From subtype Expr1OpndTyp: *)
- (* From subtype Expr2OpndTyp: *)
- (* From subtype ExprObjTypeTyp: *)
 
 
 From unit expression map, Expr No 3 16_****************
@@ -151,7 +145,7 @@ From unit expression map, Expr No 3 16_****************
  ExpStackHt = 0
  ExpSelfExprNo = 3
  ExpDownKind = EkNull
- ExpUpKind = EkSupertype
+ ExpUpKind = EkType
  ExpKind = EkSupertype
  ExpState = EsUnresolved
  ExpIsConst = FALSE
@@ -210,7 +204,7 @@ From unit expression map, Expr No 4 16_****************
  ExpSelfExprNo = 4
  ExpDownKind = EkNull
  ExpUpKind = EkType
- ExpKind = EkNull
+ ExpKind = EkRecType
  ExpState = EsUnresolved
  ExpIsConst = FALSE
  ExpConstValIsKnown = FALSE
@@ -236,7 +230,5 @@ From unit expression map, Expr No 4 16_****************
  ExpDefElmtType = NIL
  ExpDefSsType = NIL
  ExpArgPrefix = NIL
- (* From subtype Expr1ScopeTyp: *)
- (* From subtype ExprRecTypeTyp: *)
 
 

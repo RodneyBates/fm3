@@ -30,7 +30,7 @@ From unit expression map, Expr No 1 16_****************
  ExpSelfExprNo = 1
  ExpDownKind = EkNull
  ExpUpKind = EkType
- ExpKind = EkNull
+ ExpKind = EkRecType
  ExpState = EsUnresolved
  ExpIsConst = FALSE
  ExpConstValIsKnown = FALSE
@@ -56,8 +56,6 @@ From unit expression map, Expr No 1 16_****************
  ExpDefElmtType = NIL
  ExpDefSsType = NIL
  ExpArgPrefix = NIL
- (* From subtype Expr1ScopeTyp: *)
- (* From subtype ExprRecTypeTyp: *)
 
 
 From unit expression map, Expr No 2 16_****************
@@ -116,7 +114,6 @@ From unit expression map, Expr No 2 16_****************
  ExpDefElmtType = NIL
  ExpDefSsType = NIL
  ExpArgPrefix = NIL
- (* From subtype ExprIdentRefTyp: *)
 
 
 From unit expression map, Expr No 3 16_****************
@@ -191,7 +188,7 @@ From unit expression map, Expr No 3 16_****************
  . ExpStackHt = 0
  . ExpSelfExprNo = 5
  . ExpDownKind = EkNull
- . ExpUpKind = EkBrand
+ . ExpUpKind = EkConst
  . ExpKind = EkBrand
  . ExpState = EsUnresolved
  . ExpIsConst = FALSE
@@ -218,9 +215,6 @@ From unit expression map, Expr No 3 16_****************
  . ExpDefElmtType = NIL
  . ExpDefSsType = NIL
  . ExpArgPrefix = NIL
- . (* From subtype Expr1OpndTyp: *)
- . (* From subtype Expr2OpndTyp: *)
- . (* From subtype ExprObjTypeTyp: *)
 
  ExpOpnd2 = ExprNo 4 16_****************
  . ExpStackLink = ExprNo 3 at 16_**************** [5,11]
@@ -278,7 +272,6 @@ From unit expression map, Expr No 3 16_****************
  . ExpDefElmtType = NIL
  . ExpDefSsType = NIL
  . ExpArgPrefix = NIL
- . (* From subtype ExprIdentRefTyp: *)
 
  ExpOpnd3 = NIL
  ExpQuadOpOpnd3 = NIL
@@ -291,8 +284,6 @@ From unit expression map, Expr No 3 16_****************
  ExpDefElmtType = NIL
  ExpDefSsType = NIL
  ExpArgPrefix = NIL
- (* From subtype Expr1OpndTyp: *)
- (* From subtype Expr2OpndTyp: *)
 
 
 From unit expression map, Expr No 6 16_****************
@@ -324,7 +315,7 @@ From unit expression map, Expr No 6 16_****************
  ExpStackHt = 0
  ExpSelfExprNo = 6
  ExpDownKind = EkNull
- ExpUpKind = EkSupertype
+ ExpUpKind = EkType
  ExpKind = EkSupertype
  ExpState = EsUnresolved
  ExpIsConst = FALSE

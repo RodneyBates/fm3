@@ -2,17 +2,35 @@ From unit expression map, Expr No 0 NIL
 
 From unit expression map, Expr No 1 16_****************
  ExpStackLink = NIL
- ExpType = NIL
  ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
- ExpSelfExprNo = 1
+ ExpBinOpLtOpndKindsAllowed = <nothing>
+ ExpBinOpRtOpndKindsAllowed = <nothing>
+ ExpArgsList = 
+ ExpObjOverrides = NIL
+ ExpObjDecls = NIL
+ ExpObjBrandKind = BkAbsent
+ ExpScopeRef1 = NIL
+ ExpQualDeclNoLt = 0
+ ExpDefDeclNo = -9223372036854775808
+ ExpQualIdAtomRt = <NIL>
+ ExpIdentDeclNo = 0
+ ExpRemoteUnitNo = 0
+ ExpRemoteDeclNo = 0
+ ExpDefIntfUnitNo = 0
+ ExpDefIntfDeclNo = -9223372036854775808
  ExpPosition = [5,46]
  ExpOpcode = BOOLEAN
+ ExpDotIdAtom = <NIL>
+ ExpArgNo = 0
+ ExpBinOpActualsCt = 0
+ ExpStackHt = 0
+ ExpSelfExprNo = 1
  ExpDownKind = EkNull
  ExpUpKind = EkNull
- ExpKind = EkNull
+ ExpKind = EkReservedIdent
  ExpState = EsUnresolved
  ExpIsConst = FALSE
  ExpConstValIsKnown = FALSE
@@ -21,24 +39,56 @@ From unit expression map, Expr No 1 16_****************
  ExpIsDesignator = FALSE
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
+ ExpREFIsUntraced = FALSE
  ExpRefTypeIsUntraced = FALSE
  ExpArrayTypeIsOpen = FALSE
- (* From subtype ExprReservedIdRefTyp: *)
+ ExpType = NIL
+ ExpOpnd1 = NIL
+ ExpOpnd2 = NIL
+ ExpOpnd3 = NIL
+ ExpQuadOpOpnd3 = NIL
+ ExpQuadOpOpnd4 = NIL
+ ExpAddrReferent = NIL
+ ExpOpenArrayElemType = NIL
+ ExpRangeBase = NIL
+ ExpSubrLo = NIL
+ ExpSubrHi = NIL
+ ExpDefElmtType = NIL
+ ExpDefSsType = NIL
+ ExpArgPrefix = NIL
 
 
 From unit expression map, Expr No 2 16_****************
  ExpStackLink = NIL
- ExpType = NIL
  ExpRefConstVal = NIL
  ExpScalarConstVal = 0
  ExpLoTypeInfoRef = 
  ExpReachedDeclNoSet = {}
- ExpSelfExprNo = 2
+ ExpBinOpLtOpndKindsAllowed = <nothing>
+ ExpBinOpRtOpndKindsAllowed = <nothing>
+ ExpArgsList = 
+ ExpObjOverrides = NIL
+ ExpObjDecls = NIL
+ ExpObjBrandKind = BkAbsent
+ ExpScopeRef1 = NIL
+ ExpQualDeclNoLt = 0
+ ExpDefDeclNo = -9223372036854775808
+ ExpQualIdAtomRt = <NIL>
+ ExpIdentDeclNo = 0
+ ExpRemoteUnitNo = 0
+ ExpRemoteDeclNo = 0
+ ExpDefIntfUnitNo = 0
+ ExpDefIntfDeclNo = -9223372036854775808
  ExpPosition = [5,27]
  ExpOpcode = INTEGER
+ ExpDotIdAtom = <NIL>
+ ExpArgNo = 0
+ ExpBinOpActualsCt = 0
+ ExpStackHt = 0
+ ExpSelfExprNo = 2
  ExpDownKind = EkNull
  ExpUpKind = EkNull
- ExpKind = EkNull
+ ExpKind = EkReservedIdent
  ExpState = EsUnresolved
  ExpIsConst = FALSE
  ExpConstValIsKnown = FALSE
@@ -47,8 +97,22 @@ From unit expression map, Expr No 2 16_****************
  ExpIsDesignator = FALSE
  ExpIsWritable = FALSE
  ExpIsPresent = TRUE
+ ExpREFIsUntraced = FALSE
  ExpRefTypeIsUntraced = FALSE
  ExpArrayTypeIsOpen = FALSE
- (* From subtype ExprReservedIdRefTyp: *)
+ ExpType = NIL
+ ExpOpnd1 = NIL
+ ExpOpnd2 = NIL
+ ExpOpnd3 = NIL
+ ExpQuadOpOpnd3 = NIL
+ ExpQuadOpOpnd4 = NIL
+ ExpAddrReferent = NIL
+ ExpOpenArrayElemType = NIL
+ ExpRangeBase = NIL
+ ExpSubrLo = NIL
+ ExpSubrHi = NIL
+ ExpDefElmtType = NIL
+ ExpDefSsType = NIL
+ ExpArgPrefix = NIL
 
 

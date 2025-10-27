@@ -30,7 +30,7 @@ From unit expression map, Expr No 1 16_****************
  ExpSelfExprNo = 1
  ExpDownKind = EkNull
  ExpUpKind = EkNull
- ExpKind = EkNull
+ ExpKind = EkReservedIdent
  ExpState = EsUnresolved
  ExpIsConst = FALSE
  ExpConstValIsKnown = FALSE
@@ -56,7 +56,6 @@ From unit expression map, Expr No 1 16_****************
  ExpDefElmtType = NIL
  ExpDefSsType = NIL
  ExpArgPrefix = NIL
- (* From subtype ExprReservedIdRefTyp: *)
 
 
 From unit expression map, Expr No 2 16_****************
@@ -89,7 +88,7 @@ From unit expression map, Expr No 2 16_****************
  ExpSelfExprNo = 2
  ExpDownKind = EkNull
  ExpUpKind = EkNull
- ExpKind = EkNull
+ ExpKind = EkReservedIdent
  ExpState = EsUnresolved
  ExpIsConst = FALSE
  ExpConstValIsKnown = FALSE
@@ -115,7 +114,6 @@ From unit expression map, Expr No 2 16_****************
  ExpDefElmtType = NIL
  ExpDefSsType = NIL
  ExpArgPrefix = NIL
- (* From subtype ExprReservedIdRefTyp: *)
 
 
 From unit expression map, Expr No 3 16_****************
@@ -148,7 +146,7 @@ From unit expression map, Expr No 3 16_****************
  ExpSelfExprNo = 3
  ExpDownKind = EkNull
  ExpUpKind = EkNull
- ExpKind = EkNull
+ ExpKind = EkReservedIdent
  ExpState = EsUnresolved
  ExpIsConst = FALSE
  ExpConstValIsKnown = FALSE
@@ -174,7 +172,6 @@ From unit expression map, Expr No 3 16_****************
  ExpDefElmtType = NIL
  ExpDefSsType = NIL
  ExpArgPrefix = NIL
- (* From subtype ExprReservedIdRefTyp: *)
 
 
 From unit expression map, Expr No 4 16_****************
@@ -207,7 +204,7 @@ From unit expression map, Expr No 4 16_****************
  ExpSelfExprNo = 4
  ExpDownKind = EkNull
  ExpUpKind = EkNull
- ExpKind = EkNull
+ ExpKind = EkReservedIdent
  ExpState = EsUnresolved
  ExpIsConst = FALSE
  ExpConstValIsKnown = FALSE
@@ -233,7 +230,6 @@ From unit expression map, Expr No 4 16_****************
  ExpDefElmtType = NIL
  ExpDefSsType = NIL
  ExpArgPrefix = NIL
- (* From subtype ExprReservedIdRefTyp: *)
 
 
 From unit expression map, Expr No 5 16_****************
@@ -266,7 +262,7 @@ From unit expression map, Expr No 5 16_****************
  ExpSelfExprNo = 5
  ExpDownKind = EkNull
  ExpUpKind = EkNull
- ExpKind = EkNull
+ ExpKind = EkReservedIdent
  ExpState = EsUnresolved
  ExpIsConst = FALSE
  ExpConstValIsKnown = FALSE
@@ -292,6 +288,5 @@ From unit expression map, Expr No 5 16_****************
  ExpDefElmtType = NIL
  ExpDefSsType = NIL
  ExpArgPrefix = NIL
- (* From subtype ExprReservedIdRefTyp: *)
 
 

@@ -1,12 +1,4 @@
 [32mINFO:  [0mMain.m3 Pass 1 output file Main.m3.FM3Pass1 has 511 bytes.
-[31mERROR: [0mMain.m3[19,9] Left operand of "AND" must be a value expression.
-[31mERROR: [0mMain.m3[19,15] Right Operand of "AND" must be a value expression.
-[31mERROR: [0mMain.m3[18,9] Left operand of "MOD" must be a value expression.
-[31mERROR: [0mMain.m3[18,15] Right Operand of "MOD" must be a value expression.
-[31mERROR: [0mMain.m3[17,9] Left operand of "+" must be a value expression.
-[31mERROR: [0mMain.m3[17,13] Right Operand of "+" must be a value expression.
-[31mERROR: [0mMain.m3[15,9] Operand of "NOT" must be a value expression.
-[31mERROR: [0mMain.m3[14,9] Operand of "UnaryMinus" must be a value expression.
 [31mERROR: [0mMain.m3[9,6] Illegal recursive declarations: "A", also involving
        "B" [9,10]
        "C" [9,14]

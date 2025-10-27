@@ -1,5 +1,5 @@
 [32mFM3:   [0mCompiling with command line: 
-         /home/rodney/proj/m3/fm3/git/compiler/AMD64_LINUX/FM3 --no-std-sources --disasm --no-disasm-verbose --exprs Intf.i3"
+         "/home/rodney/proj/m3/fm3/git/compiler/AMD64_LINUX/FM3 --no-std-sources --disasm --no-disasm-verbose --exprs Intf.i3"
 [32mFM3:   [0mGetting dependencies of 
          /home/rodney/proj/m3/fm3/git/fm3tests/src/e10/e1011/src/Intf.i3 ...
 [32mFM3:   [0mCompiling Intf.i3 ...

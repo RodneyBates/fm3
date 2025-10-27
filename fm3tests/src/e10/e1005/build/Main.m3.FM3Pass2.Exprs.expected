@@ -204,7 +204,7 @@ From unit expression map, Expr No 4 16_****************
  ExpSelfExprNo = 4
  ExpDownKind = EkNull
  ExpUpKind = EkNull
- ExpKind = EkIdentRef
+ ExpKind = EkRemoteRef
  ExpState = EsUnresolved
  ExpIsConst = FALSE
  ExpConstValIsKnown = FALSE
@@ -230,7 +230,6 @@ From unit expression map, Expr No 4 16_****************
  ExpDefElmtType = NIL
  ExpDefSsType = NIL
  ExpArgPrefix = NIL
- (* From subtype ExprRemoteRefTyp: *)
 
 
 From unit expression map, Expr No 5 16_****************
@@ -289,6 +288,5 @@ From unit expression map, Expr No 5 16_****************
  ExpDefElmtType = NIL
  ExpDefSsType = NIL
  ExpArgPrefix = NIL
- (* From subtype ExprIdentRefTyp: *)
 
 
