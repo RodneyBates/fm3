@@ -52,7 +52,7 @@ MODULE FM3 EXPORTS Main
             ( ARRAY OF REFANY
                 { "Compiling with command line: "
                 , FM3Messages . NLIndent
-                , "  " 
+                , "  \"" 
                 , FM3SharedUtils . ArgListAsText ( ) 
                 , "\""
                 }
