@@ -86,9 +86,9 @@ INTERFACE FM3Exprs
      , EkFunc 
      , EkValue
      , EkBrand 
-     , EkConst (* A Subcategory of EkValue *)     
      , EkRef 
      }
+     
 ; TYPE Ekt = ExprKindTyp
 
 ; PROCEDURE ExprKindImage ( Kind : ExprKindTyp ) : TEXT 
@@ -102,12 +102,24 @@ INTERFACE FM3Exprs
 
 ; CONST EkSetValue = EkSetTyp { Ekt . EkValue } 
 
-; CONST EkSetType = EkSetTyp { Ekt . EkType } 
+; CONST EkSetType = EkSetTyp { Ekt . EkType }
 
-; CONST EkSetConst = EkSetTyp { Ekt . EkConst } 
+; CONST EkSetUniquableTypes = EkSetTyp 
+    =  { Ekt . EkEnumType
+       , Ekt . EkRecType
+       , Ekt . EkArrayType
+       , Ekt . EkObjType
+       , Ekt . EkSubrType
+       , Ekt . EkRefType
+       , Ekt . EkSupertype
+       (* There will never be >1 identical expr of kind EkIntType,
+          EkAddrType, or EkFloatType, since these are builtin and only
+          hard coded, thus not programmer-definable.
+       *)
+       } 
 
 ; CONST EkSetBrand
-    = EkSetTyp { Ekt . EkBrand , Ekt . EkValue , Ekt . EkConst } 
+    = EkSetTyp { Ekt . EkBrand , Ekt . EkValue } 
 
 ; CONST EkSetTypeOrValue = EkSetTyp { Ekt . EkValue , Ekt . EkValue } 
 
@@ -166,10 +178,10 @@ INTERFACE FM3Exprs
       ; ExpOpnd1 : ExprTyp (* Left operand when binary. *)
       ; ExpOpnd2 : ExprTyp (* Right Operand when binary. *) 
       ; ExpOpnd3 : ExprTyp 
-      ; ExpQuadOpOpnd3 : ExprTyp 
-      ; ExpQuadOpOpnd4 : ExprTyp 
+      ; ExpOpnd3 : ExprTyp 
+      ; ExpOpnd4 : ExprTyp 
         (* This can denote a ternary operator, in which case we use this
-           type with ExpQuadOpOpnd4 field just going unused.
+           type with ExpOpnd4 field just going unused.
         *) 
       ; ExpBinOpLtOpndKindsAllowed := ExprKindSetTyp { } 
       ; ExpBinOpRtOpndKindsAllowed := ExprKindSetTyp { }
@@ -219,6 +231,7 @@ INTERFACE FM3Exprs
 
 
       ; ExpIsConst : BOOLEAN := FALSE
+      ; ExpIsScalar : BOOLEAN := FALSE
       ; ExpConstValIsKnown : BOOLEAN := FALSE
       ; ExpIsUsable : BOOLEAN := TRUE
       ; ExpIsLegalRecursive : BOOLEAN := FALSE
@@ -226,9 +239,8 @@ INTERFACE FM3Exprs
       ; ExpIsDesignator : BOOLEAN := FALSE
       ; ExpIsWritable : BOOLEAN := FALSE
       ; ExpIsPresent : BOOLEAN := TRUE  
-      ; ExpRefTypeIsUntraced : BOOLEAN := FALSE   
       ; ExpArrayTypeIsOpen : BOOLEAN := FALSE
-      ; ExpREFIsUntraced : BOOLEAN 
+      ; ExpIsUntraced : BOOLEAN 
 
 
       METHODS

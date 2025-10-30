@@ -415,15 +415,15 @@ MODULE FM3Builtins
       , Stk . StkPdInsert
       , Stk . StkPd_Long_Insert
       => LResult := NEW ( FM3Exprs . ExprTyp )
-      ; LResult . ExpQuadOpOpnd3 := NIL 
-      ; LResult . ExpQuadOpOpnd4 := NIL
+      ; LResult . ExpOpnd3 := NIL 
+      ; LResult . ExpOpnd4 := NIL
       | Stk . StkRTUniqueBrand
       => LResult := NEW ( FM3Exprs . ExprTyp )
-(* TODO: ^V Use an appropriate Expr type. *) 
       ELSE LResult := NEW ( FM3Exprs . ExprTyp )
       END (*CASE *) 
     ; LResult . ExpOpnd1 := NIL 
-    ; LResult . ExpOpnd2 := NIL 
+    ; LResult . ExpOpnd2 := NIL
+(* FIXME: where do these Opnd* get set? *) 
     ; WITH WProps = GOpPropertiesArray [ Opcode ]
       DO 
         LResult . ExpType := GOpTypesArray [ Opcode ]   

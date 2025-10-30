@@ -6,7 +6,9 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
 
-(* Expressions for things named by Modula-3 reserved identifiers. *) 
+(* Expressions for things named by Modula-3 reserved identifiers. *)
+
+(* COMPLETEME.  This needs major completion. *) 
 
 MODULE FM3ReservedIds
 
@@ -140,9 +142,9 @@ MODULE FM3ReservedIds
 
   ; PROCEDURE InitRidFALSE ( ) 
     = BEGIN 
-     (* IniExprRef . Exp := 
-      ; IniExprRef . Exp := 
-      ; IniExprRef . Exp := 
+     (* IniExprRef . ExpIsConst := TRUE   
+      ; IniExprRef . ExpConstValueIsKnown := TRUE  
+      ; IniExprRef . ExpScalarConstVal := 0L
       ; IniExprRef . Exp := 
    *) END InitRidFALSE
 
@@ -293,7 +295,9 @@ MODULE FM3ReservedIds
 
   ; PROCEDURE InitRidNIL ( ) 
     = BEGIN 
-     (* IniExprRef . Exp := 
+     (* IniExprRef . ExpIsConst := TRUE   
+      ; IniExprRef . ExpConstValueIsKnown := TRUE  
+      ; IniExprRef . ExpScalarConstVal := 0L
       ; IniExprRef . Exp := 
       ; IniExprRef . Exp := 
       ; IniExprRef . Exp := 
@@ -374,7 +378,9 @@ MODULE FM3ReservedIds
 
   ; PROCEDURE InitRidTRUE ( ) 
     = BEGIN 
-     (* IniExprRef . Exp := 
+     (* IniExprRef . ExpIsConst := TRUE   
+      ; IniExprRef . ExpConstValueIsKnown := TRUE  
+      ; IniExprRef . ExpScalarConstVal := 0L
       ; IniExprRef . Exp := 
       ; IniExprRef . Exp := 
       ; IniExprRef . Exp := 
@@ -447,9 +453,11 @@ MODULE FM3ReservedIds
         ; IniExprRef := ExprRef (* For use by InitRid* procs. *) 
         ; WExprRef . ExpSelfExprNo := - Opcode 
         ; WExprRef . ExpOpcode := Opcode
-        ; WExprRef . ExpKind := Kind 
+        ; WExprRef . ExpKind := Kind
+        ; WExprRef . ExpIsLegalRecursive := FALSE (*Irrelevant*)
+        ; WExprRef . ExpState := Est . EsResolved 
         END (*WITH*) 
-      END InitRes  
+      END InitRes 
 
   ; BEGIN (*Init*)
       InitRes ( Stk . RidABS , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
@@ -491,7 +499,7 @@ MODULE FM3ReservedIds
     ; InitRes ( Stk . RidEXTENDED , NEW ( Ex . ExprTyp ) , Ekt . EkType )
     ; InitRidEXTENDED ( )
 
-    ; InitRes ( Stk . RidFALSE , NEW ( Ex . ExprTyp ) , Ekt . EkConst )
+    ; InitRes ( Stk . RidFALSE , NEW ( Ex . ExprTyp ) , Ekt . EkLiteral )
     ; InitRidFALSE ( )
 
     ; InitRes ( Stk . RidFIRST , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
@@ -542,7 +550,7 @@ MODULE FM3ReservedIds
     ; InitRes ( Stk . RidNEW , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )
     ; InitRidNEW ( )
 
-    ; InitRes ( Stk . RidNIL , NEW ( Ex . ExprTyp ) , Ekt . EkConst )
+    ; InitRes ( Stk . RidNIL , NEW ( Ex . ExprTyp ) , Ekt . EkLiteral )
     ; InitRidNIL ( )
 
     ; InitRes ( Stk . RidNULL , NEW ( Ex . ExprTyp ) , Ekt . EkType )
@@ -569,7 +577,7 @@ MODULE FM3ReservedIds
     ; InitRes ( Stk . RidTEXT , NEW ( Ex . ExprTyp ) , Ekt . EkType )
     ; InitRidTEXT ( )
 
-    ; InitRes ( Stk . RidTRUE , NEW ( Ex . ExprTyp ) , Ekt . EkConst )
+    ; InitRes ( Stk . RidTRUE , NEW ( Ex . ExprTyp ) , Ekt . EkLiteral )
     ; InitRidTRUE ( )
 
     ; InitRes ( Stk . RidTRUNC , NEW ( Ex . ExprTyp ) , Ekt . EkFunc )

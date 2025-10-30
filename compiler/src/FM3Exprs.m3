@@ -72,7 +72,6 @@ MODULE FM3Exprs
       | ExprKindTyp . EkFunc => RETURN "EkFunc"  
       | ExprKindTyp . EkValue => RETURN "EkValue" 
       | ExprKindTyp . EkBrand => RETURN "EkBrand"  
-      | ExprKindTyp . EkConst => RETURN "EkConst"  
       | ExprKindTyp . EkRef => RETURN "EkRef"  
       ELSE RETURN "<Unknown ExprKindImage>"
       END (*CASE*) 
@@ -94,8 +93,6 @@ MODULE FM3Exprs
        => RETURN "function" 
       | ExprKindTyp . EkValue 
        => RETURN "value" 
-      | ExprKindTyp . EkConst 
-       => RETURN "constant" 
       | ExprKindTyp . EkRef 
        => RETURN "reference" 
       ELSE RETURN "<unknown>"
@@ -415,16 +412,15 @@ RETURN ;
       ; Field ( "ExpIsDesignator" , Fmt . Bool ( Expr . ExpIsDesignator ) ) 
       ; Field ( "ExpIsWritable" , Fmt . Bool ( Expr . ExpIsWritable ) )  
       ; Field ( "ExpIsPresent" , Fmt . Bool ( Expr . ExpIsPresent ) )  
-      ; Field ( "ExpREFIsUntraced" , Fmt . Bool ( Expr . ExpREFIsUntraced ) )
-      ; Field ( "ExpRefTypeIsUntraced" , Fmt . Bool ( Expr . ExpRefTypeIsUntraced ) )
+      ; Field ( "ExpIsUntraced" , Fmt . Bool ( Expr . ExpIsUntraced ) )
       ; Field ( "ExpArrayTypeIsOpen" , Fmt . Bool ( Expr . ExpArrayTypeIsOpen ) )
 
       ; NestedField ( "ExpType" , Expr . ExpType ) 
       ; NestedField ( "ExpOpnd1" , Expr . ExpOpnd1 ) 
       ; NestedField ( "ExpOpnd2" , Expr . ExpOpnd2 ) 
       ; NestedField ( "ExpOpnd3" , Expr . ExpOpnd3 ) 
-      ; NestedField ( "ExpQuadOpOpnd3" , Expr . ExpQuadOpOpnd3 ) 
-      ; NestedField ( "ExpQuadOpOpnd4" , Expr . ExpQuadOpOpnd4 ) 
+      ; NestedField ( "ExpOpnd3" , Expr . ExpOpnd3 ) 
+      ; NestedField ( "ExpOpnd4" , Expr . ExpOpnd4 ) 
       ; NestedField ( "ExpAddrReferent" , Expr . ExpAddrReferent ) 
       ; NestedField ( "ExpOpenArrayElemType" , Expr . ExpOpenArrayElemType ) 
       ; NestedField ( "ExpRangeBase" , Expr . ExpRangeBase ) 

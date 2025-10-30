@@ -411,7 +411,7 @@ MODULE FM3Pass2
 FALSE AND
          LUnOpExpr . ExpIsUsable
          AND NOT LUnOpExpr . ExpOpnd1 . ExpUpKind
-                 IN EkSetTyp { Ekt . EkValue , Ekt . EkConst , Ekt . EkNull }
+                 IN EkSetTyp { Ekt . EkValue , Ekt . EkNull }
       THEN
         WrongKindMsg
           ( "Operand"
@@ -443,7 +443,7 @@ FALSE AND
 FALSE AND
          LOpnd1 . ExpIsUsable
          AND NOT LOpnd1 . ExpUpKind
-                 IN EkSetTyp { Ekt . EkValue , Ekt . EkConst , Ekt . EkNull }
+                 IN EkSetTyp { Ekt . EkValue , Ekt . EkNull }
       THEN
         WrongKindMsg
           ( "Left operand"
@@ -455,7 +455,7 @@ FALSE AND
       END (*IF*) 
     ; IF LOpnd2 . ExpIsUsable
          AND NOT LOpnd2 . ExpUpKind
-                 IN EkSetTyp { Ekt . EkValue , Ekt . EkConst , Ekt . EkNull } 
+                 IN EkSetTyp { Ekt . EkValue , Ekt . EkNull } 
       THEN
         WrongKindMsg
           ( "Right Operand"
@@ -644,13 +644,12 @@ FALSE AND
                 := VarArray_Int_Refany . Fetch
                      ( FM3LoTypes . LoTypeMap , LLoTypeNo )  
             ; LExpr . ExpPosition := LPosition
-            ; LExpr . ExpKind := Ekt . EkLiteral
-            ; LExpr . ExpUpKind := Ekt . EkConst
+            ; LExpr . ExpKind := Ekt . EkLiteral1
             ; LExpr . ExpOpcode := LOpcode 
             ; LExpr . ExpUpKind := Ekt . EkValue 
             ; LExpr . ExpIsConst := TRUE 
             ; LExpr . ExpConstValIsKnown := TRUE 
-            ; LExpr . ExpIsLegalRecursive := TRUE
+            ; LExpr . ExpIsLegalRecursive := TRUE (* Irrelevant? *) 
             ; LExpr . ExpState := Est . EsResolved
             ; DefExprRt ( LExpr )
             END (*WITH*)
@@ -685,7 +684,6 @@ FALSE AND
                      ( FM3LoTypes . LoTypeMap , LoTypeNo )  
             ; LExpr . ExpPosition := LPosition
             ; LExpr . ExpKind := Ekt . EkLiteral  
-            ; LExpr . ExpUpKind := Ekt . EkConst 
             ; LExpr . ExpIsConst := TRUE 
             ; LExpr . ExpConstValIsKnown := TRUE 
             ; LExpr . ExpIsLegalRecursive := TRUE
@@ -1112,14 +1110,16 @@ FALSE AND
       | Itk . ItkTextLitRt
       , Itk . ItkWideTextLitRt
       =>  LLongInt
-            := FM3Compress . GetBwd ( TokResult . TrRdBack ) (* ^Atom. *)  
+            := FM3Compress . GetBwd ( TokResult . TrRdBack ) (* Atom. *)  
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; IF NOT HtSkipping 
           THEN
             DefExprRt
               ( NEW ( FM3Exprs . ExprTyp
                     , ExpKind := Ekt . EkLiteral
-                    , ExpUpKind := Ekt . EkConst
+                    , ExpIsConst := TRUE   
+                    , ExpConstValueIsKnown := TRUE  
+                    , ExpState := Est . EsResolved 
                     , ExpScalarConstVal := LLongInt
                     (* No base in an Expr? *) 
                     , ExpOpcode := TokResult . TrTok 
@@ -1192,7 +1192,6 @@ FALSE AND
           ; LNewExpr 
               := NEW ( FM3Exprs . ExprTyp
                      , ExpKind := Ekt . EkBrand
-                     , ExpUpKind := Ekt . EkConst
                      , ExpIsLegalRecursive := TRUE
                      , ExpIsPresent := FALSE
                      , ExpPosition := LPosition 
@@ -1220,7 +1219,6 @@ FALSE AND
               LNewExpr
                 := NEW ( FM3Exprs . ExprTyp
                        , ExpKind := Ekt . EkBrand
-                       , ExpUpKind := Ekt . EkConst
                        , ExpIsLegalRecursive := TRUE
                        , ExpIsPresent := TRUE  
                        , ExpPosition := WPosition 
@@ -1245,9 +1243,8 @@ FALSE AND
                     , ExpKind := Ekt . EkRefType
                     , ExpUpKind := Ekt . EkType
                     , ExpIsLegalRecursive := TRUE
-                    , ExpRefTypeIsUntraced := LBool
+                    , ExpIsUntraced := LBool
                     , ExpOpcode := Stk . StkRwREF
-                    , ExpRefTypeIsUntraced := LBool
                     (* ExpOpnd2 will later be referent. *) 
                     (* ExpOpnd1 will later be brand. *) 
                     )
@@ -1337,6 +1334,10 @@ FALSE AND
                        , ExpUpKind := Ekt . EkType
                        , ExpIsLegalRecursive := TRUE
                        , ExpOpcode := Stk . StkRwOBJECT 
+                       (* ExpIsUntraced has to be syunthesized from the
+                          supertype, with ground from builtin types ROOT
+                          or UNTRACED ROOT.
+                       *) 
                        , ExpOpnd1 := NIL (* Supertype. *) 
                        , ExpOpnd2 := NIL (* Brand. *)
                        , ExpObjOverrides := NIL
@@ -1384,6 +1385,7 @@ FALSE AND
                     , ExpKind := Ekt . EkArrayType
                     , ExpUpKind := Ekt . EkType
                     , ExpOpcode := FM3SrcToks.StkRwARRAY
+(&* CHECK             ^ Is this needed? *) 
                     , ExpArrayTypeIsOpen := LBool 
                     )
               )
