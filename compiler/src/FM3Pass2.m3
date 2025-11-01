@@ -644,7 +644,7 @@ FALSE AND
                 := VarArray_Int_Refany . Fetch
                      ( FM3LoTypes . LoTypeMap , LLoTypeNo )  
             ; LExpr . ExpPosition := LPosition
-            ; LExpr . ExpKind := Ekt . EkLiteral1
+            ; LExpr . ExpKind := Ekt . EkLiteral
             ; LExpr . ExpOpcode := LOpcode 
             ; LExpr . ExpUpKind := Ekt . EkValue 
             ; LExpr . ExpIsConst := TRUE 
@@ -1385,7 +1385,7 @@ FALSE AND
                     , ExpKind := Ekt . EkArrayType
                     , ExpUpKind := Ekt . EkType
                     , ExpOpcode := FM3SrcToks.StkRwARRAY
-(&* CHECK             ^ Is this needed? *) 
+(* CHECK             ^ Is this needed? *) 
                     , ExpArrayTypeIsOpen := LBool 
                     )
               )
@@ -2227,7 +2227,7 @@ FALSE AND
           | NULL =>
           | FM3Exprs . ExprTyp ( TExpr )
           =>  IF NOT CheckParamKind
-                      ( TExpr . ExpQuadOpOpnd3 
+                      ( TExpr . ExpOpnd3 
                       , TExpr . ExpOpcode
                       , "Third parameter"
                       , FM3Exprs . EkSetValue 
@@ -2236,7 +2236,7 @@ FALSE AND
               END (*IF*)
             ; IF TOpExpr . ExpBinOpActualsCt > 3
                  AND NOT CheckParamKind
-                           ( TExpr . ExpQuadOpOpnd4 
+                           ( TExpr . ExpOpnd4 
                            , TExpr . ExpOpcode
                            , "Forth parameter"
                            , FM3Exprs . EkSetValue 

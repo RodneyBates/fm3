@@ -29,7 +29,7 @@ MODULE FM3Builtins
 
 ; IMPORT IntSets
 
-; FROM   FM3Base IMPORT tPosition
+; IMPORT FM3Base 
 ; IMPORT FM3Exprs
 ; IMPORT FM3LoTypes
 ; IMPORT FM3LoTypes AS Lt
@@ -403,7 +403,7 @@ MODULE FM3Builtins
     END InitOperatorProperties
 
 ; PROCEDURE NewOpExpr
-    ( Opcode : FM3SrcToks . TokTyp ; Position : tPosition )
+    ( Opcode : FM3SrcToks . TokTyp ; Position : FM3Base . tPosition )
   : FM3Exprs . ExprTyp
 
   = VAR LResult : FM3Exprs . ExprTyp
@@ -439,7 +439,8 @@ MODULE FM3Builtins
     END NewOpExpr 
 
 (*EXPORTED.*)
-; PROCEDURE BuiltinExpr ( Opcode : FM3SrcToks . TokTyp ; Position : tPosition )
+; PROCEDURE BuiltinExpr
+    ( Opcode : FM3SrcToks . TokTyp ; Position := FM3Base . PositionNull )
   : FM3Exprs . ExprTyp (* NIL if not an Id denoting an ExprTyp *) 
 
   = VAR LResult : FM3Exprs . ExprTyp

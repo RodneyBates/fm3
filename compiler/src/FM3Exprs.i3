@@ -105,7 +105,7 @@ INTERFACE FM3Exprs
 ; CONST EkSetType = EkSetTyp { Ekt . EkType }
 
 ; CONST EkSetUniquableTypes = EkSetTyp 
-    =  { Ekt . EkEnumType
+       { Ekt . EkEnumType
        , Ekt . EkRecType
        , Ekt . EkArrayType
        , Ekt . EkObjType
@@ -116,6 +116,16 @@ INTERFACE FM3Exprs
           EkAddrType, or EkFloatType, since these are builtin and only
           hard coded, thus not programmer-definable.
        *)
+       } 
+
+; CONST EkSetPossiblyConstants = EkSetTyp 
+       { Ekt . EkLiteral
+       , Ekt . EkDot
+       , Ekt . EkUnOp 
+       , Ekt . EkBinOp 
+       , Ekt . EkCall
+       , Ekt . EkSubscript 
+       , Ekt . EkBrand
        } 
 
 ; CONST EkSetBrand
@@ -178,7 +188,6 @@ INTERFACE FM3Exprs
       ; ExpOpnd1 : ExprTyp (* Left operand when binary. *)
       ; ExpOpnd2 : ExprTyp (* Right Operand when binary. *) 
       ; ExpOpnd3 : ExprTyp 
-      ; ExpOpnd3 : ExprTyp 
       ; ExpOpnd4 : ExprTyp 
         (* This can denote a ternary operator, in which case we use this
            type with ExpOpnd4 field just going unused.
@@ -229,10 +238,10 @@ INTERFACE FM3Exprs
       ; ExpKind : ExprKindTyp := Ekt . EkNull
       ; ExpState : ExprStateTyp := Est . EsUnresolved
 
-
+      ; ExpIsUniquable : BOOLEAN := FALSE
       ; ExpIsConst : BOOLEAN := FALSE
-      ; ExpIsScalar : BOOLEAN := FALSE
       ; ExpConstValIsKnown : BOOLEAN := FALSE
+(* TODO ^ CAn't we just use ExpState # Est . EsUnresolved for this? *)  
       ; ExpIsUsable : BOOLEAN := TRUE
       ; ExpIsLegalRecursive : BOOLEAN := FALSE
         (* ^Self or any containing def could make it legal. *) 

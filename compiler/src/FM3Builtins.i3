@@ -10,12 +10,12 @@
 
 INTERFACE FM3Builtins
 
-; FROM FM3Base IMPORT tPosition
-
+; IMPORT FM3Base 
 ; IMPORT FM3Exprs 
 ; IMPORT FM3SrcToks
 
-; PROCEDURE BuiltinExpr ( Opcode : FM3SrcToks . TokTyp ; Position : tPosition )
+; PROCEDURE BuiltinExpr
+    ( Opcode : FM3SrcToks . TokTyp ; Position := FM3Base . PositionNull )
   : FM3Exprs . ExprTyp (* NIL if not an Id denoting an ExprTyp *) 
 
 ; PROCEDURE IsOperationTok ( Tok : FM3SrcToks . TokTyp ) : BOOLEAN 

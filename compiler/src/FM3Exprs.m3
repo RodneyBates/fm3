@@ -407,6 +407,7 @@ RETURN ;
       ; Field ( "ExpState" , ExprStateImage ( Expr . ExpState ) )  
       ; Field ( "ExpIsConst" , Fmt . Bool ( Expr . ExpIsConst ) )  
       ; Field ( "ExpConstValIsKnown" , Fmt . Bool ( Expr . ExpConstValIsKnown ) )
+      ; Field ( "ExpIsUniquable" , Fmt . Bool ( Expr . ExpIsUniquable ) )  
       ; Field ( "ExpIsUsable" , Fmt . Bool ( Expr . ExpIsUsable ) ) 
       ; Field ( "ExpIsLegalRecursive" , Fmt . Bool ( Expr . ExpIsLegalRecursive ) )
       ; Field ( "ExpIsDesignator" , Fmt . Bool ( Expr . ExpIsDesignator ) ) 

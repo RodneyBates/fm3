@@ -12,16 +12,16 @@
 
 MODULE FM3ReservedIds
 
-; IMPORT FM3Exprs 
-; IMPORT FM3Exprs AS Ex  
+; IMPORT FM3Exprs AS Ex 
 ; IMPORT FM3SrcToks
 ; IMPORT FM3SrcToks  AS Stk
 
-; TYPE Ekt = FM3Exprs . ExprKindTyp 
+; TYPE Ekt = Ex . ExprKindTyp 
+; TYPE Est = Ex . ExprStateTyp
 
 ; PROCEDURE Init ( )
 
-  = VAR IniExprRef : FM3Exprs . ExprTyp 
+  = VAR IniExprRef : Ex . ExprTyp 
 
   ; PROCEDURE InitRidABS ( ) 
     = BEGIN 
@@ -443,8 +443,8 @@ MODULE FM3ReservedIds
 
   ; PROCEDURE InitRes
       ( Opcode : FM3SrcToks . TokTyp
-      ; ExprRef : FM3Exprs . ExprTyp  
-      ; Kind : FM3Exprs . ExprKindTyp
+      ; ExprRef : Ex . ExprTyp  
+      ; Kind : Ex . ExprKindTyp
       ) 
 
     = BEGIN
