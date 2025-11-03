@@ -556,7 +556,7 @@ MODULE FM3Scanner
     = VAR LTok : FM3SrcToks . TokTyp 
 
     ; BEGIN (* Number *) 
-        ScHash := FM3Utils . GroundHash ( ) 
+        ScHash := FM3Base . HashNull 
       ; Attribute . SaAtom := FM3Base . AtomNull (* Overlaid later? *) 
       ; ScCharVarArr := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 40 } ) 
       ; ScWCharVarArr := NIL 
@@ -950,7 +950,7 @@ MODULE FM3Scanner
     ; VAR LCharVal : CHAR 
 
     ; BEGIN (* TextLit *) 
-        ScHash := FM3Utils . GroundHash ( ) 
+        ScHash := FM3Base . HashNull 
       ; ScCharVarArr := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 200 } ) 
       ; ScWCharVarArr := NIL 
       ; NextChar ( ) (* Consume the opening double quote. *) 
@@ -1016,7 +1016,7 @@ MODULE FM3Scanner
     = VAR LWCharVal : WIDECHAR 
 
     ; BEGIN (* WideTextLit *) 
-        ScHash := FM3Utils . GroundHash ( ) 
+        ScHash := FM3Base . HashNull 
       ; ScCharVarArr := NIL 
       ; ScWCharVarArr 
           := VarArr_WChar . New ( WNUL , IntRangeTyp { 0 , 200 } ) 
@@ -1153,7 +1153,7 @@ MODULE FM3Scanner
             WideTextLit ( )
           ELSE (* An identifier starting with w or W. *)
             Attribute . SaWCh := WNUL  
-          ; ScHash := FM3Utils . GroundHash ( ) 
+          ; ScHash := FM3Base . HashNull 
           ; ScCharVarArr 
               := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 160 } ) 
           ; ScWCharVarArr := NIL 
@@ -1170,7 +1170,7 @@ MODULE FM3Scanner
         | 'a' .. 'v' , 'x' .. 'z' , 'A' .. 'V' , 'X' .. 'Z' 
           (* Other identifier. *) 
         => Attribute . SaWCh := WNUL  
-        ; ScHash := FM3Utils . GroundHash ( ) 
+        ; ScHash := FM3Base . HashNull 
         ; ScCharVarArr := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 160 } ) 
         ; ScWCharVarArr := NIL 
         ; StartIdent ( ) 

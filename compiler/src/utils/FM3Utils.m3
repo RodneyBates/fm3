@@ -34,7 +34,6 @@ MODULE FM3Utils
 
 ; TYPE IntRangeTyp = IntRanges . RangeTyp
 
-; VAR GroundHashVar := 17345L
 ; VAR ShiftFactor := 7 
   (* Don't be changing this while hash computations and their uses
      are going on! *)
@@ -53,13 +52,6 @@ MODULE FM3Utils
             )
         )
     END PutHex 
-
-(*EXPORTED:*)
-; PROCEDURE GroundHash ( ) : HashTyp
-
-  = BEGIN
-      RETURN GroundHashVar 
-    END GroundHash 
 
 (*EXPORTED:*)
 ; PROCEDURE ContribToHash
@@ -84,7 +76,7 @@ MODULE FM3Utils
   ; VAR LLength : CARDINAL 
 
   ; BEGIN
-      LResult := GroundHash ( )
+      LResult := FM3Base . HashNull
     ; LLength := Text . Length ( Key )
     ; FOR RI := 0 TO LLength - 1
       DO
@@ -103,7 +95,7 @@ MODULE FM3Utils
   ; VAR LLength : CARDINAL 
 
   ; BEGIN
-      LResult := GroundHash ( )
+      LResult := FM3Base . HashNull
     ; LLength := NUMBER ( Key ^ )
     ; FOR RI := 0 TO LLength - 1
       DO
@@ -120,7 +112,7 @@ MODULE FM3Utils
   ; VAR LLength : CARDINAL 
 
   ; BEGIN
-      LResult := GroundHash ( )
+      LResult := FM3Base . HashNull
     ; LLength := NUMBER ( Key ^ )
     ; FOR RI := 0 TO LLength - 1
       DO
@@ -473,6 +465,17 @@ MODULE FM3Utils
       ELSE RETURN "16_****************"
       END (*IF*) 
     END RefanyImage
+
+(*EXPORTED.*)
+; PROCEDURE LongHexImage ( Value : LONGINT ) : TEXT 
+
+  = BEGIN (*LongHexImage*)
+      RETURN 
+        "16_"
+        & FM3Fmt . Pad
+            ( FM3Fmt . LongUnsigned ( Value, 16 ) , 16 , padChar := '0' ) 
+    END LongHexImage
+
  
 ; BEGIN
   END FM3Utils 

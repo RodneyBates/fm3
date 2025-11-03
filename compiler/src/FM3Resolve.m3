@@ -17,20 +17,150 @@ MODULE FM3Resolve
 ; IMPORT FM3Exprs
 ; IMPORT FM3SrcToks 
 ; IMPORT FM3SrcToks AS Stk
+; IMPORT FM3Utils
 
 ; TYPE Ekt = FM3Exprs . ExprKindTyp 
 ; TYPE Est = FM3Exprs . ExprStateTyp 
 
 (*EXPORTED.*)
-; PROCEDURE ResolveExpr ( ExprRef : FM3Exprs . ExprTyp ) : FM3Base . HashTyp 
+; PROCEDURE ResolveExpr ( ExprRef : FM3Exprs . ExprTyp ) 
 
   = BEGIN (*ResolveExpr*)
-      IF ExprRef = NIL THEN RETURN 2L END (*IF*) 
-    ; IF NOT ExprRef . ExpIsUsable THEN RETURN 3L END (*IF*) 
+      IF ExprRef = NIL THEN RETURN END (*IF*) 
+    ; IF NOT ExprRef . ExpIsUsable THEN END (*IF*) 
     ; CASE ExprRef . ExpKind OF
-      | Ekt . EkNull => RETURN 4L
+      | Ekt . EkNull => 
+      | Ekt . EkEnumType 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
+      | Ekt . EkRecType 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
+      | Ekt . EkArrayType 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
+      | Ekt . EkObjType 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
+      | Ekt . EkSubrType 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )  
+      | Ekt . EkRefType 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
+      | Ekt . EkIntType 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )  
+      | Ekt . EkAddrType 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )  
+      | Ekt . EkFloatType 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )  
+      | Ekt . EkSupertype 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )
+      
+      | Ekt . EkLiteral 
+      =>  FM3Utils . ContribToHash
+            ( ExprRef . ExpHash , ExprRef . ExpScalarConstVal ) 
+        ; FM3Utils . ContribToHash
+            ( ExprRef . ExpHash
+            , VAL ( ORD ( ExprRef . ExpOpcode ) , FM3Base . HashTyp )
+            ) 
+      | Ekt . EkIdentRef 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
+      | Ekt . EkQualIdentRef 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )
+      | Ekt . EkReservedIdent 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )
+      | Ekt . EkRemoteRef 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )  
+      | Ekt . EkUnOp 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
+      | Ekt . EkDot 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
+      | Ekt . EkBinOp 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
+      | Ekt . EkCall 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
+      | Ekt . EkSubscript 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
+      | Ekt . EkProc 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )  
+      | Ekt . EkFunc 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )  
+      | Ekt . EkValue 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
+      | Ekt . EkBrand 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )  
+      | Ekt . EkRef 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )  
       ELSE
       END (*CASE*)
+    ; ExprRef . ExpState := Est . EsResolved 
     END ResolveExpr
       
 ; PROCEDURE Opnds12Equal ( Left , Right : FM3Exprs . ExprTyp ) : BOOLEAN

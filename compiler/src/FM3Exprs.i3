@@ -34,6 +34,7 @@ INTERFACE FM3Exprs
 ; IMPORT FM3Parser 
 ; IMPORT FM3Scopes
 ; IMPORT FM3SrcToks
+; IMPORT FM3Utils 
 
 ; TYPE OpcodeTyp = FM3Base .OpcodeTyp 
 
@@ -184,7 +185,8 @@ INTERFACE FM3Exprs
       ; ExpReachedDeclNoSet : IntSets . T
         (* ^DeclNos of ids declared in the same open scope and reached on
             paths that do not allow recursive declaration .
-        *) 
+        *)
+      ; ExpHash : FM3Utils . HashTyp := FM3Base . HashNull
       ; ExpOpnd1 : ExprTyp (* Left operand when binary. *)
       ; ExpOpnd2 : ExprTyp (* Right Operand when binary. *) 
       ; ExpOpnd3 : ExprTyp 

@@ -26,7 +26,7 @@ INTERFACE FM3Utils
 
 ; PROCEDURE PutHex ( WrT : Wr . T ; Value : INTEGER )
 
-; PROCEDURE GroundHash ( ) : HashTyp  
+; CONST GroundHash : HashTyp = FM3Base . HashNull   
 
 ; PROCEDURE ContribToHash 
     ( VAR (*IN OUT*) Hash : HashTyp ; Contribution : HashTyp ) 
@@ -77,6 +77,8 @@ INTERFACE FM3Utils
 
 ; PROCEDURE RefanyImage ( Value : REFANY ) : TEXT
   (* All asterisks, if --no-expr-addrs. *) 
+
+; PROCEDURE LongHexImage ( Value : LONGINT ) : TEXT 
 
 ; END FM3Utils
 .
