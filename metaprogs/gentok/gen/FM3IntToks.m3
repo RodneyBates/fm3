@@ -57,7 +57,7 @@ MODULE FM3IntToks
       | 245 => RETURN "ItkDuplDeclId"
       | 246 => RETURN "ItkDeclId"
       | 247 => RETURN "ItkDeclNo"
-      | 248 => RETURN "ItkDefTopExprNo"
+      | 248 => RETURN "ItkRefTopExprNo"
       | 249 => RETURN "ItkIdRefAtom"
       | 250 => RETURN "ItkOverrideIdAtom"
       | 251 => RETURN "ItkIdentRefWDeclNo"

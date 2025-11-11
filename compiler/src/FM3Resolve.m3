@@ -20,47 +20,47 @@ MODULE FM3Resolve
 ; IMPORT FM3Utils
 
 ; TYPE Ekt = FM3Exprs . ExprKindTyp 
-; TYPE Est = FM3Exprs . ExprStateTyp 
+; TYPE Est = FM3Exprs . ExprStateTyp
+
+; PROCEDURE ResolveChild
+    ( ParentRef :  FM3Exprs . ExprTyp ; ChildRef :  FM3Exprs . ExprTyp )
+
+  = BEGIN (*ResolveChild*)
+      ResolveExpr ( ChildRef )
+    ; FM3Utils . ContribToHashL ( (*IN OUT*) ParentRef . ExpHash , ChildRef . ExpHash )
+
+    END ResolveChild
 
 (*EXPORTED.*)
 ; PROCEDURE ResolveExpr ( ExprRef : FM3Exprs . ExprTyp ) 
 
   = BEGIN (*ResolveExpr*)
       IF ExprRef = NIL THEN RETURN END (*IF*) 
-    ; IF NOT ExprRef . ExpIsUsable THEN END (*IF*) 
+    ; IF NOT ExprRef . ExpIsUsable THEN RETURN END (*IF*) 
+    ; IF ExprRef . ExpState = Est . EsResolved THEN RETURN END (*IF*) 
     ; CASE ExprRef . ExpKind OF
       | Ekt . EkNull => 
       | Ekt . EkEnumType 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
-      | Ekt . EkRecType 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
-      | Ekt . EkArrayType 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
+      , Ekt . EkRecType
+      => (* Nothing synthesized. *) 
       | Ekt . EkObjType 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 ) (*Supertype.*) 
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 ) (*Brand.*)
+      | Ekt . EkArrayType 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 ) (*Subscript type.*)
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 ) (*Element type.*)
       | Ekt . EkSubrType 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )  
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 ) (*Lo bound value.*)
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 ) (*Hi bound value.*)
       | Ekt . EkRefType 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
-      | Ekt . EkIntType 
+      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 ) (*Brand.*)
+        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 ) (*Referent type.*)
+
+      | Ekt . EkBrand 
+      , Ekt . EkSupertype 
+      =>  <* ASSERT FALSE , "should already be resolved." *> 
+
+      | Ekt . EkBuiltin
       =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
         ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
         ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
@@ -75,16 +75,11 @@ MODULE FM3Resolve
         ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
         ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
         ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )  
-      | Ekt . EkSupertype 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )
       
       | Ekt . EkLiteral 
-      =>  FM3Utils . ContribToHash
+      =>  FM3Utils . ContribToHashL
             ( ExprRef . ExpHash , ExprRef . ExpScalarConstVal ) 
-        ; FM3Utils . ContribToHash
+        ; FM3Utils . ContribToHashL
             ( ExprRef . ExpHash
             , VAL ( ORD ( ExprRef . ExpOpcode ) , FM3Base . HashTyp )
             ) 
@@ -148,11 +143,6 @@ MODULE FM3Resolve
         ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
         ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
         ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
-      | Ekt . EkBrand 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )  
       | Ekt . EkRef 
       =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
         ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
@@ -192,23 +182,23 @@ MODULE FM3Resolve
   (* And cache the result. *)
   (* POST: ExprRef is non-NIL, usable, a type or constant value. *) 
 
-  = VAR BEGIN (*IsUniquable*)
+  = BEGIN (*IsUniquable*)
       IF ExprRef = NIL THEN RETURN FALSE (* Why bother? *) END (*IF*)
     ; IF ExprRef . ExpState # Est . EsUnresolved
       THEN (* Was previously cached. *) 
-        RETURN ExprRef . ExpIsUniquable
+        RETURN ExprRef . ExpIsUnique
       END (*IF*) 
     ; IF NOT ExprRef . ExpIsUsable 
       THEN (* Keep all unusables separate, for possible messages. *)
-        ExprRef . ExpIsUniquable := FALSE 
+        ExprRef . ExpIsUnique := FALSE 
       ELSIF ExprRef . ExpKind IN FM3Exprs . EkSetUniquableTypes
-      THEN ExprRef . ExpIsUniquable := TRUE  
+      THEN ExprRef . ExpIsUnique := TRUE  
       ELSIF ExprRef . ExpKind IN FM3Exprs . EkSetPossiblyConstants
             AND ExprRef . ExpIsConst
-      THEN ExprRef . ExpIsUniquable := TRUE  
-      ELSE ExprRef . ExpIsUniquable := FALSE 
+      THEN ExprRef . ExpIsUnique := TRUE  
+      ELSE ExprRef . ExpIsUnique := FALSE 
       END(*IF*) 
-    ; RETURN ExprRef . ExpIsUniquable 
+    ; RETURN ExprRef . ExpIsUnique 
     END IsUniquable
 
 (*EXPORTED.*)

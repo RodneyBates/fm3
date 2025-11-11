@@ -69,7 +69,7 @@ LONE
   ItkDuplDeclId IDENT INT POS 4 (* IdAtom, orig decl's scope no, position *) . 
   ItkDeclId INT IDENT INT POS 5 (* DeclKind, IdAtom, IdStd, position *) .
   ItkDeclNo DECL POS 3 (* DeclNo, position *) .
-  ItkDefTopExprNo INT POS (* ExprNo. *)  
+  ItkRefTopExprNo INT POS (* ExprNo. *)  
 
 (* Identifier references. *) 
 

@@ -54,9 +54,9 @@ MODULE FM3Utils
     END PutHex 
 
 (*EXPORTED:*)
-; PROCEDURE ContribToHash
+; PROCEDURE ContribToHashL
     ( VAR (*IN OUT*) Hash : HashTyp ; Contribution : HashTyp ) 
-  (* A value of GroundHash(), altered by a series of ContribToHash
+  (* A value of HashNull, altered by a series of ContribToHash
      calls is a hash of the contributions.  Assume the order of the
      contributions affects the hash value. *)
 
@@ -67,7 +67,17 @@ MODULE FM3Utils
         := BitArith . Xor
              ( BitArith . Shift ( Hash , ShiftFactor ) , Contribution )
     ; Hash := LResult 
-    END ContribToHash
+    END ContribToHashL
+
+(*EXPORTED:*)
+; <* INLINE *> PROCEDURE ContribToHashI
+    ( VAR (*IN OUT*) Hash : HashTyp ; Contribution : INTEGER ) 
+
+  = VAR LResult : HashTyp
+
+  ; BEGIN
+      ContribToHashL ( Hash , VAL ( Contribution , LONGINT ) ) 
+    END ContribToHashI
 
 (*EXPORTED:*)
 ; PROCEDURE HashOfText ( Key : TEXT ) : HashTyp
@@ -80,7 +90,7 @@ MODULE FM3Utils
     ; LLength := Text . Length ( Key )
     ; FOR RI := 0 TO LLength - 1
       DO
-        ContribToHash
+        ContribToHashL
           ( (*IN OUT*) LResult
           , VAL ( ORD ( Text . GetWideChar ( Key , RI ) ) , HashTyp )
           )  
@@ -99,7 +109,7 @@ MODULE FM3Utils
     ; LLength := NUMBER ( Key ^ )
     ; FOR RI := 0 TO LLength - 1
       DO
-        ContribToHash
+        ContribToHashL
           ( (*IN OUT*) LResult , VAL ( ORD ( Key ^ [ RI ] ) , HashTyp ) )  
       END (*FOR*) 
     ; RETURN LResult 
@@ -116,7 +126,7 @@ MODULE FM3Utils
     ; LLength := NUMBER ( Key ^ )
     ; FOR RI := 0 TO LLength - 1
       DO
-        ContribToHash
+        ContribToHashL
           ( (*IN OUT*) LResult , VAL ( ORD ( Key ^ [ RI ] ) , HashTyp ) )  
       END (*FOR*) 
     ; RETURN LResult 

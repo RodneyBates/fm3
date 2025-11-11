@@ -27,6 +27,7 @@ MODULE FM3Exprs
 ; IMPORT FM3Scopes
 ; IMPORT FM3SharedUtils 
 ; IMPORT FM3SrcToks
+; IMPORT FM3SrcToks AS Stk
 ; IMPORT FM3Units 
 ; IMPORT FM3Utils
 
@@ -65,9 +66,7 @@ MODULE FM3Exprs
       | ExprKindTyp . EkBinOp => RETURN "EkBinOp" 
       | ExprKindTyp . EkCall => RETURN "EkCall" 
       | ExprKindTyp . EkSubscript => RETURN "EkSubscript" 
-      | ExprKindTyp . EkIntType => RETURN "EkIntType"  
-      | ExprKindTyp . EkAddrType => RETURN "EkAddrType"  
-      | ExprKindTyp . EkFloatType => RETURN "EkFloatType"  
+      | ExprKindTyp . EkBuiltin => RETURN "EkBuiltin"  
       | ExprKindTyp . EkProc => RETURN "EkProc"  
       | ExprKindTyp . EkFunc => RETURN "EkFunc"  
       | ExprKindTyp . EkValue => RETURN "EkValue" 
@@ -373,9 +372,7 @@ RETURN ;
       ; Field ( "ExpObjOverrides"
               , FM3Utils . RefanyImage ( Expr . ExpObjOverrides )
               )  
-      ; Field ( "ExpObjDecls"
-              , FM3Scopes . ScopeRefImage ( Expr . ExpObjScopeRef )
-              )  
+
       ; Field ( "ExpObjBrandKind"
               , FM3Parser . BrandKindImage ( Expr . ExpObjBrandKind )
               )  
@@ -408,7 +405,6 @@ RETURN ;
       ; Field ( "ExpState" , ExprStateImage ( Expr . ExpState ) )  
       ; Field ( "ExpIsConst" , Fmt . Bool ( Expr . ExpIsConst ) )  
       ; Field ( "ExpConstValIsKnown" , Fmt . Bool ( Expr . ExpConstValIsKnown ) )
-      ; Field ( "ExpIsUniquable" , Fmt . Bool ( Expr . ExpIsUniquable ) )  
       ; Field ( "ExpIsUsable" , Fmt . Bool ( Expr . ExpIsUsable ) ) 
       ; Field ( "ExpIsLegalRecursive" , Fmt . Bool ( Expr . ExpIsLegalRecursive ) )
       ; Field ( "ExpIsDesignator" , Fmt . Bool ( Expr . ExpIsDesignator ) ) 
@@ -577,11 +573,18 @@ RETURN ;
         CASE Expr . ExpKind OF
         | Ekt . EkSubrType
         => RETURN IsNumericType ( Expr . ExpRangeBase )
-        | Ekt . EkIntType
-        , Ekt . EkAddrType 
-        , Ekt . EkFloatType 
-        => RETURN TRUE
-        ELSE RETURN FALSE
+        | Ekt . EkBuiltin
+        => CASE Expr . ExpOpcode OF
+           | Stk . RidCARDINAL
+           , Stk . RidEXTENDED
+           , Stk . RidINTEGER
+           , Stk . RidLONGCARD
+           , Stk . RidLONGINT
+           , Stk . RidLONGREAL
+           , Stk . RidREAL
+           => RETURN TRUE
+           ELSE RETURN FALSE
+           END (* CASE*)
         END (* CASE*)
       END (*IF*) 
     END IsNumericType 

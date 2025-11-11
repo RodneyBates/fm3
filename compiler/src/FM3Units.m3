@@ -190,7 +190,10 @@ MODULE FM3Units
     ; LUnitRef ^ . UntExprMap 
         := FM3Exprs . NewExprMap ( FM3Globals . InitDefCtPerUnit ) 
     ; VarArray_Int_Refany . Touch
-        ( LUnitRef ^ .  UntExprMap , Ranges_Int . RangeTyp { 0 , 0 } )
+        ( LUnitRef ^ .  UntExprMap
+        , Ranges_Int . RangeTyp
+            { FM3Globals . ExprNoNull , FM3Globals . ExprNoFirstReal - 1 }
+        )
     ; LUnitRef ^ . UntNextDeclNo := 1
     ; LUnitRef ^ . UntFirstTrueDeclNo := 1
     ; LUnitRef ^ . UntSkipStackBase

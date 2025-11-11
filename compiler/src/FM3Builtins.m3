@@ -10,7 +10,7 @@
 
 (* These build FM3Expr.ExprTyp objects for builtin things.
    This happens in Pass2, when references to declared entities
-   can not yet been followed, so types are not known in general.
+   can not yet be followed, so types are not known in general.
    Builtin types and builtin constants (whose types are always
    builtin) have types set, but other builtins not.
 
@@ -31,10 +31,12 @@ MODULE FM3Builtins
 
 ; IMPORT FM3Base 
 ; IMPORT FM3Exprs
+; IMPORT FM3Globals 
 ; IMPORT FM3LoTypes
 ; IMPORT FM3LoTypes AS Lt
 ; IMPORT FM3SrcToks
 ; IMPORT FM3SrcToks AS Stk
+; IMPORT FM3Utils 
 
 ; TYPE Ekt = FM3Exprs . ExprKindTyp
 
@@ -60,9 +62,11 @@ MODULE FM3Builtins
     ; LTypeExpr . ExpOpcode := Opcode
     ; LTypeExpr . ExpUpKind
         := FM3Exprs . ExprKindTyp . EkType (* Spontaneous. *)  
+    ; LTypeExpr . ExpRepExprNo := FM3Globals . ExprNoSingleton
     ; LTypeExpr . ExpState := FM3Exprs . ExprStateTyp . EsResolved
     ; LTypeExpr . ExpIsUsable := TRUE
     ; LTypeExpr . ExpIsLegalRecursive := TRUE
+    ; FM3Utils . ContribToHashI ( LTypeExpr . ExpHash , Opcode ) 
     ; GStaticArray [ Opcode ] := LTypeExpr  
     END InitOneTypeExpr
 
@@ -93,7 +97,8 @@ MODULE FM3Builtins
 ; PROCEDURE InitOneConstExpr
     ( Opcode : FM3SrcToks . TokTyp
     ; ConstTypeExpr : FM3Exprs . ExprTyp 
-    ; LoTypeNo : FM3LoTypes . LoTypeNoTyp 
+    ; LoTypeNo : FM3LoTypes . LoTypeNoTyp
+    ; ConstValue : LONGINT 
     )
 
   = VAR LConstExpr : FM3Exprs . ExprTyp
@@ -109,8 +114,15 @@ MODULE FM3Builtins
         := FM3Exprs . ExprKindTyp . EkValue (* Spontaneous. *)  
     ; LConstExpr . ExpState := FM3Exprs . ExprStateTyp . EsResolved
     ; LConstExpr . ExpIsUsable := TRUE
+    ; LConstExpr . ExpScalarConstVal := ConstValue 
+    ; LConstExpr . ExpConstValIsKnown := TRUE
     ; LConstExpr . ExpIsConst := TRUE
+    ; LConstExpr . ExpRepExprNo := FM3Globals . ExprNoSingleton
     ; LConstExpr . ExpIsLegalRecursive := TRUE
+    ; FM3Utils . ContribToHashI ( LConstExpr . ExpHash , Opcode ) 
+    ; FM3Utils . ContribToHashL ( LConstExpr . ExpHash , ConstValue ) 
+    ; LConstExpr . ExpRepExprNo := FM3Globals . ExprNoSingleton
+    ; LConstExpr . ExpState := FM3Exprs . ExprStateTyp . EsResolved
     ; GStaticArray [ Opcode ] := LConstExpr  
     END InitOneConstExpr
 
@@ -119,11 +131,11 @@ MODULE FM3Builtins
   = BEGIN
       WITH WTypeExpr = GStaticArray [ Stk . RidBOOLEAN ]
       DO 
-        InitOneConstExpr ( Stk . RidFALSE , WTypeExpr , Lt . LoTypeNoU8   ) 
-      ; InitOneConstExpr ( Stk . RidTRUE  , WTypeExpr , Lt . LoTypeNoU8 )
+        InitOneConstExpr ( Stk . RidFALSE , WTypeExpr , Lt . LoTypeNoU8 , 0L ) 
+      ; InitOneConstExpr ( Stk . RidTRUE  , WTypeExpr , Lt . LoTypeNoU8 , 1L )
       END (*WITH*) 
     ; WITH WTypeExpr = GStaticArray [ Stk . RidREFANY ] 
-      DO InitOneConstExpr ( Stk . RidNIL , WTypeExpr , Lt . LoTypeNoAddr)
+      DO InitOneConstExpr ( Stk . RidNIL , WTypeExpr , Lt . LoTypeNoAddr , 0L )
       END (*WITH*) 
     END InitConstExprs
 
@@ -434,6 +446,7 @@ MODULE FM3Builtins
       ; LResult . ExpBinOpActualsCt := WProps . OpOpndCt  
       ; LResult . ExpBinOpLtOpndKindsAllowed := WProps . OpLtOpndKindsAllowed 
       ; LResult . ExpBinOpRtOpndKindsAllowed := WProps . OpRtOpndKindsAllowed 
+      ; FM3Utils . ContribToHashI ( LResult . ExpHash , Opcode ) 
       ; RETURN LResult
       END (*WITH*) 
     END NewOpExpr 
@@ -479,7 +492,7 @@ MODULE FM3Builtins
       THEN RETURN FM3Exprs . ExprKindTyp . EkValue
       END (*IF*) 
     ; IF BuiltinOpcode >= FM3SrcToks . StkMinType
-         AND BuiltinOpcode >= FM3SrcToks . StkMaxType
+         AND BuiltinOpcode <= FM3SrcToks . StkMaxType
       THEN RETURN FM3Exprs . ExprKindTyp . EkType
       ELSE RETURN FM3Exprs . ExprKindTyp . EkNull
       END (*IF*)

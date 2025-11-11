@@ -28,11 +28,14 @@ INTERFACE FM3Utils
 
 ; CONST GroundHash : HashTyp = FM3Base . HashNull   
 
-; PROCEDURE ContribToHash 
+; PROCEDURE ContribToHashL
     ( VAR (*IN OUT*) Hash : HashTyp ; Contribution : HashTyp ) 
-  (* A value of GroundHash(), altered by a series of ContribToHash
+  (* A value of HashNull, altered by a series of ContribToHash
      calls is a hash of the contributions.  Assume the order of the
      contributions affects the hash value. *)
+
+; <* INLINE *> PROCEDURE ContribToHashI
+    ( VAR (*IN OUT*) Hash : HashTyp ; Contribution : INTEGER ) 
 
 ; PROCEDURE HashOfText ( Key : TEXT ) : HashTyp 
 

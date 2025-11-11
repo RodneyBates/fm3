@@ -64,29 +64,39 @@ INTERFACE FM3Exprs
      , EkIdentRef
      , EkQualIdentRef
      , EkReservedIdent 
-     , EkRemoteRef 
-     , EkEnumType
-     , EkRecType
-     , EkArrayType
-     , EkObjType
-     , EkSubrType (* Subrange *) 
-     , EkRefType
+     , EkRemoteRef
+     
+     , EkEnumType  (*(1)ExpScope1*)
+     , EkRecType   (*(1)ExpScope1*)
+     , EkObjType   (*(1)ExpOpcode=StkRwOBJECT.*)
+                   (*(1)ExpScope1.*)
+                   (*(1ExpBrandKind.*)
+                   (*(2)Opnd1 is supertype. Opnd2 is brand.*)
+     , EkArrayType (*(1)ExpArrayTypeIsOpen,*)
+                   (*(1)ExpOpcode StkRwARRAY.(Needed?)*) 
+                   (*(2)Opnd1 is subscript type, Opnd2 is element type.*)
+     , EkSubrType  (* Subrange *)
+                   (*(1)Opnd1 is lower bound. Opnd2 is upper bound. *) 
+     , EkRefType   (*(1)ExpIsUntraced.*)
+                   (*(1)ExpOpcode StkRwREF(Needed?).*)
+                   (*(2)Opnd1 is brand. Opnd2 is referent type.*) 
      , EkType
-     , EkSupertype
+     , EkSupertype (*Used only for an absent supertype of REF and OBJECT.*)
+                   (*ExpIsPresent=FALSE.*)
+     , EkBrand
+     
+     , EkBuiltin   (*Distinguished by ExpOpcode.*)
+
      , EkDot
      , EkUnOp
      , EkBinOp
      , EkCall
      , EkSubscript
 
-     , EkIntType
-     , EkAddrType
-     , EkFloatType 
      
      , EkProc 
      , EkFunc 
      , EkValue
-     , EkBrand 
      , EkRef 
      }
      
@@ -113,9 +123,8 @@ INTERFACE FM3Exprs
        , Ekt . EkSubrType
        , Ekt . EkRefType
        , Ekt . EkSupertype
-       (* There will never be >1 identical expr of kind EkIntType,
-          EkAddrType, or EkFloatType, since these are builtin and only
-          hard coded, thus not programmer-definable.
+       (* There will never be >1 identical expr of kind EkBuiltin,
+          since these are hard coded, thus not programmer-definable.
        *)
        } 
 
@@ -191,9 +200,7 @@ INTERFACE FM3Exprs
       ; ExpOpnd2 : ExprTyp (* Right Operand when binary. *) 
       ; ExpOpnd3 : ExprTyp 
       ; ExpOpnd4 : ExprTyp 
-        (* This can denote a ternary operator, in which case we use this
-           type with ExpOpnd4 field just going unused.
-        *) 
+
       ; ExpBinOpLtOpndKindsAllowed := ExprKindSetTyp { } 
       ; ExpBinOpRtOpndKindsAllowed := ExprKindSetTyp { }
         (* This can denote a unary operator, in which case we use this
@@ -209,41 +216,37 @@ INTERFACE FM3Exprs
      (* ExpOpnd1 is supertype, non-NIL even if defaulted. *)
      (* ExpOpnd2 is brand, NIL if no BRANDED. *) 
       ; ExpObjOverrides : REFANY (* What do we need here? *) 
-      ; ExpObjScopeRef : FM3Scopes . ScopeRefTyp 
       ; ExpObjBrandKind : FM3Parser . BrandKindTyp 
       ; ExpScopeRef1 : FM3Scopes . ScopeRefTyp 
       ; ExpArgPrefix : ExprTyp 
       ; ExpArgsList : ExprListRefTyp
 
-
-      ; ExpQualDeclNoLt : FM3Globals . DeclNoTyp 
+      ; ExpQualDeclNoLt : FM3Globals . DeclNoTyp
       ; ExpDefDeclNo : FM3Globals . DeclNoTyp := FM3Globals . DeclNoNull
-      ; ExpQualIdAtomRt : FM3Base . AtomTyp 
+      ; ExpQualIdAtomRt : FM3Base . AtomTyp
       ; ExpIdentDeclNo : FM3Globals . DeclNoTyp
         (* ^ABS ( ExpIdentDeclNo < 0 ) is builtin opcode. *)
-      ; ExpRemoteUnitNo : FM3Globals . UnitNoTyp 
-      ; ExpRemoteDeclNo : FM3Globals . DeclNoTyp 
-      ; ExpDefIntfUnitNo : FM3Globals . UnitNoTyp := FM3Globals . UnitNoNull
+      ; ExpRemoteUnitNo : FM3Globals . UnitNoTyp
+      ; ExpRemoteDeclNo : FM3Globals . DeclNoTyp
+      ; ExpDefIntfUnitNo :FM3Globals . UnitNoTyp := FM3Globals . UnitNoNull
       ; ExpDefIntfDeclNo : FM3Globals . DeclNoTyp := FM3Globals . DeclNoNull
       ; ExpPosition : tPosition := FM3Base . PositionNull
       ; ExpOpcode : OpcodeTyp := FM3SrcToks . RidNull
       ; ExpDotIdAtom : FM3Base . AtomTyp
-      ; ExpArgNo : INTEGER (* # of actuals still to be linked in. *) 
-      ; ExpBinOpActualsCt : INTEGER 
-      ; ExpStackHt : INTEGER := 0  
-      ; ExpSelfExprNo : INTEGER (* < 0 for builtin ops. *)
-
-
+      ; ExpArgNo : INTEGER (* # of actuals still to be linked in. *)
+      ; ExpBinOpActualsCt : INTEGER
+      ; ExpStackHt : INTEGER := 0
+      ; ExpSelfExprNo : FM3Globals . ExprNoTyp (* < 0 for builtin ops. *)
+      ; ExpRepExprNo : FM3Globals . ExprNoTyp := FM3Globals . ExprNoNull 
 
       ; ExpDownKind := Ekt . EkNull (* Inherited. *) 
       ; ExpUpKind := Ekt . EkNull (* Synthesized. *) 
       ; ExpKind : ExprKindTyp := Ekt . EkNull
       ; ExpState : ExprStateTyp := Est . EsUnresolved
 
-      ; ExpIsUniquable : BOOLEAN := FALSE
       ; ExpIsConst : BOOLEAN := FALSE
       ; ExpConstValIsKnown : BOOLEAN := FALSE
-(* TODO ^ CAn't we just use ExpState # Est . EsUnresolved for this? *)  
+(* TODO ^ Can't we just use ExpState # Est . EsUnresolved for this? *)  
       ; ExpIsUsable : BOOLEAN := TRUE
       ; ExpIsLegalRecursive : BOOLEAN := FALSE
         (* ^Self or any containing def could make it legal. *) 

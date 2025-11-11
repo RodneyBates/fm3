@@ -399,7 +399,7 @@ MODULE FM3Scanner
         WHILE GTopSsRef . SsCh IN IdentFollowChars 
         DO 
           ContribToFsm ( GTopSsRef . SsCh ) 
-        ; FM3Utils . ContribToHash 
+        ; FM3Utils . ContribToHashL 
             ( (*IN OUT*) ScHash 
             , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
             ) 
@@ -562,7 +562,7 @@ MODULE FM3Scanner
       ; ScWCharVarArr := NIL 
       ; LTok := FM3SrcToks . StkIntLit 
       ; REPEAT 
-          FM3Utils . ContribToHash 
+          FM3Utils . ContribToHashL 
             ( (*IN OUT*) ScHash 
             , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
             )
@@ -573,7 +573,7 @@ MODULE FM3Scanner
       ; CASE GTopSsRef . SsCh
         OF 'L' 
         => LTok := FM3SrcToks . StkLongIntLit 
-        ; FM3Utils . ContribToHash 
+        ; FM3Utils . ContribToHashL 
             ( (*IN OUT*) ScHash 
             , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
             )
@@ -582,7 +582,7 @@ MODULE FM3Scanner
 
         | '_' 
         => LTok := FM3SrcToks . StkBasedLit 
-        ; FM3Utils . ContribToHash 
+        ; FM3Utils . ContribToHashL 
             ( (*IN OUT*) ScHash 
             , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
             )
@@ -591,7 +591,7 @@ MODULE FM3Scanner
         ; IF GTopSsRef . SsCh IN DigitChars  
           THEN 
             REPEAT 
-              FM3Utils . ContribToHash 
+              FM3Utils . ContribToHashL 
                 ( (*IN OUT*) ScHash 
                 , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
                 )
@@ -601,7 +601,7 @@ MODULE FM3Scanner
           ; IF  GTopSsRef . SsCh = 'L' 
             THEN 
               LTok := FM3SrcToks . StkLongBasedLit 
-            ; FM3Utils . ContribToHash 
+            ; FM3Utils . ContribToHashL 
                 ( (*IN OUT*) ScHash 
                 , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
                 )
@@ -621,7 +621,7 @@ MODULE FM3Scanner
             *> 
           ELSE
             LTok := FM3SrcToks . StkRealLit 
-          ; FM3Utils . ContribToHash 
+          ; FM3Utils . ContribToHashL 
               ( (*IN OUT*) ScHash 
               , VAL ( ORD ( '.' ) , FM3Utils . HashTyp ) 
               )
@@ -629,7 +629,7 @@ MODULE FM3Scanner
           ; IF GTopSsRef . SsCh IN SET OF CHAR { '0' .. '9' } 
             THEN 
               REPEAT 
-                FM3Utils . ContribToHash 
+                FM3Utils . ContribToHashL 
                   ( (*IN OUT*) ScHash 
                   , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
                   )
@@ -651,7 +651,7 @@ MODULE FM3Scanner
             ELSIF GTopSsRef . SsCh IN SET OF CHAR { 'X' , 'x' }
             THEN LTok := FM3SrcToks . StkExtendedLit 
             END (*IF*) 
-          ; FM3Utils . ContribToHash 
+          ; FM3Utils . ContribToHashL 
                ( (*IN OUT*) ScHash 
                , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
                )
@@ -659,7 +659,7 @@ MODULE FM3Scanner
           ; NextChar ( ) 
           ; IF GTopSsRef . SsCh IN SET OF CHAR { '+' , '-' }  
             THEN 
-               FM3Utils . ContribToHash 
+               FM3Utils . ContribToHashL 
                  ( (*IN OUT*) ScHash 
                  , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
                  )
@@ -669,7 +669,7 @@ MODULE FM3Scanner
           ; IF GTopSsRef . SsCh IN SET OF CHAR { '0' .. '9' } 
             THEN 
               REPEAT 
-                FM3Utils . ContribToHash 
+                FM3Utils . ContribToHashL 
                   ( (*IN OUT*) ScHash 
                   , VAL ( ORD ( GTopSsRef . SsCh ) , FM3Utils . HashTyp ) 
                   )
@@ -988,7 +988,7 @@ MODULE FM3Scanner
             LCharVal := GTopSsRef . SsWCh 
           ; NextChar ( ) 
           END (*IF*) 
-        ; FM3Utils . ContribToHash 
+        ; FM3Utils . ContribToHashL 
             ( (*IN OUT*) ScHash 
             , VAL ( ORD ( LCharVal ) , FM3Utils . HashTyp ) 
             )
@@ -1038,7 +1038,7 @@ MODULE FM3Scanner
             LWCharVal := GTopSsRef . SsWCh 
           ; NextChar ( ) 
           END (*IF*) 
-        ; FM3Utils . ContribToHash 
+        ; FM3Utils . ContribToHashL 
             ( (*IN OUT*) ScHash 
             , VAL ( ORD ( LWCharVal ) , FM3Utils . HashTyp ) 
             ) 
@@ -1159,7 +1159,7 @@ MODULE FM3Scanner
           ; ScWCharVarArr := NIL 
           ; StartIdent ( ) 
           ; ContribToFsm ( ScCh ) (* The 'w' or 'W'. *)  
-          ; FM3Utils . ContribToHash 
+          ; FM3Utils . ContribToHashL 
               ( (*IN OUT*) ScHash 
               , VAL ( ORD ( ScCh ) , FM3Utils . HashTyp ) 
               )  
