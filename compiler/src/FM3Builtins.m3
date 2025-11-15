@@ -31,7 +31,6 @@ MODULE FM3Builtins
 
 ; IMPORT FM3Base 
 ; IMPORT FM3Exprs
-; IMPORT FM3Globals 
 ; IMPORT FM3LoTypes
 ; IMPORT FM3LoTypes AS Lt
 ; IMPORT FM3SrcToks
@@ -62,7 +61,7 @@ MODULE FM3Builtins
     ; LTypeExpr . ExpOpcode := Opcode
     ; LTypeExpr . ExpUpKind
         := FM3Exprs . ExprKindTyp . EkType (* Spontaneous. *)  
-    ; LTypeExpr . ExpRepExprNo := FM3Globals . ExprNoSingleton
+    ; LTypeExpr . ExpRepExprNo := FM3Exprs . RepExprNoSingleton
     ; LTypeExpr . ExpState := FM3Exprs . ExprStateTyp . EsResolved
     ; LTypeExpr . ExpIsUsable := TRUE
     ; LTypeExpr . ExpIsLegalRecursive := TRUE
@@ -117,11 +116,11 @@ MODULE FM3Builtins
     ; LConstExpr . ExpScalarConstVal := ConstValue 
     ; LConstExpr . ExpConstValIsKnown := TRUE
     ; LConstExpr . ExpIsConst := TRUE
-    ; LConstExpr . ExpRepExprNo := FM3Globals . ExprNoSingleton
+    ; LConstExpr . ExpRepExprNo := FM3Exprs . RepExprNoSingleton
     ; LConstExpr . ExpIsLegalRecursive := TRUE
     ; FM3Utils . ContribToHashI ( LConstExpr . ExpHash , Opcode ) 
     ; FM3Utils . ContribToHashL ( LConstExpr . ExpHash , ConstValue ) 
-    ; LConstExpr . ExpRepExprNo := FM3Globals . ExprNoSingleton
+    ; LConstExpr . ExpRepExprNo := FM3Exprs . RepExprNoSingleton
     ; LConstExpr . ExpState := FM3Exprs . ExprStateTyp . EsResolved
     ; GStaticArray [ Opcode ] := LConstExpr  
     END InitOneConstExpr

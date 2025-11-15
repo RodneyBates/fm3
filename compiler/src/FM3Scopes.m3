@@ -103,6 +103,7 @@ MODULE FM3Scopes
       LScopeMap := FM3Units . UnitStackTopRef ^ . UntScopeMap
     ; IF LScopeMap = NIL THEN RETURN NIL END 
     ; LScopeRef := VarArray_Int_Refany . Fetch ( LScopeMap , ScopeNo )
+      (*        ^Implied NARROW *)
     ; RETURN LScopeRef  
     END ScopeRefOfScopeNo 
 

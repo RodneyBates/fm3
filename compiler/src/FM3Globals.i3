@@ -43,19 +43,6 @@ INTERFACE FM3Globals
 ; CONST DeclNoFirstReal = DeclNoNotUseable + 1
 
 ; TYPE ExprTyp <: ROOT 
-; TYPE ExprNoTyp = CARDINAL
-; CONST ExprNoNull = 0 (* Uniqueness undetermined. *) 
-; CONST ExprNoNotUseable = 1 
-; CONST ExprNoSingleton = 2
-  (* ^ There will never be another structurally equal to this one. *) 
-; CONST ExprNoDistinct = 3
-  (* ^Condsider each instance unique even if structurally equal to others . *) 
-; CONST ExprNoFirstReal = 4
-(* ^ >= FM3Globals . ExprNoFirstReal means ExpRepExprNo denotes a unique
-        representative expr node of an equivalence class of Exprs that are all
-        considered equal to this one.  May = ExpSelfExprNo.
-*) 
-; CONST ExprNoMax = LAST ( CARDINAL )
 
 (* File names of internal and generated files: *)
 

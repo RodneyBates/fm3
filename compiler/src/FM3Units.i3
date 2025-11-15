@@ -98,7 +98,7 @@ INTERFACE FM3Units
            nonzero, on account of file tag, length, etc. *) 
       ; UntPatchStackTopCoord : LONGINT := 0L
 
-(*TODO: box  up pass-dependent groups like this one.  Maybe heap-allocate. *)  
+(*TODO: box up pass-dependent groups like this one.  Maybe heap-allocate. *)  
       ; UntPass1OutSimpleName : TEXT := NIL
       ; UntPass1OutRdBack : RdBackFile . T := NIL
       ; UntPass1OutDataLength : LONGINT := 0L

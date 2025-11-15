@@ -17,6 +17,8 @@ MODULE FM3Resolve
 ; IMPORT FM3Exprs
 ; IMPORT FM3SrcToks 
 ; IMPORT FM3SrcToks AS Stk
+; IMPORT FM3Scopes 
+; IMPORT FM3Units 
 ; IMPORT FM3Utils
 
 ; TYPE Ekt = FM3Exprs . ExprKindTyp 
@@ -61,16 +63,6 @@ MODULE FM3Resolve
       =>  <* ASSERT FALSE , "should already be resolved." *> 
 
       | Ekt . EkBuiltin
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )  
-      | Ekt . EkAddrType 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )  
-      | Ekt . EkFloatType 
       =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
         ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
         ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
@@ -166,88 +158,174 @@ MODULE FM3Resolve
     END Opnds12Equal
 
 (*EXPORTED.*)
-; PROCEDURE ConstsEqual ( Left , Right : FM3Exprs . ExprTyp  ) : BOOLEAN
-  (* PRE: Both are non-NIL, resolved, usable, constant values of equal types. *)  
+; PROCEDURE ConstValuesAreEqual
+    ( LeftExprRef , RightExprRef : FM3Exprs . ExprTyp )
+  : BOOLEAN
+  (* PRE: LeftExprRef & RightExprRef are non-NIL, value exprs
+          of equal kind and equal type.
+  *)
+  
+  (* An expr need not be M3 constant, but if it lacks a constant value known to
+     the compiler, it will not be considered equal to anything.
+  *) 
 
-  = BEGIN (*ConstsEqual*)
-      IF Left . ExpType = FM3Builtins . BuiltinExpr ( Stk . RidTEXT )
+  = VAR LExprMap : FM3Base . MapTyp
+  ; VAR LLeftExprRef : FM3Exprs . ExprTyp 
+  ; VAR LRightExprRef : FM3Exprs . ExprTyp 
+
+  ; BEGIN (*ConstValuesAreEqual*)
+      IF NOT LeftExprRef . ExpConstValIsKnown THEN RETURN FALSE END (*IF*) 
+    ; IF NOT RightExprRef . ExpConstValIsKnown THEN RETURN FALSE END (*IF*) 
+    ; IF LeftExprRef . ExpType = FM3Builtins . BuiltinExpr ( Stk . RidTEXT )
       THEN (* TEXT is the only type that could be a reference constant. *)
-        RETURN Text . Equal ( Right . ExpRefConstVal , Left . ExpRefConstVal ) 
-      ELSE RETURN Right . ExpScalarConstVal = Left . ExpScalarConstVal 
+(* FIXME: Not necessarily so. Value constructors can be constant. *) 
+        RETURN Text . Equal
+           ( RightExprRef . ExpRefConstVal , LeftExprRef . ExpRefConstVal ) 
+      ELSE RETURN RightExprRef . ExpScalarConstVal = LeftExprRef . ExpScalarConstVal 
       END (*IF*) 
-    END ConstsEqual
-    
-(*EXPORTED.*)
-; PROCEDURE IsUniquable ( ExprRef: FM3Exprs . ExprTyp ) : BOOLEAN
-  (* And cache the result. *)
-  (* POST: ExprRef is non-NIL, usable, a type or constant value. *) 
-
-  = BEGIN (*IsUniquable*)
-      IF ExprRef = NIL THEN RETURN FALSE (* Why bother? *) END (*IF*)
-    ; IF ExprRef . ExpState # Est . EsUnresolved
-      THEN (* Was previously cached. *) 
-        RETURN ExprRef . ExpIsUnique
-      END (*IF*) 
-    ; IF NOT ExprRef . ExpIsUsable 
-      THEN (* Keep all unusables separate, for possible messages. *)
-        ExprRef . ExpIsUnique := FALSE 
-      ELSIF ExprRef . ExpKind IN FM3Exprs . EkSetUniquableTypes
-      THEN ExprRef . ExpIsUnique := TRUE  
-      ELSIF ExprRef . ExpKind IN FM3Exprs . EkSetPossiblyConstants
-            AND ExprRef . ExpIsConst
-      THEN ExprRef . ExpIsUnique := TRUE  
-      ELSE ExprRef . ExpIsUnique := FALSE 
-      END(*IF*) 
-    ; RETURN ExprRef . ExpIsUnique 
-    END IsUniquable
+      
+    END ConstValuesAreEqual
 
 (*EXPORTED.*)
-; PROCEDURE ExprsEqual ( Left , Right : FM3Exprs . ExprTyp ) : BOOLEAN
+; PROCEDURE RepExprNo ( ExprNo : FM3Exprs . ExprNoTyp ) : FM3Exprs . ExprNoTyp
+  (* POST: ExprNoNull if not an expr that can have equal duplicates. *) 
+
+  = VAR LExprMap : FM3Base . MapTyp
+  ; VAR LExprRef : FM3Exprs . ExprTyp 
+  ; VAR LExprNo : FM3Exprs . ExprNoTyp 
+
+  ; BEGIN (*RepExprNo*) 
+      LExprMap := FM3Units . UnitStackTopRef ^ . UntExprMap 
+    ; LExprNo := ExprNo 
+    ; LOOP 
+        IF LExprNo < FM3Exprs . ExprNoFirstReal 
+        THEN RETURN FM3Exprs . ExprNoNull 
+        END (*IF*) 
+      ; LExprRef := FM3Exprs . ExprRefOfExprNo ( LExprNo ) 
+      ; IF LExprRef . ExpRepExprNo = LExprNo  
+        THEN RETURN LExprNo 
+        END (*IF*) 
+      ; LExprNo := LExprRef . ExpRepExprNo 
+      END (*LOOP*) 
+    END RepExprNo
+
+(*EXPORTED.*)
+; PROCEDURE TypeExprsEqual ( LeftExprRef , RightExprRef : FM3Exprs . ExprTyp )
+  : BOOLEAN 
+
+  = VAR LResult : BOOLEAN
+
+  ; BEGIN (*TypeExprsEqual*)
+      RETURN LResult 
+    END TypeExprsEqual
+      
+(*EXPORTED.*)
+; PROCEDURE EnumScopesEqual
+    ( LeftScopeRef , RightScopeRef : FM3Scopes . ScopeRefTyp )
+  : BOOLEAN 
+
+  = VAR LResult : BOOLEAN
+
+  ; BEGIN (*EnumScopesEqual*)
+      RETURN LResult 
+    END EnumScopesEqual
+
+(*EXPORTED.*)
+; PROCEDURE RecOrObjScopesEqual 
+    ( LeftScopeRef , RightScopeRef : FM3Scopes . ScopeRefTyp )
+  : BOOLEAN 
+
+  = VAR LResult : BOOLEAN
+
+  ; BEGIN (*RecOrObjScopesEqual*)
+      RETURN LResult 
+    END RecOrObjScopesEqual
+
+
+(*EXPORTED.*)
+; PROCEDURE ExprsEqual ( LeftExprRef , RightExprRef : FM3Exprs . ExprTyp ) : BOOLEAN
   (* Returns FALSE for things that should not be uniqued, even if equal. *) 
 
-  = BEGIN (*ExprsEqual*)
-      IF NOT IsUniquable ( Left ) THEN RETURN FALSE END (*IF*)  
-    ; IF NOT IsUniquable ( Right ) THEN RETURN FALSE END (*IF*)
-    (* Each is non-NIL, usable, and a type or constant value. *)  
-    ; IF Right = Left THEN RETURN TRUE END (*IF*)
-    ; IF Right . ExpKind # Left . ExpKind THEN RETURN FALSE END (*IF*)
-    ; IF Left . ExpKind IN FM3Exprs . EkSetPossiblyConstants
+  = VAR LExprMap : FM3Base . MapTyp
+  ; VAR LRightRepExprRef : FM3Exprs . ExprTyp 
+  ; VAR LLeftRepNo : FM3Exprs . ExprNoTyp 
+  ; VAR LRightRepNo : FM3Exprs . ExprNoTyp 
+  ; VAR LResult : BOOLEAN 
+
+  ; BEGIN (*ExprsEqual*)
+      IF LeftExprRef = NIL THEN RETURN FALSE END (*IF*) 
+    ; IF RightExprRef = NIL THEN RETURN FALSE END (*IF*)
+    ; IF RightExprRef = LeftExprRef THEN RETURN TRUE END (*IF*)
+    ; IF LeftExprRef . ExpRepExprNo < FM3Exprs . ExprNoFirstReal
+      THEN RETURN FALSE
+      END (*IF*) 
+    ; IF RightExprRef . ExpRepExprNo < FM3Exprs . ExprNoFirstReal
+      THEN RETURN FALSE
+      END (*IF*)
+    ; IF LeftExprRef . ExpHash # RightExprRef . ExpHash THEN RETURN FALSE END (*IF*)
+    ; LLeftRepNo := RepExprNo ( LeftExprRef . ExpSelfExprNo )
+    ; LRightRepNo := RepExprNo ( RightExprRef . ExpSelfExprNo )
+    ; IF LRightRepNo = LLeftRepNo AND LLeftRepNo # FM3Exprs . ExprNoNull
+      THEN RETURN TRUE
+      END (*IF*)
+    ; IF RightExprRef . ExpKind # LeftExprRef . ExpKind THEN RETURN FALSE END (*IF*)
+
+    (* No shortcuts.  Do a brute-force recursive comparison. *)
+    ; IF LeftExprRef . ExpKind IN FM3Exprs . EkSetPossiblyConstants
       THEN (* Both are constant values of the same kind. *)
-        IF NOT TypesEqual ( Right . ExpType , Left . ExpType )
-        THEN RETURN FALSE 
+        IF NOT TypeExprsEqual ( RightExprRef . ExpType , LeftExprRef . ExpType )
+        THEN LResult := FALSE 
         END (*IF*)
-      ; RETURN ConstsEqual ( Left , Right ) 
-      ELSE (* Both are uniquable types of the same kind. *)
-        CASE Left . ExpKind OF
+      ; LResult := ConstValuesAreEqual ( LeftExprRef , RightExprRef ) 
+      ELSE (* Both are uniqualble types of the same kind. *)
+        CASE LeftExprRef . ExpKind OF
         | Ekt . EkEnumType
-        =>  RETURN EnumScopesEqual ( Left . ExpScopeRef1 , Right . ExpScopeRef1 ) 
+        =>  LResult 
+              := EnumScopesEqual 
+                   ( LeftExprRef . ExpScopeRef1 , RightExprRef . ExpScopeRef1 ) 
         | Ekt . EkRecType
-        =>  RETURN RecOrObjScopesEqual ( Left . ExpScopeRef1 , Right . ExpScopeRef1 ) 
+        =>  LResult 
+              := RecOrObjScopesEqual 
+                   ( LeftExprRef . ExpScopeRef1 , RightExprRef . ExpScopeRef1 ) 
         | Ekt . EkArrayType
-        =>  RETURN Right . ExpOpcode = Left . ExpOpcode (* Needed? *) 
-                   AND Right . ExpArrayTypeIsOpen = Left . ExpArrayTypeIsOpen 
-                   AND Opnds12Equal ( Left , Right ) 
+        =>  LResult := RightExprRef . ExpOpcode = LeftExprRef . ExpOpcode 
+(* Needed? ------------^ *) 
+                       AND RightExprRef . ExpArrayTypeIsOpen 
+                           = LeftExprRef . ExpArrayTypeIsOpen 
+                       AND Opnds12Equal ( LeftExprRef , RightExprRef ) 
         | Ekt . EkObjType
-        =>  RETURN RecOrObjScopesEqual ( Left . ExpScopeRef1 , Right . ExpScopeRef1 ) 
-                   AND Right . ExpIsUntraced = Left . ExpIsUntraced 
-                   AND Opnds12Equal ( Left , Right ) (* Brand, supertype. *) 
+        =>  LResult 
+              := RecOrObjScopesEqual 
+                   ( LeftExprRef . ExpScopeRef1 , RightExprRef . ExpScopeRef1 ) 
+                 AND RightExprRef . ExpIsUntraced = LeftExprRef . ExpIsUntraced 
+                 AND Opnds12Equal 
+                       ( LeftExprRef , RightExprRef ) (* Brand, supertype. *) 
         | Ekt . EkSubrType
-        =>  RETURN Opnds12Equal ( Left , Right ) 
+        =>  LResult := Opnds12Equal ( LeftExprRef , RightExprRef ) 
         | Ekt . EkRefType
-        =>  RETURN Right . ExpOpcode = Left . ExpOpcode (* Needed? *) 
-                   AND Right . ExpIsUntraced = Left . ExpIsUntraced 
-                   AND Opnds12Equal ( Left , Right )
-                       (* ^Brand, supertype (always absent). *)
+        =>  LResult := RightExprRef . ExpOpcode = LeftExprRef . ExpOpcode 
+(* Needed? ------------^ *) 
+                       AND RightExprRef . ExpIsUntraced 
+                           = LeftExprRef . ExpIsUntraced 
+                       AND Opnds12Equal ( LeftExprRef , RightExprRef )
+                           (* ^Brand, supertype (always absent). *)
         | Ekt . EkSupertype
         =>  (* A placeholder for an absent supertype of an OBJECT type.  Also
                present but meaningless in a REF type. since we didn't know at
                parse time, whether type would end up REF or OBJECT. Adds no
                additional info.
             *)
-            RETURN TRUE 
+            LResult := TRUE 
         END (*CASE*) 
+      END (*IF*)
+ 
+    ; IF LResult 
+      THEN (* Discovered a new structural equality.  Record it for posterity. *) 
+        LExprMap := FM3Units . UnitStackTopRef ^ . UntExprMap 
+      ; LRightRepExprRef := FM3Exprs . ExprRefOfExprNo ( LRightRepNo ) 
+      ; LRightRepExprRef . ExpRepExprNo := LLeftRepNo  
       END (*IF*) 
-
+    ; RETURN LResult 
     END ExprsEqual
       
 ; BEGIN (*FM3Resolve*)

@@ -192,7 +192,7 @@ MODULE FM3Units
     ; VarArray_Int_Refany . Touch
         ( LUnitRef ^ .  UntExprMap
         , Ranges_Int . RangeTyp
-            { FM3Globals . ExprNoNull , FM3Globals . ExprNoFirstReal - 1 }
+            { FM3Exprs . ExprNoNull , FM3Exprs . ExprNoFirstReal - 1 }
         )
     ; LUnitRef ^ . UntNextDeclNo := 1
     ; LUnitRef ^ . UntFirstTrueDeclNo := 1

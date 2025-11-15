@@ -497,7 +497,7 @@ RETURN ;
 *)
 
 (*EXPORTED*) 
-; PROCEDURE NewExprMap ( InitExprCt : FM3Globals . ExprNoTyp ) : ExprMapTyp
+; PROCEDURE NewExprMap ( InitExprCt : ExprNoTyp ) : ExprMapTyp
   (* One of these per Unit. *) 
 
   = BEGIN
@@ -505,6 +505,21 @@ RETURN ;
         VarArray_Int_Refany . New
           ( NIL , IntRanges . RangeTyp {  0 , InitExprCt - 1 } )
     END NewExprMap
+
+(*EXPORTED.*)
+; PROCEDURE ExprRefOfExprNo ( ExprNo : ExprNoTyp ) : ExprTyp
+  (* In the current unit. *) 
+
+  = VAR LExprMap : ExprMapTyp 
+  ; VAR LExprRef : ExprTyp
+
+  ; BEGIN
+      LExprMap := FM3Units . UnitStackTopRef ^ . UntExprMap 
+    ; IF LExprMap = NIL THEN RETURN NIL END 
+    ; LExprRef := VarArray_Int_Refany . Fetch ( LExprMap , ExprNo )
+      (*       ^Implied NARROW *)
+    ; RETURN LExprRef  
+    END ExprRefOfExprNo 
 
 (*EXPORTED*) 
 ; PROCEDURE PushExprStack ( NewExpr : ExprTyp )

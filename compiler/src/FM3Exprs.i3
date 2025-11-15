@@ -181,6 +181,28 @@ INTERFACE FM3Exprs
 ; CONST ExprBrand = "ExprTyp0.1"
 ; REVEAL FM3Globals . ExprTyp = ExprPublic BRANDED ExprBrand OBJECT END  
 
+; TYPE ExprNoTyp = INTEGER
+; CONST ExprNoNull = 0
+; CONST ExprNoFirstReal = 1
+
+(* Special ExprNo values used in field ExpRepExprNo: *) 
+; CONST RepExprNoSingleton = - 2
+; CONST RepExprNoDistinct = -1
+  (* ExpRepExprNo = RepExprNoSingleton means there will never be another expr
+     structurally equal to this one (because it is not definable by code being
+     compiled, created only by internal compiler initialization code.
+     
+     ExpRepExprNo = RepExprNoDistinct means each expression instance is unique
+     even if structurally equal to others. E.g. a value expression computed
+     at runtime. 
+
+     ExpRepExprNo >= ExprNoFirstReal denotes a representative expr node of a
+     class of Exprs that are all structurally and equal and interchangeable.
+     E.g., type expressions and value expressions that have constant value.
+  *)
+
+; CONST ExprNoMax = LAST ( ExprNoTyp )
+
 ; TYPE ExprTyp <: ExprPublic
 ; TYPE ExprPublic
     = OBJECT
@@ -236,8 +258,8 @@ INTERFACE FM3Exprs
       ; ExpArgNo : INTEGER (* # of actuals still to be linked in. *)
       ; ExpBinOpActualsCt : INTEGER
       ; ExpStackHt : INTEGER := 0
-      ; ExpSelfExprNo : FM3Globals . ExprNoTyp (* < 0 for builtin ops. *)
-      ; ExpRepExprNo : FM3Globals . ExprNoTyp := FM3Globals . ExprNoNull 
+      ; ExpSelfExprNo : ExprNoTyp (* < 0 for builtin ops. *)
+      ; ExpRepExprNo : ExprNoTyp := ExprNoNull 
 
       ; ExpDownKind := Ekt . EkNull (* Inherited. *) 
       ; ExpUpKind := Ekt . EkNull (* Synthesized. *) 
@@ -268,7 +290,10 @@ INTERFACE FM3Exprs
 ; TYPE ExprMapTyp = FM3Base . MapTyp
     (* Map ExprNoTyp to ExprTyp. One of these per Unit. *)
 
-; PROCEDURE NewExprMap ( InitExprCt : FM3Globals . ExprNoTyp ) : ExprMapTyp 
+; PROCEDURE NewExprMap ( InitExprCt : ExprNoTyp ) : ExprMapTyp 
+
+; PROCEDURE ExprRefOfExprNo ( ExprNo : ExprNoTyp ) : ExprTyp
+  (* In the current unit. *) 
 
 (* Stack of definitions refs. *)
 
