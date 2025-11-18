@@ -75,7 +75,6 @@ INTERFACE FM3Scopes
     , ScopeKindTyp . SkModule 
     , ScopeKindTyp . SkBlock
     , ScopeKindTyp . SkProcBody
-    , ScopeKindTyp . SkBlock
     } 
 
 ; CONST ScopeKindSetBinding = SET OF ScopeKindTyp
@@ -121,7 +120,8 @@ INTERFACE FM3Scopes
 (****
       ; ScpCurTypeExpr : REFANY := NIL (* FM3Defs . DeclDefTyp. *) (*1*) 
       ; ScpCurValueExpr : REFANY := NIL (* FM3Defs . DeclDefTyp. *) (*1*)
-****) 
+****)
+      ; ScpIdentAtom : FM3Base . AtomTyp := FM3Base . AtomNull  
       ; ScpDeclCt : FM3Globals . DeclNoTyp := - 13 (*FM3Globals . DeclNoNull*) 
       ; ScpMinDeclNo := FM3Globals . DeclNoNull
       ; ScpSelfScopeNo : FM3Globals . ScopeNoTyp (* A self-reference. *)
@@ -139,7 +139,7 @@ INTERFACE FM3Scopes
 
       (* NOTE 1: This field retains meaning only during handling of a single
                  declaration within the scope.  It is reinitialized and reused
-                 in later declarations.  It is NIL/Empty/FALSE when not working
+                 in each declaration.  It is NIL/Empty/FALSE when not working
                  in a declaration.  It would more naturally be in a Decl object,
                  but in Pass 2, we don't yet have one when needed, and when we
                  finally do, there can be >1.

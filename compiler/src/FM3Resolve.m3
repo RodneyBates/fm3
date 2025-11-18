@@ -13,8 +13,10 @@ MODULE FM3Resolve
 ; IMPORT Text 
 
 ; IMPORT FM3Base
-; IMPORT FM3Builtins 
+; IMPORT FM3Builtins
+; IMPORT FM3Decls 
 ; IMPORT FM3Exprs
+; IMPORT FM3Globals 
 ; IMPORT FM3SrcToks 
 ; IMPORT FM3SrcToks AS Stk
 ; IMPORT FM3Scopes 
@@ -23,6 +25,7 @@ MODULE FM3Resolve
 
 ; TYPE Ekt = FM3Exprs . ExprKindTyp 
 ; TYPE Est = FM3Exprs . ExprStateTyp
+; TYPE Skt = FM3Scopes . ScopeKindTyp 
 
 ; PROCEDURE ResolveChild
     ( ParentRef :  FM3Exprs . ExprTyp ; ChildRef :  FM3Exprs . ExprTyp )
@@ -30,7 +33,6 @@ MODULE FM3Resolve
   = BEGIN (*ResolveChild*)
       ResolveExpr ( ChildRef )
     ; FM3Utils . ContribToHashL ( (*IN OUT*) ParentRef . ExpHash , ChildRef . ExpHash )
-
     END ResolveChild
 
 (*EXPORTED.*)
@@ -220,15 +222,57 @@ MODULE FM3Resolve
     END TypeExprsEqual
       
 (*EXPORTED.*)
-; PROCEDURE EnumScopesEqual
+; PROCEDURE EnumScopeRefsEqual
     ( LeftScopeRef , RightScopeRef : FM3Scopes . ScopeRefTyp )
-  : BOOLEAN 
+  : BOOLEAN
 
-  = VAR LResult : BOOLEAN
+  = VAR LLeftUnitRef : FM3Units . UnitRefTyp
+  ; VAR LRightUnitRef : FM3Units . UnitRefTyp
+  ; VAR LLeftDeclMap : FM3Decls . DeclMapTyp
+  ; VAR LRightDeclMap : FM3Decls . DeclMapTyp
+  ; VAR LLeftDeclNo : FM3Globals . DeclNoTyp
+  ; VAR LRightDeclNo : FM3Globals . DeclNoTyp
+  ; VAR LDeclCt : INTEGER 
+  ; VAR LResult : BOOLEAN
 
-  ; BEGIN (*EnumScopesEqual*)
-      RETURN LResult 
-    END EnumScopesEqual
+  ; BEGIN (*EnumScopeRefsEqual*)
+      IF LeftScopeRef = NIL THEN RETURN FALSE END (*IF*)
+    ; IF RightScopeRef = NIL THEN RETURN FALSE END (*IF*)
+    ; LLeftUnitRef := LeftScopeRef ^ . ScpOwningUnitRef 
+    ; LRightUnitRef := RightScopeRef ^ . ScpOwningUnitRef 
+    ; IF LeftScopeRef = RightScopeRef THEN (*Identical*) RETURN TRUE END (*IF*)
+    ; IF LeftScopeRef ^ . ScpKind # RightScopeRef ^ . ScpKind 
+      THEN RETURN FALSE
+      END (*IF*)
+    ; IF LeftScopeRef ^ . ScpDeclCt # RightScopeRef ^ . ScpDeclCt
+      THEN RETURN FALSE
+      END (*IF*)
+    ; IF NOT LeftScopeRef ^ . ScpKind IN FM3Scopes . ScopeKindSetTypeDef
+      THEN
+        LLeftDeclMap := LLeftUnitRef ^ . UntDeclMap  
+      ; LRightDeclMap := LRightUnitRef ^ . UntDeclMap 
+        
+      ; LLeftDeclNo := LeftScopeRef ^ . ScpMinDeclNo 
+      ; LRightDeclNo := RightScopeRef ^ . ScpMinDeclNo
+      ; LDeclCt := LeftScopeRef ^ . ScpDeclCt 
+      ; LOOP
+          IF LDeclCt <= 0 THEN RETURN TRUE END (*IF*) 
+        ; IF LeftScopeRef ^ . ScpIdentAtom # RightScopeRef ^ . ScpIdentAtom 
+          THEN RETURN FALSE
+          END (*IF*) 
+        ; IF LeftScopeRef ^ . ScpKind = Skt . SkEnum
+          THEN 
+          ELSE
+          END (*IF*) 
+        ; INC ( LLeftDeclNo )  
+        ; INC ( LRightDeclNo )
+        ; DEC ( LDeclCt ) 
+        END (*LOOP*) 
+      ELSE
+      END (*IF*)
+      
+    ; RETURN LResult 
+    END EnumScopeRefsEqual
 
 (*EXPORTED.*)
 ; PROCEDURE RecOrObjScopesEqual 
@@ -243,7 +287,8 @@ MODULE FM3Resolve
 
 
 (*EXPORTED.*)
-; PROCEDURE ExprsEqual ( LeftExprRef , RightExprRef : FM3Exprs . ExprTyp ) : BOOLEAN
+; PROCEDURE ExprsEqual
+    ( LeftExprRef , RightExprRef : FM3Exprs . ExprTyp ) : BOOLEAN
   (* Returns FALSE for things that should not be uniqued, even if equal. *) 
 
   = VAR LExprMap : FM3Base . MapTyp
@@ -281,7 +326,7 @@ MODULE FM3Resolve
         CASE LeftExprRef . ExpKind OF
         | Ekt . EkEnumType
         =>  LResult 
-              := EnumScopesEqual 
+              := EnumScopeRefsEqual 
                    ( LeftExprRef . ExpScopeRef1 , RightExprRef . ExpScopeRef1 ) 
         | Ekt . EkRecType
         =>  LResult 

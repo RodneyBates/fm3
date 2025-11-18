@@ -25,7 +25,7 @@ MODULE FM3Pass1
 
 ; IMPORT Atom
 ; IMPORT Compiler 
-; FROM File IMPORT Byte  
+; FROM  File IMPORT Byte  
 ; IMPORT FileWr
 ; IMPORT Fmt 
 ; IMPORT FS 
@@ -43,14 +43,14 @@ MODULE FM3Pass1
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars
 ; IMPORT FM3Base 
-; FROM FM3Base IMPORT tPosition
+; FROM  FM3Base IMPORT tPosition
 ; IMPORT FM3Builtins 
 ; IMPORT FM3CLArgs
 ; IMPORT FM3CLOptions
 ; IMPORT FM3CLToks AS Clt 
 ; IMPORT FM3Compile
 ; IMPORT FM3Compress
-; FROM FM3Compress IMPORT GetBwd
+; FROM   FM3Compress IMPORT GetBwd
 ; IMPORT FM3Decls
 ; IMPORT FM3Dict_Int_Int
 ; IMPORT FM3DisAsm
@@ -2646,6 +2646,7 @@ MODULE FM3Pass1
   (* Create an IdAtom-to-declNo, fixed-size dictionary for the scope, of
      exactly the needed size, and load it up with mappings of the idents
      declared in the scope, onto a contiguously-numbered range of DeclNos.
+     Create no decl objects nor refs to them.
   *) 
 
   = VAR SrtDeclNo : INTEGER 

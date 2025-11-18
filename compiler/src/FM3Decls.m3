@@ -195,7 +195,6 @@ MODULE FM3Decls
     ; PT("DclDefType =        ") ; PTNL(ExprRefImage(DeclRef^.DclDefType))
     ; PT("DclDefValue =       ") ; PTNL(ExprRefImage(DeclRef^.DclDefValue))
     ; PT("DclIdAtom =         ") ; PTNL(AtomImage(DeclRef))
-    ; PT("DclIdCt =           ") ; PTNL(Fmt.Int(DeclRef^.DclIdCt))
     ; PT("DclIdNo =           ") ; PTNL(Fmt.Int(DeclRef^.DclIdNo))
     ; PT("DclSelfDeclNo =     ") ; PTNL(DeclNoImage(DeclRef))
     ; PT("DclPos =            ") ; PTNL(PositionImage(DeclRef^.DclPos))
@@ -234,6 +233,30 @@ MODULE FM3Decls
     ; LDeclRef ^ . DclOwningScopeRef := OwningScopeRef
     ; RETURN LDeclRef 
     END NewDeclRef 
+
+(*EXPORTED.*)
+; PROCEDURE DeclRefOfDeclNo
+    ( DeclNo : FM3Globals . DeclNoTyp
+    ; UnitRef : FM3Units . UnitRefTyp := NIL (* NIL means current unit. *)
+    )
+  : DeclRefTyp
+  (* In the current unit. *) 
+
+  = VAR LUnitRef : FM3Units . UnitRefTyp
+  ; VAR LDeclMap : DeclMapTyp 
+  ; VAR LDeclRef : DeclRefTyp
+
+  ; BEGIN
+      IF UnitRef = NIL
+      THEN LUnitRef := FM3Units . UnitStackTopRef 
+      ELSE LUnitRef := UnitRef
+      END (*IF*) 
+    ; LDeclMap := LUnitRef ^ . UntDeclMap
+    ; IF LDeclMap = NIL THEN RETURN NIL END 
+    ; LDeclRef := VarArray_Int_Refany . Fetch ( LDeclMap , DeclNo )
+     (*        ^Implied NARROW *)
+    ; RETURN LDeclRef  
+    END DeclRefOfDeclNo 
 
 (* A stack of info about a declaration, with possibly multiple identifiers. *)
 (* Let's make it a linked stack.  Simpler to implement, and will never

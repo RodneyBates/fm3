@@ -12,6 +12,7 @@ INTERFACE FM3Decls
 ; IMPORT FM3Exprs
 ; IMPORT FM3Globals 
 ; IMPORT FM3SrcToks
+; IMPORT FM3Units 
 
 ; TYPE DeclKindTyp
     = { DkNull
@@ -49,8 +50,8 @@ INTERFACE FM3Decls
         DclLink : DeclRefTyp
         (* For a linked list of nodes giving the positions of any decls, to
            the right of the leftmost, in the same scope, with the same Ident.
-           These will have DeclKind DkDuplDecl.  Such a list is mutually
-           exclusive of a single node of some other DeclKind. 
+           These are erroneous and will have DeclKind DkDuplDecl.  Such a list
+           is mutually exclusive of a single node of some other DeclKind. 
         *) 
       ; DclOwningScopeRef : FM3Globals . ScopeRefTyp (* Containing scope *) 
       ; DclSelfScopeRef : FM3Globals . ScopeRefTyp
@@ -58,7 +59,6 @@ INTERFACE FM3Decls
       ; DclDefType : FM3Exprs . ExprTyp := NIL 
       ; DclDefValue : FM3Exprs . ExprTyp := NIL 
       ; DclIdAtom : FM3Base . AtomTyp
-      ; DclIdCt : INTEGER
       ; DclIdNo : INTEGER (* Counts up while going thru' multiple idents. *) 
       ; DclSelfDeclNo : FM3Globals . DeclNoTyp (* A self-reference. *)
       ; DclPos : FM3Base . tPosition
@@ -90,6 +90,12 @@ INTERFACE FM3Decls
     )
   : DeclRefTyp
   (* Allocate a DeclRef and initialize a couple of fields. *)
+
+; PROCEDURE DeclRefOfDeclNo
+    ( DeclNo : FM3Globals . DeclNoTyp
+    ; UnitRef : FM3Units . UnitRefTyp := NIL (* NIL means current unit. *)
+    )
+  : DeclRefTyp
 
 (* A stack of info about different kinds of declarations and their sometimes
    multiple identifiers, allowing for sharing among them of parser productions

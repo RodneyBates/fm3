@@ -130,7 +130,7 @@ INTERFACE FM3Units
           (* ^Of the being-[ex|im]ported identifier. *) 
       ; UntDeclMap : FM3Base . MapTyp := NIL
           (* ^DeclNo to and <: of FM3Decls.DeclRefTyp.  All the decls in this
-              unit, but not duplicate decls.
+              unit, but not erroneous duplicate decls.
           *) 
       ; UntExprMap : FM3Base . MapTyp := NIL
           (* ^ExprNo to ExprRef.  All the exprs in this unit. *) 
