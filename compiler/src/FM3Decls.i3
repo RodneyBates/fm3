@@ -33,12 +33,40 @@ INTERFACE FM3Decls
       , DkRecField
       , DkObjField
       , DkMethod
+      , DkOverride
+        (* An override is not really a declaration, since it is a referring
+           rather than a defining occurrence of its identifer.  But Using a
+           DeclTyp record, which has the needed fields (and more), seems
+           easier and avoids just creating yet another type. In the world of
+           2025, is it really necessary to squeeze out every byte? 
+        *) 
       , DkProc
       , DkWith
       , DkFor
       , DkExcArg
-      , DkReveal (* Not a scope.  Here as an experiment. *) 
-      } 
+      , DkReveal (* Is this a decl?  Here as an experiment. *)
+      }
+; TYPE Dkt = DeclKindTyp
+
+; TYPE DeclKindSetTyp = SET OF DeclKindTyp
+
+; CONST DeclKindSetFormal
+    = DeclKindSetTyp
+        { Dkt . DkVALUEFormal 
+        , Dkt . DkVARFormal 
+        , Dkt . DkROFormal
+        } 
+
+; CONST DeclKindSetTypeDef
+  (* Those that can occur inside a type definition. *) 
+    = DeclKindSetTyp
+        { Dkt . DkEnumLit
+        , Dkt . DkRecField  
+        , Dkt . DkObjField 
+        , Dkt . DkVALUEFormal
+        , Dkt . DkVARFormal  
+        , Dkt . DkROFormal 
+        } 
 
 ; PROCEDURE DeclKindImage ( Kind : DeclKindTyp ) : TEXT
 
@@ -77,7 +105,10 @@ INTERFACE FM3Decls
   (* Unit-relative/Scope-relative. *)
 
 ; PROCEDURE DeclTypImage ( DeclRef : DeclRefTyp ) : TEXT
-  (* Contents of the record. *)  
+  (* Contents of the record. *)
+
+; TYPE DeclRefListTyp = REF ARRAY OF DeclRefTyp
+  (* Used for lists of overrides. *)  
 
 ; TYPE DeclMapTyp = FM3Base . MapTyp  
     (* Map DeclNoTyp to DeclRefTyp. One of these per Unit. *)

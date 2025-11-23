@@ -50,6 +50,7 @@ MODULE FM3Decls
       | DeclKindTyp . DkRecField => RETURN "DkRecField"
       | DeclKindTyp . DkObjField => RETURN "DkObjField"
       | DeclKindTyp . DkMethod => RETURN "DkMethod"
+      | DeclKindTyp . DkOverride => RETURN "DkOverride"
       | DeclKindTyp . DkProc => RETURN "DkProc"
       | DeclKindTyp . DkWith => RETURN "DkWith"
       | DeclKindTyp . DkFor => RETURN "DkFor"

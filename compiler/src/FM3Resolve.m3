@@ -23,8 +23,9 @@ MODULE FM3Resolve
 ; IMPORT FM3Units 
 ; IMPORT FM3Utils
 
+; TYPE Dkt = FM3Decls . DeclKindTyp 
 ; TYPE Ekt = FM3Exprs . ExprKindTyp 
-; TYPE Est = FM3Exprs . ExprStateTyp
+; TYPE Est = FM3Exprs . ExprStateTyp 
 ; TYPE Skt = FM3Scopes . ScopeKindTyp 
 
 ; PROCEDURE ResolveChild
@@ -146,21 +147,24 @@ MODULE FM3Resolve
       END (*CASE*)
     ; ExprRef . ExpState := Est . EsResolved 
     END ResolveExpr
-      
-; PROCEDURE Opnds12Equal ( Left , Right : FM3Exprs . ExprTyp ) : BOOLEAN
 
-  = BEGIN (*Opnds12Equal*)
-      IF NOT ExprsEqual ( Left . ExpOpnd1 , Right . ExpOpnd1 )
+(* Check forms of structural expression equality that can be
+   treated as equal.
+*) 
+      
+; PROCEDURE Opnds1And2Equal ( Left , Right : FM3Exprs . ExprTyp ) : BOOLEAN
+
+  = BEGIN (*Opnds1And2Equal*)
+      IF NOT ExprRefsEqual ( Left . ExpOpnd1 , Right . ExpOpnd1 )
       THEN RETURN FALSE
-      END (*IF*) 
-    ; IF NOT ExprsEqual ( Left . ExpOpnd2 , Right . ExpOpnd2 )
+      ELSIF NOT ExprRefsEqual ( Left . ExpOpnd2 , Right . ExpOpnd2 )
       THEN RETURN FALSE
+      ELSE RETURN TRUE  
       END (*IF*)
-    ; RETURN TRUE 
-    END Opnds12Equal
+    END Opnds1And2Equal
 
 (*EXPORTED.*)
-; PROCEDURE ConstValuesAreEqual
+; PROCEDURE ConstValuesEqual
     ( LeftExprRef , RightExprRef : FM3Exprs . ExprTyp )
   : BOOLEAN
   (* PRE: LeftExprRef & RightExprRef are non-NIL, value exprs
@@ -175,7 +179,7 @@ MODULE FM3Resolve
   ; VAR LLeftExprRef : FM3Exprs . ExprTyp 
   ; VAR LRightExprRef : FM3Exprs . ExprTyp 
 
-  ; BEGIN (*ConstValuesAreEqual*)
+  ; BEGIN (*ConstValuesEqual*)
       IF NOT LeftExprRef . ExpConstValIsKnown THEN RETURN FALSE END (*IF*) 
     ; IF NOT RightExprRef . ExpConstValIsKnown THEN RETURN FALSE END (*IF*) 
     ; IF LeftExprRef . ExpType = FM3Builtins . BuiltinExpr ( Stk . RidTEXT )
@@ -186,7 +190,7 @@ MODULE FM3Resolve
       ELSE RETURN RightExprRef . ExpScalarConstVal = LeftExprRef . ExpScalarConstVal 
       END (*IF*) 
       
-    END ConstValuesAreEqual
+    END ConstValuesEqual
 
 (*EXPORTED.*)
 ; PROCEDURE RepExprNo ( ExprNo : FM3Exprs . ExprNoTyp ) : FM3Exprs . ExprNoTyp
@@ -211,20 +215,68 @@ MODULE FM3Resolve
       END (*LOOP*) 
     END RepExprNo
 
-(*EXPORTED.*)
-; PROCEDURE TypeExprsEqual ( LeftExprRef , RightExprRef : FM3Exprs . ExprTyp )
-  : BOOLEAN 
+; PROCEDURE DeclRefsEqual
+    ( LeftDeclRef , RightDeclRef : FM3Decls . DeclRefTyp )
+  : BOOLEAN
 
-  = VAR LResult : BOOLEAN
+  = BEGIN (* DeclRefsEqual *)
 
-  ; BEGIN (*TypeExprsEqual*)
-      RETURN LResult 
-    END TypeExprsEqual
-      
+      IF LeftDeclRef = NIL THEN RETURN FALSE END (*IF*)
+    ; IF RightDeclRef = NIL THEN RETURN FALSE END (*IF*)
+    ; IF NOT LeftDeclRef ^ . DclIsUsable THEN RETURN FALSE END (*IF*)
+    ; IF NOT RightDeclRef ^ . DclIsUsable THEN RETURN FALSE END (*IF*)
+    ; IF LeftDeclRef = RightDeclRef THEN (*Identical*) RETURN TRUE END (*IF*)
+    ; IF LeftDeclRef ^ . DclKind # RightDeclRef ^ . DclKind 
+      THEN RETURN FALSE
+      END (*IF*)
+
+    ; IF LeftDeclRef ^ . DclIdAtom # RightDeclRef ^ . DclIdAtom
+      THEN
+(*  REVIEW: Does this test duplicate one in the caller? *) 
+        RETURN FALSE
+      END (*IF*)
+    ; CASE LeftDeclRef ^ . DclKind OF 
+      | Dkt . DkEnumLit
+      => (* Mere presence of the enumlit's Ident is enough. *)
+         RETURN TRUE
+      | Dkt . DkType                        
+      , Dkt . DkConst
+      , Dkt . DkVar
+      , Dkt . DkVALUEFormal
+      , Dkt . DkVARFormal
+      , Dkt . DkROFormal
+      , Dkt . DkRecField
+      , Dkt . DkObjField
+      , Dkt . DkMethod
+      =>  IF NOT ExprRefsEqual
+                   ( LeftDeclRef ^ . DclDefType , RightDeclRef ^ . DclDefType ) 
+          THEN RETURN FALSE
+          ELSIF
+            NOT ExprRefsEqual
+                  ( LeftDeclRef ^ . DclDefValue , RightDeclRef ^ . DclDefValue )
+          THEN RETURN FALSE
+          ELSE RETURN TRUE 
+          END (*IF*)
+      | Dkt . DkOverride
+      =>  IF NOT ExprRefsEqual
+                   ( LeftDeclRef ^ . DclDefValue , RightDeclRef ^ . DclDefValue ) 
+          THEN RETURN FALSE
+          ELSE RETURN TRUE 
+          END (*IF*)
+      ELSE (* Other decl kinds are never equal, but we probably
+              won't see them.
+           *)  
+        RETURN FALSE
+      END (*CASE*)
+    END DeclRefsEqual
+    
 (*EXPORTED.*)
-; PROCEDURE EnumScopeRefsEqual
+; PROCEDURE TypeScopeRefsEqual
     ( LeftScopeRef , RightScopeRef : FM3Scopes . ScopeRefTyp )
   : BOOLEAN
+  (* Only for scopes that are part of a type expression: enum, record,
+     object, formals.
+  *) 
 
   = VAR LLeftUnitRef : FM3Units . UnitRefTyp
   ; VAR LRightUnitRef : FM3Units . UnitRefTyp
@@ -232,62 +284,74 @@ MODULE FM3Resolve
   ; VAR LRightDeclMap : FM3Decls . DeclMapTyp
   ; VAR LLeftDeclNo : FM3Globals . DeclNoTyp
   ; VAR LRightDeclNo : FM3Globals . DeclNoTyp
+  ; VAR LLeftDeclRef : FM3Decls . DeclRefTyp 
+  ; VAR LRightDeclRef : FM3Decls . DeclRefTyp 
   ; VAR LDeclCt : INTEGER 
-  ; VAR LResult : BOOLEAN
 
-  ; BEGIN (*EnumScopeRefsEqual*)
+  ; BEGIN (*TypeScopeRefsEqual*)
       IF LeftScopeRef = NIL THEN RETURN FALSE END (*IF*)
     ; IF RightScopeRef = NIL THEN RETURN FALSE END (*IF*)
-    ; LLeftUnitRef := LeftScopeRef ^ . ScpOwningUnitRef 
-    ; LRightUnitRef := RightScopeRef ^ . ScpOwningUnitRef 
     ; IF LeftScopeRef = RightScopeRef THEN (*Identical*) RETURN TRUE END (*IF*)
     ; IF LeftScopeRef ^ . ScpKind # RightScopeRef ^ . ScpKind 
       THEN RETURN FALSE
       END (*IF*)
+    ; IF NOT LeftScopeRef ^ . ScpKind IN FM3Scopes . ScopeKindSetTypeDef
+      THEN (* Others are never equal, but this probably won't happen. *) 
+        RETURN FALSE
+      END (*IF*) 
     ; IF LeftScopeRef ^ . ScpDeclCt # RightScopeRef ^ . ScpDeclCt
       THEN RETURN FALSE
       END (*IF*)
-    ; IF NOT LeftScopeRef ^ . ScpKind IN FM3Scopes . ScopeKindSetTypeDef
-      THEN
-        LLeftDeclMap := LLeftUnitRef ^ . UntDeclMap  
-      ; LRightDeclMap := LRightUnitRef ^ . UntDeclMap 
-        
-      ; LLeftDeclNo := LeftScopeRef ^ . ScpMinDeclNo 
-      ; LRightDeclNo := RightScopeRef ^ . ScpMinDeclNo
-      ; LDeclCt := LeftScopeRef ^ . ScpDeclCt 
-      ; LOOP
-          IF LDeclCt <= 0 THEN RETURN TRUE END (*IF*) 
-        ; IF LeftScopeRef ^ . ScpIdentAtom # RightScopeRef ^ . ScpIdentAtom 
-          THEN RETURN FALSE
-          END (*IF*) 
-        ; IF LeftScopeRef ^ . ScpKind = Skt . SkEnum
-          THEN 
-          ELSE
-          END (*IF*) 
-        ; INC ( LLeftDeclNo )  
-        ; INC ( LRightDeclNo )
-        ; DEC ( LDeclCt ) 
-        END (*LOOP*) 
-      ELSE
-      END (*IF*)
-      
-    ; RETURN LResult 
-    END EnumScopeRefsEqual
 
-(*EXPORTED.*)
-; PROCEDURE RecOrObjScopesEqual 
-    ( LeftScopeRef , RightScopeRef : FM3Scopes . ScopeRefTyp )
+    (* Go thru' the matching decls in the scopes. *) 
+    ; LLeftUnitRef := LeftScopeRef ^ . ScpOwningUnitRef 
+    ; LRightUnitRef := RightScopeRef ^ . ScpOwningUnitRef 
+    ; LLeftDeclMap := LLeftUnitRef ^ . UntDeclMap  
+    ; LRightDeclMap := LRightUnitRef ^ . UntDeclMap 
+
+    ; LLeftDeclNo := LeftScopeRef ^ . ScpMinDeclNo 
+    ; LRightDeclNo := RightScopeRef ^ . ScpMinDeclNo
+    ; LDeclCt := LeftScopeRef ^ . ScpDeclCt 
+    ; LOOP
+        IF LDeclCt <= 0 THEN RETURN TRUE END (*IF*)
+      ; LLeftDeclRef
+          := FM3Decls . DeclRefOfDeclNo ( LLeftDeclNo , LLeftUnitRef )
+      ; LRightDeclRef
+          := FM3Decls . DeclRefOfDeclNo ( LRightDeclNo , LRightUnitRef )
+      ; IF NOT DeclRefsEqual ( LLeftDeclRef , LRightDeclRef ) 
+        THEN RETURN FALSE
+        END (*IF*)
+      ; INC ( LLeftDeclNo )  
+      ; INC ( LRightDeclNo )
+      ; DEC ( LDeclCt ) 
+      END (*LOOP*) 
+    END TypeScopeRefsEqual
+
+; PROCEDURE OverrideListsEqual
+    ( LeftList , RightList : FM3Decls . DeclRefListTyp )
   : BOOLEAN 
 
-  = VAR LResult : BOOLEAN
-
-  ; BEGIN (*RecOrObjScopesEqual*)
-      RETURN LResult 
-    END RecOrObjScopesEqual
-
+  = BEGIN (*OverrideListsEqual*)
+      IF LeftList = RightList THEN RETURN TRUE END (*IF*)
+         (* Works for both NIL, meaning empty lists. *)
+    ; IF LeftList = NIL THEN RETURN FALSE END (*IF*)
+    ; IF RightList = NIL THEN RETURN FALSE END (*IF*)
+    ; IF NUMBER ( LeftList ^ ) # NUMBER ( RightList ^ )
+      THEN RETURN FALSE
+      END (*IF*)
+    ; FOR RI := 0 TO LAST ( LeftList ^ )
+      DO
+        IF NOT DeclRefsEqual ( LeftList ^ [ RI ] , LeftList ^ [ RI ] )
+        THEN RETURN FALSE
+        ELSIF LeftList ^ . DclKind # Dkt . DkOverride 
+        THEN RETURN FALSE
+        END (*IF*) 
+      END (*FOR*)
+    ; RETURN TRUE 
+    END OverrideListsEqual
 
 (*EXPORTED.*)
-; PROCEDURE ExprsEqual
+; PROCEDURE ExprRefsEqual
     ( LeftExprRef , RightExprRef : FM3Exprs . ExprTyp ) : BOOLEAN
   (* Returns FALSE for things that should not be uniqued, even if equal. *) 
 
@@ -297,7 +361,7 @@ MODULE FM3Resolve
   ; VAR LRightRepNo : FM3Exprs . ExprNoTyp 
   ; VAR LResult : BOOLEAN 
 
-  ; BEGIN (*ExprsEqual*)
+  ; BEGIN (*ExprRefsEqual*)
       IF LeftExprRef = NIL THEN RETURN FALSE END (*IF*) 
     ; IF RightExprRef = NIL THEN RETURN FALSE END (*IF*)
     ; IF RightExprRef = LeftExprRef THEN RETURN TRUE END (*IF*)
@@ -307,53 +371,72 @@ MODULE FM3Resolve
     ; IF RightExprRef . ExpRepExprNo < FM3Exprs . ExprNoFirstReal
       THEN RETURN FALSE
       END (*IF*)
-    ; IF LeftExprRef . ExpHash # RightExprRef . ExpHash THEN RETURN FALSE END (*IF*)
+    ; IF LeftExprRef . ExpHash # RightExprRef . ExpHash
+      THEN RETURN FALSE
+      END (*IF*)
     ; LLeftRepNo := RepExprNo ( LeftExprRef . ExpSelfExprNo )
     ; LRightRepNo := RepExprNo ( RightExprRef . ExpSelfExprNo )
     ; IF LRightRepNo = LLeftRepNo AND LLeftRepNo # FM3Exprs . ExprNoNull
       THEN RETURN TRUE
       END (*IF*)
-    ; IF RightExprRef . ExpKind # LeftExprRef . ExpKind THEN RETURN FALSE END (*IF*)
+    ; IF RightExprRef . ExpKind # LeftExprRef . ExpKind
+      THEN RETURN FALSE
+      END (*IF*)
 
     (* No shortcuts.  Do a brute-force recursive comparison. *)
     ; IF LeftExprRef . ExpKind IN FM3Exprs . EkSetPossiblyConstants
       THEN (* Both are constant values of the same kind. *)
-        IF NOT TypeExprsEqual ( RightExprRef . ExpType , LeftExprRef . ExpType )
+        IF NOT ExprRefsEqual ( RightExprRef . ExpType , LeftExprRef . ExpType )
         THEN LResult := FALSE 
         END (*IF*)
-      ; LResult := ConstValuesAreEqual ( LeftExprRef , RightExprRef ) 
-      ELSE (* Both are uniqualble types of the same kind. *)
+      ; LResult := ConstValuesEqual ( LeftExprRef , RightExprRef ) 
+      ELSE (* Both are types of the same kind. *)
         CASE LeftExprRef . ExpKind OF
         | Ekt . EkEnumType
         =>  LResult 
-              := EnumScopeRefsEqual 
+              := TypeScopeRefsEqual 
                    ( LeftExprRef . ExpScopeRef1 , RightExprRef . ExpScopeRef1 ) 
         | Ekt . EkRecType
         =>  LResult 
-              := RecOrObjScopesEqual 
+              := TypeScopeRefsEqual 
                    ( LeftExprRef . ExpScopeRef1 , RightExprRef . ExpScopeRef1 ) 
         | Ekt . EkArrayType
         =>  LResult := RightExprRef . ExpOpcode = LeftExprRef . ExpOpcode 
-(* Needed? ------------^ *) 
-                       AND RightExprRef . ExpArrayTypeIsOpen 
-                           = LeftExprRef . ExpArrayTypeIsOpen 
-                       AND Opnds12Equal ( LeftExprRef , RightExprRef ) 
+(* Needed? ------------^ *)
+          ; LResult
+              := LResult 
+                 AND RightExprRef . ExpArrayTypeIsOpen 
+                     = LeftExprRef . ExpArrayTypeIsOpen 
+          ; LResult
+              := LResult 
+                 AND Opnds1And2Equal ( LeftExprRef , RightExprRef ) 
         | Ekt . EkObjType
-        =>  LResult 
-              := RecOrObjScopesEqual 
+        =>  LResult
+              := RightExprRef . ExpIsUntraced = LeftExprRef . ExpIsUntraced 
+          ; LResult
+              := LResult 
+                 AND Opnds1And2Equal 
+                       ( LeftExprRef , RightExprRef ) (* Brand, supertype. *)
+          ; LResult 
+              := TypeScopeRefsEqual 
                    ( LeftExprRef . ExpScopeRef1 , RightExprRef . ExpScopeRef1 ) 
-                 AND RightExprRef . ExpIsUntraced = LeftExprRef . ExpIsUntraced 
-                 AND Opnds12Equal 
-                       ( LeftExprRef , RightExprRef ) (* Brand, supertype. *) 
+          ; LResult 
+              := OverrideListsEqual 
+                   ( LeftExprRef . ExpOpnd3 , RightExprRef . ExpOpnd3 ) 
+          ; 
         | Ekt . EkSubrType
-        =>  LResult := Opnds12Equal ( LeftExprRef , RightExprRef ) 
+        =>  LResult := Opnds1And2Equal ( LeftExprRef , RightExprRef ) 
         | Ekt . EkRefType
         =>  LResult := RightExprRef . ExpOpcode = LeftExprRef . ExpOpcode 
 (* Needed? ------------^ *) 
-                       AND RightExprRef . ExpIsUntraced 
-                           = LeftExprRef . ExpIsUntraced 
-                       AND Opnds12Equal ( LeftExprRef , RightExprRef )
-                           (* ^Brand, supertype (always absent). *)
+          ; LResult
+              := LResult 
+                 AND RightExprRef . ExpIsUntraced 
+                     = LeftExprRef . ExpIsUntraced 
+          ; LResult
+              := LResult 
+                 AND Opnds1And2Equal ( LeftExprRef , RightExprRef )
+                     (* ^Brand, supertype (always absent). *)
         | Ekt . EkSupertype
         =>  (* A placeholder for an absent supertype of an OBJECT type.  Also
                present but meaningless in a REF type. since we didn't know at
@@ -371,7 +454,7 @@ MODULE FM3Resolve
       ; LRightRepExprRef . ExpRepExprNo := LLeftRepNo  
       END (*IF*) 
     ; RETURN LResult 
-    END ExprsEqual
+    END ExprRefsEqual
       
 ; BEGIN (*FM3Resolve*)
   END FM3Resolve
