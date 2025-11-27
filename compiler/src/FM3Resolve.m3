@@ -259,7 +259,7 @@ MODULE FM3Resolve
           END (*IF*)
       | Dkt . DkOverride
       =>  IF NOT ExprRefsEqual
-                   ( LeftDeclRef ^ . DclDefValue , RightDeclRef ^ . DclDefValue ) 
+                    ( LeftDeclRef ^ . DclDefValue , RightDeclRef ^ . DclDefValue ) 
           THEN RETURN FALSE
           ELSE RETURN TRUE 
           END (*IF*)
@@ -328,7 +328,7 @@ MODULE FM3Resolve
     END TypeScopeRefsEqual
 
 ; PROCEDURE OverrideListsEqual
-    ( LeftList , RightList : FM3Decls . DeclRefListTyp )
+    ( LeftList , RightList : FM3Globals . DeclRefListTyp )
   : BOOLEAN 
 
   = BEGIN (*OverrideListsEqual*)
@@ -343,7 +343,7 @@ MODULE FM3Resolve
       DO
         IF NOT DeclRefsEqual ( LeftList ^ [ RI ] , LeftList ^ [ RI ] )
         THEN RETURN FALSE
-        ELSIF LeftList ^ . DclKind # Dkt . DkOverride 
+        ELSIF LeftList ^ [ RI ] . DclKind # Dkt . DkOverride 
         THEN RETURN FALSE
         END (*IF*) 
       END (*FOR*)
@@ -422,8 +422,9 @@ MODULE FM3Resolve
                    ( LeftExprRef . ExpScopeRef1 , RightExprRef . ExpScopeRef1 ) 
           ; LResult 
               := OverrideListsEqual 
-                   ( LeftExprRef . ExpOpnd3 , RightExprRef . ExpOpnd3 ) 
-          ; 
+                   ( LeftExprRef . ExpObjOverrides
+                   , RightExprRef . ExpObjOverrides
+                   ) 
         | Ekt . EkSubrType
         =>  LResult := Opnds1And2Equal ( LeftExprRef , RightExprRef ) 
         | Ekt . EkRefType
@@ -448,7 +449,8 @@ MODULE FM3Resolve
       END (*IF*)
  
     ; IF LResult 
-      THEN (* Discovered a new structural equality.  Record it for posterity. *) 
+      THEN
+        (* Discovered a new structural equality.  Record it for posterity. *) 
         LExprMap := FM3Units . UnitStackTopRef ^ . UntExprMap 
       ; LRightRepExprRef := FM3Exprs . ExprRefOfExprNo ( LRightRepNo ) 
       ; LRightRepExprRef . ExpRepExprNo := LLeftRepNo  

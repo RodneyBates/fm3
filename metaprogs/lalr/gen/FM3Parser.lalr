@@ -1179,7 +1179,7 @@ RULE
    Type : RefTypeUntraced .
    
 (* L2R parsing can't distinguish the start of a REF from an OBJECT type, and
-   a brand of possibly unbounded complexity can be in between here and where
+   a brand of possibly unbounded complexity can be in between it and where
    we find out.  In case it turns out later to be OBJECT, we need to
    consistently reduce something to a Supertype even if it is not explicit
    in the syntax.  So we reduce empty to SupertypeAbsent regardless of whether

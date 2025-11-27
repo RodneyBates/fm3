@@ -2341,7 +2341,8 @@ MODULE FM3Pass1
         ; PutNotUsable ( WScan . SaAtom , WScan . Position )  
         ; RETURN FALSE 
         ELSE
-          PutBwd_TIP ( Itk . ItkOverrideIdAtom , WScan . SaAtom , WScan . Position ) 
+          PutBwd_TIP
+            ( Itk . ItkOverrideIdAtom , WScan . SaAtom , WScan . Position ) 
         ; RETURN TRUE 
         END (*IF*) 
       END (*WITH*) 

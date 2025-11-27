@@ -221,7 +221,7 @@ INTERFACE FM3Exprs
       ; ExpOpnd1 : ExprTyp (* Left operand when binary. *)
       ; ExpOpnd2 : ExprTyp (* Right Operand when binary. *) 
       ; ExpOpnd3 : ExprTyp 
-      ; ExpOpnd4 : ExprTyp 
+      ; ExpOpnd4 : ExprTyp
 
       ; ExpBinOpLtOpndKindsAllowed := ExprKindSetTyp { } 
       ; ExpBinOpRtOpndKindsAllowed := ExprKindSetTyp { }
@@ -237,7 +237,7 @@ INTERFACE FM3Exprs
       ; ExpDefSsType : ExprTyp (* NIL means open array. *)
      (* ExpOpnd1 is supertype, non-NIL even if defaulted. *)
      (* ExpOpnd2 is brand, NIL if no BRANDED. *) 
-      ; ExpObjOverrides : REFANY (* What do we need here? *) 
+      ; ExpObjOverrides : FM3Globals . DeclRefListTyp 
       ; ExpObjBrandKind : FM3Parser . BrandKindTyp 
       ; ExpScopeRef1 : FM3Scopes . ScopeRefTyp 
       ; ExpArgPrefix : ExprTyp 

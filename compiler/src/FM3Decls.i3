@@ -75,7 +75,7 @@ INTERFACE FM3Decls
 ; TYPE DeclRefTyp = FM3Globals . DeclRefTyp 
 ; TYPE DeclTyp
     = RECORD 
-        DclLink : DeclRefTyp
+        DclLink : DeclRefTyp := NIL 
         (* For a linked list of nodes giving the positions of any decls, to
            the right of the leftmost, in the same scope, with the same Ident.
            These are erroneous and will have DeclKind DkDuplDecl.  Such a list
@@ -106,9 +106,6 @@ INTERFACE FM3Decls
 
 ; PROCEDURE DeclTypImage ( DeclRef : DeclRefTyp ) : TEXT
   (* Contents of the record. *)
-
-; TYPE DeclRefListTyp = REF ARRAY OF DeclRefTyp
-  (* Used for lists of overrides. *)  
 
 ; TYPE DeclMapTyp = FM3Base . MapTyp  
     (* Map DeclNoTyp to DeclRefTyp. One of these per Unit. *)

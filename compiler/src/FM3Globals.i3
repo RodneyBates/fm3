@@ -19,7 +19,7 @@ INTERFACE FM3Globals
 ; IMPORT FM3Dict_OAChars_Int
 
 (* Avoid cyclic imports of strongly-connected data structure interfaces.
-   Opaque types are revealed i their respective interfaces.
+   Opaque types are revealed in their respective interfaces.
  *)
 
 
@@ -41,6 +41,7 @@ INTERFACE FM3Globals
 ; CONST DeclNoMax = LAST ( DeclNoTyp )
 ; CONST DeclNoNotUseable = DeclNoNull + 1 
 ; CONST DeclNoFirstReal = DeclNoNotUseable + 1
+; TYPE DeclRefListTyp = REF ARRAY OF DeclRefTyp 
 
 ; TYPE ExprTyp <: ROOT 
 
