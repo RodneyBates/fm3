@@ -222,20 +222,13 @@ INTERFACE FM3Exprs
       ; ExpOpnd2 : ExprTyp (* Right Operand when binary. *) 
       ; ExpOpnd3 : ExprTyp 
       ; ExpOpnd4 : ExprTyp
-      ; ExpDeclList : FM3Globals . DeclRefListTyp 
 
       ; ExpBinOpLtOpndKindsAllowed := ExprKindSetTyp { } 
       ; ExpBinOpRtOpndKindsAllowed := ExprKindSetTyp { }
         (* This can denote a unary operator, in which case we use this
            type with 2nd operand fields just going unused.
         *) 
-      ; ExpAddrReferent : ExprTyp := NIL (* Redundant to Opnd1? *) 
-      ; ExpOpenArrayElemType : ExprTyp := NIL (* Redundant to Opnd1? *)
       ; ExpRangeBase : ExprTyp := NIL 
-      ; ExpSubrLo : ExprTyp := NIL 
-      ; ExpSubrHi : ExprTyp := NIL 
-      ; ExpDefElmtType : ExprTyp 
-      ; ExpDefSsType : ExprTyp (* NIL means open array. *)
      (* ExpOpnd1 is supertype, non-NIL even if defaulted. *)
      (* ExpOpnd2 is brand, NIL if no BRANDED. *) 
       ; ExpObjOverrides : FM3Globals . DeclRefListTyp
@@ -244,15 +237,10 @@ INTERFACE FM3Exprs
       ; ExpArgPrefix : ExprTyp 
       ; ExpArgsList : ExprListRefTyp
 
-      ; ExpQualDeclNoLt : FM3Globals . DeclNoTyp
-      ; ExpDefDeclNo : FM3Globals . DeclNoTyp := FM3Globals . DeclNoNull
-      ; ExpQualIdAtomRt : FM3Base . AtomTyp
       ; ExpIdentDeclNo : FM3Globals . DeclNoTyp
         (* ^ABS ( ExpIdentDeclNo < 0 ) is builtin opcode. *)
       ; ExpRemoteUnitNo : FM3Globals . UnitNoTyp
       ; ExpRemoteDeclNo : FM3Globals . DeclNoTyp
-      ; ExpDefIntfUnitNo :FM3Globals . UnitNoTyp := FM3Globals . UnitNoNull
-      ; ExpDefIntfDeclNo : FM3Globals . DeclNoTyp := FM3Globals . DeclNoNull
       ; ExpPosition : tPosition := FM3Base . PositionNull
       ; ExpOpcode : OpcodeTyp := FM3SrcToks . RidNull
       ; ExpDotIdAtom : FM3Base . AtomTyp

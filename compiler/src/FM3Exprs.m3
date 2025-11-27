@@ -381,14 +381,9 @@ RETURN ;
               ) 
 
 
-      ; Field ( "ExpQualDeclNoLt" , Fmt . Int ( Expr . ExpQualDeclNoLt ) ) 
-      ; Field ( "ExpDefDeclNo" , Fmt . Int ( Expr . ExpDefDeclNo ) )  
-      ; Field ( "ExpQualIdAtomRt" , AtomTypImage ( Expr . ExpQualIdAtomRt ) ) 
       ; Field ( "ExpIdentDeclNo" , Fmt . Int ( Expr . ExpIdentDeclNo ) ) 
       ; Field ( "ExpRemoteUnitNo" , Fmt . Int ( Expr . ExpRemoteUnitNo ) ) 
       ; Field ( "ExpRemoteDeclNo" , Fmt . Int ( Expr . ExpRemoteDeclNo ) ) 
-      ; Field ( "ExpDefIntfUnitNo" , Fmt . Int ( Expr . ExpDefIntfUnitNo ) )  
-      ; Field ( "ExpDefIntfDeclNo" , Fmt . Int ( Expr . ExpDefIntfDeclNo ) )   
 
       ; Field ( "ExpPosition" , FM3Utils . PositionImage ( Expr . ExpPosition ) )
       ; Field ( "ExpOpcode" , FM3SrcToks . Image ( Expr . ExpOpcode ) )  
@@ -419,13 +414,7 @@ RETURN ;
       ; NestedField ( "ExpOpnd3" , Expr . ExpOpnd3 ) 
       ; NestedField ( "ExpOpnd3" , Expr . ExpOpnd3 ) 
       ; NestedField ( "ExpOpnd4" , Expr . ExpOpnd4 ) 
-      ; NestedField ( "ExpAddrReferent" , Expr . ExpAddrReferent ) 
-      ; NestedField ( "ExpOpenArrayElemType" , Expr . ExpOpenArrayElemType ) 
       ; NestedField ( "ExpRangeBase" , Expr . ExpRangeBase ) 
-      ; NestedField ( "ExpSubrLo" , Expr . ExpSubrLo ) 
-      ; NestedField ( "ExpSubrHi" , Expr . ExpSubrHi ) 
-      ; NestedField ( "ExpDefElmtType" , Expr . ExpDefElmtType ) 
-      ; NestedField ( "ExpDefSsType" , Expr . ExpDefSsType ) 
       ; NestedField ( "ExpArgPrefix" , Expr . ExpArgPrefix ) 
 
       END ExprAppend
