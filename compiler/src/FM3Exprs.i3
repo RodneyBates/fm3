@@ -222,6 +222,7 @@ INTERFACE FM3Exprs
       ; ExpOpnd2 : ExprTyp (* Right Operand when binary. *) 
       ; ExpOpnd3 : ExprTyp 
       ; ExpOpnd4 : ExprTyp
+      ; ExpDeclList : FM3Globals . DeclRefListTyp 
 
       ; ExpBinOpLtOpndKindsAllowed := ExprKindSetTyp { } 
       ; ExpBinOpRtOpndKindsAllowed := ExprKindSetTyp { }
@@ -237,7 +238,7 @@ INTERFACE FM3Exprs
       ; ExpDefSsType : ExprTyp (* NIL means open array. *)
      (* ExpOpnd1 is supertype, non-NIL even if defaulted. *)
      (* ExpOpnd2 is brand, NIL if no BRANDED. *) 
-      ; ExpObjOverrides : FM3Globals . DeclRefListTyp 
+      ; ExpObjOverrides : FM3Globals . DeclRefListTyp
       ; ExpObjBrandKind : FM3Parser . BrandKindTyp 
       ; ExpScopeRef1 : FM3Scopes . ScopeRefTyp 
       ; ExpArgPrefix : ExprTyp 
@@ -277,7 +278,6 @@ INTERFACE FM3Exprs
       ; ExpIsPresent : BOOLEAN := TRUE  
       ; ExpArrayTypeIsOpen : BOOLEAN := FALSE
       ; ExpIsUntraced : BOOLEAN 
-
 
       METHODS
         appendDump ( )  

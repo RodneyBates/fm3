@@ -577,6 +577,9 @@ FALSE AND
       RETURN TRUE
     END InsideDecl
 
+; VAR GOverrideCt : INTEGER := - 1
+      (* No nesting of override lists, so a single variable suffices. *) 
+
 ; PROCEDURE HandleTok ( READONLY TokResult : TokResultTyp ) 
 
   = VAR LUnitRef : FM3Units . UnitRefTyp
@@ -1316,8 +1319,8 @@ TRUE OR
             END (*IF*)
           ; LPosition := GetBwdPos ( TokResult . TrRdBack )
           ; WITH WNewOverrideRef (* which has FM3Exprs . ExprRefTyp. *) 
-                    = FM3Exprs . ExprStackTopRef ^
-                      . ExpOverrides ^ [ GOverrideCt - 1 ]
+                    = FM3Exprs . ExprStackTopObj 
+                      . ExpObjOverrides ^ [ GOverrideCt - 1 ]
             DO
               WNewOverrideRef
                 := NEW ( FM3Decls . DeclRefTyp )
@@ -1332,42 +1335,43 @@ TRUE OR
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN
             LPosition := GetBwdPos ( TokResult . TrRdBack )
-          ; LExpr := FM3Exprs . PopExprStack ( ) (* The proc reference. *)
+          ; LArgsExpr := FM3Exprs . PopExprStack ( ) (* The proc reference. *)
           ; WITH WOverrideRef (* Of FM3Decls . DeclRefTyp. *) 
-                    = FM3Exprs . ExprStackTopRef ^
-                      . ExpOverrides ^ [ GOverrideCt - 1 ]
-            DO IF WOverrideRef ^ . DclKind # Dkt . DkOverride
+                    = FM3Exprs . ExprStackTopObj 
+                      . ExpObjOverrides ^ [ GOverrideCt - 1 ]
+            DO IF WOverrideRef . DclKind # Dkt . DkOverride
               THEN <* ASSERT FALSE , "Expected override." *>
               END (*IF*) 
-            ; WOverrideRef ^ . DclDefValue := LExpr
-            ENED (*WITH*) 
+            ; WOverrideRef . DclDefValue := LArgsExpr
+            END (*WITH*) 
           END (*IF*)
           
       | Itk . ItkOverrideIdAtom  
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN
-            LNewExpr := NEW ( FM3Exprs . ExprRefTyp )
+            LNewExpr := NEW ( FM3Exprs . ExprTyp )
           ; LNewExpr . ExpKind := Ekt . EkIdentRef
           ; LNewExpr . ExpDotIdAtom := GetBwdAtom ( TokResult . TrRdBack )
           ; LNewExpr . ExpPosition := GetBwdPos ( TokResult . TrRdBack )
-          ; FM3Exprs . PushExpr ( LNewExpr ) 
+          ; FM3Exprs . PushExprStack ( LNewExpr ) 
           END (*IF*)
           
       | Itk . ItkOverrideLt  
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN
             LPosition := GetBwdPos ( TokResult . TrRdBack )
-          ; LExpr := FM3Exprs . PopExprStack ( ) (* The Id reference. *)
-          ; IF LExpr ^ . ExpIdKind # Ekt . EkIdentRef
-            THEN <* ASSERT FALSE "Expected override Id reference expr." *>
+          ; LArgsExpr := FM3Exprs . PopExprStack ( ) (* The Id reference. *)
+          ; IF LArgsExpr . ExpKind # Ekt . EkIdentRef
+            THEN <* ASSERT FALSE , "Expected override Id reference expr." *>
             END (*IF*) 
           ; WITH WOverrideRef (* Of FM3Exprs . ExprRefTyp. *) 
-                    = FM3Exprs . ExprStackTopRef ^
-                      . ExpOverrides ^ [ GOverrideCt - 1 ]
+                    = FM3Exprs . ExprStackTopObj 
+                      . ExpObjOverrides ^ [ GOverrideCt - 1 ]
             DO IF WOverrideRef ^ . DclKind # Dkt . DkOverride
               THEN <* ASSERT FALSE , "Expected override decl." *>
               END (*IF*) 
-            ; WOverrideRef ^ . DclIdAtom := LExprRef ^ . ExpIdAtom  
+            ; WOverrideRef ^ . DclIdAtom := LArgsExpr . ExpDotIdAtom
+            END (*WITH*) 
           END (*IF*)
 
       | Itk . ItkOverrideListRt
@@ -1376,8 +1380,11 @@ TRUE OR
             IF GOverrideCt # - 1
             THEN <* ASSERT FALSE , "Nested use of GOverrideCt." *>
             END (*IF*)
-          ; GOverrideCt := GetBwdInt ( TokResult . TrRdBack ) 
-          ; FM3Exprs . ExprStackTopRef ^ . ExpOverrides
+          ; GOverrideCt := GetBwdInt ( TokResult . TrRdBack )
+          ; IF FM3Exprs . ExprStackTopObj . ExpKind # Ekt . EkObjType
+            THEN <* ASSERT FALSE , "Override not inside an object type." *>
+            END (*IF*) 
+          ; FM3Exprs . ExprStackTopObj . ExpObjOverrides
               := NEW ( FM3Globals . DeclRefListTyp , GOverrideCt ) 
           END (*IF*)
 
