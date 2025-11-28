@@ -138,11 +138,6 @@ MODULE FM3Resolve
         ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
         ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
         ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
-      | Ekt . EkRef 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )  
       ELSE
       END (*CASE*)
     ; ExprRef . ExpState := Est . EsResolved 

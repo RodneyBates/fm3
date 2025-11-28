@@ -38,17 +38,6 @@ MODULE FM3Exprs
       CASE Kind OF
       | ExprKindTyp . EkNull => RETURN "EkNull" 
       | ExprKindTyp . EkLiteral => RETURN "EkLiteral"
-(* 
-      | ExprKindTyp . EkIntLit => RETURN "EkIntLit" 
-      | ExprKindTyp . EkLongintLit => RETURN "EkLongintLit" 
-      | ExprKindTyp . EkRealLit => RETURN "EkRealLit" 
-      | ExprKindTyp . EkLongLit => RETURN "EkLongLit" 
-      | ExprKindTyp . EkExtendedLit => RETURN "EkExtendedLit" 
-      | ExprKindTyp . EkCharLit => RETURN "EkCharLit" 
-      | ExprKindTyp . EkWideCharLit => RETURN "EkWideCharLit" 
-      | ExprKindTyp . EkTextLit => RETURN "EkTextLit" 
-      | ExprKindTyp . EkWideTextLit => RETURN "EkWideTextLit"
-*)
       | ExprKindTyp . EkIdentRef => RETURN "EkIdentRef" 
       | ExprKindTyp . EkQualIdentRef => RETURN "EkQualIdentRef"
       | ExprKindTyp . EkReservedIdent => RETURN "EkReservedIdent"
@@ -71,7 +60,6 @@ MODULE FM3Exprs
       | ExprKindTyp . EkFunc => RETURN "EkFunc"  
       | ExprKindTyp . EkValue => RETURN "EkValue" 
       | ExprKindTyp . EkBrand => RETURN "EkBrand"  
-      | ExprKindTyp . EkRef => RETURN "EkRef"  
       ELSE RETURN "<Unknown ExprKindImage>"
       END (*CASE*) 
     END ExprKindImage
@@ -82,18 +70,12 @@ MODULE FM3Exprs
 
   = BEGIN
       CASE Kind OF 
-      | ExprKindTyp . EkNull
-       => RETURN "<null>" 
-      | ExprKindTyp . EkType 
-       => RETURN "type" 
-      | ExprKindTyp . EkProc 
-       => RETURN "procedure" 
-      | ExprKindTyp . EkFunc
-       => RETURN "function" 
-      | ExprKindTyp . EkValue 
-       => RETURN "value" 
-      | ExprKindTyp . EkRef 
-       => RETURN "reference" 
+      | ExprKindTyp . EkNull    => RETURN "<null>" 
+      | ExprKindTyp . EkType    => RETURN "type" 
+      | ExprKindTyp . EkProc    => RETURN "procedure" 
+      | ExprKindTyp . EkFunc    => RETURN "function" 
+      | ExprKindTyp . EkValue   => RETURN "value" 
+      | ExprKindTyp . EkRefType => RETURN "reference" 
       ELSE RETURN "<unknown>"
       END (*CASE *) 
     END ExprKindMessage 

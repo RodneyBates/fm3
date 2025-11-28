@@ -46,58 +46,73 @@ INTERFACE FM3Exprs
    These may be anonymous or named by a local or [ex|im]port identifier. 
 *)
 
+(* Footnotes on ExprKnds:
+     (1) Field assigned when ExprTyp record created.
+     (2) Assigned during resolve, after bottom-up resolve of children.
+
+     (1) ExpPosition. ExpSelfExprNo, and ExpKind always
+     (1) ExpRepExprNo < ExprNoFirstReal or =ExpSelfExprNo
+         May change when expr is found equal to another. 
+*) 
+
 ; TYPE ExprKindTyp (* What kind of definition are we expanding? *) 
    = { EkNull
-     , EkReservedxxx
-(* TODO: ^Split this into several. *) 
-     , EkLiteral
-(*
-     , EkLongintLit
-     , EkRealLit
-     , EkLongLit
-     , EkExtendedLit 
-     , EkCharLit
-     , EkWideCharLit
-     , EkTextLit
-     , EkWideTextLit
-*)     
-     , EkIdentRef
-     , EkQualIdentRef
-     , EkReservedIdent 
-     , EkRemoteRef
+     , EkLiteral      (* (1)ExpScalarConstVal
+                         (1)ExpLoTypeInfoRef  
+                         (1)ExpOpcode 
+                         (1)ExpHash 
+                         (1)ExpIsConst=TRUE  
+                         (1)ExpConstValIsKnown=TRUE  
+                         (1)ExpIsLegalRecursive=TRUE
+                         (1)ExpState=EsResolved
+                      *)
+     , EkIdentRef     (*(1)ExpDotIdAtom*) 
+     , EkQualIdentRef (*(1)ExpIdentDeclNo*) 
+     , EkReservedIdent(*(1)ExpOpcode*)
+(*FIXME ^ Not created. *)      
+     , EkRemoteRef    (*(1)ExpRemoteUnitNo, ExpRemoteDeclNo*) 
      
-     , EkEnumType  (*(1)ExpScope1*)
-     , EkRecType   (*(1)ExpScope1*)
-     , EkObjType   (*(1)ExpOpcode=StkRwOBJECT.*)
-                   (*(1)ExpScope1.*)
-                   (*(1ExpBrandKind.*)
-                   (*(2)Opnd1 is supertype. Opnd2 is brand.*)
-     , EkArrayType (*(1)ExpArrayTypeIsOpen,*)
-                   (*(1)ExpOpcode StkRwARRAY.(Needed?)*) 
-                   (*(2)Opnd1 is subscript type, Opnd2 is element type.*)
-     , EkSubrType  (* Subrange *)
-                   (*(1)Opnd1 is lower bound. Opnd2 is upper bound. *) 
-     , EkRefType   (*(1)ExpIsUntraced.*)
-                   (*(1)ExpOpcode StkRwREF(Needed?).*)
-                   (*(2)Opnd1 is brand. Opnd2 is referent type.*) 
-     , EkType
-     , EkSupertype (*Used only for an absent supertype of REF and OBJECT.*)
-                   (*ExpIsPresent=FALSE.*)
+     , EkEnumType     (*(1)ExpScope1*)
+     , EkRecType      (*(1)ExpScope1*)
+     , EkObjType      (*(1)ExpOpcode=StkRwOBJECT.*)
+                      (*(1)ExpScope1.*)
+                      (*(1)ExpBrandKind.*)
+                      (*(2)Opnd1 is supertype. Opnd2 is brand.*)
+     , EkArrayType    (*(1)ExpArrayTypeIsOpen,*)
+                      (*(1)ExpOpcode=StkRwARRAY.(Needed?)*) 
+                      (*(2)Opnd1 is subscript type, Opnd2 is element type.*)
+     , EkSubrType     (* Subrange *)
+                      (*(1)Opnd1 is lower bound. Opnd2 is upper bound. *) 
+     , EkRefType      (*(1)ExpIsUntraced.*)
+                      (*(1)ExpOpcode=StkRwREF(Needed?).*)
+                      (*(2)Opnd1 is brand. Opnd2 is referent type.*) 
+     , EkSupertype    (*Used only for an absent supertype of REF and OBJECT.*)
+                      (*(1)ExpIsLegalRecursive=TRUE, ExpIsPresent=FALSE,
+                           ExpState=EsResolved.
+                      *)
      , EkBrand
+                      (*(1)ExpIsLegalRecursive=TRUE, ExpIsPresent,
+                           ExpState=EsResolved.
+                      *)
      
-     , EkBuiltin   (*Distinguished by ExpOpcode.*)
+     , EkBuiltin      (*Distinguished by ExpOpcode.*)
 
-     , EkDot
-     , EkUnOp
-     , EkBinOp
-     , EkCall
-     , EkSubscript
+     , EkDot          (*(1)ExpDotIdtom.*)
+                      (*(1)ExpOpnd1: [EkQualIdentRef|EkRemoteRef].*) 
+     , EkUnOp         (*(1)ExpOpcode.*)
+                      (*(2)ExpOpnd1.*) 
+     , EkBinOp        (*(1)ExpOpcode.*)
+                      (*(2)ExpOpnd1, ExpOpnd2.*) 
+     , EkCall         (*(1)ExpArgsList, ExpArgNo.*) 
+                      (*(1)ExpRepExprNo=ExpExprNoDistinct*)
+     , EkSubscript    (*(1)ExpArgsList, ExpArgNo.*)
+                      (*(1)ExpRepExprNo=ExpExprNoDistinct*)
 
-     
      , EkProc 
-     , EkFunc 
+     , EkFunc
+
+     , EkType 
      , EkValue
-     , EkRef 
      }
      
 ; TYPE Ekt = ExprKindTyp

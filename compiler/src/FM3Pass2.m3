@@ -607,7 +607,7 @@ FALSE AND
       ; LPosition := GetBwdPos ( TokResult . TrRdBack )
       ; LArgsExpr := NEW ( FM3Exprs . ExprTyp )
       ; LArgsExpr . ExpKind := Kind
-      ; LArgsExpr . ExpRepExprNo := 0
+      ; LArgsExpr . ExpRepExprNo := FM3Exprs . RepExprNoDistinct
       ; LArgsExpr . ExpUpKind := Ekt . EkValue 
       ; LArgsExpr . ExpArgsList := NEW ( FM3Exprs . ExprListRefTyp , LCt )
       ; LArgsExpr . ExpArgNo := LCt
