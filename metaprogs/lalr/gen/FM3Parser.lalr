@@ -2416,20 +2416,28 @@ RULE
    Actual : Expr
      { (* Default PaPos. *) 
        (* Default PaPass1Coord. *)
-       FM3Pass1 . PutBwd_LCP_rp
-         ( Itk . ItkAnonActualLt , $1 . PaPass1Coord , $1 . Scan . Position ) ;
-     } .
-
-   Actual : NonreservedIdent StkBecomes Expr
-     { (* Default PaPos. *) 
-       (* Default PaPass1Coord. *)
        FM3Pass1 . PutBwd_LCIP_rip
-         ( Itk . ItkNamedExprLt
+         ( Itk . ItkActualLt
          , $1 . PaPass1Coord
-         , $1 . Scan . SaAtom  
+         , FM3Base . AtomNull 
          , $1 . Scan . Position
          ) ;
      } .
+
+   Actual : StkIdent StkBecomes Expr
+     { (* Default PaPos. *) 
+       (* Default PaPass1Coord. *)
+       FM3Pass1 . PutBwd_LCIP_rip
+         ( Itk . ItkActualLt
+         , $1 . PaPass1Coord
+         , $1 . Scan . SaAtom  
+         , $2 . Scan . Position
+         ) ;
+     } .
+
+   NamedExpr : Expr . 
+
+   NamedExpr : StkIdent StkBecomes Expr .
 
   (* E8WOId, Other than a single Ident, things that can be followed by
      some kinds of selectors:

@@ -448,7 +448,7 @@ INTERFACE FM3Pass1
 ; PROCEDURE VerifyIdentNotReserved
     ( READONLY IdAttr : tParsAttribute
     ; Position : tPosition 
-    ; IllegalPastParticiple : TEXT
+    ; IllegalPastParticiple : TEXT (* For constructing error message. *)
     )
   : BOOLEAN (* It's OK. *)
   (* POST: FALSE result => Error message has been generated. *)  

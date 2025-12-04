@@ -8,6 +8,10 @@
 
 INTERFACE FM3Exprs
 
+(* In-memory data structure for types and constant expressions.
+   These may be anonymous or named by a local or [ex|im]port identifier. 
+*)
+
 (* An expression, as meant here, can be a part of what a declaration defines
    and can sometimes contain named references to other declarations.  Within
    a single scope, these can refer to each other left-to-right, right-to-left,
@@ -22,6 +26,28 @@ INTERFACE FM3Exprs
    needed as components, e.g. field lists. also data structure for them is
    defined here.
 *)
+
+(*  Expression equality and terminology:
+   - Two expressions are *identical* if both refer to the same instance
+     of an expression subtree.
+   - An expression is *equality-eligible if it is free of errors and
+     defines a type or a value that is constant, not necessarily in
+     the Modula-3 sense of constant.  An ineligible expression is
+     called *distinct*.
+   - Two expressions are *equal* if they are equality-eligible and
+     structurally equal to eac other.
+   - Equal expressions can be treated as interchangeable.  A group of
+     interchangable expressions has a single *representative* that
+     stands for them all.  Such a group need not be maximal. Field
+     ExpRepExprNo denotes an expression's representative, which can be
+     itself. An eligible expression starts out its own representative
+     in its own singleton group until some equalities might be discovered.
+   - Rather than eagerly looking for equalities and maximal groups,
+     expressions are put into groups lazily, as a side-effect of successful
+     required equality checks, for use in future equality checks.  Some
+     equalities may never need to be noticed.
+*) 
+     
 
 ; IMPORT Wr
 
@@ -42,14 +68,12 @@ INTERFACE FM3Exprs
 
 ; TYPE RelKindTyp = { RkEqual , RkSubtype }
 
-(* In-memory data structure for types and constant expressions.
-   These may be anonymous or named by a local or [ex|im]port identifier. 
-*)
-
 (* Footnotes on ExprKnds:
      (1) Field assigned when ExprTyp record created.
      (2) Assigned during resolve, after bottom-up resolve of children.
+     (12) Assigned on creation of record that is created already resolved. 
 
+(* Fields relevant to all ExprKinds: *) 
      (1) ExpPosition. ExpSelfExprNo, and ExpKind always
      (1) ExpRepExprNo < ExprNoFirstReal or =ExpSelfExprNo
          May change when expr is found equal to another. 
@@ -57,6 +81,8 @@ INTERFACE FM3Exprs
 
 ; TYPE ExprKindTyp (* What kind of definition are we expanding? *) 
    = { EkNull
+
+(* Fields relevant to specific expr kinds" *) 
      , EkLiteral      (* (1)ExpScalarConstVal
                          (1)ExpLoTypeInfoRef  
                          (1)ExpOpcode 
@@ -111,8 +137,8 @@ INTERFACE FM3Exprs
      , EkProc 
      , EkFunc
 
-     , EkType 
-     , EkValue
+     , EkType  (* Probably replace by a set of the above. *) 
+     , EkValue (* Probably replace by a set of the above. *)
      }
      
 ; TYPE Ekt = ExprKindTyp

@@ -1620,22 +1620,40 @@ LIST ItkIdPlusList
 
 ; CONST ItkSubscriptsPlusListElem       (*ArgCt: 3*) =  1122 (*16_e2 08 *)
 
-(* FIXED ItkAnonActual: *)
-; CONST ItkAnonActualLt                 (*ArgCt: 2*) =  1123 (*16_e3 08 *)
-; CONST ItkAnonActualLtTemp             (*ArgCt: 2*) =  1124 (*16_e4 08 *)
-; CONST ItkAnonActualLtPatch            (*ArgCt: 2*) =  1125 (*16_e5 08 *)
-; CONST ItkAnonActualRt                 (*ArgCt: 2*) =  1126 (*16_e6 08 *)
+(* May be AtomNull *)
+(*Of ":=" or expr*)
+(* FIXED ItkActual: *)
+; CONST ItkActualLt                     (*ArgCt: 3*) =  1123 (*16_e3 08 *)
+; CONST ItkActualLtTemp                 (*ArgCt: 3*) =  1124 (*16_e4 08 *)
+; CONST ItkActualLtPatch                (*ArgCt: 3*) =  1125 (*16_e5 08 *)
+; CONST ItkActualRt                     (*ArgCt: 3*) =  1126 (*16_e6 08 *)
 
-(* FIXED ItkNamedExpr: *)
-; CONST ItkNamedExprLt                  (*ArgCt: 3*) =  1127 (*16_e7 08 *)
-; CONST ItkNamedExprLtTemp              (*ArgCt: 3*) =  1128 (*16_e8 08 *)
-; CONST ItkNamedExprLtPatch             (*ArgCt: 3*) =  1129 (*16_e9 08 *)
-; CONST ItkNamedExprRt                  (*ArgCt: 3*) =  1130 (*16_ea 08 *)
+(* May be AtomNull *)
+(*Of ":=" or expr*)
+(* FIXED ItkRecField: *)
+; CONST ItkRecFieldLt                   (*ArgCt: 3*) =  1127 (*16_e7 08 *)
+; CONST ItkRecFieldLtTemp               (*ArgCt: 3*) =  1128 (*16_e8 08 *)
+; CONST ItkRecFieldLtPatch              (*ArgCt: 3*) =  1129 (*16_e9 08 *)
+; CONST ItkRecFieldRt                   (*ArgCt: 3*) =  1130 (*16_ea 08 *)
+
+(*Of ":=" *)
+(* FIXED ItkObjField: *)
+; CONST ItkObjFieldLt                   (*ArgCt: 3*) =  1131 (*16_eb 08 *)
+; CONST ItkObjFieldLtTemp               (*ArgCt: 3*) =  1132 (*16_ec 08 *)
+; CONST ItkObjFieldLtPatch              (*ArgCt: 3*) =  1133 (*16_ed 08 *)
+; CONST ItkObjFieldRt                   (*ArgCt: 3*) =  1134 (*16_ee 08 *)
+
+(*Of "=" *)
+(* FIXED ItkOverride: *)
+; CONST ItkOverrideLt                   (*ArgCt: 3*) =  1135 (*16_ef 08 *)
+; CONST ItkOverrideLtTemp               (*ArgCt: 3*) =  1136 (*16_f0 08 *)
+; CONST ItkOverrideLtPatch              (*ArgCt: 3*) =  1137 (*16_f1 08 *)
+; CONST ItkOverrideRt                   (*ArgCt: 3*) =  1138 (*16_f2 08 *)
 
 (* End of FM3IntToks. *)
 ; CONST TkMinTok                                     =   210
 
-; CONST TkMaxTok                                     =  1130
+; CONST TkMaxTok                                     =  1138
 
 ; END FM3IntToks
 .

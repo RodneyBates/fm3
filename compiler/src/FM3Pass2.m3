@@ -2464,7 +2464,7 @@ TRUE OR
   ; BEGIN
       CASE DeclStdTok OF
       | FM3SrcToks . StkPdPlus
-      =>  IF NOT IsCall THEN RETURN NIL END (*IF*)
+      => IF NOT IsCall THEN RETURN NIL END (*IF*)
       
       | FM3SrcToks . StkPdMinus
       => IF NOT IsCall THEN RETURN NIL END (*IF*)
@@ -2679,6 +2679,7 @@ TRUE OR
 ; PROCEDURE QualIdentR2L ( Pass1RdBack : RdBackFile . T )
   (* (NON)PRE: No operands have been read.
      PRE Neither atom denotes a reserved ident.
+         ( Was ensured in Pass1.)
   *) 
 
   = VAR LIntfUnitRef : FM3Units . UnitRefTyp
@@ -2774,7 +2775,7 @@ TRUE OR
           ; IF IntSets . IsElement
                  ( LRemoteAtom , LIntfUnitRef ^ . UntExpImpIdSet )
             THEN (* Rt ident is imported into the remote interface,
-                    not transitively importable.
+                    (not transitively referenceable by local unit).
                  *)
               IF NOT FM3Atom_OAChars . Key
                        ( FM3Units . UnitStackTopRef ^ . UntIdentAtomDict

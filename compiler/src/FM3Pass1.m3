@@ -2085,7 +2085,7 @@ MODULE FM3Pass1
 ; PROCEDURE VerifyIdentNotReserved
     ( READONLY IdAttr : tParsAttribute
     ; Position : tPosition 
-    ; IllegalPastParticiple : TEXT
+    ; IllegalPastParticiple : TEXT (* For constructing error message. *)
     )
   : BOOLEAN (* It's OK. *)
   (* POST: FALSE result => Error message has been generated. *)  
@@ -2333,7 +2333,7 @@ MODULE FM3Pass1
                 { "Identifier \""
                 , FM3SrcToks . Image ( - WScan . SaAtom ) 
                 , "\" is reserved and cannot denote an overridable method." 
-             (* , SectionOfBuiltin ( IdAttr . Scan . SaBuiltinTok ) *)  
+             (* , SectionOfBuiltin ( - WScan . SaAtom ) *)  
                 , "(2.10)."
                 } 
             , IdAttr . Scan . Position 

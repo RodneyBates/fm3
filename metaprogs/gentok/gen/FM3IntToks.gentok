@@ -442,8 +442,10 @@ LONE ItkActualsListEmpty .
 
 LIST ItkSubscriptsPlusList .
 
-FIXED ItkAnonActual POS .
-FIXED ItkNamedExpr IDENT POS . 
+FIXED ItkActual   IDENT (* May be AtomNull *) POS (*Of ":=" or expr*) .
+FIXED ItkRecField IDENT (* May be AtomNull *) POS (*Of ":=" or expr*).
+FIXED ItkObjField IDENT POS (*Of ":=" *).
+FIXED ItkOverride IDENT POS (*Of "=" *) .
 
 (* End of FM3IntToks. *) 
 
