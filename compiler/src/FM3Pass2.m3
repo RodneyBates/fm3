@@ -592,6 +592,7 @@ FALSE AND
   ; VAR LScopeNo : FM3Globals . ScopeNoTyp
   ; VAR LOpcodeL : LONGINT
   ; VAR LOpcode : FM3SrcToks . TokTyp
+  ; VAR LAtom : FM3SrcToks . TokTyp
   ; VAR LCt : INTEGER 
   ; VAR LPosition : tPosition
   ; VAR LBrandKind : FM3Parser . BrandKindTyp 
@@ -1012,18 +1013,6 @@ TRUE OR
           ItkVALUEFormalIdListElem.  But is that necessary?
 *)
 
-      | Itk . ItkReservedIdRef
-(* TODO: Build these once for each reserved Id, possibly lazily. *) 
-      =>  IF NOT HtSkipping 
-          THEN
-            LOpcode := GetBwdInt ( TokResult . TrRdBack )
-          ; LPosition := GetBwdPos ( TokResult . TrRdBack )
-          ; LNewExpr := FM3Builtins . BuiltinExpr ( LOpcode )
-          (* Don't register it. *) 
-          ; DefExprRt ( LNewExpr )
-          ELSE HtPassTokenThru ( ) 
-          END (*IF*) 
-
       | Itk . ItkIdRefAtom
       => IdentRefR2L ( TokResult )
 
@@ -1318,7 +1307,11 @@ TRUE OR
             THEN <* ASSERT FALSE , "Too many overrides." *>
             END (*IF*)
           ; LPosition := GetBwdPos ( TokResult . TrRdBack )
-          ; WITH WNewOverrideRef (* which has FM3Exprs . ExprRefTyp. *) 
+          ; LAtom := GetBwdAtom ( TokResult . TrRdBack )
+          ; IF FM3Exprs . ExprStackTopObj . ExpKind # Ekt . EkObjType
+            THEN <* ASSERT FALSE , "Override not inside object tuype." *>
+            END (*IF*) 
+          ; WITH WNewOverrideRef (* which is of FM3Exprs . ExprRefTyp. *) 
                     = FM3Exprs . ExprStackTopObj 
                       . ExpObjOverrides ^ [ GOverrideCt - 1 ]
             DO
@@ -1327,44 +1320,17 @@ TRUE OR
             ; WNewOverrideRef ^ . DclKind := Dkt . DkOverride 
             ; WNewOverrideRef ^ . DclSelfDeclNo
                 := GOverrideCt - 1 (* Heh heh. *)
+            ; WNewOverrideRef ^ . DclIdAtom := LAtom 
             ; WNewOverrideRef ^ . DclPos := LPosition 
             END (*WITH*) 
-          END (*IF*)
-          
-      | Itk . ItkOverrideEquals 
-      =>  IF NOT HtMaybePassTokenThru ( )
-          THEN
-            LPosition := GetBwdPos ( TokResult . TrRdBack )
-          ; LArgsExpr := FM3Exprs . PopExprStack ( ) (* The proc reference. *)
-          ; WITH WOverrideRef (* Of FM3Decls . DeclRefTyp. *) 
-                    = FM3Exprs . ExprStackTopObj 
-                      . ExpObjOverrides ^ [ GOverrideCt - 1 ]
-            DO IF WOverrideRef . DclKind # Dkt . DkOverride
-              THEN <* ASSERT FALSE , "Expected override." *>
-              END (*IF*) 
-            ; WOverrideRef . DclDefValue := LArgsExpr
-            END (*WITH*) 
-          END (*IF*)
-          
-      | Itk . ItkOverrideIdAtom  
-      =>  IF NOT HtMaybePassTokenThru ( )
-          THEN
-            LNewExpr := NEW ( FM3Exprs . ExprTyp )
-          ; LNewExpr . ExpKind := Ekt . EkIdentRef
-          ; LNewExpr . ExpDotIdAtom := GetBwdAtom ( TokResult . TrRdBack )
-          ; LNewExpr . ExpPosition := GetBwdPos ( TokResult . TrRdBack )
-          ; FM3Exprs . PushExprStack ( LNewExpr ) 
           END (*IF*)
           
       | Itk . ItkOverrideLt  
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN
             LPosition := GetBwdPos ( TokResult . TrRdBack )
-          ; LArgsExpr := FM3Exprs . PopExprStack ( ) (* The Id reference. *)
-          ; IF LArgsExpr . ExpKind # Ekt . EkIdentRef
-            THEN <* ASSERT FALSE , "Expected override Id reference expr." *>
-            END (*IF*) 
-          ; WITH WOverrideRef (* Of FM3Exprs . ExprRefTyp. *) 
+          ; LAtom := GetBwdAtom ( TokResult . TrRdBack )
+          ; WITH WOverrideRef (* Which has FM3Exprs . ExprRefTyp. *) 
                     = FM3Exprs . ExprStackTopObj 
                       . ExpObjOverrides ^ [ GOverrideCt - 1 ]
             DO IF WOverrideRef ^ . DclKind # Dkt . DkOverride
@@ -1559,6 +1525,9 @@ TRUE OR
 
       | Itk . ItkCallRt
       => HtCallOrSubscript ( Ekt . EkCall )
+
+      | Itk . ItkBuiltinCall
+      => <* ASSERT FALSE , "ItkBuiltinCall NYI in pass2." *> 
       
       | Itk . ItkSubscriptRt 
       => HtCallOrSubscript ( Ekt . EkSubscript ) 
@@ -2575,9 +2544,16 @@ TRUE OR
     ; IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
       THEN (* We are skipping output. *) RETURN 
       END (*IF*)
+    ; IF LIdentRefAtom < 0
+      THEN (* Reserved id. *) 
+        LExprIdentRef := FM3Builtins . BuiltinExpr ( - LIdentRefAtom )
+      (* Don't register it. *) 
+      ; DefExprRt ( LExprIdentRef )
+      ; RETURN
+      END (*IF*)
+
     ; WITH WOutRdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack 
       DO
-      
         (* Look for a reference to a decl in an enclosing* open scope. *) 
         LRefDeclNo := LookupAtomInOpenScopes ( LIdentRefAtom )
       ; IF LRefDeclNo # FM3Globals . DeclNoNull 
@@ -2679,7 +2655,7 @@ TRUE OR
 ; PROCEDURE QualIdentR2L ( Pass1RdBack : RdBackFile . T )
   (* (NON)PRE: No operands have been read.
      PRE Neither atom denotes a reserved ident.
-         ( Was ensured in Pass1.)
+         ( This was ensured by Pass1.)
   *) 
 
   = VAR LIntfUnitRef : FM3Units . UnitRefTyp

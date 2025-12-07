@@ -47,8 +47,6 @@ ItkModule INT POS 3 (* UnitNo, Position. *)
 
 
 LONE
-  ItkUnitId IDENT POS 3 (* IdAtom, Line, Column. *) . 
-
   ItkFormalsListEmpty . 
   ItkFormalTypeAbsent POS 2 (* Position. *).
   ItkFormalExprAbsent POS 2 (* Position. *).
@@ -65,7 +63,6 @@ LONE
   ItkDeclScopeRt INT (* ScopeNo. *) . 
   ItkOpenScopeLt INT (* ScopeNo. *) .
   ItkOpenScopeRt INT (* ScopeNo. *) . 
-  ItkReservedIdRef IDENT POS 3 (* Rid*, Position. *). 
   ItkDuplDeclId IDENT INT POS 4 (* IdAtom, orig decl's scope no, position *) . 
   ItkDeclId INT IDENT INT POS 5 (* DeclKind, IdAtom, IdStd, position *) .
   ItkDeclNo DECL POS 3 (* DeclNo, position *) .
@@ -76,7 +73,7 @@ LONE
 ItkIdRefAtom IDENT POS 3
   (* IdAtom, position. Only non-reserved. Occurs before pass2. *). 
 ItkOverrideIdAtom IDENT POS 3
-  (* IdAtom, position. Only non-reserved. Occurs before pass2. *). 
+  (* IdAtom, position. Occurs before pass2. *). 
 ItkIdentRefWDeclNo    DECL POS (* DeclNo, position. Occurs after pass2. *) .
 ItkIdRefUnitNoDeclNo  INT DECL POS (* UnitNo, DeclNo, position. *)
                                   (* Occurs after pass2. *) .
@@ -101,8 +98,6 @@ ItkProcDecl IDENT POS 3 .
 ItkProcDef IDENT POS 3 
   Body POS 2 (* Position of equal sign. *) .
 ItkProcType POS 2 (* Position of "PROCEDURE". *) . 
-ItkOverride POS (* Position of equal sign. *)
-  Equals POS .
   
 FIXED
 ItkProcBlock INT POS 3 (* Construct no., Position of LM declaration. *)
@@ -421,9 +416,6 @@ FIXED
   (* Surrounds a list of actuals. *) 
 
 LONE 
-  ItkBuiltinIdRef IDENT POS (* IDENT is standard id code. *) .
-  (*^ Only a builtin Id that takes no parameters. *) 
-
   ItkRange POS
       DotDot POS .
 
@@ -445,7 +437,8 @@ LIST ItkSubscriptsPlusList .
 FIXED ItkActual   IDENT (* May be AtomNull *) POS (*Of ":=" or expr*) .
 FIXED ItkRecField IDENT (* May be AtomNull *) POS (*Of ":=" or expr*).
 FIXED ItkObjField IDENT POS (*Of ":=" *).
-FIXED ItkOverride IDENT POS (*Of "=" *) .
+FIXED ItkOverride IDENT (* LHS *) POS (*Of "=" *) . 
+      (* Surrounds the procedure ref. *) 
 
 (* End of FM3IntToks. *) 
 

@@ -542,9 +542,9 @@ MODULE FM3Pass1
     ; LNameFromFileName := UnitNameTFromFileName ( UnitRef ) 
     ; IF LNameFromFileName = NIL THEN RETURN END (*IF*) 
     ; IF NOT Text . Equal
-             ( Text . FromChars ( UnitRef ^ . UntUnitIdent ^ )
-             , LNameFromFileName
-             ) 
+               ( Text . FromChars ( UnitRef ^ . UntUnitIdent ^ )
+               , LNameFromFileName
+               ) 
       THEN
         FM3Messages . ErrorArr
           ( ARRAY OF REFANY
@@ -2223,8 +2223,9 @@ MODULE FM3Pass1
 
   ; BEGIN (*IdentRefLone*)
       WITH WScan = IdAttr . Scan
-      DO IF WScan . SaAtom = FM3Base . AtomNull 
-        THEN (* Reserved Ident. *)
+      DO IF IntSets . IsElement
+              ( WScan . SaBuiltinTok , FM3Std . ReservedIdSet ) 
+        THEN 
           LReqdActualsCt := BuiltinActualCt ( WScan . SaBuiltinTok ) 
         ; IF LReqdActualsCt > 0
              OR LReqdActualsCt = FM3Builtins . ActualsCtAtLeastOne 
@@ -2237,7 +2238,7 @@ MODULE FM3Pass1
                   }
               , WScan . Position 
               )
-          ; PutNotUsable ( FM3Base . AtomNull , WScan . Position )
+          ; PutNotUsable ( WScan . SaBuiltinTok , WScan . Position )
           ; RETURN 
           END (*IF*)  
         END (*IF*)
@@ -2247,21 +2248,22 @@ MODULE FM3Pass1
 
 (*EXPORTED.*)
 ; PROCEDURE IdentRefL2R ( READONLY IdAttr : tParsAttribute )
-  (* Possibly is a reserved Id, possibly legally. *) 
-  (* PRE: The ident is followed by actuals, subscripte, or a deref. *) 
+  (* Possibly is a reserved Id, possibly legally. *)
+  (* PRE: Ident occurs in a syntactically distunguished referencing context. *)
 
   = BEGIN (*IdentRefL2R*)
       WITH WScan = IdAttr . Scan
-      DO IF WScan . SaAtom = FM3Base . AtomNull 
+      DO IF IntSets . IsElement
+              ( IdAttr . Scan . SaBuiltinTok , FM3Std . ReservedIdSet ) 
         THEN (* Reserved Ident.  Now that we know from syntax that it's a
-                reference, distinguish reserved from non-reserved ident.
+                reference, turn it into a negative atom.
              *)
           PutBwd_TIP
-            ( Itk . ItkReservedIdRef , WScan . SaBuiltinTok , WScan . Position )
-        ELSE 
+            ( Itk . ItkIdRefAtom , - WScan . SaBuiltinTok , WScan . Position ) 
+        ELSE (* Standard or plain identifier.  Use the atom. *) 
           WITH WIdentRefSet = FM3Scopes . OpenScopeStackTopRef ^ . ScpRefIdSet
           DO WIdentRefSet := IntSets . Include ( WIdentRefSet , WScan . SaAtom )
-          END (*WITH*) 
+          END (*WITH*)
         ; PutBwd_TIP ( Itk . ItkIdRefAtom , WScan . SaAtom , WScan . Position ) 
         END (*IF*) 
       END (*WITH*) 
@@ -2324,25 +2326,27 @@ MODULE FM3Pass1
 
   = BEGIN (*OverrideIdentRefL2R*)
       WITH WScan = IdAttr . Scan
-      DO IF WScan . SaAtom < 0
-            AND IntSets . IsElement
-                  ( - WScan . SaAtom , FM3Std . ReservedIdSet ) 
+      DO IF IntSets . IsElement
+              ( WScan . SaBuiltinTok , FM3Std . ReservedIdSet ) 
         THEN
           FM3Messages . ErrorArr
             ( ARRAY OF REFANY
                 { "Identifier \""
-                , FM3SrcToks . Image ( - WScan . SaAtom ) 
+                , FM3SrcToks . Image ( WScan . SaBuiltinTok ) 
                 , "\" is reserved and cannot denote an overridable method." 
-             (* , SectionOfBuiltin ( - WScan . SaAtom ) *)  
+             (* , SectionOfBuiltin ( WScan . SaBuiltinTok ) *)  
                 , "(2.10)."
                 } 
-            , IdAttr . Scan . Position 
+            , WScan . Position 
             )
-        ; PutNotUsable ( WScan . SaAtom , WScan . Position )  
+        ; PutNotUsable ( WScan . SaBuiltinTok , WScan . Position )  
         ; RETURN FALSE 
         ELSE
           PutBwd_TIP
-            ( Itk . ItkOverrideIdAtom , WScan . SaAtom , WScan . Position ) 
+            ( Itk . ItkOverrideIdAtom
+            , WScan . SaBuiltinTok 
+            , WScan . Position
+            ) 
         ; RETURN TRUE 
         END (*IF*) 
       END (*WITH*) 
@@ -2380,14 +2384,8 @@ MODULE FM3Pass1
                ( RtIdAttr , RtIdAttr . Scan . Position , "be a qualifier." )
              AND LIsLegal
       ; IF NOT LIsLegal 
-        THEN 
-          PutBwd 
-            ( WunRdBack , VAL ( LtIdAttr . Scan . Position . Column , LONGINT ) )
-        ; PutBwd 
-            ( WunRdBack , VAL ( LtIdAttr . Scan . Position . Line , LONGINT ) )
-        ; PutBwd 
-            ( WunRdBack , VAL ( LtIdAttr . Scan . SaAtom , LONGINT ) )
-        ; PutBwd ( WunRdBack , VAL ( Itk . ItkIdRefAtomNotUsable , LONGINT ) ) 
+        THEN PutNotUsable
+               ( LtIdAttr . Scan . SaAtom , LtIdAttr . Scan . Position ) 
         ELSE (* Neither ident is reserved. *) 
           WITH WIdentRefSet = FM3Scopes . DeclScopeStackTopRef ^ . ScpRefIdSet
           DO WIdentRefSet
@@ -2428,11 +2426,7 @@ MODULE FM3Pass1
         , IdAttr . Scan . Position 
         )
     ; SkipFrom ( IdAttr . PaPass1Coord )
-    ; PutBwd_TIP
-        ( Itk . ItkIdRefAtomNotUsable
-        , FM3Base . AtomNull
-        , IdAttr . Scan . Position
-        )
+    ; PutNotUsable ( IdAttr . Scan . SaBuiltinTok , IdAttr . Scan . SaPosition )
     END BuiltinNoSelectorAllowed 
 
 ; PROCEDURE CheckBuiltinProcActualsCt
@@ -2465,11 +2459,8 @@ MODULE FM3Pass1
               }
           , ActualsAttr . Scan . Position 
           )
-      ; PutBwd_TIP
-          ( Itk . ItkIdRefAtomNotUsable
-          , FM3Base . AtomNull
-          , IdAttr . Scan . Position
-          )
+      ; PutNotUsable
+          ( IdAttr . Scan . SaBuiltinTok , ActualsAttr . Scan . Position 
       ; RETURN FALSE
       ELSE
         PutBwd_LCIIP_riip
@@ -2578,7 +2569,7 @@ MODULE FM3Pass1
           )
       END (*IF*) 
     ; SkipFrom ( TokAttr . PaPass1Coord ) (* Skip the reserved id. *)
-    ; PutNotUsable ( TokAttr . Scan . SaAtom , TokAttr . Scan . Position )
+    ; PutNotUsable ( LBuiltinTok , TokAttr . Scan . Position )
 (* Duplicates the above^.
     ; PutBwd_TP
         ( Itk . ItkDeclValAbsent , ActualsAttr . Scan . Position )
@@ -2635,11 +2626,7 @@ MODULE FM3Pass1
       *>
       BuiltinNoSelectorAllowed ( IdAttr , SelectorAttr , Tag )
     ; SkipFrom ( IdAttr . PaPass1Coord )
-    ; PutBwd_TIP
-        ( Itk . ItkIdRefAtomNotUsable
-        , FM3Base . AtomNull
-        , IdAttr . Scan . Position
-        ) 
+    ; PutNotUsable ( IdAttr . Scan . SaAtom , IdAttr . Scan . Position ) 
     END BuiltinOtherSelector 
 
 (*EXPORTED.*)

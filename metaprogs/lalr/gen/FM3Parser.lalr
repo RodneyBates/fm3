@@ -736,15 +736,12 @@ RULE
 
    TypeName : StkRwROOT
      { FM3Pass1 . PutBwd_TIP
-         ( Itk . ItkReservedIdRef , Stk . RidROOT , $1 . PaPos ) ; 
+         ( Itk . ItkIdRefAtom , - Stk . RidROOT , $1 . PaPos ) ; 
      } . 
 
    TypeName : StkRwUNTRACED StkRwROOT
      { FM3Pass1 . PutBwd_TIP
-         ( Itk . ItkReservedIdRef
-         , Stk . RidUNTRACEDROOT
-         , $1 . PaPos
-         ) ; 
+         ( Itk . ItkIdRefAtom , - Stk . RidUNTRACEDROOT , $1 . PaPos ) ; 
      } . 
 
 (* ------------------------- Constant Declarations -------------------- . *) 
