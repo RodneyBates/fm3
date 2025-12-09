@@ -1233,9 +1233,34 @@ MODULE FM3Pass1
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
       END (*WITH*) 
     END PutBwd_LCIP_rip
-;
+
 (*EXPORTED:*)
- PROCEDURE PutBwd_LCIP_eCp_rip
+; PROCEDURE PutBwd_LCIP_riP
+    ( T : Itk . TokTyp 
+    ; C : LONGINT 
+    ; I : INTEGER 
+    ; READONLY PositionLt : tPosition 
+    ; READONLY PositionRt : tPosition 
+    )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( PositionRt . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( PositionRt . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) )
+      
+      ; PutBwd ( WRdBack , VAL ( PositionLt . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( PositionLt . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , C ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END PutBwd_LCIP_riP
+
+(*EXPORTED:*)
+; PROCEDURE PutBwd_LCIP_eCp_rip
     ( T : Itk . TokTyp 
     ; CLt : LONGINT 
     ; I : INTEGER 
@@ -2229,7 +2254,7 @@ MODULE FM3Pass1
           LReqdActualsCt := BuiltinActualCt ( WScan . SaBuiltinTok ) 
         ; IF LReqdActualsCt > 0
              OR LReqdActualsCt = FM3Builtins . ActualsCtAtLeastOne 
-          THEN
+          THEN (* Other uses of builtin functions not allowed. *)  
             FM3Messages . ErrorArr
               ( ARRAY OF REFANY
                   { "Reserved identifier \""
@@ -2249,7 +2274,7 @@ MODULE FM3Pass1
 (*EXPORTED.*)
 ; PROCEDURE IdentRefL2R ( READONLY IdAttr : tParsAttribute )
   (* Possibly is a reserved Id, possibly legally. *)
-  (* PRE: Ident occurs in a syntactically distunguished referencing context. *)
+  (* PRE: Ident occurs in a syntactically distinguished referencing context. *)
 
   = BEGIN (*IdentRefL2R*)
       WITH WScan = IdAttr . Scan
@@ -2331,23 +2356,16 @@ MODULE FM3Pass1
         THEN
           FM3Messages . ErrorArr
             ( ARRAY OF REFANY
-                { "Identifier \""
+                { "Reserved identifier \""
                 , FM3SrcToks . Image ( WScan . SaBuiltinTok ) 
-                , "\" is reserved and cannot denote an overridable method." 
+                , "\" cannot denote a method to override." 
              (* , SectionOfBuiltin ( WScan . SaBuiltinTok ) *)  
                 , "(2.10)."
                 } 
             , WScan . Position 
             )
-        ; PutNotUsable ( WScan . SaBuiltinTok , WScan . Position )  
         ; RETURN FALSE 
-        ELSE
-          PutBwd_TIP
-            ( Itk . ItkOverrideIdAtom
-            , WScan . SaBuiltinTok 
-            , WScan . Position
-            ) 
-        ; RETURN TRUE 
+        ELSE RETURN TRUE 
         END (*IF*) 
       END (*WITH*) 
     END OverrideIdentRefL2R
@@ -2360,7 +2378,7 @@ MODULE FM3Pass1
   = BEGIN
       IF IdAttr . Scan . SaTok # Stk . StkIdent THEN RETURN FALSE END (*IF*)
     ; IF IdAttr . Scan . SaAtom # FM3Base . AtomNull THEN RETURN FALSE END (*IF*)
-         (* ^Either standard or declared. *) 
+         (* ^Declared. *) 
     ; <* ASSERT IntSets . IsElement
                   ( IdAttr . Scan . SaBuiltinTok , FM3Std . ReservedIdSet )
       *>
@@ -2405,74 +2423,6 @@ MODULE FM3Pass1
         END (*IF*) 
       END (*WITH*)
     END QualIdentRefL2R
-
-(*EXPORTED.*)
-; PROCEDURE BuiltinNoSelectorAllowed
-    ( READONLY IdAttr , SelectorAttr : tParsAttribute
-    ; SelectedTag : TEXT
-    )
-
-  = BEGIN
-      FM3Messages . ErrorArr
-        ( ARRAY OF REFANY
-            { "Identifier \""
-            , FM3SrcToks . Image ( IdAttr . Scan . SaBuiltinTok )
-            , "\" is reserved and cannot be "
-            , SelectedTag
-         (* , SectionOfBuiltin ( IdAttr . Scan . SaBuiltinTok ) *)  
-            , " (2.10)."
-(* FIXME --------- ^ *) 
-            }
-        , IdAttr . Scan . Position 
-        )
-    ; SkipFrom ( IdAttr . PaPass1Coord )
-    ; PutNotUsable ( IdAttr . Scan . SaBuiltinTok , IdAttr . Scan . SaPosition )
-    END BuiltinNoSelectorAllowed 
-
-; PROCEDURE CheckBuiltinProcActualsCt
-    ( READONLY IdAttr : tParsAttribute 
-    ; READONLY ActualsAttr : tParsAttribute
-    ; ExpectedCt : INTEGER
-    )
-  : BOOLEAN (* It's OK and taken care of. *)
-  (* PRE: IdAttr is a builtin ident of a procedure/function that
-          requires ExpectedCt actual parameters. *) 
-
-  = BEGIN
-      SkipFrom ( IdAttr . PaPass1Coord ) 
-    ; IF ActualsAttr . PaInt (* Actual count *) # ExpectedCt 
-      THEN
-        FM3Messages . ErrorArr
-          ( ARRAY OF REFANY
-              { "\""
-              , FM3SrcToks . Image ( IdAttr . Scan . SaBuiltinTok )
-              , "\" is a builtin procedure requiring "
-              , Fmt . Int ( ExpectedCt ) 
-              , " actual parameter"
-              , FM3SharedUtils . PluralSuffix ( ExpectedCt )
-              , ", not "
-              , Fmt . Int ( ActualsAttr . PaInt )
-              , " " 
-           (* , SectionOfBuiltin ( IdAttr . Scan . SaBuiltinTok ) *)  
-              , " (2.10)."
-(* FIXME ----------- ^ *) 
-              }
-          , ActualsAttr . Scan . Position 
-          )
-      ; PutNotUsable
-          ( IdAttr . Scan . SaBuiltinTok , ActualsAttr . Scan . Position 
-      ; RETURN FALSE
-      ELSE
-        PutBwd_LCIIP_riip
-          ( Itk . ItkBuiltinCallLt
-          , IdAttr . PaPass1Coord 
-          , IdAttr . Scan . SaBuiltinTok
-          , ExpectedCt
-          , ActualsAttr . Scan . Position
-          ) 
-      ; RETURN TRUE
-      END (*IF*)
-    END CheckBuiltinProcActualsCt
 
 ; PROCEDURE ActualsCtImage ( Ct : INTEGER ) : TEXT
 
@@ -2520,7 +2470,7 @@ MODULE FM3Pass1
 
 
 (*EXPORTED.*)
-; PROCEDURE CheckReservedActualsCt
+; PROCEDURE VerifyReservedActualsCt
     ( READONLY ActualsAttr : tParsAttribute
     ; READONLY TokAttr : tParsAttribute
     )
@@ -2549,12 +2499,24 @@ MODULE FM3Pass1
           , ActualsAttr . Scan . Position 
           )
         (* And fall thru' to below. *) 
-      ELSIF ( LReqdActualsCt >= 5 AND ActualsAttr . PaInt >= 1 )
-            OR ( ActualsAttr . PaInt = LReqdActualsCt ) 
+      ELSIF ( LReqdActualsCt >= 5 AND ActualsAttr . PaInt < 1 )
+      THEN 
+        FM3Messages . ErrorArr
+          ( ARRAY OF REFANY
+              { "Reserved identifier \""
+              , FM3SrcToks . Image ( LBuiltinTok )
+              , "\" requires at least one actual parameter"
+           (* , SectionOfBuiltin ( LBuiltinTok ) *)  
+              }
+          , ActualsAttr . Scan . Position 
+          )
+        (* And fall thru' to below. *) 
+
+      ELSIF ActualsAttr . PaInt = LReqdActualsCt  
       THEN (* Actuals count of reserved id function is OK *) 
         RETURN TRUE
       ELSE 
-      (* The actuals count is wrong. *) 
+      (* The actuals count is wrong for the reserved function. *) 
         FM3Messages . ErrorArr
           ( ARRAY OF REFANY
               { "Reserved identifier \""
@@ -2578,57 +2540,8 @@ MODULE FM3Pass1
         *)
 *) 
     ; RETURN FALSE 
-    END CheckReservedActualsCt 
-
-; PROCEDURE BuiltinIdentActualsL2R
-    ( READONLY IdAttr : tParsAttribute ; READONLY ActualsAttr : tParsAttribute )
-  (* PRE: IntSets . IsElement
-            ( IdAttr . Scan . SaBuiltinTok , FM3Std . ReservedIdSet ).
-  *) 
-  (* PRE: IdAttr is for the builtin ident only, not the actuals. *) 
-  (* PRE: ActualsAttr is for an actual parameter list. *) 
-
-  = BEGIN 
-      <* ASSERT IntSets . IsElement
-                  ( IdAttr . Scan . SaBuiltinTok , FM3Std . ReservedIdSet )
-      *>
-      IF IntSets . IsElement
-           ( IdAttr . Scan . SaBuiltinTok , FM3Std . OneParamSet )
-      THEN 
-        EVAL CheckBuiltinProcActualsCt ( IdAttr , ActualsAttr , 1 )
-      ELSIF IntSets . IsElement
-              ( IdAttr . Scan . SaBuiltinTok , FM3Std . TwoParamSet )
-      THEN 
-        EVAL CheckBuiltinProcActualsCt ( IdAttr , ActualsAttr , 2 )
-      ELSIF IntSets . IsElement
-              ( IdAttr . Scan . SaBuiltinTok , FM3Std . ThreeParamSet )
-      THEN 
-        EVAL CheckBuiltinProcActualsCt ( IdAttr , ActualsAttr , 3 )
-
-(* COMPLETE: One or more params (NEW) *) 
-      ELSE (* Others take no parameter list, not even parentheses. *)
-        BuiltinNoSelectorAllowed ( IdAttr , ActualsAttr , "called" ) 
-      END (*CASE*) 
-    END BuiltinIdentActualsL2R
-
-(*EXPORTED.*)
-; PROCEDURE BuiltinOtherSelector
-    ( READONLY IdAttr , SelectorAttr : tParsAttribute ; Tag : TEXT )
-  (* A builtin id with either a dot-selection or subscript(s).
-     There is no builtin that allows either of these. *)
-  (* PRE: IntSets . IsElement
-            ( IdAttr . Scan . SaBuiltinTok , FM3Std . ReservedIdSet ).
-  *) 
-
-  = BEGIN
-      <* ASSERT IntSets . IsElement
-                  ( IdAttr . Scan . SaBuiltinTok , FM3Std . ReservedIdSet )
-      *>
-      BuiltinNoSelectorAllowed ( IdAttr , SelectorAttr , Tag )
-    ; SkipFrom ( IdAttr . PaPass1Coord )
-    ; PutNotUsable ( IdAttr . Scan . SaAtom , IdAttr . Scan . Position ) 
-    END BuiltinOtherSelector 
-
+    END VerifyReservedActualsCt
+    
 (*EXPORTED.*)
 ; PROCEDURE DeclScopeRtL2R ( ScopeRef : FM3Scopes . ScopeRefTyp )
   (* Create an IdAtom-to-declNo, fixed-size dictionary for the scope, of

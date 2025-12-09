@@ -243,12 +243,12 @@ INTERFACE FM3Pass1
     ; READONLY Position : tPosition 
     )
 
-; PROCEDURE PutBwd_LCIP_eCp_rip
+; PROCEDURE PutBwd_LCIP_riP
     ( T : Itk . TokTyp 
-    ; LC : LONGINT 
+    ; C : LONGINT 
     ; I : INTEGER 
-    ; READONLY Position : tPosition
-    ; COne : LONGINT
+    ; READONLY PositionLt : tPosition 
+    ; READONLY PositionRt : tPosition 
     )
 
 ; PROCEDURE PutBwd_LCIP_eCP_rip
@@ -490,23 +490,12 @@ INTERFACE FM3Pass1
     ( READONLY LtAttribute , RtAttribute : tParsAttribute )
   (* Handles either/both idents reserved. *) 
     
-; PROCEDURE BuiltinNoSelectorAllowed
-    ( READONLY IdAttribute , SelectorAttribute : tParsAttribute
-    ; SelectedTag : TEXT
-    )
-
-; PROCEDURE CheckReservedActualsCt
+; PROCEDURE VerifyReservedActualsCt
     ( READONLY ActualsAttr : tParsAttribute
     ; READONLY TokAttr : tParsAttribute
     )
   : BOOLEAN (* Nothing illegal.  Nothing done.
                Otherwise message emitted and token stream modified. *)
-
-; PROCEDURE BuiltinOtherSelector
-    ( READONLY IdAttribute , SelectorAttribute : tParsAttribute ; Tag : TEXT )
-  (* A builtin id with either a dot-selection or subscript(s).
-     No builtin allows either of these. *)
-  (* PRE: IdAttribute . Scan . SaStdTok # FM3Base , TokNull. *) 
 
 ; PROCEDURE DeclScopeRtL2R ( ScopeRef : FM3Scopes . ScopeRefTyp )
   (* Create an IdAtom-to-declNo, fixed-size dictionary for the scope, of

@@ -1526,8 +1526,6 @@ TRUE OR
       | Itk . ItkCallRt
       => HtCallOrSubscript ( Ekt . EkCall )
 
-      | Itk . ItkBuiltinCall
-      => <* ASSERT FALSE , "ItkBuiltinCall NYI in pass2." *> 
       
       | Itk . ItkSubscriptRt 
       => HtCallOrSubscript ( Ekt . EkSubscript ) 
@@ -1538,46 +1536,50 @@ TRUE OR
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; IF LCt > 0
           THEN 
-            LArgsExpr := FM3Exprs . ExprStackTopObj 
-          ; <* ASSERT LCt = LArgsExpr . ExpArgNo *>
+            LValueExpr := FM3Exprs . ExprStackTopObj (* Call or subscript. *)
+          ; <* ASSERT LCt = LValueExpr . ExpArgNo *>
           END (*IF*) 
 
       | Itk . ItkActualsListSep
       , Itk . ItkSubscriptsPlusListSep
-       => LCt := GetBwdInt ( TokResult . TrRdBack ) (* Args count. *) 
+       => LCt := GetBwdInt ( TokResult . TrRdBack ) (* Args yo left count. *) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; LListElem := FM3Exprs . PopExprStack ( ) 
-        ; LArgsExpr := FM3Exprs . ExprStackTopObj 
-        ; DEC ( LArgsExpr . ExpArgNo )  
-        ; LArgsExpr . ExpArgsList ^ [ LArgsExpr . ExpArgNo ] := LListElem
+        ; LValueExpr := FM3Exprs . ExprStackTopObj 
+        ; DEC ( LValueExpr . ExpArgNo )  
+        ; LValueExpr . ExpArgsList ^ [ LValueExpr . ExpArgNo ] := LListElem
 
-   (* | Itk . ItkEnumLitListSep *)
-      
       | Itk . ItkActualsListLt
       , Itk . ItkSubscriptsPlusListLt
        => LCt := GetBwdInt ( TokResult . TrRdBack ) (* Args count. *) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; IF LCt > 0
           THEN 
-            LListElem := FM3Exprs . PopExprStack ( ) (* LM actual. *) 
-          ; LArgsExpr := FM3Exprs . ExprStackTopObj 
-          ; <* ASSERT LArgsExpr . ExpArgNo = 1 *> 
-            DEC ( LArgsExpr . ExpArgNo )
-          ; LArgsExpr . ExpArgsList ^ [ LArgsExpr . ExpArgNo ] := LListElem
-          END (*IF*) 
+            LListElem := FM3Exprs . PopExprStack ( ) (* LM arg. *) 
+          ; LValueExpr := FM3Exprs . ExprStackTopObj 
+          ; <* ASSERT LValueExpr . ExpArgNo = 1 *> 
+            DEC ( LValueExpr . ExpArgNo )
+          ; LValueExpr . ExpArgsList ^ [ LValueExpr . ExpArgNo ] := LListElem
+          END (*IF*)
+
+      | Itk . ItkCallActuals
+      , Itk . ItkSubscriptSubs
+      =>  LCt := GetBwdInt ( TokResult . TrRdBack )
+        ; LPosition := GetBwdPos ( TokResult . TrRdBack )
+        ; <* ASSERT LPosition = FM3Exprs . ExprStackTopObj . ExpPosition *>
 
       | Itk . ItkCallLt
       , Itk . ItkSubscriptLt 
       =>  LCt := GetBwdInt ( TokResult . TrRdBack )
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; LPrefixExpr := FM3Exprs . PopExprStack ( ) (* Procedure or array *) 
-        ; LArgsExpr := FM3Exprs . PopExprStack ( ) 
-        ; <* ASSERT LPosition = LArgsExpr . ExpPosition *>
-          <* ASSERT LArgsExpr . ExpArgNo = 0 *>
-          LArgsExpr . ExpArgPrefix := LPrefixExpr
+        ; LValueExpr := FM3Exprs . PopExprStack ( ) 
+        ; <* ASSERT LPosition = LValueExpr . ExpPosition *>
+          <* ASSERT LValueExpr . ExpArgNo = 0 *>
+          LValueExpr . ExpArgPrefix := LPrefixExpr
         ; IF TokResult . TrTok = Itk . ItkCallLt
-          THEN LNewExpr := MaybeConvertCallToOperator ( LArgsExpr )
-          ELSE LNewExpr := LArgsExpr 
+          THEN LNewExpr := MaybeConvertCallToOperator ( LValueExpr )
+          ELSE LNewExpr := LValueExpr 
           END (*IF*) 
         ; FM3Exprs . PushExprStack ( LNewExpr )
         ; PutBwdP2
@@ -2310,6 +2312,7 @@ TRUE OR
   *) 
 
   = VAR LCallExpr : FM3Exprs . ExprTyp 
+  ; VAR LPrefixExpr : FM3Exprs . ExprTyp
   ; VAR LOpnd1 , LOpnd2 : FM3Exprs . ExprTyp 
   ; VAR LNewExpr : FM3Exprs . ExprTyp
   ; VAR LPluralSuffix : TEXT
@@ -2323,19 +2326,16 @@ TRUE OR
     ; IF NOT CallExpr . ExpIsUsable THEN RETURN CallExpr END (*IF*) 
     ; IF CallExpr . ExpArgsList = NIL THEN RETURN CallExpr END (*IF*)
     ; LActualsCt := NUMBER ( CallExpr . ExpArgsList ^ )
-    ; IF CallExpr . ExpArgPrefix = NIL
+    ; LPrefixExpr := CallExpr . ExpArgPrefix 
+    ; IF LPrefixExpr = NIL
       THEN <* ASSERT FALSE , "NIL ExpArgPrefix of Expr of kind EkCall" *>
       END (*IF*) 
-    ; CASE CallExpr . ExpKind OF 
+    ; CASE LPrefixExpr . ExpKind OF 
     
-      | Ekt . EkReservedIdent 
-      => LUnitTok := FM3Base . TokNull 
-        ; LDeclTok := CallExpr . ExpOpcode  
-
       | Ekt . EkIdentRef 
       =>  GetStdToks 
             ( FM3Units . UnitStackTopRef ^ . UntSelfUnitNo 
-            , CallExpr . ExpIdentDeclNo 
+            , LPrefixExpr . ExpIdentDeclNo 
             , (*OUT*) LUnitTok 
             , (*OUT*) LDeclTok 
             ) 
@@ -2356,11 +2356,11 @@ TRUE OR
     ; LDeclTok := DisambiguateStdDeclTok ( LUnitTok , LDeclTok ) 
       (* ^LDeclTok now belongs to only one unit . *) 
     ; IF NOT FM3Builtins . IsOperationTok ( LDeclTok ) 
-      THEN (* It's not a callable builtin (type, constant, etc.) . *) 
+      THEN (* It's a non-callable builtin (type, constant, etc.) . *) 
         FM3Messages . ErrorArr 
           ( ARRAY OF REFANY 
               { FM3SrcToks . Image ( LDeclTok ) , " is not callable." }
-          , CallExpr . ExpArgPrefix . ExpPosition 
+          , LPrefixExpr . ExpPosition 
           ) 
       ; CallExpr . ExpIsUsable := FALSE 
       ; RETURN CallExpr 
@@ -2368,7 +2368,7 @@ TRUE OR
 
     ; LNewExpr
         := FM3Builtins . BuiltinExpr
-             ( LDeclTok , CallExpr . ExpArgPrefix . ExpPosition ) 
+             ( LDeclTok , LPrefixExpr . ExpPosition ) 
     ; IF LNewExpr . ExpBinOpActualsCt = FM3Builtins . ActualsCtAtLeastOne  
          (* NEW is the only case here. *)
       THEN IF LActualsCt < 1
@@ -2410,7 +2410,8 @@ TRUE OR
       ELSE
         LOpnd2 := CallExpr . ExpArgsList ^ [ 1 ]
       ; LNewExpr . ExpOpnd2 := LOpnd2
-      ; LNewExpr . ExpIsUsable := LNewExpr . ExpIsUsable AND LOpnd2 . ExpIsUsable
+      ; LNewExpr . ExpIsUsable
+          := LNewExpr . ExpIsUsable AND LOpnd2 . ExpIsUsable
       ; LNewExpr . ExpReachedDeclNoSet
         := IntSets . Union
              ( LOpnd1 . ExpReachedDeclNoSet 
@@ -2515,9 +2516,10 @@ TRUE OR
     ; LDeclRef := VarArray_Int_Refany . Fetch ( LUnitRef . UntDeclMap , DeclNo ) 
     ; IF LDeclRef = NIL THEN RETURN END (*IF*)
     ; IF LUnitRef ^. UntHasStdUnitPragma
-      THEN UnitTok := LUnitRef . UntStdTok
+      THEN
+        UnitTok := LUnitRef . UntStdTok
+      ; DeclTok := LDeclRef . DclStdTok 
       END (*IF*) 
-    ; DeclTok := LDeclRef . DclStdTok 
     END GetStdToks 
 
 ; PROCEDURE IdentRefR2L ( READONLY TokResult : TokResultTyp )

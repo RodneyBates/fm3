@@ -40,7 +40,6 @@ MODULE FM3Exprs
       | ExprKindTyp . EkLiteral => RETURN "EkLiteral"
       | ExprKindTyp . EkIdentRef => RETURN "EkIdentRef" 
       | ExprKindTyp . EkQualIdentRef => RETURN "EkQualIdentRef"
-      | ExprKindTyp . EkReservedIdent => RETURN "EkReservedIdent"
       | ExprKindTyp . EkRemoteRef => RETURN "EkRemoteRef"  
       | ExprKindTyp . EkEnumType => RETURN "EkEnumType" 
       | ExprKindTyp . EkRecType => RETURN "EkRecType" 

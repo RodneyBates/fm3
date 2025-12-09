@@ -94,8 +94,6 @@ INTERFACE FM3Exprs
                       *)
      , EkIdentRef     (*(1)ExpDotIdAtom*) 
      , EkQualIdentRef (*(1)ExpIdentDeclNo*) 
-     , EkReservedIdent(*(1)ExpOpcode*)
-(*FIXME ^ Not created. *)      
      , EkRemoteRef    (*(1)ExpRemoteUnitNo, ExpRemoteDeclNo*) 
      
      , EkEnumType     (*(1)ExpScope1*)

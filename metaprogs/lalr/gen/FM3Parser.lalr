@@ -731,7 +731,8 @@ RULE
 
    (* Make ROOT and UNTRACED ROOT look to later passes like reserved idents,
       even though they are necessarily reserved words in source syntax, because
-      their set of legal syntactic contexts differ from those of identifiers:
+      their set of legal syntactic contexts differs from those of identifiers.
+      This is a Modula3 quirk. 
    *) 
 
    TypeName : StkRwROOT
@@ -1532,8 +1533,9 @@ RULE
 (* -------------------------------- Overrides ------------------------------- *)
 
    OverrideLt : StkIdent 
-     { $$ . PaInt (* valid ident count, 0 or 1. *)
-              := ORD ( FM3Pass1 . OverrideIdentRefL2R ( $1 ) )
+     { $$ . Scan . SaAtom := $1 . Scan . SaAtom ; 
+       $$ . PaInt (* valid ident count, 0 or 1. *)
+              := ORD ( FM3Pass1 . OverrideIdentRefL2R ( $1 ) ) ; 
      } . 
 
    Override : OverrideLt StkEqual Expr 
@@ -1544,15 +1546,13 @@ RULE
          INC ( FM3Globals . NextSkipNo ) ;
        ELSE
          $$ . PaInt (* Override count. *) := $1 . PaInt ;
-         FM3Pass1 . PutBwd_LCP_eCP_rP
+         FM3Pass1 . PutBwd_LCIP_riP
            ( Itk . ItkOverrideLt
            , $1 . PaPass1Coord
+           , $1 . Scan . SaAtom 
            , $1 . Scan . Position
            
-           , $2 . PaPass1Coord
            , $2 . Scan . Position
-
-           , $1 . Scan . Position
            ) ;
        END (*IF*) 
      } . 
@@ -2311,7 +2311,7 @@ RULE
      } .
 
    E7 : IdentRef Actuals 
-     { IF FM3Pass1 . CheckReservedActualsCt ( ActualsAttr := $2 , TokAttr := $1 )
+     { IF FM3Pass1 . VerifyReservedActualsCt ( ActualsAttr := $2 , TokAttr := $1 )
        THEN (* Actuals non problematic.  Handle it here *)
          FM3Pass1 . PutBwd_LCIP_eCip_rip
            ( Itk . ItkCallLt 
@@ -2324,7 +2324,8 @@ RULE
        END (*IF*) ; 
      } . 
      
-   E7 : StkIdent /* Empty */ { FM3Pass1 . IdentRefLone ( $1 ) ; } . 
+   E7 : StkIdent /* Ident only, w/ no selector. */
+     { FM3Pass1 . IdentRefLone ( $1 ) ; } . 
 
    E7 : QualIdentRef
           /* Special case. Ident dot Ident. Can occur in other contexts. */

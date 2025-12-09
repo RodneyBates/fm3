@@ -88,11 +88,6 @@ MODULE FM3Resolve
         ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
         ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
         ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )
-      | Ekt . EkReservedIdent 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )
       | Ekt . EkRemoteRef 
       =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
         ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
