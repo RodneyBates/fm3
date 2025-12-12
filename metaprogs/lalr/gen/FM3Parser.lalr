@@ -2311,12 +2311,13 @@ RULE
      } .
 
    E7 : IdentRef Actuals 
-     { IF FM3Pass1 . VerifyReservedActualsCt ( ActualsAttr := $2 , TokAttr := $1 )
+     { IF FM3Pass1 . VerifyReservedActualsCt
+            ( ActualsAttr := $2 , TokAttr := $1 )
        THEN (* Actuals non problematic.  Handle it here *)
          FM3Pass1 . PutBwd_LCIP_eCip_rip
            ( Itk . ItkCallLt 
            , $1 . PaPass1Coord 
-           , $2 . PaInt 
+           , $2 . PaInt (* Actuals count. *)
            , $2 . Scan . Position
            
            , $2 . PaPass1Coord

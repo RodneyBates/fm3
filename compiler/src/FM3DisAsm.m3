@@ -588,16 +588,6 @@ MODULE FM3DisAsm
               ; Wr . PutChar ( WrT , ')')
               ; Wr . PutText ( WrT , Wr . EOL )
 
-            | FM3IntToks . ItkBuiltinCallLt 
-              => Wr . PutChar ( WrT , ' ' ) 
-              ; Wr . PutText ( WrT , FM3IntToks . Name ( LToken ) )
-              ; Wr . PutChar ( WrT , '(' )
-              ; DobIdentReservedArg ( 0 )
-              ; DobLongArg ( 1 , 'A' ) 
-              ; DobPosArg ( 1 )
-              ; Wr . PutChar ( WrT , ')' )
-              ; Wr . PutText ( WrT , Wr . EOL )
-
             | FM3IntToks . ItkLiteral
             =>  Wr . PutChar ( WrT , ' ' ) 
               ; Wr . PutText ( WrT , FM3IntToks . Name ( LToken ) )

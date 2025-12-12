@@ -410,8 +410,6 @@ FIXED
   ItkCall INT POS (* Number of actual parameters *) 
      Actuals INT POS . 
   ItkConstructor INT POS (* Number of values *) .
-  ItkBuiltinCall IDENT INT POS (* Builtin source token, actuals count. *) .
-  (* Surrounds a list of actuals. *) 
 
 LONE 
   ItkRange POS
