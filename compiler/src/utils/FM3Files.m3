@@ -19,7 +19,6 @@ MODULE FM3Files
 ; IMPORT UniRd 
 
 ; IMPORT FM3LexTable 
-; IMPORT FM3Messages 
 ; IMPORT FM3SharedGlobals  
 ; IMPORT FM3SharedUtils 
 

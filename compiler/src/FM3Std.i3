@@ -31,7 +31,7 @@ INTERFACE FM3Std
 *) 
 
 (* Reserved identifiers. *) 
-; VAR ReservedIdSet : IntSets . T
+; VAR ReservedIdSet : IntSets . T (* Initialized in FM3Std.m3. *) 
 ; CONST ReservedIdValues = ConstructorTyp
     { Stk . RidABS 
     , Stk . RidADDRESS 
@@ -80,7 +80,7 @@ INTERFACE FM3Std
     }
 
 (* Standard interface idents: *) 
-; VAR StdIntfSet : IntSets . T 
+; VAR StdIntfSet : IntSets . T (* Initialized in FM3Std.m3. *) 
 ; CONST StdIntfValues = ConstructorTyp
     { Stk . StkPdMain 
     , Stk . StkPdText 
@@ -99,7 +99,7 @@ INTERFACE FM3Std
     } 
 
 (* Qualifier idents in Word and Long: *)
-; VAR WordLongQualifierSet : IntSets . T 
+; VAR WordLongQualifierSet : IntSets . T (* Initialized in FM3Std.m3. *) 
 ; CONST WordLongQualifierValues = ConstructorTyp
     { Stk . StkPdT 
     , Stk . StkPdSize 
@@ -126,8 +126,8 @@ INTERFACE FM3Std
     , Stk . StkPdInsert
     } 
 
-(* Standard functions with one parameter: *)
-; VAR OneParamSet : IntSets . T 
+(* Builtin functions with one parameter: *)
+; VAR OneParamSet : IntSets . T (* Initialized in FM3Std.m3. *) 
 ; CONST OneParamValues = ConstructorTyp
     { Stk . RidABS 
     , Stk . RidADR 
@@ -151,8 +151,8 @@ INTERFACE FM3Std
     , Stk . StkPdNot 
     }
 
-(* Standard functions with two parameters: *)
-; VAR TwoParamSet : IntSets . T 
+(* Builtin functions with two parameters: *)
+; VAR TwoParamSet : IntSets . T (* Initialized in FM3Std.m3. *) 
 ; CONST TwoParamValues = ConstructorTyp
     { Stk . RidLOOPHOLE 
     , Stk . RidMAX 
@@ -179,24 +179,24 @@ INTERFACE FM3Std
     , Stk . StkPdRightRotate 
     }
 
-(* Standard functions with three parameters: *)
-; VAR ThreeParamSet : IntSets . T 
+(* Builtin functions with three parameters: *)
+; VAR ThreeParamSet : IntSets . T (* Initialized in FM3Std.m3. *) 
 ; CONST ThreeParamValues = ConstructorTyp 
     { Stk . RidSUBARRAY
     , Stk . StkPdExtract 
     , Stk . StkPdInsert
     }
 
-(* Standard functions with a variable number of actuals: *)
-; VAR OneOrMoreParamSet : IntSets . T 
+(* Builtin functions with a variable number of parameters: *)
+; VAR OneOrMoreParamSet : IntSets . T (* Initialized in FM3Std.m3. *) 
 ; CONST OneOrMoreParamValues = ConstructorTyp 
     { Stk . RidNEW }
 
 (* Procedures, any number of parameters: *) 
-; VAR ProcSet : IntSets . T 
+; VAR ProcSet : IntSets . T (* Initialized in FM3Std.m3. *) 
 
-(* Standard constant names: *) 
-; VAR ConstantSet : IntSets . T
+(* Builtin constant names: *) 
+; VAR ConstantSet : IntSets . T (* Initialized in FM3Std.m3. *)
 ; CONST ConstantValues = ConstructorTyp 
     { Stk . RidFALSE 
     , Stk . RidNIL 
@@ -204,8 +204,8 @@ INTERFACE FM3Std
     , Stk . StkPdSize 
     } 
 
-(* Standard type names: *) 
-; VAR TypeSet : IntSets . T
+(* Builtin type names: *) 
+; VAR TypeSet : IntSets . T (* Initialized in FM3Std.m3. *)
 ; CONST TypeValues = ConstructorTyp 
     { Stk . RidADDRESS 
     , Stk . RidBOOLEAN 

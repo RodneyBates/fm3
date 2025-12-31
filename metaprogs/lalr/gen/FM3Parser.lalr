@@ -661,7 +661,7 @@ RULE
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
        $$ . Scan . SaAtom := $1 . Scan . SaAtom ;  
        $$ . Scan . SaBuiltinTok := $1 . Scan . SaBuiltinTok ;
-       FM3Pass1 . QualIdentRefL2R ( $1 , $3 ) ;
+       FM3Pass1 . QualIdentRefL2R ( $1 , $3 , $2 . Scan . Position ) ;
      } .
 
 (* Qualified or unqualified ident reference. *)
@@ -1535,7 +1535,12 @@ RULE
    OverrideLt : StkIdent 
      { $$ . Scan . SaAtom := $1 . Scan . SaAtom ; 
        $$ . PaInt (* valid ident count, 0 or 1. *)
-              := ORD ( FM3Pass1 . OverrideIdentRefL2R ( $1 ) ) ; 
+              := ORD ( FM3Pass1 . VerifyIdentNotReserved
+                          ( $1
+                          , $1 . Scan .Position
+                          , "denote a method to override"
+                          )
+                     ) ; 
      } . 
 
    Override : OverrideLt StkEqual Expr 

@@ -145,7 +145,8 @@ MODULE FM3Builtins
 ; PROCEDURE InitOperatorTypes ( )
 
   = BEGIN (*InitOperatorTypes*)
-      WITH WOp = GOpTypesArray , WSt = GStaticArray
+      WITH WOp = GOpTypesArray
+         , WSt = GStaticArray
       DO FOR ROp := FM3SrcToks . StkMinOperation TO FM3SrcToks . StkMaxWordLong
         DO CASE ROp OF 
           | Stk . RidNull          => WOp [ ROp ] := WSt [ Stk . RidNull ]
@@ -403,17 +404,15 @@ MODULE FM3Builtins
   = VAR LResult : FM3Exprs . ExprTyp
 
   ; BEGIN
-      CASE Opcode OF
+      LResult := NEW ( FM3Exprs . ExprTyp )
+    ; CASE Opcode OF
       | Stk . StkPdExtract
       , Stk . StkPd_Long_Extract
       , Stk . StkPdInsert
       , Stk . StkPd_Long_Insert
-      => LResult := NEW ( FM3Exprs . ExprTyp )
-      ; LResult . ExpOpnd3 := NIL 
-      ; LResult . ExpOpnd4 := NIL
-      | Stk . StkRTUniqueBrand
-      => LResult := NEW ( FM3Exprs . ExprTyp )
-      ELSE LResult := NEW ( FM3Exprs . ExprTyp )
+      =>  LResult . ExpOpnd3 := NIL 
+        ; LResult . ExpOpnd4 := NIL
+      ELSE 
       END (*CASE *) 
     ; LResult . ExpOpnd1 := NIL 
     ; LResult . ExpOpnd2 := NIL
@@ -425,9 +424,11 @@ MODULE FM3Builtins
       ; LResult . ExpPosition := Position 
       ; LResult . ExpOpcode := Opcode 
       ; LResult . ExpUpKind := WProps . OpExprKind  
-      ; LResult . ExpBinOpActualsCt := WProps . OpOpndCt  
-      ; LResult . ExpBinOpLtOpndKindsAllowed := WProps . OpLtOpndKindsAllowed 
-      ; LResult . ExpBinOpRtOpndKindsAllowed := WProps . OpRtOpndKindsAllowed 
+      ; LResult . ExpBuiltinOpActualsCt := WProps . OpOpndCt  
+      ; LResult . ExpBuiltinOpLtOpndKindsAllowed
+          := WProps . OpLtOpndKindsAllowed 
+      ; LResult . ExpBuiltinOpRtOpndKindsAllowed
+          := WProps . OpRtOpndKindsAllowed 
       ; FM3Utils . ContribToHashI ( LResult . ExpHash , Opcode ) 
       ; RETURN LResult
       END (*WITH*) 
@@ -437,7 +438,7 @@ MODULE FM3Builtins
 ; PROCEDURE BuiltinExpr
     ( Opcode : FM3SrcToks . TokTyp ; Position := FM3Base . PositionNull )
   : FM3Exprs . ExprTyp (* NIL if not an Id denoting an ExprTyp *)
- (* ^This builds FM3Expr.ExprTyp objects for builtin things.
+ (* ^This returns FM3Expr.ExprTyp objects for builtin things.
    This happens in Pass2, when references to declared entities
    can not yet be followed, so types are not known in general.
    Builtin types and builtin constants (whose types are always

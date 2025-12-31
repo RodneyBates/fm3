@@ -273,7 +273,7 @@ NEXT StkMaxWordLong .
 
 (* Translated to unique builtin decl codes in Long: *)
 (* These must remain in the same order as their Word counterparts.
-   See FM3Pass2 . FixDeclTok.
+   See FM3Pass2 . DisambiguateStdDeclTok.
 *)
 NEXT StkMinLong .
    StkPd_Long_T              "T" . 

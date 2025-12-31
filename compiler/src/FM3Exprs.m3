@@ -341,11 +341,11 @@ RETURN ;
       ; Field ( "ExpReachedDeclNoSet"
               , IntSets . Image ( Expr . ExpReachedDeclNoSet , IntSetsElemImage )
               )
-      ; Field ( "ExpBinOpLtOpndKindsAllowed" 
-              , ExprKindSetMessage ( Expr . ExpBinOpLtOpndKindsAllowed ) 
+      ; Field ( "ExpBuiltinOpLtOpndKindsAllowed" 
+              , ExprKindSetMessage ( Expr . ExpBuiltinOpLtOpndKindsAllowed ) 
               )
-      ; Field ( "ExpBinOpRtOpndKindsAllowed" 
-              , ExprKindSetMessage ( Expr . ExpBinOpRtOpndKindsAllowed ) 
+      ; Field ( "ExpBuiltinOpRtOpndKindsAllowed" 
+              , ExprKindSetMessage ( Expr . ExpBuiltinOpRtOpndKindsAllowed ) 
               )
       ; Field ( "ExpArgsList" , "" )
       ; AppendExprList ( Expr . ExpArgsList ) 
@@ -370,7 +370,7 @@ RETURN ;
       ; Field ( "ExpOpcode" , FM3SrcToks . Image ( Expr . ExpOpcode ) )  
       ; Field ( "ExpDotIdAtom" , AtomTypImage ( Expr . ExpDotIdAtom ) ) 
       ; Field ( "ExpArgNo" , Fmt . Int ( Expr . ExpArgNo ) )  
-      ; Field ( "ExpBinOpActualsCt" , Fmt . Int ( Expr . ExpBinOpActualsCt ) )
+      ; Field ( "ExpBuiltinOpActualsCt" , Fmt . Int ( Expr . ExpBuiltinOpActualsCt ) )
       ; Field ( "ExpStackHt" , Fmt . Int ( Expr . ExpStackHt ) ) 
 
 

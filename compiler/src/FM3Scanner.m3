@@ -395,6 +395,45 @@ MODULE FM3Scanner
   ; PROCEDURE IdentSuffix ( ) 
     (* PRE: The identifier is already started, possibly non-empty. *) 
 
+    (* NOTE on identifier-like tokens, of 5 kinds.
+       1) Keywords (2,8.1), sometimes called reserved words. 
+          Each has a unique token code, with distinct syntactic
+          significance.  The codes are defined in FM3SrcToks.genton,
+          with names like StkRwBEGIN and duplicate delarations in
+          FM3Parser.lalr, which must remain in sync.  Used by the parser. 
+       2) Reserved identifiers (2.8.2) Each has a distinct language-
+          defined meaning in every context.  These cannot be declared by
+          source code.  Otherwise, they behave syntactically just like 
+          references to programmer-declared identifiers.  Every one has
+          the same token code StkIdent, thus indistinguishable to the
+          parser.  They are distinguished by negative atom values whose
+          absolute values are hard coded by declarations in FM3SrcToks.gentok, 
+          with names like RidBOOLEAN.  Absolute values of these codes are 
+          also used later as opcodes that denote their builtin meaning.
+          Exceptions are StkRwROOT and StkRwUNTRACED, which behave 
+          semantically like reserved identifier, but occur in a different 
+          set of syntactic contexts from identifiers, so they start out
+          as keywords for the benefit of the parser, but are then converted 
+          to reserved identifiers RidROOT and RidUNTRACEDROOT during parsing.  
+          The scanner does not produce the Rid tokens.  The language definition 
+          describes this. 
+       3) Standard identifiers.  These are treated exactly like plain
+          identifiers almost everywhere except when the usual reference
+          mechanism leads to the declaration in a standard interface ()
+          of one that has language-defined meaning that context.  The
+          scanner gives these a hard-coded code separate from and in 
+          addition to the usual atom code that is derived in the normal
+          way.  The codes are defined in FM3SrcToks.gentok, with names
+          like StkPdPlus.  They are stored and used only in declarations
+          in the relevant standard interface and module.  Their declarations
+          and uses elsewhere are as ordinary identifiers.
+       4) Plain identifiers.  Work as usual.  Need I elaborate? 
+       5) Pragma identifiers.  These occcur in and only in a pragma. 
+          The scanner knows where it is in a pragma. so these have an 
+          entirely separate set of codes, defined in FM3PdToks.gentok, 
+          with names like PgInInline. 
+    *)  
+
     = BEGIN (* IdentSuffix *) 
         WHILE GTopSsRef . SsCh IN IdentFollowChars 
         DO 

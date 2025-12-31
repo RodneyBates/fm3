@@ -22,7 +22,7 @@ INTERFACE FM3Exprs
    are expressions along with value-computing expressions, and each can contain
    one of the other.  So they are all part of what's called "expressions".
 
-   Some expressions contain things that are not strictly expressions, but are
+   Some ExprTyps contain things that are not strictly expressions, but are
    needed as components, e.g. field lists. also data structure for them is
    defined here.
 *)
@@ -262,8 +262,8 @@ INTERFACE FM3Exprs
       ; ExpOpnd3 : ExprTyp 
       ; ExpOpnd4 : ExprTyp
 
-      ; ExpBinOpLtOpndKindsAllowed := ExprKindSetTyp { } 
-      ; ExpBinOpRtOpndKindsAllowed := ExprKindSetTyp { }
+      ; ExpBuiltinOpLtOpndKindsAllowed := ExprKindSetTyp { } 
+      ; ExpBuiltinOpRtOpndKindsAllowed := ExprKindSetTyp { }
         (* This can denote a unary operator, in which case we use this
            type with 2nd operand fields just going unused.
         *) 
@@ -273,7 +273,7 @@ INTERFACE FM3Exprs
       ; ExpObjOverrides : FM3Globals . DeclRefListTyp
       ; ExpObjBrandKind : FM3Parser . BrandKindTyp 
       ; ExpScopeRef1 : FM3Scopes . ScopeRefTyp 
-      ; ExpArgPrefix : ExprTyp 
+      ; ExpArgPrefix : ExprTyp (* Array of subscript or proc of call. *) 
       ; ExpArgsList : ExprListRefTyp
 
       ; ExpIdentDeclNo : FM3Globals . DeclNoTyp
@@ -284,7 +284,7 @@ INTERFACE FM3Exprs
       ; ExpOpcode : OpcodeTyp := FM3SrcToks . RidNull
       ; ExpDotIdAtom : FM3Base . AtomTyp
       ; ExpArgNo : INTEGER (* # of actuals still to be linked in. *)
-      ; ExpBinOpActualsCt : INTEGER
+      ; ExpBuiltinOpActualsCt : INTEGER
       ; ExpStackHt : INTEGER := 0
       ; ExpSelfExprNo : ExprNoTyp (* < 0 for builtin ops. *)
       ; ExpRepExprNo : ExprNoTyp := ExprNoNull 

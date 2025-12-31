@@ -265,7 +265,7 @@ INTERFACE FM3SrcToks
 ; CONST StkPdInsert                                  =   180 (*16_b4 01 *)
 (* Translated to unique builtin decl codes in Long: *)
 (* These must remain in the same order as their Word counterparts.
-   See FM3Pass2 . FixDeclTok.
+   See FM3Pass2 . DisambiguateStdDeclTok.
 *)
 ; CONST StkMinLong                                   =   181 (*16_b5 01 *)
 ; CONST StkPd_Long_T                                 =   181 (*16_b5 01 *)

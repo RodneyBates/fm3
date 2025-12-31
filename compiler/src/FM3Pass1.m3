@@ -10,15 +10,15 @@ MODULE FM3Pass1
 
 (* The first pass.
    1. Scan and Parse
-   2. Replace identifers by numeric atoms. 
+   2. Replace identifers by numeric atoms, independently for each unit. 
    3. Convert to a fully-delimited intermediate token stream, written
       to a file ready to be read backwards.
    5. Build a global table of atom-accessed Units.UnitTyp records for
       compilation units,
    6. For each unit, build atom-accessed records for identifiers, scopes,
       and declarations.
-   7. For each scope, build a compact dictionary mapping identifier
-      to decl atoms.
+   7. For each scope, build a compact dictionary mapping identifier atoms
+      to decl numbers.
    8. Resolve some identifier occurrences to decl atoms and insert these
       into the token stream.
 *)
@@ -83,8 +83,6 @@ MODULE FM3Pass1
 
 ; VAR FileTagVersion := VAL ( ORD ( '1' ) , Byte )  
 
-; CONST ALOSE = FM3Messages . AtomListToOSError
-
 (*TODO: Consistify formal names of PutBwd* procs, including Pos for Position. *)
 (*TODO: Move PutBwd procs to a separate package. *)
 
@@ -104,7 +102,7 @@ MODULE FM3Pass1
                { "Unable to write to readback file \""
                , RdBackFile . FileName ( RdBack )
                , "\", " 
-               , ALOSE ( EMsg ) , "."  
+               , FM3Messages . AtomListToOSError ( EMsg ) , "."  
                }
            ) 
       END (*EXCEPT*) 
@@ -147,8 +145,8 @@ MODULE FM3Pass1
             AND EAtoms . head # NIL
             AND Atom . ToText ( EAtoms . head ) # NIL
             AND Text . Equal ( Atom . ToText ( EAtoms . head ) , "errno=17" )
-(* TODO: There has to be a more graceful (and OS-independent) way to detect
-         this, but it looks like libm3 is letting us down here.
+(* TODO: There has to be a more graceful (and almost OS-independent) way to
+         detect    this, but it looks like libm3 is letting us down here.
 *) 
          THEN (* The directory already exists. We expect this sometimes. *)
            EVAL EAtoms (* Debug. *)  
@@ -285,7 +283,7 @@ MODULE FM3Pass1
                { "Unable to create build file \""
                , LFullFileName
                , "\": "
-               , ALOSE ( EMsg)
+               , FM3Messages . AtomListToOSError ( EMsg)
                , "."
                } 
            ) 
@@ -2110,7 +2108,7 @@ MODULE FM3Pass1
 ; PROCEDURE VerifyIdentNotReserved
     ( READONLY IdAttr : tParsAttribute
     ; Position : tPosition 
-    ; IllegalPastParticiple : TEXT (* For constructing error message. *)
+    ; IllegalAction : TEXT (* For constructing error message. *)
     )
   : BOOLEAN (* It's OK. *)
   (* POST: FALSE result => Error message has been generated. *)  
@@ -2124,7 +2122,7 @@ MODULE FM3Pass1
               { "Reserved identifier \""
               , FM3SrcToks . Image ( IdAttr . Scan . SaBuiltinTok )
               , "\" cannot "
-              , IllegalPastParticiple 
+              , IllegalAction 
               , " (2.8.2)." 
               }
           , Position 
@@ -2146,7 +2144,7 @@ MODULE FM3Pass1
   : BOOLEAN (* Use this declared id.  (It's not reserved and not a duplicate
                in current scope.)
             *)
-  (* PRE: IdAttr is for an identifier in a declaring context. *) 
+  (* PRE: IdAttr is for an identifier in a declaring syntactic context. *) 
 
   = VAR LFormalsScopeRef : FM3Scopes . ScopeRefTyp
   ; VAR LPriorDeclScopeRef : FM3Scopes . ScopeRefTyp
@@ -2345,32 +2343,6 @@ MODULE FM3Pass1
     END PutNotUsable 
 
 (*EXPORTED.*)
-; PROCEDURE OverrideIdentRefL2R ( READONLY IdAttr : tParsAttribute )
-  : BOOLEAN (* It's OK so far. *) 
-  (* Disallows reserved Id. *) 
-
-  = BEGIN (*OverrideIdentRefL2R*)
-      WITH WScan = IdAttr . Scan
-      DO IF IntSets . IsElement
-              ( WScan . SaBuiltinTok , FM3Std . ReservedIdSet ) 
-        THEN
-          FM3Messages . ErrorArr
-            ( ARRAY OF REFANY
-                { "Reserved identifier \""
-                , FM3SrcToks . Image ( WScan . SaBuiltinTok ) 
-                , "\" cannot denote a method to override." 
-             (* , SectionOfBuiltin ( WScan . SaBuiltinTok ) *)  
-                , "(2.10)."
-                } 
-            , WScan . Position 
-            )
-        ; RETURN FALSE 
-        ELSE RETURN TRUE 
-        END (*IF*) 
-      END (*WITH*) 
-    END OverrideIdentRefL2R
-
-(*EXPORTED.*)
 ; PROCEDURE AttrIsReservedId
     ( READONLY IdAttr : tParsAttribute ; contextTag := "in this context" )
   : BOOLEAN (* It's OK. *) 
@@ -2387,8 +2359,10 @@ MODULE FM3Pass1
 
 (*EXPORTED.*)
 ; PROCEDURE QualIdentRefL2R
-    ( READONLY LtIdAttr , RtIdAttr : tParsAttribute )
-  (* Handles either/both idents reserved. *) 
+    ( READONLY LtIdAttr , RtIdAttr : tParsAttribute 
+    ; Position : tPosition (* Of the dot.*) 
+    )
+  (* Disallows either/both idents reserved. *) 
 
   = VAR LIsLegal : BOOLEAN
 
@@ -2396,10 +2370,10 @@ MODULE FM3Pass1
       WITH WunRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
       DO LIsLegal
            := VerifyIdentNotReserved
-                ( LtIdAttr , LtIdAttr . Scan . Position , "have a qualifier." )
+                ( LtIdAttr , Position , "have a qualifier." )
       ; LIsLegal
           := VerifyIdentNotReserved
-               ( RtIdAttr , RtIdAttr . Scan . Position , "be a qualifier." )
+               ( RtIdAttr , Position , "be a qualifier." )
              AND LIsLegal
       ; IF NOT LIsLegal 
         THEN PutNotUsable

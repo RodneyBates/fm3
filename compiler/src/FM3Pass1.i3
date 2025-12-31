@@ -448,7 +448,7 @@ INTERFACE FM3Pass1
 ; PROCEDURE VerifyIdentNotReserved
     ( READONLY IdAttr : tParsAttribute
     ; Position : tPosition 
-    ; IllegalPastParticiple : TEXT (* For constructing error message. *)
+    ; IllegalAction : TEXT (* For constructing error message. *)
     )
   : BOOLEAN (* It's OK. *)
   (* POST: FALSE result => Error message has been generated. *)  
@@ -482,12 +482,10 @@ INTERFACE FM3Pass1
     ; READONLY Position : FM3Base . tPosition
     )
 
-; PROCEDURE OverrideIdentRefL2R ( READONLY IdAttribute : tParsAttribute )
-  : BOOLEAN (* It's OK so far. *) 
-  (* Disallows reserved Id. *) 
-
 ; PROCEDURE QualIdentRefL2R
-    ( READONLY LtAttribute , RtAttribute : tParsAttribute )
+    ( READONLY LtAttribute , RtAttribute : tParsAttribute 
+    ; Position : tPosition (* Of the dot.*)  
+    )
   (* Handles either/both idents reserved. *) 
     
 ; PROCEDURE VerifyReservedActualsCt

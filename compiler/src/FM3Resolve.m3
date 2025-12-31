@@ -303,7 +303,7 @@ MODULE FM3Resolve
     ; LRightDeclNo := RightScopeRef ^ . ScpMinDeclNo
     ; LDeclCt := LeftScopeRef ^ . ScpDeclCt 
     ; LOOP
-        IF LDeclCt <= 0 THEN RETURN TRUE END (*IF*)
+        IF LDeclCt <= 0 THEN EXIT END (*IF*)
       ; LLeftDeclRef
           := FM3Decls . DeclRefOfDeclNo ( LLeftDeclNo , LLeftUnitRef )
       ; LRightDeclRef
@@ -314,7 +314,9 @@ MODULE FM3Resolve
       ; INC ( LLeftDeclNo )  
       ; INC ( LRightDeclNo )
       ; DEC ( LDeclCt ) 
-      END (*LOOP*) 
+      END (*LOOP*)
+
+    ; 
     END TypeScopeRefsEqual
 
 ; PROCEDURE OverrideListsEqual
@@ -331,7 +333,9 @@ MODULE FM3Resolve
       END (*IF*)
     ; FOR RI := 0 TO LAST ( LeftList ^ )
       DO
-        IF NOT DeclRefsEqual ( LeftList ^ [ RI ] , LeftList ^ [ RI ] )
+        IF LeftList ^ [ RI ] ^ . DclIdAtom # RightList ^ [ RI ] ^ . DclIdAtom 
+        THEN RETURN FALSE
+        ELSIF NOT DeclRefsEqual ( LeftList ^ [ RI ] , RightList ^ [ RI ] )
         THEN RETURN FALSE
         ELSIF LeftList ^ [ RI ] . DclKind # Dkt . DkOverride 
         THEN RETURN FALSE
