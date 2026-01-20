@@ -1,7 +1,7 @@
  
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2025  Rodney M. Bates.                                    *)
+(* Copyright 2023..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -33,18 +33,20 @@ INTERFACE FM3Decls
       , DkRecField
       , DkObjField
       , DkMethod
-      , DkOverride
-        (* An override is not really a declaration, since it is a referring
-           rather than a defining occurrence of its identifer.  But Using a
-           DeclTyp record, which has the needed fields (and more), seems
-           easier and avoids just creating yet another type. In the world of
-           2025, is it really necessary to squeeze out every byte? 
-        *) 
       , DkProc
       , DkWith
       , DkFor
       , DkExcArg
-      , DkReveal (* Is this a decl?  Here as an experiment. *)
+      (* Each of the following is not really a declaration. Its identfier
+         refers to something declared elsewhere.  But Using a DeclTyp record,
+         which has the needed fields (and more), seems easier and avoids
+         just creating yet another record type and list type thereof. In the
+         world of 2025, is it really necessary to squeeze out every byte? 
+      *)
+      , DkConstructorField (* Possibly includes positional fields. *) 
+      , DkActual (* Possibly includes positional actuals. *)
+      , DkOverride
+      , DkReveal 
       }
 ; TYPE Dkt = DeclKindTyp
 
@@ -83,7 +85,7 @@ INTERFACE FM3Decls
         *) 
       ; DclOwningScopeRef : FM3Globals . ScopeRefTyp (* Containing scope *) 
       ; DclSelfScopeRef : FM3Globals . ScopeRefTyp
-        (* ^If this declares a scope *)
+        (* ^If this decl contains a scope of its own. *)
       ; DclDefType : FM3Exprs . ExprTyp := NIL 
       ; DclDefValue : FM3Exprs . ExprTyp := NIL 
       ; DclIdAtom : FM3Base . AtomTyp
@@ -107,6 +109,9 @@ INTERFACE FM3Decls
 ; PROCEDURE DeclTypImage ( DeclRef : DeclRefTyp ) : TEXT
   (* Contents of the record. *)
 
+; PROCEDURE NewDeclRefListRef ( Ct : INTEGER ) : FM3Globals . DeclRefListRefTyp
+  (* With all elements initialized to NIL. *) 
+
 ; TYPE DeclMapTyp = FM3Base . MapTyp  
     (* Map DeclNoTyp to DeclRefTyp. One of these per Unit. *)
 
@@ -125,10 +130,10 @@ INTERFACE FM3Decls
     )
   : DeclRefTyp
 
-(* A stack of info about different kinds of declarations and their sometimes
-   multiple identifiers, allowing for sharing among them of parser productions
-   and actions.  Trying to propagate this info in parser semantic attributes
-   was turning out to be insanely fragile and complicated.
+(* A stack used in pass 1 of info about different kinds of declarations and
+   their sometimes multiple identifiers, allowing for sharing among them of
+   parser productions and actions.  Trying to propagate this info in parser
+   semantic attributes was turning out to be insanely fragile and complicated.
 *)
 
 ; TYPE DeclParseInfoTyp

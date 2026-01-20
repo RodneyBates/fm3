@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2025        Rodney M. Bates.                                    *)
+(* Copyright 2026        Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -1123,10 +1123,10 @@ MODULE FM3IntToks
       | 388 => RETURN "_L_P"
       | 389 => RETURN "_C_L_P"
       | 390 => RETURN "_L_P"
-      | 391 => RETURN "_L_L_P"
-      | 392 => RETURN "_L_L_P"
-      | 393 => RETURN "_C_L_L_P"
-      | 394 => RETURN "_L_L_P"
+      | 391 => RETURN "_L_L_L_P"
+      | 392 => RETURN "_L_L_L_P"
+      | 393 => RETURN "_C_L_L_L_P"
+      | 394 => RETURN "_L_L_L_P"
       | 395 => RETURN "_P"
       | 396 => RETURN "_P"
       | 397 => RETURN "_C_P"

@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2025 Rodney M. Bates.                                     *)
+(* Copyright 2023..2026 Rodney M. Bates.                                     *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -259,13 +259,13 @@ TOKEN
 (* --------------------- Precedence and associativity ---------------------- *)
 
 OPER LEFT StkRwRAISES 
-(*
+(* These are not needed: 
   LEFT StkRwOR
   LEFT StkRwAND
   LEFT StkRwNOT 
   NONE StkEqual StkUnequal StkLess StkGreater StkLessEqual StkGreaterEqual
   LEFT StkPlus StkMinus StkAmpersand
-  LEFT StkStar StkSlasn StkRwDIV StkRwMod
+  LEFT StkStar StkSlash StkRwDIV StkRwMod
 (*  LEFT StkPlus StkMinus *) 
   LEFT StkDeref
 *)
@@ -1504,8 +1504,11 @@ RULE
       } .
 
    OverrideList : StkRwOVERRIDES /* "OVERRIDES" but none follow. */ 
-      { FM3Pass1 . PutBwd_LIP_rip
-          ( Itk . ItkOverrideListLt , 0 , $1 . Scan . Position ) ; 
+      { FM3Pass1 . MakeListEmpty 
+          ( $$
+          , Itk . ItkOverrideListLt
+          , FM3Scanner . Attribute . Position
+          ) ; 
       } .
 
    OverrideList : StkRwOVERRIDES OverridePlus OptSemicolon 
@@ -1532,32 +1535,27 @@ RULE
 
 (* -------------------------------- Overrides ------------------------------- *)
 
-   OverrideLt : StkIdent 
-     { $$ . Scan . SaAtom := $1 . Scan . SaAtom ; 
+   Override : StkIdent StkEqual Expr 
+     { (* Default PaPos. *)
+       (* Default PaPass1Coord. *)
        $$ . PaInt (* valid ident count, 0 or 1. *)
-              := ORD ( FM3Pass1 . VerifyIdentNotReserved
-                          ( $1
-                          , $1 . Scan .Position
-                          , "denote a method to override"
-                          )
-                     ) ; 
-     } . 
-
-   Override : OverrideLt StkEqual Expr 
-     { IF $1 . PaInt < 1
+         := ORD ( FM3Pass1 . VerifyIdentNotReserved
+                    ( $1
+                    , $1 . Scan .Position
+                    , "denote a method to override"
+                    )
+                ) ;
+       IF $$ . PaInt = 0 
        THEN (* Skip the whole override. *) 
          FM3Pass1 . PutBwd_LCI_ri
            ( Itk . ItkSkipLt , $1 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
          INC ( FM3Globals . NextSkipNo ) ;
        ELSE
-         $$ . PaInt (* Override count. *) := $1 . PaInt ;
-         FM3Pass1 . PutBwd_LCIP_riP
+         FM3Pass1 . PutBwd_LCIP_rip
            ( Itk . ItkOverrideLt
            , $1 . PaPass1Coord
            , $1 . Scan . SaAtom 
            , $1 . Scan . Position
-           
-           , $2 . Scan . Position
            ) ;
        END (*IF*) 
      } . 
@@ -1648,11 +1646,12 @@ RULE
          LScopeRef := FM3Scopes . PopDeclScopeRef ( ) ;
          <* ASSERT LScopeRef ^ . ScpKind = Skt . SkObj *>
          <* ASSERT LScopeRef ^ . ScpSelfScopeNo = $1 . PaInt *> 
-         FM3Pass1 . PutBwd_LCIIP_riip
+         FM3Pass1 . PutBwd_LCIIIP_riiip
            ( Itk . ItkObjTypeLt
            , $1 . PaPass1Coord
            , $1 . PaByte (* BrandKind, Bkt. *)
-           , LScopeRef ^ . ScpSelfScopeNo
+           , $2 . PaInt + $3 . PaInt (* Count of fields + methods. *) 
+           , $4 . PaInt (* Count of overrides. *) 
            , $1 . Scan . Position 
            ) ;
          FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
@@ -2383,7 +2382,7 @@ RULE
          ( LHSAttr := $$
          , TokLt := Itk . ItkActualsListLt
          , Position := $1 . Scan . Position
-         , ElemsAttr := $2
+         , ElemsAttr := $2 (* For elem ct & patch coord. *) 
          ) ;
        $$ . PaInt := $2 . PaInt ; 
      } .
@@ -2395,9 +2394,9 @@ RULE
      } . 
 
    ActualList : Actual 
-     { $$ . PaInt (* Actual count *) :=  1 ;
-       (* Default PaPos. *) 
+     { (* Default PaPos. *) 
        (* Default PaPass1Coord. *)
+       $$ . PaInt (* Actual count *) :=  $1 . PaInt ;
      } . 
    
    ActualListLt : ActualList StkComma 
@@ -2412,7 +2411,7 @@ RULE
      } .
 
    ActualList : ActualListLt Actual  
-     { $$ . PaInt (* Actual count *) := $1 . PaInt + 1 ;
+     { $$ . PaInt (* Actual count *) := $1 . PaInt + $2 . PaInt ;
        (* Default PaPos. *) 
        (* Default PaPass1Coord. *)
      } .
@@ -2420,6 +2419,8 @@ RULE
    Actual : Expr
      { (* Default PaPos. *) 
        (* Default PaPass1Coord. *)
+       $$ . PaInt := 1 (* Can Expr be 0 count? *) ;
+       
        FM3Pass1 . PutBwd_LCIP_rip
          ( Itk . ItkActualLt
          , $1 . PaPass1Coord
@@ -2428,20 +2429,30 @@ RULE
          ) ;
      } .
 
-   Actual : StkIdent StkBecomes Expr
+   Actual : StkIdent StkBecomes Expr  
      { (* Default PaPos. *) 
        (* Default PaPass1Coord. *)
-       FM3Pass1 . PutBwd_LCIP_rip
-         ( Itk . ItkActualLt
-         , $1 . PaPass1Coord
-         , $1 . Scan . SaAtom  
-         , $2 . Scan . Position
-         ) ;
+       $$ . PaInt (* Valid ident count, 0 or 1. *) 
+         := ORD ( FM3Pass1 . VerifyIdentNotReserved
+                    ( $1
+                    , $1 . Scan . Position
+                    , "be the keyword of an actual parameter"
+                    )
+                ) ;
+       IF $$ . PaInt = 0
+       THEN (* Skip the whole actual. *) 
+         FM3Pass1 . PutBwd_LCI_ri
+           ( Itk . ItkSkipLt , $1 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
+         INC ( FM3Globals . NextSkipNo ) ;
+       ELSE
+         FM3Pass1 . PutBwd_LCIP_rip
+           ( Itk . ItkActualLt
+           , $1 . PaPass1Coord
+           , $1 . Scan . SaAtom
+           , $1 . Scan . Position
+           ) ;
+       END (* IF*) 
      } .
-
-   NamedExpr : Expr . 
-
-   NamedExpr : StkIdent StkBecomes Expr .
 
   (* E8WOId, Other than a single Ident, things that can be followed by
      some kinds of selectors:

@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2025        Rodney M. Bates.                                    *)
+(* Copyright 2026        Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -421,13 +421,14 @@ ItkROFormalId    IDENT POS .
        always present and delimit themselves, but we want more info about them.
     *)
 (* An enumeration, what kind of brand. *)
-(* Scope Num. *)
+(* Fields+methods count. *)
+(* Overrides count. *)
 (* Position of OBJECT. *)
 (* FIXED ItkObjType: *)
-; CONST ItkObjTypeLt                    (*ArgCt: 4*) =   391 (*16_87 03 *)
-; CONST ItkObjTypeLtTemp                (*ArgCt: 4*) =   392 (*16_88 03 *)
-; CONST ItkObjTypeLtPatch               (*ArgCt: 4*) =   393 (*16_89 03 *)
-; CONST ItkObjTypeRt                    (*ArgCt: 4*) =   394 (*16_8a 03 *)
+; CONST ItkObjTypeLt                    (*ArgCt: 5*) =   391 (*16_87 03 *)
+; CONST ItkObjTypeLtTemp                (*ArgCt: 5*) =   392 (*16_88 03 *)
+; CONST ItkObjTypeLtPatch               (*ArgCt: 5*) =   393 (*16_89 03 *)
+; CONST ItkObjTypeRt                    (*ArgCt: 5*) =   394 (*16_8a 03 *)
 
 (* Position of OBJECT. *)
 (* FIXED ItkSupertype: *)

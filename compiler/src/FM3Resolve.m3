@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2025        Rodney M. Bates.                                    *)
+(* Copyright 2025..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -319,13 +319,13 @@ MODULE FM3Resolve
     ; 
     END TypeScopeRefsEqual
 
-; PROCEDURE OverrideListsEqual
-    ( LeftList , RightList : FM3Globals . DeclRefListTyp )
+; PROCEDURE DeclListsEqual
+    ( LeftList , RightList : FM3Globals . DeclRefListRefTyp )
   : BOOLEAN 
 
-  = BEGIN (*OverrideListsEqual*)
+  = BEGIN (*DeclListsEqual*)
       IF LeftList = RightList THEN RETURN TRUE END (*IF*)
-         (* Works for both NIL, meaning empty lists. *)
+         (* Even works for both NIL, meaning empty lists. *)
     ; IF LeftList = NIL THEN RETURN FALSE END (*IF*)
     ; IF RightList = NIL THEN RETURN FALSE END (*IF*)
     ; IF NUMBER ( LeftList ^ ) # NUMBER ( RightList ^ )
@@ -338,11 +338,11 @@ MODULE FM3Resolve
         ELSIF NOT DeclRefsEqual ( LeftList ^ [ RI ] , RightList ^ [ RI ] )
         THEN RETURN FALSE
         ELSIF LeftList ^ [ RI ] . DclKind # Dkt . DkOverride 
-        THEN RETURN FALSE
+        THEN (* Should't happen. *) RETURN FALSE
         END (*IF*) 
       END (*FOR*)
     ; RETURN TRUE 
-    END OverrideListsEqual
+    END DeclListsEqual
 
 (*EXPORTED.*)
 ; PROCEDURE ExprRefsEqual
@@ -415,9 +415,9 @@ MODULE FM3Resolve
               := TypeScopeRefsEqual 
                    ( LeftExprRef . ExpScopeRef1 , RightExprRef . ExpScopeRef1 ) 
           ; LResult 
-              := OverrideListsEqual 
-                   ( LeftExprRef . ExpObjOverrides
-                   , RightExprRef . ExpObjOverrides
+              := DeclListsEqual 
+                   ( LeftExprRef . ExpDeclsListRef
+                   , RightExprRef . ExpDeclsListRef
                    ) 
         | Ekt . EkSubrType
         =>  LResult := Opnds1And2Equal ( LeftExprRef , RightExprRef ) 

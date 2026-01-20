@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2024..2025  Rodney M. Bates.                                    *)
+(* Copyright 2024..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
@@ -264,6 +264,13 @@ INTERFACE FM3Pass1
     ( T : Itk . TokTyp 
     ; C : LONGINT 
     ; I1 , I2 : INTEGER 
+    ; READONLY Position : tPosition 
+    )
+
+; PROCEDURE PutBwd_LCIIIP_riiip
+    ( T : Itk . TokTyp 
+    ; C : LONGINT 
+    ; I1 , I2 , I3 : INTEGER 
     ; READONLY Position : tPosition 
     )
 

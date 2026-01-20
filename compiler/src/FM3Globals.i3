@@ -1,8 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2025  Rodney M. Bates.                                    *)
-(* rodney.m.bates@acm.org                                                    *)
+(* Copyright 2023..2026  Rodney M. Bates                                     *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
@@ -41,7 +40,7 @@ INTERFACE FM3Globals
 ; CONST DeclNoMax = LAST ( DeclNoTyp )
 ; CONST DeclNoNotUseable = DeclNoNull + 1 
 ; CONST DeclNoFirstReal = DeclNoNotUseable + 1
-; TYPE DeclRefListTyp = REF ARRAY OF DeclRefTyp 
+; TYPE DeclRefListRefTyp = REF ARRAY OF DeclRefTyp 
 
 ; TYPE ExprTyp <: ROOT 
 

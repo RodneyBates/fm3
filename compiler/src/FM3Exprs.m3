@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2024..2025  Rodney M. Bates.                                    *)
+(* Copyright 2024..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
@@ -128,6 +128,20 @@ MODULE FM3Exprs
       | Est . EsResolved  => RETURN "EsResolved "
       END (*CASE*) 
     END ExprStateImage
+
+(*EXPORTED.*)
+; PROCEDURE NewExprListRef ( Ct : INTEGER ) : ExprListRefTyp
+  (* With all elements initialized to NIL. *) 
+
+  = VAR LResult : ExprListRefTyp 
+
+  ; BEGIN (*NewExprListRef*)
+      LResult := NEW ( ExprListRefTyp , Ct )
+    ; FOR RI := FIRST ( LResult ^ ) TO LAST ( LResult ^ )
+      DO LResult ^ [ RI ] := NIL 
+      END (*FOR*)
+    ; RETURN LResult 
+    END NewExprListRef
 
 ; PROCEDURE AppendExprList ( ExprList : ExprListRefTyp ) 
 
@@ -350,8 +364,8 @@ RETURN ;
       ; Field ( "ExpArgsList" , "" )
       ; AppendExprList ( Expr . ExpArgsList ) 
 
-      ; Field ( "ExpObjOverrides"
-              , FM3Utils . RefanyImage ( Expr . ExpObjOverrides )
+      ; Field ( "ExpDeclsListRef"
+              , FM3Utils . RefanyImage ( Expr . ExpDeclsListRef )
               )  
 
       ; Field ( "ExpObjBrandKind"
@@ -368,8 +382,9 @@ RETURN ;
 
       ; Field ( "ExpPosition" , FM3Utils . PositionImage ( Expr . ExpPosition ) )
       ; Field ( "ExpOpcode" , FM3SrcToks . Image ( Expr . ExpOpcode ) )  
-      ; Field ( "ExpDotIdAtom" , AtomTypImage ( Expr . ExpDotIdAtom ) ) 
-      ; Field ( "ExpArgNo" , Fmt . Int ( Expr . ExpArgNo ) )  
+      ; Field ( "ExpIdAtom" , AtomTypImage ( Expr . ExpIdAtom ) ) 
+      ; Field ( "ExpDeclListNo" , Fmt . Int ( Expr . ExpDeclListNo ) )  
+      ; Field ( "ExpArgListNo" , Fmt . Int ( Expr . ExpArgListNo ) )  
       ; Field ( "ExpBuiltinOpActualsCt" , Fmt . Int ( Expr . ExpBuiltinOpActualsCt ) )
       ; Field ( "ExpStackHt" , Fmt . Int ( Expr . ExpStackHt ) ) 
 

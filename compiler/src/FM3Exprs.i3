@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2024..2025  Rodney M. Bates.                                    *)
+(* Copyright 2024..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
@@ -68,8 +68,8 @@ INTERFACE FM3Exprs
 
 ; TYPE RelKindTyp = { RkEqual , RkSubtype }
 
-(* Footnotes on ExprKnds:
-     (1) Field assigned when ExprTyp record created.
+(* Footnotes on ExprKinds:
+     (1) Field assigned when ExprTyp record created (usually/always Pass2).
      (2) Assigned during resolve, after bottom-up resolve of children.
      (12) Assigned on creation of record that is created already resolved. 
 
@@ -82,7 +82,7 @@ INTERFACE FM3Exprs
 ; TYPE ExprKindTyp (* What kind of definition are we expanding? *) 
    = { EkNull
 
-(* Fields relevant to specific expr kinds" *) 
+(* Fields relevant to specific expr kinds *) 
      , EkLiteral      (* (1)ExpScalarConstVal
                          (1)ExpLoTypeInfoRef  
                          (1)ExpOpcode 
@@ -131,6 +131,7 @@ INTERFACE FM3Exprs
                       (*(1)ExpRepExprNo=ExpExprNoDistinct*)
      , EkSubscript    (*(1)ExpArgsList, ExpArgNo.*)
                       (*(1)ExpRepExprNo=ExpExprNoDistinct*)
+     , EkNamed        (*(1)ExpIdAtom, Opnd1 is the expression.*) 
 
      , EkProc 
      , EkFunc
@@ -198,6 +199,9 @@ INTERFACE FM3Exprs
 ; TYPE Est = ExprStateTyp
 
 ; TYPE ExprListRefTyp = REF ARRAY OF ExprTyp
+
+; PROCEDURE NewExprListRef ( Ct : INTEGER ) : ExprListRefTyp
+  (* With all elements initialized to NIL. *) 
 
 ; PROCEDURE ExprRefImage ( ExprRef : REFANY ) : TEXT 
   (* ExprNo, REF, and Position. *) 
@@ -270,11 +274,26 @@ INTERFACE FM3Exprs
       ; ExpRangeBase : ExprTyp := NIL 
      (* ExpOpnd1 is supertype, non-NIL even if defaulted. *)
      (* ExpOpnd2 is brand, NIL if no BRANDED. *) 
-      ; ExpObjOverrides : FM3Globals . DeclRefListTyp
-      ; ExpObjBrandKind : FM3Parser . BrandKindTyp 
-      ; ExpScopeRef1 : FM3Scopes . ScopeRefTyp 
-      ; ExpArgPrefix : ExprTyp (* Array of subscript or proc of call. *) 
+      ; ExpDeclsListRef : FM3Globals . DeclRefListRefTyp
+        (* Array type: DclDefType is an element type.
+           Array constructor: DclDefValue is element value. 
+           Subscript: DclDefValue is element subscript expr.
+           Record type: Field decls.  Also accessed thru' DclSelfScope
+           Record constructor, record ref allocator:
+             field values, possibly keyword. 
+           Proc type: Formal decls.  Also accessed thru' DclSelfScopeRef.
+           Call: actual values, possibly with keyword.
+           Object type: DclIdAtom and DclDefValue denote an override.
+           Revelation: TypeIdAtom, revealed as expr. 
+        *)
       ; ExpArgsList : ExprListRefTyp
+     (* ^Subscript types of array type
+        subscript exprs of [ ]
+     *) 
+      ; ExpObjBrandKind : FM3Parser . BrandKindTyp 
+      ; ExpScopeRef1 : FM3Scopes . ScopeRefTyp
+        (* ^For named access. *) 
+      ; ExpArgPrefix : ExprTyp (* Array of subscript or proc of call. *) 
 
       ; ExpIdentDeclNo : FM3Globals . DeclNoTyp
         (* ^ABS ( ExpIdentDeclNo < 0 ) is builtin opcode. *)
@@ -282,8 +301,9 @@ INTERFACE FM3Exprs
       ; ExpRemoteDeclNo : FM3Globals . DeclNoTyp
       ; ExpPosition : tPosition := FM3Base . PositionNull
       ; ExpOpcode : OpcodeTyp := FM3SrcToks . RidNull
-      ; ExpDotIdAtom : FM3Base . AtomTyp
-      ; ExpArgNo : INTEGER (* # of actuals still to be linked in. *)
+      ; ExpIdAtom : FM3Base . AtomTyp
+      ; ExpDeclListNo : INTEGER (* # of contained decls still to be linked in. *)
+      ; ExpArgListNo : INTEGER (* # of actuals still to be linked in. *)
       ; ExpBuiltinOpActualsCt : INTEGER
       ; ExpStackHt : INTEGER := 0
       ; ExpSelfExprNo : ExprNoTyp (* < 0 for builtin ops. *)

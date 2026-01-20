@@ -1,7 +1,7 @@
  
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2024..2025  Rodney M. Bates.                                    *)
+(* Copyright 2024..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -1345,6 +1345,34 @@ MODULE FM3Pass1
     END PutBwd_LCIIP_riip
 
 (*EXPORTED:*)
+; PROCEDURE PutBwd_LCIIIP_riiip
+    ( T : Itk . TokTyp 
+    ; C : LONGINT 
+    ; I1 , I2 , I3 : INTEGER 
+    ; READONLY Position : tPosition 
+    )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I3 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I2 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I1 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) )
+      
+      ; PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I3 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I2 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I1 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , C ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END PutBwd_LCIIIP_riiip
+
+(*EXPORTED:*)
 ; PROCEDURE PutBwd_LCNP_rnp
     ( T : Itk . TokTyp 
     ; C : LONGINT 
@@ -2128,7 +2156,7 @@ MODULE FM3Pass1
           , Position 
           )
       ; RETURN FALSE (* Not OK. *)
-      ELSE RETURN TRUE (* It's OK *) 
+      ELSE (* Possibly AtomNull *) RETURN TRUE (* It's OK *) 
       END (*IF*) 
     END VerifyIdentNotReserved
 

@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2025  Rodney M. Bates.                                    *)
+(* Copyright 2023..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -129,7 +129,7 @@ INTERFACE FM3Units
       ; UntPositionOfImport : FM3Base . tPosition
           (* ^Of the being-[ex|im]ported identifier. *) 
       ; UntDeclMap : FM3Base . MapTyp := NIL
-          (* ^DeclNo to and <: of FM3Decls.DeclRefTyp.  All the decls in this
+          (* ^DeclNo to <: of FM3Decls.DeclRefTyp.  All the decls in this
               unit, but not erroneous duplicate decls.
           *) 
       ; UntExprMap : FM3Base . MapTyp := NIL

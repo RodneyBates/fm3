@@ -1,7 +1,7 @@
         
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2025 Rodney M. Bates.                                     *)
+(* Copyright 2023..2026 Rodney M. Bates.                                     *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -168,7 +168,8 @@ FIXED
        always present and delimit themselves, but we want more info about them.
     *)
     INT  (* An enumeration, what kind of brand. *)
-    INT  (* Scope Num. *) 
+    INT  (* Fields+methods count. *)
+    INT  (* Overrides count. *)
     POS (* Position of OBJECT. *)
   . 
 
@@ -413,7 +414,7 @@ FIXED
 
 LONE 
   ItkRange POS
-      DotDot POS .
+     DotDot POS .
 
 LONE
   ItkConstructorDotDot POS (* In array constructor. *) . 
@@ -431,7 +432,7 @@ LONE ItkActualsListEmpty .
 LIST ItkSubscriptsPlusList .
 
 FIXED ItkActual   IDENT (* May be AtomNull *) POS (*Of ":=" or expr*) .
-FIXED ItkRecField IDENT (* May be AtomNull *) POS (*Of ":=" or expr*).
+FIXED ItkRecField IDENT (* May be AtomNull *) POS (*Of ":=" or expr*) .
 FIXED ItkObjField IDENT POS (*Of ":=" *).
 FIXED ItkOverride IDENT (* LHS *) POS (*Of "=" *) . 
       (* Surrounds the procedure ref. *) 
