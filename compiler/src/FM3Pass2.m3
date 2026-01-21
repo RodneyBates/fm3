@@ -391,7 +391,7 @@ MODULE FM3Pass2
          instance of exists, not to be changed.  But if so, ExpIsLegalRecursive
          will already be TRUE, so no change.
      *) 
-      END (*IF*)
+      END (*IF*) 
     ; FM3Exprs . PushExprStack ( NewExprObj )
     END DefExprRt 
 

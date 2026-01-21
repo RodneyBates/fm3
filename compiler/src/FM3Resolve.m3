@@ -32,17 +32,21 @@ MODULE FM3Resolve
     ( ParentRef :  FM3Exprs . ExprTyp ; ChildRef :  FM3Exprs . ExprTyp )
 
   = BEGIN (*ResolveChild*)
-      ResolveExpr ( ChildRef )
+      EVAL ResolveExpr ( ChildRef , ParentRef ^ . ExpKind )
     ; FM3Utils . ContribToHashL ( (*IN OUT*) ParentRef . ExpHash , ChildRef . ExpHash )
     END ResolveChild
 
 (*EXPORTED.*)
-; PROCEDURE ResolveExpr ( ExprRef : FM3Exprs . ExprTyp ) 
+; PROCEDURE ResolveExpr
+    ( ExprRef : FM3Exprs . ExprTyp ; ExprKind : FM3Exprs . ExprKindTyp ) 
+  : FM3Exprs . ExprStateTyp
 
   = BEGIN (*ResolveExpr*)
-      IF ExprRef = NIL THEN RETURN END (*IF*) 
-    ; IF NOT ExprRef . ExpIsUsable THEN RETURN END (*IF*) 
-    ; IF ExprRef . ExpState = Est . EsResolved THEN RETURN END (*IF*) 
+      IF ExprRef = NIL THEN RETURN Est . EsResolved END (*IF*) 
+    ; IF NOT ExprRef . ExpIsUsable THEN RETURN Est . EsResolved END (*IF*) 
+    ; IF ExprRef . ExpState = Est . EsResolved
+      THEN RETURN Est . EsResolved
+      END (*IF*) 
     ; CASE ExprRef . ExpKind OF
       | Ekt . EkNull => 
       | Ekt . EkEnumType 

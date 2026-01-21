@@ -221,9 +221,6 @@ INTERFACE FM3Exprs
 ; PROCEDURE ResolveEventually
     ( Expr : ExprTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp
 
-; CONST ExprBrand = "ExprTyp0.1"
-; REVEAL FM3Globals . ExprTyp = ExprPublic BRANDED ExprBrand OBJECT END  
-
 ; TYPE ExprNoTyp = INTEGER
 ; CONST ExprNoNull = 0
 ; CONST ExprNoFirstReal = 1
@@ -246,9 +243,12 @@ INTERFACE FM3Exprs
 
 ; CONST ExprNoMax = LAST ( ExprNoTyp )
 
-; TYPE ExprTyp <: ExprPublic
-; TYPE ExprPublic
-    = OBJECT
+; CONST ExprBrand = "ExprTyp0.1"
+; REVEAL FM3Globals . ExprTyp = BRANDED ExprBrand REF ExprRecTyp
+; TYPE ExprTyp = REF ExprRecTyp
+
+; TYPE ExprRecTyp
+    = RECORD
         ExpStackLink : ExprTyp := NIL
         (* Deeper on stack is parent expression.*)
         (* NIL in root expression of a tree. *)
@@ -325,10 +325,11 @@ INTERFACE FM3Exprs
       ; ExpIsPresent : BOOLEAN := TRUE  
       ; ExpArrayTypeIsOpen : BOOLEAN := FALSE
       ; ExpIsUntraced : BOOLEAN 
-
+(*
       METHODS
         appendDump ( )  
-      ; resolve ( ExprKind : ExprKindTyp ) : ExprStateTyp (* final. *) 
+      ; resolve ( ExprKind : ExprKindTyp ) : ExprStateTyp (* final. *)
+*) 
       END
 
 (* Expression operations: *)

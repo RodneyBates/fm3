@@ -23,7 +23,8 @@ MODULE FM3Exprs
 ; IMPORT FM3CLOptions 
 ; IMPORT FM3Globals
 ; IMPORT FM3Messages
-; IMPORT FM3Parser 
+; IMPORT FM3Parser
+; IMPORT FM3Resolve 
 ; IMPORT FM3Scopes
 ; IMPORT FM3SharedUtils 
 ; IMPORT FM3SrcToks
@@ -171,6 +172,13 @@ MODULE FM3Exprs
 ; CONST IndentBase1 
     = "   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |  "
 
+(*EXPORTED.*)
+; PROCEDURE AppendDump ( Expr : ExprTyp )
+
+  = BEGIN (*AppendDump*)
+(* COMPLETEME *) 
+    END AppendDump
+      
 (*EXPORTED.*) 
 ; PROCEDURE DumpExpr
     ( Expr : ExprTyp ; WrT : Wr . T ; VAR (*IN OUT*) ExprNosDumped : IntSets . T)
@@ -181,7 +189,7 @@ MODULE FM3Exprs
       GWrT := WrT 
     ; GDepth := 0 
     ; GExprNosDumped := ExprNosDumped 
-    ; Expr . appendDump ( )
+    ; ExprAppend ( Expr )
     ; Wr . PutText ( WrT , Wr . EOL )
     ; ExprNosDumped := GExprNosDumped
     END DumpExpr
@@ -194,7 +202,7 @@ MODULE FM3Exprs
       GWrT := TextWr . New ( )
     ; GDepth := 0
     ; GExprNosDumped := IntSets . Empty ( ) 
-    ; Expr . appendDump ( )
+    ; ExprAppend ( Expr )
     ; Wr . PutText ( GWrT , Wr . EOL ) 
     ; RETURN TextWr . ToText ( GWrT )
     END ExprImage
@@ -235,7 +243,7 @@ RETURN ;
       ; LIndentStrings := GIndentStrings 
       ; GIndentStrings [ 0 ]  := Text . Sub ( IndentBase0 , 0 , GDepth * 2 ) 
       ; GIndentStrings [ 1 ]  := Text . Sub ( IndentBase1 , 0 , GDepth * 2 ) 
-      ; Expr . appendDump ( )
+      ; ExprAppend ( Expr )
       ; GIndentStrings := LIndentStrings 
       ; DEC ( GDepth )
       END (*IF*) 
@@ -340,9 +348,6 @@ RETURN ;
       END (*TYPECASE*) 
     END ExprRefImage
 
-; REVEAL ExprTyp
-    = ExprPublic BRANDED OBJECT OVERRIDES appendDump := ExprAppend END
-    
 ; PROCEDURE ExprAppend ( Expr : ExprTyp )
     = BEGIN
         Field ( "ExpStackLink" , ExprRefImage ( Expr . ExpStackLink ) ) 
@@ -408,12 +413,17 @@ RETURN ;
       ; NestedField ( "ExpOpnd1" , Expr . ExpOpnd1 ) 
       ; NestedField ( "ExpOpnd2" , Expr . ExpOpnd2 ) 
       ; NestedField ( "ExpOpnd3" , Expr . ExpOpnd3 ) 
-      ; NestedField ( "ExpOpnd3" , Expr . ExpOpnd3 ) 
       ; NestedField ( "ExpOpnd4" , Expr . ExpOpnd4 ) 
       ; NestedField ( "ExpRangeBase" , Expr . ExpRangeBase ) 
       ; NestedField ( "ExpArgPrefix" , Expr . ExpArgPrefix ) 
 
       END ExprAppend
+
+; PROCEDURE Resolve
+    ( Expr : ExprTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp
+  = BEGIN
+(* COMPLETEME: *) 
+    END Resolve
 
 (* EXPORTED.*) 
 ; PROCEDURE ResolveNow
@@ -422,7 +432,7 @@ RETURN ;
       IF Expr = NIL THEN RETURN Est . EsUnknown END (*IF*)
     ; CASE Expr . ExpState OF 
       | Est . EsUnresolved  
-      => RETURN Expr . resolve ( ExprKind )
+      => RETURN FM3Resolve . ResolveExpr ( Expr , ExprKind )
       | Est . EsResolving
       => <* ASSERT FALSE , "Illegal recursive declaration." *>
       ELSE RETURN Expr . ExpState
@@ -436,7 +446,7 @@ RETURN ;
   = BEGIN
       IF Expr = NIL THEN RETURN Est . EsUnknown END (*IF*)
     ; IF Expr . ExpState = Est . EsUnresolved  
-      THEN RETURN Expr . resolve ( ExprKind )
+      THEN RETURN FM3Resolve . ResolveExpr ( Expr , ExprKind ) 
       ELSE RETURN Expr . ExpState
       END (*IF*) 
     END ResolveEventually 
