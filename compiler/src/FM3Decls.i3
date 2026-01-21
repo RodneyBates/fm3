@@ -86,8 +86,8 @@ INTERFACE FM3Decls
       ; DclOwningScopeRef : FM3Globals . ScopeRefTyp (* Containing scope *) 
       ; DclSelfScopeRef : FM3Globals . ScopeRefTyp
         (* ^If this decl contains a scope of its own. *)
-      ; DclDefType : FM3Exprs . ExprTyp := NIL 
-      ; DclDefValue : FM3Exprs . ExprTyp := NIL 
+      ; DclDefType : FM3Exprs . ExprRefTyp := NIL 
+      ; DclDefValue : FM3Exprs . ExprRefTyp := NIL 
       ; DclIdAtom : FM3Base . AtomTyp
       ; DclIdNo : INTEGER (* Counts up while going thru' multiple idents. *) 
       ; DclSelfDeclNo : FM3Globals . DeclNoTyp (* A self-reference. *)

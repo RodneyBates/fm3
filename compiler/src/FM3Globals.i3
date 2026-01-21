@@ -42,7 +42,7 @@ INTERFACE FM3Globals
 ; CONST DeclNoFirstReal = DeclNoNotUseable + 1
 ; TYPE DeclRefListRefTyp = REF ARRAY OF DeclRefTyp 
 
-; TYPE ExprTyp <: REFANY  
+; TYPE ExprRefTyp <: REFANY  
 
 (* File names of internal and generated files: *)
 

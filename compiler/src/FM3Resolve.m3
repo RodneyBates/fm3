@@ -29,7 +29,7 @@ MODULE FM3Resolve
 ; TYPE Skt = FM3Scopes . ScopeKindTyp 
 
 ; PROCEDURE ResolveChild
-    ( ParentRef :  FM3Exprs . ExprTyp ; ChildRef :  FM3Exprs . ExprTyp )
+    ( ParentRef :  FM3Exprs . ExprRefTyp ; ChildRef :  FM3Exprs . ExprRefTyp )
 
   = BEGIN (*ResolveChild*)
       EVAL ResolveExpr ( ChildRef , ParentRef ^ . ExpKind )
@@ -38,7 +38,7 @@ MODULE FM3Resolve
 
 (*EXPORTED.*)
 ; PROCEDURE ResolveExpr
-    ( ExprRef : FM3Exprs . ExprTyp ; ExprKind : FM3Exprs . ExprKindTyp ) 
+    ( ExprRef : FM3Exprs . ExprRefTyp ; ExprKind : FM3Exprs . ExprKindTyp ) 
   : FM3Exprs . ExprStateTyp
 
   = BEGIN (*ResolveExpr*)
@@ -146,7 +146,7 @@ MODULE FM3Resolve
    treated as equal.
 *) 
       
-; PROCEDURE Opnds1And2Equal ( Left , Right : FM3Exprs . ExprTyp ) : BOOLEAN
+; PROCEDURE Opnds1And2Equal ( Left , Right : FM3Exprs . ExprRefTyp ) : BOOLEAN
 
   = BEGIN (*Opnds1And2Equal*)
       IF NOT ExprRefsEqual ( Left . ExpOpnd1 , Right . ExpOpnd1 )
@@ -159,7 +159,7 @@ MODULE FM3Resolve
 
 (*EXPORTED.*)
 ; PROCEDURE ConstValuesEqual
-    ( LeftExprRef , RightExprRef : FM3Exprs . ExprTyp )
+    ( LeftExprRef , RightExprRef : FM3Exprs . ExprRefTyp )
   : BOOLEAN
   (* PRE: LeftExprRef & RightExprRef are non-NIL, value exprs
           of equal kind and equal type.
@@ -170,8 +170,8 @@ MODULE FM3Resolve
   *) 
 
   = VAR LExprMap : FM3Base . MapTyp
-  ; VAR LLeftExprRef : FM3Exprs . ExprTyp 
-  ; VAR LRightExprRef : FM3Exprs . ExprTyp 
+  ; VAR LLeftExprRef : FM3Exprs . ExprRefTyp 
+  ; VAR LRightExprRef : FM3Exprs . ExprRefTyp 
 
   ; BEGIN (*ConstValuesEqual*)
       IF NOT LeftExprRef . ExpConstValIsKnown THEN RETURN FALSE END (*IF*) 
@@ -191,7 +191,7 @@ MODULE FM3Resolve
   (* POST: ExprNoNull if not an expr that can have equal duplicates. *) 
 
   = VAR LExprMap : FM3Base . MapTyp
-  ; VAR LExprRef : FM3Exprs . ExprTyp 
+  ; VAR LExprRef : FM3Exprs . ExprRefTyp 
   ; VAR LExprNo : FM3Exprs . ExprNoTyp 
 
   ; BEGIN (*RepExprNo*) 
@@ -350,11 +350,11 @@ MODULE FM3Resolve
 
 (*EXPORTED.*)
 ; PROCEDURE ExprRefsEqual
-    ( LeftExprRef , RightExprRef : FM3Exprs . ExprTyp ) : BOOLEAN
+    ( LeftExprRef , RightExprRef : FM3Exprs . ExprRefTyp ) : BOOLEAN
   (* Returns FALSE for things that should not be uniqued, even if equal. *) 
 
   = VAR LExprMap : FM3Base . MapTyp
-  ; VAR LRightRepExprRef : FM3Exprs . ExprTyp 
+  ; VAR LRightRepExprRef : FM3Exprs . ExprRefTyp 
   ; VAR LLeftRepNo : FM3Exprs . ExprNoTyp 
   ; VAR LRightRepNo : FM3Exprs . ExprNoTyp 
   ; VAR LResult : BOOLEAN 

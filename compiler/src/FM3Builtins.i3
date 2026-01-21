@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2025        Rodney M. Bates.                                    *)
+(* Copyright 2025..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
@@ -16,20 +16,20 @@ INTERFACE FM3Builtins
 
 ; PROCEDURE BuiltinExpr
     ( Opcode : FM3SrcToks . TokTyp ; Position := FM3Base . PositionNull )
-  : FM3Exprs . ExprTyp (* NIL if not an Id denoting an ExprTyp *) 
-(* ^This builds FM3Expr.ExprTyp objects for builtin things.
+  : FM3Exprs . ExprRefTyp (* NIL if not an Id denoting an ExprRefTyp *) 
+(* ^This builds FM3Expr.ExprRefTyp objects for builtin things.
    This happens in Pass2, when references to declared entities
    can not yet be followed, so types are not known in general.
    Builtin types and builtin constants (whose types are always
    builtin) have types set, but other builtins not.
 
-   An ExprTyp node for a builtin type or constant is always a leaf
-   of an expression tree.  Since it has no descendents, a single ExprTyp
+   An ExprRefTyp node for a builtin type or constant is always a leaf
+   of an expression tree.  Since it has no descendents, a single ExprRefTyp
    object is created at initialization for each builtin and returned
    possibly multiple times.
 
    In contrast, each occurrence of a function or procedure needs a
-   distinct ExprTyp object with its own descendents, types, etc. So
+   distinct ExprRefTyp object with its own descendents, types, etc. So
    each call returns a newly allocated object with only properties
    that are the same in every instance set.  Caller must set any
    relevant other fields.

@@ -165,7 +165,7 @@ NEXT StkMinRid .
        context where a reserved ident is illegal.
    *)
 
-(* Things that will have a single, shared ExprTyp node. *) 
+(* Things that will have a single, shared ExprRecTyp node. *) 
    (* Constants: *) 
    RidFALSE            "FALSE" . 
    RidNIL              "NIL" . 
@@ -202,7 +202,7 @@ NEXT StkMaxStatic .
    RidUNTRACEDROOT     "%UNTRACED_ROOT" .
 
 
-   (* These are operations.  Each instance requires its own ExprTyp
+   (* These are operations.  Each instance requires its own ExprRecTyp
       node, with differing children and other fields.
    *) 
 NEXT StkMinOperation .

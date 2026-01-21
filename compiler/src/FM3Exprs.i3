@@ -22,7 +22,7 @@ INTERFACE FM3Exprs
    are expressions along with value-computing expressions, and each can contain
    one of the other.  So they are all part of what's called "expressions".
 
-   Some ExprTyps contain things that are not strictly expressions, but are
+   Some ExprRefTyps contain things that are not strictly expressions, but are
    needed as components, e.g. field lists. also data structure for them is
    defined here.
 *)
@@ -69,7 +69,7 @@ INTERFACE FM3Exprs
 ; TYPE RelKindTyp = { RkEqual , RkSubtype }
 
 (* Footnotes on ExprKinds:
-     (1) Field assigned when ExprTyp record created (usually/always Pass2).
+     (1) Field assigned when ExprRecTyp record created (usually/always Pass2).
      (2) Assigned during resolve, after bottom-up resolve of children.
      (12) Assigned on creation of record that is created already resolved. 
 
@@ -198,7 +198,7 @@ INTERFACE FM3Exprs
 
 ; TYPE Est = ExprStateTyp
 
-; TYPE ExprListRefTyp = REF ARRAY OF ExprTyp
+; TYPE ExprListRefTyp = REF ARRAY OF ExprRefTyp
 
 ; PROCEDURE NewExprListRef ( Ct : INTEGER ) : ExprListRefTyp
   (* With all elements initialized to NIL. *) 
@@ -207,19 +207,21 @@ INTERFACE FM3Exprs
   (* ExprNo, REF, and Position. *) 
 
 ; PROCEDURE DumpExpr
-    ( Expr : ExprTyp
+    ( Expr : ExprRefTyp
     ; WrT : Wr . T
     ; VAR (*IN OUT*) ExprNosDumped : IntSets . T
     )
+  (* PRE: It's not already dumped. *)
+  (* PRE: Expr header line already written. *) 
     
-; PROCEDURE ExprImage ( Expr : ExprTyp ) : TEXT 
+; PROCEDURE ExprImage ( Expr : ExprRefTyp ) : TEXT 
   (* Contents of the object. *)
   
 ; PROCEDURE ResolveNow
-    ( Expr : ExprTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp
+    ( Expr : ExprRefTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp
 
 ; PROCEDURE ResolveEventually
-    ( Expr : ExprTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp
+    ( Expr : ExprRefTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp
 
 ; TYPE ExprNoTyp = INTEGER
 ; CONST ExprNoNull = 0
@@ -243,16 +245,16 @@ INTERFACE FM3Exprs
 
 ; CONST ExprNoMax = LAST ( ExprNoTyp )
 
-; CONST ExprBrand = "ExprTyp0.1"
-; REVEAL FM3Globals . ExprTyp = BRANDED ExprBrand REF ExprRecTyp
-; TYPE ExprTyp = REF ExprRecTyp
+; CONST ExprBrand = "ExprRefTyp0.1"
+; REVEAL FM3Globals . ExprRefTyp = BRANDED ExprBrand REF ExprRecTyp
+; TYPE ExprRefTyp = REF ExprRecTyp
 
 ; TYPE ExprRecTyp
     = RECORD
-        ExpStackLink : ExprTyp := NIL
+        ExpStackLink : ExprRefTyp := NIL
         (* Deeper on stack is parent expression.*)
         (* NIL in root expression of a tree. *)
-      ; ExpType : ExprTyp := NIL
+      ; ExpType : ExprRefTyp := NIL
       ; ExpRefConstVal : REFANY := NIL
       ; ExpScalarConstVal : LONGINT := 0L
       ; ExpLoTypeInfoRef : FM3LoTypes . LoTypeInfoRefTyp := NIL
@@ -261,17 +263,17 @@ INTERFACE FM3Exprs
             paths that do not allow recursive declaration .
         *)
       ; ExpHash : FM3Utils . HashTyp := FM3Base . HashNull
-      ; ExpOpnd1 : ExprTyp (* Left operand when binary. *)
-      ; ExpOpnd2 : ExprTyp (* Right Operand when binary. *) 
-      ; ExpOpnd3 : ExprTyp 
-      ; ExpOpnd4 : ExprTyp
+      ; ExpOpnd1 : ExprRefTyp (* Left operand when binary. *)
+      ; ExpOpnd2 : ExprRefTyp (* Right Operand when binary. *) 
+      ; ExpOpnd3 : ExprRefTyp 
+      ; ExpOpnd4 : ExprRefTyp
 
       ; ExpBuiltinOpLtOpndKindsAllowed := ExprKindSetTyp { } 
       ; ExpBuiltinOpRtOpndKindsAllowed := ExprKindSetTyp { }
         (* This can denote a unary operator, in which case we use this
            type with 2nd operand fields just going unused.
         *) 
-      ; ExpRangeBase : ExprTyp := NIL 
+      ; ExpRangeBase : ExprRefTyp := NIL 
      (* ExpOpnd1 is supertype, non-NIL even if defaulted. *)
      (* ExpOpnd2 is brand, NIL if no BRANDED. *) 
       ; ExpDeclsListRef : FM3Globals . DeclRefListRefTyp
@@ -293,7 +295,7 @@ INTERFACE FM3Exprs
       ; ExpObjBrandKind : FM3Parser . BrandKindTyp 
       ; ExpScopeRef1 : FM3Scopes . ScopeRefTyp
         (* ^For named access. *) 
-      ; ExpArgPrefix : ExprTyp (* Array of subscript or proc of call. *) 
+      ; ExpArgPrefix : ExprRefTyp (* Array of subscript or proc of call. *) 
 
       ; ExpIdentDeclNo : FM3Globals . DeclNoTyp
         (* ^ABS ( ExpIdentDeclNo < 0 ) is builtin opcode. *)
@@ -336,28 +338,28 @@ INTERFACE FM3Exprs
 (* Either a constant expression or one whose type is of interest. *) 
 
 ; TYPE ExprMapTyp = FM3Base . MapTyp
-    (* Map ExprNoTyp to ExprTyp. One of these per Unit. *)
+    (* Map ExprNoTyp to ExprRefTyp. One of these per Unit. *)
 
 ; PROCEDURE NewExprMap ( InitExprCt : ExprNoTyp ) : ExprMapTyp 
 
-; PROCEDURE ExprRefOfExprNo ( ExprNo : ExprNoTyp ) : ExprTyp
+; PROCEDURE ExprRefOfExprNo ( ExprNo : ExprNoTyp ) : ExprRefTyp
   (* In the current unit. *) 
 
 (* Stack of definitions refs. *)
 
 (* Let's just make this one a linked stack. *) 
-; VAR ExprStackTopObj : ExprTyp := NIL
+; VAR ExprStackTopObj : ExprRefTyp := NIL
 ; VAR ExprStackCt : INTEGER := 0
 ; VAR ExprTopDeclNo : INTEGER := 0
 (* INVARIANT: (ExprStackTopObj = NIL) = (ExprTopDeclNo = 0). *)
 
-; PROCEDURE PushExprStack ( NewExpr : ExprTyp )
+; PROCEDURE PushExprStack ( NewExpr : ExprRefTyp )
 
-; PROCEDURE PopExprStack ( ) : ExprTyp 
+; PROCEDURE PopExprStack ( ) : ExprRefTyp 
 
 ; PROCEDURE PruneExprStack ( ToDepth : INTEGER := 0 )
 
-; PROCEDURE IsNumericType ( Expr : ExprTyp ) : BOOLEAN 
+; PROCEDURE IsNumericType ( Expr : ExprRefTyp ) : BOOLEAN 
 
 ; END FM3Exprs
 .

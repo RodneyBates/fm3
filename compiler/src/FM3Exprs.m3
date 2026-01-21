@@ -173,7 +173,7 @@ MODULE FM3Exprs
     = "   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |  "
 
 (*EXPORTED.*)
-; PROCEDURE AppendDump ( Expr : ExprTyp )
+; PROCEDURE AppendDump ( Expr : ExprRefTyp )
 
   = BEGIN (*AppendDump*)
 (* COMPLETEME *) 
@@ -181,7 +181,10 @@ MODULE FM3Exprs
       
 (*EXPORTED.*) 
 ; PROCEDURE DumpExpr
-    ( Expr : ExprTyp ; WrT : Wr . T ; VAR (*IN OUT*) ExprNosDumped : IntSets . T)
+    ( Expr : ExprRefTyp
+    ; WrT : Wr . T
+    ; VAR (*IN OUT*) ExprNosDumped : IntSets . T
+    )
   (* PRE: It's not already dumped. *)
   (* PRE: Expr header line already written. *) 
 
@@ -195,7 +198,7 @@ MODULE FM3Exprs
     END DumpExpr
 
 (*EXPORTED.*) 
-; PROCEDURE ExprImage ( Expr : ExprTyp ) : TEXT 
+; PROCEDURE ExprImage ( Expr : ExprRefTyp ) : TEXT 
   (* For calling from within a debugger. *) 
 
   = BEGIN
@@ -230,7 +233,7 @@ RETURN ;
     ; Wr . PutText ( GWrT , Wr . EOL ) 
     END Field
 
-; PROCEDURE AppendNestedExpr ( Expr : ExprTyp ) 
+; PROCEDURE AppendNestedExpr ( Expr : ExprRefTyp ) 
 
   = VAR LIndentStrings : IndentStringsTyp 
 
@@ -249,7 +252,7 @@ RETURN ;
       END (*IF*) 
     END AppendNestedExpr
 
-; PROCEDURE NestedField ( Name : TEXT ; Expr : ExprTyp ) 
+; PROCEDURE NestedField ( Name : TEXT ; Expr : ExprRefTyp ) 
 
   = BEGIN
       Wr . PutText ( GWrT , GIndentStrings [ ORD ( GDepth MOD 5 = 0 ) ] )
@@ -332,7 +335,7 @@ RETURN ;
   ; BEGIN (*ExprRefImage*)
       TYPECASE ExprRef OF
       | NULL => RETURN "NIL"
-      | ExprTyp ( TExprRef )
+      | ExprRefTyp ( TExprRef )
       =>  LResult := FM3SharedUtils . CatArrT
             ( ARRAY OF REFANY
                 { "ExprNo "
@@ -348,7 +351,7 @@ RETURN ;
       END (*TYPECASE*) 
     END ExprRefImage
 
-; PROCEDURE ExprAppend ( Expr : ExprTyp )
+; PROCEDURE ExprAppend ( Expr : ExprRefTyp )
     = BEGIN
         Field ( "ExpStackLink" , ExprRefImage ( Expr . ExpStackLink ) ) 
       ; Field ( "ExpRefConstVal" , FM3Utils . RefanyImage ( Expr . ExpRefConstVal ) )  
@@ -420,14 +423,14 @@ RETURN ;
       END ExprAppend
 
 ; PROCEDURE Resolve
-    ( Expr : ExprTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp
+    ( Expr : ExprRefTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp
   = BEGIN
 (* COMPLETEME: *) 
     END Resolve
 
 (* EXPORTED.*) 
 ; PROCEDURE ResolveNow
-    ( Expr : ExprTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp
+    ( Expr : ExprRefTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp
   = BEGIN
       IF Expr = NIL THEN RETURN Est . EsUnknown END (*IF*)
     ; CASE Expr . ExpState OF 
@@ -441,7 +444,7 @@ RETURN ;
 
 (* EXPORTED.*) 
 ; PROCEDURE ResolveEventually
-    ( Expr : ExprTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp 
+    ( Expr : ExprRefTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp 
 
   = BEGIN
       IF Expr = NIL THEN RETURN Est . EsUnknown END (*IF*)
@@ -451,7 +454,7 @@ RETURN ;
       END (*IF*) 
     END ResolveEventually 
 
-; PROCEDURE ResolveREFType ( Def : ExprTyp ) : BOOLEAN (* Is resolved. *)
+; PROCEDURE ResolveREFType ( Def : ExprRefTyp ) : BOOLEAN (* Is resolved. *)
   (* PRE : Def # NIL. *) 
 
   = BEGIN 
@@ -502,11 +505,11 @@ RETURN ;
     END NewExprMap
 
 (*EXPORTED.*)
-; PROCEDURE ExprRefOfExprNo ( ExprNo : ExprNoTyp ) : ExprTyp
+; PROCEDURE ExprRefOfExprNo ( ExprNo : ExprNoTyp ) : ExprRefTyp
   (* In the current unit. *) 
 
   = VAR LExprMap : ExprMapTyp 
-  ; VAR LExprRef : ExprTyp
+  ; VAR LExprRef : ExprRefTyp
 
   ; BEGIN
       LExprMap := FM3Units . UnitStackTopRef ^ . UntExprMap 
@@ -517,7 +520,7 @@ RETURN ;
     END ExprRefOfExprNo 
 
 (*EXPORTED*) 
-; PROCEDURE PushExprStack ( NewExpr : ExprTyp )
+; PROCEDURE PushExprStack ( NewExpr : ExprRefTyp )
 
   = BEGIN
       (* Let's crash on trying to push a NIL. *)
@@ -533,12 +536,12 @@ RETURN ;
     ; INC ( ExprStackCt ) 
     END PushExprStack
 
-; VAR GLastPoppedExpr : ExprTyp 
+; VAR GLastPoppedExpr : ExprRefTyp 
 
 (*EXPORTED*) 
-; PROCEDURE PopExprStack ( ) : ExprTyp 
+; PROCEDURE PopExprStack ( ) : ExprRefTyp 
 
-  = VAR LPoppedExprObj : ExprTyp 
+  = VAR LPoppedExprObj : ExprRefTyp 
 
   ; BEGIN
       LPoppedExprObj := ExprStackTopObj
@@ -574,7 +577,7 @@ RETURN ;
    END PruneExprStack
 
 (*EXPORTED*) 
-; PROCEDURE IsNumericType ( Expr : ExprTyp ) : BOOLEAN 
+; PROCEDURE IsNumericType ( Expr : ExprRefTyp ) : BOOLEAN 
 
   = BEGIN
       IF Expr = NIL

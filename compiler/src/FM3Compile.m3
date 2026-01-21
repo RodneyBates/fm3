@@ -1,7 +1,7 @@
         
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2024..2025  Rodney M. Bates.                                    *)
+(* Copyright 2024..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -336,13 +336,13 @@ MODULE  FM3Compile
             =>  Wr . PutText ( LWrT , "NIL" )
               ; Wr . PutText ( LWrT , Wr . EOL )
 
-            | FM3Exprs . ExprTyp ( TExpr )
+            | FM3Exprs . ExprRefTyp ( TExpr )
             =>  Wr . PutText ( LWrT , FM3Utils . RefanyImage ( TExpr ) ) 
               ; Wr . PutText ( LWrT , Wr . EOL ) 
               ; FM3Exprs . DumpExpr ( TExpr , LWrT , (*IN OUT*) ExprNosDumped )
 
             ELSE
-              Wr . PutText ( LWrT , "<notExprTyp>" )
+              Wr . PutText ( LWrT , "<notExprRefTyp>" )
             ; Wr . PutText ( LWrT , Wr . EOL )
             END (*TYPECASE*)
           ; Wr . PutText ( LWrT , Wr . EOL )

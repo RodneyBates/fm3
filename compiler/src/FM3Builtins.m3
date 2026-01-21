@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2025        Rodney M. Bates.                                    *)
+(* Copyright 2025..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
@@ -24,8 +24,8 @@ MODULE FM3Builtins
 
 ; TYPE StaticTokRange
        = [ FM3SrcToks . StkMinStatic .. FM3SrcToks . StkMaxStatic ] 
-; VAR GStaticArray : ARRAY StaticTokRange OF FM3Exprs . ExprTyp
-      (* ^Contains ExprTyp values (object pointers) that are complete.
+; VAR GStaticArray : ARRAY StaticTokRange OF FM3Exprs . ExprRefTyp
+      (* ^Contains ExprRefTyp values (object pointers) that are complete.
          Repeated calls for the same token return the same ExprRef, taken
          from this array.  It's initialized once and used many times. 
       *) 
@@ -33,10 +33,10 @@ MODULE FM3Builtins
 ; PROCEDURE InitOneTypeExpr
     ( Opcode : FM3SrcToks . TokTyp ; LoTypeNo : FM3LoTypes . LoTypeNoTyp )
 
-  = VAR LTypeExpr : FM3Exprs . ExprTyp
+  = VAR LTypeExpr : FM3Exprs . ExprRefTyp
 
   ; BEGIN
-      LTypeExpr := NEW ( FM3Exprs . ExprTyp ) 
+      LTypeExpr := NEW ( FM3Exprs . ExprRefTyp ) 
     ; LTypeExpr . ExpType := LTypeExpr (* Self referential. *) 
     ; LTypeExpr . ExpLoTypeInfoRef := FM3LoTypes . InfoRef ( LoTypeNo )  
     ; LTypeExpr . ExpReachedDeclNoSet := IntSets . Empty ( ) 
@@ -78,15 +78,15 @@ MODULE FM3Builtins
 
 ; PROCEDURE InitOneConstExpr
     ( Opcode : FM3SrcToks . TokTyp
-    ; ConstTypeExpr : FM3Exprs . ExprTyp 
+    ; ConstTypeExpr : FM3Exprs . ExprRefTyp 
     ; LoTypeNo : FM3LoTypes . LoTypeNoTyp
     ; ConstValue : LONGINT 
     )
 
-  = VAR LConstExpr : FM3Exprs . ExprTyp
+  = VAR LConstExpr : FM3Exprs . ExprRefTyp
 
   ; BEGIN
-      LConstExpr := NEW ( FM3Exprs . ExprTyp ) 
+      LConstExpr := NEW ( FM3Exprs . ExprRefTyp ) 
     ; LConstExpr . ExpType := ConstTypeExpr (* Self referential. *) 
     ; LConstExpr . ExpLoTypeInfoRef := FM3LoTypes . InfoRef ( LoTypeNo )  
     ; LConstExpr . ExpReachedDeclNoSet := IntSets . Empty ( ) 
@@ -124,8 +124,8 @@ MODULE FM3Builtins
 ; TYPE OpTokRange
     = [ FM3SrcToks . StkMinOperation .. FM3SrcToks . StkMaxOperation ] 
       (* ^Arrays subscripted by this type contain values of certain fields
-         that are the same for all ExprTyp instances of the OpCode.
-         Every call for a builtin opcode will allocate a new ExprTyp
+         that are the same for all ExprRefTyp instances of the OpCode.
+         Every call for a builtin opcode will allocate a new ExprRefTyp
          and initialize some of this fields from these arrays.  The
          arrays are initialized once and used many times. 
       *) 
@@ -140,7 +140,7 @@ MODULE FM3Builtins
 
 ; VAR GOpPropertiesArray : ARRAY OpTokRange OF OpPropertiesTyp 
 
-; VAR GOpTypesArray : ARRAY OpTokRange OF FM3Exprs . ExprTyp 
+; VAR GOpTypesArray : ARRAY OpTokRange OF FM3Exprs . ExprRefTyp 
 
 ; PROCEDURE InitOperatorTypes ( )
 
@@ -399,12 +399,12 @@ MODULE FM3Builtins
 
 ; PROCEDURE NewOpExpr
     ( Opcode : FM3SrcToks . TokTyp ; Position : FM3Base . tPosition )
-  : FM3Exprs . ExprTyp
+  : FM3Exprs . ExprRefTyp
 
-  = VAR LResult : FM3Exprs . ExprTyp
+  = VAR LResult : FM3Exprs . ExprRefTyp
 
   ; BEGIN
-      LResult := NEW ( FM3Exprs . ExprTyp )
+      LResult := NEW ( FM3Exprs . ExprRefTyp )
     ; CASE Opcode OF
       | Stk . StkPdExtract
       , Stk . StkPd_Long_Extract
@@ -437,27 +437,27 @@ MODULE FM3Builtins
 (*EXPORTED.*)
 ; PROCEDURE BuiltinExpr
     ( Opcode : FM3SrcToks . TokTyp ; Position := FM3Base . PositionNull )
-  : FM3Exprs . ExprTyp (* NIL if not an Id denoting an ExprTyp *)
- (* ^This returns FM3Expr.ExprTyp objects for builtin things.
+  : FM3Exprs . ExprRefTyp (* NIL if not an Id denoting an ExprRefTyp *)
+ (* ^This returns FM3Expr.ExprRefTyp objects for builtin things.
    This happens in Pass2, when references to declared entities
    can not yet be followed, so types are not known in general.
    Builtin types and builtin constants (whose types are always
    builtin) have types set, but other builtins not.
 
-   An ExprTyp node for a builtin type or constant is always a leaf
-   of an expression tree.  Since it has no descendents, a single ExprTyp
+   An ExprRefTyp node for a builtin type or constant is always a leaf
+   of an expression tree.  Since it has no descendents, a single ExprRefTyp
    object is created at initialization for each builtin and returned
    possibly multiple times.
 
    In contrast, each occurrence of a function or procedure needs a
-   distinct ExprTyp object with its own descendents, types, etc. So
+   distinct ExprRefTyp object with its own descendents, types, etc. So
    each call returns a newly allocated object with only properties
    that are the same in every instance set.  Caller must set any
    relevant other fields.
 *) 
 
 
-  = VAR LResult : FM3Exprs . ExprTyp
+  = VAR LResult : FM3Exprs . ExprRefTyp
 
   ; BEGIN
       CASE Opcode OF

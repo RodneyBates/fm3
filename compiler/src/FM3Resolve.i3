@@ -13,7 +13,7 @@ INTERFACE FM3Resolve
 ; IMPORT FM3Exprs
 
 ; PROCEDURE ResolveExpr
-    ( ExprRef : FM3Exprs . ExprTyp ; ExprKind : FM3Exprs . ExprKindTyp )
+    ( ExprRef : FM3Exprs . ExprRefTyp ; ExprKind : FM3Exprs . ExprKindTyp )
   : FM3Exprs . ExprStateTyp
 
 ; END FM3Resolve

@@ -161,7 +161,7 @@ INTERFACE FM3SrcToks
 (* ^Scanner will never present this, but parsing may convert to it in a
        context where a reserved ident is illegal.
    *)
-(* Things that will have a single, shared ExprTyp node. *)
+(* Things that will have a single, shared ExprRecTyp node. *)
 (* Constants: *)
 ; CONST RidFALSE                                     =   112 (*16_f0 00 *)
 ; CONST RidNIL                                       =   113 (*16_f1 00 *)
@@ -193,7 +193,7 @@ INTERFACE FM3SrcToks
 ; CONST StkMaxType                                   =   131 (*16_83 01 *)
 ; CONST StkMaxStatic                                 =   131 (*16_83 01 *)
 ; CONST RidUNTRACEDROOT                              =   131 (*16_83 01 *)
-(* These are operations.  Each instance requires its own ExprTyp
+(* These are operations.  Each instance requires its own ExprRecTyp
       node, with differing children and other fields.
    *)
 ; CONST StkMinOperation                              =   132 (*16_84 01 *)
