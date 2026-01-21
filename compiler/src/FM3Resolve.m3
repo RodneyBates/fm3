@@ -33,7 +33,8 @@ MODULE FM3Resolve
 
   = BEGIN (*ResolveChild*)
       EVAL ResolveExpr ( ChildRef , ParentRef ^ . ExpKind )
-    ; FM3Utils . ContribToHashL ( (*IN OUT*) ParentRef . ExpHash , ChildRef . ExpHash )
+    ; FM3Utils . ContribToHashL
+        ( (*IN OUT*) ParentRef ^ . ExpHash , ChildRef ^ . ExpHash )
     END ResolveChild
 
 (*EXPORTED.*)
@@ -43,103 +44,103 @@ MODULE FM3Resolve
 
   = BEGIN (*ResolveExpr*)
       IF ExprRef = NIL THEN RETURN Est . EsResolved END (*IF*) 
-    ; IF NOT ExprRef . ExpIsUsable THEN RETURN Est . EsResolved END (*IF*) 
-    ; IF ExprRef . ExpState = Est . EsResolved
+    ; IF NOT ExprRef ^ . ExpIsUsable THEN RETURN Est . EsResolved END (*IF*) 
+    ; IF ExprRef ^ . ExpState = Est . EsResolved
       THEN RETURN Est . EsResolved
       END (*IF*) 
-    ; CASE ExprRef . ExpKind OF
+    ; CASE ExprRef ^ . ExpKind OF
       | Ekt . EkNull => 
       | Ekt . EkEnumType 
       , Ekt . EkRecType
       => (* Nothing synthesized. *) 
       | Ekt . EkObjType 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 ) (*Supertype.*) 
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 ) (*Brand.*)
+      =>  ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd1 ) (*Supertype.*) 
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd2 ) (*Brand.*)
       | Ekt . EkArrayType 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 ) (*Subscript type.*)
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 ) (*Element type.*)
+      =>  ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd1 ) (*Subscript type.*)
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd2 ) (*Element type.*)
       | Ekt . EkSubrType 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 ) (*Lo bound value.*)
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 ) (*Hi bound value.*)
+      =>  ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd1 ) (*Lo bound value.*)
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd2 ) (*Hi bound value.*)
       | Ekt . EkRefType 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 ) (*Brand.*)
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 ) (*Referent type.*)
+      =>  ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd1 ) (*Brand.*)
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd2 ) (*Referent type.*)
 
       | Ekt . EkBrand 
       , Ekt . EkSupertype 
       =>  <* ASSERT FALSE , "should already be resolved." *> 
 
       | Ekt . EkBuiltin
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )  
+      =>  ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd4 )  
       
       | Ekt . EkLiteral 
       =>  FM3Utils . ContribToHashL
-            ( ExprRef . ExpHash , ExprRef . ExpScalarConstVal ) 
+            ( ExprRef ^ . ExpHash , ExprRef ^ . ExpScalarConstVal ) 
         ; FM3Utils . ContribToHashL
-            ( ExprRef . ExpHash
-            , VAL ( ORD ( ExprRef . ExpOpcode ) , FM3Base . HashTyp )
+            ( ExprRef ^ . ExpHash
+            , VAL ( ORD ( ExprRef ^ . ExpOpcode ) , FM3Base . HashTyp )
             ) 
       | Ekt . EkIdentRef 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
+      =>  ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd4 ) 
       | Ekt . EkQualIdentRef 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )
+      =>  ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd4 )
       | Ekt . EkRemoteRef 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )  
+      =>  ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd4 )  
       | Ekt . EkUnOp 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
+      =>  ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd4 ) 
       | Ekt . EkDot 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
+      =>  ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd4 ) 
       | Ekt . EkBinOp 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
+      =>  ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd4 ) 
       | Ekt . EkCall 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
+      =>  ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd4 ) 
       | Ekt . EkSubscript 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
+      =>  ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd4 ) 
       | Ekt . EkProc 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )  
+      =>  ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd4 )  
       | Ekt . EkFunc 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 )  
+      =>  ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd4 )  
       | Ekt . EkValue 
-      =>  ResolveChild ( ExprRef , ExprRef . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef . ExpOpnd4 ) 
+      =>  ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd1 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd2 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd3 )
+        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd4 ) 
       ELSE
       END (*CASE*)
-    ; ExprRef . ExpState := Est . EsResolved 
+    ; ExprRef ^ . ExpState := Est . EsResolved 
     END ResolveExpr
 
 (* Check forms of structural expression equality that can be
@@ -149,9 +150,9 @@ MODULE FM3Resolve
 ; PROCEDURE Opnds1And2Equal ( Left , Right : FM3Exprs . ExprRefTyp ) : BOOLEAN
 
   = BEGIN (*Opnds1And2Equal*)
-      IF NOT ExprRefsEqual ( Left . ExpOpnd1 , Right . ExpOpnd1 )
+      IF NOT ExprRefsEqual ( Left ^ . ExpOpnd1 , Right ^ . ExpOpnd1 )
       THEN RETURN FALSE
-      ELSIF NOT ExprRefsEqual ( Left . ExpOpnd2 , Right . ExpOpnd2 )
+      ELSIF NOT ExprRefsEqual ( Left ^ . ExpOpnd2 , Right ^ . ExpOpnd2 )
       THEN RETURN FALSE
       ELSE RETURN TRUE  
       END (*IF*)
@@ -174,14 +175,17 @@ MODULE FM3Resolve
   ; VAR LRightExprRef : FM3Exprs . ExprRefTyp 
 
   ; BEGIN (*ConstValuesEqual*)
-      IF NOT LeftExprRef . ExpConstValIsKnown THEN RETURN FALSE END (*IF*) 
-    ; IF NOT RightExprRef . ExpConstValIsKnown THEN RETURN FALSE END (*IF*) 
-    ; IF LeftExprRef . ExpType = FM3Builtins . BuiltinExpr ( Stk . RidTEXT )
+      IF NOT LeftExprRef ^ . ExpConstValIsKnown THEN RETURN FALSE END (*IF*) 
+    ; IF NOT RightExprRef ^ . ExpConstValIsKnown THEN RETURN FALSE END (*IF*) 
+    ; IF LeftExprRef ^ . ExpType = FM3Builtins . BuiltinExpr ( Stk . RidTEXT )
       THEN (* TEXT is the only type that could be a reference constant. *)
 (* FIXME: Not necessarily so. Value constructors can be constant. *) 
         RETURN Text . Equal
-           ( RightExprRef . ExpRefConstVal , LeftExprRef . ExpRefConstVal ) 
-      ELSE RETURN RightExprRef . ExpScalarConstVal = LeftExprRef . ExpScalarConstVal 
+                 ( RightExprRef ^ . ExpRefConstVal
+                 , LeftExprRef ^ . ExpRefConstVal
+                 ) 
+      ELSE RETURN RightExprRef ^ . ExpScalarConstVal
+                  = LeftExprRef ^ . ExpScalarConstVal 
       END (*IF*) 
       
     END ConstValuesEqual
@@ -202,10 +206,10 @@ MODULE FM3Resolve
         THEN RETURN FM3Exprs . ExprNoNull 
         END (*IF*) 
       ; LExprRef := FM3Exprs . ExprRefOfExprNo ( LExprNo ) 
-      ; IF LExprRef . ExpRepExprNo = LExprNo  
+      ; IF LExprRef ^ . ExpRepExprNo = LExprNo  
         THEN RETURN LExprNo 
         END (*IF*) 
-      ; LExprNo := LExprRef . ExpRepExprNo 
+      ; LExprNo := LExprRef ^ . ExpRepExprNo 
       END (*LOOP*) 
     END RepExprNo
 
@@ -253,7 +257,7 @@ MODULE FM3Resolve
           END (*IF*)
       | Dkt . DkOverride
       =>  IF NOT ExprRefsEqual
-                    ( LeftDeclRef ^ . DclDefValue , RightDeclRef ^ . DclDefValue ) 
+                   ( LeftDeclRef ^ . DclDefValue , RightDeclRef ^ . DclDefValue )
           THEN RETURN FALSE
           ELSE RETURN TRUE 
           END (*IF*)
@@ -363,75 +367,82 @@ MODULE FM3Resolve
       IF LeftExprRef = NIL THEN RETURN FALSE END (*IF*) 
     ; IF RightExprRef = NIL THEN RETURN FALSE END (*IF*)
     ; IF RightExprRef = LeftExprRef THEN RETURN TRUE END (*IF*)
-    ; IF LeftExprRef . ExpRepExprNo < FM3Exprs . ExprNoFirstReal
+    ; IF LeftExprRef ^ . ExpRepExprNo < FM3Exprs . ExprNoFirstReal
       THEN RETURN FALSE
       END (*IF*) 
-    ; IF RightExprRef . ExpRepExprNo < FM3Exprs . ExprNoFirstReal
+    ; IF RightExprRef ^ . ExpRepExprNo < FM3Exprs . ExprNoFirstReal
       THEN RETURN FALSE
       END (*IF*)
-    ; IF LeftExprRef . ExpHash # RightExprRef . ExpHash
+    ; IF LeftExprRef ^ . ExpHash # RightExprRef ^ . ExpHash
       THEN RETURN FALSE
       END (*IF*)
-    ; LLeftRepNo := RepExprNo ( LeftExprRef . ExpSelfExprNo )
-    ; LRightRepNo := RepExprNo ( RightExprRef . ExpSelfExprNo )
+    ; LLeftRepNo := RepExprNo ( LeftExprRef ^ . ExpSelfExprNo )
+    ; LRightRepNo := RepExprNo ( RightExprRef ^ . ExpSelfExprNo )
     ; IF LRightRepNo = LLeftRepNo AND LLeftRepNo # FM3Exprs . ExprNoNull
       THEN RETURN TRUE
       END (*IF*)
-    ; IF RightExprRef . ExpKind # LeftExprRef . ExpKind
+    ; IF RightExprRef ^ . ExpKind # LeftExprRef ^ . ExpKind
       THEN RETURN FALSE
       END (*IF*)
 
     (* No shortcuts.  Do a brute-force recursive comparison. *)
-    ; IF LeftExprRef . ExpKind IN FM3Exprs . EkSetPossiblyConstants
+    ; IF LeftExprRef ^ . ExpKind IN FM3Exprs . EkSetPossiblyConstants
       THEN (* Both are constant values of the same kind. *)
-        IF NOT ExprRefsEqual ( RightExprRef . ExpType , LeftExprRef . ExpType )
+        IF NOT ExprRefsEqual
+                 ( RightExprRef ^ . ExpType , LeftExprRef ^ . ExpType )
         THEN LResult := FALSE 
         END (*IF*)
       ; LResult := ConstValuesEqual ( LeftExprRef , RightExprRef ) 
       ELSE (* Both are types of the same kind. *)
-        CASE LeftExprRef . ExpKind OF
+        CASE LeftExprRef ^ . ExpKind OF
         | Ekt . EkEnumType
-        =>  LResult 
-              := TypeScopeRefsEqual 
-                   ( LeftExprRef . ExpScopeRef1 , RightExprRef . ExpScopeRef1 ) 
+        =>  LResult := TypeScopeRefsEqual 
+                         ( LeftExprRef ^ . ExpScopeRef1
+                         , RightExprRef ^ . ExpScopeRef1
+                         ) 
         | Ekt . EkRecType
         =>  LResult 
               := TypeScopeRefsEqual 
-                   ( LeftExprRef . ExpScopeRef1 , RightExprRef . ExpScopeRef1 ) 
+                   ( LeftExprRef ^ . ExpScopeRef1
+                   , RightExprRef ^ . ExpScopeRef1
+                   ) 
         | Ekt . EkArrayType
-        =>  LResult := RightExprRef . ExpOpcode = LeftExprRef . ExpOpcode 
+        =>  LResult := RightExprRef ^ . ExpOpcode = LeftExprRef ^ . ExpOpcode 
 (* Needed? ------------^ *)
           ; LResult
               := LResult 
-                 AND RightExprRef . ExpArrayTypeIsOpen 
-                     = LeftExprRef . ExpArrayTypeIsOpen 
+                 AND RightExprRef ^ . ExpArrayTypeIsOpen 
+                     = LeftExprRef ^ . ExpArrayTypeIsOpen 
           ; LResult
               := LResult 
                  AND Opnds1And2Equal ( LeftExprRef , RightExprRef ) 
         | Ekt . EkObjType
         =>  LResult
-              := RightExprRef . ExpIsUntraced = LeftExprRef . ExpIsUntraced 
+              := RightExprRef ^ . ExpIsUntraced
+                 = LeftExprRef ^ . ExpIsUntraced 
           ; LResult
               := LResult 
                  AND Opnds1And2Equal 
                        ( LeftExprRef , RightExprRef ) (* Brand, supertype. *)
           ; LResult 
               := TypeScopeRefsEqual 
-                   ( LeftExprRef . ExpScopeRef1 , RightExprRef . ExpScopeRef1 ) 
+                   ( LeftExprRef ^ . ExpScopeRef1
+                   , RightExprRef ^ . ExpScopeRef1
+                   ) 
           ; LResult 
               := DeclListsEqual 
-                   ( LeftExprRef . ExpDeclsListRef
-                   , RightExprRef . ExpDeclsListRef
+                   ( LeftExprRef ^ . ExpDeclsListRef
+                   , RightExprRef ^ . ExpDeclsListRef
                    ) 
         | Ekt . EkSubrType
         =>  LResult := Opnds1And2Equal ( LeftExprRef , RightExprRef ) 
         | Ekt . EkRefType
-        =>  LResult := RightExprRef . ExpOpcode = LeftExprRef . ExpOpcode 
+        =>  LResult := RightExprRef ^ . ExpOpcode = LeftExprRef ^ . ExpOpcode 
 (* Needed? ------------^ *) 
           ; LResult
               := LResult 
-                 AND RightExprRef . ExpIsUntraced 
-                     = LeftExprRef . ExpIsUntraced 
+                 AND RightExprRef ^ . ExpIsUntraced 
+                     = LeftExprRef ^ . ExpIsUntraced 
           ; LResult
               := LResult 
                  AND Opnds1And2Equal ( LeftExprRef , RightExprRef )
@@ -451,7 +462,7 @@ MODULE FM3Resolve
         (* Discovered a new structural equality.  Record it for posterity. *) 
         LExprMap := FM3Units . UnitStackTopRef ^ . UntExprMap 
       ; LRightRepExprRef := FM3Exprs . ExprRefOfExprNo ( LRightRepNo ) 
-      ; LRightRepExprRef . ExpRepExprNo := LLeftRepNo  
+      ; LRightRepExprRef ^ . ExpRepExprNo := LLeftRepNo  
       END (*IF*) 
     ; RETURN LResult 
     END ExprRefsEqual

@@ -6,7 +6,7 @@
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
 
-(* Exprs for things builtin to Modula-3. *)
+(* ExprRecs for things builtin to Modula-3. *)
 
 MODULE FM3Builtins
 
@@ -37,18 +37,18 @@ MODULE FM3Builtins
 
   ; BEGIN
       LTypeExpr := NEW ( FM3Exprs . ExprRefTyp ) 
-    ; LTypeExpr . ExpType := LTypeExpr (* Self referential. *) 
-    ; LTypeExpr . ExpLoTypeInfoRef := FM3LoTypes . InfoRef ( LoTypeNo )  
-    ; LTypeExpr . ExpReachedDeclNoSet := IntSets . Empty ( ) 
-    ; LTypeExpr . ExpSelfExprNo := - Opcode (* < 0 for builtin types. *) 
-    ; LTypeExpr . ExpOpcode := Opcode
-    ; LTypeExpr . ExpUpKind
+    ; LTypeExpr ^ . ExpType := LTypeExpr (* Self referential. *) 
+    ; LTypeExpr ^ . ExpLoTypeInfoRef := FM3LoTypes . InfoRef ( LoTypeNo )  
+    ; LTypeExpr ^ . ExpReachedDeclNoSet := IntSets . Empty ( ) 
+    ; LTypeExpr ^ . ExpSelfExprNo := - Opcode (* < 0 for builtin types. *) 
+    ; LTypeExpr ^ . ExpOpcode := Opcode
+    ; LTypeExpr ^ . ExpUpKind
         := FM3Exprs . ExprKindTyp . EkType (* Spontaneous. *)  
-    ; LTypeExpr . ExpRepExprNo := FM3Exprs . RepExprNoSingleton
-    ; LTypeExpr . ExpState := FM3Exprs . ExprStateTyp . EsResolved
-    ; LTypeExpr . ExpIsUsable := TRUE
-    ; LTypeExpr . ExpIsLegalRecursive := TRUE
-    ; FM3Utils . ContribToHashI ( LTypeExpr . ExpHash , Opcode ) 
+    ; LTypeExpr ^ . ExpRepExprNo := FM3Exprs . RepExprNoSingleton
+    ; LTypeExpr ^ . ExpState := FM3Exprs . ExprStateTyp . EsResolved
+    ; LTypeExpr ^ . ExpIsUsable := TRUE
+    ; LTypeExpr ^ . ExpIsLegalRecursive := TRUE
+    ; FM3Utils . ContribToHashI ( LTypeExpr ^ . ExpHash , Opcode ) 
     ; GStaticArray [ Opcode ] := LTypeExpr  
     END InitOneTypeExpr
 
@@ -87,24 +87,24 @@ MODULE FM3Builtins
 
   ; BEGIN
       LConstExpr := NEW ( FM3Exprs . ExprRefTyp ) 
-    ; LConstExpr . ExpType := ConstTypeExpr (* Self referential. *) 
-    ; LConstExpr . ExpLoTypeInfoRef := FM3LoTypes . InfoRef ( LoTypeNo )  
-    ; LConstExpr . ExpReachedDeclNoSet := IntSets . Empty ( ) 
-    ; LConstExpr . ExpSelfExprNo := - Opcode (* < 0 for builtin types. *) 
-    ; LConstExpr . ExpOpcode := Opcode
-    ; LConstExpr . ExpUpKind
+    ; LConstExpr ^ . ExpType := ConstTypeExpr (* Self referential. *) 
+    ; LConstExpr ^ . ExpLoTypeInfoRef := FM3LoTypes . InfoRef ( LoTypeNo )  
+    ; LConstExpr ^ . ExpReachedDeclNoSet := IntSets . Empty ( ) 
+    ; LConstExpr ^ . ExpSelfExprNo := - Opcode (* < 0 for builtin types. *) 
+    ; LConstExpr ^ . ExpOpcode := Opcode
+    ; LConstExpr ^ . ExpUpKind
         := FM3Exprs . ExprKindTyp . EkValue (* Spontaneous. *)  
-    ; LConstExpr . ExpState := FM3Exprs . ExprStateTyp . EsResolved
-    ; LConstExpr . ExpIsUsable := TRUE
-    ; LConstExpr . ExpScalarConstVal := ConstValue 
-    ; LConstExpr . ExpConstValIsKnown := TRUE
-    ; LConstExpr . ExpIsConst := TRUE
-    ; LConstExpr . ExpRepExprNo := FM3Exprs . RepExprNoSingleton
-    ; LConstExpr . ExpIsLegalRecursive := TRUE
-    ; FM3Utils . ContribToHashI ( LConstExpr . ExpHash , Opcode ) 
-    ; FM3Utils . ContribToHashL ( LConstExpr . ExpHash , ConstValue ) 
-    ; LConstExpr . ExpRepExprNo := FM3Exprs . RepExprNoSingleton
-    ; LConstExpr . ExpState := FM3Exprs . ExprStateTyp . EsResolved
+    ; LConstExpr ^ . ExpState := FM3Exprs . ExprStateTyp . EsResolved
+    ; LConstExpr ^ . ExpIsUsable := TRUE
+    ; LConstExpr ^ . ExpScalarConstVal := ConstValue 
+    ; LConstExpr ^ . ExpConstValIsKnown := TRUE
+    ; LConstExpr ^ . ExpIsConst := TRUE
+    ; LConstExpr ^ . ExpRepExprNo := FM3Exprs . RepExprNoSingleton
+    ; LConstExpr ^ . ExpIsLegalRecursive := TRUE
+    ; FM3Utils . ContribToHashI ( LConstExpr ^ . ExpHash , Opcode ) 
+    ; FM3Utils . ContribToHashL ( LConstExpr ^ . ExpHash , ConstValue ) 
+    ; LConstExpr ^ . ExpRepExprNo := FM3Exprs . RepExprNoSingleton
+    ; LConstExpr ^ . ExpState := FM3Exprs . ExprStateTyp . EsResolved
     ; GStaticArray [ Opcode ] := LConstExpr  
     END InitOneConstExpr
 
@@ -410,26 +410,26 @@ MODULE FM3Builtins
       , Stk . StkPd_Long_Extract
       , Stk . StkPdInsert
       , Stk . StkPd_Long_Insert
-      =>  LResult . ExpOpnd3 := NIL 
-        ; LResult . ExpOpnd4 := NIL
+      =>  LResult ^ . ExpOpnd3 := NIL 
+        ; LResult ^ . ExpOpnd4 := NIL
       ELSE 
       END (*CASE *) 
-    ; LResult . ExpOpnd1 := NIL 
-    ; LResult . ExpOpnd2 := NIL
+    ; LResult ^ . ExpOpnd1 := NIL 
+    ; LResult ^ . ExpOpnd2 := NIL
 (* FIXME: where do these Opnd* get set? *) 
     ; WITH WProps = GOpPropertiesArray [ Opcode ]
       DO 
-        LResult . ExpType := GOpTypesArray [ Opcode ]   
-      ; LResult . ExpReachedDeclNoSet := IntSets . Empty ( )  
-      ; LResult . ExpPosition := Position 
-      ; LResult . ExpOpcode := Opcode 
-      ; LResult . ExpUpKind := WProps . OpExprKind  
-      ; LResult . ExpBuiltinOpActualsCt := WProps . OpOpndCt  
-      ; LResult . ExpBuiltinOpLtOpndKindsAllowed
+        LResult ^ . ExpType := GOpTypesArray [ Opcode ]   
+      ; LResult ^ . ExpReachedDeclNoSet := IntSets . Empty ( )  
+      ; LResult ^ . ExpPosition := Position 
+      ; LResult ^ . ExpOpcode := Opcode 
+      ; LResult ^ . ExpUpKind := WProps . OpExprKind  
+      ; LResult ^ . ExpBuiltinOpActualsCt := WProps . OpOpndCt  
+      ; LResult ^ . ExpBuiltinOpLtOpndKindsAllowed
           := WProps . OpLtOpndKindsAllowed 
-      ; LResult . ExpBuiltinOpRtOpndKindsAllowed
+      ; LResult ^ . ExpBuiltinOpRtOpndKindsAllowed
           := WProps . OpRtOpndKindsAllowed 
-      ; FM3Utils . ContribToHashI ( LResult . ExpHash , Opcode ) 
+      ; FM3Utils . ContribToHashI ( LResult ^ . ExpHash , Opcode ) 
       ; RETURN LResult
       END (*WITH*) 
     END NewOpExpr 
@@ -446,7 +446,7 @@ MODULE FM3Builtins
 
    An ExprRefTyp node for a builtin type or constant is always a leaf
    of an expression tree.  Since it has no descendents, a single ExprRefTyp
-   object is created at initialization for each builtin and returned
+   object is created at initialization for each such builtin and returned
    possibly multiple times.
 
    In contrast, each occurrence of a function or procedure needs a

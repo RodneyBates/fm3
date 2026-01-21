@@ -265,17 +265,17 @@ RETURN ;
       ; Wr . PutText ( GWrT , Wr . EOL ) 
       ELSE
         Wr . PutText ( GWrT , "ExprNo " )
-      ; Wr . PutText ( GWrT , Fmt . Int ( Expr . ExpSelfExprNo ) )
+      ; Wr . PutText ( GWrT , Fmt . Int ( Expr ^ . ExpSelfExprNo ) )
       ; Wr . PutChar ( GWrT , ' ' )
       ; Wr . PutText ( GWrT , FM3Utils . RefanyImage ( Expr ) ) 
-      ; IF IntSets . IsElement ( Expr . ExpSelfExprNo , GExprNosDumped )
+      ; IF IntSets . IsElement ( Expr ^ . ExpSelfExprNo , GExprNosDumped )
         THEN
           Wr . PutText ( GWrT , ", previously displayed." )
         ; Wr . PutText ( GWrT , Wr . EOL ) 
         ELSE
           Wr . PutText ( GWrT , Wr . EOL )  
         ; GExprNosDumped
-            := IntSets . Include ( GExprNosDumped , Expr . ExpSelfExprNo )
+            := IntSets . Include ( GExprNosDumped , Expr ^ . ExpSelfExprNo )
         ; AppendNestedExpr ( Expr ) 
         ; Wr . PutText ( GWrT , Wr . EOL )  
         END (*IF*) 
@@ -339,11 +339,11 @@ RETURN ;
       =>  LResult := FM3SharedUtils . CatArrT
             ( ARRAY OF REFANY
                 { "ExprNo "
-                , Fmt . Int ( TExprRef . ExpSelfExprNo )
+                , Fmt . Int ( TExprRef ^ . ExpSelfExprNo )
                 , " at "
                 , FM3Utils . RefanyImage ( TExprRef )
                 , " "
-                , FM3Utils . PositionImage ( TExprRef . ExpPosition )
+                , FM3Utils . PositionImage ( TExprRef ^ . ExpPosition )
                 }
             ) 
         ; RETURN LResult 
@@ -353,72 +353,72 @@ RETURN ;
 
 ; PROCEDURE ExprAppend ( Expr : ExprRefTyp )
     = BEGIN
-        Field ( "ExpStackLink" , ExprRefImage ( Expr . ExpStackLink ) ) 
-      ; Field ( "ExpRefConstVal" , FM3Utils . RefanyImage ( Expr . ExpRefConstVal ) )  
-      ; Field ( "ExpScalarConstVal" , Fmt . LongInt ( Expr . ExpScalarConstVal ) )  
-      ; Field ( "ExpHash" , FM3Utils . LongHexImage ( Expr . ExpHash ) )
+        Field ( "ExpStackLink" , ExprRefImage ( Expr ^ . ExpStackLink ) ) 
+      ; Field ( "ExpRefConstVal" , FM3Utils . RefanyImage ( Expr ^ . ExpRefConstVal ) )  
+      ; Field ( "ExpScalarConstVal" , Fmt . LongInt ( Expr ^ . ExpScalarConstVal ) )  
+      ; Field ( "ExpHash" , FM3Utils . LongHexImage ( Expr ^ . ExpHash ) )
       ; Field ( "ExpLoTypeInfoRef"
-              , "" (* LoTypeInfoRefTypImage ( Expr . ExpLoTypeInfoRef ) *)
+              , "" (* LoTypeInfoRefTypImage ( Expr ^ . ExpLoTypeInfoRef ) *)
               )
       ; Field ( "ExpReachedDeclNoSet"
-              , IntSets . Image ( Expr . ExpReachedDeclNoSet , IntSetsElemImage )
+              , IntSets . Image ( Expr ^ . ExpReachedDeclNoSet , IntSetsElemImage )
               )
       ; Field ( "ExpBuiltinOpLtOpndKindsAllowed" 
-              , ExprKindSetMessage ( Expr . ExpBuiltinOpLtOpndKindsAllowed ) 
+              , ExprKindSetMessage ( Expr ^ . ExpBuiltinOpLtOpndKindsAllowed ) 
               )
       ; Field ( "ExpBuiltinOpRtOpndKindsAllowed" 
-              , ExprKindSetMessage ( Expr . ExpBuiltinOpRtOpndKindsAllowed ) 
+              , ExprKindSetMessage ( Expr ^ . ExpBuiltinOpRtOpndKindsAllowed ) 
               )
       ; Field ( "ExpArgsList" , "" )
-      ; AppendExprList ( Expr . ExpArgsList ) 
+      ; AppendExprList ( Expr ^ . ExpArgsList ) 
 
       ; Field ( "ExpDeclsListRef"
-              , FM3Utils . RefanyImage ( Expr . ExpDeclsListRef )
+              , FM3Utils . RefanyImage ( Expr ^ . ExpDeclsListRef )
               )  
 
       ; Field ( "ExpObjBrandKind"
-              , FM3Parser . BrandKindImage ( Expr . ExpObjBrandKind )
+              , FM3Parser . BrandKindImage ( Expr ^ . ExpObjBrandKind )
               )  
       ; Field ( "ExpScopeRef1"
-              , FM3Scopes . ScopeRefImage ( Expr . ExpScopeRef1 )
+              , FM3Scopes . ScopeRefImage ( Expr ^ . ExpScopeRef1 )
               ) 
 
 
-      ; Field ( "ExpIdentDeclNo" , Fmt . Int ( Expr . ExpIdentDeclNo ) ) 
-      ; Field ( "ExpRemoteUnitNo" , Fmt . Int ( Expr . ExpRemoteUnitNo ) ) 
-      ; Field ( "ExpRemoteDeclNo" , Fmt . Int ( Expr . ExpRemoteDeclNo ) ) 
+      ; Field ( "ExpIdentDeclNo" , Fmt . Int ( Expr ^ . ExpIdentDeclNo ) ) 
+      ; Field ( "ExpRemoteUnitNo" , Fmt . Int ( Expr ^ . ExpRemoteUnitNo ) ) 
+      ; Field ( "ExpRemoteDeclNo" , Fmt . Int ( Expr ^ . ExpRemoteDeclNo ) ) 
 
-      ; Field ( "ExpPosition" , FM3Utils . PositionImage ( Expr . ExpPosition ) )
-      ; Field ( "ExpOpcode" , FM3SrcToks . Image ( Expr . ExpOpcode ) )  
-      ; Field ( "ExpIdAtom" , AtomTypImage ( Expr . ExpIdAtom ) ) 
-      ; Field ( "ExpDeclListNo" , Fmt . Int ( Expr . ExpDeclListNo ) )  
-      ; Field ( "ExpArgListNo" , Fmt . Int ( Expr . ExpArgListNo ) )  
-      ; Field ( "ExpBuiltinOpActualsCt" , Fmt . Int ( Expr . ExpBuiltinOpActualsCt ) )
-      ; Field ( "ExpStackHt" , Fmt . Int ( Expr . ExpStackHt ) ) 
+      ; Field ( "ExpPosition" , FM3Utils . PositionImage ( Expr ^ . ExpPosition ) )
+      ; Field ( "ExpOpcode" , FM3SrcToks . Image ( Expr ^ . ExpOpcode ) )  
+      ; Field ( "ExpIdAtom" , AtomTypImage ( Expr ^ . ExpIdAtom ) ) 
+      ; Field ( "ExpDeclListNo" , Fmt . Int ( Expr ^ . ExpDeclListNo ) )  
+      ; Field ( "ExpArgListNo" , Fmt . Int ( Expr ^ . ExpArgListNo ) )  
+      ; Field ( "ExpBuiltinOpActualsCt" , Fmt . Int ( Expr ^ . ExpBuiltinOpActualsCt ) )
+      ; Field ( "ExpStackHt" , Fmt . Int ( Expr ^ . ExpStackHt ) ) 
 
 
-      ; Field ( "ExpSelfExprNo" , Fmt . Int ( Expr . ExpSelfExprNo ) ) 
-      ; Field ( "ExpDownKind" , ExprKindImage ( Expr . ExpDownKind ) ) 
-      ; Field ( "ExpUpKind" , ExprKindImage ( Expr . ExpUpKind ) ) 
-      ; Field ( "ExpKind" , ExprKindImage ( Expr . ExpKind ) )  
-      ; Field ( "ExpState" , ExprStateImage ( Expr . ExpState ) )  
-      ; Field ( "ExpIsConst" , Fmt . Bool ( Expr . ExpIsConst ) )  
-      ; Field ( "ExpConstValIsKnown" , Fmt . Bool ( Expr . ExpConstValIsKnown ) )
-      ; Field ( "ExpIsUsable" , Fmt . Bool ( Expr . ExpIsUsable ) ) 
-      ; Field ( "ExpIsLegalRecursive" , Fmt . Bool ( Expr . ExpIsLegalRecursive ) )
-      ; Field ( "ExpIsDesignator" , Fmt . Bool ( Expr . ExpIsDesignator ) ) 
-      ; Field ( "ExpIsWritable" , Fmt . Bool ( Expr . ExpIsWritable ) )  
-      ; Field ( "ExpIsPresent" , Fmt . Bool ( Expr . ExpIsPresent ) )  
-      ; Field ( "ExpIsUntraced" , Fmt . Bool ( Expr . ExpIsUntraced ) )
-      ; Field ( "ExpArrayTypeIsOpen" , Fmt . Bool ( Expr . ExpArrayTypeIsOpen ) )
+      ; Field ( "ExpSelfExprNo" , Fmt . Int ( Expr ^ . ExpSelfExprNo ) ) 
+      ; Field ( "ExpDownKind" , ExprKindImage ( Expr ^ . ExpDownKind ) ) 
+      ; Field ( "ExpUpKind" , ExprKindImage ( Expr ^ . ExpUpKind ) ) 
+      ; Field ( "ExpKind" , ExprKindImage ( Expr ^ . ExpKind ) )  
+      ; Field ( "ExpState" , ExprStateImage ( Expr ^ . ExpState ) )  
+      ; Field ( "ExpIsConst" , Fmt . Bool ( Expr ^ . ExpIsConst ) )  
+      ; Field ( "ExpConstValIsKnown" , Fmt . Bool ( Expr ^ . ExpConstValIsKnown ) )
+      ; Field ( "ExpIsUsable" , Fmt . Bool ( Expr ^ . ExpIsUsable ) ) 
+      ; Field ( "ExpIsLegalRecursive" , Fmt . Bool ( Expr ^ . ExpIsLegalRecursive ) )
+      ; Field ( "ExpIsDesignator" , Fmt . Bool ( Expr ^ . ExpIsDesignator ) ) 
+      ; Field ( "ExpIsWritable" , Fmt . Bool ( Expr ^ . ExpIsWritable ) )  
+      ; Field ( "ExpIsPresent" , Fmt . Bool ( Expr ^ . ExpIsPresent ) )  
+      ; Field ( "ExpIsUntraced" , Fmt . Bool ( Expr ^ . ExpIsUntraced ) )
+      ; Field ( "ExpArrayTypeIsOpen" , Fmt . Bool ( Expr ^ . ExpArrayTypeIsOpen ) )
 
-      ; NestedField ( "ExpType" , Expr . ExpType ) 
-      ; NestedField ( "ExpOpnd1" , Expr . ExpOpnd1 ) 
-      ; NestedField ( "ExpOpnd2" , Expr . ExpOpnd2 ) 
-      ; NestedField ( "ExpOpnd3" , Expr . ExpOpnd3 ) 
-      ; NestedField ( "ExpOpnd4" , Expr . ExpOpnd4 ) 
-      ; NestedField ( "ExpRangeBase" , Expr . ExpRangeBase ) 
-      ; NestedField ( "ExpArgPrefix" , Expr . ExpArgPrefix ) 
+      ; NestedField ( "ExpType" , Expr ^ . ExpType ) 
+      ; NestedField ( "ExpOpnd1" , Expr ^ . ExpOpnd1 ) 
+      ; NestedField ( "ExpOpnd2" , Expr ^ . ExpOpnd2 ) 
+      ; NestedField ( "ExpOpnd3" , Expr ^ . ExpOpnd3 ) 
+      ; NestedField ( "ExpOpnd4" , Expr ^ . ExpOpnd4 ) 
+      ; NestedField ( "ExpRangeBase" , Expr ^ . ExpRangeBase ) 
+      ; NestedField ( "ExpArgPrefix" , Expr ^ . ExpArgPrefix ) 
 
       END ExprAppend
 
@@ -433,12 +433,12 @@ RETURN ;
     ( Expr : ExprRefTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp
   = BEGIN
       IF Expr = NIL THEN RETURN Est . EsUnknown END (*IF*)
-    ; CASE Expr . ExpState OF 
+    ; CASE Expr ^ . ExpState OF 
       | Est . EsUnresolved  
       => RETURN FM3Resolve . ResolveExpr ( Expr , ExprKind )
       | Est . EsResolving
       => <* ASSERT FALSE , "Illegal recursive declaration." *>
-      ELSE RETURN Expr . ExpState
+      ELSE RETURN Expr ^ . ExpState
       END (*CASE*) 
     END ResolveNow
 
@@ -448,9 +448,9 @@ RETURN ;
 
   = BEGIN
       IF Expr = NIL THEN RETURN Est . EsUnknown END (*IF*)
-    ; IF Expr . ExpState = Est . EsUnresolved  
+    ; IF Expr ^ . ExpState = Est . EsUnresolved  
       THEN RETURN FM3Resolve . ResolveExpr ( Expr , ExprKind ) 
-      ELSE RETURN Expr . ExpState
+      ELSE RETURN Expr ^ . ExpState
       END (*IF*) 
     END ResolveEventually 
 
@@ -463,12 +463,12 @@ RETURN ;
 
 (*
 
-         FM3Defs . ExpStackTopObj 
-         := NEW ( FM3Defs . ExpREFTypeTyp
+         FM3Defs ^ . ExpStackTopObj 
+         := NEW ( FM3Defs ^ . ExpREFTypeTyp
 
 
-                , DefLink := FM3Defs . ExpStackTopObj 
-                , DefExpKind := FM3Defs . ExpStackTopObj . ExpExpKind 
+                , DefLink := FM3Defs ^ . ExpStackTopObj 
+                , DefExpKind := FM3Defs ^ . ExpStackTopObj ^ . ExpExpKind 
                 )
 *)
 
@@ -515,7 +515,7 @@ RETURN ;
       LExprMap := FM3Units . UnitStackTopRef ^ . UntExprMap 
     ; IF LExprMap = NIL THEN RETURN NIL END 
     ; LExprRef := VarArray_Int_Refany . Fetch ( LExprMap , ExprNo )
-      (*       ^Implied NARROW *)
+      (*      ^Implied NARROW *)
     ; RETURN LExprRef  
     END ExprRefOfExprNo 
 
@@ -524,14 +524,14 @@ RETURN ;
 
   = BEGIN
       (* Let's crash on trying to push a NIL. *)
-      IF NewExpr . ExpStackHt # 0 (* It's already somewhere on the stack *)  
+      IF NewExpr ^ . ExpStackHt # 0 (* It's already somewhere on the stack *)  
       THEN <* ASSERT FALSE *>
       END (*IF*) 
     ; IF ExprStackTopObj = NIL
-      THEN NewExpr . ExpStackHt := 1
-      ELSE NewExpr . ExpStackHt := ExprStackTopObj . ExpStackHt + 1
+      THEN NewExpr ^ . ExpStackHt := 1
+      ELSE NewExpr ^ . ExpStackHt := ExprStackTopObj ^ . ExpStackHt + 1
       END (*IF*)
-    ; NewExpr . ExpStackLink := ExprStackTopObj
+    ; NewExpr ^ . ExpStackLink := ExprStackTopObj
     ; ExprStackTopObj := NewExpr
     ; INC ( ExprStackCt ) 
     END PushExprStack
@@ -545,10 +545,10 @@ RETURN ;
 
   ; BEGIN
       LPoppedExprObj := ExprStackTopObj
-    ; ExprStackTopObj := ExprStackTopObj . ExpStackLink
+    ; ExprStackTopObj := ExprStackTopObj ^ . ExpStackLink
     ; DEC ( ExprStackCt )
     ; <* ASSERT ( ExprStackTopObj = NIL ) = ( ExprStackCt = 0 ) *> 
-      LPoppedExprObj . ExpStackHt := 0
+      LPoppedExprObj ^ . ExpStackHt := 0
     ; GLastPoppedExpr := LPoppedExprObj
     ; RETURN LPoppedExprObj 
     END PopExprStack
@@ -562,14 +562,14 @@ RETURN ;
         FM3Messages . FM3LogArrUnit
           ( ARRAY OF REFANY
               { "Expression number "
-              , Fmt . Int ( ExprStackTopObj . ExpSelfExprNo )
+              , Fmt . Int ( ExprStackTopObj ^ . ExpSelfExprNo )
               , " remains on expression stack at depth "
               , Fmt . Int ( ExprStackCt )
               , " when expected down to depth "
               , Fmt . Int ( ToDepth )
               , "." 
               } 
-          , ExprStackTopObj . ExpPosition
+          , ExprStackTopObj ^ . ExpPosition
           ) 
       ; REPEAT EVAL PopExprStack ( ) 
       ; UNTIL ExprStackCt <= ToDepth  
@@ -583,11 +583,11 @@ RETURN ;
       IF Expr = NIL
       THEN RETURN FALSE
       ELSE 
-        CASE Expr . ExpKind OF
+        CASE Expr ^ . ExpKind OF
         | Ekt . EkSubrType
-        => RETURN IsNumericType ( Expr . ExpRangeBase )
+        => RETURN IsNumericType ( Expr ^ . ExpRangeBase )
         | Ekt . EkBuiltin
-        => CASE Expr . ExpOpcode OF
+        => CASE Expr ^ . ExpOpcode OF
            | Stk . RidCARDINAL
            , Stk . RidEXTENDED
            , Stk . RidINTEGER
