@@ -329,8 +329,6 @@ MODULE FM3Decls
       THEN RETURN
         DeclParseInfoTyp
           { DiDeclTok := FM3IntToks . ItkNull
-          , DiIdListTok := FM3IntToks . ItkNull
-          , DiIdSepTok := FM3IntToks . ItkNull
           , DiKind := DeclKindTyp.DkNull
           } 
       ELSE RETURN DeclParseInfoStack . DinInfo 

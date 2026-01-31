@@ -145,5 +145,5 @@ MODULE FM3Sem
 
 
 ; BEGUIN
-  END FM3SWem
+  END FM3Sem
 .

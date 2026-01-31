@@ -362,16 +362,20 @@ RULE
        BEGIN
          (* Default Position & Coord. *) 
          LScopeRefOpen := FM3Scopes . PopOpenScopeRef ( ) ;
-         <* ASSERT LScopeRefOpen . ScpKind = Skt . SkInterface *> 
+         IF LScopeRefOpen = NIL OR LScopeRefOpen ^ . ScpKind # Skt . SkInterface 
+         THEN <* ASSERT FALSE , "No interface open scope at right end." *>
+         END (*IF*) ;  
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkOpenScopeRt , LScopeRefOpen ^ . ScpSelfScopeNo ) ;
            
          LScopeRefDecl := FM3Scopes . PopDeclScopeRef ( ) ;
-         <* ASSERT LScopeRefDecl = LScopeRefOpen *> 
-           
-         FM3Pass1 . DeclScopeRtL2R ( LScopeRefDecl ) ;
+         IF LScopeRefDecl # LScopeRefOpen
+         THEN <* ASSERT FALSE , "Interface decl and open scopes #." *>
+         END (*IF*) ; 
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkDeclScopeRt , LScopeRefDecl ^ . ScpSelfScopeNo ) ;
+           
+         FM3Pass1 . DeclScopeRtL2R ( LScopeRefDecl ) ;
          FM3Pass1 . CheckUnitFinalId
            ( FM3Units . UnitStackTopRef , $4 . Scan , Ukt . UkInterface ) ; 
          FM3Pass1 . CheckStdUnitPragma ( FM3Units . UnitStackTopRef ) ; 
@@ -442,16 +446,20 @@ RULE
        BEGIN
          (* Default Position & Coord. *) 
          LScopeRefOpen := FM3Scopes . PopOpenScopeRef ( ) ;
-         <* ASSERT LScopeRefOpen . ScpKind = Skt . SkModule *> 
+         IF LScopeRefOpen = NIL OR LScopeRefOpen ^ . ScpKind # Skt . SkModule 
+         THEN <* ASSERT FALSE , "No module open scope at right end." *>
+         END (*IF*) ; 
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkOpenScopeRt , LScopeRefOpen ^ . ScpSelfScopeNo ) ;
            
          LScopeRefDecl := FM3Scopes . PopDeclScopeRef ( ) ;
-         <* ASSERT LScopeRefDecl = LScopeRefOpen *> 
-         
-         FM3Pass1 . DeclScopeRtL2R ( LScopeRefDecl ) ;
+         IF LScopeRefDecl # LScopeRefOpen
+         THEN <* ASSERT FALSE , "Module decl and open scopes #." *>
+         END (*IF*) ;  
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkDeclScopeRt , LScopeRefDecl ^ . ScpSelfScopeNo ) ; 
+         
+         FM3Pass1 . DeclScopeRtL2R ( LScopeRefDecl ) ;
          FM3Pass1 . CheckUnitFinalId
            ( FM3Units . UnitStackTopRef , $6 .Scan , Ukt . UkModule ) ; 
          FM3Pass1 . PutBwd_LCIP_eCiP_riP 
@@ -686,7 +694,7 @@ RULE
 
    DeclIdListElems : StkIdent
      { IF FM3Pass1 . DeclIdL2R
-            ( FM3Decls . TopDeclParseInfo ( ) . DiKind , IdAttribute := $1 )
+            ( VAL ( $0 . PaByte (* Decl Kind *) , Dkt ) , IdAttribute := $1 )
        THEN (* Use this ident. *) 
          $$ . PaInt := 1 ;
          $$ . PaRefany := IntSets . Singleton ( $1 . Scan . SaAtom ) 
@@ -698,7 +706,7 @@ RULE
      
    DeclIdListElems : DeclIdListElems StkComma StkIdent
      { IF FM3Pass1 . DeclIdL2R
-            ( FM3Decls . TopDeclParseInfo ( ) . DiKind , IdAttribute := $3 )
+            ( VAL ( $0 . PaByte (* Decl Kind *) , Dkt ) , IdAttribute := $3 )
        (* ^No Itk separators here.  It would be kinda silly. *) 
        THEN (* Use this ident. *)
          $$ . PaInt := $1 . PaInt + 1 ;
@@ -1010,8 +1018,6 @@ RULE
          := FM3Decls . PushDeclParseInfo
               ( FM3Decls . DeclParseInfoTyp
                   { DiDeclTok := Itk . ItkVarDeclLt
-                  , DiIdListTok := Itk . ItkVarDeclIdListLt
-                  , DiIdSepTok := Itk . ItkVarDeclIdListLt + Itk . LtToListSep
                   , DiKind := Dkt . DkVar
                   }
               ) ;
@@ -1106,9 +1112,14 @@ RULE
        $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
        FM3Pass1 . PutBwd_LP
          ( Itk . ItkDeclValAbsent , FM3Scanner . Attribute . Position ) ; 
+     } .
+
+   VarDeclLt : /* Empty */
+     { $$ . PaTok1 := Itk . ItkVarDeclLt ;
+       $$ . PaByte := ORD ( Dkt . DkVar ) ;
      } . 
 
-   VarDecl : VarDeclIds DeclType OptDeclType DeclValue OptDeclValue  
+   VarDecl : VarDeclLt DeclIdList DeclType OptDeclType DeclValue OptDeclValue  
      { IF FM3Pass1 . RequireTypeAndOrValue
             ( $5 . Scan . Position , $3 . PaBool , $5 . PaBool ) 
        (* ^Check this even if there are no valid ids. *)
@@ -1128,11 +1139,12 @@ RULE
        END (*IF*)
      } . 
 
-   VarDeclIds : DeclIdListElems 
+   DeclIdList : DeclIdListElems
+   
      { $$ . Scan . Position := $1 . Scan . Position ;
        MakeListPos (* The identifier list. *) 
          ( $$
-         , FM3Decls . TopDeclParseInfo ( ) . DiIdListTok
+         , Itk . ItkDeclIdListLt 
          , $1 . Scan . Position
          , ElemsAttr := $1
          ) ; 
@@ -1292,9 +1304,12 @@ RULE
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN
          LScopeRef := FM3Scopes . PopDeclScopeRef (  ) ; 
-         IF LScopeRef = NIL OR LScopeRef . ScpKind # Skt . SkEnum
+         IF LScopeRef = NIL OR LScopeRef ^ . ScpKind # Skt . SkEnum
          THEN <* ASSERT FALSE , "No enum scope at right end." *>
          END (*IF*) ; 
+         FM3Pass1 . PutBwd_TI
+           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo  ) ;
+
          FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
          FM3Pass1 . MakeListPos
            ( LHSAttr := $$ 
@@ -1303,10 +1318,12 @@ RULE
            , ElemsAttr := $2 
            ) ; 
          FM3Pass1 . PutBwd_LCIP_rip
-           ( Itk . ItkEnumTypeLt , $1 . PaPass1Coord , $2 . PaInt , $1 . Scan . Position ) ;
+           ( Itk . ItkEnumTypeLt
+           , $1 . PaPass1Coord
+           , $2 . PaInt
+           , $1 . Scan . Position
+           ) ;
          (* ^Currently not being used in pass 2. *) 
-         FM3Pass1 . PutBwd_TI
-           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo  ) ;
        END; 
      } .
 
@@ -1377,16 +1394,16 @@ RULE
 (* ----------------------------- Record Types -------------------------- *)
 
    RecTypeLt : StkRwRECORD  
-     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
+     { $$ . PaTok1 := Itk . ItkRecFieldDeclLt ;
+       $$ . PaByte := ORD ( Dkt . DkRecField ) ;
+
+       VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN 
          $$ . PaPass1Coord := FM3Pass1 . Coord ( ) ;
          $$ . PaDeclDepth (* DeclParseInfoDepth *) 
            := FM3Decls . PushDeclParseInfo
                 ( FM3Decls . DeclParseInfoTyp
-                    { DiDeclTok := Itk . ItkFieldDeclLt
-                    , DiIdListTok := Itk . ItkFieldDeclIdListLt
-                    , DiIdSepTok
-                        := Itk . ItkFieldDeclIdListLt + Itk . LtToListSep
+                    { DiDeclTok := Itk . ItkRecFieldDeclLt
                     , DiKind := Dkt . DkRecField 
                     }
                 ) ;
@@ -1405,18 +1422,21 @@ RULE
    Type : RecTypeLt FieldDeclList StkRwEND
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN
-         LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
-         <* ASSERT LScopeRef ^ . ScpKind = Skt . SkRec *> 
+         LScopeRef := FM3Scopes . PopDeclScopeRef ( ) ;
+         IF LScopeRef = NIL OR LScopeRef ^ . ScpKind # Skt . SkRec 
+         THEN <* ASSERT FALSE , "No rectype decl scope at right end." *>
+         END (*IF*) ; 
+
          FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
-         FM3Pass1 . PutBwd_TI
-           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ;
-         <* ASSERT FM3Scopes . PopDeclScopeRef ( ) = LScopeRef *>  
          FM3Pass1 . PutBwd_LCIP_rip
            ( Itk . ItkRecTypeLt
            , $1 . PaPass1Coord
            , $2 . PaInt (* Count of decls, fields, formals, etc. *) 
            , $1 . Scan . Position
            ) ;
+         (* Pass 2 must see the following before the preceeding. *) 
+         FM3Pass1 . PutBwd_TI
+           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ;
          <* ASSERT FM3Decls . PopDeclParseInfo ( )
                    = $1 . PaDeclDepth (* DeclParseInfoDepth. *)
          *> 
@@ -1612,13 +1632,15 @@ RULE
      { $$ . PaDeclDepth := $1 . PaDeclDepth ; 
        $$ . PaBool := TRUE (* Has explicit subtype. *) ;
        $$ . PaInt := $1 . PaInt (* Scope num. *) ;  
-       $$ . PaByte := $1 . PaByte (* Brand kind, Bkt. *) ;
+       $$ . PaByte2 := $1 . PaByte (* Brand kind, Bkt. *) ;
+       $$ . PaTok1 := Itk . ItkObjFieldDeclLt ;
+       $$ . PaByte := ORD ( Dkt . DkObjField ) ;
      } . 
      
    ObjSubtypeLt : SupertypeSem Brand StkRwOBJECT
      { (* Default Position & Coord. *) 
        FM3Pass1 . ObjTypeLtL2R
-         ( $$ , $2 . PaByte (* Brand kind, Bkt. *) , $3 . Scan . Position ) ;   
+         ( $$ , $2 . PaByte2 (* Brand kind, Bkt. *) , $3 . Scan . Position ) ;   
      } .
 
    ObjTypeLt : ObjRootTypeLt
@@ -1626,13 +1648,13 @@ RULE
      { $$ . PaDeclDepth := $1 . PaDeclDepth ; 
        $$ . PaBool := FALSE (* Has explicit subtype. *) ;
        $$ . PaInt := $1 . PaInt (* Scope num. *) ; 
-       $$ . PaByte := $1 . PaByte (* Brand kind, Bkt. *) ; 
+       $$ . PaByte2 := $1 . PaByte2 (* Brand kind, Bkt. *) ; 
      } .
 
    ObjRootTypeLt : SupertypeAbsent Brand StkRwOBJECT
      { (* Default Position & Coord. *) 
        FM3Pass1 . ObjTypeLtL2R
-         ( $$ , $2 . PaByte (* Brand kind, Bkt. *) , $2 . Scan . Position ) ;   
+         ( $$ , $2 . PaByte2 (* Brand kind, Bkt. *) , $2 . Scan . Position ) ;   
      } .
 
    ObjType : ObjTypeLt FieldDeclList MethodDeclList OverrideList StkRwEND
@@ -1649,7 +1671,7 @@ RULE
          FM3Pass1 . PutBwd_LCIIIP_riiip
            ( Itk . ItkObjTypeLt
            , $1 . PaPass1Coord
-           , $1 . PaByte (* BrandKind, Bkt. *)
+           , $1 . PaByte2 (* BrandKind, Bkt. *)
            , $2 . PaInt + $3 . PaInt (* Count of fields + methods. *) 
            , $4 . PaInt (* Count of overrides. *) 
            , $1 . Scan . Position 
@@ -1677,19 +1699,20 @@ RULE
        END (*Block*)
      } . 
 
-(* Procedure signature (Without PROCEDURE or Ident).
-   Works for proc decl, proc definition, proc type decl, method decl. *)  
+(* Procedure or method signature (Without Ident).
+   Works for proc decl, proc definition, proc type decl, method decl. *)
 
    Signature : Formals ResultType Raises
      { VAR LToken : Itk . TokTyp ;
        BEGIN
          $$ . Scan . SaAtom := $0 . Scan . SaAtom ; 
-         IF $2 . PaBool (* Is present. *) 
-         THEN LToken := Itk . ItkSignatureFuncLt
-         ELSE LToken := Itk . ItkSignatureProperLt 
-         END (*IF*) ; 
-         FM3Pass1 . PutBwd_LCP_rp
-           ( LToken , $1 . PaPass1Coord , $1 . Scan . Position ) ;
+         (* $2 . PaBool means result type is present. *) 
+         FM3Pass1 . PutBwd_LCIP_rip
+           ( $2 . PaTok1
+           , $1 . PaPass1Coord
+           , $1 . PaInt
+           , $1 . Scan . Position
+           ) ;
        END (*Block*) 
      } . 
 
@@ -1697,6 +1720,36 @@ RULE
 
 (* FormalsLt Formals.PaInt, FormalPlus.PaInt, and FormalsList.PaInt
    are formals count. *)
+
+
+(*******************************************************************
+   RecTypeLt : StkRwRECORD  
+     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
+       BEGIN 
+         $$ . PaPass1Coord := FM3Pass1 . Coord ( ) ;
+         $$ . PaDeclDepth (* DeclParseInfoDepth *) 
+           := FM3Decls . PushDeclParseInfo
+                ( FM3Decls . DeclParseInfoTyp
+                    { DiDeclTok := Itk . ItkRecFieldDeclLt
+                    , DiKind := Dkt . DkRecField 
+                    }
+                ) ;
+         LScopeRef 
+           := FM3Scopes . NewScopeRef
+                ( FM3Units . UnitStackTopRef
+                , Skt . SkRec
+                , $1 . Scan . Position
+                ) ;
+         FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
+         FM3Pass1 . PutBwd_TI
+           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo  ) ;
+       END; 
+     } . 
+ ******************************************************************)
+
+
+
+
 
    FormalsLt : StkOpenParen 
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
@@ -1712,6 +1765,34 @@ RULE
            ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo  ) ;
        END ;
      } .
+
+
+(******************************************************************
+   Type : RecTypeLt FieldDeclList StkRwEND
+     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
+       BEGIN
+         LScopeRef := FM3Scopes . PopDeclScopeRef ( ) 
+         IF LScopeRef = NIL OR LScopeRef ^ . ScpKind # Skt . SkRec 
+         THEN <* ASSERT FALSE , "No rectype decl scope at right end." *>
+         END (*IF*) 
+         FM3Pass1 . PutBwd_TI
+           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ;
+
+         FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
+         FM3Pass1 . PutBwd_LCIP_rip
+           ( Itk . ItkRecTypeLt
+           , $1 . PaPass1Coord
+           , $2 . PaInt (* Count of decls, fields, formals, etc. *) 
+           , $1 . Scan . Position
+           ) ;
+         <* ASSERT FM3Decls . PopDeclParseInfo ( )
+                   = $1 . PaDeclDepth (* DeclParseInfoDepth. *)
+         *> 
+       END; 
+     } .
+********************************************************************)
+
+
 
    Formals : FormalsLt FormalsList StkCloseParen
      { VAR LFormalsScopeRef : FM3Scopes . ScopeRefTyp ; 
@@ -1758,14 +1839,12 @@ RULE
    FormalMode : /*Empty*/
      { (* Default coord. *)
        $$ . Scan . Position := FM3Scanner . Attribute . Position ;
+       $$ . PaTok1 := Itk . ItkVALUEFormalLt ; 
        $$ . PaByte := ORD ( Dkt . DkVALUEFormal ) ;
        $$ . PaDeclDepth (* DeclParseInfoDepth after push. *) 
          := FM3Decls . PushDeclParseInfo
               ( FM3Decls . DeclParseInfoTyp
                   { DiDeclTok := Itk . ItkVALUEFormalLt
-                  , DiIdListTok := Itk . ItkVALUEFormalIdListLt 
-                  , DiIdSepTok
-                      := Itk . ItkVALUEFormalIdListLt + Itk . LtToListSep
                   , DiKind := Dkt . DkVALUEFormal
                   }
               ) ;
@@ -1773,14 +1852,12 @@ RULE
    FormalMode : StkRwVALUE 
      { (* Default position and coord. *)
        $$ . Scan . Position := $1 . Scan . Position ;
+       $$ . PaTok1 := Itk . ItkVALUEFormalLt ; 
        $$ . PaByte := ORD ( Dkt . DkVALUEFormal ) ;
        $$ . PaDeclDepth (* DeclParseInfoDepth after push. *) 
          := FM3Decls . PushDeclParseInfo
               ( FM3Decls . DeclParseInfoTyp
                   { DiDeclTok := Itk . ItkVALUEFormalLt
-                  , DiIdListTok := Itk . ItkVALUEFormalIdListLt 
-                  , DiIdSepTok
-                      := Itk . ItkVALUEFormalIdListLt + Itk . LtToListSep
                   , DiKind := Dkt . DkVALUEFormal
                   }
               ) ;
@@ -1789,13 +1866,12 @@ RULE
    FormalMode : StkRwVAR 
      { (* Default position and coord. *)
        $$ . Scan . Position := $1 . Scan . Position ; 
+       $$ . PaTok1 := Itk . ItkVARFormalLt ; 
        $$ . PaByte := ORD ( Dkt . DkVARFormal ) ;
        $$ . PaDeclDepth (* DeclParseInfoDepth after push. *) 
          := FM3Decls . PushDeclParseInfo
               ( FM3Decls . DeclParseInfoTyp
                   { DiDeclTok := Itk . ItkVARFormalLt
-                  , DiIdListTok := Itk . ItkVARFormalIdListLt 
-                  , DiIdSepTok := Itk . ItkVARFormalIdListLt + Itk . LtToListSep
                   , DiKind := Dkt . DkVARFormal
                   }
               ) ;
@@ -1804,51 +1880,49 @@ RULE
    FormalMode : StkRwREADONLY
      { (* Default position and coord. *)
        $$ . PaByte := ORD ( Dkt . DkROFormal ) ;
+       $$ . PaTok1 := Itk . ItkROFormalLt ; 
        $$ . PaDeclDepth (* DeclParseInfoDepth after push. *) 
          := FM3Decls . PushDeclParseInfo
               ( FM3Decls . DeclParseInfoTyp
                   { DiDeclTok := Itk . ItkROFormalLt
-                  , DiIdListTok := Itk . ItkROFormalIdListLt 
-                  , DiIdSepTok := Itk . ItkROFormalIdListLt + Itk . LtToListSep
                   , DiKind := Dkt . DkROFormal
                   }
               ) ;
      } .
 
-   FormalIds /* Parsing at Left of type. */ : FormalMode VarDeclIds 
+   FormalIds /* Parsing at Left of type. */ : FormalMode DeclIdList 
      { (* Default coord. *)
        $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
-       $$ . PaByte := $1 . PaByte (* Decl kind. *) ; 
+       $$ . PaTok1 := $1 . PaTok1  (* Decl tok. *) ; 
+       $$ . PaByte := $1 . PaByte (* Decl kind. *) ;
        $$ . PaDeclDepth := $1 . PaDeclDepth (* DeclParseInfoDepth. *) ;
-       $$ . PaInt := $2 . PaInt ; (* Ident count. *) 
+       $$ . PaInt := $2 . PaInt (* Ident count. *) ; 
        FM3Pass1 . PutBwd_EP (* Itk*FormalType token. *)
          ( FM3Decls . TopDeclParseInfo ( ) . DiDeclTok 
          , FM3Scanner . Attribute . Position 
          ) ;
      } .
 
-   FormalType /* At Left of default value. */ : FormalIds OptDeclType  
+   FormalType /* At right of formal's type. */ : FormalIds OptDeclType  
      { (* Default coord and position. *)
        $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
+       $$ . PaTok1 := $1 . PaTok1 (* Decl tok. *) ; 
        $$ . PaByte := $1 . PaByte (* Decl kind. *) ; 
        $$ . PaDeclDepth := $1 . PaDeclDepth (* DeclParseInfoDepth. *) ;
-       $$ . PaInt := $1 . PaInt ;
+       $$ . PaInt := $1 . PaInt (* Ident count. *) ;
        $$ . PaBool := $2 . PaBool (* Type is present *) ;  
        FM3Pass1 . PutBwd_ZP (* ItkFormal*Value token *)  
-         ( FM3Decls . TopDeclParseInfo ( ) . DiDeclTok
-         , FM3Scanner . Attribute . Position 
-         ) ;
+         ( $1 . PaTok1 , FM3Scanner . Attribute . Position ) ;
      } .
 
    Formal : /* At right of entire formal. */ FormalType OptDeclValue   
      { (* Default position. *) 
-       $$ . PaByte := $1 . PaByte (* Decl kind. *) ; 
        $$ . PaDeclDepth := $1 . PaDeclDepth (* DeclParseInfoDepth. *) ;
-       $$ . PaInt := $1 . PaInt ; 
+       $$ . PaInt := $1 . PaInt (* Ident count. *) ; 
 
        IF VAL ( $1 . PaByte , Dkt ) = Dkt . DkVARFormal   
        THEN
-         $$ . PaBool (* OK. *) := TRUE ; 
+         $$ . PaBool (* OK, for now. *) := TRUE ; 
          
          IF NOT $1 . PaBool  
          THEN (* Type is absent. *) 
@@ -1879,7 +1953,7 @@ RULE
              ( Itk . ItkDeclValAbsent , $2 . Scan . Position ) ; 
          ELSE (* Emit the declaration. *) 
            FM3Pass1 . PutBwd_LCP_rp 
-             ( FM3Decls . TopDeclParseInfo ( ) . DiDeclTok 
+             ( $1 . PaTok1 (* Decl tok. *)
              , $1 . PaPass1Coord
              , $1 . Scan . Position
              ) ;
@@ -1893,7 +1967,7 @@ RULE
          IF $$ . PaBool    
          THEN (* Emit the declaration. *) 
            FM3Pass1 . PutBwd_LCP_rp 
-             ( FM3Decls . TopDeclParseInfo ( ) . DiDeclTok 
+             ( $1 . PaTok1 (* Decl tok. *) 
              , $1 . PaPass1Coord
              , $1 . Scan . Position
              ) ;
@@ -1912,7 +1986,7 @@ RULE
    ResultType : StkColon Type 
      { $$ . PaBool (* Result type is present. *) := TRUE;
        $$ . Scan . Position := $1 . Scan . Position;
-       $$ . PaTok1 := Itk . ItkSignatureFuncLt ; 
+       $$ . PaTok1 := Itk . ItkSigFuncLt ; 
        FM3Pass1 . PutBwd_LCP_rp
          (Itk . ItkResultTypeLt,  $1 . PaPass1Coord , $1 . Scan . Position); 
      } .
@@ -1920,7 +1994,7 @@ RULE
    ResultType : /*Empty*/
      { $$ . PaBool (* Result type is present. *) := FALSE (* Absent. *) ;
        $$ . Scan . Position := FM3Scanner . Attribute . Position; 
-       $$ . PaTok1 := Itk . ItkSignatureProperLt ; 
+       $$ . PaTok1 := Itk . ItkSigProperLt ; 
        FM3Pass1 . PutBwd_LP
          ( Itk . ItkResultTypeAbsent , FM3Scanner . Attribute . Position ) ;
        $$ . PaPass1Coord := FM3Pass1 . Coord ( ) ; 

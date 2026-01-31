@@ -714,6 +714,57 @@ TRUE OR
         END (*WITH*)
       END HtExprRt 
 
+  ; PROCEDURE HtExprWScopeRt ( ExprKind : FM3Exprs . ExprKindTyp )
+
+    = VAR LCt : INTEGER 
+    ; VAR LPosition : tPosition
+    ; VAR LDeclsListRef : FM3Globals . DeclRefListRefTyp 
+    ; VAR LNewExpr : FM3Exprs . ExprRefTyp
+
+    ; BEGIN (*HtExprWScopeRt*)
+        IF NOT HtMaybePassTokenThru ( )
+        THEN 
+          LCt := GetBwdInt ( TokResult . TrRdBack ) (* ^Field count. *) 
+        ; LPosition := GetBwdPos ( TokResult . TrRdBack )
+        ; LDeclsListRef := FM3Decls . NewDeclRefListRef ( LCt )
+        ; LNewExpr
+            := NEW ( FM3Exprs . ExprRefTyp
+                   , ExpKind := ExprKind 
+                   , ExpDeclListNo := LCt
+                   , ExpDeclsListRef := LDeclsListRef 
+                   , ExpUpKind := Ekt . EkType
+                   , ExpScopeRef1 := FM3Scopes . DeclScopeStackTopRef
+                   )
+        ; HtExprRt ( LNewExpr , Mergeable := TRUE )
+(* Copy token? *)
+        END (*IF*) 
+
+      END HtExprWScopeRt
+
+  ; PROCEDURE HtExprWScopeLt ( ExprKind : FM3Exprs . ExprKindTyp )
+
+    = VAR LCt : INTEGER 
+    ; VAR LPosition : tPosition
+    ; VAR LDeclsListRef : FM3Globals . DeclRefListRefTyp 
+    ; VAR LNewExpr : FM3Exprs . ExprRefTyp
+
+    ; BEGIN (*HtExprWScopeLt*)
+        IF NOT HtMaybePassTokenThru ( )
+        THEN  
+          LCt := GetBwdInt ( TokResult . TrRdBack ) (* Field count. *)
+        ; LPosition := GetBwdPos ( TokResult . TrRdBack )
+        ; LNewExpr := FM3Exprs . ExprStackTopObj  
+        ; IF LNewExpr ^ . ExpKind # ExprKind
+             OR LNewExpr ^ . ExpScopeRef1 # FM3Scopes . DeclScopeStackTopRef
+          THEN <* ASSERT FALSE , "Record type expression mismatch." *>
+          END (*IF*)
+        ; IF LNewExpr ^ . ExpDeclListNo # 0
+          THEN <* ASSERT FALSE , "Record type short field list." *>
+          END (*IF*) 
+(* Copy token? *) 
+        END (*IF*)
+      END HtExprWScopeLt
+      
   ; PROCEDURE HtExprOpnd1 ( )
       (* PRE: TOS is 1st (LM) operand, TOS-1 is parent. *) 
     = VAR LOpnd : FM3Exprs . ExprRefTyp
@@ -891,7 +942,8 @@ TRUE OR
 
       | Itk . ItkConstDeclRt 
       , Itk . ItkVarDeclRt 
-      , Itk . ItkFieldDeclRt (* Of either record or object. *)
+      , Itk . ItkRecFieldDeclRt 
+      , Itk . ItkObjFieldDeclRt
       =>  FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefExprs
             := ARRAY BOOLEAN OF REFANY { NIL , .. }
         ; FM3Scopes . DeclScopeStackTopRef ^ . ScpCurDefIsValue := TRUE
@@ -916,7 +968,8 @@ TRUE OR
       =>  DeclValue ( "Value of CONST" , MustBeConst := TRUE )
         ; HtPassTokenThru ( )
       
-      | Itk . ItkFieldDeclValue (* Of either record or object. *)
+      | Itk . ItkRecFieldDeclValue 
+      , Itk . ItkObjFieldDeclValue 
       => DeclValue ( "Default value of field" , MustBeConst := FALSE )
         ; HtPassTokenThru ( )
 
@@ -958,7 +1011,8 @@ TRUE OR
       =>  DeclType ( "CONST" )
         ; HtPassTokenThru ( )
 
-      | Itk . ItkFieldDeclType (* Of either record or object. *)
+      | Itk . ItkRecFieldDeclType 
+      , Itk . ItkObjFieldDeclType 
       =>  DeclType ( "field" )
         ; HtPassTokenThru ( )
 
@@ -977,7 +1031,8 @@ TRUE OR
       , Itk . ItkVALUEFormalLt
       , Itk . ItkVARFormalLt
       , Itk . ItkROFormalLt
-      , Itk . ItkFieldDeclLt (* Of either record or object. *)
+      , Itk . ItkRecFieldDeclLt 
+      , Itk . ItkObjFieldDeclLt 
       
       =>  FM3Exprs . PruneExprStack
             ( ToDepth
@@ -1162,41 +1217,21 @@ TRUE OR
           THEN
             LCt := GetBwdInt ( TokResult . TrRdBack ) (* Field count. *)
           ; LPosition := GetBwdPos ( TokResult . TrRdBack )
-          END (*IF*)  
-
-      (* Record type: *) 
-      | Itk . ItkRecTypeRt
-      =>  IF NOT HtMaybePassTokenThru ( )
-          THEN 
-            LCt := GetBwdInt ( TokResult . TrRdBack ) (* ^Field count. *) 
-          ; LDeclsListRef := FM3Decls . NewDeclRefListRef ( LCt )
-          ; LNewExpr
-              := NEW ( FM3Exprs . ExprRefTyp
-                     , ExpKind := Ekt . EkRecType
-                     , ExpDeclListNo := LCt
-                     , ExpDeclsListRef := LDeclsListRef 
-                     , ExpUpKind := Ekt . EkType
-                     , ExpScopeRef1 := FM3Scopes . DeclScopeStackTopRef
-                     )
-          ; HtExprRt ( LNewExpr , Mergeable := TRUE )
-(* Copy token? *)
-          END (*IF*) 
-
-      | Itk . ItkRecTypeLt
-      =>  IF NOT HtMaybePassTokenThru ( )
-          THEN  
-            LCt := GetBwdInt ( TokResult . TrRdBack ) (* Field count. *)
-          ; LPosition := GetBwdPos ( TokResult . TrRdBack )
-          ; LNewExpr := FM3Exprs . ExprStackTopObj  
-          ; IF LNewExpr ^ . ExpKind # Ekt . EkRecType
-               OR LNewExpr ^ . ExpScopeRef1 # FM3Scopes . DeclScopeStackTopRef
-            THEN <* ASSERT FALSE , "Record type expression mismatch." *>
-            END (*IF*)
-          ; IF LNewExpr ^ . ExpDeclListNo # 0
-            THEN <* ASSERT FALSE , "Record type short field list." *>
-            END (*IF*) 
-(* Copy token? *) 
           END (*IF*)
+
+      (* Type expressions that contain a scope: *)
+      
+      | Itk . ItkRecTypeRt => HtExprWScopeRt ( Ekt . EkRecType )
+      
+      | Itk . ItkSigProperRt => HtExprWScopeRt ( Ekt . EkSigProc )
+      
+      | Itk . ItkSigFuncRt => HtExprWScopeRt ( Ekt . EkSigFunc )
+      
+      | Itk . ItkRecTypeLt => HtExprWScopeLt ( Ekt . EkRecType )
+      
+      | Itk . ItkSigProperLt => HtExprWScopeLt ( Ekt . EkSigProc )
+      
+      | Itk . ItkSigFuncLt => HtExprWScopeLt ( Ekt . EkSigFunc )
 
       (* Brands: *)
 

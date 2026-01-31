@@ -29,6 +29,7 @@ MODULE FM3Exprs
 ; IMPORT FM3SharedUtils 
 ; IMPORT FM3SrcToks
 ; IMPORT FM3SrcToks AS Stk
+; FROM   FM3UnsafeExprs IMPORT IntImage 
 ; IMPORT FM3Units 
 ; IMPORT FM3Utils
 
@@ -56,8 +57,8 @@ MODULE FM3Exprs
       | ExprKindTyp . EkCall => RETURN "EkCall" 
       | ExprKindTyp . EkSubscript => RETURN "EkSubscript" 
       | ExprKindTyp . EkBuiltin => RETURN "EkBuiltin"  
-      | ExprKindTyp . EkProc => RETURN "EkProc"  
-      | ExprKindTyp . EkFunc => RETURN "EkFunc"  
+      | ExprKindTyp . EkSigProc => RETURN "EkSigProc"  
+      | ExprKindTyp . EkSigFunc => RETURN "EkSigFunc"  
       | ExprKindTyp . EkValue => RETURN "EkValue" 
       | ExprKindTyp . EkBrand => RETURN "EkBrand"  
       ELSE RETURN "<Unknown ExprKindImage>"
@@ -72,8 +73,8 @@ MODULE FM3Exprs
       CASE Kind OF 
       | ExprKindTyp . EkNull    => RETURN "<null>" 
       | ExprKindTyp . EkType    => RETURN "type" 
-      | ExprKindTyp . EkProc    => RETURN "procedure" 
-      | ExprKindTyp . EkFunc    => RETURN "function" 
+      | ExprKindTyp . EkSigProc => RETURN "procedure" 
+      | ExprKindTyp . EkSigFunc => RETURN "function" 
       | ExprKindTyp . EkValue   => RETURN "value" 
       | ExprKindTyp . EkRefType => RETURN "reference" 
       ELSE RETURN "<unknown>"
@@ -225,12 +226,15 @@ RETURN ;
 ; PROCEDURE Field ( Name : TEXT ; Value : TEXT ) 
 
   = BEGIN
-      Wr . PutText ( GWrT , GIndentStrings [ ORD ( GDepth MOD 5 = 0 ) ] )
-    ; Wr . PutChar ( GWrT , ' ' ) 
-    ; Wr . PutText ( GWrT , Name ) 
-    ; Wr . PutText ( GWrT , " = " ) 
-    ; Wr . PutText ( GWrT , Value ) 
-    ; Wr . PutText ( GWrT , Wr . EOL ) 
+      IF Value # NIL 
+      THEN 
+        Wr . PutText ( GWrT , GIndentStrings [ ORD ( GDepth MOD 5 = 0 ) ] )
+      ; Wr . PutChar ( GWrT , ' ' ) 
+      ; Wr . PutText ( GWrT , Name ) 
+      ; Wr . PutText ( GWrT , " = " ) 
+      ; Wr . PutText ( GWrT , Value ) 
+      ; Wr . PutText ( GWrT , Wr . EOL )
+      END (*IF*) 
     END Field
 
 ; PROCEDURE AppendNestedExpr ( Expr : ExprRefTyp ) 
@@ -384,20 +388,20 @@ RETURN ;
               ) 
 
 
-      ; Field ( "ExpIdentDeclNo" , Fmt . Int ( Expr ^ . ExpIdentDeclNo ) ) 
-      ; Field ( "ExpRemoteUnitNo" , Fmt . Int ( Expr ^ . ExpRemoteUnitNo ) ) 
-      ; Field ( "ExpRemoteDeclNo" , Fmt . Int ( Expr ^ . ExpRemoteDeclNo ) ) 
+      ; Field ( "ExpIdentDeclNo" , IntImage ( Expr ^ . ExpIdentDeclNo ) ) 
+      ; Field ( "ExpRemoteUnitNo" , IntImage ( Expr ^ . ExpRemoteUnitNo ) ) 
+      ; Field ( "ExpRemoteDeclNo" , IntImage ( Expr ^ . ExpRemoteDeclNo ) ) 
 
       ; Field ( "ExpPosition" , FM3Utils . PositionImage ( Expr ^ . ExpPosition ) )
       ; Field ( "ExpOpcode" , FM3SrcToks . Image ( Expr ^ . ExpOpcode ) )  
       ; Field ( "ExpIdAtom" , AtomTypImage ( Expr ^ . ExpIdAtom ) ) 
-      ; Field ( "ExpDeclListNo" , Fmt . Int ( Expr ^ . ExpDeclListNo ) )  
-      ; Field ( "ExpArgListNo" , Fmt . Int ( Expr ^ . ExpArgListNo ) )  
-      ; Field ( "ExpBuiltinOpActualsCt" , Fmt . Int ( Expr ^ . ExpBuiltinOpActualsCt ) )
-      ; Field ( "ExpStackHt" , Fmt . Int ( Expr ^ . ExpStackHt ) ) 
+      ; Field ( "ExpDeclListNo" , IntImage ( Expr ^ . ExpDeclListNo ) )  
+      ; Field ( "ExpArgListNo" , IntImage ( Expr ^ . ExpArgListNo ) )  
+      ; Field ( "ExpBuiltinOpActualsCt" , IntImage ( Expr ^ . ExpBuiltinOpActualsCt ) )
+      ; Field ( "ExpStackHt" , IntImage ( Expr ^ . ExpStackHt ) ) 
 
 
-      ; Field ( "ExpSelfExprNo" , Fmt . Int ( Expr ^ . ExpSelfExprNo ) ) 
+      ; Field ( "ExpSelfExprNo" , IntImage ( Expr ^ . ExpSelfExprNo ) ) 
       ; Field ( "ExpDownKind" , ExprKindImage ( Expr ^ . ExpDownKind ) ) 
       ; Field ( "ExpUpKind" , ExprKindImage ( Expr ^ . ExpUpKind ) ) 
       ; Field ( "ExpKind" , ExprKindImage ( Expr ^ . ExpKind ) )  

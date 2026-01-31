@@ -139,8 +139,6 @@ INTERFACE FM3Decls
 ; TYPE DeclParseInfoTyp
     = RECORD
         DiDeclTok : FM3Base . TokTyp 
-      ; DiIdListTok : FM3Base . TokTyp
-      ; DiIdSepTok : FM3Base . TokTyp 
       ; DiKind : DeclKindTyp 
       END 
  

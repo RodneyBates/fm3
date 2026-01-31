@@ -114,8 +114,7 @@ INTERFACE FM3Exprs
                       (*(1)ExpIsLegalRecursive=TRUE, ExpIsPresent=FALSE,
                            ExpState=EsResolved.
                       *)
-     , EkBrand
-                      (*(1)ExpIsLegalRecursive=TRUE, ExpIsPresent,
+     , EkBrand        (*(1)ExpIsLegalRecursive=TRUE, ExpIsPresent,
                            ExpState=EsResolved.
                       *)
      
@@ -133,8 +132,8 @@ INTERFACE FM3Exprs
                       (*(1)ExpRepExprNo=ExpExprNoDistinct*)
      , EkNamed        (*(1)ExpIdAtom, Opnd1 is the expression.*) 
 
-     , EkProc 
-     , EkFunc
+     , EkSigProc 
+     , EkSigFunc
 
      , EkType  (* Probably replace by a set of the above. *) 
      , EkValue (* Probably replace by a set of the above. *)

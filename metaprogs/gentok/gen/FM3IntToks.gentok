@@ -85,8 +85,8 @@ ItkQualIdUnitNoDeclNo INT   DECL  POS POS (* Lt UnitNo, Rt declNo. *) .
 ItkInvalidRef POS .
 
 FIXED   
-ItkSignatureProper POS 2 (* Position. *) .
-ItkSignatureFunc POS 2 (* Position. *).
+ItkSigProper INT POS 3 (* Formals count, Position. *) .
+ItkSigFunc INT POS 3 (* Formals count, Position. *).
 ItkMethodDecl IDENT POS 3 (* Position. *).
 ItkFormalType POS 2 (* Position of colon. *) . 
 ItkFormalExpr POS 2 (* Position of ":=" *).
@@ -191,7 +191,12 @@ ItkOverrideList .
 
 FIXED
 (* One field decl, with possibly multiple idents. *) 
-ItkFieldDecl POS 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
+ItkRecFieldDecl POS 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
+  Type POS             (* Position of colon. *) 
+  Value POS            (* Position of becomes. *)
+. 
+
+ItkObjFieldDecl POS 2 (* Position of LM ident (Lt) or position of semicolon (Rt). *)
   Type POS             (* Position of colon. *) 
   Value POS            (* Position of becomes. *)
 . 
@@ -235,13 +240,11 @@ LIST
        For separators, of the source separator, or if no separator exists,
        beginning of element to right.
 *) 
- 
+ (* Ident count. *)
 ItkGenFormalIdList (* Position is "(" *) .
 ItkGenActualIdList (* Position is "(" *) .
-ItkVarDeclIdList (* Position is is LM ident. *) .
-ItkTypeDeclIdList (* Position is LM ident . *) .
+ItkDeclIdList (* Position is is LM ident. *) .
 ItkRevealIdList (* Position is LM ident . *) .
-ItkFieldDeclIdList (* Position is "RECORD" *) .
 ItkFormalsList (* Position is "(" *) .
 ItkVALUEFormalIdList (* Position is VALUE or LM ident, if no mode. *). 
 ItkVARFormalIdList (* Position is VAR. *) . 

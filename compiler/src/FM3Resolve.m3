@@ -123,12 +123,12 @@ MODULE FM3Resolve
         ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd2 )
         ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd3 )
         ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd4 ) 
-      | Ekt . EkProc 
+      | Ekt . EkSigProc 
       =>  ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd1 )
         ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd2 )
         ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd3 )
         ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd4 )  
-      | Ekt . EkFunc 
+      | Ekt . EkSigFunc 
       =>  ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd1 )
         ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd2 )
         ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd3 )

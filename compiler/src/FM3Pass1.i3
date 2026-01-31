@@ -37,6 +37,7 @@ INTERFACE FM3Pass1
       ; PaTok1 : FM3Base . TokTyp 
       ; PaTok2 : FM3Base . TokTyp 
       ; PaByte : FM3Base . Card8Typ 
+      ; PaByte2 : FM3Base . Card8Typ 
       ; PaBool : BOOLEAN 
       END (* tParsAttribute *)
 
@@ -55,6 +56,7 @@ INTERFACE FM3Pass1
         , PaTok1 := FM3Base . TokNull
         , PaTok2 := FM3Base . TokNull
         , PaByte := 16_FF 
+        , PaByte2 := 16_FF 
         , PaBool := FALSE
         }
 

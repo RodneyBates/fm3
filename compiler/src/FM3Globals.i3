@@ -23,7 +23,7 @@ INTERFACE FM3Globals
 
 
 ; TYPE UnitRefTyp <: REFANY 
-; TYPE UnitNoTyp = CARDINAL
+; TYPE UnitNoTyp = INTEGER
 ; CONST UnitNoNull = FIRST ( CARDINAL )
 ; CONST UnitNoMax = LAST ( CARDINAL ) 
 ; CONST UnitNoFirstReal = UnitNoNull + 1 

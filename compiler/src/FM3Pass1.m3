@@ -1,4 +1,4 @@
- 
+
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2024..2026  Rodney M. Bates.                                    *)
@@ -2161,7 +2161,7 @@ MODULE FM3Pass1
     END VerifyIdentNotReserved
 
 (*EXPORTED.*)
-; PROCEDURE DeclIdL2R 
+; PROCEDURE DeclIdL2R
     ( DeclKind : Dkt 
     ; READONLY IdAttr : tParsAttribute
     ; SepTok : Itk . TokTyp := Itk . ItkNull
@@ -2654,9 +2654,7 @@ MODULE FM3Pass1
       LHSAttr . PaDeclDepth (* DeclParseInfoDepth *) 
         := FM3Decls . PushDeclParseInfo
              ( FM3Decls . DeclParseInfoTyp
-                 { DiDeclTok := Itk . ItkFieldDeclLt
-                 , DiIdListTok := Itk . ItkFieldDeclIdListLt
-                 , DiIdSepTok := Itk . ItkFieldDeclIdListLt + Itk . LtToListSep
+                 { DiDeclTok := Itk . ItkObjFieldDeclLt
                  , DiKind := Dkt . DkObjField 
                  }
              ) 
