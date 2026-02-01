@@ -31,12 +31,13 @@ INTERFACE FM3Pass1
       ; PaAtom : FM3Base . AtomTyp 
       ; PaConstructNo : INTEGER
       ; PaDeclDepth : INTEGER
-      ; PaInt : INTEGER
+      ; PaInt1 : INTEGER
+      ; PaInt2 : INTEGER
       ; PaPos : FM3Base . tPosition 
       ; PaPos2 : FM3Base . tPosition 
       ; PaTok1 : FM3Base . TokTyp 
       ; PaTok2 : FM3Base . TokTyp 
-      ; PaByte : FM3Base . Card8Typ 
+      ; PaByte1 : FM3Base . Card8Typ 
       ; PaByte2 : FM3Base . Card8Typ 
       ; PaBool : BOOLEAN 
       END (* tParsAttribute *)
@@ -50,12 +51,13 @@ INTERFACE FM3Pass1
         , PaAtom := FM3Base . AtomNull 
         , PaConstructNo := FIRST ( INTEGER ) 
         , PaDeclDepth := FIRST ( INTEGER )
-        , PaInt := FIRST ( INTEGER )
+        , PaInt1 := FIRST ( INTEGER )
+        , PaInt2 := FIRST ( INTEGER )
         , PaPos := FM3Base . PositionNull 
         , PaPos2 := FM3Base . PositionNull 
         , PaTok1 := FM3Base . TokNull
         , PaTok2 := FM3Base . TokNull
-        , PaByte := 16_FF 
+        , PaByte1 := 16_FF 
         , PaByte2 := 16_FF 
         , PaBool := FALSE
         }

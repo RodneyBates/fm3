@@ -1981,7 +1981,7 @@ MODULE FM3Pass1
   (* Left and right tokens surrounding a numbered element of a list. *)
   
   = BEGIN
-      LHSAttr . PaInt := ElemNo 
+      LHSAttr . PaInt1 := ElemNo 
     (* Right token: *) 
     ; PutBwdInt ( ElemNo )
     ; PutBwdInt ( TokLt + Itk . LtToRt )
@@ -1999,7 +1999,7 @@ MODULE FM3Pass1
     )
 
   = BEGIN
-      LHSAttr . PaInt := 0 (* Valid element count. *) 
+      LHSAttr . PaInt1 := 0 (* Valid element count. *) 
     ; PutBwdInt ( Position . Column ) 
     ; PutBwdInt ( Position . Line ) 
     ; PutBwdLong ( 0L )
@@ -2021,12 +2021,12 @@ MODULE FM3Pass1
     )
 
   = BEGIN
-      LHSAttr . PaInt := ElemsAttr . PaInt (* Valid element count. *) 
+      LHSAttr . PaInt1 := ElemsAttr . PaInt1 (* Valid element count. *) 
     ; LHSAttr . PaPass1Coord := ElemsAttr . PaPass1Coord (* Redundant? used? *)
     ; PutBwd_LCIP_rip
         ( TokLt
         , ElemsAttr . PaPass1Coord
-        , ElemsAttr . PaInt
+        , ElemsAttr . PaInt1
         , Position
         ) 
     END MakeListPos 
@@ -2501,7 +2501,7 @@ MODULE FM3Pass1
           , ActualsAttr . Scan . Position 
           )
         (* And fall thru' to below. *) 
-      ELSIF ( LReqdActualsCt >= 5 AND ActualsAttr . PaInt < 1 )
+      ELSIF ( LReqdActualsCt >= 5 AND ActualsAttr . PaInt1 < 1 )
       THEN 
         FM3Messages . ErrorArr
           ( ARRAY OF REFANY
@@ -2514,7 +2514,7 @@ MODULE FM3Pass1
           )
         (* And fall thru' to below. *) 
 
-      ELSIF ActualsAttr . PaInt = LReqdActualsCt  
+      ELSIF ActualsAttr . PaInt1 = LReqdActualsCt  
       THEN (* Actuals count of reserved id function is OK *) 
         RETURN TRUE
       ELSE 
@@ -2658,7 +2658,7 @@ MODULE FM3Pass1
                  , DiKind := Dkt . DkObjField 
                  }
              ) 
-    ; LHSAttr . PaByte := BrandKind
+    ; LHSAttr . PaByte1 := BrandKind
       (* Need the scope now, to collect decl id atoms. *) 
     ; LScopeRef 
         := FM3Scopes . NewScopeRef
@@ -2666,7 +2666,7 @@ MODULE FM3Pass1
              , Skt . SkObj
              , Position
              ) 
-    ; LHSAttr . PaInt := LScopeRef ^ . ScpSelfScopeNo  
+    ; LHSAttr . PaInt1 := LScopeRef ^ . ScpSelfScopeNo  
     ; FM3Scopes . PushDeclScopeRef ( LScopeRef ) 
     ; PutBwd_TI ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo  ) 
     END ObjTypeLtL2R  

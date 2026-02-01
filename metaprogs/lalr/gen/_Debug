@@ -773,8 +773,8 @@ OverridePlus = 231
 Override = 232
 SupertypePresent = 233
 ObjType = 234
-SupertypeSem = 235
-ObjSubtypeLt = 236
+ObjSupertype = 235
+ObjWSubtypeLt = 236
 ObjTypeLt = 237
 ObjRootTypeLt = 238
 Formals = 239
@@ -1281,9 +1281,9 @@ State 83 = {
     P184 ObjType (Nonterm) -> °ObjTypeLt FieldDeclList MethodDeclList OverrideList StkRwEND 
     P182 ObjTypeLt (Nonterm) -> °ObjRootTypeLt 
     P183 ObjRootTypeLt (10) -> °SupertypeAbsent Brand StkRwOBJECT 
-    P180 ObjTypeLt (Nonterm) -> °ObjSubtypeLt 
-    P181 ObjSubtypeLt (Nonterm) -> °SupertypeSem Brand StkRwOBJECT 
-    P179 SupertypeSem (Nonterm) -> °SupertypePresent 
+    P181 ObjTypeLt (Nonterm) -> °ObjWSubtypeLt 
+    P180 ObjWSubtypeLt (Nonterm) -> °ObjSupertype Brand StkRwOBJECT 
+    P179 ObjSupertype (Nonterm) -> °SupertypePresent 
     P177 SupertypePresent (1) -> °TypeName 
     P178 SupertypePresent (17) -> °ObjType 
     P136 Type (Nonterm) -> °RefTypeUntraced 
@@ -2437,9 +2437,9 @@ State 186 = {
     P184 ObjType (Nonterm) -> °ObjTypeLt FieldDeclList MethodDeclList OverrideList StkRwEND 
     P182 ObjTypeLt (Nonterm) -> °ObjRootTypeLt 
     P183 ObjRootTypeLt (10) -> °SupertypeAbsent Brand StkRwOBJECT 
-    P180 ObjTypeLt (Nonterm) -> °ObjSubtypeLt 
-    P181 ObjSubtypeLt (Nonterm) -> °SupertypeSem Brand StkRwOBJECT 
-    P179 SupertypeSem (Nonterm) -> °SupertypePresent 
+    P181 ObjTypeLt (Nonterm) -> °ObjWSubtypeLt 
+    P180 ObjWSubtypeLt (Nonterm) -> °ObjSupertype Brand StkRwOBJECT 
+    P179 ObjSupertype (Nonterm) -> °SupertypePresent 
     P177 SupertypePresent (1) -> °TypeName 
     P178 SupertypePresent (17) -> °ObjType 
     P136 Type (Nonterm) -> °RefTypeUntraced 
@@ -2576,9 +2576,9 @@ State 195 = {
     P184 ObjType (Nonterm) -> °ObjTypeLt FieldDeclList MethodDeclList OverrideList StkRwEND 
     P182 ObjTypeLt (Nonterm) -> °ObjRootTypeLt 
     P183 ObjRootTypeLt (10) -> °SupertypeAbsent Brand StkRwOBJECT 
-    P180 ObjTypeLt (Nonterm) -> °ObjSubtypeLt 
-    P181 ObjSubtypeLt (Nonterm) -> °SupertypeSem Brand StkRwOBJECT 
-    P179 SupertypeSem (Nonterm) -> °SupertypePresent 
+    P181 ObjTypeLt (Nonterm) -> °ObjWSubtypeLt 
+    P180 ObjWSubtypeLt (Nonterm) -> °ObjSupertype Brand StkRwOBJECT 
+    P179 ObjSupertype (Nonterm) -> °SupertypePresent 
     P177 SupertypePresent (1) -> °TypeName 
     P178 SupertypePresent (17) -> °ObjType 
     P136 Type (Nonterm) -> °RefTypeUntraced 
@@ -2749,9 +2749,9 @@ State 224 = {
     P184 ObjType (Nonterm) -> °ObjTypeLt FieldDeclList MethodDeclList OverrideList StkRwEND 
     P182 ObjTypeLt (Nonterm) -> °ObjRootTypeLt 
     P183 ObjRootTypeLt (10) -> °SupertypeAbsent Brand StkRwOBJECT 
-    P180 ObjTypeLt (Nonterm) -> °ObjSubtypeLt 
-    P181 ObjSubtypeLt (Nonterm) -> °SupertypeSem Brand StkRwOBJECT 
-    P179 SupertypeSem (Nonterm) -> °SupertypePresent 
+    P181 ObjTypeLt (Nonterm) -> °ObjWSubtypeLt 
+    P180 ObjWSubtypeLt (Nonterm) -> °ObjSupertype Brand StkRwOBJECT 
+    P179 ObjSupertype (Nonterm) -> °SupertypePresent 
     P177 SupertypePresent (1) -> °TypeName 
     P178 SupertypePresent (17) -> °ObjType 
     P136 Type (Nonterm) -> °RefTypeUntraced 
@@ -2811,9 +2811,9 @@ State 227 = {
     P184 ObjType (Nonterm) -> °ObjTypeLt FieldDeclList MethodDeclList OverrideList StkRwEND 
     P182 ObjTypeLt (Nonterm) -> °ObjRootTypeLt 
     P183 ObjRootTypeLt (10) -> °SupertypeAbsent Brand StkRwOBJECT 
-    P180 ObjTypeLt (Nonterm) -> °ObjSubtypeLt 
-    P181 ObjSubtypeLt (Nonterm) -> °SupertypeSem Brand StkRwOBJECT 
-    P179 SupertypeSem (Nonterm) -> °SupertypePresent 
+    P181 ObjTypeLt (Nonterm) -> °ObjWSubtypeLt 
+    P180 ObjWSubtypeLt (Nonterm) -> °ObjSupertype Brand StkRwOBJECT 
+    P179 ObjSupertype (Nonterm) -> °SupertypePresent 
     P177 SupertypePresent (1) -> °TypeName 
     P178 SupertypePresent (17) -> °ObjType 
     P136 Type (Nonterm) -> °RefTypeUntraced 
@@ -2873,9 +2873,9 @@ State 230 = {
     P184 ObjType (Nonterm) -> °ObjTypeLt FieldDeclList MethodDeclList OverrideList StkRwEND 
     P182 ObjTypeLt (Nonterm) -> °ObjRootTypeLt 
     P183 ObjRootTypeLt (10) -> °SupertypeAbsent Brand StkRwOBJECT 
-    P180 ObjTypeLt (Nonterm) -> °ObjSubtypeLt 
-    P181 ObjSubtypeLt (Nonterm) -> °SupertypeSem Brand StkRwOBJECT 
-    P179 SupertypeSem (Nonterm) -> °SupertypePresent 
+    P181 ObjTypeLt (Nonterm) -> °ObjWSubtypeLt 
+    P180 ObjWSubtypeLt (Nonterm) -> °ObjSupertype Brand StkRwOBJECT 
+    P179 ObjSupertype (Nonterm) -> °SupertypePresent 
     P177 SupertypePresent (1) -> °TypeName 
     P178 SupertypePresent (17) -> °ObjType 
     P136 Type (Nonterm) -> °RefTypeUntraced 
@@ -3023,9 +3023,9 @@ State 250 = {
     P184 ObjType (Nonterm) -> °ObjTypeLt FieldDeclList MethodDeclList OverrideList StkRwEND 
     P182 ObjTypeLt (Nonterm) -> °ObjRootTypeLt 
     P183 ObjRootTypeLt (10) -> °SupertypeAbsent Brand StkRwOBJECT 
-    P180 ObjTypeLt (Nonterm) -> °ObjSubtypeLt 
-    P181 ObjSubtypeLt (Nonterm) -> °SupertypeSem Brand StkRwOBJECT 
-    P179 SupertypeSem (Nonterm) -> °SupertypePresent 
+    P181 ObjTypeLt (Nonterm) -> °ObjWSubtypeLt 
+    P180 ObjWSubtypeLt (Nonterm) -> °ObjSupertype Brand StkRwOBJECT 
+    P179 ObjSupertype (Nonterm) -> °SupertypePresent 
     P177 SupertypePresent (1) -> °TypeName 
     P178 SupertypePresent (17) -> °ObjType 
     P136 Type (Nonterm) -> °RefTypeUntraced 
@@ -3060,7 +3060,7 @@ State 251 = {
  } 
 
 State 252 = { 
-    P179 SupertypeSem (Reduce) -> SupertypePresent°
+    P179 ObjSupertype (Reduce) -> SupertypePresent°
  } 
 
 State 253 = { 
@@ -3069,22 +3069,22 @@ State 253 = {
  } 
 
 State 254 = { 
-    P181 ObjSubtypeLt (Nonterm) -> SupertypeSem°Brand StkRwOBJECT 
+    P180 ObjWSubtypeLt (Nonterm) -> ObjSupertype°Brand StkRwOBJECT 
     P173 Brand (Reduce) -> -Epsilon-.
     P174 Brand (Term) -> °StkRwBRANDED 
     P175 Brand (2) -> °StkRwBRANDED Expr 
  } 
 
 State 255 = { 
-    P181 ObjSubtypeLt (Term) -> SupertypeSem Brand°StkRwOBJECT 
+    P180 ObjWSubtypeLt (Term) -> ObjSupertype Brand°StkRwOBJECT 
  } 
 
 State 256 = { 
-    P181 ObjSubtypeLt (Reduce) -> SupertypeSem Brand StkRwOBJECT°
+    P180 ObjWSubtypeLt (Reduce) -> ObjSupertype Brand StkRwOBJECT°
  } 
 
 State 257 = { 
-    P180 ObjTypeLt (Reduce) -> ObjSubtypeLt°
+    P181 ObjTypeLt (Reduce) -> ObjWSubtypeLt°
  } 
 
 State 258 = { 
@@ -3676,9 +3676,9 @@ State 339 = {
     P184 ObjType (Nonterm) -> °ObjTypeLt FieldDeclList MethodDeclList OverrideList StkRwEND 
     P182 ObjTypeLt (Nonterm) -> °ObjRootTypeLt 
     P183 ObjRootTypeLt (10) -> °SupertypeAbsent Brand StkRwOBJECT 
-    P180 ObjTypeLt (Nonterm) -> °ObjSubtypeLt 
-    P181 ObjSubtypeLt (Nonterm) -> °SupertypeSem Brand StkRwOBJECT 
-    P179 SupertypeSem (Nonterm) -> °SupertypePresent 
+    P181 ObjTypeLt (Nonterm) -> °ObjWSubtypeLt 
+    P180 ObjWSubtypeLt (Nonterm) -> °ObjSupertype Brand StkRwOBJECT 
+    P179 ObjSupertype (Nonterm) -> °SupertypePresent 
     P177 SupertypePresent (1) -> °TypeName 
     P178 SupertypePresent (17) -> °ObjType 
     P136 Type (Nonterm) -> °RefTypeUntraced 
@@ -3773,9 +3773,9 @@ State 348 = {
     P184 ObjType (Nonterm) -> °ObjTypeLt FieldDeclList MethodDeclList OverrideList StkRwEND 
     P182 ObjTypeLt (Nonterm) -> °ObjRootTypeLt 
     P183 ObjRootTypeLt (10) -> °SupertypeAbsent Brand StkRwOBJECT 
-    P180 ObjTypeLt (Nonterm) -> °ObjSubtypeLt 
-    P181 ObjSubtypeLt (Nonterm) -> °SupertypeSem Brand StkRwOBJECT 
-    P179 SupertypeSem (Nonterm) -> °SupertypePresent 
+    P181 ObjTypeLt (Nonterm) -> °ObjWSubtypeLt 
+    P180 ObjWSubtypeLt (Nonterm) -> °ObjSupertype Brand StkRwOBJECT 
+    P179 ObjSupertype (Nonterm) -> °SupertypePresent 
     P177 SupertypePresent (1) -> °TypeName 
     P178 SupertypePresent (17) -> °ObjType 
     P136 Type (Nonterm) -> °RefTypeUntraced 
@@ -4577,7 +4577,7 @@ State 41: (StkRwBEGIN->(A514,P75)) (StkRwCONST->(A514,P75)) (StkRwEND->(A514,P75
 State 42: (StkSemicolon->(A234,P77))
 State 43: (StkEqual->(A518,P79)) (StkColon->(A518,P79)) (ConstDeclTypeTok->(A44))
 State 44: (StkEqual->(A520,P81)) (StkColon->(A45)) (OptConstDeclType->(A145))
-State 45: (StkRwARRAY->(A46)) (StkRwBRANDED->(A615,P176)) (StkRwOBJECT->(A615,P176)) (StkRwPROCEDURE->(A84)) (StkRwRECORD->(A276,P158)) (StkRwREF->(A615,P176)) (StkRwROOT->(A277,P68)) (StkRwUNTRACED->(A87)) (StkOpenBrace->(A279,P146)) (StkIdent->(A92)) (IdentRef->(A358,P57)) (QualIdentRef->(A359,P58)) (IdentOrQualRef->(A360,P67)) (TypeName->(A93)) (Type->(A415,P80)) (StkRidADDRESS->(A362,P119)) (StkRidBOOLEAN->(A363,P120)) (StkRidCARDINAL->(A364,P121)) (StkRidCHAR->(A365,P122)) (StkRidEXTENDED->(A366,P123)) (StkRidINTEGER->(A367,P124)) (StkRidLONGCARD->(A368,P125)) (StkRidLONGINT->(A369,P126)) (StkRidLONGREAL->(A370,P127)) (StkRidMUTEX->(A371,P128)) (StkRidNULL->(A372,P129)) (StkRidREAL->(A373,P130)) (StkRidREFANY->(A374,P131)) (StkRidTEXT->(A375,P132)) (StkRidTYPECODE->(A376,P133)) (StkRidWIDECHAR->(A377,P134)) (RefTypeTraced->(A378,P135)) (RefTypeUntraced->(A379,P136)) (SupertypeAbsent->(A94)) (OpenArrayType->(A381,P139)) (OpenArrayTypeLt->(A97)) (FixedArrayType->(A383,P142)) (FixedArrayTypeLt->(A98)) (EnumTypeLt->(A99)) (EnumType->(A387,P153)) (RecTypeLt->(A103)) (SupertypePresent->(A390,P179)) (ObjType->(A110)) (SupertypeSem->(A111)) (ObjSubtypeLt->(A391,P180)) (ObjTypeLt->(A113)) (ObjRootTypeLt->(A409,P182))
+State 45: (StkRwARRAY->(A46)) (StkRwBRANDED->(A615,P176)) (StkRwOBJECT->(A615,P176)) (StkRwPROCEDURE->(A84)) (StkRwRECORD->(A276,P158)) (StkRwREF->(A615,P176)) (StkRwROOT->(A277,P68)) (StkRwUNTRACED->(A87)) (StkOpenBrace->(A279,P146)) (StkIdent->(A92)) (IdentRef->(A358,P57)) (QualIdentRef->(A359,P58)) (IdentOrQualRef->(A360,P67)) (TypeName->(A93)) (Type->(A415,P80)) (StkRidADDRESS->(A362,P119)) (StkRidBOOLEAN->(A363,P120)) (StkRidCARDINAL->(A364,P121)) (StkRidCHAR->(A365,P122)) (StkRidEXTENDED->(A366,P123)) (StkRidINTEGER->(A367,P124)) (StkRidLONGCARD->(A368,P125)) (StkRidLONGINT->(A369,P126)) (StkRidLONGREAL->(A370,P127)) (StkRidMUTEX->(A371,P128)) (StkRidNULL->(A372,P129)) (StkRidREAL->(A373,P130)) (StkRidREFANY->(A374,P131)) (StkRidTEXT->(A375,P132)) (StkRidTYPECODE->(A376,P133)) (StkRidWIDECHAR->(A377,P134)) (RefTypeTraced->(A378,P135)) (RefTypeUntraced->(A379,P136)) (SupertypeAbsent->(A94)) (OpenArrayType->(A381,P139)) (OpenArrayTypeLt->(A97)) (FixedArrayType->(A383,P142)) (FixedArrayTypeLt->(A98)) (EnumTypeLt->(A99)) (EnumType->(A387,P153)) (RecTypeLt->(A103)) (SupertypePresent->(A390,P179)) (ObjType->(A110)) (ObjSupertype->(A111)) (ObjWSubtypeLt->(A391,P181)) (ObjTypeLt->(A113)) (ObjRootTypeLt->(A409,P182))
 State 46: (StkRwOF->(A235,P140)) (StkOpenBracket->(A47)) (SubrType->(A83))
 State 47: (StkRwNOT->(A48)) (StkOpenParen->(A49)) (StkPlus->(A236,P246)) (StkMinus->(A237,P247)) (StkIdent->(A50)) (StkIntLit->(A239,P270)) (StkLongIntLit->(A240,P271)) (StkBasedLit->(A241,P272)) (StkLongBasedLit->(A242,P273)) (StkRealLit->(A243,P274)) (StkLongRealLit->(A244,P275)) (StkExtendedLit->(A245,P276)) (StkTextLit->(A246,P279)) (StkWideTextLit->(A247,P280)) (StkCharLit->(A248,P277)) (StkWideCharLit->(A249,P278)) (IdentRef->(A52)) (QualIdentRef->(A336,P257)) (Expr->(A80)) (E0->(A56)) (E1->(A57)) (E0Lt->(A58)) (E2->(A338,P216)) (E1Lt->(A60)) (E3->(A61)) (E4->(A62)) (E3Lt->(A63)) (E5->(A65)) (E4Lt->(A66)) (E6->(A343,P237)) (E5Lt->(A68)) (E7->(A345,P244)) (ExprUnaryAddOp->(A69)) (E8WOId->(A70))
 State 48: (StkOpenParen->(A49)) (StkPlus->(A236,P246)) (StkMinus->(A237,P247)) (StkIdent->(A50)) (StkIntLit->(A239,P270)) (StkLongIntLit->(A240,P271)) (StkBasedLit->(A241,P272)) (StkLongBasedLit->(A242,P273)) (StkRealLit->(A243,P274)) (StkLongRealLit->(A244,P275)) (StkExtendedLit->(A245,P276)) (StkTextLit->(A246,P279)) (StkWideTextLit->(A247,P280)) (StkCharLit->(A248,P277)) (StkWideCharLit->(A249,P278)) (IdentRef->(A52)) (QualIdentRef->(A336,P257)) (E3->(A79)) (E4->(A62)) (E3Lt->(A63)) (E5->(A65)) (E4Lt->(A66)) (E6->(A343,P237)) (E5Lt->(A68)) (E7->(A345,P244)) (ExprUnaryAddOp->(A69)) (E8WOId->(A70))
@@ -4618,19 +4618,19 @@ State 82: (StkCloseBracket->(A273,P145))
 State 83: (StkRwOF->(A274,P143))
 State 84: (StkOpenParen->(A275,P188)) (Signature->(A356,P186)) (Formals->(A85)) (FormalsLt->(A119))
 State 85: (StkRwEND->(A641,P202)) (StkRwMETHODS->(A641,P202)) (StkRwOVERRIDES->(A641,P202)) (StkRwRAISES->(A641,P202)) (StkSemicolon->(A641,P202)) (StkEqual->(A641,P202)) (StkCloseParen->(A641,P202)) (StkColon->(A86)) (StkBecomes->(A641,P202)) (ResultType->(A139))
-State 86: (StkRwARRAY->(A46)) (StkRwBRANDED->(A615,P176)) (StkRwOBJECT->(A615,P176)) (StkRwPROCEDURE->(A84)) (StkRwRECORD->(A276,P158)) (StkRwREF->(A615,P176)) (StkRwROOT->(A277,P68)) (StkRwUNTRACED->(A87)) (StkOpenBrace->(A279,P146)) (StkIdent->(A92)) (IdentRef->(A358,P57)) (QualIdentRef->(A359,P58)) (IdentOrQualRef->(A360,P67)) (TypeName->(A93)) (Type->(A411,P201)) (StkRidADDRESS->(A362,P119)) (StkRidBOOLEAN->(A363,P120)) (StkRidCARDINAL->(A364,P121)) (StkRidCHAR->(A365,P122)) (StkRidEXTENDED->(A366,P123)) (StkRidINTEGER->(A367,P124)) (StkRidLONGCARD->(A368,P125)) (StkRidLONGINT->(A369,P126)) (StkRidLONGREAL->(A370,P127)) (StkRidMUTEX->(A371,P128)) (StkRidNULL->(A372,P129)) (StkRidREAL->(A373,P130)) (StkRidREFANY->(A374,P131)) (StkRidTEXT->(A375,P132)) (StkRidTYPECODE->(A376,P133)) (StkRidWIDECHAR->(A377,P134)) (RefTypeTraced->(A378,P135)) (RefTypeUntraced->(A379,P136)) (SupertypeAbsent->(A94)) (OpenArrayType->(A381,P139)) (OpenArrayTypeLt->(A97)) (FixedArrayType->(A383,P142)) (FixedArrayTypeLt->(A98)) (EnumTypeLt->(A99)) (EnumType->(A387,P153)) (RecTypeLt->(A103)) (SupertypePresent->(A390,P179)) (ObjType->(A110)) (SupertypeSem->(A111)) (ObjSubtypeLt->(A391,P180)) (ObjTypeLt->(A113)) (ObjRootTypeLt->(A409,P182))
+State 86: (StkRwARRAY->(A46)) (StkRwBRANDED->(A615,P176)) (StkRwOBJECT->(A615,P176)) (StkRwPROCEDURE->(A84)) (StkRwRECORD->(A276,P158)) (StkRwREF->(A615,P176)) (StkRwROOT->(A277,P68)) (StkRwUNTRACED->(A87)) (StkOpenBrace->(A279,P146)) (StkIdent->(A92)) (IdentRef->(A358,P57)) (QualIdentRef->(A359,P58)) (IdentOrQualRef->(A360,P67)) (TypeName->(A93)) (Type->(A411,P201)) (StkRidADDRESS->(A362,P119)) (StkRidBOOLEAN->(A363,P120)) (StkRidCARDINAL->(A364,P121)) (StkRidCHAR->(A365,P122)) (StkRidEXTENDED->(A366,P123)) (StkRidINTEGER->(A367,P124)) (StkRidLONGCARD->(A368,P125)) (StkRidLONGINT->(A369,P126)) (StkRidLONGREAL->(A370,P127)) (StkRidMUTEX->(A371,P128)) (StkRidNULL->(A372,P129)) (StkRidREAL->(A373,P130)) (StkRidREFANY->(A374,P131)) (StkRidTEXT->(A375,P132)) (StkRidTYPECODE->(A376,P133)) (StkRidWIDECHAR->(A377,P134)) (RefTypeTraced->(A378,P135)) (RefTypeUntraced->(A379,P136)) (SupertypeAbsent->(A94)) (OpenArrayType->(A381,P139)) (OpenArrayTypeLt->(A97)) (FixedArrayType->(A383,P142)) (FixedArrayTypeLt->(A98)) (EnumTypeLt->(A99)) (EnumType->(A387,P153)) (RecTypeLt->(A103)) (SupertypePresent->(A390,P179)) (ObjType->(A110)) (ObjSupertype->(A111)) (ObjWSubtypeLt->(A391,P181)) (ObjTypeLt->(A113)) (ObjRootTypeLt->(A409,P182))
 State 87: (StkRwBRANDED->(A615,P176)) (StkRwREF->(A615,P176)) (StkRwROOT->(A278,P69)) (SupertypeAbsent->(A88))
 State 88: (StkRwBRANDED->(A89)) (StkRwREF->(A612,P173)) (Brand->(A90))
 State 89: (StkRwNOT->(A48)) (StkRwOBJECT->(A613,P174)) (StkRwREF->(A613,P174)) (StkOpenParen->(A49)) (StkPlus->(A236,P246)) (StkMinus->(A237,P247)) (StkIdent->(A50)) (StkIntLit->(A239,P270)) (StkLongIntLit->(A240,P271)) (StkBasedLit->(A241,P272)) (StkLongBasedLit->(A242,P273)) (StkRealLit->(A243,P274)) (StkLongRealLit->(A244,P275)) (StkExtendedLit->(A245,P276)) (StkTextLit->(A246,P279)) (StkWideTextLit->(A247,P280)) (StkCharLit->(A248,P277)) (StkWideCharLit->(A249,P278)) (IdentRef->(A52)) (QualIdentRef->(A336,P257)) (Expr->(A357,P175)) (E0->(A56)) (E1->(A57)) (E0Lt->(A58)) (E2->(A338,P216)) (E1Lt->(A60)) (E3->(A61)) (E4->(A62)) (E3Lt->(A63)) (E5->(A65)) (E4Lt->(A66)) (E6->(A343,P237)) (E5Lt->(A68)) (E7->(A345,P244)) (ExprUnaryAddOp->(A69)) (E8WOId->(A70))
 State 90: (StkRwREF->(A91))
-State 91: (StkRwARRAY->(A46)) (StkRwBRANDED->(A615,P176)) (StkRwOBJECT->(A615,P176)) (StkRwPROCEDURE->(A84)) (StkRwRECORD->(A276,P158)) (StkRwREF->(A615,P176)) (StkRwROOT->(A277,P68)) (StkRwUNTRACED->(A87)) (StkOpenBrace->(A279,P146)) (StkIdent->(A92)) (IdentRef->(A358,P57)) (QualIdentRef->(A359,P58)) (IdentOrQualRef->(A360,P67)) (TypeName->(A93)) (Type->(A361,P138)) (StkRidADDRESS->(A362,P119)) (StkRidBOOLEAN->(A363,P120)) (StkRidCARDINAL->(A364,P121)) (StkRidCHAR->(A365,P122)) (StkRidEXTENDED->(A366,P123)) (StkRidINTEGER->(A367,P124)) (StkRidLONGCARD->(A368,P125)) (StkRidLONGINT->(A369,P126)) (StkRidLONGREAL->(A370,P127)) (StkRidMUTEX->(A371,P128)) (StkRidNULL->(A372,P129)) (StkRidREAL->(A373,P130)) (StkRidREFANY->(A374,P131)) (StkRidTEXT->(A375,P132)) (StkRidTYPECODE->(A376,P133)) (StkRidWIDECHAR->(A377,P134)) (RefTypeTraced->(A378,P135)) (RefTypeUntraced->(A379,P136)) (SupertypeAbsent->(A94)) (OpenArrayType->(A381,P139)) (OpenArrayTypeLt->(A97)) (FixedArrayType->(A383,P142)) (FixedArrayTypeLt->(A98)) (EnumTypeLt->(A99)) (EnumType->(A387,P153)) (RecTypeLt->(A103)) (SupertypePresent->(A390,P179)) (ObjType->(A110)) (SupertypeSem->(A111)) (ObjSubtypeLt->(A391,P180)) (ObjTypeLt->(A113)) (ObjRootTypeLt->(A409,P182))
+State 91: (StkRwARRAY->(A46)) (StkRwBRANDED->(A615,P176)) (StkRwOBJECT->(A615,P176)) (StkRwPROCEDURE->(A84)) (StkRwRECORD->(A276,P158)) (StkRwREF->(A615,P176)) (StkRwROOT->(A277,P68)) (StkRwUNTRACED->(A87)) (StkOpenBrace->(A279,P146)) (StkIdent->(A92)) (IdentRef->(A358,P57)) (QualIdentRef->(A359,P58)) (IdentOrQualRef->(A360,P67)) (TypeName->(A93)) (Type->(A361,P138)) (StkRidADDRESS->(A362,P119)) (StkRidBOOLEAN->(A363,P120)) (StkRidCARDINAL->(A364,P121)) (StkRidCHAR->(A365,P122)) (StkRidEXTENDED->(A366,P123)) (StkRidINTEGER->(A367,P124)) (StkRidLONGCARD->(A368,P125)) (StkRidLONGINT->(A369,P126)) (StkRidLONGREAL->(A370,P127)) (StkRidMUTEX->(A371,P128)) (StkRidNULL->(A372,P129)) (StkRidREAL->(A373,P130)) (StkRidREFANY->(A374,P131)) (StkRidTEXT->(A375,P132)) (StkRidTYPECODE->(A376,P133)) (StkRidWIDECHAR->(A377,P134)) (RefTypeTraced->(A378,P135)) (RefTypeUntraced->(A379,P136)) (SupertypeAbsent->(A94)) (OpenArrayType->(A381,P139)) (OpenArrayTypeLt->(A97)) (FixedArrayType->(A383,P142)) (FixedArrayTypeLt->(A98)) (EnumTypeLt->(A99)) (EnumType->(A387,P153)) (RecTypeLt->(A103)) (SupertypePresent->(A390,P179)) (ObjType->(A110)) (ObjSupertype->(A111)) (ObjWSubtypeLt->(A391,P181)) (ObjTypeLt->(A113)) (ObjRootTypeLt->(A409,P182))
 State 92: (StkRwBRANDED->(A494,P55)) (StkRwEND->(A494,P55)) (StkRwMETHODS->(A494,P55)) (StkRwOBJECT->(A494,P55)) (StkRwOVERRIDES->(A494,P55)) (StkRwRAISES->(A494,P55)) (StkSemicolon->(A494,P55)) (StkDot->(A51)) (StkEqual->(A494,P55)) (StkCloseParen->(A494,P55)) (StkComma->(A494,P55)) (StkSubtype->(A494,P55)) (StkBecomes->(A494,P55)) (StkCloseBrace->(A494,P55))
 State 93: (StkRwBRANDED->(A616,P177)) (StkRwEND->(A557,P118)) (StkRwMETHODS->(A557,P118)) (StkRwOBJECT->(A616,P177)) (StkRwOVERRIDES->(A557,P118)) (StkRwRAISES->(A557,P118)) (StkSemicolon->(A557,P118)) (StkEqual->(A557,P118)) (StkCloseParen->(A557,P118)) (StkBecomes->(A557,P118))
 State 94: (StkRwBRANDED->(A89)) (StkRwOBJECT->(A612,P173)) (StkRwREF->(A612,P173)) (Brand->(A95))
 State 95: (StkRwOBJECT->(A280,P183)) (StkRwREF->(A96))
-State 96: (StkRwARRAY->(A46)) (StkRwBRANDED->(A615,P176)) (StkRwOBJECT->(A615,P176)) (StkRwPROCEDURE->(A84)) (StkRwRECORD->(A276,P158)) (StkRwREF->(A615,P176)) (StkRwROOT->(A277,P68)) (StkRwUNTRACED->(A87)) (StkOpenBrace->(A279,P146)) (StkIdent->(A92)) (IdentRef->(A358,P57)) (QualIdentRef->(A359,P58)) (IdentOrQualRef->(A360,P67)) (TypeName->(A93)) (Type->(A380,P137)) (StkRidADDRESS->(A362,P119)) (StkRidBOOLEAN->(A363,P120)) (StkRidCARDINAL->(A364,P121)) (StkRidCHAR->(A365,P122)) (StkRidEXTENDED->(A366,P123)) (StkRidINTEGER->(A367,P124)) (StkRidLONGCARD->(A368,P125)) (StkRidLONGINT->(A369,P126)) (StkRidLONGREAL->(A370,P127)) (StkRidMUTEX->(A371,P128)) (StkRidNULL->(A372,P129)) (StkRidREAL->(A373,P130)) (StkRidREFANY->(A374,P131)) (StkRidTEXT->(A375,P132)) (StkRidTYPECODE->(A376,P133)) (StkRidWIDECHAR->(A377,P134)) (RefTypeTraced->(A378,P135)) (RefTypeUntraced->(A379,P136)) (SupertypeAbsent->(A94)) (OpenArrayType->(A381,P139)) (OpenArrayTypeLt->(A97)) (FixedArrayType->(A383,P142)) (FixedArrayTypeLt->(A98)) (EnumTypeLt->(A99)) (EnumType->(A387,P153)) (RecTypeLt->(A103)) (SupertypePresent->(A390,P179)) (ObjType->(A110)) (SupertypeSem->(A111)) (ObjSubtypeLt->(A391,P180)) (ObjTypeLt->(A113)) (ObjRootTypeLt->(A409,P182))
-State 97: (StkRwARRAY->(A46)) (StkRwBRANDED->(A615,P176)) (StkRwOBJECT->(A615,P176)) (StkRwPROCEDURE->(A84)) (StkRwRECORD->(A276,P158)) (StkRwREF->(A615,P176)) (StkRwROOT->(A277,P68)) (StkRwUNTRACED->(A87)) (StkOpenBrace->(A279,P146)) (StkIdent->(A92)) (IdentRef->(A358,P57)) (QualIdentRef->(A359,P58)) (IdentOrQualRef->(A360,P67)) (TypeName->(A93)) (Type->(A382,P141)) (StkRidADDRESS->(A362,P119)) (StkRidBOOLEAN->(A363,P120)) (StkRidCARDINAL->(A364,P121)) (StkRidCHAR->(A365,P122)) (StkRidEXTENDED->(A366,P123)) (StkRidINTEGER->(A367,P124)) (StkRidLONGCARD->(A368,P125)) (StkRidLONGINT->(A369,P126)) (StkRidLONGREAL->(A370,P127)) (StkRidMUTEX->(A371,P128)) (StkRidNULL->(A372,P129)) (StkRidREAL->(A373,P130)) (StkRidREFANY->(A374,P131)) (StkRidTEXT->(A375,P132)) (StkRidTYPECODE->(A376,P133)) (StkRidWIDECHAR->(A377,P134)) (RefTypeTraced->(A378,P135)) (RefTypeUntraced->(A379,P136)) (SupertypeAbsent->(A94)) (OpenArrayType->(A381,P139)) (OpenArrayTypeLt->(A97)) (FixedArrayType->(A383,P142)) (FixedArrayTypeLt->(A98)) (EnumTypeLt->(A99)) (EnumType->(A387,P153)) (RecTypeLt->(A103)) (SupertypePresent->(A390,P179)) (ObjType->(A110)) (SupertypeSem->(A111)) (ObjSubtypeLt->(A391,P180)) (ObjTypeLt->(A113)) (ObjRootTypeLt->(A409,P182))
-State 98: (StkRwARRAY->(A46)) (StkRwBRANDED->(A615,P176)) (StkRwOBJECT->(A615,P176)) (StkRwPROCEDURE->(A84)) (StkRwRECORD->(A276,P158)) (StkRwREF->(A615,P176)) (StkRwROOT->(A277,P68)) (StkRwUNTRACED->(A87)) (StkOpenBrace->(A279,P146)) (StkIdent->(A92)) (IdentRef->(A358,P57)) (QualIdentRef->(A359,P58)) (IdentOrQualRef->(A360,P67)) (TypeName->(A93)) (Type->(A384,P144)) (StkRidADDRESS->(A362,P119)) (StkRidBOOLEAN->(A363,P120)) (StkRidCARDINAL->(A364,P121)) (StkRidCHAR->(A365,P122)) (StkRidEXTENDED->(A366,P123)) (StkRidINTEGER->(A367,P124)) (StkRidLONGCARD->(A368,P125)) (StkRidLONGINT->(A369,P126)) (StkRidLONGREAL->(A370,P127)) (StkRidMUTEX->(A371,P128)) (StkRidNULL->(A372,P129)) (StkRidREAL->(A373,P130)) (StkRidREFANY->(A374,P131)) (StkRidTEXT->(A375,P132)) (StkRidTYPECODE->(A376,P133)) (StkRidWIDECHAR->(A377,P134)) (RefTypeTraced->(A378,P135)) (RefTypeUntraced->(A379,P136)) (SupertypeAbsent->(A94)) (OpenArrayType->(A381,P139)) (OpenArrayTypeLt->(A97)) (FixedArrayType->(A383,P142)) (FixedArrayTypeLt->(A98)) (EnumTypeLt->(A99)) (EnumType->(A387,P153)) (RecTypeLt->(A103)) (SupertypePresent->(A390,P179)) (ObjType->(A110)) (SupertypeSem->(A111)) (ObjSubtypeLt->(A391,P180)) (ObjTypeLt->(A113)) (ObjRootTypeLt->(A409,P182))
+State 96: (StkRwARRAY->(A46)) (StkRwBRANDED->(A615,P176)) (StkRwOBJECT->(A615,P176)) (StkRwPROCEDURE->(A84)) (StkRwRECORD->(A276,P158)) (StkRwREF->(A615,P176)) (StkRwROOT->(A277,P68)) (StkRwUNTRACED->(A87)) (StkOpenBrace->(A279,P146)) (StkIdent->(A92)) (IdentRef->(A358,P57)) (QualIdentRef->(A359,P58)) (IdentOrQualRef->(A360,P67)) (TypeName->(A93)) (Type->(A380,P137)) (StkRidADDRESS->(A362,P119)) (StkRidBOOLEAN->(A363,P120)) (StkRidCARDINAL->(A364,P121)) (StkRidCHAR->(A365,P122)) (StkRidEXTENDED->(A366,P123)) (StkRidINTEGER->(A367,P124)) (StkRidLONGCARD->(A368,P125)) (StkRidLONGINT->(A369,P126)) (StkRidLONGREAL->(A370,P127)) (StkRidMUTEX->(A371,P128)) (StkRidNULL->(A372,P129)) (StkRidREAL->(A373,P130)) (StkRidREFANY->(A374,P131)) (StkRidTEXT->(A375,P132)) (StkRidTYPECODE->(A376,P133)) (StkRidWIDECHAR->(A377,P134)) (RefTypeTraced->(A378,P135)) (RefTypeUntraced->(A379,P136)) (SupertypeAbsent->(A94)) (OpenArrayType->(A381,P139)) (OpenArrayTypeLt->(A97)) (FixedArrayType->(A383,P142)) (FixedArrayTypeLt->(A98)) (EnumTypeLt->(A99)) (EnumType->(A387,P153)) (RecTypeLt->(A103)) (SupertypePresent->(A390,P179)) (ObjType->(A110)) (ObjSupertype->(A111)) (ObjWSubtypeLt->(A391,P181)) (ObjTypeLt->(A113)) (ObjRootTypeLt->(A409,P182))
+State 97: (StkRwARRAY->(A46)) (StkRwBRANDED->(A615,P176)) (StkRwOBJECT->(A615,P176)) (StkRwPROCEDURE->(A84)) (StkRwRECORD->(A276,P158)) (StkRwREF->(A615,P176)) (StkRwROOT->(A277,P68)) (StkRwUNTRACED->(A87)) (StkOpenBrace->(A279,P146)) (StkIdent->(A92)) (IdentRef->(A358,P57)) (QualIdentRef->(A359,P58)) (IdentOrQualRef->(A360,P67)) (TypeName->(A93)) (Type->(A382,P141)) (StkRidADDRESS->(A362,P119)) (StkRidBOOLEAN->(A363,P120)) (StkRidCARDINAL->(A364,P121)) (StkRidCHAR->(A365,P122)) (StkRidEXTENDED->(A366,P123)) (StkRidINTEGER->(A367,P124)) (StkRidLONGCARD->(A368,P125)) (StkRidLONGINT->(A369,P126)) (StkRidLONGREAL->(A370,P127)) (StkRidMUTEX->(A371,P128)) (StkRidNULL->(A372,P129)) (StkRidREAL->(A373,P130)) (StkRidREFANY->(A374,P131)) (StkRidTEXT->(A375,P132)) (StkRidTYPECODE->(A376,P133)) (StkRidWIDECHAR->(A377,P134)) (RefTypeTraced->(A378,P135)) (RefTypeUntraced->(A379,P136)) (SupertypeAbsent->(A94)) (OpenArrayType->(A381,P139)) (OpenArrayTypeLt->(A97)) (FixedArrayType->(A383,P142)) (FixedArrayTypeLt->(A98)) (EnumTypeLt->(A99)) (EnumType->(A387,P153)) (RecTypeLt->(A103)) (SupertypePresent->(A390,P179)) (ObjType->(A110)) (ObjSupertype->(A111)) (ObjWSubtypeLt->(A391,P181)) (ObjTypeLt->(A113)) (ObjRootTypeLt->(A409,P182))
+State 98: (StkRwARRAY->(A46)) (StkRwBRANDED->(A615,P176)) (StkRwOBJECT->(A615,P176)) (StkRwPROCEDURE->(A84)) (StkRwRECORD->(A276,P158)) (StkRwREF->(A615,P176)) (StkRwROOT->(A277,P68)) (StkRwUNTRACED->(A87)) (StkOpenBrace->(A279,P146)) (StkIdent->(A92)) (IdentRef->(A358,P57)) (QualIdentRef->(A359,P58)) (IdentOrQualRef->(A360,P67)) (TypeName->(A93)) (Type->(A384,P144)) (StkRidADDRESS->(A362,P119)) (StkRidBOOLEAN->(A363,P120)) (StkRidCARDINAL->(A364,P121)) (StkRidCHAR->(A365,P122)) (StkRidEXTENDED->(A366,P123)) (StkRidINTEGER->(A367,P124)) (StkRidLONGCARD->(A368,P125)) (StkRidLONGINT->(A369,P126)) (StkRidLONGREAL->(A370,P127)) (StkRidMUTEX->(A371,P128)) (StkRidNULL->(A372,P129)) (StkRidREAL->(A373,P130)) (StkRidREFANY->(A374,P131)) (StkRidTEXT->(A375,P132)) (StkRidTYPECODE->(A376,P133)) (StkRidWIDECHAR->(A377,P134)) (RefTypeTraced->(A378,P135)) (RefTypeUntraced->(A379,P136)) (SupertypeAbsent->(A94)) (OpenArrayType->(A381,P139)) (OpenArrayTypeLt->(A97)) (FixedArrayType->(A383,P142)) (FixedArrayTypeLt->(A98)) (EnumTypeLt->(A99)) (EnumType->(A387,P153)) (RecTypeLt->(A103)) (SupertypePresent->(A390,P179)) (ObjType->(A110)) (ObjSupertype->(A111)) (ObjWSubtypeLt->(A391,P181)) (ObjTypeLt->(A113)) (ObjRootTypeLt->(A409,P182))
 State 99: (StkCloseBrace->(A587,P148)) (StkIdent->(A281,P152)) (EnumLitList->(A100)) (EnumLitPlus->(A101)) (EnumLit->(A386,P150))
 State 100: (StkCloseBrace->(A282,P147))
 State 101: (StkComma->(A102)) (StkCloseBrace->(A588,P149))
@@ -4641,10 +4641,10 @@ State 105: (StkRwEND->(A556,P117)) (StkRwMETHODS->(A556,P117)) (StkRwOVERRIDES->
 State 106: (StkIdent->(A284,P60))
 State 107: (StkRwEND->(A548,P109)) (StkRwMETHODS->(A548,P109)) (StkRwOVERRIDES->(A548,P109)) (StkSemicolon->(A548,P109)) (StkColon->(A548,P109)) (StkBecomes->(A548,P109)) (DeclType->(A108))
 State 108: (StkRwEND->(A550,P111)) (StkRwMETHODS->(A550,P111)) (StkRwOVERRIDES->(A550,P111)) (StkSemicolon->(A550,P111)) (StkColon->(A109)) (StkBecomes->(A550,P111)) (OptDeclType->(A136))
-State 109: (StkRwARRAY->(A46)) (StkRwBRANDED->(A615,P176)) (StkRwOBJECT->(A615,P176)) (StkRwPROCEDURE->(A84)) (StkRwRECORD->(A276,P158)) (StkRwREF->(A615,P176)) (StkRwROOT->(A277,P68)) (StkRwUNTRACED->(A87)) (StkOpenBrace->(A279,P146)) (StkIdent->(A92)) (IdentRef->(A358,P57)) (QualIdentRef->(A359,P58)) (IdentOrQualRef->(A360,P67)) (TypeName->(A93)) (Type->(A389,P110)) (StkRidADDRESS->(A362,P119)) (StkRidBOOLEAN->(A363,P120)) (StkRidCARDINAL->(A364,P121)) (StkRidCHAR->(A365,P122)) (StkRidEXTENDED->(A366,P123)) (StkRidINTEGER->(A367,P124)) (StkRidLONGCARD->(A368,P125)) (StkRidLONGINT->(A369,P126)) (StkRidLONGREAL->(A370,P127)) (StkRidMUTEX->(A371,P128)) (StkRidNULL->(A372,P129)) (StkRidREAL->(A373,P130)) (StkRidREFANY->(A374,P131)) (StkRidTEXT->(A375,P132)) (StkRidTYPECODE->(A376,P133)) (StkRidWIDECHAR->(A377,P134)) (RefTypeTraced->(A378,P135)) (RefTypeUntraced->(A379,P136)) (SupertypeAbsent->(A94)) (OpenArrayType->(A381,P139)) (OpenArrayTypeLt->(A97)) (FixedArrayType->(A383,P142)) (FixedArrayTypeLt->(A98)) (EnumTypeLt->(A99)) (EnumType->(A387,P153)) (RecTypeLt->(A103)) (SupertypePresent->(A390,P179)) (ObjType->(A110)) (SupertypeSem->(A111)) (ObjSubtypeLt->(A391,P180)) (ObjTypeLt->(A113)) (ObjRootTypeLt->(A409,P182))
+State 109: (StkRwARRAY->(A46)) (StkRwBRANDED->(A615,P176)) (StkRwOBJECT->(A615,P176)) (StkRwPROCEDURE->(A84)) (StkRwRECORD->(A276,P158)) (StkRwREF->(A615,P176)) (StkRwROOT->(A277,P68)) (StkRwUNTRACED->(A87)) (StkOpenBrace->(A279,P146)) (StkIdent->(A92)) (IdentRef->(A358,P57)) (QualIdentRef->(A359,P58)) (IdentOrQualRef->(A360,P67)) (TypeName->(A93)) (Type->(A389,P110)) (StkRidADDRESS->(A362,P119)) (StkRidBOOLEAN->(A363,P120)) (StkRidCARDINAL->(A364,P121)) (StkRidCHAR->(A365,P122)) (StkRidEXTENDED->(A366,P123)) (StkRidINTEGER->(A367,P124)) (StkRidLONGCARD->(A368,P125)) (StkRidLONGINT->(A369,P126)) (StkRidLONGREAL->(A370,P127)) (StkRidMUTEX->(A371,P128)) (StkRidNULL->(A372,P129)) (StkRidREAL->(A373,P130)) (StkRidREFANY->(A374,P131)) (StkRidTEXT->(A375,P132)) (StkRidTYPECODE->(A376,P133)) (StkRidWIDECHAR->(A377,P134)) (RefTypeTraced->(A378,P135)) (RefTypeUntraced->(A379,P136)) (SupertypeAbsent->(A94)) (OpenArrayType->(A381,P139)) (OpenArrayTypeLt->(A97)) (FixedArrayType->(A383,P142)) (FixedArrayTypeLt->(A98)) (EnumTypeLt->(A99)) (EnumType->(A387,P153)) (RecTypeLt->(A103)) (SupertypePresent->(A390,P179)) (ObjType->(A110)) (ObjSupertype->(A111)) (ObjWSubtypeLt->(A391,P181)) (ObjTypeLt->(A113)) (ObjRootTypeLt->(A409,P182))
 State 110: (StkRwBRANDED->(A617,P178)) (StkRwEND->(A624,P185)) (StkRwMETHODS->(A624,P185)) (StkRwOBJECT->(A617,P178)) (StkRwOVERRIDES->(A624,P185)) (StkRwRAISES->(A624,P185)) (StkSemicolon->(A624,P185)) (StkEqual->(A624,P185)) (StkCloseParen->(A624,P185)) (StkBecomes->(A624,P185))
 State 111: (StkRwBRANDED->(A89)) (StkRwOBJECT->(A612,P173)) (Brand->(A112))
-State 112: (StkRwOBJECT->(A285,P181))
+State 112: (StkRwOBJECT->(A285,P180))
 State 113: (StkRwEND->(A593,P154)) (StkRwMETHODS->(A593,P154)) (StkRwOVERRIDES->(A593,P154)) (StkIdent->(A554,P115)) (VarDecl->(A388,P156)) (VarDeclLt->(A104)) (FieldDeclList->(A114)) (FieldDeclPlus->(A134))
 State 114: (StkRwEND->(A599,P160)) (StkRwMETHODS->(A115)) (StkRwOVERRIDES->(A599,P160)) (MethodDeclList->(A127))
 State 115: (StkRwEND->(A600,P161)) (StkRwOVERRIDES->(A600,P161)) (StkIdent->(A286,P165)) (MethodDeclPlus->(A116)) (MethodDecl->(A402,P163)) (MethodDeclLt->(A118))
@@ -4685,11 +4685,11 @@ State 149: (StkRwBEGIN->(A527,P88)) (StkRwCONST->(A527,P88)) (StkRwEND->(A527,P8
 State 150: (StkRwBEGIN->(A528,P89)) (StkRwCONST->(A528,P89)) (StkRwEND->(A528,P89)) (StkRwPROCEDURE->(A528,P89)) (StkRwREVEAL->(A528,P89)) (StkRwTYPE->(A528,P89)) (StkRwVAR->(A528,P89)) (StkIdent->(A296,P92)) (TypeDecl->(A151)) (TypeDeclId->(A152))
 State 151: (StkSemicolon->(A297,P91))
 State 152: (StkEqual->(A298,P84)) (StkSubtype->(A299,P85)) (TypeRelation->(A153))
-State 153: (StkRwARRAY->(A46)) (StkRwBRANDED->(A615,P176)) (StkRwOBJECT->(A615,P176)) (StkRwPROCEDURE->(A84)) (StkRwRECORD->(A276,P158)) (StkRwREF->(A615,P176)) (StkRwROOT->(A277,P68)) (StkRwUNTRACED->(A87)) (StkOpenBrace->(A279,P146)) (StkIdent->(A92)) (IdentRef->(A358,P57)) (QualIdentRef->(A359,P58)) (IdentOrQualRef->(A360,P67)) (TypeName->(A93)) (Type->(A419,P93)) (StkRidADDRESS->(A362,P119)) (StkRidBOOLEAN->(A363,P120)) (StkRidCARDINAL->(A364,P121)) (StkRidCHAR->(A365,P122)) (StkRidEXTENDED->(A366,P123)) (StkRidINTEGER->(A367,P124)) (StkRidLONGCARD->(A368,P125)) (StkRidLONGINT->(A369,P126)) (StkRidLONGREAL->(A370,P127)) (StkRidMUTEX->(A371,P128)) (StkRidNULL->(A372,P129)) (StkRidREAL->(A373,P130)) (StkRidREFANY->(A374,P131)) (StkRidTEXT->(A375,P132)) (StkRidTYPECODE->(A376,P133)) (StkRidWIDECHAR->(A377,P134)) (RefTypeTraced->(A378,P135)) (RefTypeUntraced->(A379,P136)) (SupertypeAbsent->(A94)) (OpenArrayType->(A381,P139)) (OpenArrayTypeLt->(A97)) (FixedArrayType->(A383,P142)) (FixedArrayTypeLt->(A98)) (EnumTypeLt->(A99)) (EnumType->(A387,P153)) (RecTypeLt->(A103)) (SupertypePresent->(A390,P179)) (ObjType->(A110)) (SupertypeSem->(A111)) (ObjSubtypeLt->(A391,P180)) (ObjTypeLt->(A113)) (ObjRootTypeLt->(A409,P182))
+State 153: (StkRwARRAY->(A46)) (StkRwBRANDED->(A615,P176)) (StkRwOBJECT->(A615,P176)) (StkRwPROCEDURE->(A84)) (StkRwRECORD->(A276,P158)) (StkRwREF->(A615,P176)) (StkRwROOT->(A277,P68)) (StkRwUNTRACED->(A87)) (StkOpenBrace->(A279,P146)) (StkIdent->(A92)) (IdentRef->(A358,P57)) (QualIdentRef->(A359,P58)) (IdentOrQualRef->(A360,P67)) (TypeName->(A93)) (Type->(A419,P93)) (StkRidADDRESS->(A362,P119)) (StkRidBOOLEAN->(A363,P120)) (StkRidCARDINAL->(A364,P121)) (StkRidCHAR->(A365,P122)) (StkRidEXTENDED->(A366,P123)) (StkRidINTEGER->(A367,P124)) (StkRidLONGCARD->(A368,P125)) (StkRidLONGINT->(A369,P126)) (StkRidLONGREAL->(A370,P127)) (StkRidMUTEX->(A371,P128)) (StkRidNULL->(A372,P129)) (StkRidREAL->(A373,P130)) (StkRidREFANY->(A374,P131)) (StkRidTEXT->(A375,P132)) (StkRidTYPECODE->(A376,P133)) (StkRidWIDECHAR->(A377,P134)) (RefTypeTraced->(A378,P135)) (RefTypeUntraced->(A379,P136)) (SupertypeAbsent->(A94)) (OpenArrayType->(A381,P139)) (OpenArrayTypeLt->(A97)) (FixedArrayType->(A383,P142)) (FixedArrayTypeLt->(A98)) (EnumTypeLt->(A99)) (EnumType->(A387,P153)) (RecTypeLt->(A103)) (SupertypePresent->(A390,P179)) (ObjType->(A110)) (ObjSupertype->(A111)) (ObjWSubtypeLt->(A391,P181)) (ObjTypeLt->(A113)) (ObjRootTypeLt->(A409,P182))
 State 154: (StkSemicolon->(A300,P90))
 State 155: (StkRwBEGIN->(A537,P98)) (StkRwCONST->(A537,P98)) (StkRwEND->(A537,P98)) (StkRwPROCEDURE->(A537,P98)) (StkRwREVEAL->(A537,P98)) (StkRwTYPE->(A537,P98)) (StkRwVAR->(A537,P98)) (StkIdent->(A92)) (IdentRef->(A358,P57)) (QualIdentRef->(A359,P58)) (IdentOrQualRef->(A156)) (RevelationList->(A422,P97)) (RevelationPlus->(A158)) (Revelation->(A160))
 State 156: (StkEqual->(A301,P94)) (StkSubtype->(A302,P95)) (RevelationRelation->(A157))
-State 157: (StkRwARRAY->(A46)) (StkRwBRANDED->(A615,P176)) (StkRwOBJECT->(A615,P176)) (StkRwPROCEDURE->(A84)) (StkRwRECORD->(A276,P158)) (StkRwREF->(A615,P176)) (StkRwROOT->(A277,P68)) (StkRwUNTRACED->(A87)) (StkOpenBrace->(A279,P146)) (StkIdent->(A92)) (IdentRef->(A358,P57)) (QualIdentRef->(A359,P58)) (IdentOrQualRef->(A360,P67)) (TypeName->(A93)) (Type->(A421,P102)) (StkRidADDRESS->(A362,P119)) (StkRidBOOLEAN->(A363,P120)) (StkRidCARDINAL->(A364,P121)) (StkRidCHAR->(A365,P122)) (StkRidEXTENDED->(A366,P123)) (StkRidINTEGER->(A367,P124)) (StkRidLONGCARD->(A368,P125)) (StkRidLONGINT->(A369,P126)) (StkRidLONGREAL->(A370,P127)) (StkRidMUTEX->(A371,P128)) (StkRidNULL->(A372,P129)) (StkRidREAL->(A373,P130)) (StkRidREFANY->(A374,P131)) (StkRidTEXT->(A375,P132)) (StkRidTYPECODE->(A376,P133)) (StkRidWIDECHAR->(A377,P134)) (RefTypeTraced->(A378,P135)) (RefTypeUntraced->(A379,P136)) (SupertypeAbsent->(A94)) (OpenArrayType->(A381,P139)) (OpenArrayTypeLt->(A97)) (FixedArrayType->(A383,P142)) (FixedArrayTypeLt->(A98)) (EnumTypeLt->(A99)) (EnumType->(A387,P153)) (RecTypeLt->(A103)) (SupertypePresent->(A390,P179)) (ObjType->(A110)) (SupertypeSem->(A111)) (ObjSubtypeLt->(A391,P180)) (ObjTypeLt->(A113)) (ObjRootTypeLt->(A409,P182))
+State 157: (StkRwARRAY->(A46)) (StkRwBRANDED->(A615,P176)) (StkRwOBJECT->(A615,P176)) (StkRwPROCEDURE->(A84)) (StkRwRECORD->(A276,P158)) (StkRwREF->(A615,P176)) (StkRwROOT->(A277,P68)) (StkRwUNTRACED->(A87)) (StkOpenBrace->(A279,P146)) (StkIdent->(A92)) (IdentRef->(A358,P57)) (QualIdentRef->(A359,P58)) (IdentOrQualRef->(A360,P67)) (TypeName->(A93)) (Type->(A421,P102)) (StkRidADDRESS->(A362,P119)) (StkRidBOOLEAN->(A363,P120)) (StkRidCARDINAL->(A364,P121)) (StkRidCHAR->(A365,P122)) (StkRidEXTENDED->(A366,P123)) (StkRidINTEGER->(A367,P124)) (StkRidLONGCARD->(A368,P125)) (StkRidLONGINT->(A369,P126)) (StkRidLONGREAL->(A370,P127)) (StkRidMUTEX->(A371,P128)) (StkRidNULL->(A372,P129)) (StkRidREAL->(A373,P130)) (StkRidREFANY->(A374,P131)) (StkRidTEXT->(A375,P132)) (StkRidTYPECODE->(A376,P133)) (StkRidWIDECHAR->(A377,P134)) (RefTypeTraced->(A378,P135)) (RefTypeUntraced->(A379,P136)) (SupertypeAbsent->(A94)) (OpenArrayType->(A381,P139)) (OpenArrayTypeLt->(A97)) (FixedArrayType->(A383,P142)) (FixedArrayTypeLt->(A98)) (EnumTypeLt->(A99)) (EnumType->(A387,P153)) (RecTypeLt->(A103)) (SupertypePresent->(A390,P179)) (ObjType->(A110)) (ObjSupertype->(A111)) (ObjWSubtypeLt->(A391,P181)) (ObjTypeLt->(A113)) (ObjRootTypeLt->(A409,P182))
 State 158: (StkRwBEGIN->(A538,P99)) (StkRwCONST->(A538,P99)) (StkRwEND->(A538,P99)) (StkRwPROCEDURE->(A538,P99)) (StkRwREVEAL->(A538,P99)) (StkRwTYPE->(A538,P99)) (StkRwVAR->(A538,P99)) (StkIdent->(A92)) (IdentRef->(A358,P57)) (QualIdentRef->(A359,P58)) (IdentOrQualRef->(A156)) (Revelation->(A159))
 State 159: (StkSemicolon->(A303,P101))
 State 160: (StkSemicolon->(A304,P100))

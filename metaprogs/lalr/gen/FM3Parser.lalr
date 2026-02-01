@@ -479,7 +479,7 @@ RULE
        VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN 
          $$ . PaBool := $1 . PaBool ;
-         $$ . PaByte := ORD ( Ukt . UkInterface ) ; 
+         $$ . PaByte1 := ORD ( Ukt . UkInterface ) ; 
          LUnitRef := FM3Units . UnitStackTopRef ;
          FM3Pass1 . InterfaceId ( LUnitRef , $3 . Scan ) ;
          LScopeRef 
@@ -508,7 +508,7 @@ RULE
        VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN 
          $$ . PaBool := $1 . PaBool ;
-         $$ . PaByte := ORD ( Ukt . UkGenModule ) ;
+         $$ . PaByte1 := ORD ( Ukt . UkGenModule ) ;
          LUnitRef := FM3Units . UnitStackTopRef ;
          FM3Pass1 . ModuleId ( LUnitRef , $3 . Scan ) ;
          LScopeRef  
@@ -685,7 +685,7 @@ RULE
        $$ . Scan . SaBuiltinTok := $1 . Scan . SaBuiltinTok ;
      } . 
    
-   (* DeclIdListElems . PaInt > 0 is count of valid Idents. *)
+   (* DeclIdListElems . PaInt1 > 0 is count of valid Idents. *)
    (* In source syntax, this list is never empty and always
       comma-separated.  Internally, invalid (reserved or repeated)
       idents may be removed, which could leave it empty.  If so,
@@ -694,46 +694,46 @@ RULE
 
    DeclIdListElems : StkIdent
      { IF FM3Pass1 . DeclIdL2R
-            ( VAL ( $0 . PaByte (* Decl Kind *) , Dkt ) , IdAttribute := $1 )
+            ( VAL ( $0 . PaByte1 (* Decl Kind *) , Dkt ) , IdAttribute := $1 )
        THEN (* Use this ident. *) 
-         $$ . PaInt := 1 ;
+         $$ . PaInt1 := 1 ;
          $$ . PaRefany := IntSets . Singleton ( $1 . Scan . SaAtom ) 
        ELSE
-         $$ . PaInt := 0 ;
+         $$ . PaInt1 := 0 ;
          $$ . PaRefany := IntSets . Empty ( ) 
        END (*IF*) ; 
      } . 
      
    DeclIdListElems : DeclIdListElems StkComma StkIdent
      { IF FM3Pass1 . DeclIdL2R
-            ( VAL ( $0 . PaByte (* Decl Kind *) , Dkt ) , IdAttribute := $3 )
+            ( VAL ( $0 . PaByte1 (* Decl Kind *) , Dkt ) , IdAttribute := $3 )
        (* ^No Itk separators here.  It would be kinda silly. *) 
        THEN (* Use this ident. *)
-         $$ . PaInt := $1 . PaInt + 1 ;
+         $$ . PaInt1 := $1 . PaInt1 + 1 ;
          $$ . PaRefany
            := IntSets . Include
                 ( NARROW ( $3 . PaRefany , IntSets . T ) , $3 . Scan . SaAtom ) ;
        ELSE
-         $$ . PaInt := $3 . PaInt (* Valid Id count, no increase. *) ;
+         $$ . PaInt1 := $3 . PaInt1 (* Valid Id count, no increase. *) ;
          $$ . PaRefany := $3 . PaRefany ; 
        END (*IF*) ;
      } . 
 
 (* List of zero or more comma-separated Idents. *)
    IdStarList : IdStarList StkComma IdentRef
-     { $$ . PaInt := $1 . PaInt + 1 ; } . 
+     { $$ . PaInt1 := $1 . PaInt1 + 1 ; } . 
    IdStarList : /*Empty*/
-     { $$ . PaInt := 0 ; } . 
+     { $$ . PaInt1 := 0 ; } . 
 
 (* List of zero or more comma-separated maybe-qualified Idents. *)
    IdentOrQualRefStarList : /*Empty*/
-     { $$ . PaInt := 0 ; } .
+     { $$ . PaInt1 := 0 ; } .
    IdentOrQualRefStarList : IdentOrQualRefPlusList
-     { $$ . PaInt := $1 . PaInt ; } .
+     { $$ . PaInt1 := $1 . PaInt1 ; } .
    IdentOrQualRefPlusList : IdentOrQualRef
-     { $$ . PaInt := 1 } . 
+     { $$ . PaInt1 := 1 } . 
    IdentOrQualRefPlusList : IdentOrQualRefPlusList StkComma IdentOrQualRef
-     { $$ . PaInt := $1 . PaInt + 1 ; } .
+     { $$ . PaInt1 := $1 . PaInt1 + 1 ; } .
      
    TypeName : IdentOrQualRef .
 
@@ -770,35 +770,35 @@ RULE
      { (* Default PaPos. *) } .
 
    ConstDeclGroup : ConstDeclGroupLt ConstDeclList
-      { $$ . PaInt (* Decl count. *) := $2 . PaInt ;
+      { $$ . PaInt1 (* Decl count. *) := $2 . PaInt1 ;
         $$ . PaPos (* Rt semicolon. *) := $2 . PaPos ; 
       } . 
 
    ConstDeclList : /*Empty*/
-     { $$ . PaInt := 0 ;
+     { $$ . PaInt1 := 0 ;
        $$ . PaPos (* No trailing semicolon exists *)
          := FM3Scanner . Attribute . Position ; 
      } .
 
    ConstDeclList : ConstDeclPlus
-     { $$ . PaInt := $1 . PaInt ;
+     { $$ . PaInt1 := $1 . PaInt1 ;
        $$ . PaPos (* Rt semicolon.*) := $1 . PaPos ; 
      } . 
    
    ConstDeclPlus : ConstDecl StkSemicolon  
-     { $$ . PaInt (* Decl count. *) := $1 . PaInt ;
+     { $$ . PaInt1 (* Decl count. *) := $1 . PaInt1 ;
        $$ . PaPos (* Rt semicolon.*) := $2 . Scan . Position ; 
      } .
 
    ConstDeclPlus : ConstDeclPlus ConstDecl StkSemicolon
-     { $$ . PaInt (* Decl count. *):= $1 . PaInt + $2 . PaInt ;
-       IF $2 . PaInt > 0
+     { $$ . PaInt1 (* Decl count. *):= $1 . PaInt1 + $2 . PaInt1 ;
+       IF $2 . PaInt1 > 0
        THEN  
          $$ . PaPos (* Rt semicolon.*) := $3 . Scan . Position ;
          FM3Pass1 . PutBwd_ECIP (* Insert a separator. *)
            ( Itk . ItkOpenDeclListLt
            , $2 . PaPass1Coord 
-           , $1 . PaInt
+           , $1 . PaInt1
            , $1 . PaPos (* Rt semicolon of $1 *) 
            ) ;
        ELSE 
@@ -809,7 +809,7 @@ RULE
 (* TODO:Maybe combine this with TypeDeclId and others, which differ only in Dkt. *) 
    ConstDeclId : StkIdent
      { $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
-       $$ . PaInt (* Ident count, 0 if error, else 1. *) 
+       $$ . PaInt1 (* Ident count, 0 if error, else 1. *) 
          := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkConst , IdAttribute := $1 ) ) ;
      } .
 
@@ -837,8 +837,8 @@ RULE
 
    ConstDecl : ConstDeclId ConstDeclTypeTok OptConstDeclType
                ConstDeclValueTok StkEqual Expr  
-     { $$ . PaInt := $1 . PaInt (* Contribution to BlockDecl count. *) ;
-       IF $$ . PaInt > 0 
+     { $$ . PaInt1 := $1 . PaInt1 (* Contribution to BlockDecl count. *) ;
+       IF $$ . PaInt1 > 0 
        THEN
          FM3Pass1 . PutBwd_LCP_rp
            ( Itk . ItkConstDeclLt , $1 . PaPass1Coord , $1 . Scan . Position ) ;
@@ -855,7 +855,7 @@ RULE
 
    TypeRelation : StkSubtype { $$ . PaTok1 := Itk . ItkSubtypeDeclLt ; } . 
 
-   (* PaInt is declaration count of nearly every NT Re. type decls. *) 
+   (* PaInt1 is declaration count of nearly every NT Re. type decls. *) 
 
    (* TypeDeclGroup is a list of type declarations all following
       a single occurrence of "TYPE".  The parsing removes this grouping
@@ -867,35 +867,35 @@ RULE
      { $$ . PaPos := $1 . Scan . Position; } .
 
    TypeDeclGroup : TypeDeclGroupLt TypeDeclList
-      { $$ . PaInt (* Decl count. *) := $2 . PaInt ;
+      { $$ . PaInt1 (* Decl count. *) := $2 . PaInt1 ;
         $$ . PaPos (* Rt semicolon. *) := $2 . PaPos ; 
       } . 
 
    TypeDeclList : /*Empty*/
-     { $$ . PaInt := 0 ;
+     { $$ . PaInt1 := 0 ;
        $$ . PaPos (* No trailing semicolon exists *)
          := FM3Scanner . Attribute . Position ; 
      } .
 
    TypeDeclList : TypeDeclPlus
-     { $$ . PaInt := $1 . PaInt ;
+     { $$ . PaInt1 := $1 . PaInt1 ;
        $$ . PaPos (* Rt semicolon.*) := $1 . PaPos ; 
      } . 
    
    TypeDeclPlus : TypeDecl StkSemicolon  
-     { $$ . PaInt (* Decl count. *) := $1 . PaInt ;
+     { $$ . PaInt1 (* Decl count. *) := $1 . PaInt1 ;
        $$ . PaPos (* Rt semicolon.*) := $2 . Scan . Position ; 
      } .
 
    TypeDeclPlus : TypeDeclPlus TypeDecl StkSemicolon
-     { $$ . PaInt (* Decl count. *):= $1 . PaInt + $2 . PaInt ;
-       IF $2 . PaInt > 0
+     { $$ . PaInt1 (* Decl count. *):= $1 . PaInt1 + $2 . PaInt1 ;
+       IF $2 . PaInt1 > 0
        THEN  
          $$ . PaPos (* Rt semicolon.*) := $3 . Scan . Position ;
          FM3Pass1 . PutBwd_ECIP (* Insert a separator. *)
            ( Itk . ItkOpenDeclListLt
            , $2 . PaPass1Coord 
-           , $1 . PaInt
+           , $1 . PaInt1
            , $1 . PaPos (* Rt semicolon of $1 *) 
            ) ;
        ELSE 
@@ -905,13 +905,13 @@ RULE
  
    TypeDeclId : StkIdent
      { $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
-       $$ . PaInt (* Ident count, 0 if error, else 1. *)
+       $$ . PaInt1 (* Ident count, 0 if error, else 1. *)
          := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkType , IdAttribute := $1 ) ) ; 
      } .
 
    TypeDecl : TypeDeclId TypeRelation Type  
-     { $$ . PaInt := $1 . PaInt (* Contribution to BlockDecl count. *) ;
-       IF $$ . PaInt > 0 
+     { $$ . PaInt1 := $1 . PaInt1 (* Contribution to BlockDecl count. *) ;
+       IF $$ . PaInt1 > 0 
        THEN 
          FM3Pass1 . PutBwd_LCP_eCP_rP
            ( $2 . PaTok1 
@@ -937,7 +937,7 @@ RULE
    RevelationRelation : StkSubtype
      { $$ . PaTok1 := Itk . ItkPartialRevealLt ; } . 
 
-   (* PaInt is declaration count of nearly every NT Re. revelations. *) 
+   (* PaInt1 is declaration count of nearly every NT Re. revelations. *) 
 
    (* RevelationGroup is a list of revelations all following
       a single occurrence of "REVEAL".  The parsing removes this grouping
@@ -949,35 +949,35 @@ RULE
      {  $$. Scan . Position := $1 . Scan . Position  } .
 
    RevelationGroup : RevelationGroupLt RevelationList
-      { $$ . PaInt (* Decl count. *) := $2 . PaInt ;
+      { $$ . PaInt1 (* Decl count. *) := $2 . PaInt1 ;
         $$ . PaPos (* Rt semicolon. *) := $2 . PaPos ; 
       } . 
 
    RevelationList : /*Empty*/
-     { $$ . PaInt := 0 ;
+     { $$ . PaInt1 := 0 ;
        $$ . PaPos (* No trailing semicolon exists. *)
          := FM3Scanner . Attribute . Position ; 
      } .
 
    RevelationList : RevelationPlus
-     { $$ . PaInt := $1 . PaInt ;
+     { $$ . PaInt1 := $1 . PaInt1 ;
        $$ . PaPos (* Rt semicolon. *) := $1 . PaPos ; 
      } . 
    
    RevelationPlus : Revelation StkSemicolon  
-     { $$ . PaInt (* Decl count. *) := $1 . PaInt ;
+     { $$ . PaInt1 (* Decl count. *) := $1 . PaInt1 ;
        $$ . PaPos (* Rt semicolon. *) := $2 . Scan . Position ; 
      } .
 
    RevelationPlus : RevelationPlus Revelation StkSemicolon
-     { $$ . PaInt (* Decl count. *):= $1 . PaInt + $2 . PaInt ;
-       IF $2 . PaInt > 0
+     { $$ . PaInt1 (* Decl count. *):= $1 . PaInt1 + $2 . PaInt1 ;
+       IF $2 . PaInt1 > 0
        THEN 
          $$ . PaPos (* Rt semicolon. *) := $3 . Scan . Position ; 
          FM3Pass1 . PutBwd_ECIP (* Insert a separator. *) 
            ( Itk . ItkOpenDeclListLt
            , $2 . PaPass1Coord 
-           , $1 . PaInt
+           , $1 . PaInt1
            , $1 . PaPos 
            ) ;
        ELSE
@@ -986,7 +986,7 @@ RULE
      } .
 
    Revelation : IdentOrQualRef RevelationRelation Type  
-     { $$ . PaInt := 1 (* BlockDecl count. *) ;
+     { $$ . PaInt1 := 1 (* BlockDecl count. *) ;
 (* CHECK^ Do we really want to count this as a block decl?  It occupies a 
           space in the Blockdecl list, but does not introduce a new identifier,
           rather adds decl info about the identifier.
@@ -1005,7 +1005,7 @@ RULE
 
 (* ------------------------- Variable Declarations -------------------- . *) 
 
-   (* VarDeclGroup, VarDeclList, VarDecl . PaInt is declaration count. *) 
+   (* VarDeclGroup, VarDeclList, VarDecl . PaInt1 is declaration count. *) 
 
    (* VarDeclGroup is a list of variable declarations all following
       a single occurrence of "VAR".  The parsing removes this grouping
@@ -1025,19 +1025,19 @@ RULE
      } .
 
    VarDeclGroup : VarDeclGroupLt VarDeclList 
-      { $$ . PaInt := $2 . PaInt (* Decl count. *)  ;
+      { $$ . PaInt1 := $2 . PaInt1 (* Decl count. *)  ;
         $$ . PaPos (* Rt Semicolon. *) := $2 . PaPos ;  
         <* ASSERT FM3Decls . PopDeclParseInfo ( ) = $1 . PaDeclDepth *>
       } . 
 
    VarDeclList : /*Empty*/ 
-      { $$ . PaInt := 0 (* Decl count. *) ;
+      { $$ . PaInt1 := 0 (* Decl count. *) ;
         $$ . PaPos (* No trailing semicolon exists. *)
           := FM3Scanner.Attribute . Position ; 
       } .
 
    VarDeclList : VarDeclPlus  
-     { $$ . PaInt := $1 . PaInt ;
+     { $$ . PaInt1 := $1 . PaInt1 ;
        $$ . PaPos (* Rt Semicolon. *) := $1 . PaPos ; 
 
        (*FM3Pass1 . MakeListPos
@@ -1050,19 +1050,19 @@ RULE
      } . 
    
    VarDeclPlus : VarDecl StkSemicolon  
-     { $$ . PaInt (* Decl count. *) := $1 . PaInt ;
+     { $$ . PaInt1 (* Decl count. *) := $1 . PaInt1 ;
        $$ . PaPos (* Rt Semicolon. *) := $2 . Scan . Position ;  
      } .
 
    VarDeclPlus : VarDeclPlus VarDecl StkSemicolon 
-     { $$ . PaInt (* Decl count. *):= $1 . PaInt + $2 . PaInt ;
-       IF $2 . PaInt > 0
+     { $$ . PaInt1 (* Decl count. *):= $1 . PaInt1 + $2 . PaInt1 ;
+       IF $2 . PaInt1 > 0
        THEN 
          $$ . PaPos (* Rt Semicolon. *) := $3 . Scan . Position ;  
          FM3Pass1 . PutBwd_ECIP (* Insert a separator. *) 
            ( Itk . ItkOpenDeclListLt
            , $2 . PaPass1Coord 
-           , $1 . PaInt
+           , $1 . PaInt1
            , $1 . PaPos 
            ) ;
        ELSE
@@ -1116,16 +1116,16 @@ RULE
 
    VarDeclLt : /* Empty */
      { $$ . PaTok1 := Itk . ItkVarDeclLt ;
-       $$ . PaByte := ORD ( Dkt . DkVar ) ;
+       $$ . PaByte1 := ORD ( Dkt . DkVar ) ;
      } . 
 
    VarDecl : VarDeclLt DeclIdList DeclType OptDeclType DeclValue OptDeclValue  
      { IF FM3Pass1 . RequireTypeAndOrValue
             ( $5 . Scan . Position , $3 . PaBool , $5 . PaBool ) 
        (* ^Check this even if there are no valid ids. *)
-          AND $1 . PaInt > 0 
+          AND $1 . PaInt1 > 0 
        THEN
-         $$ . PaInt := $1 . PaInt (* Valid id count. *) ;
+         $$ . PaInt1 := $1 . PaInt1 (* Valid id count. *) ;
          FM3Pass1 . PutBwd_LCP_rp (* The whole declaration. *) 
            ( FM3Decls . TopDeclParseInfo ( ) . DiDeclTok 
            , $1 . PaPass1Coord
@@ -1135,7 +1135,7 @@ RULE
          FM3Pass1 . PutBwd_LCI_ri
            ( Itk . ItkSkipLt , $2 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
          INC ( FM3Globals . NextSkipNo ) ; 
-         $$ . PaInt := 0 (* Contribution to BlockDeclCt. *) ; 
+         $$ . PaInt1 := 0 (* Contribution to BlockDeclCt. *) ; 
        END (*IF*)
      } . 
 
@@ -1320,7 +1320,7 @@ RULE
          FM3Pass1 . PutBwd_LCIP_rip
            ( Itk . ItkEnumTypeLt
            , $1 . PaPass1Coord
-           , $2 . PaInt
+           , $2 . PaInt1
            , $1 . Scan . Position
            ) ;
          (* ^Currently not being used in pass 2. *) 
@@ -1328,28 +1328,28 @@ RULE
      } .
 
    EnumLitList : /*Empty*/
-     { $$ . PaInt (* Decl count. *) := 0 ; } .
+     { $$ . PaInt1 (* Decl count. *) := 0 ; } .
 
    EnumLitList : EnumLitPlus
-     { $$ . PaInt (* Decl count. *) := $1 . PaInt ; } . 
+     { $$ . PaInt1 (* Decl count. *) := $1 . PaInt1 ; } . 
 
    EnumLitPlus : EnumLit  
-     { $$ . PaInt (* Decl count. *) := $1 . PaInt ; } .
+     { $$ . PaInt1 (* Decl count. *) := $1 . PaInt1 ; } .
 
    EnumLitPlus : EnumLitPlus StkComma EnumLit
-     { $$ . PaInt (* Decl count. *):= $1 . PaInt + $3 . PaInt ; } .
+     { $$ . PaInt1 (* Decl count. *):= $1 . PaInt1 + $3 . PaInt1 ; } .
      
    EnumLit : StkIdent
-     { $$ . PaInt (* Ident count, 0 or 1. *) 
+     { $$ . PaInt1 (* Ident count, 0 or 1. *) 
          := ORD ( FM3Pass1 . DeclIdL2R
                     ( Dkt . DkEnumLit
                     , IdAttribute := $1
                     , SepTok := Itk . ItkEnumLitListSep
                     , SepPosition := $0 . Scan . Position
-                    , PriorIdCt := $-1 . PaInt 
+                    , PriorIdCt := $-1 . PaInt1 
                     )
                 ) ;
-       IF $$ . PaInt > 0
+       IF $$ . PaInt1 > 0
        THEN
        END (*IF*) 
      } . 
@@ -1379,14 +1379,14 @@ RULE
      } . 
    
    FieldDeclPlus : VarDecl  
-     { $$ . PaInt (* Decl count. *) := $1 . PaInt ; } .
+     { $$ . PaInt1 (* Decl count. *) := $1 . PaInt1 ; } .
 
    FieldDeclPlus : FieldDeclPlus StkSemicolon VarDecl
-     { $$ . PaInt (* Decl count. *):= $1 . PaInt + $3 . PaInt ;
+     { $$ . PaInt1 (* Decl count. *):= $1 . PaInt1 + $3 . PaInt1 ;
        FM3Pass1 . PutBwd_ECIP
          ( Itk . ItkFieldDeclListLt
          , $2 . PaPass1Coord 
-         , $1 . PaInt
+         , $1 . PaInt1
          , $2 . Scan . Position
          ) ; 
      } . 
@@ -1395,7 +1395,7 @@ RULE
 
    RecTypeLt : StkRwRECORD  
      { $$ . PaTok1 := Itk . ItkRecFieldDeclLt ;
-       $$ . PaByte := ORD ( Dkt . DkRecField ) ;
+       $$ . PaByte1 := ORD ( Dkt . DkRecField ) ;
 
        VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN 
@@ -1431,7 +1431,7 @@ RULE
          FM3Pass1 . PutBwd_LCIP_rip
            ( Itk . ItkRecTypeLt
            , $1 . PaPass1Coord
-           , $2 . PaInt (* Count of decls, fields, formals, etc. *) 
+           , $2 . PaInt1 (* Count of decls, fields, formals, etc. *) 
            , $1 . Scan . Position
            ) ;
          (* Pass 2 must see the following before the preceeding. *) 
@@ -1468,14 +1468,14 @@ RULE
      } . 
    
    MethodDeclPlus : MethodDecl  
-     { $$ . PaInt (* Decl count. *) := $1 . PaInt ; } .
+     { $$ . PaInt1 (* Decl count. *) := $1 . PaInt1 ; } .
 
    MethodDeclPlus : MethodDeclPlus StkSemicolon MethodDecl
-     { $$ . PaInt (* Decl count. *):= $1 . PaInt + $3 . PaInt ;
+     { $$ . PaInt1 (* Decl count. *):= $1 . PaInt1 + $3 . PaInt1 ;
        FM3Pass1 . PutBwd_ECIP
          ( Itk . ItkMethodDeclListLt
          , $2 . PaPass1Coord 
-         , $1 . PaInt
+         , $1 . PaInt1
          , $2 . Scan . Position
          ) ; 
      } . 
@@ -1484,15 +1484,15 @@ RULE
 
    MethodDeclLt : StkIdent 
      { $$ . Scan . SaAtom := $1 . Scan . SaAtom ; 
-       $$ . PaInt (* Ident count, 0 or 1. *) 
+       $$ . PaInt1 (* Ident count, 0 or 1. *) 
            := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkMethod , IdAttribute := $1 ) ) ;
      } . 
 
    MethodDecl : MethodDeclLt Signature 
      { VAR LFormalsScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN
-         $$ . PaInt (* Valid method count. *) := $1 . PaInt ; 
-         IF $$ . PaInt > 0
+         $$ . PaInt1 (* Valid method count. *) := $1 . PaInt1 ; 
+         IF $$ . PaInt1 > 0
          THEN
            FM3Pass1 . PutBwd_LCIP_rip
              ( Itk . ItkMethodDeclLt
@@ -1541,14 +1541,14 @@ RULE
      } . 
    
    OverridePlus : Override  
-     { $$ . PaInt (* Override count. *) := $1 . PaInt ; } .
+     { $$ . PaInt1 (* Override count. *) := $1 . PaInt1 ; } .
 
    OverridePlus : OverridePlus StkSemicolon Override
-     { $$ . PaInt (* Override count. *):= $1 . PaInt + $3 . PaInt ;
+     { $$ . PaInt1 (* Override count. *):= $1 . PaInt1 + $3 . PaInt1 ;
        FM3Pass1 . PutBwd_ECIP
          ( Itk . ItkOverrideListLt
          , $2 . PaPass1Coord 
-         , $1 . PaInt
+         , $1 . PaInt1
          , $2 . Scan . Position
          ) ; 
      } . 
@@ -1558,14 +1558,14 @@ RULE
    Override : StkIdent StkEqual Expr 
      { (* Default PaPos. *)
        (* Default PaPass1Coord. *)
-       $$ . PaInt (* valid ident count, 0 or 1. *)
+       $$ . PaInt1 (* valid ident count, 0 or 1. *)
          := ORD ( FM3Pass1 . VerifyIdentNotReserved
                     ( $1
                     , $1 . Scan .Position
                     , "denote a method to override"
                     )
                 ) ;
-       IF $$ . PaInt = 0 
+       IF $$ . PaInt1 = 0 
        THEN (* Skip the whole override. *) 
          FM3Pass1 . PutBwd_LCI_ri
            ( Itk . ItkSkipLt , $1 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
@@ -1584,13 +1584,13 @@ RULE
 
    Brand : /*Empty*/
      /* Happens when & only when REF or OBJECT is the lookahead. */
-     { $$ . PaByte := ORD ( Bkt . BkAbsent ) ;
+     { $$ . PaByte1 := ORD ( Bkt . BkAbsent ) ;
        FM3Pass1 . PutBwd_LP
          ( Itk . ItkBrandAbsent , FM3Scanner . Attribute . Position ) ;
      } . 
 
    Brand : StkRwBRANDED
-     { $$ . PaByte := ORD ( Bkt . BkAnon ) ;
+     { $$ . PaByte1 := ORD ( Bkt . BkAnon ) ;
        FM3Pass1 . PutBwd_LP 
          ( Itk . ItkBrandAnon , $1 . Scan . Position ) ;
      } . 
@@ -1598,7 +1598,7 @@ RULE
    Brand : StkRwBRANDED Expr
      { $$ . PaPass1Coord := $2 . PaPass1Coord ;
        $$ . Scan . Position := $2 . Scan . Position ;
-       $$ . PaByte := ORD ( Bkt . BkExplicit ) ;
+       $$ . PaByte1 := ORD ( Bkt . BkExplicit ) ;
        FM3Pass1 . PutBwd_LCP_rp
          ( Itk . ItkBrandExplicitLt
          , $2 . PaPass1Coord
@@ -1618,7 +1618,7 @@ RULE
    
    SupertypePresent : ObjType { (* Default Position & Coord. *) } . 
 
-   SupertypeSem : SupertypePresent  
+   ObjSupertype : SupertypePresent  
      { (* Default Position & Coord. *) 
        (* ^The supertype will end up nested within its object type. *) 
        FM3Pass1 . PutBwd_LCP_rp
@@ -1628,26 +1628,26 @@ RULE
          ) ;
      } .
 
-   ObjTypeLt : ObjSubtypeLt /* I.e., it has an explicit supertype. */
-     { $$ . PaDeclDepth := $1 . PaDeclDepth ; 
-       $$ . PaBool := TRUE (* Has explicit subtype. *) ;
-       $$ . PaInt := $1 . PaInt (* Scope num. *) ;  
-       $$ . PaByte2 := $1 . PaByte (* Brand kind, Bkt. *) ;
-       $$ . PaTok1 := Itk . ItkObjFieldDeclLt ;
-       $$ . PaByte := ORD ( Dkt . DkObjField ) ;
-     } . 
-     
-   ObjSubtypeLt : SupertypeSem Brand StkRwOBJECT
+   ObjWSubtypeLt : ObjSupertype Brand StkRwOBJECT
      { (* Default Position & Coord. *) 
        FM3Pass1 . ObjTypeLtL2R
          ( $$ , $2 . PaByte2 (* Brand kind, Bkt. *) , $3 . Scan . Position ) ;   
      } .
 
+   ObjTypeLt : ObjWSubtypeLt /* I.e., it has an explicit supertype. */
+     { $$ . PaDeclDepth := $1 . PaDeclDepth ; 
+       $$ . PaBool := TRUE (* Has explicit subtype. *) ;
+       $$ . PaInt1 := $1 . PaInt1 (* Scope num. *) ;  
+       $$ . PaByte2 := $1 . PaByte1 (* Brand kind, Bkt. *) ;
+       $$ . PaTok1 := Itk . ItkObjFieldDeclLt ;
+       $$ . PaByte1 := ORD ( Dkt . DkObjField ) ;
+     } . 
+     
    ObjTypeLt : ObjRootTypeLt
      /* Its supertype is implicitly ROOT, but syntactically absent. */  
      { $$ . PaDeclDepth := $1 . PaDeclDepth ; 
        $$ . PaBool := FALSE (* Has explicit subtype. *) ;
-       $$ . PaInt := $1 . PaInt (* Scope num. *) ; 
+       $$ . PaInt1 := $1 . PaInt1 (* Scope num. *) ; 
        $$ . PaByte2 := $1 . PaByte2 (* Brand kind, Bkt. *) ; 
      } .
 
@@ -1667,13 +1667,13 @@ RULE
          *) 
          LScopeRef := FM3Scopes . PopDeclScopeRef ( ) ;
          <* ASSERT LScopeRef ^ . ScpKind = Skt . SkObj *>
-         <* ASSERT LScopeRef ^ . ScpSelfScopeNo = $1 . PaInt *> 
+         <* ASSERT LScopeRef ^ . ScpSelfScopeNo = $1 . PaInt1 *> 
          FM3Pass1 . PutBwd_LCIIIP_riiip
            ( Itk . ItkObjTypeLt
            , $1 . PaPass1Coord
            , $1 . PaByte2 (* BrandKind, Bkt. *)
-           , $2 . PaInt + $3 . PaInt (* Count of fields + methods. *) 
-           , $4 . PaInt (* Count of overrides. *) 
+           , $2 . PaInt1 + $3 . PaInt1 (* Count of fields + methods. *) 
+           , $4 . PaInt1 (* Count of overrides. *) 
            , $1 . Scan . Position 
            ) ;
          FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
@@ -1710,7 +1710,7 @@ RULE
          FM3Pass1 . PutBwd_LCIP_rip
            ( $2 . PaTok1
            , $1 . PaPass1Coord
-           , $1 . PaInt
+           , $1 . PaInt1
            , $1 . Scan . Position
            ) ;
        END (*Block*) 
@@ -1718,7 +1718,7 @@ RULE
 
 (* List of formal decls. *)
 
-(* FormalsLt Formals.PaInt, FormalPlus.PaInt, and FormalsList.PaInt
+(* FormalsLt Formals.PaInt1, FormalPlus.PaInt1, and FormalsList.PaInt1
    are formals count. *)
 
 
@@ -1782,7 +1782,7 @@ RULE
          FM3Pass1 . PutBwd_LCIP_rip
            ( Itk . ItkRecTypeLt
            , $1 . PaPass1Coord
-           , $2 . PaInt (* Count of decls, fields, formals, etc. *) 
+           , $2 . PaInt1 (* Count of decls, fields, formals, etc. *) 
            , $1 . Scan . Position
            ) ;
          <* ASSERT FM3Decls . PopDeclParseInfo ( )
@@ -1817,20 +1817,20 @@ RULE
      } . 
 
    FormalsList : /* Empty formals list. */
-     { $$ . PaInt := 0 (* Formals count. *) ; } .
+     { $$ . PaInt1 := 0 (* Formals count. *) ; } .
 
    FormalsList : FormalPlus OptSemicolon
-     { $$ . PaInt := $1 . PaInt (* Formals count. *) ; } . 
+     { $$ . PaInt1 := $1 . PaInt1 (* Formals count. *) ; } . 
      
    FormalPlus : Formal 
-     { $$ . PaInt := $1 . PaInt (* Formals count. *) ; } .
+     { $$ . PaInt1 := $1 . PaInt1 (* Formals count. *) ; } .
 
    FormalPlus : FormalPlus StkSemicolon Formal 
-     { $$ . PaInt := $1 . PaInt + $3 . PaInt (* Formals count. *);
+     { $$ . PaInt1 := $1 . PaInt1 + $3 . PaInt1 (* Formals count. *);
        FM3Pass1 . PutBwd_ECIP
          ( Itk . ItkFormalsListLt 
          , $2 . PaPass1Coord 
-         , $1 . PaInt (* Number of formals to left. *) 
+         , $1 . PaInt1 (* Number of formals to left. *) 
          , $2 . Scan . Position
          ) ; 
      } .
@@ -1840,7 +1840,7 @@ RULE
      { (* Default coord. *)
        $$ . Scan . Position := FM3Scanner . Attribute . Position ;
        $$ . PaTok1 := Itk . ItkVALUEFormalLt ; 
-       $$ . PaByte := ORD ( Dkt . DkVALUEFormal ) ;
+       $$ . PaByte1 := ORD ( Dkt . DkVALUEFormal ) ;
        $$ . PaDeclDepth (* DeclParseInfoDepth after push. *) 
          := FM3Decls . PushDeclParseInfo
               ( FM3Decls . DeclParseInfoTyp
@@ -1853,7 +1853,7 @@ RULE
      { (* Default position and coord. *)
        $$ . Scan . Position := $1 . Scan . Position ;
        $$ . PaTok1 := Itk . ItkVALUEFormalLt ; 
-       $$ . PaByte := ORD ( Dkt . DkVALUEFormal ) ;
+       $$ . PaByte1 := ORD ( Dkt . DkVALUEFormal ) ;
        $$ . PaDeclDepth (* DeclParseInfoDepth after push. *) 
          := FM3Decls . PushDeclParseInfo
               ( FM3Decls . DeclParseInfoTyp
@@ -1867,7 +1867,7 @@ RULE
      { (* Default position and coord. *)
        $$ . Scan . Position := $1 . Scan . Position ; 
        $$ . PaTok1 := Itk . ItkVARFormalLt ; 
-       $$ . PaByte := ORD ( Dkt . DkVARFormal ) ;
+       $$ . PaByte1 := ORD ( Dkt . DkVARFormal ) ;
        $$ . PaDeclDepth (* DeclParseInfoDepth after push. *) 
          := FM3Decls . PushDeclParseInfo
               ( FM3Decls . DeclParseInfoTyp
@@ -1879,7 +1879,7 @@ RULE
 
    FormalMode : StkRwREADONLY
      { (* Default position and coord. *)
-       $$ . PaByte := ORD ( Dkt . DkROFormal ) ;
+       $$ . PaByte1 := ORD ( Dkt . DkROFormal ) ;
        $$ . PaTok1 := Itk . ItkROFormalLt ; 
        $$ . PaDeclDepth (* DeclParseInfoDepth after push. *) 
          := FM3Decls . PushDeclParseInfo
@@ -1894,9 +1894,9 @@ RULE
      { (* Default coord. *)
        $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
        $$ . PaTok1 := $1 . PaTok1  (* Decl tok. *) ; 
-       $$ . PaByte := $1 . PaByte (* Decl kind. *) ;
+       $$ . PaByte1 := $1 . PaByte1 (* Decl kind. *) ;
        $$ . PaDeclDepth := $1 . PaDeclDepth (* DeclParseInfoDepth. *) ;
-       $$ . PaInt := $2 . PaInt (* Ident count. *) ; 
+       $$ . PaInt1 := $2 . PaInt1 (* Ident count. *) ; 
        FM3Pass1 . PutBwd_EP (* Itk*FormalType token. *)
          ( FM3Decls . TopDeclParseInfo ( ) . DiDeclTok 
          , FM3Scanner . Attribute . Position 
@@ -1907,9 +1907,9 @@ RULE
      { (* Default coord and position. *)
        $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
        $$ . PaTok1 := $1 . PaTok1 (* Decl tok. *) ; 
-       $$ . PaByte := $1 . PaByte (* Decl kind. *) ; 
+       $$ . PaByte1 := $1 . PaByte1 (* Decl kind. *) ; 
        $$ . PaDeclDepth := $1 . PaDeclDepth (* DeclParseInfoDepth. *) ;
-       $$ . PaInt := $1 . PaInt (* Ident count. *) ;
+       $$ . PaInt1 := $1 . PaInt1 (* Ident count. *) ;
        $$ . PaBool := $2 . PaBool (* Type is present *) ;  
        FM3Pass1 . PutBwd_ZP (* ItkFormal*Value token *)  
          ( $1 . PaTok1 , FM3Scanner . Attribute . Position ) ;
@@ -1918,9 +1918,9 @@ RULE
    Formal : /* At right of entire formal. */ FormalType OptDeclValue   
      { (* Default position. *) 
        $$ . PaDeclDepth := $1 . PaDeclDepth (* DeclParseInfoDepth. *) ;
-       $$ . PaInt := $1 . PaInt (* Ident count. *) ; 
+       $$ . PaInt1 := $1 . PaInt1 (* Ident count. *) ; 
 
-       IF VAL ( $1 . PaByte , Dkt ) = Dkt . DkVARFormal   
+       IF VAL ( $1 . PaByte1 , Dkt ) = Dkt . DkVARFormal   
        THEN
          $$ . PaBool (* OK, for now. *) := TRUE ; 
          
@@ -2131,7 +2131,7 @@ RULE
        BEGIN
          (* Default coord and position. *) 
          $$ . Scan . SaAtom := $2 . Scan . SaAtom ; 
-         $$ . PaInt (* Ident count, 0 or 1. *) 
+         $$ . PaInt1 (* Ident count, 0 or 1. *) 
            := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkProc , IdAttribute := $2 ) ) ;
        END (*Block*) 
      } . 
@@ -2139,7 +2139,7 @@ RULE
    ProcDecl : ProcDeclLt Signature OptProcBody
      { (* Default coord and position. *)
          $$ . Scan . SaAtom := $1 . Scan . SaAtom ; 
-         $$ . PaInt (* Valid decl count. *) := $1 . PaInt ; 
+         $$ . PaInt1 (* Valid decl count. *) := $1 . PaInt1 ; 
          FM3Pass1 . PutBwd_LCIP
            ( $3 . PaTok1
            , $1 . PaPass1Coord
@@ -2325,7 +2325,7 @@ RULE
      { FM3Pass1 . PutBwd_LCIP_eCip_rip
          ( Itk . ItkSubscriptLt 
          , $1 . PaPass1Coord 
-         , $2 . PaInt 
+         , $2 . PaInt1 
          , $2 . Scan . Position
 
          , $2 . PaPass1Coord 
@@ -2336,7 +2336,7 @@ RULE
      { FM3Pass1 . PutBwd_LCIP_eCip_rip
          ( Itk . ItkCallLt 
          , $1 . PaPass1Coord 
-         , $2 . PaInt 
+         , $2 . PaInt1 
          , $2 . Scan . Position
 
          , $2 . PaPass1Coord
@@ -2375,7 +2375,7 @@ RULE
          FM3Pass1 . PutBwd_LCIP_eCip_rip
            ( Itk . ItkSubscriptLt 
            , $1 . PaPass1Coord 
-           , $2 . PaInt 
+           , $2 . PaInt1 
            , $2 . Scan . Position
 
            , $2 . PaPass1Coord 
@@ -2395,7 +2395,7 @@ RULE
          FM3Pass1 . PutBwd_LCIP_eCip_rip
            ( Itk . ItkCallLt 
            , $1 . PaPass1Coord 
-           , $2 . PaInt (* Actuals count. *)
+           , $2 . PaInt1 (* Actuals count. *)
            , $2 . Scan . Position
            
            , $2 . PaPass1Coord
@@ -2424,24 +2424,24 @@ RULE
      } .
    
    SsPlusList : Expr 
-     { $$ . PaInt (* Expression count *) :=  1 ;
+     { $$ . PaInt1 (* Expression count *) :=  1 ;
        (* Default PaPos. *) 
        (* Default PaPass1Coord. *)
      } . 
    
    SsPlusListLt : SsPlusList StkComma 
-     { $$ . PaInt (* Expression count *) := $1 . PaInt ; 
+     { $$ . PaInt1 (* Expression count *) := $1 . PaInt1 ; 
        (* Default PaPos. *) 
        (* Default PaPass1Coord. *)
        FM3Pass1 . PutBwd_TIP
          ( Itk . ItkSubscriptsPlusListSep
-         , $1 . PaInt
+         , $1 . PaInt1
          , $2 . Scan . Position
          ) ; 
      } . 
 
    SsPlusList : SsPlusListLt Expr 
-     { $$ . PaInt (* Expression count *) := $1 . PaInt + 1 ;
+     { $$ . PaInt1 (* Expression count *) := $1 . PaInt1 + 1 ;
        (* Default PaPos. *) 
        (* Default PaPass1Coord. *)
      } . 
@@ -2458,11 +2458,11 @@ RULE
          , Position := $1 . Scan . Position
          , ElemsAttr := $2 (* For elem ct & patch coord. *) 
          ) ;
-       $$ . PaInt := $2 . PaInt ; 
+       $$ . PaInt1 := $2 . PaInt1 ; 
      } .
 
    ActualList : /*Empty*/
-     { $$ . PaInt (* Actual count *) :=  0 ;
+     { $$ . PaInt1 (* Actual count *) :=  0 ;
        (* Default PaPos. *) 
        (* Default PaPass1Coord. *)
      } . 
@@ -2470,22 +2470,22 @@ RULE
    ActualList : Actual 
      { (* Default PaPos. *) 
        (* Default PaPass1Coord. *)
-       $$ . PaInt (* Actual count *) :=  $1 . PaInt ;
+       $$ . PaInt1 (* Actual count *) :=  $1 . PaInt1 ;
      } . 
    
    ActualListLt : ActualList StkComma 
-     { $$ . PaInt (* Actual count *) := $1 . PaInt ;
+     { $$ . PaInt1 (* Actual count *) := $1 . PaInt1 ;
        (* Default PaPos. *) 
        (* Default PaPass1Coord. *)
        FM3Pass1 . PutBwd_TIP
          ( Itk . ItkActualsListSep
-         , $1 . PaInt
+         , $1 . PaInt1
          , $2 . Scan . Position
          ) ; 
      } .
 
    ActualList : ActualListLt Actual  
-     { $$ . PaInt (* Actual count *) := $1 . PaInt + $2 . PaInt ;
+     { $$ . PaInt1 (* Actual count *) := $1 . PaInt1 + $2 . PaInt1 ;
        (* Default PaPos. *) 
        (* Default PaPass1Coord. *)
      } .
@@ -2493,7 +2493,7 @@ RULE
    Actual : Expr
      { (* Default PaPos. *) 
        (* Default PaPass1Coord. *)
-       $$ . PaInt := 1 (* Can Expr be 0 count? *) ;
+       $$ . PaInt1 := 1 (* Can Expr be 0 count? *) ;
        
        FM3Pass1 . PutBwd_LCIP_rip
          ( Itk . ItkActualLt
@@ -2506,14 +2506,14 @@ RULE
    Actual : StkIdent StkBecomes Expr  
      { (* Default PaPos. *) 
        (* Default PaPass1Coord. *)
-       $$ . PaInt (* Valid ident count, 0 or 1. *) 
+       $$ . PaInt1 (* Valid ident count, 0 or 1. *) 
          := ORD ( FM3Pass1 . VerifyIdentNotReserved
                     ( $1
                     , $1 . Scan . Position
                     , "be the keyword of an actual parameter"
                     )
                 ) ;
-       IF $$ . PaInt = 0
+       IF $$ . PaInt1 = 0
        THEN (* Skip the whole actual. *) 
          FM3Pass1 . PutBwd_LCI_ri
            ( Itk . ItkSkipLt , $1 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
@@ -2646,27 +2646,27 @@ RULE
 (* ------------------------ Block declarations ------------------------- *)
 
    BlockDecl : ConstDeclGroup
-     { $$ . PaInt := $1 . PaInt ;
+     { $$ . PaInt1 := $1 . PaInt1 ;
        $$ . PaPos (* Rt semicolon. *) := $1 . PaPos ; 
      } .
    BlockDecl : TypeDeclGroup
-     { $$ . PaInt := $1 . PaInt ;
+     { $$ . PaInt1 := $1 . PaInt1 ;
        $$ . PaPos (* Rt semicolon. *) := $1 . PaPos ; 
      } . 
    BlockDecl : ExceptDeclGroup
-     { $$ . PaInt := $1 . PaInt ;
+     { $$ . PaInt1 := $1 . PaInt1 ;
        $$ . PaPos (* Rt semicolon. *) := $1 . PaPos ; 
      } . 
    BlockDecl : VarDeclGroup
-     { $$ . PaInt := $1 . PaInt ;
+     { $$ . PaInt1 := $1 . PaInt1 ;
        $$ . PaPos (* Rt semicolon. *) := $1 . PaPos ; 
      } . 
    BlockDecl : ProcDecl
-     { $$ . PaInt := $1 . PaInt ;
+     { $$ . PaInt1 := $1 . PaInt1 ;
        $$ . PaPos (* Rt semicolon. *) := $1 . PaPos ; 
      } .
    BlockDecl : RevelationGroup
-     { $$ . PaInt := $1 . PaInt ;
+     { $$ . PaInt1 := $1 . PaInt1 ;
        $$ . PaPos (* Rt semicolon. *) := $1 . PaPos ; 
      } . 
  
@@ -2696,29 +2696,29 @@ RULE
      } .
      
    BlockDeclPlus : BlockDecl 
-     { $$ . PaInt := $1 . PaInt (* Decl count. *) ;
+     { $$ . PaInt1 := $1 . PaInt1 (* Decl count. *) ;
        (* Default PaPos. *) 
        (* Default PaPass1Coord. *) 
        $$ . PaPos2 := $1 . PaPos2 ;
      } .
 
    BlockDeclPlusSepLt : BlockDeclPlus 
-     { $$ . PaInt := $1 . PaInt (* Decl count. *) ;
+     { $$ . PaInt1 := $1 . PaInt1 (* Decl count. *) ;
        (* Default PaPos. *) 
        $$ . PaPos2 := $1 . PaPos2 ;
        (* Default PaPass1Coord. *) 
-       IF $1 . PaInt > 0
+       IF $1 . PaInt1 > 0
        THEN
          FM3Pass1 . PutBwd_TIP (* Insert a separator. *)
            ( Itk . ItkOpenDeclListSep
-           , $1 . PaInt
+           , $1 . PaInt1
            , $1 . Scan . Position 
            ) ;
        END (*IF*) ; 
      } .
 
    BlockDeclPlus : BlockDeclPlusSepLt BlockDecl  
-     { $$ . PaInt := $1 . PaInt + $2 . PaInt (* Decl count. *) ;
+     { $$ . PaInt1 := $1 . PaInt1 + $2 . PaInt1 (* Decl count. *) ;
        (* Default PaPos. *)
        (* Default PaPass1Coord. *) 
        $$ . PaPos2 := $2 . PaPos2 ;
@@ -2749,26 +2749,26 @@ RULE
      } .
 
    StmtPlus : Stmt
-     { $$ . PaInt := 0 ;
+     { $$ . PaInt1 := 0 ;
        (* Default PaPos. *)
        (* Default PaPass1Coord. *) 
      } .
 
    StmtPlusSepLt : StmtPlus OptSemicolon 
-     { $$ . PaInt := $1 . PaInt (* Count of stmts to left. *) ;
+     { $$ . PaInt1 := $1 . PaInt1 (* Count of stmts to left. *) ;
        $$ . PaPos2 := $2 . PaPos2 ;
        (* Default PaPos. *)
        (* Default PaPass1Coord. *) 
 
        FM3Pass1 . PutBwd_TIP (* Internal separator. *)
          ( Itk . ItkStmtListSep 
-         , $1 . PaInt
+         , $1 . PaInt1
          , $2 . Scan . Position
          ) ; 
      } .
    
    StmtPlus : StmtPlusSepLt Stmt
-     { $$ . PaInt := $1 . PaInt + 1 ;
+     { $$ . PaInt1 := $1 . PaInt1 + 1 ;
        $$ . PaPos2 := $2 . PaPos2 ;
        (* Default PaPos. *)
        (* Default PaPass1Coord. *) 
