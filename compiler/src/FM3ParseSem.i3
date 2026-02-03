@@ -24,6 +24,7 @@ INTERFACE FM3ParseSem
       ; PaListItemNo : INTEGER
       ; PaInt1 : INTEGER
       ; PaInt2 : INTEGER
+      ; PaInt3 : INTEGER
       ; PaBool : BOOLEAN 
       END (* tParsAttribute *)
 

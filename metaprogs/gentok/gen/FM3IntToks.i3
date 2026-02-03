@@ -401,12 +401,12 @@ ItkROFormalId    IDENT POS .
 ; CONST ItkSubrTypeEllipsisPatch        (*ArgCt: 2*) =   382 (*16_fe 02 *)
 
 (* Record type definitions. *)
-(* field count, Position of RECORD. *)
+(* field count, scope #, Position of RECORD. *)
 (* FIXED ItkRecType: *)
-; CONST ItkRecTypeLt                    (*ArgCt: 3*) =   383 (*16_ff 02 *)
-; CONST ItkRecTypeLtTemp                (*ArgCt: 3*) =   384 (*16_80 03 *)
-; CONST ItkRecTypeLtPatch               (*ArgCt: 3*) =   385 (*16_81 03 *)
-; CONST ItkRecTypeRt                    (*ArgCt: 3*) =   386 (*16_82 03 *)
+; CONST ItkRecTypeLt                    (*ArgCt: 4*) =   383 (*16_ff 02 *)
+; CONST ItkRecTypeLtTemp                (*ArgCt: 4*) =   384 (*16_80 03 *)
+; CONST ItkRecTypeLtPatch               (*ArgCt: 4*) =   385 (*16_81 03 *)
+; CONST ItkRecTypeRt                    (*ArgCt: 4*) =   386 (*16_82 03 *)
 
 (* Enumeration type definitions. *)
 (* field count, Position of "..". *)

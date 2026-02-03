@@ -33,6 +33,7 @@ INTERFACE FM3Pass1
       ; PaDeclDepth : INTEGER
       ; PaInt1 : INTEGER
       ; PaInt2 : INTEGER
+      ; PaInt3 : INTEGER
       ; PaPos : FM3Base . tPosition 
       ; PaPos2 : FM3Base . tPosition 
       ; PaTok1 : FM3Base . TokTyp 
@@ -52,8 +53,9 @@ INTERFACE FM3Pass1
         , PaConstructNo := FIRST ( INTEGER ) 
         , PaDeclDepth := FIRST ( INTEGER )
         , PaInt1 := FIRST ( INTEGER )
-        , PaInt2 := FIRST ( INTEGER )
-        , PaPos := FM3Base . PositionNull 
+        , PaInt2 := FIRST ( INTEGER ) 
+        , PaInt3 := FIRST ( INTEGER )
+       , PaPos := FM3Base . PositionNull 
         , PaPos2 := FM3Base . PositionNull 
         , PaTok1 := FM3Base . TokNull
         , PaTok2 := FM3Base . TokNull

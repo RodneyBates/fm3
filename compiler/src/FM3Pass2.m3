@@ -673,7 +673,7 @@ TRUE OR
             WITH LExpr = NEW ( FM3Exprs . ExprRefTyp ) 
             DO 
               LExpr ^ . ExpScalarConstVal := LLongInt
-            ; LExpr ^ . ExpLoTypeInfoRef
+            ; LExpr ^ . ExpLoTypeInfoRef (* Implicit narrow. *) 
                 := VarArray_Int_Refany . Fetch
                      ( FM3LoTypes . LoTypeMap , LLoTypeNo )  
             ; LExpr ^ . ExpPosition := LPosition
@@ -714,19 +714,38 @@ TRUE OR
         END (*WITH*)
       END HtExprRt 
 
-  ; PROCEDURE HtExprWScopeRt ( ExprKind : FM3Exprs . ExprKindTyp )
+  ; PROCEDURE HtPushDeclScope ( ScopeNo : FM3Scopes . ScopeNoTyp )
 
-    = VAR LCt : INTEGER 
-    ; VAR LPosition : tPosition
+    = VAR LScopeRef : FM3Scopes . ScopeRefTyp
+
+    ; BEGIN (*HtPushDeclScope*)
+        LScopeRef (* Implicit narrow. *) 
+          := VarArray_Int_Refany . Fetch
+               ( FM3Units . UnitStackTopRef ^ . UntDeclMap  , ScopeNo )
+      ; FM3Scopes . PushDeclScopeRef ( LScopeRef ) 
+      END HtPushDeclScope
+      
+  ; PROCEDURE HtPopDeclScope ( ScopeNo : FM3Scopes . ScopeNoTyp )
+
+    = VAR LScopeRef : FM3Scopes . ScopeRefTyp
+
+    ; BEGIN (*HtPopDeclScope*)
+        LScopeRef := FM3Scopes . PopDeclScopeRef ( ) 
+      ; IF LScopeRef ^ . ScpSelfScopeNo # LScopeNo
+        THEN <* ASSERT FALSE , "P2, pop decl scope mismatch." *>
+        END (*IF*) 
+      END HtPopDeclScope
+      
+  ; PROCEDURE HtExprWScopeRt ( ExprKind : FM3Exprs . ExprKindTyp ; Ct : INTEGER )
+
+    = VAR LPosition : tPosition
     ; VAR LDeclsListRef : FM3Globals . DeclRefListRefTyp 
     ; VAR LNewExpr : FM3Exprs . ExprRefTyp
 
     ; BEGIN (*HtExprWScopeRt*)
         IF NOT HtMaybePassTokenThru ( )
-        THEN 
-          LCt := GetBwdInt ( TokResult . TrRdBack ) (* ^Field count. *) 
-        ; LPosition := GetBwdPos ( TokResult . TrRdBack )
-        ; LDeclsListRef := FM3Decls . NewDeclRefListRef ( LCt )
+        THEN
+          LDeclsListRef := FM3Decls . NewDeclRefListRef ( Ct ) 
         ; LNewExpr
             := NEW ( FM3Exprs . ExprRefTyp
                    , ExpKind := ExprKind 
@@ -743,24 +762,24 @@ TRUE OR
 
   ; PROCEDURE HtExprWScopeLt ( ExprKind : FM3Exprs . ExprKindTyp )
 
-    = VAR LCt : INTEGER 
-    ; VAR LPosition : tPosition
-    ; VAR LDeclsListRef : FM3Globals . DeclRefListRefTyp 
+    = VAR LDeclsListRef : FM3Globals . DeclRefListRefTyp 
     ; VAR LNewExpr : FM3Exprs . ExprRefTyp
 
     ; BEGIN (*HtExprWScopeLt*)
         IF NOT HtMaybePassTokenThru ( )
         THEN  
-          LCt := GetBwdInt ( TokResult . TrRdBack ) (* Field count. *)
-        ; LPosition := GetBwdPos ( TokResult . TrRdBack )
-        ; LNewExpr := FM3Exprs . ExprStackTopObj  
+          LNewExpr := FM3Exprs . ExprStackTopObj  
         ; IF LNewExpr ^ . ExpKind # ExprKind
              OR LNewExpr ^ . ExpScopeRef1 # FM3Scopes . DeclScopeStackTopRef
-          THEN <* ASSERT FALSE , "Record type expression mismatch." *>
+          THEN <* ASSERT FALSE
+               , FM3Exprs . ExprKindImage ( ExprKind ) & ", expression mismatch."
+               *>
           END (*IF*)
         ; IF LNewExpr ^ . ExpDeclListNo # 0
-          THEN <* ASSERT FALSE , "Record type short field list." *>
-          END (*IF*) 
+          THEN <* ASSERT FALSE 
+               , FM3Exprs . ExprKindImage ( ExprKind ) & ", short field list." 
+               *>
+          END (*IF*)
 (* Copy token? *) 
         END (*IF*)
       END HtExprWScopeLt
@@ -1221,13 +1240,24 @@ TRUE OR
 
       (* Type expressions that contain a scope: *)
       
-      | Itk . ItkRecTypeRt => HtExprWScopeRt ( Ekt . EkRecType )
+      | Itk . ItkRecTypeRt
+      =>  LCt := GetBwdInt ( TokResult . TrRdBack ) (* ^Field count. *) 
+        ; LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack )
+        ; LPosition := GetBwdPos ( TokResult . TrRdBack )
+        ; HtPushDeclScope ( LScopeNo ) 
+        ; HtExprWScopeRt ( Ekt . EkRecType , LCt )
       
-      | Itk . ItkSigProperRt => HtExprWScopeRt ( Ekt . EkSigProc )
+      | Itk . ItkRecTypeLt 
+      =>  LCt := GetBwdInt ( TokResult . TrRdBack ) (* ^Field count. *) 
+        ; LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack )
+        ; LPosition := GetBwdPos ( TokResult . TrRdBack )
+        ; HtExprWScopeLt ( Ekt . EkRecType )
+        ; HtPopDeclScope ( LScopeNo ) 
       
-      | Itk . ItkSigFuncRt => HtExprWScopeRt ( Ekt . EkSigFunc )
+      | Itk . ItkSigProperRt => HtExprWScopeRt ( Ekt . EkSigProc , 0 )
       
-      | Itk . ItkRecTypeLt => HtExprWScopeLt ( Ekt . EkRecType )
+      | Itk . ItkSigFuncRt => HtExprWScopeRt ( Ekt . EkSigFunc , 0 )
+      
       
       | Itk . ItkSigProperLt => HtExprWScopeLt ( Ekt . EkSigProc )
       

@@ -1396,26 +1396,27 @@ RULE
    RecTypeLt : StkRwRECORD  
      { $$ . PaTok1 := Itk . ItkRecFieldDeclLt ;
        $$ . PaByte1 := ORD ( Dkt . DkRecField ) ;
+       $$ . PaPass1Coord := FM3Pass1 . Coord ( ) ;
+       $$ . PaDeclDepth (* DeclParseInfoDepth *) 
+         := FM3Decls . PushDeclParseInfo
+              ( FM3Decls . DeclParseInfoTyp
+                  { DiDeclTok := Itk . ItkRecFieldDeclLt
+                  , DiKind := Dkt . DkRecField 
+                  }
+              ) ;
 
        VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN 
-         $$ . PaPass1Coord := FM3Pass1 . Coord ( ) ;
-         $$ . PaDeclDepth (* DeclParseInfoDepth *) 
-           := FM3Decls . PushDeclParseInfo
-                ( FM3Decls . DeclParseInfoTyp
-                    { DiDeclTok := Itk . ItkRecFieldDeclLt
-                    , DiKind := Dkt . DkRecField 
-                    }
-                ) ;
          LScopeRef 
            := FM3Scopes . NewScopeRef
                 ( FM3Units . UnitStackTopRef
                 , Skt . SkRec
                 , $1 . Scan . Position
                 ) ;
+         $$ . PaInt2 := LScopeRef ^ . ScpSelfScopeNo ; 
          FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
          FM3Pass1 . PutBwd_TI
-           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo  ) ;
+           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
        END; 
      } . 
  
@@ -1423,23 +1424,25 @@ RULE
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN
          LScopeRef := FM3Scopes . PopDeclScopeRef ( ) ;
-         IF LScopeRef = NIL OR LScopeRef ^ . ScpKind # Skt . SkRec 
-         THEN <* ASSERT FALSE , "No rectype decl scope at right end." *>
+         IF LScopeRef ^ . ScpSelfScopeNo # $1 . PaInt2 
+         THEN <* ASSERT FALSE , "P1, rectypeRt, decl scope mismatch." *>
          END (*IF*) ; 
 
          FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
-         FM3Pass1 . PutBwd_LCIP_rip
+         FM3Pass1 . PutBwd_LCIIP_riip
            ( Itk . ItkRecTypeLt
            , $1 . PaPass1Coord
-           , $2 . PaInt1 (* Count of decls, fields, formals, etc. *) 
+           , $2 . PaInt1 (* Count of decls, fields, formals, etc. *)
+           , LScopeRef ^ . ScpSelfScopeNo
            , $1 . Scan . Position
            ) ;
          (* Pass 2 must see the following before the preceeding. *) 
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ;
-         <* ASSERT FM3Decls . PopDeclParseInfo ( )
-                   = $1 . PaDeclDepth (* DeclParseInfoDepth. *)
-         *> 
+         IF FM3Decls . PopDeclParseInfo ( )
+            # $1 . PaDeclDepth (* DeclParseInfoDepth *)
+         THEN <* ASSERT FALSE , "P1 rectype parse info depth mismatch." *>
+         END (*IF*) 
        END; 
      } .
 
@@ -1703,17 +1706,14 @@ RULE
    Works for proc decl, proc definition, proc type decl, method decl. *)
 
    Signature : Formals ResultType Raises
-     { VAR LToken : Itk . TokTyp ;
-       BEGIN
-         $$ . Scan . SaAtom := $0 . Scan . SaAtom ; 
-         (* $2 . PaBool means result type is present. *) 
-         FM3Pass1 . PutBwd_LCIP_rip
-           ( $2 . PaTok1
-           , $1 . PaPass1Coord
-           , $1 . PaInt1
-           , $1 . Scan . Position
-           ) ;
-       END (*Block*) 
+     { $$ . Scan . SaAtom := $0 . Scan . SaAtom ; 
+       (* $2 . PaBool means result type is present. *) 
+       FM3Pass1 . PutBwd_LCIP_rip
+         ( $2 . PaTok1
+         , $1 . PaPass1Coord
+         , $1 . PaInt1
+         , $1 . Scan . Position
+         ) ;
      } . 
 
 (* List of formal decls. *)

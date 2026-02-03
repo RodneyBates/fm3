@@ -155,7 +155,7 @@ ItkSubrType POS 2
 
 (* Record type definitions. *) 
 FIXED
-  ItkRecType INT POS 3 (* field count, Position of RECORD. *) .
+  ItkRecType INT INT POS (* field count, scope #, Position of RECORD. *) .
 
 (* Enumeration type definitions. *) 
 FIXED
