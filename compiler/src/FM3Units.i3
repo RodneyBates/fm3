@@ -154,9 +154,9 @@ INTERFACE FM3Units
           (* TOS Subscript at beginning and end of unit compile. *) 
       ; UntExprStackBaseCt : INTEGER := 0 
           (* TOS Subscript at beginning and end of unit compile. *) 
-      ; UntDeclScopeStackBaseCt : INTEGER := 0 
+      ; UntScopeDeclStackBaseCt : INTEGER := 0 
           (* TOS Subscript at beginning and end of unit compile. *) 
-      ; UntOpenScopeStackBaseCt : INTEGER := 0 
+      ; UntLookupScopeStackBaseCt : INTEGER := 0 
           (* TOS Subscript at beginning and end of unit compile. *) 
       ; UntStackDepth : INTEGER := 0
           (* ^Where on the units stack this UnitRef is. *) 

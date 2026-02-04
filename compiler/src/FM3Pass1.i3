@@ -508,7 +508,7 @@ INTERFACE FM3Pass1
   : BOOLEAN (* Nothing illegal.  Nothing done.
                Otherwise message emitted and token stream modified. *)
 
-; PROCEDURE DeclScopeRtL2R ( ScopeRef : FM3Scopes . ScopeRefTyp )
+; PROCEDURE ScopeForDeclsRtL2R ( ScopeRef : FM3Scopes . ScopeRefTyp )
   (* Create an IdAtom-to-declNo, fixed-size dictionary for the scope, of
      exactly the needed size, and load it up with mappings of the idents
      declared in the scope, using a contiguously-numbered range of DeclNos.

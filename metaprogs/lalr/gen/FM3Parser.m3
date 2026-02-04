@@ -2397,9 +2397,9 @@ yyNonterminal := 121;
                            := FM3Scopes . NewScopeRef 
                                 ( LUnitRef , Skt . SkInterface , yyAttributeStack^[yyStackPtr+2] . Scan . Position ) ;
                          LUnitRef ^ . UntScopeRef := LScopeRef ; 
-                         FM3Scopes . PushDeclScopeRef ( LScopeRef ) ; 
+                         FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) ; 
                          FM3Pass1 . PutBwd_TI
-                           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
+                           ( Itk . ItkScopeForDeclsLt , LScopeRef ^ . ScpSelfScopeNo ) ;
                        END ; 
                      
               | 454,226 => (* P15 InstInterface (114): InterfaceLt StkEqual NonreservedIdent GenActualList StkRwEND NonreservedIdent StkDot .*)
@@ -2416,11 +2416,11 @@ yyNonterminal := 121;
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
                        BEGIN
                          (* Default Position & Coord. *) 
-                         LScopeRef := FM3Scopes . DeclScopeStackTopRef ;
+                         LScopeRef := FM3Scopes . ScopeDeclStackTopRef ;
                          <* ASSERT LScopeRef ^ . ScpKind = Skt . SkInterface *>
-                         FM3Scopes . PushOpenScopeRef ( LScopeRef ) ;
+                         FM3Scopes . PushScopeRefLookupStack ( LScopeRef ) ;
                          FM3Pass1 . PutBwd_TI
-                           ( Itk . ItkOpenScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
+                           ( Itk . ItkLookupScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
                        END ; 
                      
               | 456,232 => (* P17 Interface (109): InterfaceMiddle OpenDeclList StkRwEND NonreservedIdent StkDot .*)
@@ -2429,21 +2429,21 @@ yyNonterminal := 121;
                  VAR LScopeRefOpen , LScopeRefDecl : FM3Scopes . ScopeRefTyp ;
                        BEGIN
                          (* Default Position & Coord. *) 
-                         LScopeRefOpen := FM3Scopes . PopOpenScopeRef ( ) ;
+                         LScopeRefOpen := FM3Scopes . PopScopeRefLookupStack ( ) ;
                          IF LScopeRefOpen = NIL OR LScopeRefOpen ^ . ScpKind # Skt . SkInterface 
                          THEN <* ASSERT FALSE , "No interface open scope at right end." *>
                          END (*IF*) ;  
                          FM3Pass1 . PutBwd_TI
-                           ( Itk . ItkOpenScopeRt , LScopeRefOpen ^ . ScpSelfScopeNo ) ;
+                           ( Itk . ItkLookupScopeRt , LScopeRefOpen ^ . ScpSelfScopeNo ) ;
                            
-                         LScopeRefDecl := FM3Scopes . PopDeclScopeRef ( ) ;
+                         LScopeRefDecl := FM3Scopes . PopScopeRefDeclsStack ( ) ;
                          IF LScopeRefDecl # LScopeRefOpen
                          THEN <* ASSERT FALSE , "Interface decl and open scopes #." *>
                          END (*IF*) ; 
                          FM3Pass1 . PutBwd_TI
-                           ( Itk . ItkDeclScopeRt , LScopeRefDecl ^ . ScpSelfScopeNo ) ;
+                           ( Itk . ItkScopeForDeclsRt , LScopeRefDecl ^ . ScpSelfScopeNo ) ;
                            
-                         FM3Pass1 . DeclScopeRtL2R ( LScopeRefDecl ) ;
+                         FM3Pass1 . ScopeForDeclsRtL2R ( LScopeRefDecl ) ;
                          FM3Pass1 . CheckUnitFinalId
                            ( FM3Units . UnitStackTopRef , yyAttributeStack^[yyStackPtr+4] . Scan , Ukt . UkInterface ) ; 
                          FM3Pass1 . CheckStdUnitPragma ( FM3Units . UnitStackTopRef ) ; 
@@ -2488,9 +2488,9 @@ yyNonterminal := 124;
                            := FM3Scopes . NewScopeRef 
                                 ( LUnitRef , Skt . SkModule , yyAttributeStack^[yyStackPtr+2] . Scan . Position ) ;
                          LUnitRef ^ . UntScopeRef := LScopeRef ; 
-                         FM3Scopes . PushDeclScopeRef ( LScopeRef ) ; 
+                         FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) ; 
                          FM3Pass1 . PutBwd_TI
-                           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ; 
+                           ( Itk . ItkScopeForDeclsLt , LScopeRef ^ . ScpSelfScopeNo ) ; 
                        END ; 
                      
               | 462,312 => (* P23 InstModule (115): ModuleLt StkEqual NonreservedIdent GenActualList StkRwEND NonreservedIdent StkDot .*)
@@ -2508,10 +2508,10 @@ yyNonterminal := 124;
                        BEGIN
                          (* Default Position & Coord. *) 
                          FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkModule ; 
-                         LScopeRef := FM3Scopes . DeclScopeStackTopRef ; 
-                         FM3Scopes . PushOpenScopeRef ( LScopeRef ) ;
+                         LScopeRef := FM3Scopes . ScopeDeclStackTopRef ; 
+                         FM3Scopes . PushScopeRefLookupStack ( LScopeRef ) ;
                          FM3Pass1 . PutBwd_TI
-                           ( Itk . ItkOpenScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
+                           ( Itk . ItkLookupScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
                        END ; 
                      
               | 464,313 => (* P25 Module (111): ModuleMiddle OpenDeclList StkRwBEGIN StmtList StkRwEND NonreservedIdent StkDot .*)
@@ -2520,21 +2520,21 @@ yyNonterminal := 124;
                  VAR LScopeRefDecl , LScopeRefOpen : FM3Scopes . ScopeRefTyp ;
                        BEGIN
                          (* Default Position & Coord. *) 
-                         LScopeRefOpen := FM3Scopes . PopOpenScopeRef ( ) ;
+                         LScopeRefOpen := FM3Scopes . PopScopeRefLookupStack ( ) ;
                          IF LScopeRefOpen = NIL OR LScopeRefOpen ^ . ScpKind # Skt . SkModule 
                          THEN <* ASSERT FALSE , "No module open scope at right end." *>
                          END (*IF*) ; 
                          FM3Pass1 . PutBwd_TI
-                           ( Itk . ItkOpenScopeRt , LScopeRefOpen ^ . ScpSelfScopeNo ) ;
+                           ( Itk . ItkLookupScopeRt , LScopeRefOpen ^ . ScpSelfScopeNo ) ;
                            
-                         LScopeRefDecl := FM3Scopes . PopDeclScopeRef ( ) ;
+                         LScopeRefDecl := FM3Scopes . PopScopeRefDeclsStack ( ) ;
                          IF LScopeRefDecl # LScopeRefOpen
                          THEN <* ASSERT FALSE , "Module decl and open scopes #." *>
                          END (*IF*) ;  
                          FM3Pass1 . PutBwd_TI
-                           ( Itk . ItkDeclScopeRt , LScopeRefDecl ^ . ScpSelfScopeNo ) ; 
+                           ( Itk . ItkScopeForDeclsRt , LScopeRefDecl ^ . ScpSelfScopeNo ) ; 
                          
-                         FM3Pass1 . DeclScopeRtL2R ( LScopeRefDecl ) ;
+                         FM3Pass1 . ScopeForDeclsRtL2R ( LScopeRefDecl ) ;
                          FM3Pass1 . CheckUnitFinalId
                            ( FM3Units . UnitStackTopRef , yyAttributeStack^[yyStackPtr+6] .Scan , Ukt . UkModule ) ; 
                          FM3Pass1 . PutBwd_LCIP_eCiP_riP 
@@ -2571,7 +2571,7 @@ yyNonterminal := 124;
                 DEC (yyStackPtr, 10); yyNonterminal := 112;
                 (* line 499 of "FM3Parser.lalr" *)
                  (* Scope ref:
-                        FM3Pass1 . PutBwd_TI ( Itk . ItkDeclScopeLt , yyAttributeStack^[yyStackPtr+1] . PaConstructNo ) ;
+                        FM3Pass1 . PutBwd_TI ( Itk . ItkScopeForDeclsLt , yyAttributeStack^[yyStackPtr+1] . PaConstructNo ) ;
                        *)
                        FM3Pass1 . CheckUnitFinalId
                          ( FM3Units . UnitStackTopRef , yyAttributeStack^[yyStackPtr+8] . Scan , Ukt . UkGenInterface ) ; 
@@ -2599,7 +2599,7 @@ yyNonterminal := 124;
                 DEC (yyStackPtr, 9); yyNonterminal := 113;
                 (* line 527 of "FM3Parser.lalr" *)
                  (* scope ref
-                          FM3Pass1 . PutBwd_TI ( Itk . ItkDeclScopeRt , yyAttributeStack^[yyStackPtr+1] . PaConstructNo ) ;
+                          FM3Pass1 . PutBwd_TI ( Itk . ItkScopeForDeclsRt , yyAttributeStack^[yyStackPtr+1] . PaConstructNo ) ;
                        *) 
                        FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkGenModule ; 
                        FM3Pass1 . CheckUnitFinalId
@@ -3446,9 +3446,9 @@ yyNonterminal := 190;
                                 , Skt . SkEnum
                                 , yyAttributeStack^[yyStackPtr+1] . Scan . Position
                                 ) ;
-                         FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
+                         FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) ;
                          FM3Pass1 . PutBwd_TI
-                           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo  ) ;
+                           ( Itk . ItkScopeForDeclsLt , LScopeRef ^ . ScpSelfScopeNo  ) ;
                        END; 
                      
               | 586,282 => (* P147 EnumType (219): EnumTypeLt EnumLitList StkCloseBrace .*)
@@ -3456,14 +3456,14 @@ yyNonterminal := 190;
                 (* line 1304 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN
-                         LScopeRef := FM3Scopes . PopDeclScopeRef (  ) ; 
+                         LScopeRef := FM3Scopes . PopScopeRefDeclsStack (  ) ; 
                          IF LScopeRef = NIL OR LScopeRef ^ . ScpKind # Skt . SkEnum
                          THEN <* ASSERT FALSE , "No enum scope at right end." *>
                          END (*IF*) ; 
                          FM3Pass1 . PutBwd_TI
-                           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo  ) ;
+                           ( Itk . ItkScopeForDeclsRt , LScopeRef ^ . ScpSelfScopeNo  ) ;
                 
-                         FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
+                         FM3Pass1 . ScopeForDeclsRtL2R ( LScopeRef ) ;
                          FM3Pass1 . MakeListPos
                            ( LHSAttr := yySynAttribute 
                            , TokLt := Itk . ItkEnumLitListLt
@@ -3575,9 +3575,9 @@ yyNonterminal := 222;
                                 , yyAttributeStack^[yyStackPtr+1] . Scan . Position
                                 ) ;
                          yySynAttribute . PaInt2 := LScopeRef ^ . ScpSelfScopeNo ; 
-                         FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
+                         FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) ;
                          FM3Pass1 . PutBwd_TI
-                           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo ) ;
+                           ( Itk . ItkScopeForDeclsLt , LScopeRef ^ . ScpSelfScopeNo ) ;
                        END; 
                      
               | 598,292 => (* P159 Type (156): RecTypeLt FieldDeclList StkRwEND .*)
@@ -3585,12 +3585,12 @@ yyNonterminal := 222;
                 (* line 1424 of "FM3Parser.lalr" *)
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN
-                         LScopeRef := FM3Scopes . PopDeclScopeRef ( ) ;
+                         LScopeRef := FM3Scopes . PopScopeRefDeclsStack ( ) ;
                          IF LScopeRef ^ . ScpSelfScopeNo # yyAttributeStack^[yyStackPtr+1] . PaInt2 
                          THEN <* ASSERT FALSE , "P1, rectypeRt, decl scope mismatch." *>
                          END (*IF*) ; 
                 
-                         FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
+                         FM3Pass1 . ScopeForDeclsRtL2R ( LScopeRef ) ;
                          FM3Pass1 . PutBwd_LCIIP_riip
                            ( Itk . ItkRecTypeLt
                            , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
@@ -3600,7 +3600,7 @@ yyNonterminal := 222;
                            ) ;
                          (* Pass 2 must see the following before the preceeding. *) 
                          FM3Pass1 . PutBwd_TI
-                           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ;
+                           ( Itk . ItkScopeForDeclsRt , LScopeRef ^ . ScpSelfScopeNo ) ;
                          IF FM3Decls . PopDeclParseInfo ( )
                             # yyAttributeStack^[yyStackPtr+1] . PaDeclDepth (* DeclParseInfoDepth *)
                          THEN <* ASSERT FALSE , "P1 rectype parse info depth mismatch." *>
@@ -3675,7 +3675,7 @@ yyNonterminal := 225;
                              ( Itk . ItkSkipLt , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord , FM3Globals . NextSkipNo ) ;
                            INC ( FM3Globals . NextSkipNo ) ;
                          END (*IF*) ; 
-                         LFormalsScopeRef := FM3Scopes . PopDeclScopeRef ( ) (* Formals. *) ;
+                         LFormalsScopeRef := FM3Scopes . PopScopeRefDeclsStack ( ) (* Formals. *) ;
                          IF LFormalsScopeRef = NIL
                             OR LFormalsScopeRef ^ . ScpKind # Skt . SkFormals
                          THEN <* ASSERT FALSE , "No formals scope at right of method decl." *>
@@ -3850,7 +3850,7 @@ yyNonterminal := 210;
                                   the OverrideList, but it's harmless, because parsing will
                                   ensure there are no decls in the OverrideList.
                          *) 
-                         LScopeRef := FM3Scopes . PopDeclScopeRef ( ) ;
+                         LScopeRef := FM3Scopes . PopScopeRefDeclsStack ( ) ;
                          <* ASSERT LScopeRef ^ . ScpKind = Skt . SkObj *>
                          <* ASSERT LScopeRef ^ . ScpSelfScopeNo = yyAttributeStack^[yyStackPtr+1] . PaInt1 *> 
                          FM3Pass1 . PutBwd_LCIIIP_riiip
@@ -3861,9 +3861,9 @@ yyNonterminal := 210;
                            , yyAttributeStack^[yyStackPtr+4] . PaInt1 (* Count of overrides. *) 
                            , yyAttributeStack^[yyStackPtr+1] . Scan . Position 
                            ) ;
-                         FM3Pass1 . DeclScopeRtL2R ( LScopeRef ) ;
+                         FM3Pass1 . ScopeForDeclsRtL2R ( LScopeRef ) ;
                          FM3Pass1 . PutBwd_TI
-                           ( Itk . ItkDeclScopeRt , LScopeRef ^ . ScpSelfScopeNo ) ;
+                           ( Itk . ItkScopeForDeclsRt , LScopeRef ^ . ScpSelfScopeNo ) ;
                          <* ASSERT FM3Decls . PopDeclParseInfo ( ) = yyAttributeStack^[yyStackPtr+1] . PaDeclDepth *> 
                        END; 
                      
@@ -3875,7 +3875,7 @@ yyNonterminal := 210;
                 (* line 1693 of "FM3Parser.lalr" *)
                  VAR LFormalsScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN
-                         LFormalsScopeRef := FM3Scopes . PopDeclScopeRef ( ) (* Formals. *) ;
+                         LFormalsScopeRef := FM3Scopes . PopScopeRefDeclsStack ( ) (* Formals. *) ;
                          IF LFormalsScopeRef = NIL
                             OR LFormalsScopeRef ^ . ScpKind # Skt . SkFormals
                          THEN <* ASSERT FALSE , "No formals scope at right of proc type." *>
@@ -3907,9 +3907,9 @@ yyNonterminal := 210;
                                 , Skt . SkFormals  
                                 , yyAttributeStack^[yyStackPtr+1] . Scan . Position
                                 ) ;
-                         FM3Scopes . PushDeclScopeRef ( LScopeRef ) ;
+                         FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) ;
                          FM3Pass1 . PutBwd_TI
-                           ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo  ) ;
+                           ( Itk . ItkScopeForDeclsLt , LScopeRef ^ . ScpSelfScopeNo  ) ;
                        END ;
                      
               | 628,290 => (* P189 Formals (239): FormalsLt FormalsList StkCloseParen .*)
@@ -3920,15 +3920,15 @@ yyNonterminal := 210;
                          MakeListPos
                            ( yySynAttribute , Itk . ItkFormalsListLt , yyAttributeStack^[yyStackPtr+2] . Scan . Position , yyAttributeStack^[yyStackPtr+2] ) ;
                 (* FIXME^ Maybe different tokens for different formal modes? *)
-                         LFormalsScopeRef := FM3Scopes . DeclScopeStackTopRef ;
+                         LFormalsScopeRef := FM3Scopes . ScopeDeclStackTopRef ;
                          IF LFormalsScopeRef = NIL
                             OR LFormalsScopeRef . ScpKind # Skt . SkFormals
                          THEN <* ASSERT FALSE , "No formals scope at right end." *>
                          END (*IF*) ; 
-                         FM3Pass1 . DeclScopeRtL2R ( LFormalsScopeRef ) ;
+                         FM3Pass1 . ScopeForDeclsRtL2R ( LFormalsScopeRef ) ;
                          FM3Pass1 . PutBwd_TI
-                           ( Itk . ItkDeclScopeRt , LFormalsScopeRef ^ . ScpSelfScopeNo  ) ;
-                         (* ^Write the formals' ItkDeclScopeRt here, where it will be part of
+                           ( Itk . ItkScopeForDeclsRt , LFormalsScopeRef ^ . ScpSelfScopeNo  ) ;
+                         (* ^Write the formals' ItkScopeForDeclsRt here, where it will be part of
                             what is skipped, should a proc body be skipped.  But leave the scope
                             on pass1's scope stack 'til we know whether there is a proc body, so
                             the body scope can be made to point to it.
@@ -4175,12 +4175,12 @@ yyNonterminal := 241;
                              , yyAttributeStack^[yyStackPtr+1] . Scan . Position
                              ) ;
                          END (*IF*) ;  
-                         LFormalsScopeRef := FM3Scopes . PopDeclScopeRef ( ) (* Formals. *) ;
+                         LFormalsScopeRef := FM3Scopes . PopScopeRefDeclsStack ( ) (* Formals. *) ;
                          IF LFormalsScopeRef = NIL
                             OR LFormalsScopeRef ^ . ScpKind # Skt . SkFormals
                          THEN <* ASSERT FALSE , "No formals scope at right of proc decl." *>
                          END (*IF*) ; 
-                         (* The ItkDeclScopeRt for the formals scope was already written at
+                         (* The ItkScopeForDeclsRt for the formals scope was already written at
                             the rt end of the signature. 
                          *) 
                          FM3Pass1 . PutBwd_TIP
@@ -4198,7 +4198,7 @@ yyNonterminal := 241;
                          FM3Pass1 . PutBwd_TP
                            ( Itk . ItkProcDefBody , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ;
                 
-                         LFormalsScopeRef := FM3Scopes . PopDeclScopeRef ( ) (* Formals. *) ;
+                         LFormalsScopeRef := FM3Scopes . PopScopeRefDeclsStack ( ) (* Formals. *) ;
                          IF LFormalsScopeRef = NIL
                             OR LFormalsScopeRef ^ . ScpKind # Skt . SkFormals
                          THEN <* ASSERT FALSE , "No formals scope at left of proc body." *>
@@ -4213,12 +4213,12 @@ yyNonterminal := 241;
                                 ) ;
                          LBodyScopeRef ^ . ScpFormalsScopeRef := LFormalsScopeRef ;
                          (* ^Hang the formals' scope off the body scope. *) 
-                         FM3Scopes . PushDeclScopeRef ( LBodyScopeRef ) ;
+                         FM3Scopes . PushScopeRefDeclsStack ( LBodyScopeRef ) ;
                          FM3Pass1 . PutBwd_TI
-                           ( Itk . ItkDeclScopeLt , LBodyScopeRef ^ . ScpSelfScopeNo ) ; 
-                         FM3Scopes . PushOpenScopeRef ( LBodyScopeRef ) ;
+                           ( Itk . ItkScopeForDeclsLt , LBodyScopeRef ^ . ScpSelfScopeNo ) ; 
+                         FM3Scopes . PushScopeRefLookupStack ( LBodyScopeRef ) ;
                          FM3Pass1 . PutBwd_TI
-                           ( Itk . ItkOpenScopeLt , LBodyScopeRef ^ . ScpSelfScopeNo ) ;
+                           ( Itk . ItkLookupScopeLt , LBodyScopeRef ^ . ScpSelfScopeNo ) ;
                        END (*Block*) ; 
                      
               | 647,309 => (* P208 OptProcBody (249): ProcBodyLt ProcBlock NonreservedIdent StkSemicolon .*)
@@ -4230,18 +4230,18 @@ yyNonterminal := 241;
                          (* Default Coord and position. *) 
                          yySynAttribute . PaTok1 := yyAttributeStack^[yyStackPtr+1] . PaTok1 ;
                          (* Body Scope: *) 
-                         LScopeRefOpen := FM3Scopes . PopOpenScopeRef ( ) ;
+                         LScopeRefOpen := FM3Scopes . PopScopeRefLookupStack ( ) ;
                          (* ^Proc body scope. *) 
                          IF FM3Pass1 .  ProcBodyFormalsScope ( LScopeRefOpen ) = NIL
                          THEN <* ASSERT FALSE , "No formals scope at end of proc body." *>
                          END (*IF*) ; 
                          FM3Pass1 . PutBwd_TI
-                           ( Itk . ItkOpenScopeRt , LScopeRefOpen ^ . ScpSelfScopeNo ) ;
-                         LScopeRefDecl := FM3Scopes . PopDeclScopeRef ( ) ;
+                           ( Itk . ItkLookupScopeRt , LScopeRefOpen ^ . ScpSelfScopeNo ) ;
+                         LScopeRefDecl := FM3Scopes . PopScopeRefDeclsStack ( ) ;
                          <* ASSERT LScopeRefDecl = LScopeRefOpen *>
-                         FM3Pass1 . DeclScopeRtL2R ( LScopeRefDecl ) ;
+                         FM3Pass1 . ScopeForDeclsRtL2R ( LScopeRefDecl ) ;
                          FM3Pass1 . PutBwd_TI
-                           ( Itk . ItkDeclScopeRt , LScopeRefDecl ^ . ScpSelfScopeNo ) ;
+                           ( Itk . ItkScopeForDeclsRt , LScopeRefDecl ^ . ScpSelfScopeNo ) ;
                            
                          FM3Pass1 . PutBwd_TIP
                            ( Itk . ItkProcDefRt

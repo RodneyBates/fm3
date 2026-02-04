@@ -184,10 +184,10 @@ MODULE FM3DisAsm
               THEN EVAL DibPutOpnd ( "Patch coord: " )
               END (*IF*)
             ; CASE LToken OF
-              | FM3IntToks . ItkDeclScopeLt 
-              , FM3IntToks . ItkDeclScopeRt 
-              , FM3IntToks . ItkOpenScopeLt 
-              , FM3IntToks . ItkDeclScopeRt
+              | FM3IntToks . ItkScopeForDeclsLt 
+              , FM3IntToks . ItkScopeForDeclsRt 
+              , FM3IntToks . ItkLookupScopeLt 
+              , FM3IntToks . ItkScopeForDeclsRt
               =>
               ELSE
               END (*CASE*) 

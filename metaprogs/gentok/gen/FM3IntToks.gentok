@@ -59,10 +59,10 @@ LONE
 (* Scopes and declarations within. *) 
 LONE
   ItkScopeEmpty INT POS (* ScopeNo. *) .
-  ItkDeclScopeLt INT (* ScopeNo. *) .
-  ItkDeclScopeRt INT (* ScopeNo. *) . 
-  ItkOpenScopeLt INT (* ScopeNo. *) .
-  ItkOpenScopeRt INT (* ScopeNo. *) . 
+  ItkScopeForDeclsLt INT (* ScopeNo. *) .
+  ItkScopeForDeclsRt INT (* ScopeNo. *) . 
+  ItkLookupScopeLt INT (* ScopeNo. *) .
+  ItkLookupScopeRt INT (* ScopeNo. *) . 
   ItkDuplDeclId IDENT INT POS 4 (* IdAtom, orig decl's scope no, position *) . 
   ItkDeclId INT IDENT INT POS 5 (* DeclKind, IdAtom, IdStd, position *) .
   ItkDeclNo DECL POS 3 (* DeclNo, position *) .

@@ -199,8 +199,8 @@ MODULE FM3Units
     ; LUnitRef ^ . UntSkipStackBase
         := VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi
     ; LUnitRef ^ . UntExprStackBaseCt := 0 
-    ; LUnitRef ^ . UntDeclScopeStackBaseCt := 0 
-    ; LUnitRef ^ . UntOpenScopeStackBaseCt := 0 
+    ; LUnitRef ^ . UntScopeDeclStackBaseCt := 0 
+    ; LUnitRef ^ . UntLookupScopeStackBaseCt := 0 
     ; VarArray_Int_Refany . Assign ( UnitsMap , LUnitNo , LUnitRef )
     ; RETURN LUnitRef 
     END NewUnitRef

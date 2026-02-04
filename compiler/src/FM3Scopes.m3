@@ -108,17 +108,17 @@ MODULE FM3Scopes
     END ScopeRefOfScopeNo 
 
 (*EXPORTED.*)
-; PROCEDURE PushDeclScopeRef ( ScopeRef : ScopeRefTyp ) 
+; PROCEDURE PushScopeRefDeclsStack ( ScopeRef : ScopeRefTyp ) 
 
   = BEGIN (*PushDeclScopeRef*)
       IF ScopeRef = NIL THEN RETURN END (*IF*)
     ; IF ScopeRef ^ . ScpDeclStackHt # - 1 
       THEN <* ASSERT FALSE , "Scope repushed on decl scope stack." *>
       END (*IF*) 
-    ; IF DeclScopeStackTopRef = NIL
+    ; IF ScopeDeclStackTopRef = NIL
       THEN ScopeRef ^ . ScpDeclStackHt := 1 
       ELSE ScopeRef ^ . ScpDeclStackHt
-             := DeclScopeStackTopRef ^ . ScpDeclStackHt + 1
+             := ScopeDeclStackTopRef ^ . ScpDeclStackHt + 1
       END (*IF*) 
 
 ;  IF ScopeRef ^ . ScpDeclStackHt = 2
@@ -128,106 +128,106 @@ MODULE FM3Scopes
     END
   END
 
-    ; ScopeRef ^ . ScpDeclStackLink := DeclScopeStackTopRef
-    ; DeclScopeStackTopRef := ScopeRef
-    ; INC ( DeclScopeStackCt ) 
-    END PushDeclScopeRef
+    ; ScopeRef ^ . ScpDeclStackLink := ScopeDeclStackTopRef
+    ; ScopeDeclStackTopRef := ScopeRef
+    ; INC ( ScopeDeclStackCt ) 
+    END PushScopeRefDeclsStack
 
 (*EXPORTED.*)
-; PROCEDURE PopDeclScopeRef ( ) : ScopeRefTyp  
+; PROCEDURE PopScopeRefDeclsStack ( ) : ScopeRefTyp  
 
   = VAR LPoppedScopeRef : ScopeRefTyp
 
   ; BEGIN (*PopDeclScope*)
-      LPoppedScopeRef := DeclScopeStackTopRef 
-    ; DeclScopeStackTopRef := LPoppedScopeRef ^ . ScpDeclStackLink
-    ; DEC ( DeclScopeStackCt ) 
-    ; <* ASSERT ( DeclScopeStackTopRef = NIL ) = ( DeclScopeStackCt = 0 ) *>
+      LPoppedScopeRef := ScopeDeclStackTopRef 
+    ; ScopeDeclStackTopRef := LPoppedScopeRef ^ . ScpDeclStackLink
+    ; DEC ( ScopeDeclStackCt ) 
+    ; <* ASSERT ( ScopeDeclStackTopRef = NIL ) = ( ScopeDeclStackCt = 0 ) *>
       LPoppedScopeRef ^ . ScpDeclStackHt := - 1 
     ; RETURN LPoppedScopeRef
-    END PopDeclScopeRef 
+    END PopScopeRefDeclsStack 
 
 (*EXPORTED.*)
-; PROCEDURE PruneDeclScopeStack ( ToDepth : INTEGER := 0 )
+; PROCEDURE PruneScopeDeclsStack ( ToDepth : INTEGER := 0 )
 
-  = BEGIN (*PruneDeclScopeStack*)
-      IF DeclScopeStackCt > ToDepth 
+  = BEGIN (*PruneScopeDeclsStack*)
+      IF ScopeDeclStackCt > ToDepth 
       THEN 
         FM3Messages . FM3LogArrUnit
           ( ARRAY OF REFANY
               { "Scope number "
-              , Fmt . Int ( DeclScopeStackTopRef ^ . ScpSelfScopeNo )
+              , Fmt . Int ( ScopeDeclStackTopRef ^ . ScpSelfScopeNo )
               , " remains on decl scope stack at depth "
-              , Fmt . Int ( DeclScopeStackCt )
+              , Fmt . Int ( ScopeDeclStackCt )
               , " when expected down to depth "
               , Fmt . Int ( ToDepth )
               , "." 
               } 
-          , DeclScopeStackTopRef ^ . ScpPosition
+          , ScopeDeclStackTopRef ^ . ScpPosition
           ) 
-      ; REPEAT EVAL PopDeclScopeRef ( ) 
-      ; UNTIL DeclScopeStackCt <= ToDepth  
+      ; REPEAT EVAL PopScopeRefDeclsStack ( ) 
+      ; UNTIL ScopeDeclStackCt <= ToDepth  
       END (*IF*) 
-   END PruneDeclScopeStack
+   END PruneScopeDeclsStack
 
 (*EXPORTED.*)
-; PROCEDURE PushOpenScopeRef ( ScopeRef : ScopeRefTyp ) 
+; PROCEDURE PushScopeRefLookupStack ( ScopeRef : ScopeRefTyp ) 
 
-  = BEGIN (*PushOpenScopeRef*)
+  = BEGIN (*PushScopeRefLookupStack*)
       IF ScopeRef = NIL THEN RETURN END (*IF*)
     ; <* ASSERT ScopeRef ^ . ScpOpenStackHt = - 1 *>
-      IF OpenScopeStackTopRef = NIL
+      IF ScopeLookupStackTopRef = NIL
       THEN ScopeRef ^ . ScpOpenStackHt := 1 
       ELSE ScopeRef ^ . ScpOpenStackHt
-             := OpenScopeStackTopRef ^ . ScpOpenStackHt + 1
+             := ScopeLookupStackTopRef ^ . ScpOpenStackHt + 1
       END (*IF*) 
-    ; ScopeRef ^ . ScpOpenScopeStackLink := OpenScopeStackTopRef
-    ; OpenScopeStackTopRef := ScopeRef
-    ; INC ( OpenScopeStackCt ) 
-    END PushOpenScopeRef
+    ; ScopeRef ^ . ScpLookupScopeStackLink := ScopeLookupStackTopRef
+    ; ScopeLookupStackTopRef := ScopeRef
+    ; INC ( ScopeLookupStackCt ) 
+    END PushScopeRefLookupStack
 
 (*EXPORTED.*)
-; PROCEDURE PopOpenScopeRef ( ) : ScopeRefTyp  
+; PROCEDURE PopScopeRefLookupStack ( ) : ScopeRefTyp  
 
   = VAR LPoppedScopeRef : ScopeRefTyp
 
-  ; BEGIN (*PopOpenScope*)
-      LPoppedScopeRef := OpenScopeStackTopRef 
-    ; OpenScopeStackTopRef := LPoppedScopeRef ^ . ScpOpenScopeStackLink
-    ; DEC ( OpenScopeStackCt ) 
-    ; <* ASSERT ( OpenScopeStackTopRef = NIL ) = ( OpenScopeStackCt = 0 ) *>
+  ; BEGIN (*PopScopeRefLookup*)
+      LPoppedScopeRef := ScopeLookupStackTopRef 
+    ; ScopeLookupStackTopRef := LPoppedScopeRef ^ . ScpLookupScopeStackLink
+    ; DEC ( ScopeLookupStackCt ) 
+    ; <* ASSERT ( ScopeLookupStackTopRef = NIL ) = ( ScopeLookupStackCt = 0 ) *>
       LPoppedScopeRef ^ . ScpOpenStackHt := - 1 
     ; RETURN LPoppedScopeRef
-    END PopOpenScopeRef (*EXPORTED.*)
+    END PopScopeRefLookupStack (*EXPORTED.*)
 
 (*EXPORTED.*)
-; PROCEDURE PruneOpenScopeStack ( ToDepth : INTEGER := 0 )
+; PROCEDURE PruneScopeLookupStack ( ToDepth : INTEGER := 0 )
 
-  = BEGIN (*PruneOpenScopeStack*)
-      IF OpenScopeStackCt > ToDepth 
+  = BEGIN (*PruneScopeLookupStack*)
+      IF ScopeLookupStackCt > ToDepth 
       THEN 
         FM3Messages . FM3LogArrUnit
           ( ARRAY OF REFANY
               { "Scope number "
-              , Fmt . Int ( OpenScopeStackTopRef ^ . ScpSelfScopeNo )
+              , Fmt . Int ( ScopeLookupStackTopRef ^ . ScpSelfScopeNo )
               , " remains on open scope stack at depth "
-              , Fmt . Int ( OpenScopeStackCt )
+              , Fmt . Int ( ScopeLookupStackCt )
               , " when expected down to depth "
               , Fmt . Int ( ToDepth )
               , "." 
               } 
-          , OpenScopeStackTopRef ^ . ScpPosition
+          , ScopeLookupStackTopRef ^ . ScpPosition
           ) 
-      ; REPEAT EVAL PopOpenScopeRef ( ) 
-      ; UNTIL OpenScopeStackCt <= ToDepth  
+      ; REPEAT EVAL PopScopeRefLookupStack ( ) 
+      ; UNTIL ScopeLookupStackCt <= ToDepth  
       END (*IF*) 
-   END PruneOpenScopeStack
+   END PruneScopeLookupStack
 
 ; BEGIN
-    DeclScopeStackTopRef := NIL
-  ; DeclScopeStackCt := 0 
-  ; OpenScopeStackTopRef := NIL
-  ; OpenScopeStackCt := 0 
+    ScopeDeclStackTopRef := NIL
+  ; ScopeDeclStackCt := 0 
+  ; ScopeLookupStackTopRef := NIL
+  ; ScopeLookupStackCt := 0 
   END FM3Scopes
 .
 

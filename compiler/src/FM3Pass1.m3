@@ -2175,7 +2175,7 @@ MODULE FM3Pass1
   (* PRE: IdAttr is for an identifier in a declaring syntactic context. *) 
 
   = VAR LFormalsScopeRef : FM3Scopes . ScopeRefTyp
-  ; VAR LPriorDeclScopeRef : FM3Scopes . ScopeRefTyp
+  ; VAR LPriorScopeForDeclsRef : FM3Scopes . ScopeRefTyp
   ; VAR LAtom : FM3Base . AtomTyp
 
   ; BEGIN (*DeclIdL2R*)
@@ -2185,10 +2185,10 @@ MODULE FM3Pass1
         RETURN FALSE
       END (*IF*) 
     ; LAtom := IdAttr . Scan . SaAtom 
-    ; WITH WDeclScopeRef = FM3Scopes . DeclScopeStackTopRef 
+    ; WITH WScopeForDeclsRef = FM3Scopes . ScopeDeclStackTopRef 
            , WunRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack 
       DO 
-        IF WDeclScopeRef . ScpOwningUnitRef = FM3Units . UnitStackTopRef 
+        IF WScopeForDeclsRef . ScpOwningUnitRef = FM3Units . UnitStackTopRef 
            AND NOT FM3ExpImp . CheckDuplicateExpImp
                      ( FM3Units . UnitStackTopRef
                      , LAtom
@@ -2198,21 +2198,21 @@ MODULE FM3Pass1
         THEN (* LAtom duplicates export or import. Message already emitted. *)
           RETURN FALSE 
         ELSE
-          LFormalsScopeRef := ProcBodyFormalsScope ( WDeclScopeRef ) 
-        ; IF LFormalsScopeRef # NIL (* WDeclScopeRef is for a proc body. *) 
+          LFormalsScopeRef := ProcBodyFormalsScope ( WScopeForDeclsRef ) 
+        ; IF LFormalsScopeRef # NIL (* WScopeForDeclsRef is for a proc body. *) 
              AND IntSets . IsElement
                    ( LAtom , LFormalsScopeRef ^ . ScpDeclIdSet )
           THEN  (* LAtom duplicates a previously declared formal. *)
-            LPriorDeclScopeRef := LFormalsScopeRef
+            LPriorScopeForDeclsRef := LFormalsScopeRef
           ELSIF IntSets . IsElement
-                  ( LAtom , WDeclScopeRef ^ . ScpDeclIdSet )
+                  ( LAtom , WScopeForDeclsRef ^ . ScpDeclIdSet )
           THEN (* LAtom duplicates a previously declared id in this scope. *) 
-            LPriorDeclScopeRef := WDeclScopeRef
+            LPriorScopeForDeclsRef := WScopeForDeclsRef
           ELSE 
-            LPriorDeclScopeRef := NIL
+            LPriorScopeForDeclsRef := NIL
           END (*IF*)
 
-        ; IF LPriorDeclScopeRef # NIL  
+        ; IF LPriorScopeForDeclsRef # NIL  
           THEN (* Write a duplicate Ident token.  The only effect will be to
                   emit an error later, during Pass2, when the position of the
                   original declaring occurence is known.
@@ -2227,14 +2227,14 @@ MODULE FM3Pass1
               )
           ; PutBwd
               ( WunRdBack
-              , VAL ( LPriorDeclScopeRef . ScpSelfScopeNo , LONGINT )
+              , VAL ( LPriorScopeForDeclsRef . ScpSelfScopeNo , LONGINT )
               ) 
           ; PutBwd ( WunRdBack , VAL ( LAtom , LONGINT ) ) 
           ; PutBwd ( WunRdBack , VAL ( Itk . ItkDuplDeclId , LONGINT ) )
           ; RETURN FALSE (* Caller, Don't use this Id. *)
           ELSE (* 1st declaration of Ident in scope(s) . *) 
-            WDeclScopeRef . ScpDeclIdSet
-              := IntSets . Include ( WDeclScopeRef . ScpDeclIdSet , LAtom )
+            WScopeForDeclsRef . ScpDeclIdSet
+              := IntSets . Include ( WScopeForDeclsRef . ScpDeclIdSet , LAtom )
 
           (* Maybe write Separator token: *)
           ; IF SepTok # Itk . ItkNull AND PriorIdCt > 0
@@ -2312,7 +2312,7 @@ MODULE FM3Pass1
           PutBwd_TIP
             ( Itk . ItkIdRefAtom , - WScan . SaBuiltinTok , WScan . Position ) 
         ELSE (* Standard or plain identifier.  Use the atom. *) 
-          WITH WIdentRefSet = FM3Scopes . OpenScopeStackTopRef ^ . ScpRefIdSet
+          WITH WIdentRefSet = FM3Scopes . ScopeLookupStackTopRef ^ . ScpRefIdSet
           DO WIdentRefSet := IntSets . Include ( WIdentRefSet , WScan . SaAtom )
           END (*WITH*)
         ; PutBwd_TIP ( Itk . ItkIdRefAtom , WScan . SaAtom , WScan . Position ) 
@@ -2407,7 +2407,7 @@ MODULE FM3Pass1
         THEN PutNotUsable
                ( LtIdAttr . Scan . SaAtom , LtIdAttr . Scan . Position ) 
         ELSE (* Neither ident is reserved. *) 
-          WITH WIdentRefSet = FM3Scopes . DeclScopeStackTopRef ^ . ScpRefIdSet
+          WITH WIdentRefSet = FM3Scopes . ScopeDeclStackTopRef ^ . ScpRefIdSet
           DO WIdentRefSet
                := IntSets . Include ( WIdentRefSet , LtIdAttr . Scan . SaAtom )
           END (*WITH*) 
@@ -2545,7 +2545,7 @@ MODULE FM3Pass1
     END VerifyReservedActualsCt
     
 (*EXPORTED.*)
-; PROCEDURE DeclScopeRtL2R ( ScopeRef : FM3Scopes . ScopeRefTyp )
+; PROCEDURE ScopeForDeclsRtL2R ( ScopeRef : FM3Scopes . ScopeRefTyp )
   (* Create an IdAtom-to-declNo, fixed-size dictionary for the scope, of
      exactly the needed size, and load it up with mappings of the idents
      declared in the scope, onto a contiguously-numbered range of DeclNos.
@@ -2554,7 +2554,7 @@ MODULE FM3Pass1
 
   = VAR SrtDeclNo : INTEGER 
 
-  ; BEGIN (*DeclScopeRtL2R*)
+  ; BEGIN (*ScopeForDeclsRtL2R*)
       VAR LUnitRef : FM3Units . UnitRefTyp
     ; VAR LContainingScopeRef : FM3Scopes . ScopeRefTyp
     ; VAR LEscapingRefSet : IntSets . T 
@@ -2574,9 +2574,9 @@ MODULE FM3Pass1
         END SrtVisit
 
     ; BEGIN (* Block. *)
-(*      <* ASSERT ScopeRef = FM3Scopes . DeclScopeStackTopRef *> *)
+(*      <* ASSERT ScopeRef = FM3Scopes . ScopeDeclStackTopRef *> *)
         LUnitRef := ScopeRef ^ . ScpOwningUnitRef 
-      ; IF ScopeRef = FM3Scopes . OpenScopeStackTopRef
+      ; IF ScopeRef = FM3Scopes . ScopeLookupStackTopRef
         THEN (* A ref herein can refer to a decl herein. *) 
         (* Move Idents ref'd but to decls in this scope out to 
            containing lookup scope.
@@ -2587,7 +2587,7 @@ MODULE FM3Pass1
         ; ScopeRef ^ . ScpRefIdSet 
             := IntSets . Intersection
                  ( ScopeRef ^ . ScpRefIdSet , ScopeRef ^ . ScpDeclIdSet )
-        ; LContainingScopeRef := ScopeRef ^ . ScpOpenScopeStackLink
+        ; LContainingScopeRef := ScopeRef ^ . ScpLookupScopeStackLink
         ; IF Clt . CltRemoveUnusedDecls IN FM3CLOptions . OptionTokSet
              AND LUnitRef ^ . UntScopeRef = ScopeRef
              AND FM3Units . CurrentUnitIsModule ( ) 
@@ -2599,7 +2599,7 @@ MODULE FM3Pass1
         ELSE (* refs never refer to decls in ScopeRef. *)
           LEscapingRefSet := ScopeRef ^ . ScpRefIdSet
         ; ScopeRef ^ . ScpRefIdSet := IntSets . Empty ( ) 
-        ; LContainingScopeRef := FM3Scopes . OpenScopeStackTopRef  
+        ; LContainingScopeRef := FM3Scopes . ScopeLookupStackTopRef  
         END (*IF*) 
       ; IF LContainingScopeRef # NIL
         THEN
@@ -2634,7 +2634,7 @@ MODULE FM3Pass1
              ) 
         END (*EXCEPT*)
       END (*Block*)
-    END DeclScopeRtL2R
+    END ScopeForDeclsRtL2R
 
 (* ----------------------- Procedure signatures --------------------- *)
 
@@ -2667,8 +2667,8 @@ MODULE FM3Pass1
              , Position
              ) 
     ; LHSAttr . PaInt1 := LScopeRef ^ . ScpSelfScopeNo  
-    ; FM3Scopes . PushDeclScopeRef ( LScopeRef ) 
-    ; PutBwd_TI ( Itk . ItkDeclScopeLt , LScopeRef ^ . ScpSelfScopeNo  ) 
+    ; FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) 
+    ; PutBwd_TI ( Itk . ItkScopeForDeclsLt , LScopeRef ^ . ScpSelfScopeNo  ) 
     END ObjTypeLtL2R  
 
 ; BEGIN (*FM3Pass1*)

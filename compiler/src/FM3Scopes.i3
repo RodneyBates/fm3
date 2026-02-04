@@ -88,7 +88,7 @@ INTERFACE FM3Scopes
 ; TYPE ScopeTyp
     = RECORD
         ScpDeclStackLink : ScopeRefTyp
-      ; ScpOpenScopeStackLink : ScopeRefTyp
+      ; ScpLookupScopeStackLink : ScopeRefTyp
       ; ScpOwningUnitRef : FM3Units . UnitRefTyp := NIL 
       ; ScpDeclIdSet : IntSets . T
         (* ^IdentAtoms declared within, including imports of top-level scope. *)
@@ -169,14 +169,14 @@ INTERFACE FM3Scopes
 
 ; PROCEDURE NewScopeMap ( ScopeCt : FM3Globals . ScopeNoTyp ) : ScopeMapTyp
 
-; VAR DeclScopeStackTopRef : ScopeRefTyp := NIL
+; VAR ScopeDeclStackTopRef : ScopeRefTyp := NIL
       (* A global, linked stack containing scopes from multiple units.
          The top one is where declarations are being inserted.  No references
          are looked up in a scope accessed via this stack.  
       *)
-; VAR DeclScopeStackCt : INTEGER := 0 
+; VAR ScopeDeclStackCt : INTEGER := 0 
       
-; VAR OpenScopeStackTopRef : ScopeRefTyp := NIL
+; VAR ScopeLookupStackTopRef : ScopeRefTyp := NIL
       (* Another global, linked stack containing scopes from multiple units.
          Inner scopes are on top.  Unqualified ident references are searched
          top down to the enclosing unit scope.  Unqualified references are
@@ -184,15 +184,15 @@ INTERFACE FM3Scopes
          These two stacks of scopeRefs have separate root and link pointers,
          so a scope can be on each stack simultaneously and independently.
       *) 
-; VAR OpenScopeStackCt : INTEGER := 0 
+; VAR ScopeLookupStackCt : INTEGER := 0 
       
-; PROCEDURE PushDeclScopeRef ( ScopeRef : ScopeRefTyp ) 
-; PROCEDURE PushOpenScopeRef ( ScopeRef : ScopeRefTyp ) 
-; PROCEDURE PruneDeclScopeStack ( ToDepth : INTEGER := 0 )
+; PROCEDURE PushScopeRefDeclsStack ( ScopeRef : ScopeRefTyp ) 
+; PROCEDURE PopScopeRefDeclsStack ( ) : ScopeRefTyp  
+; PROCEDURE PruneScopeDeclsStack ( ToDepth : INTEGER := 0 )
 
-; PROCEDURE PopDeclScopeRef ( ) : ScopeRefTyp  
-; PROCEDURE PopOpenScopeRef ( ) : ScopeRefTyp  
-; PROCEDURE PruneOpenScopeStack ( ToDepth : INTEGER := 0 )
+; PROCEDURE PushScopeRefLookupStack ( ScopeRef : ScopeRefTyp ) 
+; PROCEDURE PopScopeRefLookupStack ( ) : ScopeRefTyp  
+; PROCEDURE PruneScopeLookupStack ( ToDepth : INTEGER := 0 )
 
 ; END FM3Scopes
 .

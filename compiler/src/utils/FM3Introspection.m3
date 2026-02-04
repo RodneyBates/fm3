@@ -106,7 +106,7 @@ MODULE FM3Introspection
   ; BEGIN (*ScopeDeclsInfo*)
       LUnitRef := FM3Units . UnitStackTopRef
     ; IF LUnitRef = NIL THEN RETURN "<NoUnitRef>" END (*IF*)
-    ; LScopeRef := FM3Scopes . OpenScopeStackTopRef
+    ; LScopeRef := FM3Scopes . ScopeLookupStackTopRef
     ; IF LScopeRef = NIL THEN RETURN "<NIL Scope>" END (*IF*)
     ; FOR RDeclNo
             := LScopeRef ^ . ScpMinDeclNo
@@ -152,7 +152,7 @@ MODULE FM3Introspection
   ; VAR LResult : INTEGER 
 
   ; BEGIN (*GraphArc*)
-      LScope := FM3Scopes . DeclScopeStackTopRef
+      LScope := FM3Scopes . ScopeDeclStackTopRef
     ; IF LScope = NIL THEN RETURN -1 END (*IF*)
     ; TRY 
         LResult := FM3Graph . MakeArc ( LScope ^ . ScpDeclGraph , Pred , Succ )
@@ -209,7 +209,7 @@ MODULE FM3Introspection
   ; VAR LResult : TEXT
 
   ; BEGIN (*GraphArcImage*)
-      LScopeRef := FM3Scopes . OpenScopeStackTopRef
+      LScopeRef := FM3Scopes . ScopeLookupStackTopRef
     ; IF LScopeRef = NIL THEN RETURN "<NIL Scope>" END (*IF*)
     ; LPredNodeNo := FM3Graph . PredNodeNo ( LScopeRef . ScpDeclGraph , Arc ) 
     ; LSuccNodeNo := FM3Graph . SuccNodeNo ( LScopeRef . ScpDeclGraph , Arc ) 
@@ -263,7 +263,7 @@ MODULE FM3Introspection
       END GiVisit 
 
   ; BEGIN (*GraphImage*)
-      LScopeRef := FM3Scopes . OpenScopeStackTopRef
+      LScopeRef := FM3Scopes . ScopeLookupStackTopRef
     ; IF LScopeRef = NIL THEN LResult := "<NIL OpenScope>"
       ELSE 
         LGraphRef := LScopeRef ^ . ScpDeclGraph
