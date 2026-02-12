@@ -10,7 +10,9 @@
 
 MODULE FM3Resolve
 
-; IMPORT Text 
+; IMPORT Text
+
+; IMPORT IntSets 
 
 ; IMPORT FM3Base
 ; IMPORT FM3Builtins
@@ -297,7 +299,10 @@ MODULE FM3Resolve
       THEN (* Others are never equal, but this probably won't happen. *) 
         RETURN FALSE
       END (*IF*) 
-    ; IF LeftScopeRef ^ . ScpDeclCt # RightScopeRef ^ . ScpDeclCt
+    ; IF NOT DeclListsEqual
+               ( LeftScopeRef ^ . ScpDeclsListRef  
+               , RightScopeRef ^ . ScpDeclsListRef
+               ) 
       THEN RETURN FALSE
       END (*IF*)
 
@@ -309,7 +314,7 @@ MODULE FM3Resolve
 
     ; LLeftDeclNo := LeftScopeRef ^ . ScpMinDeclNo 
     ; LRightDeclNo := RightScopeRef ^ . ScpMinDeclNo
-    ; LDeclCt := LeftScopeRef ^ . ScpDeclCt 
+    ; LDeclCt := IntSets . Card ( LeftScopeRef ^ . ScpDeclIdSet )  
     ; LOOP
         IF LDeclCt <= 0 THEN EXIT END (*IF*)
       ; LLeftDeclRef
@@ -323,8 +328,6 @@ MODULE FM3Resolve
       ; INC ( LRightDeclNo )
       ; DEC ( LDeclCt ) 
       END (*LOOP*)
-
-    ; 
     END TypeScopeRefsEqual
 
 ; PROCEDURE DeclListsEqual

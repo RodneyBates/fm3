@@ -110,7 +110,8 @@ MODULE FM3Introspection
     ; IF LScopeRef = NIL THEN RETURN "<NIL Scope>" END (*IF*)
     ; FOR RDeclNo
             := LScopeRef ^ . ScpMinDeclNo
-               TO LScopeRef ^ . ScpMinDeclNo + LScopeRef ^ . ScpDeclCt - 1
+               TO LScopeRef ^ . ScpMinDeclNo
+                  + IntSets . Card ( LScopeRef ^ . ScpDeclIdSet ) - 1
       DO
         Wr . PutText ( Stdio . stderr , "Decl No " ) 
       ; Wr . PutText ( Stdio . stderr , Fmt . Int ( RDeclNo ) ) 
@@ -173,7 +174,10 @@ MODULE FM3Introspection
   ; BEGIN (*RangeCheckGraphNodeNo*)
       LScopeNodeNo := GraphNodeNo + ScopeRef ^ . ScpMinDeclNo 
     ; IF LScopeNodeNo < ScopeRef ^ . ScpMinDeclNo
-         OR LScopeNodeNo > ScopeRef ^ . ScpMinDeclNo + ScopeRef ^ . ScpDeclCt
+         OR LScopeNodeNo
+            > ScopeRef ^ . ScpMinDeclNo 
+              + IntSets . Card ( ScopeRef ^ . ScpDeclIdSet )   
+
       THEN LResult := FM3SharedUtils . CatArrT
              ( ARRAY OF REFANY
                  { "(Scope-relative) "
@@ -184,7 +188,8 @@ MODULE FM3Introspection
                  , Fmt . Int ( ScopeRef ^ . ScpMinDeclNo ) 
                  , ".." 
                  , Fmt . Int
-                     ( ScopeRef ^ . ScpMinDeclNo + ScopeRef ^ . ScpDeclCt ) 
+                     ( ScopeRef ^ . ScpMinDeclNo
+                       + IntSets . Card ( ScopeRef ^ . ScpDeclIdSet ) )  
                  , "] " 
                  }
              ) 

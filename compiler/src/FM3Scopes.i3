@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2025  Rodney M. Bates.                                    *)
+(* Copyright 2023..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -77,6 +77,13 @@ INTERFACE FM3Scopes
     , ScopeKindTyp . SkProcBody
     } 
 
+; CONST ScopeKindSetPositional = SET OF ScopeKindTyp
+    { ScopeKindTyp . SkFormals
+    , ScopeKindTyp . SkRec 
+    , ScopeKindTyp . SkObj 
+    }
+  (* ^These have a meaningful ScpDeclsListRef. *) 
+
 ; CONST ScopeKindSetBinding = SET OF ScopeKindTyp
     { ScopeKindTyp . SkWith
     , ScopeKindTyp . SkTypecase
@@ -102,6 +109,13 @@ INTERFACE FM3Scopes
         (* INVARIANT: Once ScpDeclIdSet and ScpDeclDict are both complete,
            Atom is in one IFF in the other.
         *)
+      ; ScpDeclsListRef : FM3Globals . DeclRefListRefTyp
+        (* Same decl contents as ScpDeclDict, in positional order.
+           NIL if no decls.
+        *)
+        (* Record or object type: Field decls.  
+           Procedure, proc type, method: Formal decls. 
+        *)
       ; ScpDeclGraph : FM3Graph . GraphTyp 
         (* Arcs are intra-scope RefId to DeclId.  Only those that would
            contribute to an illegal recursive decl cycle.
@@ -122,7 +136,7 @@ INTERFACE FM3Scopes
       ; ScpCurValueExpr : REFANY := NIL (* FM3Defs . DeclDefTyp. *) (*1*)
 ****)
       ; ScpIdentAtom : FM3Base . AtomTyp := FM3Base . AtomNull  
-      ; ScpDeclCt : FM3Globals . DeclNoTyp := - 13 (*FM3Globals . DeclNoNull*) 
+      ; ScpDeclListNo : INTEGER (* # of contained decls still to be linked in. *)
       ; ScpMinDeclNo := FM3Globals . DeclNoNull
       ; ScpSelfScopeNo : FM3Globals . ScopeNoTyp (* A self-reference. *)
       ; ScpOwningDeclNo : FM3Globals . DeclNoTyp

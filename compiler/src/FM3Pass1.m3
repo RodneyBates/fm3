@@ -1373,6 +1373,36 @@ MODULE FM3Pass1
     END PutBwd_LCIIIP_riiip
 
 (*EXPORTED:*)
+; PROCEDURE PutBwd_LCIIIIP_riiiip
+    ( T : Itk . TokTyp 
+    ; C : LONGINT 
+    ; I1 , I2 , I3 , I4 : INTEGER 
+    ; READONLY Position : tPosition 
+    )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I4 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I3 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I2 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I1 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) )
+      
+      ; PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I4 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I3 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I2 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I1 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , C ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END PutBwd_LCIIIIP_riiiip
+
+(*EXPORTED:*)
 ; PROCEDURE PutBwd_LCNP_rnp
     ( T : Itk . TokTyp 
     ; C : LONGINT 
@@ -2611,7 +2641,6 @@ MODULE FM3Pass1
       ; LDeclCt := IntSets . Card ( ScopeRef ^ . ScpDeclIdSet )
       (* Duplicate declared idents not included. *) 
       (* LDeclCt is exactly the needed dictionary size. *)
-      ; ScopeRef ^ . ScpDeclCt := LDeclCt 
       ; ScopeRef ^ . ScpDeclDict 
           := FM3Dict_Int_Int . NewFixed 
                ( LDeclCt , FM3SharedUtils . IntHash )
@@ -2658,7 +2687,7 @@ MODULE FM3Pass1
                  , DiKind := Dkt . DkObjField 
                  }
              ) 
-    ; LHSAttr . PaByte1 := BrandKind
+    ; LHSAttr . PaByte2 := BrandKind
       (* Need the scope now, to collect decl id atoms. *) 
     ; LScopeRef 
         := FM3Scopes . NewScopeRef

@@ -31,7 +31,7 @@ EXPORT
   
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2025 Rodney M. Bates.                                     *)
+(* Copyright 2023..2026 Rodney M. Bates.                                     *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -54,7 +54,7 @@ GLOBAL
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2025 Rodney M. Bates.                                     *)
+(* Copyright 2023..2026 Rodney M. Bates.                                     *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -1415,8 +1415,6 @@ RULE
                 ) ;
          $$ . PaInt2 := LScopeRef ^ . ScpSelfScopeNo ; 
          FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) ;
-         FM3Pass1 . PutBwd_TI
-           ( Itk . ItkScopeForDeclsLt , LScopeRef ^ . ScpSelfScopeNo ) ;
        END; 
      } . 
  
@@ -1424,7 +1422,7 @@ RULE
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN
          LScopeRef := FM3Scopes . PopScopeRefDeclsStack ( ) ;
-         IF LScopeRef ^ . ScpSelfScopeNo # $1 . PaInt2 
+         IF LScopeRef ^ . ScpSelfScopeNo # $1 . PaInt2 (* Scope #. *)  
          THEN <* ASSERT FALSE , "P1, rectypeRt, decl scope mismatch." *>
          END (*IF*) ; 
 
@@ -1432,14 +1430,11 @@ RULE
          FM3Pass1 . PutBwd_LCIIP_riip
            ( Itk . ItkRecTypeLt
            , $1 . PaPass1Coord
-           , $2 . PaInt1 (* Count of decls, fields, formals, etc. *)
+           , $2 . PaInt1 (* Count fields. *)
            , LScopeRef ^ . ScpSelfScopeNo
            , $1 . Scan . Position
            ) ;
-         (* Pass 2 must see the following before the preceeding. *) 
-         FM3Pass1 . PutBwd_TI
-           ( Itk . ItkScopeForDeclsRt , LScopeRef ^ . ScpSelfScopeNo ) ;
-         IF FM3Decls . PopDeclParseInfo ( )
+         IF FM3Decls . PopDeclParseInfo ( ) 
             # $1 . PaDeclDepth (* DeclParseInfoDepth *)
          THEN <* ASSERT FALSE , "P1 rectype parse info depth mismatch." *>
          END (*IF*) 
@@ -1456,7 +1451,7 @@ RULE
           ) ; 
       } .
 
-   MethodDeclList : StkRwMETHODS 
+   MethodDeclList : StkRwMETHODS /* METHODS but none follow. */
       { FM3Pass1 . PutBwd_LIP_rip
           ( Itk . ItkMethodDeclListLt , 0 , $1 . Scan . Position ) ; 
       } .
@@ -1497,22 +1492,19 @@ RULE
          $$ . PaInt1 (* Valid method count. *) := $1 . PaInt1 ; 
          IF $$ . PaInt1 > 0
          THEN
-           FM3Pass1 . PutBwd_LCIP_rip
-             ( Itk . ItkMethodDeclLt
-             , $1 . PaPass1Coord
-             , $1 . Scan . SaAtom
-             , $1 . Scan . Position 
-             ) ;
          ELSE (* Method Id was invalid. *) 
            FM3Pass1 . PutBwd_LCI_ri
              ( Itk . ItkSkipLt , $1 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
            INC ( FM3Globals . NextSkipNo ) ;
-         END (*IF*) ; 
-         LFormalsScopeRef := FM3Scopes . PopScopeRefDeclsStack ( ) (* Formals. *) ;
-         IF LFormalsScopeRef = NIL
-            OR LFormalsScopeRef ^ . ScpKind # Skt . SkFormals
-         THEN <* ASSERT FALSE , "No formals scope at right of method decl." *>
-         END (*IF*) ; 
+         END (*IF*) ;
+         
+
+(* TODO:  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+          This needs rework.  The method formals stuff should be done
+          all inside signature.
+*) 
+
+
        END (*Block*) 
      } . 
 
@@ -1641,7 +1633,7 @@ RULE
      { $$ . PaDeclDepth := $1 . PaDeclDepth ; 
        $$ . PaBool := TRUE (* Has explicit subtype. *) ;
        $$ . PaInt1 := $1 . PaInt1 (* Scope num. *) ;  
-       $$ . PaByte2 := $1 . PaByte1 (* Brand kind, Bkt. *) ;
+       $$ . PaByte2 := $1 . PaByte2 (* Brand kind, Bkt. *) ;
        $$ . PaTok1 := Itk . ItkObjFieldDeclLt ;
        $$ . PaByte1 := ORD ( Dkt . DkObjField ) ;
      } . 
@@ -1671,12 +1663,13 @@ RULE
          LScopeRef := FM3Scopes . PopScopeRefDeclsStack ( ) ;
          <* ASSERT LScopeRef ^ . ScpKind = Skt . SkObj *>
          <* ASSERT LScopeRef ^ . ScpSelfScopeNo = $1 . PaInt1 *> 
-         FM3Pass1 . PutBwd_LCIIIP_riiip
+         FM3Pass1 . PutBwd_LCIIIIP_riiiip
            ( Itk . ItkObjTypeLt
            , $1 . PaPass1Coord
            , $1 . PaByte2 (* BrandKind, Bkt. *)
-           , $2 . PaInt1 + $3 . PaInt1 (* Count of fields + methods. *) 
-           , $4 . PaInt1 (* Count of overrides. *) 
+           , $2 . PaInt1 (* Count of fields only. *) 
+           , $4 . PaInt1 (* Count of overrides. *)
+           , LScopeRef ^ . ScpSelfScopeNo 
            , $1 . Scan . Position 
            ) ;
          FM3Pass1 . ScopeForDeclsRtL2R ( LScopeRef ) ;

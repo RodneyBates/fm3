@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2024..2025  Rodney M. Bates.                                    *)
+(* Copyright 2024..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -465,7 +465,7 @@ MODULE FM3ExpImp
       END (*IF*) 
     ; WITH WScopeRef = FromUnitRef ^ . UntScopeRef
       DO IF WScopeRef = NIL THEN RETURN 0
-        ELSE RETURN WScopeRef ^ . ScpDeclCt 
+        ELSE RETURN IntSets . Card ( WScopeRef ^ . ScpDeclIdSet )  
         END (*IF*)
       END (*WITH*) 
     END CountDecls 
@@ -477,16 +477,20 @@ MODULE FM3ExpImp
       (* ^Of the EXPORTS directive's identifier. *)
     )
 
-  = BEGIN
+  = VAR LDeclCt : INTEGER
+
+  ; BEGIN
       IF FromUnitRef = NIL THEN RETURN END (*IF*)
     ; IF NOT FromUnitRef ^ . UntState IN FM3Units . UnitStateSetUsable
       THEN RETURN
       END (*IF*) 
     ; WITH WScopeRef = FromUnitRef ^ . UntScopeRef
-      DO IF WScopeRef = NIL OR WScopeRef ^ . ScpDeclCt = 0 THEN RETURN END (*IF*)
+      DO IF WScopeRef = NIL THEN RETURN END (*IF*)
+      ; LDeclCt := IntSets . Card ( WScopeRef ^ . ScpDeclIdSet )  
+      ; IF LDeclCt = 0 THEN RETURN END (*IF*)
       ; <* ASSERT WScopeRef ^ . ScpMinDeclNo > 0 *>
         FOR RDeclNo := WScopeRef ^ . ScpMinDeclNo
-            TO WScopeRef ^ . ScpMinDeclNo + WScopeRef ^ . ScpDeclCt - 1
+            TO WScopeRef ^ . ScpMinDeclNo + LDeclCt - 1
         DO EVAL ImportDeclByNo
              ( FromUnitRef 
              , RDeclNo 

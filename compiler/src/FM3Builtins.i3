@@ -21,7 +21,7 @@ INTERFACE FM3Builtins
    This happens in Pass2, when references to declared entities
    can not yet be followed, so types are not known in general.
    Builtin types and builtin constants (whose types are always
-   builtin) have types set, but other builtins not.
+   builtin) have types set, but other builtins do not.
 
    An ExprRefTyp node for a builtin type or constant is always a leaf
    of an expression tree.  Since it has no descendents, a single ExprRefTyp

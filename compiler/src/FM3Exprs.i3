@@ -126,14 +126,15 @@ INTERFACE FM3Exprs
                       (*(2)ExpOpnd1.*) 
      , EkBinOp        (*(1)ExpOpcode.*)
                       (*(2)ExpOpnd1, ExpOpnd2.*) 
-     , EkCall         (*(1)ExpArgsList, ExpArgNo.*) 
+     , EkCall         (*(1)ExpArgsListRef, ExpArgNo.*) 
                       (*(1)ExpRepExprNo=ExpExprNoDistinct*)
-     , EkSubscript    (*(1)ExpArgsList, ExpArgNo.*)
+     , EkSubscript    (*(1)ExpArgsListRef, ExpArgNo.*)
                       (*(1)ExpRepExprNo=ExpExprNoDistinct*)
      , EkNamed        (*(1)ExpIdAtom, Opnd1 is the expression.*) 
 
      , EkSigProc 
      , EkSigFunc
+     , EkOverride 
 
      , EkType  (* Probably replace by a set of the above. *) 
      , EkValue (* Probably replace by a set of the above. *)
@@ -153,6 +154,14 @@ INTERFACE FM3Exprs
 ; CONST EkSetValue = EkSetTyp { Ekt . EkValue } 
 
 ; CONST EkSetType = EkSetTyp { Ekt . EkType }
+
+; CONST EkSetWScope = EkSetTyp (* These contain a scope. *) 
+        { Ekt . EkEnumType
+        , Ekt . EkSigProc
+        , Ekt . EkSigFunc
+        , Ekt . EkObjType
+        , Ekt . EkRecType
+        }
 
 ; CONST EkSetUniquableTypes = EkSetTyp 
        { Ekt . EkEnumType
@@ -196,6 +205,9 @@ INTERFACE FM3Exprs
 ; PROCEDURE ExprStateImage ( State : ExprStateTyp ) : TEXT 
 
 ; TYPE Est = ExprStateTyp
+
+; PROCEDURE RegisterExpr ( Expr : ExprRefTyp ; Mergeable : BOOLEAN )
+  (* Do not register a static builtin expression (type or consant) . *) 
 
 ; TYPE ExprListRefTyp = REF ARRAY OF ExprRefTyp
 
@@ -287,7 +299,7 @@ INTERFACE FM3Exprs
            Object type: DclIdAtom and DclDefValue denote an override.
            Revelation: TypeIdAtom, revealed as expr. 
         *)
-      ; ExpArgsList : ExprListRefTyp
+      ; ExpArgsListRef : ExprListRefTyp
      (* ^Subscript types of array type
         subscript exprs of [ ]
      *) 
@@ -304,7 +316,7 @@ INTERFACE FM3Exprs
       ; ExpOpcode : OpcodeTyp := FM3SrcToks . RidNull
       ; ExpIdAtom : FM3Base . AtomTyp
       ; ExpDeclListNo : INTEGER (* # of contained decls still to be linked in. *)
-      ; ExpArgListNo : INTEGER (* # of actuals still to be linked in. *)
+      ; ExpArgListNo : INTEGER (* # of actuals still to be stored. *)
       ; ExpBuiltinOpActualsCt : INTEGER
       ; ExpStackHt : INTEGER := 0
       ; ExpSelfExprNo : ExprNoTyp (* < 0 for builtin ops. *)

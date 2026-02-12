@@ -405,6 +405,7 @@ MODULE FM3Builtins
 
   ; BEGIN
       LResult := NEW ( FM3Exprs . ExprRefTyp )
+    ; FM3Exprs . RegisterExpr ( LResult , Mergeable := FALSE ) 
     ; CASE Opcode OF
       | Stk . StkPdExtract
       , Stk . StkPd_Long_Extract

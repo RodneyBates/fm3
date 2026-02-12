@@ -33,6 +33,7 @@ INTERFACE FM3Decls
       , DkRecField
       , DkObjField
       , DkMethod
+      , DkOverride 
       , DkProc
       , DkWith
       , DkFor
@@ -45,7 +46,6 @@ INTERFACE FM3Decls
       *)
       , DkConstructorField (* Possibly includes positional fields. *) 
       , DkActual (* Possibly includes positional actuals. *)
-      , DkOverride
       , DkReveal 
       }
 ; TYPE Dkt = DeclKindTyp

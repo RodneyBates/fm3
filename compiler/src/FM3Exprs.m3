@@ -131,6 +131,25 @@ MODULE FM3Exprs
       END (*CASE*) 
     END ExprStateImage
 
+(* EXPORTED.*) 
+; PROCEDURE RegisterExpr ( Expr : ExprRefTyp ; Mergeable : BOOLEAN )
+  (* Do not register a static builtin expression (type or consant) . *) 
+
+  = VAR LUnitRef : FM3Units . UnitRefTyp
+  
+  ; BEGIN
+      LUnitRef := FM3Units . UnitStackTopRef
+    ; Expr ^ . ExpSelfExprNo 
+        := VarArray_Int_Refany . TouchedRange
+             ( LUnitRef ^ . UntExprMap ) . Hi + 1
+    ; VarArray_Int_Refany . Assign
+        ( LUnitRef ^ . UntExprMap , Expr ^ . ExpSelfExprNo , Expr )
+    ; IF Mergeable
+      THEN Expr ^ . ExpRepExprNo := Expr ^ . ExpSelfExprNo
+      ELSE Expr ^ . ExpRepExprNo := RepExprNoDistinct
+      END (*IF*) 
+    END RegisterExpr 
+
 (*EXPORTED.*)
 ; PROCEDURE NewExprListRef ( Ct : INTEGER ) : ExprListRefTyp
   (* With all elements initialized to NIL. *) 
@@ -373,8 +392,8 @@ RETURN ;
       ; Field ( "ExpBuiltinOpRtOpndKindsAllowed" 
               , ExprKindSetMessage ( Expr ^ . ExpBuiltinOpRtOpndKindsAllowed ) 
               )
-      ; Field ( "ExpArgsList" , "" )
-      ; AppendExprList ( Expr ^ . ExpArgsList ) 
+      ; Field ( "ExpArgsListRef" , "" )
+      ; AppendExprList ( Expr ^ . ExpArgsListRef ) 
 
       ; Field ( "ExpDeclsListRef"
               , FM3Utils . RefanyImage ( Expr ^ . ExpDeclsListRef )

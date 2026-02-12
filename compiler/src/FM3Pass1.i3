@@ -280,6 +280,13 @@ INTERFACE FM3Pass1
     ; READONLY Position : tPosition 
     )
 
+; PROCEDURE PutBwd_LCIIIIP_riiiip
+    ( T : Itk . TokTyp 
+    ; C : LONGINT 
+    ; I1 , I2 , I3 , I4 : INTEGER 
+    ; READONLY Position : tPosition 
+    )
+
 ; PROCEDURE PutBwd_LCNP_rnp
     ( T : Itk . TokTyp 
     ; C : LONGINT 
