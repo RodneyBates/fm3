@@ -1,4 +1,4 @@
-        
+       
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2023..2026 Rodney M. Bates.                                     *)
@@ -47,7 +47,7 @@ ItkModule INT POS 3 (* UnitNo, Position. *)
 
 
 LONE
-  ItkFormalsListEmpty . 
+  ItkFormalsListEmpty POS . 
   ItkFormalTypeAbsent POS 2 (* Position. *).
   ItkFormalExprAbsent POS 2 (* Position. *).
   (*ItkRaisesSetAbsent POS 2 (* Position. *) *) . 
@@ -85,8 +85,9 @@ ItkQualIdUnitNoDeclNo INT   DECL  POS POS (* Lt UnitNo, Rt declNo. *) .
 ItkInvalidRef POS .
 
 FIXED   
-ItkSigProper INT POS 3 (* Formals count, Position. *) .
-ItkSigFunc INT POS 3 (* Formals count, Position. *).
+ItkSignature INT INT BOOL POS (* Scope #, Formals ct, Is function, Position. *)
+  Result POS
+  Raises POS . 
 ItkMethodDecl IDENT POS 3 (* Position. *).
 ItkFormalType POS 2 (* Position of colon. *) . 
 ItkFormalExpr POS 2 (* Position of ":=" *).
@@ -135,7 +136,7 @@ ItkInvalidType POS (* To suppress derived errors. *) .
 (*
 LONE
 ItkVarDeclId     IDENT POS . 
-ItkRecFieldId    IDENT POS . 
+
 ItkVALUEFormalId IDENT POS . 
 ItkVARFormalId   IDENT POS . 
 ItkROFormalId    IDENT POS . 
@@ -152,14 +153,14 @@ FIXED
 ItkSubrType POS 2
   Ellipsis POS 2
 . 
-
+ 
 (* Record type definitions. *) 
 FIXED
-  ItkRecType INT INT POS (* field count, scope #, Position of RECORD. *) .
+  ItkRecType INT INT POS (* Scope #, field count, Position of RECORD. *) .
 
 (* Enumeration type definitions. *) 
 FIXED
-  ItkEnumType INT POS 3 (* field count, Position of "..". *) .
+  ItkEnumType INT INT POS (* Scope #, field count, Position of "..". *) .
 
 (* Object types. *)
 FIXED 
@@ -167,8 +168,9 @@ FIXED
     (* Supertype, brand, field list, method list, overrides list are all
        always present and delimit themselves, but we want more info about them.
     *)
+    INT  (* ScopeNo. *) 
     INT  (* An enumeration, what kind of brand. *)
-    INT  (* Fields+methods count. *)
+    INT  (* Fields count. *)
     INT  (* Overrides count. *)
     POS (* Position of OBJECT. *)
   . 
@@ -230,6 +232,8 @@ ItkROFormal POS 2      (* Position of LM ident (Lt) or of semicolon (Rt). *)
   Value POS            (* Position of becomes. *) 
 .
 
+ItkFormals INT INT POS (* Scope #, Formals count, Position of '('. *) . 
+
 LIST
 
 (* GenTok implicitly gives LIST tokens:
@@ -259,7 +263,7 @@ ItkROFormalIdList (* Position is READONLY. *).
          done, but it is very fragile.  It involves propagating info
          left-to-right and knowing the left context of a RHS being
          reduced.  Without formal analysis, this is very error-prone.
-   `
+
          It could more safely be coded via a field in a block object,
          but that's some work, and it's unclear whether this would
          ever be needed anyway.
@@ -435,7 +439,7 @@ LONE ItkActualsListEmpty .
 LIST ItkSubscriptsPlusList .
 
 FIXED ItkActual   IDENT (* May be AtomNull *) POS (*Of ":=" or expr*) .
-FIXED ItkRecField IDENT (* May be AtomNull *) POS (*Of ":=" or expr*) .
+
 FIXED ItkObjField IDENT POS (*Of ":=" *).
 FIXED ItkOverride IDENT (* LHS *) POS (*Of "=" *) . 
       (* Surrounds the procedure ref. *) 

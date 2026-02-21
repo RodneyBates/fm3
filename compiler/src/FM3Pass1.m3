@@ -1,4 +1,3 @@
-
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2024..2026  Rodney M. Bates.                                    *)
@@ -1288,6 +1287,46 @@ MODULE FM3Pass1
     END PutBwd_LCIP_eCp_rip
 
 (*EXPORTED:*)
+; PROCEDURE PutBwd_LCIP_eCP_zCP_rip
+    ( T : Itk . TokTyp 
+    ; CL : LONGINT 
+    ; I : INTEGER 
+    ; READONLY PL : tPosition
+
+    ; Ce : LONGINT
+    ; READONLY Pe : tPosition
+
+    ; Cz : LONGINT
+    ; READONLY Pz : tPosition
+    )
+    
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( PL . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( PL . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) )
+      
+      ; PutBwd ( WRdBack , VAL ( Pz . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Pz . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , Cz ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToTwoPatch , LONGINT ) ) 
+
+      ; PutBwd ( WRdBack , VAL ( Pe . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( Pe . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , Ce ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToOnePatch , LONGINT ) ) 
+
+      ; PutBwd ( WRdBack , VAL ( PL . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( PL . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
+      ; PutBwd ( WRdBack , CL ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END PutBwd_LCIP_eCP_zCP_rip
+
+(*EXPORTED:*)
 ; PROCEDURE PutBwd_LCIP_eCP_rip
     ( T : Itk . TokTyp 
     ; CLt : LONGINT 
@@ -2195,7 +2234,7 @@ MODULE FM3Pass1
     ( DeclKind : Dkt 
     ; READONLY IdAttr : tParsAttribute
     ; SepTok : Itk . TokTyp := Itk . ItkNull
-                            (* ^Implies single decl id, not in a list. *)  
+                            (* ^Emit no separator. *)  
     ; READONLY SepPosition : tPosition := FM3Base . PositionNull 
     ; PriorIdCt : INTEGER := 0 (* Number of ids to left of this one. *)
     )
@@ -2218,7 +2257,8 @@ MODULE FM3Pass1
     ; WITH WScopeForDeclsRef = FM3Scopes . ScopeDeclStackTopRef 
            , WunRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack 
       DO 
-        IF WScopeForDeclsRef . ScpOwningUnitRef = FM3Units . UnitStackTopRef 
+        IF WScopeForDeclsRef . ScpOwningUnitRef = FM3Units . UnitStackTopRef
+           (* ^Can this fail? *) 
            AND NOT FM3ExpImp . CheckDuplicateExpImp
                      ( FM3Units . UnitStackTopRef
                      , LAtom
@@ -2577,12 +2617,13 @@ MODULE FM3Pass1
 (*EXPORTED.*)
 ; PROCEDURE ScopeForDeclsRtL2R ( ScopeRef : FM3Scopes . ScopeRefTyp )
   (* Create an IdAtom-to-declNo, fixed-size dictionary for the scope, of
-     exactly the needed size, and load it up with mappings of the idents
-     declared in the scope, onto a contiguously-numbered range of DeclNos.
+     exactly the needed size, and load it up with mappings of the IdAtoms
+     declared in the scope, onto a contiguously-numbered range of DeclNos,
+     unique within the current unit.
      Create no decl objects nor refs to them.
   *) 
 
-  = VAR SrtDeclNo : INTEGER 
+  = VAR SrtDeclNo : INTEGER (* Counts up. *) 
 
   ; BEGIN (*ScopeForDeclsRtL2R*)
       VAR LUnitRef : FM3Units . UnitRefTyp
@@ -2604,10 +2645,9 @@ MODULE FM3Pass1
         END SrtVisit
 
     ; BEGIN (* Block. *)
-(*      <* ASSERT ScopeRef = FM3Scopes . ScopeDeclStackTopRef *> *)
         LUnitRef := ScopeRef ^ . ScpOwningUnitRef 
       ; IF ScopeRef = FM3Scopes . ScopeLookupStackTopRef
-        THEN (* A ref herein can refer to a decl herein. *) 
+        THEN (* A ref herein can refer to a decl also herein. *) 
         (* Move Idents ref'd but to decls in this scope out to 
            containing lookup scope.
         *)
@@ -2619,7 +2659,7 @@ MODULE FM3Pass1
                  ( ScopeRef ^ . ScpRefIdSet , ScopeRef ^ . ScpDeclIdSet )
         ; LContainingScopeRef := ScopeRef ^ . ScpLookupScopeStackLink
         ; IF Clt . CltRemoveUnusedDecls IN FM3CLOptions . OptionTokSet
-             AND LUnitRef ^ . UntScopeRef = ScopeRef
+             AND ScopeRef = LUnitRef ^ . UntScopeRef 
              AND FM3Units . CurrentUnitIsModule ( ) 
           THEN (* It's a module. *) 
             ScopeRef ^ . ScpDeclIdSet 

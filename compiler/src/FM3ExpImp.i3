@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2024..2025  Rodney M. Bates.                                    *)
+(* Copyright 2024..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -41,7 +41,7 @@ INTERFACE FM3ExpImp
     ( IntoUnitRef : FM3Units . UnitRefTyp
     ; NewIdentAtom : FM3Base . AtomTyp 
     ; ImportPosition : FM3Base . tPosition 
-    ; DuplicatorKind : TEXT 
+    ; DuplicatorKindText : TEXT 
     )
   : BOOLEAN (* Check passed. *) 
   (* Check that NewImportAtom does not duplicate one already [ex|im]ported. *)
@@ -51,7 +51,7 @@ INTERFACE FM3ExpImp
     ( FromUnitRef : FM3Units . UnitRefTyp
     ; FromUnitDeclNo : FM3Globals . DeclNoTyp
     ; Position : FM3Base . tPosition
-    ; DuplicatorKind : TEXT  
+    ; DuplicatorKindText : TEXT  
     )
   : BOOLEAN (* Success. *)
   (* PRE: FromUnitDeclNo leads to a DeclRef in FromUnitRef^. *)

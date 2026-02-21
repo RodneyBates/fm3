@@ -126,14 +126,13 @@ INTERFACE FM3Exprs
                       (*(2)ExpOpnd1.*) 
      , EkBinOp        (*(1)ExpOpcode.*)
                       (*(2)ExpOpnd1, ExpOpnd2.*) 
-     , EkCall         (*(1)ExpArgsListRef, ExpArgNo.*) 
+     , EkCall         (*(1)ExpArgListRef, ExpArgNo.*) 
                       (*(1)ExpRepExprNo=ExpExprNoDistinct*)
-     , EkSubscript    (*(1)ExpArgsListRef, ExpArgNo.*)
+     , EkSubscript    (*(1)ExpArgListRef, ExpArgNo.*)
                       (*(1)ExpRepExprNo=ExpExprNoDistinct*)
      , EkNamed        (*(1)ExpIdAtom, Opnd1 is the expression.*) 
 
-     , EkSigProc 
-     , EkSigFunc
+     , EkSignature    (* Treat as a procedure type. *) 
      , EkOverride 
 
      , EkType  (* Probably replace by a set of the above. *) 
@@ -157,8 +156,7 @@ INTERFACE FM3Exprs
 
 ; CONST EkSetWScope = EkSetTyp (* These contain a scope. *) 
         { Ekt . EkEnumType
-        , Ekt . EkSigProc
-        , Ekt . EkSigFunc
+        , Ekt . EkSignature
         , Ekt . EkObjType
         , Ekt . EkRecType
         }
@@ -287,7 +285,7 @@ INTERFACE FM3Exprs
       ; ExpRangeBase : ExprRefTyp := NIL 
      (* ExpOpnd1 is supertype, non-NIL even if defaulted. *)
      (* ExpOpnd2 is brand, NIL if no BRANDED. *) 
-      ; ExpDeclsListRef : FM3Globals . DeclRefListRefTyp
+      ; ExpDeclListRef : FM3Globals . DeclRefListRefTyp
         (* Array type: DclDefType is an element type.
            Array constructor: DclDefValue is element value. 
            Subscript: DclDefValue is element subscript expr.
@@ -299,7 +297,7 @@ INTERFACE FM3Exprs
            Object type: DclIdAtom and DclDefValue denote an override.
            Revelation: TypeIdAtom, revealed as expr. 
         *)
-      ; ExpArgsListRef : ExprListRefTyp
+      ; ExpArgListRef : ExprListRefTyp
      (* ^Subscript types of array type
         subscript exprs of [ ]
      *) 

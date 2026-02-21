@@ -57,8 +57,7 @@ MODULE FM3Exprs
       | ExprKindTyp . EkCall => RETURN "EkCall" 
       | ExprKindTyp . EkSubscript => RETURN "EkSubscript" 
       | ExprKindTyp . EkBuiltin => RETURN "EkBuiltin"  
-      | ExprKindTyp . EkSigProc => RETURN "EkSigProc"  
-      | ExprKindTyp . EkSigFunc => RETURN "EkSigFunc"  
+      | ExprKindTyp . EkSignature => RETURN "EkSignature"  
       | ExprKindTyp . EkValue => RETURN "EkValue" 
       | ExprKindTyp . EkBrand => RETURN "EkBrand"  
       ELSE RETURN "<Unknown ExprKindImage>"
@@ -73,8 +72,7 @@ MODULE FM3Exprs
       CASE Kind OF 
       | ExprKindTyp . EkNull    => RETURN "<null>" 
       | ExprKindTyp . EkType    => RETURN "type" 
-      | ExprKindTyp . EkSigProc => RETURN "procedure" 
-      | ExprKindTyp . EkSigFunc => RETURN "function" 
+      | ExprKindTyp . EkSignature => RETURN "signature" 
       | ExprKindTyp . EkValue   => RETURN "value" 
       | ExprKindTyp . EkRefType => RETURN "reference" 
       ELSE RETURN "<unknown>"
@@ -392,11 +390,11 @@ RETURN ;
       ; Field ( "ExpBuiltinOpRtOpndKindsAllowed" 
               , ExprKindSetMessage ( Expr ^ . ExpBuiltinOpRtOpndKindsAllowed ) 
               )
-      ; Field ( "ExpArgsListRef" , "" )
-      ; AppendExprList ( Expr ^ . ExpArgsListRef ) 
+      ; Field ( "ExpArgListRef" , "" )
+      ; AppendExprList ( Expr ^ . ExpArgListRef ) 
 
-      ; Field ( "ExpDeclsListRef"
-              , FM3Utils . RefanyImage ( Expr ^ . ExpDeclsListRef )
+      ; Field ( "ExpDeclListRef"
+              , FM3Utils . RefanyImage ( Expr ^ . ExpDeclListRef )
               )  
 
       ; Field ( "ExpObjBrandKind"
@@ -405,7 +403,6 @@ RETURN ;
       ; Field ( "ExpScopeRef1"
               , FM3Scopes . ScopeRefImage ( Expr ^ . ExpScopeRef1 )
               ) 
-
 
       ; Field ( "ExpIdentDeclNo" , IntImage ( Expr ^ . ExpIdentDeclNo ) ) 
       ; Field ( "ExpRemoteUnitNo" , IntImage ( Expr ^ . ExpRemoteUnitNo ) ) 

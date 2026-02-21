@@ -62,6 +62,12 @@ INTERFACE FM3Scopes
       , SkExcept 
       } 
 
+; CONST ScopeKindSetUnit = SET OF ScopeKindTyp
+    { ScopeKindTyp . SkUnit
+    , ScopeKindTyp . SkInterface 
+    , ScopeKindTyp . SkModule 
+    } 
+
 ; CONST ScopeKindSetTypeDef = SET OF ScopeKindTyp
     { ScopeKindTyp . SkFormals
     , ScopeKindTyp . SkEnum
@@ -82,7 +88,7 @@ INTERFACE FM3Scopes
     , ScopeKindTyp . SkRec 
     , ScopeKindTyp . SkObj 
     }
-  (* ^These have a meaningful ScpDeclsListRef. *) 
+  (* ^These have a meaningful ScpDeclListRef. *) 
 
 ; CONST ScopeKindSetBinding = SET OF ScopeKindTyp
     { ScopeKindTyp . SkWith
@@ -109,7 +115,7 @@ INTERFACE FM3Scopes
         (* INVARIANT: Once ScpDeclIdSet and ScpDeclDict are both complete,
            Atom is in one IFF in the other.
         *)
-      ; ScpDeclsListRef : FM3Globals . DeclRefListRefTyp
+      ; ScpDeclListRef : FM3Globals . DeclRefListRefTyp
         (* Same decl contents as ScpDeclDict, in positional order.
            NIL if no decls.
         *)

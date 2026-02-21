@@ -125,12 +125,7 @@ MODULE FM3Resolve
         ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd2 )
         ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd3 )
         ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd4 ) 
-      | Ekt . EkSigProc 
-      =>  ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd1 )
-        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd2 )
-        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd3 )
-        ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd4 )  
-      | Ekt . EkSigFunc 
+      | Ekt . EkSignature 
       =>  ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd1 )
         ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd2 )
         ; ResolveChild ( ExprRef , ExprRef ^ . ExpOpnd3 )
@@ -300,8 +295,8 @@ MODULE FM3Resolve
         RETURN FALSE
       END (*IF*) 
     ; IF NOT DeclListsEqual
-               ( LeftScopeRef ^ . ScpDeclsListRef  
-               , RightScopeRef ^ . ScpDeclsListRef
+               ( LeftScopeRef ^ . ScpDeclListRef  
+               , RightScopeRef ^ . ScpDeclListRef
                ) 
       THEN RETURN FALSE
       END (*IF*)
@@ -434,8 +429,8 @@ MODULE FM3Resolve
                    ) 
           ; LResult 
               := DeclListsEqual 
-                   ( LeftExprRef ^ . ExpDeclsListRef
-                   , RightExprRef ^ . ExpDeclsListRef
+                   ( LeftExprRef ^ . ExpDeclListRef
+                   , RightExprRef ^ . ExpDeclListRef
                    ) 
         | Ekt . EkSubrType
         =>  LResult := Opnds1And2Equal ( LeftExprRef , RightExprRef ) 

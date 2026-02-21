@@ -304,6 +304,19 @@ INTERFACE FM3Pass1
     ; READONLY RPos : tPosition
     )
     
+; PROCEDURE PutBwd_LCIP_eCP_zCP_rip
+    ( T : Itk . TokTyp 
+    ; CL : LONGINT 
+    ; I : INTEGER 
+    ; READONLY PL : tPosition
+
+    ; Ce : LONGINT
+    ; READONLY Pe : tPosition
+
+    ; Cz : LONGINT
+    ; READONLY Pz : tPosition
+    )
+    
 ; PROCEDURE PutBwd_LCIP_eCip_rip
     ( T : Itk . TokTyp 
     ; LC : LONGINT 
@@ -477,7 +490,7 @@ INTERFACE FM3Pass1
     ( DeclKind : FM3Decls . DeclKindTyp  
     ; READONLY IdAttribute : tParsAttribute
     ; SepTok : Itk . TokTyp := Itk . ItkNull
-                            (* ^Implies single decl id, not in a list. *)  
+                            (* ^Emit no separator. *)  
     ; READONLY SepPosition : tPosition := FM3Base . PositionNull 
     ; PriorIdCt : INTEGER := 0 (* Number of ids to left of this one. *)
     )

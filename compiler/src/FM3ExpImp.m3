@@ -177,7 +177,7 @@ MODULE FM3ExpImp
     ; NewIdentAtom : FM3Base . AtomTyp 
     ; ImportPosition : FM3Base . tPosition
       (* ^Of Ident that brought NewIdentAtom into IntoUnitRef. *)
-    ; DuplicatorKind : TEXT 
+    ; DuplicatorKindText : TEXT   
     )
   : BOOLEAN (* Check passed. *)
   (* Check that NewImportAtom does not duplicate one already [ex|im]ported. *)
@@ -233,7 +233,7 @@ MODULE FM3ExpImp
     ; FM3Messages . ErrorArr
         ( ARRAY OF REFANY
             { "Duplicate "
-            , DuplicatorKind 
+            , DuplicatorKindText 
             , " of \""
             , LIdentChars
             , "\", previously introduced at "
@@ -272,7 +272,7 @@ MODULE FM3ExpImp
     ; FromUnitDeclNo : FM3Globals . DeclNoTyp
     ; ExpImpPosition : FM3Base . tPosition
       (* ^Of the EXPORTS or IMPORT directive's interface identifier. *) 
-    ; DuplicatorKind : TEXT 
+    ; DuplicatorKindText : TEXT 
     )
   : BOOLEAN (* Success. *)
   (* PRE: FromUnitDeclNo leads to a DeclRef in FromUnitRef^. *)
@@ -297,7 +297,7 @@ MODULE FM3ExpImp
            ( LIntoUnitRef
            , LIntoIdentAtom
            , ExpImpPosition
-           , DuplicatorKind 
+           , DuplicatorKindText 
            )
       THEN (* All is legal, so do the real import. *)
         LProxy . EipUnitNo := FromUnitRef ^ . UntSelfUnitNo 
