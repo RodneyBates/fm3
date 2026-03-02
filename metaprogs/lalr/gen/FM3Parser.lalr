@@ -1322,7 +1322,7 @@ RULE
      { $$ . PaInt1 (* Enum lit count. *) := 0 ;
        FM3Pass1 . MakeListEmpty
          ( $$
-         , Itk . ItkFieldDeclListLt
+         , Itk . ItkEnumLitListLt
          , FM3Scanner . Attribute . Position
          ) ;
      } .
@@ -1345,9 +1345,7 @@ RULE
    EnumLit : StkIdent
      { $$ . PaInt1 (* Ident count, 0 or 1. *) 
          := ORD ( FM3Pass1 . DeclIdL2R (* TRUE if things are good. *)
-                    ( Dkt . DkEnumLit
-                    , IdAttribute := $1
-                    )
+                    ( Dkt . DkEnumLit , IdAttribute := $1 )
                 ) ;
      } . 
 
@@ -1446,9 +1444,12 @@ RULE
           ) ; 
       } .
 
-   MethodDeclList : StkRwMETHODS /* METHODS but none follow. */
-      { FM3Pass1 . PutBwd_LIP_rip
-          ( Itk . ItkMethodDeclListLt , 0 , $1 . Scan . Position ) ; 
+   MethodDeclList : StkRwMETHODS /* "METHODS" but none follow. */
+      { FM3Pass1 . MakeListEmpty 
+          ( $$
+          , Itk . ItkMethodDeclListLt
+          , FM3Scanner . Attribute . Position
+          ) ; 
       } .
 
    MethodDeclList : StkRwMETHODS MethodDeclPlus OptSemicolon 
@@ -1465,10 +1466,10 @@ RULE
 
    MethodDeclPlus : MethodDeclPlus StkSemicolon MethodDecl
      { $$ . PaInt1 (* Decl count. *):= $1 . PaInt1 + $3 . PaInt1 ;
-       FM3Pass1 . PutBwd_ECIP
+       FM3Pass1 . PutBwd_ECIP (* Separator. *) 
          ( Itk . ItkMethodDeclListLt
          , $2 . PaPass1Coord 
-         , $1 . PaInt1
+         , $1 . PaInt1 (* No of method decls to left. *) 
          , $2 . Scan . Position
          ) ; 
      } . 
@@ -1476,31 +1477,42 @@ RULE
 (* ----------------------------- Method Signatures -------------------------- *)
 
    MethodDeclLt : StkIdent 
-     { $$ . Scan . SaAtom := $1 . Scan . SaAtom ; 
-       $$ . PaInt1 (* Ident count, 0 or 1. *) 
-           := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkMethod , IdAttribute := $1 ) ) ;
+     { (* Default Coord. *)
+       $$ . Scan . SaAtom := $1 . Scan . SaAtom ; 
+       $$ . PaInt1 (* Valid ident count, 0 or 1. *) 
+         := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkMethod , IdAttribute := $1 ) ) ;
+     } .
+
+   MethodBody /* Empty */ :
+     { $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
+       FM3Pass1 . PutBwd_LP
+         ( Itk . ItkMethodBodyAbsent , $$ . Scan . Position ) ; 
+     } .
+
+   MethodBody : StkBecomes Expr
+     { $$ . Scan . Position := $1 . Scan . Position ; 
      } . 
 
-   MethodDecl : MethodDeclLt Signature 
-     { VAR LFormalsScopeRef : FM3Scopes . ScopeRefTyp ;
-       BEGIN
-         $$ . PaInt1 (* Valid method count. *) := $1 . PaInt1 ; 
-         IF $$ . PaInt1 > 0
-         THEN
-         ELSE (* Method Id was invalid. *) 
-           FM3Pass1 . PutBwd_LCI_ri
-             ( Itk . ItkSkipLt , $1 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
-           INC ( FM3Globals . NextSkipNo ) ;
-         END (*IF*) ;
-         
-
-(* TODO:  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-          This needs rework.  The method formals stuff should be done
-          all inside signature.
-*) 
-
-
-       END (*Block*) 
+   MethodDecl : MethodDeclLt Signature MethodBody 
+     { (* Default coord and position. *)
+       $$ . PaInt1 (* Valid decl count. *) := $1 . PaInt1 ; 
+       IF $$ . PaInt1 > 0
+       THEN
+         FM3Pass1 . PutBwd_LCP_eCP_zCP_rP 
+           ( Itk . ItkMethodDeclLt
+           , $1 . PaPass1Coord 
+           , $1 . Scan . Position
+           , $2 . PaPass1Coord 
+           , $2 . Scan . Position 
+           , $3 . PaPass1Coord 
+           , $3 . Scan . Position 
+           , $1 . Scan . Position 
+           ) ;
+       ELSE (* Method Id was invalid. *) 
+         FM3Pass1 . PutBwd_LCI_ri
+           ( Itk . ItkSkipLt , $1 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
+         INC ( FM3Globals . NextSkipNo ) ;
+       END (*IF*) ;
      } . 
 
 (* ------------------------------ Override Lists ---------------------------- *)
@@ -1535,7 +1547,7 @@ RULE
 
    OverridePlus : OverridePlus StkSemicolon Override
      { $$ . PaInt1 (* Override count. *):= $1 . PaInt1 + $3 . PaInt1 ;
-       FM3Pass1 . PutBwd_ECIP
+       FM3Pass1 . PutBwd_ECIP(* No of overrides to left. *) 
          ( Itk . ItkOverrideListLt
          , $2 . PaPass1Coord 
          , $1 . PaInt1
@@ -1555,6 +1567,7 @@ RULE
                     , "denote a method to override"
                     )
                 ) ;
+       
        IF $$ . PaInt1 = 0 
        THEN (* Skip the whole override. *) 
          FM3Pass1 . PutBwd_LCI_ri
@@ -1574,13 +1587,13 @@ RULE
 
    Brand : /*Empty*/
      /* Happens when & only when REF or OBJECT is the lookahead. */
-     { $$ . PaByte1 := ORD ( Bkt . BkAbsent ) ;
+     { $$ . PaByte2 := ORD ( Bkt . BkAbsent ) ;
        FM3Pass1 . PutBwd_LP
          ( Itk . ItkBrandAbsent , FM3Scanner . Attribute . Position ) ;
      } . 
 
    Brand : StkRwBRANDED
-     { $$ . PaByte1 := ORD ( Bkt . BkAnon ) ;
+     { $$ . PaByte2 := ORD ( Bkt . BkAnon ) ;
        FM3Pass1 . PutBwd_LP 
          ( Itk . ItkBrandAnon , $1 . Scan . Position ) ;
      } . 
@@ -1588,7 +1601,7 @@ RULE
    Brand : StkRwBRANDED Expr
      { $$ . PaPass1Coord := $2 . PaPass1Coord ;
        $$ . Scan . Position := $2 . Scan . Position ;
-       $$ . PaByte1 := ORD ( Bkt . BkExplicit ) ;
+       $$ . PaByte2 := ORD ( Bkt . BkExplicit ) ;
        FM3Pass1 . PutBwd_LCP_rp
          ( Itk . ItkBrandExplicitLt
          , $2 . PaPass1Coord
@@ -1604,6 +1617,21 @@ RULE
          ( Itk . ItkSupertypeAbsent , FM3Scanner . Attribute . Position ) ;
      } . 
 
+   ObjRootTypeLt : SupertypeAbsent Brand StkRwOBJECT
+     { (* Default Position & Coord. *) 
+       FM3Pass1 . ObjTypeLtL2R
+         ( $$ , $2 . PaByte2 (* Brand kind, Bkt. *) , $3 . Scan . Position ) ;
+        (* ^Pushes parse info and scope. Sets $$ . PaDeclDepth. *) 
+     } .
+
+   ObjTypeLt : ObjRootTypeLt
+     /* Its supertype is implicitly ROOT, but that's syntactically absent. */  
+     { $$ . PaBool := FALSE (* Has explicit supertype. *) ;
+       $$ . PaInt2 := $1 . PaInt2 (* Scope num. *) ; 
+       $$ . PaByte2 := $1 . PaByte2 (* Brand kind, Bkt. *) ; 
+       $$ . PaTok1 := Itk . ItkObjFieldDeclLt ;
+     } .
+
    SupertypePresent : TypeName { (* Default Position & Coord. *) } .  
    
    SupertypePresent : ObjType { (* Default Position & Coord. *) } . 
@@ -1618,35 +1646,21 @@ RULE
          ) ;
      } .
 
-   ObjWSubtypeLt : ObjSupertype Brand StkRwOBJECT
+   ObjWExplSupertypeLt : ObjSupertype Brand StkRwOBJECT
      { (* Default Position & Coord. *) 
        FM3Pass1 . ObjTypeLtL2R
          ( $$ , $2 . PaByte2 (* Brand kind, Bkt. *) , $3 . Scan . Position ) ;   
+        (* ^Pushes parse info and scope. Sets $$ . PaDeclDepth. *) 
      } .
 
-   ObjTypeLt : ObjWSubtypeLt /* I.e., it has an explicit supertype. */
+   ObjTypeLt : ObjWExplSupertypeLt /* I.e., it has an explicit supertype. */
      { $$ . PaDeclDepth := $1 . PaDeclDepth ; 
-       $$ . PaBool := TRUE (* Has explicit subtype. *) ;
-       $$ . PaInt1 := $1 . PaInt1 (* Scope num. *) ;  
+       $$ . PaBool := TRUE (* Has explicit supertype. *) ;
+       $$ . PaInt2 := $1 . PaInt2 (* Scope num. *) ;  
        $$ . PaByte2 := $1 . PaByte2 (* Brand kind, Bkt. *) ;
        $$ . PaTok1 := Itk . ItkObjFieldDeclLt ;
-       $$ . PaByte1 := ORD ( Dkt . DkObjField ) ;
      } . 
      
-   ObjTypeLt : ObjRootTypeLt
-     /* Its supertype is implicitly ROOT, but syntactically absent. */  
-     { $$ . PaDeclDepth := $1 . PaDeclDepth ; 
-       $$ . PaBool := FALSE (* Has explicit subtype. *) ;
-       $$ . PaInt1 := $1 . PaInt1 (* Scope num. *) ; 
-       $$ . PaByte2 := $1 . PaByte2 (* Brand kind, Bkt. *) ; 
-     } .
-
-   ObjRootTypeLt : SupertypeAbsent Brand StkRwOBJECT
-     { (* Default Position & Coord. *) 
-       FM3Pass1 . ObjTypeLtL2R
-         ( $$ , $2 . PaByte2 (* Brand kind, Bkt. *) , $2 . Scan . Position ) ;   
-     } .
-
    ObjType : ObjTypeLt FieldDeclList MethodDeclList OverrideList StkRwEND
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN
@@ -1656,21 +1670,24 @@ RULE
                   ensure there are no decls in the OverrideList.
          *) 
          LScopeRef := FM3Scopes . PopScopeRefDeclsStack ( ) ;
-         <* ASSERT LScopeRef ^ . ScpKind = Skt . SkObj *>
-         <* ASSERT LScopeRef ^ . ScpSelfScopeNo = $1 . PaInt1 *> 
+         IF LScopeRef ^ . ScpSelfScopeNo # $1 . PaInt2
+         THEN <* ASSERT FALSE , "P1, obj type rt, decl scope mismatch." *>
+         END (*IF*) ; 
+
+         FM3Pass1 . ScopeForDeclsRtL2R ( LScopeRef ) ;  
          FM3Pass1 . PutBwd_LCIIIIP_riiiip
            ( Itk . ItkObjTypeLt
            , $1 . PaPass1Coord
-           , $1 . PaByte2 (* BrandKind, Bkt. *)
-           , $2 . PaInt1 (* Count of fields only. *) 
-           , $4 . PaInt1 (* Count of overrides. *)
            , LScopeRef ^ . ScpSelfScopeNo 
+           , $1 . PaByte2 (* BrandKind, Bkt. *)
+           , $2 . PaInt1 + $3 .PaInt1 (* Count of fields and methods. *) 
+           , $4 . PaInt1 (* Count of overrides. *)
            , $1 . Scan . Position 
            ) ;
-         FM3Pass1 . ScopeForDeclsRtL2R ( LScopeRef ) ;
-         FM3Pass1 . PutBwd_TI
-           ( Itk . ItkScopeForDeclsRt , LScopeRef ^ . ScpSelfScopeNo ) ;
-         <* ASSERT FM3Decls . PopDeclParseInfo ( ) = $1 . PaDeclDepth *> 
+         IF FM3Decls . PopDeclParseInfo ( )
+            # $1 . PaDeclDepth (* DeclParseInfoDepth *) 
+         THEN <* ASSERT FALSE , "P1, obj type parse info depth mismatch." *>
+         END (*IF*) 
        END; 
      } .
    Type : ObjType . 
@@ -1724,8 +1741,11 @@ RULE
    are formals count. *)
 
    Formals : StkOpenParen StlCloseParen
-     { FM3Pass1 . PutBwd_LP
-         ( Itk . ItkFormalsListEmpty , $1 . Scan . Position ) ;
+     { FM3Pass1 . MakeListEmpty
+         ( $$
+         , Itk . ItkFormalsListLt
+         , $1 . Scan . Position
+         ) ;
      } . 
 
    FormalsLt : StkOpenParen 
@@ -1969,6 +1989,7 @@ RULE
        MakeListPos ( $$ , Itk . ItkRaisesSetLt , $1 . Scan . Position , $2 ) ;
      } . 
 (* ------------------------------ Procedures ------------------------------ *)
+
    (* Body is absent: *) 
    OptProcBody : StkSemicolon
      /* Procedure body is absent in source code, not necessarily legally. */ 
@@ -2075,26 +2096,21 @@ RULE
      } .
     
    ProcDeclLt : StkRwPROCEDURE StkIdent 
-     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
-       VAR LScopeKind : Skt ;
-       BEGIN
-         (* Default coord and position. *) 
-         $$ . Scan . SaAtom := $2 . Scan . SaAtom ; 
-         $$ . PaInt1 (* Ident count, 0 or 1. *) 
-           := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkProc , IdAttribute := $2 ) ) ;
-       END (*Block*) 
+     { (* Default coord and position. *) 
+       $$ . Scan . SaAtom := $2 . Scan . SaAtom ; 
+       $$ . PaInt1 (* Valid ident count, 0 or 1. *) 
+         := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkProc , IdAttribute := $2 ) ) ;
      } . 
 
    ProcDecl : ProcDeclLt Signature OptProcBody
      { (* Default coord and position. *)
-         $$ . Scan . SaAtom := $1 . Scan . SaAtom ; 
-         $$ . PaInt1 (* Valid decl count. *) := $1 . PaInt1 ; 
-         FM3Pass1 . PutBwd_LCIP
-           ( $3 . PaTok1
-           , $1 . PaPass1Coord
-           , $1 . Scan . SaAtom
-           , $1 . Scan . Position
-           ) ;
+       $$ . PaInt1 (* Valid decl count. *) := $1 . PaInt1 ; 
+       FM3Pass1 . PutBwd_LCIP
+         ( $3 . PaTok1
+         , $1 . PaPass1Coord
+         , $1 . Scan . SaAtom
+         , $1 . Scan . Position
+         ) ;
      } . 
 
 (* ---------------------------- Expressions ---------------------------- *)

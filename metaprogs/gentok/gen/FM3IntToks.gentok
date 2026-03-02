@@ -47,7 +47,6 @@ ItkModule INT POS 3 (* UnitNo, Position. *)
 
 
 LONE
-  ItkFormalsListEmpty POS . 
   ItkFormalTypeAbsent POS 2 (* Position. *).
   ItkFormalExprAbsent POS 2 (* Position. *).
   (*ItkRaisesSetAbsent POS 2 (* Position. *) *) . 
@@ -88,7 +87,9 @@ FIXED
 ItkSignature INT INT BOOL POS (* Scope #, Formals ct, Is function, Position. *)
   Result POS
   Raises POS . 
-ItkMethodDecl IDENT POS 3 (* Position. *).
+ItkMethodDecl POS 
+  Sig         POS (* Of "(" *) 
+  Proc        POS (* Of ":=" *) .
 ItkFormalType POS 2 (* Position of colon. *) . 
 ItkFormalExpr POS 2 (* Position of ":=" *).
 ItkResultType POS 2 (* Position of colon. *).
@@ -102,7 +103,10 @@ FIXED
 ItkProcBlock INT POS 3 (* Construct no., Position of LM declaration. *)
   BEGIN INT POS 3 (* Construct no.,Position of BEGIN. *) . 
 ItkAnonBlock INT POS 3 (* Construct no., Position of LM declaration. *)
-  BEGIN INT POS 3 (* Construct no.,Position of BEGIN. *) . 
+  BEGIN INT POS 3 (* Construct no.,Position of BEGIN. *) .
+
+LONE 
+ItkMethodBodyAbsent POS  . 
 
 (* Type decls. *)
 
@@ -110,7 +114,7 @@ ItkAnonBlock INT POS 3 (* Construct no., Position of LM declaration. *)
 LONE
 ItkTypeDeclId IDENT POS 3 .
 ItkRevealId IDENT POS 3 . 
-ItkConstId IDENT POS 3 . 
+ItkConstId IDENT POS 3 .
 *) 
 
 FIXED
@@ -170,7 +174,7 @@ FIXED
     *)
     INT  (* ScopeNo. *) 
     INT  (* An enumeration, what kind of brand. *)
-    INT  (* Fields count. *)
+    INT  (* Decls count (fields+methodn). *)
     INT  (* Overrides count. *)
     POS (* Position of OBJECT. *)
   . 

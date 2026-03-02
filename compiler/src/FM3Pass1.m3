@@ -2254,10 +2254,10 @@ MODULE FM3Pass1
         RETURN FALSE
       END (*IF*) 
     ; LAtom := IdAttr . Scan . SaAtom 
-    ; WITH WScopeForDeclsRef = FM3Scopes . ScopeDeclStackTopRef 
-           , WunRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack 
+    ; WITH WScopeRefForDecls = FM3Scopes . ScopeDeclStackTopRef 
+           , WUntRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack 
       DO 
-        IF WScopeForDeclsRef . ScpOwningUnitRef = FM3Units . UnitStackTopRef
+        IF WScopeRefForDecls . ScpOwningUnitRef = FM3Units . UnitStackTopRef
            (* ^Can this fail? *) 
            AND NOT FM3ExpImp . CheckDuplicateExpImp
                      ( FM3Units . UnitStackTopRef
@@ -2268,16 +2268,16 @@ MODULE FM3Pass1
         THEN (* LAtom duplicates export or import. Message already emitted. *)
           RETURN FALSE 
         ELSE
-          LFormalsScopeRef := ProcBodyFormalsScope ( WScopeForDeclsRef ) 
-        ; IF LFormalsScopeRef # NIL (* WScopeForDeclsRef is for a proc body. *) 
+          LFormalsScopeRef := ProcBodyFormalsScope ( WScopeRefForDecls ) 
+        ; IF LFormalsScopeRef # NIL (* WScopeRefForDecls is for a proc body. *) 
              AND IntSets . IsElement
                    ( LAtom , LFormalsScopeRef ^ . ScpDeclIdSet )
           THEN  (* LAtom duplicates a previously declared formal. *)
             LPriorScopeForDeclsRef := LFormalsScopeRef
           ELSIF IntSets . IsElement
-                  ( LAtom , WScopeForDeclsRef ^ . ScpDeclIdSet )
+                  ( LAtom , WScopeRefForDecls ^ . ScpDeclIdSet )
           THEN (* LAtom duplicates a previously declared id in this scope. *) 
-            LPriorScopeForDeclsRef := WScopeForDeclsRef
+            LPriorScopeForDeclsRef := WScopeRefForDecls
           ELSE 
             LPriorScopeForDeclsRef := NIL
           END (*IF*)
@@ -2288,47 +2288,43 @@ MODULE FM3Pass1
                   original declaring occurence is known.
                *) 
             PutBwd
-              ( WunRdBack
-              , VAL ( IdAttr . Scan . Position . Column , LONGINT )
-              ) 
+              ( WUntRdBack , VAL ( IdAttr . Scan . Position . Column , LONGINT ) ) 
           ; PutBwd
-              ( WunRdBack
-              , VAL ( IdAttr . Scan . Position . Line , LONGINT )
-              )
+              ( WUntRdBack , VAL ( IdAttr . Scan . Position . Line , LONGINT ) )
           ; PutBwd
-              ( WunRdBack
+              ( WUntRdBack
               , VAL ( LPriorScopeForDeclsRef . ScpSelfScopeNo , LONGINT )
               ) 
-          ; PutBwd ( WunRdBack , VAL ( LAtom , LONGINT ) ) 
-          ; PutBwd ( WunRdBack , VAL ( Itk . ItkDuplDeclId , LONGINT ) )
+          ; PutBwd ( WUntRdBack , VAL ( LAtom , LONGINT ) ) 
+          ; PutBwd ( WUntRdBack , VAL ( Itk . ItkDuplDeclId , LONGINT ) )
           ; RETURN FALSE (* Caller, Don't use this Id. *)
           ELSE (* 1st declaration of Ident in scope(s) . *) 
-            WScopeForDeclsRef . ScpDeclIdSet
-              := IntSets . Include ( WScopeForDeclsRef . ScpDeclIdSet , LAtom )
+            WScopeRefForDecls . ScpDeclIdSet
+              := IntSets . Include ( WScopeRefForDecls . ScpDeclIdSet , LAtom )
 
           (* Maybe write Separator token: *)
           ; IF SepTok # Itk . ItkNull AND PriorIdCt > 0
             THEN 
-              PutBwd ( WunRdBack , VAL ( SepPosition . Column , LONGINT ) ) 
-            ; PutBwd ( WunRdBack , VAL ( SepPosition . Line , LONGINT ) )
-            ; PutBwd ( WunRdBack , VAL ( PriorIdCt , LONGINT ) )
-            ; PutBwd ( WunRdBack , VAL ( SepTok , LONGINT ) )
+              PutBwd ( WUntRdBack , VAL ( SepPosition . Column , LONGINT ) ) 
+            ; PutBwd ( WUntRdBack , VAL ( SepPosition . Line , LONGINT ) )
+            ; PutBwd ( WUntRdBack , VAL ( PriorIdCt , LONGINT ) )
+            ; PutBwd ( WUntRdBack , VAL ( SepTok , LONGINT ) )
             END (*IF*)
 
           (* Id is valid.  Write decl Ident token: *)
           ; PutBwd
-              ( WunRdBack 
+              ( WUntRdBack 
               , VAL ( IdAttr . Scan . Position . Column , LONGINT ) 
               ) 
           ; PutBwd
-              ( WunRdBack 
+              ( WUntRdBack 
               , VAL ( IdAttr . Scan . Position . Line , LONGINT ) 
               )
           ; PutBwd 
-              ( WunRdBack , VAL ( IdAttr . Scan . SaBuiltinTok , LONGINT ) ) 
-          ; PutBwd ( WunRdBack , VAL ( LAtom , LONGINT ) ) 
-          ; PutBwd ( WunRdBack , VAL ( ORD ( DeclKind ) , LONGINT ) )
-          ; PutBwd ( WunRdBack , VAL ( Itk . ItkDeclId , LONGINT ) )
+              ( WUntRdBack , VAL ( IdAttr . Scan . SaBuiltinTok , LONGINT ) ) 
+          ; PutBwd ( WUntRdBack , VAL ( LAtom , LONGINT ) ) 
+          ; PutBwd ( WUntRdBack , VAL ( ORD ( DeclKind ) , LONGINT ) )
+          ; PutBwd ( WUntRdBack , VAL ( Itk . ItkDeclId , LONGINT ) )
           ; RETURN TRUE (* Caller, Use this decl id. *)
           END (*IF*)
         END (*IF*)
@@ -2465,7 +2461,7 @@ MODULE FM3Pass1
   = VAR LIsLegal : BOOLEAN
 
   ; BEGIN (*QualIdentRefL2R*)
-      WITH WunRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WUntRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
       DO LIsLegal
            := VerifyIdentNotReserved
                 ( LtIdAttr , Position , "have a qualifier." )
@@ -2482,16 +2478,16 @@ MODULE FM3Pass1
                := IntSets . Include ( WIdentRefSet , LtIdAttr . Scan . SaAtom )
           END (*WITH*) 
         ; PutBwd
-            ( WunRdBack , VAL ( RtIdAttr . Scan . Position . Column , LONGINT ) )
+            ( WUntRdBack , VAL ( RtIdAttr . Scan . Position . Column , LONGINT ) )
         ; PutBwd
-            ( WunRdBack , VAL ( RtIdAttr . Scan . Position . Line , LONGINT ) ) 
+            ( WUntRdBack , VAL ( RtIdAttr . Scan . Position . Line , LONGINT ) ) 
         ; PutBwd
-            ( WunRdBack , VAL ( LtIdAttr . Scan . Position . Column , LONGINT ) )
+            ( WUntRdBack , VAL ( LtIdAttr . Scan . Position . Column , LONGINT ) )
         ; PutBwd
-            ( WunRdBack , VAL ( LtIdAttr . Scan . Position . Line , LONGINT ) )
-        ; PutBwd ( WunRdBack , VAL ( RtIdAttr . Scan . SaAtom , LONGINT ) ) 
-        ; PutBwd ( WunRdBack , VAL ( LtIdAttr . Scan . SaAtom , LONGINT ) ) 
-        ; PutBwd ( WunRdBack , VAL ( Itk . ItkQualIdAtoms , LONGINT ) )
+            ( WUntRdBack , VAL ( LtIdAttr . Scan . Position . Line , LONGINT ) )
+        ; PutBwd ( WUntRdBack , VAL ( RtIdAttr . Scan . SaAtom , LONGINT ) ) 
+        ; PutBwd ( WUntRdBack , VAL ( LtIdAttr . Scan . SaAtom , LONGINT ) ) 
+        ; PutBwd ( WUntRdBack , VAL ( Itk . ItkQualIdAtoms , LONGINT ) )
         END (*IF*) 
       END (*WITH*)
     END QualIdentRefL2R
@@ -2714,7 +2710,10 @@ MODULE FM3Pass1
     ( VAR LHSAttr : tParsAttribute
     ; BrandKind : FM3Base . Card8Typ (* FM3Parser . BrandKindTyp. *) 
     ; Position : tPosition
-    ) 
+    )
+  (* PRE: IdAttribute is for an identifier in a declaration context. *) 
+  (* Push parse info and scope. Set LHSAttr.PaDeclDepth. *) 
+    
 
   = VAR LScopeRef : FM3Scopes . ScopeRefTyp
   ; VAR LResult : INTEGER 
@@ -2728,16 +2727,16 @@ MODULE FM3Pass1
                  }
              ) 
     ; LHSAttr . PaByte2 := BrandKind
-      (* Need the scope now, to collect decl id atoms. *) 
+    
+    (* Need the scope now, to collect decl id atoms. *) 
     ; LScopeRef 
         := FM3Scopes . NewScopeRef
              ( FM3Units . UnitStackTopRef
              , Skt . SkObj
              , Position
              ) 
-    ; LHSAttr . PaInt1 := LScopeRef ^ . ScpSelfScopeNo  
+    ; LHSAttr . PaInt2 := LScopeRef ^ . ScpSelfScopeNo  
     ; FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) 
-    ; PutBwd_TI ( Itk . ItkScopeForDeclsLt , LScopeRef ^ . ScpSelfScopeNo  ) 
     END ObjTypeLtL2R  
 
 ; BEGIN (*FM3Pass1*)

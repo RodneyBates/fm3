@@ -497,6 +497,7 @@ INTERFACE FM3Pass1
   : BOOLEAN (* Use this declared id.  (It's not reserved and not a duplicate
                in current scope.) *)
   (* PRE: IdAttribute is for an identifier in a declaration context. *) 
+  (* Push parse info and scope. Set LHSAttr.PaDeclDepth. *) 
 
 ; PROCEDURE IdentRefLone ( READONLY IdAttr : tParsAttribute )
   (* Possibly a reserved Id. *) 
