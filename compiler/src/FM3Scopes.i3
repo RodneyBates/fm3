@@ -86,7 +86,8 @@ INTERFACE FM3Scopes
 ; CONST ScopeKindSetPositional = SET OF ScopeKindTyp
     { ScopeKindTyp . SkFormals
     , ScopeKindTyp . SkRec 
-    , ScopeKindTyp . SkObj 
+    , ScopeKindTyp . SkObj
+    , ScopeKindTyp . SkEnum
     }
   (* ^These have a meaningful ScpDeclListRef. *) 
 

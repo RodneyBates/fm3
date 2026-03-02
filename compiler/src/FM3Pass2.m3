@@ -2145,20 +2145,28 @@ TRUE OR
           ; LScopeRef ^ . ScpDeclListRef ^ [ LScopeRef ^ . ScpDeclListNo ]
               := LDeclRef  
 
-        | Dkt . DkExc
-        , Dkt . DkEnumLit
-        =>  IF FM3Scopes . ScopeDeclStackTopRef ^ . ScpKind
-               IN FM3Scopes . ScopeKindSetOpen
-            THEN <* ASSERT FALSE
-                 , "Exception or enum lit declared in open decl scope"
-                 *>
+        | Dkt . DkEnumLit
+        =>  LScopeRef := FM3Scopes . ScopeDeclStackTopRef 
+          ; IF LScopeRef ^ . ScpKind # Skt . SkEnum
+            THEN <* ASSERT FALSE , "Enum lit not in enum type scope." *>
             END (*IF*)
+          ; IF LScopeRef ^ . ScpDeclListNo <= 0
+            THEN <* ASSERT FALSE , "Too few enum lits." *>
+            END (*IF*)
+          ; DEC ( LScopeRef ^ . ScpDeclListNo )
+          ; LScopeRef ^ . ScpDeclListRef ^ [ LScopeRef ^ . ScpDeclListNo ]
+              := LDeclRef  
 (* TODO: Create an expression for the enumlit value with 
             ExpScalarConstVal 
               := LDeclRef ^ . DclSelfDeclNo
                  - LDeclRef ^ . DclOwningScopeRef ^ . ScpMinDeclNo
          and set LDeclRef ^ . DclDefValue to point to it. 
 *)
+
+        | Dkt . DkExc
+        =>  IF FM3Scopes . ScopeDeclStackTopRef ^ . ScpKind # Skt . SkExcept
+            THEN <* ASSERT FALSE , "Exception decl not in exception scope." *> 
+            END (*IF*)
 
 (* COMPLETEME *)
             
