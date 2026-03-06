@@ -8,6 +8,8 @@
 
 INTERFACE FM3Scopes
 
+; IMPORT Wr 
+
 ; IMPORT IntSets
 
 ; IMPORT FM3Base
@@ -214,6 +216,8 @@ INTERFACE FM3Scopes
 ; PROCEDURE PushScopeRefLookupStack ( ScopeRef : ScopeRefTyp ) 
 ; PROCEDURE PopScopeRefLookupStack ( ) : ScopeRefTyp  
 ; PROCEDURE PruneScopeLookupStack ( ToDepth : INTEGER := 0 )
+
+; PROCEDURE Dump ( ScopeRef : ScopeRefTyp ; WrT : Wr . T ; Prefix := "" )
 
 ; END FM3Scopes
 .

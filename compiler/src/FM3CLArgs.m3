@@ -496,7 +496,11 @@ MODULE FM3CLArgs
         , Clt . CltDisAsmVerbose
         , Clt . CltExprs
         , Clt . CltExprAddrs
-        , Clt . CltStdSources 
+        , Clt . CltStdSources
+        , Clt . CltDecls 
+        , Clt . CltDeclAddrs 
+        , Clt . CltScopes 
+        , Clt . CltScopeAddrs 
         =>  PaNoEqualSign ( )
           ; AssignOptionSetElem 
               ( FM3CLOptions . OptionTokSet , LLexValue , Value := NOT LNo ) 

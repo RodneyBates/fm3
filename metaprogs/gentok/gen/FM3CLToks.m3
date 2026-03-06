@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2025        Rodney M. Bates.                                    *)
+(* Copyright 2026        Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -40,6 +40,10 @@ MODULE FM3CLToks
       | 20 => RETURN "log"
       | 21 => RETURN "stdout"
       | 22 => RETURN "unit-log"
+      | 23 => RETURN "decls"
+      | 24 => RETURN "decl-addrs"
+      | 25 => RETURN "scopes"
+      | 26 => RETURN "scope-addrs"
       ELSE RETURN "<Undef>"
       END (*CASE*) 
     END Image
@@ -72,6 +76,10 @@ MODULE FM3CLToks
       | 20 => RETURN "CltFM3Log"
       | 21 => RETURN "CltStdOut"
       | 22 => RETURN "CltUnitLog"
+      | 23 => RETURN "CltDecls"
+      | 24 => RETURN "CltDeclAddrs"
+      | 25 => RETURN "CltScopes"
+      | 26 => RETURN "CltScopeAddrs"
       ELSE RETURN "<Undef>"
       END (*CASE*) 
     END Name

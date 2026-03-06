@@ -18,7 +18,8 @@ MODULE  FM3Compile
 ; IMPORT UniRd
 ; IMPORT Wr
 
-; IMPORT IntSets 
+; IMPORT IntSets
+; IMPORT IntRanges AS Ranges_Int 
 ; IMPORT IntIntVarArray AS VarArray_Int_Int (* FM3's naming convention. *) 
 
 ; IMPORT FM3Atom_OAChars 
@@ -32,6 +33,7 @@ MODULE  FM3Compile
 ; IMPORT FM3Messages 
 ; IMPORT FM3Pass1 
 ; IMPORT FM3Pass2
+; IMPORT FM3Scopes 
 ; IMPORT FM3SharedUtils
 ; IMPORT FM3SrcToks
 ; IMPORT FM3Dict_Text_Int 
@@ -294,6 +296,109 @@ MODULE  FM3Compile
 
     END DisAsmPassFile
 
+(* --------- Sequentially dumping anything with an FM3Base . MapTyp ---------*) 
+
+; TYPE DumpInfoObj
+    = OBJECT
+        DpiUnitRef : FM3Units . UnitRefTyp 
+      ; DpiMap : FM3Base . MapTyp
+      ; DpiTypeLabel : TEXT
+      METHODS
+        DpiDump ( Ref : REFANY ; WrT : Wr . T ) := DpiMethNIL  
+      END 
+
+; PROCEDURE DpiMethNIL 
+    ( <*UNUSED*> Info : DumpInfoObj ; Ref : REFANY ; WrT : Wr . T )   
+    (* Dispatched-to. *) 
+
+  = BEGIN (*DpiImageNIL*) 
+      Wr . PutText ( WrT , " is NIL " )
+    ; Wr . PutText ( WrT , Wr . EOL ) 
+    END DpiMethNIL
+
+; PROCEDURE DpiMethScope
+    ( <*UNUSED*> Info : DumpInfoObj ; Ref : REFANY ; WrT : Wr . T )
+(* Dispatched-to. *)
+  = VAR LScopeRef : FM3Scopes . ScopeRefTyp
+
+  ; BEGIN (*DpiMethScope*) 
+      Wr . PutText ( WrT , " at " )
+    ; Wr . PutText ( WrT , FM3Utils . RefanyImage ( Ref ) ) 
+    ; Wr . PutText ( WrT , Wr . EOL )
+    ; LScopeRef := Ref (* Implied NARROW. *)
+    ; FM3Scopes . Dump ( LScopeRef , WrT , Prefix := "  " ) 
+    END DpiMethScope
+
+(*EXPORTED.*)
+; PROCEDURE DumpScopes ( UnitRef : FM3Units . UnitRefTyp ) 
+
+  = VAR LInfo : DumpInfoObj 
+
+  ; BEGIN (*DumpScopes*)
+      LInfo 
+        := NEW ( DumpInfoObj 
+               , DpiUnitRef := UnitRef
+               , DpiMap := UnitRef ^ . UntScopeMap 
+               , DpiTypeLabel := "Scope"
+               , DpiDump := DpiMethScope 
+               )
+    ; DumpMappedRecs ( LInfo )
+    END DumpScopes 
+         
+; PROCEDURE DumpMappedRecs ( Info : DumpInfoObj ) 
+
+  = VAR LFileSuffix : TEXT
+  ; VAR LFileFullName : TEXT
+  ; VAR LWrT : Wr . T
+  ; VAR LRange : Ranges_Int . RangeTyp 
+  
+  ; BEGIN (*DumpMappedRecs*)
+      LFileSuffix := Info . DpiTypeLabel & "s" 
+    ; LFileFullName 
+        := Pathname . Join
+             ( Info . DpiUnitRef ^ . UntBuildDirPath
+             , Info . DpiUnitRef ^ . UntSrcFileSimpleName 
+             , LFileSuffix   
+             )
+    ; LWrT := FileWr . Open ( LFileFullName )
+    ; Wr . PutText ( LWrT , "Dump of unit " )
+    ; Wr . PutText ( LWrT , LFileSuffix )
+    ; Wr . PutText ( LWrT , " of " )
+    ; Wr . PutText ( LWrT , Info . DpiUnitRef ^ . UntSrcFileSimpleName ) 
+    ; Wr . PutText ( LWrT , Wr . EOL ) 
+    ; Wr . PutText ( LWrT , Wr . EOL ) 
+    
+    ; IF Info . DpiMap = NIL
+      THEN
+        Wr . PutText ( LWrT , "<NIL " )
+      ; Wr . PutText ( LWrT , Info . DpiTypeLabel )
+      ; Wr . PutText ( LWrT , " map>" )
+      ; Wr . PutText ( LWrT , Wr . EOL ) 
+      ELSE
+        LRange := VarArray_Int_Refany . TouchedRange ( Info . DpiMap ) 
+      ; FOR RExprNo := LRange . Lo TO LRange . Hi
+        DO
+          Wr . PutText ( LWrT , Info . DpiTypeLabel )
+        ; Wr . PutText ( LWrT , " No " )
+        ; Wr . PutText ( LWrT , Fmt . Int ( RExprNo ) )
+        ; WITH WRefAny = VarArray_Int_Refany . Fetch ( Info . DpiMap , RExprNo )
+          DO
+            Info . DpiDump ( WRefAny , LWrT ) 
+          ; Wr . PutText ( LWrT , Wr . EOL ) (* Blank line after each record. *)
+          END (*WiTH *)
+        END (*FOR*)
+      END (*IF*) 
+    ; Wr . PutText ( LWrT , "End dump of unit " )
+    ; Wr . PutText ( LWrT , LFileSuffix )
+    ; Wr . PutText ( LWrT , " of " )
+    ; Wr . PutText ( LWrT , Info . DpiUnitRef ^ . UntSrcFileSimpleName ) 
+    ; Wr . PutText ( LWrT , Wr . EOL ) 
+    ; Wr . PutText ( LWrT , Wr . EOL ) 
+    ; Wr . Close ( LWrT ) 
+    END DumpMappedRecs 
+
+(* ------------------------------ Dumping Exprs. ---------------------------- *) 
+      
 (*EXPORTED*) 
 ; PROCEDURE DumpPassExprs
     ( UnitRef : FM3Units . UnitRefTyp ; PassFileSuffix : TEXT )
@@ -302,7 +407,7 @@ MODULE  FM3Compile
   = VAR LPassFileName : TEXT 
   ; VAR LExprsFileFullName : TEXT
   ; VAR LDisAsmFileFullName : TEXT
-  ; VAR ExprNosDumped : IntSets . T 
+  ; VAR LExprNosDumped : IntSets . T 
   ; VAR LExprMap : FM3Base . MapTyp
   ; VAR LWrT : Wr . T
   
@@ -323,11 +428,11 @@ MODULE  FM3Compile
         Wr . PutText ( LWrT , "<No expression map>" )
       ; Wr . PutText ( LWrT , Wr . EOL ) 
       ELSE
-        ExprNosDumped := IntSets . Empty ( ) 
+        LExprNosDumped := IntSets . Empty ( ) 
       ; FOR RExprNo
             := VarArray_Int_Refany . TouchedRange ( LExprMap ) . Lo
             TO  VarArray_Int_Refany . TouchedRange ( LExprMap ) . Hi
-        DO IF NOT IntSets . IsElement ( RExprNo , ExprNosDumped )
+        DO IF NOT IntSets . IsElement ( RExprNo , LExprNosDumped )
           THEN Wr . PutText ( LWrT , "From unit expression map, Expr No " )
           ; Wr . PutText ( LWrT , Fmt . Int ( RExprNo ) )
           ; Wr . PutChar ( LWrT , ' ' )
@@ -339,7 +444,7 @@ MODULE  FM3Compile
             | FM3Exprs . ExprRefTyp ( TExpr )
             =>  Wr . PutText ( LWrT , FM3Utils . RefanyImage ( TExpr ) ) 
               ; Wr . PutText ( LWrT , Wr . EOL ) 
-              ; FM3Exprs . DumpExpr ( TExpr , LWrT , (*IN OUT*) ExprNosDumped )
+              ; FM3Exprs . DumpExpr ( TExpr , LWrT , (*IN OUT*) LExprNosDumped )
 
             ELSE
               Wr . PutText ( LWrT , "<notExprRefTyp>" )

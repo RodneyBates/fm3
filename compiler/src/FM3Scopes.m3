@@ -8,7 +8,8 @@
 
 MODULE FM3Scopes
 
-; IMPORT Fmt 
+; IMPORT Fmt
+; IMPORT Wr 
 
 ; IMPORT IntRanges
 ; IMPORT IntSets
@@ -222,6 +223,12 @@ MODULE FM3Scopes
       END (*IF*) 
    END PruneScopeLookupStack
 
+(*EXPORTED.*)
+; PROCEDURE Dump ( ScopeRef : ScopeRefTyp ; WrT : Wr . T ; Prefix := "" )
+
+  = BEGIN (*Dump*)
+    END Dump
+      
 ; BEGIN
     ScopeDeclStackTopRef := NIL
   ; ScopeDeclStackCt := 0 

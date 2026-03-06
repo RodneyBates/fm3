@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2025        Rodney M. Bates.                                    *)
+(* Copyright 2026        Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -48,10 +48,14 @@ INTERFACE FM3CLToks
 (* Write compiled code messages to stdout. *)
 ; CONST CltUnitLog                                   =    22 (*16_16 *)
 (* Write compiled code messages to unit-specific log file. *)
+; CONST CltDecls                                     =    23 (*16_17 *)
+; CONST CltDeclAddrs                                 =    24 (*16_18 *)
+; CONST CltScopes                                    =    25 (*16_19 *)
 (* End of file FM3CLToks.gentok *)
+; CONST CltScopeAddrs                                =    26 (*16_1a *)
 ; CONST TkMinTok                                     =     0
 
-; CONST TkMaxTok                                     =    22
+; CONST TkMaxTok                                     =    26
 
 ; END FM3CLToks
 .

@@ -16,7 +16,7 @@ FM3 arg ..
 Arguments beginning with "--", e.g. "--src-dir" are long-form options.
 Those beginning with "-", e.g. "-S"  are short-forms.  Those with neither
 are file names to be compiled.  All options have a long form.  Some have
-an equivalent short form.   Some options require a parameter following
+an equivalent short form.  Some options require a parameter following
 the option name.  
 
 Some long form options allow "no-" prefix to negate the option, e.g.
@@ -130,8 +130,24 @@ Boolean options default to FALSE.
        Include hex addresses in expression dumps. (These will be different
        in every run, even for equivalent data structure.) Defaults to FALSE.
 
+--[no-]decls
+       Write declaration data structure dump files in the build directory. 
+       Implies --keep.
+
+--[no-]decl-addrs
+       Include hex addresses in declaration dumps. (These will be different
+       in every run, even for equivalent data structure.) Defaults to FALSE.
+
+--[no-]scopes
+       Write scope data structure dump files in the build directory. 
+       Implies --keep.
+
+--[no-]scope-addrs
+       Include hex addresses in scope dumps. (These will be different
+       in every run, even for equivalent data structure.) Defaults to FALSE.
+
 --[no-]std-sources
-       Include Main.i3 in the compile even when exported onlyh implicitly.
+       Include Main.i3 in the compile even when exported only implicitly.
        Defaults to TRUE.
        
 

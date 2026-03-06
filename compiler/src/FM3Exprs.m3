@@ -317,11 +317,11 @@ RETURN ;
 *)
 
 ; PROCEDURE AtomTypImage ( Value : FM3Base . AtomTyp ) : TEXT
+  (* In current unit. *) 
 
   = VAR LChars : REF ARRAY OF CHAR
   ; VAR LResult : TEXT
   ; VAR LFound : BOOLEAN 
-
   ; BEGIN
       LFound
         := FM3Atom_OAChars . Key 

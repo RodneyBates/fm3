@@ -59,5 +59,11 @@ CltStdOut                "stdout" .
 CltUnitLog               "unit-log" . 
 (* Write compiled code messages to unit-specific log file. *)
 
+CltDecls                  "decls"
+CltDeclAddrs              "decl-addrs"
+
+CltScopes                  "scopes"
+CltScopeAddrs              "scope-addrs"
+
 (* End of file FM3CLToks.gentok *)
 

@@ -1,7 +1,7 @@
         
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+(* Copyright 2023..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -9,8 +9,8 @@
 (* Parsing the command line, its options, arguments, etc. *)
 (* Store decoded values in FM3CLOptions. *)
 (* See compiler/lib/FM3HelpText. *) 
-(* See metaprogs/gentok/gen/FM3CLToks.gentok and generated
-   files FM3CLToks.[im]3 in the same directory.
+(* See metaprogs/gentok/gen/FM3CLToks.gentok and generated files
+   FM3CLToks.[im]3 and FM3CLToksSrcFsm.pkl in the same directory.
 *) 
 
 INTERFACE FM3CLArgs

@@ -56,6 +56,8 @@ INTERFACE FM3Globals
 ; CONST Pass3OutSuffix = "FM3Pass3" (* Output of pass 3. *)
 ; CONST CopyFileSuffix = "Copy" 
 ; CONST DisAsmFileSuffix = "DisAsm"
+; CONST ScopesFileSuffix = "Scopes"
+; CONST DeclsFileSuffix = "Decls"
 ; CONST ExprsFileSuffix = "Exprs"
 ; CONST UnitLogSuffix = "Log" 
 
