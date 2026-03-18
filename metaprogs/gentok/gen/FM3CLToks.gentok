@@ -16,7 +16,8 @@ UNITNAME FM3CLToks
 *)
 
 (* To build derived files, use the command
-   "./gentok -S -L -i -n FM3CLToks.gentok".
+   "./gentok -S -L -i -n FM3CLToks.gentok"
+   in directory metaprogs/gentok/gen.
 *) 
 
 SRC 
@@ -39,7 +40,7 @@ CltDisAsmVerbose         "disasm-verbose" .
 CltDisAsm                "disasm" .
 CltExprs                 "exprs" . 
 CltExprsPasses           "exprs-passes" .
-CltExprAddrs             "expr-addrs" . 
+CltDumpAddrs             "dump-addrs" . 
 CltKeepPasses            "keep-passes" .
 CltKeep                  "keep" .
 CltOvflo                 "check-overflow" .
@@ -59,11 +60,11 @@ CltStdOut                "stdout" .
 CltUnitLog               "unit-log" . 
 (* Write compiled code messages to unit-specific log file. *)
 
-CltDecls                  "decls"
-CltDeclAddrs              "decl-addrs"
+CltDecls                 "decls"
+(* Dump Decl recs. *) 
 
-CltScopes                  "scopes"
-CltScopeAddrs              "scope-addrs"
+CltScopes                "scopes"
+(* Dump Scope recs. *) 
 
 (* End of file FM3CLToks.gentok *)
 

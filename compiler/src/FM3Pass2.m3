@@ -29,6 +29,7 @@ MODULE FM3Pass2
 ; IMPORT FM3Builtins 
 ; IMPORT FM3CLArgs
 ; IMPORT FM3CLOptions  
+; IMPORT FM3CLToks AS Clt
 ; IMPORT FM3Compile
 ; IMPORT FM3Compress
 ; FROM   FM3Compress IMPORT GetBwd
@@ -2934,20 +2935,6 @@ TRUE OR
       END (*IF*) 
     END DisAsmPass2
 
-(*EXPORTED*)
-; PROCEDURE DumpExprsPass2
-    ( UnitRef : FM3Units . UnitRefTyp )
-
-  = BEGIN (*DumpExprsPass2*)
-      IF NOT FM3CLOptions . PassNo2 IN UnitRef ^ . UntPassNosDumped 
-      THEN (* Dump file is not already written. *) 
-        FM3Compile . DumpPassExprs
-          ( UnitRef , FM3Globals . Pass2OutSuffix )
-      ; FM3CLOptions . InclPassNo
-          ( UnitRef ^ . UntPassNosDumped , FM3CLOptions . PassNo2 ) 
-      END (*IF*) 
-    END DumpExprsPass2
-
 ; PROCEDURE InitPass2 ( UnitRef : FM3Units . UnitRefTyp )
 
   = VAR LPass2FileFullName : TEXT
@@ -3156,8 +3143,22 @@ TRUE OR
       END (*IF*)
 
     ; IF FM3CLOptions . PassNo2 IN FM3CLOptions . PassNosToDumpExprs 
-      THEN FM3Compile . DumpPassExprs ( UnitRef , FM3Globals . Pass2OutSuffix )
+         AND NOT FM3CLOptions . PassNo2 IN UnitRef ^ . UntPassNosDumped 
+      THEN
+        FM3Compile . DumpPassExprs ( UnitRef , FM3Globals . Pass2OutSuffix )
+      ; FM3CLOptions . InclPassNo
+          ( UnitRef ^ . UntPassNosDumped , FM3CLOptions . PassNo2 ) 
       END (*IF*)
+
+    ; IF Clt . CltScopes IN FM3CLOptions . OptionTokSet
+      THEN
+        FM3Compile . DumpScopes ( UnitRef ) 
+      END (*IF*) 
+
+    ; IF Clt . CltDecls IN FM3CLOptions . OptionTokSet
+      THEN
+        FM3Compile . DumpDecls ( UnitRef ) 
+      END (*IF*) 
 
     (* Close the source file. *) 
     ; UniRd . Close ( UnitRef ^ . UntSrcUniRd ) 

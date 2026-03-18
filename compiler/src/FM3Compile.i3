@@ -58,10 +58,12 @@ INTERFACE FM3Compile
      copies are still hanging around.  Delete them. 
   *)
 
-; PROCEDURE DumpScopes ( UnitRef : FM3Units . UnitRefTyp ) 
-
 ; PROCEDURE DumpPassExprs
     ( UnitRef : FM3Units . UnitRefTyp ; PassFileSuffix : TEXT ) 
+
+; PROCEDURE DumpScopes ( UnitRef : FM3Units . UnitRefTyp ) 
+
+; PROCEDURE DumpDecls ( UnitRef : FM3Units . UnitRefTyp ) 
 
 ; PROCEDURE CompileUnitFromSrc ( UnitRef : FM3Units . UnitRefTyp )
 

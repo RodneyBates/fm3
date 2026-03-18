@@ -33,7 +33,7 @@ INTERFACE FM3CLToks
 ; CONST CltDisAsm                                    =    10 (*16_0a *)
 ; CONST CltExprs                                     =    11 (*16_0b *)
 ; CONST CltExprsPasses                               =    12 (*16_0c *)
-; CONST CltExprAddrs                                 =    13 (*16_0d *)
+; CONST CltDumpAddrs                                 =    13 (*16_0d *)
 ; CONST CltKeepPasses                                =    14 (*16_0e *)
 ; CONST CltKeep                                      =    15 (*16_0f *)
 ; CONST CltOvflo                                     =    16 (*16_10 *)
@@ -48,14 +48,14 @@ INTERFACE FM3CLToks
 (* Write compiled code messages to stdout. *)
 ; CONST CltUnitLog                                   =    22 (*16_16 *)
 (* Write compiled code messages to unit-specific log file. *)
+(* Dump Decl recs. *)
 ; CONST CltDecls                                     =    23 (*16_17 *)
-; CONST CltDeclAddrs                                 =    24 (*16_18 *)
-; CONST CltScopes                                    =    25 (*16_19 *)
+(* Dump Scope recs. *)
 (* End of file FM3CLToks.gentok *)
-; CONST CltScopeAddrs                                =    26 (*16_1a *)
+; CONST CltScopes                                    =    24 (*16_18 *)
 ; CONST TkMinTok                                     =     0
 
-; CONST TkMaxTok                                     =    26
+; CONST TkMaxTok                                     =    24
 
 ; END FM3CLToks
 .

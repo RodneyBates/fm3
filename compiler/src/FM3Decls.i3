@@ -1,4 +1,4 @@
- 
+
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2023..2026  Rodney M. Bates.                                    *)
@@ -7,6 +7,8 @@
 (* -----------------------------------------------------------------------2- *)
 
 INTERFACE FM3Decls
+
+; IMPORT Wr 
 
 ; IMPORT FM3Base
 ; IMPORT FM3Exprs
@@ -96,18 +98,26 @@ INTERFACE FM3Decls
       ; DclKind : DeclKindTyp
       ; DclIsUsable : BOOLEAN := TRUE 
       END (*DeclTyp*)
-      
-; PROCEDURE DeclRefImage ( DeclRef : DeclRefTyp ) : TEXT
-  (* DeclNo, REF, and Position. *) 
 
-; PROCEDURE DeclNoImage ( DeclRef : DeclRefTyp )  : TEXT 
+; PROCEDURE DumpDecl
+    ( DeclRef : DeclRefTyp
+    ; WrT : Wr . T 
+    ; DoFields := FALSE
+    ; DefaultFields := FALSE
+    ) 
+
+; PROCEDURE DeclRefImage
+    ( Decl : DeclRefTyp ; DoFields := FALSE ; DefaultFields := FALSE ) : TEXT
+  (* DeclNo, REF, and Position. Long => the fields too. *)
+
+; PROCEDURE DeclRefImageDebug ( DeclRef : DeclRefTyp ) : TEXT
+  (* For calling by a debugger. *) 
+
+; PROCEDURE DeclNoImageOfDeclRef ( DeclRef : DeclRefTyp )  : TEXT 
   (* Unit-relative/Scope-relative. *)
   
-; PROCEDURE DeclInfoImage ( DeclRef : DeclRefTyp )  : TEXT 
+; PROCEDURE DeclInfoImageOfDeclRef ( DeclRef : DeclRefTyp )  : TEXT 
   (* Unit-relative/Scope-relative. *)
-
-; PROCEDURE DeclTypImage ( DeclRef : DeclRefTyp ) : TEXT
-  (* Contents of the record. *)
 
 ; PROCEDURE NewDeclRefListRef ( Ct : INTEGER ) : FM3Globals . DeclRefListRefTyp
   (* With all elements initialized to NIL. *) 

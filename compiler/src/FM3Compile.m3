@@ -26,12 +26,13 @@ MODULE  FM3Compile
 ; IMPORT FM3Atom_Text 
 ; IMPORT FM3Base
 ; IMPORT FM3CLOptions
+; IMPORT FM3Decls 
 ; IMPORT FM3DisAsm 
 ; IMPORT FM3Exprs 
 ; IMPORT FM3Files 
 ; IMPORT FM3Globals
 ; IMPORT FM3Messages 
-; IMPORT FM3Pass1 
+; IMPORT FM3Pass1
 ; IMPORT FM3Pass2
 ; IMPORT FM3Scopes 
 ; IMPORT FM3SharedUtils
@@ -318,7 +319,7 @@ MODULE  FM3Compile
 
 ; PROCEDURE DpiMethScope
     ( <*UNUSED*> Info : DumpInfoObj ; Ref : REFANY ; WrT : Wr . T )
-(* Dispatched-to. *)
+  (* Dispatched-to. *)
   = VAR LScopeRef : FM3Scopes . ScopeRefTyp
 
   ; BEGIN (*DpiMethScope*) 
@@ -339,11 +340,41 @@ MODULE  FM3Compile
         := NEW ( DumpInfoObj 
                , DpiUnitRef := UnitRef
                , DpiMap := UnitRef ^ . UntScopeMap 
-               , DpiTypeLabel := "Scope"
+               , DpiTypeLabel := "Scopes"
                , DpiDump := DpiMethScope 
                )
     ; DumpMappedRecs ( LInfo )
     END DumpScopes 
+         
+; PROCEDURE DpiMethDecl
+    ( <*UNUSED*> Info : DumpInfoObj ; Ref : REFANY ; WrT : Wr . T )
+  (* Dispatched-to. *)
+  = VAR LDeclRef : FM3Decls . DeclRefTyp
+
+  ; BEGIN (*DpiMethDecl*) 
+      Wr . PutText ( WrT , " at " )
+    ; Wr . PutText ( WrT , FM3Utils . RefanyImage ( Ref ) ) 
+    ; Wr . PutText ( WrT , Wr . EOL )
+    ; LDeclRef := Ref (* Implied NARROW. *)
+    ; FM3Decls . DumpDecl
+        ( LDeclRef , WrT , DoFields := TRUE , DefaultFields := FALSE ) 
+    END DpiMethDecl
+
+(*EXPORTED.*)
+; PROCEDURE DumpDecls ( UnitRef : FM3Units . UnitRefTyp ) 
+
+  = VAR LInfo : DumpInfoObj 
+
+  ; BEGIN (*DumpDecls*)
+      LInfo 
+        := NEW ( DumpInfoObj 
+               , DpiUnitRef := UnitRef
+               , DpiMap := UnitRef ^ . UntDeclMap 
+               , DpiTypeLabel := "Decls"
+               , DpiDump := DpiMethDecl
+               )
+    ; DumpMappedRecs ( LInfo )
+    END DumpDecls 
          
 ; PROCEDURE DumpMappedRecs ( Info : DumpInfoObj ) 
 

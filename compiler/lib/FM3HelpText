@@ -126,8 +126,8 @@ Boolean options default to FALSE.
        <passNum> .. in the build directory.
        Implies --keep-passes with same parameter.
        
---[no-]expr-addrs
-       Include hex addresses in expression dumps. (These will be different
+--[no-]dump-addrs
+       Include hex addresses in date structure dumps. (These will be different
        in every run, even for equivalent data structure.) Defaults to FALSE.
 
 --[no-]decls
@@ -135,6 +135,7 @@ Boolean options default to FALSE.
        Implies --keep.
 
 --[no-]decl-addrs
+       Only meaningful if --addrs. 
        Include hex addresses in declaration dumps. (These will be different
        in every run, even for equivalent data structure.) Defaults to FALSE.
 
@@ -143,6 +144,7 @@ Boolean options default to FALSE.
        Implies --keep.
 
 --[no-]scope-addrs
+       Only meaningful if --scopes. 
        Include hex addresses in scope dumps. (These will be different
        in every run, even for equivalent data structure.) Defaults to FALSE.
 

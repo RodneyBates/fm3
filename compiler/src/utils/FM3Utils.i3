@@ -1,7 +1,7 @@
  
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2025  Rodney M. Bates.                                    *)
+(* Copyright 2023..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -79,7 +79,7 @@ INTERFACE FM3Utils
 ; PROCEDURE PutOACharsWr ( WrT : Wr . T ; CharsRef : FM3OpenArray_Char . T ) 
 
 ; PROCEDURE RefanyImage ( Value : REFANY ) : TEXT
-  (* All asterisks, if --no-expr-addrs. *) 
+  (* All asterisks, if --no-dump-addrs. *) 
 
 ; PROCEDURE LongHexImage ( Value : LONGINT ) : TEXT 
 

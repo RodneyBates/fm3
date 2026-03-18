@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2025  Rodney M. Bates.                                    *)
+(* Copyright 2023..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -348,6 +348,7 @@ MODULE FM3Utils
 
   = BEGIN
       CASE Tok OF
+(* FIXME: *) 
       ELSE RETURN Tok
       END (*CASE*) 
     END SwitchTokL2R 
@@ -465,13 +466,15 @@ MODULE FM3Utils
 
 (*EXPORTED.*) 
 ; PROCEDURE RefanyImage ( Value : REFANY ) : TEXT
-  (* All asterisks, if --no-expr-addrs. *) 
+  (* All asterisks, if --no-dump-addrs. *) 
 
   = BEGIN
       IF Value = NIL
       THEN RETURN "NIL" 
-      ELSIF Clt . CltExprAddrs IN FM3CLOptions . OptionTokSet
+      ELSIF Clt . CltDumpAddrs IN FM3CLOptions . OptionTokSet
       THEN RETURN FM3SharedUtils . RefanyImage ( Value )
+      ELSIF BITSIZE ( REFANY ) = 32
+      THEN RETURN "16_********" 
       ELSE RETURN "16_****************"
       END (*IF*) 
     END RefanyImage

@@ -89,7 +89,7 @@ MODULE FM3Introspection
 
   ; BEGIN (*DeclNoRefImage*)
       LDeclRef := DeclNoRef ( DeclNo ) 
-    ; LResult := FM3Decls . DeclNoImage ( LDeclRef )
+    ; LResult := FM3Decls . DeclNoImageOfDeclRef ( LDeclRef )
     ; Wr . PutText ( Stdio . stderr , LResult )
     (* ^Because m3gdb will escape the NLs and run all together. *) 
     ; RETURN LResult 
@@ -118,7 +118,7 @@ MODULE FM3Introspection
       ; Wr . PutText ( Stdio . stderr , " " ) 
       ; Wr . PutText
           ( Stdio . stderr
-          , FM3Decls . DeclInfoImage
+          , FM3Decls . DeclInfoImageOfDeclRef
               ( VarArray_Int_Refany . Fetch
                   ( LUnitRef ^ . UntDeclMap , RDeclNo )
               )
@@ -137,7 +137,7 @@ MODULE FM3Introspection
 
   ; BEGIN (*DeclNoTypImage*)
       LDeclRef := DeclNoRef ( DeclNo ) 
-    ; LResult := FM3Decls . DeclTypImage ( LDeclRef )
+    ; LResult := FM3Decls . DeclRefImage ( LDeclRef )
     ; Wr . PutText ( Stdio . stderr , LResult ) 
     (* ^Because m3gdb will escape the NLs and run the lines together. *) 
     ; RETURN ""
@@ -229,11 +229,11 @@ MODULE FM3Introspection
       ; LSuccDeclRef := DeclNoRef ( LSuccDeclNo ) 
       ; IF LPredDeclRef = NIL
         THEN LPredImage := Fmt . Int ( LPredDeclNo )
-        ELSE LPredImage := FM3Decls . DeclInfoImage ( LPredDeclRef )
+        ELSE LPredImage := FM3Decls . DeclInfoImageOfDeclRef ( LPredDeclRef )
         END (*IF*) 
       ; IF LSuccDeclRef = NIL
         THEN LSuccImage := Fmt . Int ( LSuccDeclNo )
-        ELSE LSuccImage := FM3Decls . DeclInfoImage ( LSuccDeclRef )
+        ELSE LSuccImage := FM3Decls . DeclInfoImageOfDeclRef ( LSuccDeclRef )
         END (*IF*) 
       ; LResult := FM3SharedUtils . CatArrT
           ( ARRAY OF REFANY

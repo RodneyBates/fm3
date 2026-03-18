@@ -1,0 +1,50 @@
+Adding a command-line option to FM3.
+
+1. 
+Read and edit compiler/lib/FM3HelpText.  Please follow the general
+conventions it describes.  Document your option in the same way as
+those already there.  Think up a long form option spelling, using only
+lowercase letters and imbedded hyphens.  Note whether it is boolean,
+if it accumulates, and its default value.
+
+2.
+Edit metaprogs/gentok/gen/FM3CLToks.gentok.  Think up a Modula3
+identifier, beginning with "Clt", for an integer constant that will
+denote your new option inside the compiler.  Add a line with it
+and the command-line option spelling, like those already there.  Add
+any appropriate comments in Modula3 comment syntax.  Be careful not
+to duplicate a short or long option already there. 
+
+Some time before you recompile the compiler, you will need to run the
+gentok command found in a comment near the top of FM3CLToks.gentok, in
+directory metaprogs/gentok/gen.  This will generate some files named
+FM3CLToks* used by the compiler.  Required symlinks to these are
+already in place.
+
+3.
+Edit file compiler/src/FM3CLOptions.i3.  This contains global variabls
+where the parsed and decoded values of command-line options are
+stored, for access by code that carries them out.  Add any needed
+variable(s) for your new option.  If it's a boolean option, nothing
+needs to be declared here.  Otherwise, if it has a single argument,
+see BuildDir for inspiration. If it accumulates values from multiple
+instances of the option, see ResourceDirNameList for inspiration.
+
+4.
+Edit file compiler/src/FM3CLArgs.m3.  This parses the options and
+stores results in FM3CLOptions.i3.  Add a line in SetDefaults for the
+default value of you option.  If your option has a short form, add 
+a case to PaHyphenArg.  Add a case to PaTwoHypenArg for your long
+form.  CltStdErr is an example of a plain boolean option.  CltBuildDir
+is an example of a non-boolean, non-accumulating option.  CltImportDir
+is an example of an accumulating option.
+
+Note that some options need to set more than one variable.  Finally,
+add cases for any interactions among different options to
+ComputeDerivedInfo.  This is called after all options have been
+parsed, so no problems with option order on the command line.
+
+5.
+Finally add code wherever needed to carry out what your option
+requires.  You can access the variables in FM3CLOptions directly, or
+push their values out to another interface at startup time.

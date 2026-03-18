@@ -30,7 +30,7 @@ MODULE FM3CLToks
       | 10 => RETURN "disasm"
       | 11 => RETURN "exprs"
       | 12 => RETURN "exprs-passes"
-      | 13 => RETURN "expr-addrs"
+      | 13 => RETURN "dump-addrs"
       | 14 => RETURN "keep-passes"
       | 15 => RETURN "keep"
       | 16 => RETURN "check-overflow"
@@ -41,9 +41,7 @@ MODULE FM3CLToks
       | 21 => RETURN "stdout"
       | 22 => RETURN "unit-log"
       | 23 => RETURN "decls"
-      | 24 => RETURN "decl-addrs"
-      | 25 => RETURN "scopes"
-      | 26 => RETURN "scope-addrs"
+      | 24 => RETURN "scopes"
       ELSE RETURN "<Undef>"
       END (*CASE*) 
     END Image
@@ -66,7 +64,7 @@ MODULE FM3CLToks
       | 10 => RETURN "CltDisAsm"
       | 11 => RETURN "CltExprs"
       | 12 => RETURN "CltExprsPasses"
-      | 13 => RETURN "CltExprAddrs"
+      | 13 => RETURN "CltDumpAddrs"
       | 14 => RETURN "CltKeepPasses"
       | 15 => RETURN "CltKeep"
       | 16 => RETURN "CltOvflo"
@@ -77,9 +75,7 @@ MODULE FM3CLToks
       | 21 => RETURN "CltStdOut"
       | 22 => RETURN "CltUnitLog"
       | 23 => RETURN "CltDecls"
-      | 24 => RETURN "CltDeclAddrs"
-      | 25 => RETURN "CltScopes"
-      | 26 => RETURN "CltScopeAddrs"
+      | 24 => RETURN "CltScopes"
       ELSE RETURN "<Undef>"
       END (*CASE*) 
     END Name
