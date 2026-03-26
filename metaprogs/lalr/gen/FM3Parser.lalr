@@ -65,6 +65,7 @@ GLOBAL
     IMPORT FM3Decls;
     IMPORT FM3Messages;
     IMPORT FM3Globals;
+    IMPORT FM3Graph; 
     IMPORT FM3IntToks AS Itk;
     IMPORT FM3SrcToks AS Stk;
     IMPORT FM3Pass1;
@@ -341,6 +342,9 @@ RULE
          LScopeRef 
            := FM3Scopes . NewScopeRef 
                 ( LUnitRef , Skt . SkInterface , $2 . Scan . Position ) ;
+         LScopeRef ^ . ScpDeclGraph
+           := FM3Graph . NewEmpty
+                ( MaxNodeCt := IntSets . Card ( LScopeRef ^ . ScpDeclIdSet ) ) ; 
          LUnitRef ^ . UntScopeRef := LScopeRef ; 
          FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) ; 
          FM3Pass1 . PutBwd_TI
@@ -425,6 +429,9 @@ RULE
          LScopeRef 
            := FM3Scopes . NewScopeRef 
                 ( LUnitRef , Skt . SkModule , $2 . Scan . Position ) ;
+         LScopeRef ^ . ScpDeclGraph
+           := FM3Graph . NewEmpty
+                ( MaxNodeCt := IntSets . Card ( LScopeRef ^ . ScpDeclIdSet ) ) ; 
          LUnitRef ^ . UntScopeRef := LScopeRef ; 
          FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) ; 
          FM3Pass1 . PutBwd_TI
@@ -503,6 +510,9 @@ RULE
                 , Skt . SkInterface
                 , $2 . Scan . Position
                 ) ;
+         LScopeRef ^ . ScpDeclGraph
+           := FM3Graph . NewEmpty
+                ( MaxNodeCt := IntSets . Card ( LScopeRef ^ . ScpDeclIdSet ) ) ; 
          LUnitRef ^ . UntScopeRef := LScopeRef ;
        END ; 
      } .  
@@ -532,6 +542,9 @@ RULE
                 , Skt . SkModule
                 , $1 . Scan . Position
                 ) ;
+         LScopeRef ^ . ScpDeclGraph
+           := FM3Graph . NewEmpty
+                ( MaxNodeCt := IntSets . Card ( LScopeRef ^ . ScpDeclIdSet ) ) ; 
          LUnitRef ^ . UntScopeRef := LScopeRef  ; 
        END ; 
      } . 
@@ -559,6 +572,9 @@ RULE
                 , Skt . SkBlock   
                 , FM3Scanner . Attribute . Position 
                 ) ;
+         LScopeRef ^ . ScpDeclGraph
+           := FM3Graph . NewEmpty
+                ( MaxNodeCt := IntSets . Card ( LScopeRef ^ . ScpDeclIdSet ) ) ; 
          FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) ;
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkScopeForDeclsLt , LScopeRef ^ . ScpSelfScopeNo ) ; 
@@ -2096,6 +2112,9 @@ RULE
                 , Skt . SkProcBody  
                 , $1 . Scan . Position 
                 ) ;
+         LScopeRef ^ . ScpDeclGraph
+           := FM3Graph . NewEmpty
+                ( MaxNodeCt := IntSets . Card ( LScopeRef ^ . ScpDeclIdSet ) ) ; 
          LBodyScopeRef ^ . ScpFormalsScopeRef := LFormalsScopeRef ;
          (* ^Hang the formals' scope off the body scope. *) 
          FM3Scopes . PushScopeRefDeclsStack ( LBodyScopeRef ) ;
@@ -2237,6 +2256,12 @@ RULE
                 , Skt . SkProcBody  
                 , $2 . Scan . Position 
                 ) ;
+         LBodyScopeRef ^ . ScpDeclGraph
+           := FM3Graph . NewEmpty
+                ( MaxNodeCt
+                    := IntSets . Card ( LBodyScopeRef ^ . ScpDeclIdSet )
+                ) ; 
+                
          FM3Scopes . PushScopeRefDeclsStack ( LBodyScopeRef ) ;
          FM3Pass1 . PutBwd_TI
            ( Itk . ItkScopeForDeclsLt , LBodyScopeRef ^ . ScpSelfScopeNo ) ; 

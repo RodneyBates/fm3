@@ -710,31 +710,6 @@ TRUE OR
         END (*IF*)
       END HtExprRt 
 
-  ; PROCEDURE HtPushScopeForDecls ( ScopeNo : FM3Scopes . ScopeNoTyp )
-      : FM3Scopes . ScopeRefTyp
-      
-    = VAR LScopeRef : FM3Scopes . ScopeRefTyp
-
-    ; BEGIN (*HtPushScopeForDecls*)
-        LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( ScopeNo )
-      ; IF LScopeRef = NIL
-        THEN <* ASSERT FALSE , "P2, missing Scope for decls. " *>
-        END (*IF*) 
-      ; FM3Scopes . PushScopeRefDeclsStack ( LScopeRef )
-      ; RETURN LScopeRef 
-      END HtPushScopeForDecls
-      
-  ; PROCEDURE HtPopScopeForDecls ( ScopeNo : FM3Scopes . ScopeNoTyp )
-
-    = VAR LScopeRef : FM3Scopes . ScopeRefTyp
-
-    ; BEGIN (*HtPopScopeForDecls*)
-        LScopeRef := FM3Scopes . PopScopeRefDeclsStack ( ) 
-      ; IF LScopeRef ^ . ScpSelfScopeNo # ScopeNo
-        THEN <* ASSERT FALSE , "P2, pop decl scope mismatch." *>
-        END (*IF*) 
-      END HtPopScopeForDecls
-      
   ; PROCEDURE HtExprWPositionalDeclListRt
       ( ScopeRef : FM3Scopes . ScopeRefTyp ; DeclCt : INTEGER )
     (* PRE: Scope to be used is on TOS scope decl stack. *) 
@@ -900,9 +875,12 @@ TRUE OR
       =>  HtPassTokenThru ( ) 
 
       | Itk . ItkScopeForDeclsRt 
-      =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack )
-        ; FM3Scopes . PushScopeRefDeclsStack
-            ( FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) )
+      =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
+        ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo )
+        ; IF LScopeRef = NIL
+          THEN <* ASSERT FALSE , "P2, NIL scope for decls." *>
+          END (*IF*)
+        ; FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) 
         ; PutBwdP2 ( HtPass2RdBack , VAL ( LScopeNo , LONGINT ) ) 
         ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
 
@@ -918,9 +896,9 @@ TRUE OR
       | Itk . ItkScopeForLookupRt 
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
         ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo )
-        ; LScopeRef ^ . ScpDeclGraph
-            := FM3Graph . NewEmpty
-                 ( MaxNodeCt := IntSets . Card ( LScopeRef ^ . ScpDeclIdSet ) ) 
+        ; IF LScopeRef = NIL
+          THEN <* ASSERT FALSE , "P2, NIL scope for lookup." *>
+          END (*IF*)
         ; FM3Scopes . PushScopeRefLookupStack ( LScopeRef ) 
         ; PutBwdP2 ( HtPass2RdBack , VAL ( LScopeNo , LONGINT ) ) 
         ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
@@ -1936,11 +1914,14 @@ TRUE OR
   ; BEGIN (* LookupScopeLt *) 
       OslScopeRef := FM3Scopes . ScopeLookupStackTopRef
     ; IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi <= 0
-      THEN (* Not skipping. *) 
-        FM3Graph . SCCs ( OslScopeRef ^ . ScpDeclGraph , VisitSCC ) 
-      ; <* ASSERT FM3Scopes . PopScopeRefLookupStack ( )
-                  = FM3Scopes . ScopeRefOfScopeNo ( ScopeNo )
-        *>
+      THEN (* Not skipping. *)
+        IF OslScopeRef ^ . ScpSelfScopeNo # ScopeNo
+        THEN <* ASSERT FALSE , "P2, Recursive, NIL scope for lookup." *> 
+        END (*IF*)
+      ; IF OslScopeRef ^ . ScpDeclGraph # NIL 
+        THEN 
+          FM3Graph . SCCs ( OslScopeRef ^ . ScpDeclGraph , VisitSCC )
+        END (*IF*) 
       END (*IF*)
     ; WITH Wp2RdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack
       DO 

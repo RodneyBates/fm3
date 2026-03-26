@@ -1287,6 +1287,39 @@ MODULE FM3Pass1
     END PutBwd_LCIP_eCp_rip
 
 (*EXPORTED:*)
+; PROCEDURE PutBwd_LCIP_eCP_rIP
+    ( T : Itk . TokTyp 
+    ; CLt : LONGINT 
+    ; ILt : INTEGER 
+    ; READONLY PositionLt : tPosition
+    ; COne : LONGINT
+    ; READONLY PositionOne : tPosition
+    ; IRt : INTEGER 
+    ; READONLY PositionRt : tPosition
+    )
+    
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( PositionRt . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( PositionRt . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( IRt , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) )
+      
+      ; PutBwd ( WRdBack , VAL ( PositionOne . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( PositionOne . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , COne ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToOnePatch , LONGINT ) ) 
+
+      ; PutBwd ( WRdBack , VAL ( PositionLt . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( PositionLt . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( ILt , LONGINT ) ) 
+      ; PutBwd ( WRdBack , CLt ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END PutBwd_LCIP_eCP_rIP
+
+(*EXPORTED:*)
 ; PROCEDURE PutBwd_LCIP_eCP_zCP_rip
     ( T : Itk . TokTyp 
     ; CL : LONGINT 
