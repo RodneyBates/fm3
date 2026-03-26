@@ -36,7 +36,8 @@ INTERFACE FM3Decls
       , DkObjField
       , DkMethod
       , DkOverride 
-      , DkProc
+      , DkProcDecl (* No body. *) 
+      , DkProcDef  (* This is a declaration too, but it has a body. *) 
       , DkWith
       , DkFor
       , DkExcArg
@@ -85,17 +86,20 @@ INTERFACE FM3Decls
            These are erroneous and will have DeclKind DkDuplDecl.  Such a list
            is mutually exclusive of a single node of some other DeclKind. 
         *) 
-      ; DclOwningScopeRef : FM3Globals . ScopeRefTyp (* Containing scope *) 
-      ; DclSelfScopeRef : FM3Globals . ScopeRefTyp
+      ; DclOwningScopeRef : FM3Globals . ScopeRefTyp := NIL
+        (* ^Containing scope *) 
+      ; DclSelfScopeRef : FM3Globals . ScopeRefTyp := NIL 
         (* ^If this decl contains a scope of its own. *)
       ; DclDefType : FM3Exprs . ExprRefTyp := NIL 
       ; DclDefValue : FM3Exprs . ExprRefTyp := NIL 
-      ; DclIdAtom : FM3Base . AtomTyp
-      ; DclIdNo : INTEGER (* Counts up while going thru' multiple idents. *) 
-      ; DclSelfDeclNo : FM3Globals . DeclNoTyp (* A self-reference. *)
-      ; DclPos : FM3Base . tPosition
+      ; DclIdAtom : FM3Base . AtomTyp := FM3Base . AtomNull 
+      ; DclIdNo : INTEGER := 0
+        (* ^Counts up while going thru' multiple idents. *) 
+      ; DclSelfDeclNo : FM3Globals . DeclNoTyp := FM3Globals . DeclNoNull
+        (* ^A self-reference. *)
+      ; DclPos : FM3Base . tPosition := FM3Base . PositionNull
       ; DclStdTok : FM3SrcToks . TokTyp := FM3SrcToks . StkUnknown 
-      ; DclKind : DeclKindTyp
+      ; DclKind : DeclKindTyp := DeclKindTyp . DkNull 
       ; DclIsUsable : BOOLEAN := TRUE 
       END (*DeclTyp*)
 

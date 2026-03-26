@@ -560,6 +560,17 @@ FALSE AND
     ; LValueExpr ^ . ExpIsLegalRecursive := TRUE (* Necessary?*)
     END DeclValue 
 
+; PROCEDURE AssertTosDeclScopeNo
+    ( ExpectedScopeNo : FM3Globals . ScopeNoTyp ; Label : TEXT )
+
+  = BEGIN (*AssertTosDeclScopeNo*)
+      IF Label = NIL THEN Label := "" END (*IF*)
+    ; IF FM3Scopes . ScopeDeclStackTopRef ^ . ScpSelfScopeNo # ExpectedScopeNo
+      THEN
+        <* ASSERT FALSE , "Scope no mismatch for " & Label *>
+      END (*IF*) 
+    END AssertTosDeclScopeNo
+    
 ; PROCEDURE InsideDecl ( ) : BOOLEAN 
 
   = BEGIN
@@ -904,7 +915,7 @@ TRUE OR
         ; PutBwdP2 ( HtPass2RdBack , VAL ( LScopeNo , LONGINT ) ) 
         ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
 
-      | Itk . ItkLookupScopeRt 
+      | Itk . ItkScopeForLookupRt 
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
         ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo )
         ; LScopeRef ^ . ScpDeclGraph
@@ -914,7 +925,7 @@ TRUE OR
         ; PutBwdP2 ( HtPass2RdBack , VAL ( LScopeNo , LONGINT ) ) 
         ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
 
-      | Itk . ItkLookupScopeLt 
+      | Itk . ItkScopeForLookupLt 
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack )
         ; LookupScopeLt ( LScopeNo ) 
         
@@ -1177,18 +1188,20 @@ TRUE OR
       => FM3Patch . DiscardOperands
            ( 3 (* Atom, position. *) , TokResult . TrRdBack ) 
 *)
+      (* Enumeration type: *) 
       | Itk . ItkEnumTypeRt
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
         ; LCt := GetBwdInt ( TokResult . TrRdBack ) (* Enum lits. *) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
-            
-        ; LScopeRef := HtPushScopeForDecls ( LScopeNo ) 
+
+        ; AssertTosDeclScopeNo ( LScopeNo , "enum type right" )  
+        ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo )
         ; LNewExprRef
             := NEW ( FM3Exprs . ExprRefTyp
                    , ExpKind := Ekt . EkEnumType
                    , ExpUpKind := Ekt . EkType
                    , ExpIsLegalRecursive := TRUE
-                   , ExpScopeRef1 := LScopeRef 
+                   , ExpScopeRef1 := LScopeRef  
                    , ExpPosition := LPosition 
                    )
         ; FM3Utils . ContribToHashI ( LNewExprRef ^ . ExpHash , LCt ) 
@@ -1201,8 +1214,8 @@ TRUE OR
         ; LCt := GetBwdInt ( TokResult . TrRdBack ) (* Lit count, unused. *)
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         
+        ; AssertTosDeclScopeNo ( LScopeNo , "enum type left" )  
         ; HtExprWPositionalDeclListLt ( LScopeNo )
-        ; HtPopScopeForDecls ( LScopeNo )
 
       | Itk . ItkEnumLitListLt
       =>  IF NOT HtMaybePassTokenThru ( )
@@ -1213,16 +1226,14 @@ TRUE OR
 
       (* Type expressions that contain a scope: *)
       
-      (* Enumeration type: *) 
 (* FIXME: Some of these need to copy the token and arguments. *)   
       | Itk . ItkEnumLitListRt
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN
-            LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
-          ; LCt := GetBwdInt ( TokResult . TrRdBack ) (* Enum lit count. *)
+            LCt := GetBwdInt ( TokResult . TrRdBack ) (* Enum lit count. *)
           ; LPosition := GetBwdPos ( TokResult . TrRdBack )
           
-          ; LScopeRef := FM3Scopes . ScopeDeclStackTopRef
+          ; LScopeRef := FM3Scopes . ScopeDeclStackTopRef 
           ; IF LScopeRef = NIL
             OR LScopeRef . ScpKind # Skt . SkEnum
             THEN <* ASSERT FALSE , "No enum decl scope at right end." *>
@@ -1246,8 +1257,9 @@ TRUE OR
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
         ; LFieldCt := GetBwdInt ( TokResult . TrRdBack ) (* Fields. *) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
-            
-        ; LScopeRef := HtPushScopeForDecls ( LScopeNo ) 
+
+        ; AssertTosDeclScopeNo ( LScopeNo , "rec type right" )  
+        ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) 
         ; LNewExprRef
             := NEW ( FM3Exprs . ExprRefTyp
                    , ExpKind := Ekt . EkRecType
@@ -1265,8 +1277,8 @@ TRUE OR
         ; LFieldCt := GetBwdInt ( TokResult . TrRdBack ) (* ^Field count. *)
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         
+        ; AssertTosDeclScopeNo ( LScopeNo , "rec type left" )  
         ; HtExprWPositionalDeclListLt ( LScopeNo )
-        ; HtPopScopeForDecls ( LScopeNo )
 
       | Itk . ItkSignatureRt
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
@@ -1274,7 +1286,8 @@ TRUE OR
         ; LBool := GetBwdBool ( TokResult . TrRdBack ) (* Has result type.*) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
             
-        ; LScopeRef := HtPushScopeForDecls ( LScopeNo ) 
+        ; AssertTosDeclScopeNo ( LScopeNo , "signature left" )  
+        ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) 
         ; LNewExprRef
             := NEW ( FM3Exprs . ExprRefTyp
                    , ExpKind := Ekt . EkSignature 
@@ -1293,8 +1306,8 @@ TRUE OR
         ; LBool := GetBwdBool ( TokResult . TrRdBack ) (* Has result type.*) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         
+        ; AssertTosDeclScopeNo ( LScopeNo , "signature right" )  
         ; HtExprWPositionalDeclListLt ( LScopeNo )
-        ; HtPopScopeForDecls ( LScopeNo )
 
       (* Brands: *)
 
@@ -1533,7 +1546,8 @@ TRUE OR
             ; LOverrideCt := GetBwdInt ( TokResult . TrRdBack ) (* Overrides. *) 
             ; LPosition := GetBwdPos ( TokResult . TrRdBack )
             
-            ; LScopeRef := HtPushScopeForDecls ( LScopeNo ) 
+            ; AssertTosDeclScopeNo ( LScopeNo , "object type right" )  
+            ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) 
             ; LArgListRef := FM3Exprs . NewExprListRef ( LOverrideCt )
             ; LNewExprRef
                 := NEW ( FM3Exprs . ExprRefTyp
@@ -1568,8 +1582,8 @@ TRUE OR
           ; LOverrideCt := GetBwdInt ( TokResult . TrRdBack ) (* Overrides. *)  
           ; LPosition := GetBwdPos ( TokResult . TrRdBack )
           
+          ; AssertTosDeclScopeNo ( LScopeNo , "object type left" )  
           ; HtExprWPositionalDeclListLt ( LScopeNo )
-          ; HtPopScopeForDecls ( LScopeNo ) 
           END (*IF*)
           
       | Itk . ItkSupertypeLt
@@ -1931,13 +1945,13 @@ TRUE OR
     ; WITH Wp2RdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack
       DO 
         PutBwdP2 ( Wp2RdBack , VAL ( ScopeNo , LONGINT ) ) 
-      ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkLookupScopeLt, LONGINT ) )
+      ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkScopeForLookupLt, LONGINT ) )
       END (*WITH*) 
     END LookupScopeLt 
 
 ; PROCEDURE LookupAtomInLookupScopes
     ( IdAtom : FM3Base . AtomTyp ) : FM3Globals . DeclNoTyp  
-  (* In innermost enclosing open scope on open scope stack. *) 
+  (* In innermost enclosing scope on lookup scope stack. *) 
 
   = VAR LScopeRef : FM3Scopes . ScopeRefTyp 
   ; VAR LDeclNoInt : INTEGER
@@ -2122,7 +2136,8 @@ TRUE OR
             END (*IF*)
 
         | Dkt . DkType                        
-        , Dkt . DkProc
+        , Dkt . DkProcDecl
+        , Dkt . DkProcDef
         , Dkt . DkReveal 
         =>  IF NOT FM3Scopes . ScopeDeclStackTopRef ^ . ScpKind
                    IN FM3Scopes . ScopeKindSetOpen
@@ -3172,7 +3187,7 @@ TRUE OR
 
 ; BEGIN (*FM3Pass2*)
 
-END FM3Pass2
+  END FM3Pass2
 .
 
 

@@ -68,7 +68,7 @@ MODULE FM3Scopes
   ; VAR LScopeNo : FM3Globals . ScopeNoTyp
   ; VAR LRange : Ranges_Int . RangeTyp  
 
-  ; BEGIN
+  ; BEGIN (*NewScopeRef*) 
       LUnitScopeMap := OwningUnitRef ^ . UntScopeMap 
     ; LRange := VarArray_Int_Refany . TouchedRange ( LUnitScopeMap )
     ; IF Ranges_Int . RangeIsEmpty ( LRange ) 

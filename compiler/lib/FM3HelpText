@@ -134,19 +134,9 @@ Boolean options default to FALSE.
        Write declaration data structure dump files in the build directory. 
        Implies --keep.
 
---[no-]decl-addrs
-       Only meaningful if --addrs. 
-       Include hex addresses in declaration dumps. (These will be different
-       in every run, even for equivalent data structure.) Defaults to FALSE.
-
 --[no-]scopes
        Write scope data structure dump files in the build directory. 
        Implies --keep.
-
---[no-]scope-addrs
-       Only meaningful if --scopes. 
-       Include hex addresses in scope dumps. (These will be different
-       in every run, even for equivalent data structure.) Defaults to FALSE.
 
 --[no-]std-sources
        Include Main.i3 in the compile even when exported only implicitly.

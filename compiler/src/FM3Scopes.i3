@@ -136,10 +136,6 @@ INTERFACE FM3Scopes
         *)
       ; ScpCurDefExprs
           := ARRAY BOOLEAN (*Is value expr*) OF REFANY { NIL , .. } (*1*)
-      ; ScpFormalsScopeRef : ScopeRefTyp
-        (* When we are inside a proc body and this is its body scope,
-           points to its formals scope.
-        *) 
 (****
       ; ScpCurTypeExpr : REFANY := NIL (* FM3Defs . DeclDefTyp. *) (*1*) 
       ; ScpCurValueExpr : REFANY := NIL (* FM3Defs . DeclDefTyp. *) (*1*)

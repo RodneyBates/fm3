@@ -186,8 +186,8 @@ MODULE FM3DisAsm
             ; CASE LToken OF
               | FM3IntToks . ItkScopeForDeclsLt 
               , FM3IntToks . ItkScopeForDeclsRt 
-              , FM3IntToks . ItkLookupScopeLt 
-              , FM3IntToks . ItkScopeForDeclsRt
+              , FM3IntToks . ItkScopeForLookupLt 
+              , FM3IntToks . ItkScopeForLookupRt
               =>
               ELSE
               END (*CASE*) 

@@ -2163,31 +2163,6 @@ MODULE FM3Pass1
           ( FM3Units . UnitStackTopRef , ScopeKind , Position ) 
     END ScopeEmpty
     
-(*EXPORTED.*)
-; PROCEDURE ProcBodyFormalsScope ( ScopeRef : FM3Scopes . ScopeRefTyp )
-    : FM3Scopes . ScopeRefTyp
-    (* NIL if ScopeRef is not a proc body scope.  May assert fail if
-       it's not valid.  Else the formals scope of the proc body.
-    *) 
-
-  = BEGIN
-      IF ScopeRef = NIL THEN RETURN NIL END (*IF*) 
-    ; IF ScopeRef ^ . ScpKind # Skt . SkProcBody 
-      THEN
-        IF ScopeRef ^ . ScpFormalsScopeRef # NIL
-        THEN <* ASSERT FALSE , "Non-proc-body scope has formals scope."*>
-        ELSE RETURN NIL 
-        END (*IF*) 
-      END (*IF*) 
-    ; IF ScopeRef ^ . ScpFormalsScopeRef = NIL 
-      THEN <* ASSERT FALSE , "Proc body scope has no formals scope."*> 
-      END (*IF*) 
-    ; IF ScopeRef ^ . ScpFormalsScopeRef ^ . ScpKind # Skt . SkFormals 
-      THEN <* ASSERT FALSE , "Formals scope of proc body has wrong kind."*> 
-      END (*IF*)
-    ; RETURN ScopeRef ^ . ScpFormalsScopeRef 
-    END ProcBodyFormalsScope
- 
 (* Left-to-right scope handling.  These are called by the parser. *)
 
 ; PROCEDURE AtomOfStdId
@@ -2268,8 +2243,20 @@ MODULE FM3Pass1
         THEN (* LAtom duplicates export or import. Message already emitted. *)
           RETURN FALSE 
         ELSE
-          LFormalsScopeRef := ProcBodyFormalsScope ( WScopeRefForDecls ) 
-        ; IF LFormalsScopeRef # NIL (* WScopeRefForDecls is for a proc body. *) 
+
+          IF WScopeRefForDecls ^ . ScpKind = Skt . SkProcBody
+          THEN
+            LFormalsScopeRef := WScopeRefForDecls ^ . ScpLookupScopeStackLink
+          ; IF LFormalsScopeRef = NIL
+               OR LFormalsScopeRef ^ . ScpKind # Skt . SkFormals
+               OR LFormalsScopeRef ^ . ScpPosition 
+                  # WScopeRefForDecls ^ . ScpPosition 
+            THEN <* ASSERT FALSE , "P1 proc body lacks a formals scope." *>
+            END (*IF*)
+          ELSE LFormalsScopeRef := NIL
+          END (*IF*)
+          
+        ; IF LFormalsScopeRef # NIL 
              AND IntSets . IsElement
                    ( LAtom , LFormalsScopeRef ^ . ScpDeclIdSet )
           THEN  (* LAtom duplicates a previously declared formal. *)
@@ -2713,7 +2700,6 @@ MODULE FM3Pass1
     )
   (* PRE: IdAttribute is for an identifier in a declaration context. *) 
   (* Push parse info and scope. Set LHSAttr.PaDeclDepth. *) 
-    
 
   = VAR LScopeRef : FM3Scopes . ScopeRefTyp
   ; VAR LResult : INTEGER 
@@ -2736,7 +2722,9 @@ MODULE FM3Pass1
              , Position
              ) 
     ; LHSAttr . PaInt2 := LScopeRef ^ . ScpSelfScopeNo  
-    ; FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) 
+    ; FM3Scopes . PushScopeRefDeclsStack ( LScopeRef )
+    ; PutBwd_TI ( Itk . ItkScopeForDeclsLt , LScopeRef ^ . ScpSelfScopeNo ) ; 
+
     END ObjTypeLtL2R  
 
 ; BEGIN (*FM3Pass1*)

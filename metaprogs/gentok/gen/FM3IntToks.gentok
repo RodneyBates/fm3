@@ -60,8 +60,8 @@ LONE
   ItkScopeEmpty INT POS (* ScopeNo. *) .
   ItkScopeForDeclsLt INT (* ScopeNo. *) .
   ItkScopeForDeclsRt INT (* ScopeNo. *) . 
-  ItkLookupScopeLt INT (* ScopeNo. *) .
-  ItkLookupScopeRt INT (* ScopeNo. *) . 
+  ItkScopeForLookupLt INT (* ScopeNo. *) .
+  ItkScopeForLookupRt INT (* ScopeNo. *) . 
   ItkDuplDeclId IDENT INT POS 4 (* IdAtom, orig decl's scope no, position *) . 
   ItkDeclId INT IDENT INT POS 5 (* DeclKind, IdAtom, IdStd, position *) .
   ItkDeclNo DECL POS 3 (* DeclNo, position *) .
