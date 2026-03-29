@@ -53,7 +53,7 @@ INTERFACE FM3Scopes
                      No self references.
                   *)
       , SkProcBody 
-      , SkBlock
+      , SkBlockStmt
       , SkCompEnv (* Compiled, IMPORTed, EXPORTed. *) 
       , SkExports 
       , SkEnum
@@ -81,7 +81,7 @@ INTERFACE FM3Scopes
     { ScopeKindTyp . SkUnit
     , ScopeKindTyp . SkInterface 
     , ScopeKindTyp . SkModule 
-    , ScopeKindTyp . SkBlock
+    , ScopeKindTyp . SkBlockStmt
     , ScopeKindTyp . SkProcBody
     } 
 

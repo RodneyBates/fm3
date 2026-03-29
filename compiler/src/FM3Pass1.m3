@@ -2747,7 +2747,6 @@ MODULE FM3Pass1
              ) 
     ; LHSAttr . PaByte2 := BrandKind
     
-    (* Need the scope now, to collect decl id atoms. *) 
     ; LScopeRef 
         := FM3Scopes . NewScopeRef
              ( FM3Units . UnitStackTopRef
@@ -2756,7 +2755,8 @@ MODULE FM3Pass1
              ) 
     ; LHSAttr . PaInt2 := LScopeRef ^ . ScpSelfScopeNo  
     ; FM3Scopes . PushScopeRefDeclsStack ( LScopeRef )
-    ; PutBwd_TI ( Itk . ItkScopeForDeclsLt , LScopeRef ^ . ScpSelfScopeNo ) ; 
+    ; PutBwd_TIP
+        ( Itk . ItkScopeForDeclsLt , LScopeRef ^ . ScpSelfScopeNo , Position ) ; 
 
     END ObjTypeLtL2R  
 

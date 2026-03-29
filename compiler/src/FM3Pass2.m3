@@ -876,36 +876,50 @@ TRUE OR
 
       | Itk . ItkScopeForDeclsRt 
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
+        ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo )
         ; IF LScopeRef = NIL
           THEN <* ASSERT FALSE , "P2, NIL scope for decls." *>
           END (*IF*)
         ; FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) 
+        ; PutBwdP2 ( P2RdBack , VAL ( LPosition . Column , LONGINT ) )
+        ; PutBwdP2 ( P2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
         ; PutBwdP2 ( HtPass2RdBack , VAL ( LScopeNo , LONGINT ) ) 
         ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
 
       | Itk . ItkScopeForDeclsLt 
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack )
+        ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; LScopeRef := FM3Scopes . PopScopeRefDeclsStack ( ) 
         ; IF LScopeRef ^ . ScpSelfScopeNo # LScopeNo
           THEN <* ASSERT FALSE *> 
           END (*IF*)
+        ; PutBwdP2 ( P2RdBack , VAL ( LPosition . Column , LONGINT ) )
+        ; PutBwdP2 ( P2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
         ; PutBwdP2 ( HtPass2RdBack , VAL ( LScopeNo , LONGINT ) ) 
         ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
 
       | Itk . ItkScopeForLookupRt 
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
+        ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo )
         ; IF LScopeRef = NIL
           THEN <* ASSERT FALSE , "P2, NIL scope for lookup." *>
           END (*IF*)
         ; FM3Scopes . PushScopeRefLookupStack ( LScopeRef ) 
+        ; PutBwdP2 ( P2RdBack , VAL ( LPosition . Column , LONGINT ) )
+        ; PutBwdP2 ( P2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
         ; PutBwdP2 ( HtPass2RdBack , VAL ( LScopeNo , LONGINT ) ) 
         ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
 
       | Itk . ItkScopeForLookupLt 
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack )
+        ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; LookupScopeLt ( LScopeNo ) 
+        ; PutBwdP2 ( P2RdBack , VAL ( LPosition . Column , LONGINT ) )
+        ; PutBwdP2 ( P2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
+        ; PutBwdP2 ( HtPass2RdBack , VAL ( LScopeNo , LONGINT ) ) 
+        ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
         
       | Itk . ItkOpenDeclListRt
       =>  FM3Scopes . ScopeLookupStackTopRef ^ . ScpInsideDecl := TRUE 
@@ -976,10 +990,8 @@ TRUE OR
                   , ExpPosition := LPosition
                   )
             )
-        ; PutBwdP2
-            ( P2RdBack , VAL ( LPosition . Column , LONGINT ) )
-        ; PutBwdP2
-            ( P2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
+        ; PutBwdP2 ( P2RdBack , VAL ( LPosition . Column , LONGINT ) )
+        ; PutBwdP2 ( P2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
         ; PutBwdP2 ( P2RdBack , VAL ( TokResult. TrTok , LONGINT ) )
 
       | Itk . ItkConstDeclType
@@ -1923,11 +1935,6 @@ TRUE OR
           FM3Graph . SCCs ( OslScopeRef ^ . ScpDeclGraph , VisitSCC )
         END (*IF*) 
       END (*IF*)
-    ; WITH Wp2RdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack
-      DO 
-        PutBwdP2 ( Wp2RdBack , VAL ( ScopeNo , LONGINT ) ) 
-      ; PutBwdP2 ( Wp2RdBack , VAL ( Itk . ItkScopeForLookupLt, LONGINT ) )
-      END (*WITH*) 
     END LookupScopeLt 
 
 ; PROCEDURE LookupAtomInLookupScopes
