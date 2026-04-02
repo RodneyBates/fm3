@@ -1391,6 +1391,49 @@ MODULE FM3Pass1
     END PutBwd_LCIP_eCP_rip
 
 (*EXPORTED:*)
+; PROCEDURE PutBwd_LCIIBP_eCP_zCP_riibp
+    ( T : Itk . TokTyp 
+    ; CLeft : LONGINT 
+    ; I1 , I2 : INTEGER
+    ; B : BOOLEAN
+    ; READONLY PositionLeft : tPosition 
+    ; COne : LONGINT 
+    ; READONLY PositionOne : tPosition 
+    ; CTwo : LONGINT 
+    ; READONLY PositionTwo : tPosition 
+    )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO 
+        PutBwd ( WRdBack , VAL ( PositionLeft . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( PositionLeft . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( ORD ( B ) , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I2 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I1 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) )
+
+      ; PutBwd ( WRdBack , VAL ( PositionTwo . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( PositionTwo . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , CTwo ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToTwoPatch , LONGINT ) )
+
+      ; PutBwd ( WRdBack , VAL ( PositionOne . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( PositionOne . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , COne ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToOnePatch , LONGINT ) )
+
+      ; PutBwd ( WRdBack , VAL ( PositionLeft . Column , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( PositionLeft . Line , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( ORD ( B ) , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I2 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , VAL ( I1 , LONGINT ) ) 
+      ; PutBwd ( WRdBack , CLeft ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END PutBwd_LCIIBP_eCP_zCP_riibp
+
+(*EXPORTED:*)
 ; PROCEDURE PutBwd_LCIIP_riip
     ( T : Itk . TokTyp 
     ; C : LONGINT 
@@ -2122,9 +2165,10 @@ MODULE FM3Pass1
     ; READONLY ElemsAttr : tParsAttribute 
     )
 
+(* TODO, Maybe.  Inline this is source code? 14 places as of 2026-4-1. *)   
+
   = BEGIN
       LHSAttr . PaInt1 := ElemsAttr . PaInt1 (* Valid element count. *) 
-    ; LHSAttr . PaPass1Coord := ElemsAttr . PaPass1Coord (* Redundant? used? *)
     ; PutBwd_LCIP_rip
         ( TokLt
         , ElemsAttr . PaPass1Coord

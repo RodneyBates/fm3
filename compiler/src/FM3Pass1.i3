@@ -55,7 +55,7 @@ INTERFACE FM3Pass1
         , PaInt1 := FIRST ( INTEGER )
         , PaInt2 := FIRST ( INTEGER ) 
         , PaInt3 := FIRST ( INTEGER )
-       , PaPos := FM3Base . PositionNull 
+        , PaPos := FM3Base . PositionNull 
         , PaPos2 := FM3Base . PositionNull 
         , PaTok1 := FM3Base . TokNull
         , PaTok2 := FM3Base . TokNull
@@ -277,6 +277,18 @@ INTERFACE FM3Pass1
     ; READONLY PositionRt : tPosition
     )
     
+; PROCEDURE PutBwd_LCIIBP_eCP_zCP_riibp
+    ( T : Itk . TokTyp 
+    ; CLeft : LONGINT 
+    ; I1 , I2 : INTEGER
+    ; B : BOOLEAN
+    ; READONLY PositionLeft : tPosition 
+    ; COne : LONGINT 
+    ; READONLY PositionOne : tPosition 
+    ; CTwo : LONGINT 
+    ; READONLY PositionTwo : tPosition 
+    )
+
 ; PROCEDURE PutBwd_LCIIP_riip
     ( T : Itk . TokTyp 
     ; C : LONGINT 

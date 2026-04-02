@@ -377,6 +377,7 @@ MODULE FM3Decls
 ; BEGIN
     DeclParseInfoStack := NIL
   ; DeclParseInfoStackDepth := 0
+  ; GMutex := NEW ( MUTEX ) 
 (* CHECK: Could there ever be a need to reinitialize this" *) 
   END FM3Decls
 .

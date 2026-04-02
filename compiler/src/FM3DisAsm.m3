@@ -371,26 +371,33 @@ MODULE FM3DisAsm
     ; BEGIN
         IF ArgNo > 0 THEN Wr . PutChar ( WrT , ',' ) END (*IF*)
       ; LArgL := FM3Compress . GetBwd ( RBT )
-      ; WITH WUnitRef = FM3Units . UnitStackTopRef
-        DO IF WUnitRef = NIL
-          THEN LIdentName := "<NoUnit>"
-          ELSIF FM3Atom_OAChars . Key 
-                  ( WUnitRef ^ . UntIdentAtomDict
-                  , VAL ( LArgL , FM3Base . AtomTyp )
-                  , (*OUT*) LIdentOAChars
-                  )
-          THEN
-            IF LIdentOAChars = NIL THEN LIdentName := "<NoAtomIdent>"
-            ELSE LIdentName := Text . FromChars ( LIdentOAChars ^ )
-            END (*IF*) 
-          ELSE LIdentName := "<NoAtomIdent>" 
-          END (*IF*)
-        ; Wr . PutText ( WrT , "Id" ) 
-        ; Wr . PutText ( WrT , Fmt . LongInt ( LArgL ) )
-        ; Wr . PutChar ( WrT , '\"' ) 
-        ; Wr . PutText ( WrT , LIdentName )
-        ; Wr . PutChar ( WrT , '\"' ) 
-        END (*WITH*)
+      ; IF LArgL < 0L
+        THEN
+          Wr . PutText
+            ( WrT , FM3SrcToks . Image ( VAL ( - LArgL , FM3SrcToks . TokTyp ) )
+            ) 
+        ELSE 
+          WITH WUnitRef = FM3Units . UnitStackTopRef
+          DO IF WUnitRef = NIL
+            THEN LIdentName := "<NoUnit>"
+            ELSIF FM3Atom_OAChars . Key 
+                    ( WUnitRef ^ . UntIdentAtomDict
+                    , VAL ( LArgL , FM3Base . AtomTyp )
+                    , (*OUT*) LIdentOAChars
+                    )
+            THEN
+              IF LIdentOAChars = NIL THEN LIdentName := "<NoAtomIdent>"
+              ELSE LIdentName := Text . FromChars ( LIdentOAChars ^ )
+              END (*IF*) 
+            ELSE LIdentName := "<NoAtomIdent>" 
+            END (*IF*)
+          ; Wr . PutText ( WrT , "Id" ) 
+          ; Wr . PutText ( WrT , Fmt . LongInt ( LArgL ) )
+          ; Wr . PutChar ( WrT , '\"' ) 
+          ; Wr . PutText ( WrT , LIdentName )
+          ; Wr . PutChar ( WrT , '\"' ) 
+          END (*WITH*)
+        END (*IF*) 
       END DobIdentAtomArg 
 
   ; PROCEDURE DobIdentReservedArg ( ArgNo : INTEGER ; )

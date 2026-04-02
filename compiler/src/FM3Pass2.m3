@@ -916,6 +916,7 @@ TRUE OR
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack )
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         ; LookupScopeLt ( LScopeNo ) 
+        ; LScopeRef := FM3Scopes . PopScopeRefLookupStack ( ) 
         ; PutBwdP2 ( P2RdBack , VAL ( LPosition . Column , LONGINT ) )
         ; PutBwdP2 ( P2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
         ; PutBwdP2 ( HtPass2RdBack , VAL ( LScopeNo , LONGINT ) ) 
@@ -1204,7 +1205,8 @@ TRUE OR
         ; LCt := GetBwdInt ( TokResult . TrRdBack ) (* Lit count, unused. *)
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         
-        ; AssertTosDeclScopeNo ( LScopeNo , "enum type left" )  
+        ; AssertTosDeclScopeNo ( LScopeNo , "enum type left" )
+        ; EVAL FM3Scopes . PopScopeRefDeclsStack ( ) 
         ; HtExprWPositionalDeclListLt ( LScopeNo )
 
       | Itk . ItkEnumLitListLt
@@ -1270,13 +1272,27 @@ TRUE OR
         ; AssertTosDeclScopeNo ( LScopeNo , "rec type left" )  
         ; HtExprWPositionalDeclListLt ( LScopeNo )
 
+      | Itk . ItkFormalsRt
+      =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
+        ; LCt := GetBwdInt ( TokResult . TrRdBack ) (* Formals. *)  
+        ; LPosition := GetBwdPos ( TokResult . TrRdBack )
+            
+        ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) 
+        ; HtExprWPositionalDeclListRt ( LScopeRef , LCt )
+      
+      | Itk . ItkFormalsLt 
+      =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack )
+        ; LCt := GetBwdInt ( TokResult . TrRdBack ) (* Formals. *) 
+        ; LPosition := GetBwdPos ( TokResult . TrRdBack )
+        
+        ; HtExprWPositionalDeclListLt ( LScopeNo )
+
       | Itk . ItkSignatureRt
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
         ; LCt := GetBwdInt ( TokResult . TrRdBack ) (* Formals. *)  
         ; LBool := GetBwdBool ( TokResult . TrRdBack ) (* Has result type.*) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
             
-        ; AssertTosDeclScopeNo ( LScopeNo , "signature left" )  
         ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) 
         ; LNewExprRef
             := NEW ( FM3Exprs . ExprRefTyp
@@ -1287,7 +1303,6 @@ TRUE OR
                    , ExpScopeRef1 := LScopeRef 
                    , ExpPosition := LPosition 
                    )
-        ; HtExprWPositionalDeclListRt ( LScopeRef , LFieldCt )
         ; HtExprRt ( LNewExprRef , Mergeable := TRUE ) 
       
       | Itk . ItkSignatureLt 
@@ -1296,9 +1311,6 @@ TRUE OR
         ; LBool := GetBwdBool ( TokResult . TrRdBack ) (* Has result type.*) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         
-        ; AssertTosDeclScopeNo ( LScopeNo , "signature right" )  
-        ; HtExprWPositionalDeclListLt ( LScopeNo )
-
       (* Brands: *)
 
       | Itk . ItkBrandAbsent
@@ -1444,7 +1456,8 @@ TRUE OR
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN
             LCt := GetBwdInt ( TokResult . TrRdBack )
-            
+          ; LPosition := GetBwdPos ( TokResult . TrRdBack )
+  
           ; LExprRef := FM3Exprs . ExprStackTopObj 
           ; IF FM3Exprs . ExprStackTopObj ^ . ExpKind # Ekt . EkObjType
             THEN <* ASSERT FALSE , "Override list not inside object type." *>
@@ -1458,6 +1471,7 @@ TRUE OR
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN 
             LCt := GetBwdInt ( TokResult . TrRdBack )
+          ; LPosition := GetBwdPos ( TokResult . TrRdBack )
             
           ; LExprRef := FM3Exprs . ExprStackTopObj 
           ; IF FM3Exprs . ExprStackTopObj ^ . ExpKind # Ekt . EkObjType
@@ -1470,6 +1484,7 @@ TRUE OR
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN  
             LCt := GetBwdInt ( TokResult . TrRdBack )
+          ; LPosition := GetBwdPos ( TokResult . TrRdBack )
 
           ; LExprRef := FM3Exprs . ExprStackTopObj 
           ; IF LExprRef ^ . ExpArgListNo > 0
@@ -1925,10 +1940,11 @@ TRUE OR
 
   ; BEGIN (* LookupScopeLt *) 
       OslScopeRef := FM3Scopes . ScopeLookupStackTopRef
-    ; IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi <= 0
-      THEN (* Not skipping. *)
+    ; IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
+      THEN (* Skipping. *)
+      ELSE 
         IF OslScopeRef ^ . ScpSelfScopeNo # ScopeNo
-        THEN <* ASSERT FALSE , "P2, Recursive, NIL scope for lookup." *> 
+        THEN <* ASSERT FALSE , "P2, Recursive, wrong scope for lookup." *> 
         END (*IF*)
       ; IF OslScopeRef ^ . ScpDeclGraph # NIL 
         THEN 
