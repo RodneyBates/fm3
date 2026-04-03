@@ -351,11 +351,13 @@ MODULE  FM3Compile
   (* Dispatched-to. *)
   = VAR LDeclRef : FM3Decls . DeclRefTyp
 
-  ; BEGIN (*DpiMethDecl*) 
+  ; BEGIN (*DpiMethDecl*)
+(* Duplicated inside FM3Decls . DumpDecl :
       Wr . PutText ( WrT , " at " )
     ; Wr . PutText ( WrT , FM3Utils . RefanyImage ( Ref ) ) 
     ; Wr . PutText ( WrT , Wr . EOL )
-    ; LDeclRef := Ref (* Implied NARROW. *)
+*) 
+      LDeclRef := Ref (* Implied NARROW. *)
     ; FM3Decls . DumpDecl
         ( LDeclRef , WrT , DoFields := TRUE , DefaultFields := FALSE ) 
     END DpiMethDecl
@@ -370,7 +372,7 @@ MODULE  FM3Compile
         := NEW ( DumpInfoObj 
                , DpiUnitRef := UnitRef
                , DpiMap := UnitRef ^ . UntDeclMap 
-               , DpiTypeLabel := "Decls"
+               , DpiTypeLabel := "Decl"
                , DpiDump := DpiMethDecl
                )
     ; DumpMappedRecs ( LInfo )
@@ -407,12 +409,14 @@ MODULE  FM3Compile
       ; Wr . PutText ( LWrT , Wr . EOL ) 
       ELSE
         LRange := VarArray_Int_Refany . TouchedRange ( Info . DpiMap ) 
-      ; FOR RExprNo := LRange . Lo TO LRange . Hi
+      ; FOR RDeclNo := LRange . Lo TO LRange . Hi
         DO
+        (* Duplicated inside FM3Decls . DumpDecl :
           Wr . PutText ( LWrT , Info . DpiTypeLabel )
         ; Wr . PutText ( LWrT , " No " )
-        ; Wr . PutText ( LWrT , Fmt . Int ( RExprNo ) )
-        ; WITH WRefAny = VarArray_Int_Refany . Fetch ( Info . DpiMap , RExprNo )
+        ; Wr . PutText ( LWrT , Fmt . Int ( RDeclNo ) )
+        *)
+          WITH WRefAny = VarArray_Int_Refany . Fetch ( Info . DpiMap , RDeclNo )
           DO
             Info . DpiDump ( WRefAny , LWrT ) 
           ; Wr . PutText ( LWrT , Wr . EOL ) (* Blank line after each record. *)

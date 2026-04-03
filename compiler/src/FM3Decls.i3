@@ -98,7 +98,7 @@ INTERFACE FM3Decls
       ; DclSelfDeclNo : FM3Globals . DeclNoTyp := FM3Globals . DeclNoNull
         (* ^A self-reference. *)
       ; DclPos : FM3Base . tPosition := FM3Base . PositionNull
-      ; DclStdTok : FM3SrcToks . TokTyp := FM3SrcToks . StkUnknown 
+      ; DclStdTok : FM3SrcToks . TokTyp := FM3Base . TokNull 
       ; DclKind : DeclKindTyp := DeclKindTyp . DkNull 
       ; DclIsUsable : BOOLEAN := TRUE 
       END (*DeclTyp*)

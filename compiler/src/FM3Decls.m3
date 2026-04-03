@@ -79,8 +79,9 @@ MODULE FM3Decls
     ; LResult := FM3SharedUtils . CatArrT
         ( ARRAY OF REFANY
             { Fmt . Int ( LDeclNo )  
-            , "/"
+            , " (decl-rel:"
             , Fmt . Int ( LRelDeclNo )
+            , ")"
             }
         )
     ; RETURN LResult 
@@ -150,7 +151,8 @@ MODULE FM3Decls
     ; RETURN LResult 
     END AtomImageOfDeclRef
 
-; VAR GMutex : MUTEX (* Protects GDefaultRef. *) 
+; VAR GMutex : MUTEX (* Protects GDefaultRef. *)
+  (* Just in the unlikely event of multiple threads i here. *) 
 ; VAR GDefaultRef : DeclRefTyp 
 
 (*EXPORTED.*)
@@ -160,7 +162,7 @@ MODULE FM3Decls
     ; DoFields := FALSE
     ; DefaultFields := FALSE
     ) 
-  (* DeclNo, REF, and Position. Long => the fields too. *)
+  (* DeclNo, REF, and Position. DoFields => the fields too. *)
 
   = VAR LResult : TEXT
 
@@ -186,7 +188,7 @@ MODULE FM3Decls
       IF DeclRef = NIL
       THEN
         Wr . PutText ( WrT , "NIL" )
-      ; Wr . PutText ( WrT , Wr . EOL )
+   (* ; Wr . PutText ( WrT , Wr . EOL ) *) 
       ; RETURN
       END (*IF*)
     ; LOCK GMutex
@@ -195,7 +197,7 @@ MODULE FM3Decls
       ; Wr . PutText ( WrT , "DeclNo ") 
       ; Wr . PutText ( WrT , Fmt . Int ( DeclRef ^ . DclSelfDeclNo ) ) 
       ; Wr . PutText ( WrT , " at " ) 
-      ; Wr . PutText ( WrT , FM3SharedUtils . RefanyImage ( DeclRef ) ) 
+      ; Wr . PutText ( WrT , FM3Utils . RefanyImage ( DeclRef ) ) 
       ; Wr . PutChar ( WrT , ' ' ) 
       ; Wr . PutText ( WrT , DeclInfoImageOfDeclRef ( DeclRef ) )  
       ; Wr . PutText ( WrT , Wr . EOL ) 
