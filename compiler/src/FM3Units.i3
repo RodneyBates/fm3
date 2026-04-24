@@ -187,7 +187,7 @@ INTERFACE FM3Units
   (* UnitNo, REF, and sourceFileName. *) 
   
 ; VAR UnitsAtomDict : FM3Atom_Text . T
-        (* ^Just one in entire compler run.  Map source file simple names as 
+        (* ^Just one in entire compiler run.  Map source file simple names as 
             TEXTS directly to unit numbers, which will be compact. See
             comments in FM3Scope.i3.
         *) 

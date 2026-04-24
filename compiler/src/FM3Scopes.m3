@@ -472,15 +472,7 @@ MODULE FM3Scopes
           DO 
             DsField ( "ScpDeclStackLink" , ScopeRefImage ( WScope ^ . ScpDeclStackLink , DoFields := FALSE ) , NIL ) 
           ; DsField ( "ScpLookupStackLink" , ScopeRefImage ( WScope ^ . ScpLookupStackLink , DoFields := FALSE ) , NIL ) 
-          ; DsField ( "ScpOwningUnitRef" , FM3Units . UnitRefIdImage ( WScope ^ . ScpOwningUnitRef ) , NIL )
-          ; DsField ( "ScpIdentAtom" , IdentImageOfScopeRef ( WScope ) , IdentImageOfScopeRef ( WDef ) ) 
-          ; DsField ( "ScpSelfScopeNo" , ScopeNoImageOfScopeRef ( WScope ) , ScopeNoImageOfScopeRef ( WDef ) )
-          ; DsField ( "ScpPosition" , PositionImage ( WScope ^ . ScpPosition ) , PositionImage ( WDef ^ . ScpPosition ) )
-          ; DsField ( "ScpKind" , ScopeKindImage ( WScope ^ . ScpKind ) , ScopeKindImage ( WDef ^ . ScpKind ) )
-
-
- 
-          ; DsField ( "ScpOwningUnitRef" , UnitRefIdImage ( WScope ^ . ScpOwningUnitRef ) , UnitRefIdImage ( WDef ^ . ScpOwningUnitRef ) )
+          ; DsField ( "ScpOwningUnitRef" , UnitRefIdImage ( WScope ^ . ScpOwningUnitRef ) , NIL )
           ; DsField ( "ScpDeclIdSet" , IdentSetImage ( WScope ^ . ScpDeclIdSet ) , IdentSetImage ( WDef ^ . ScpDeclIdSet ) )
           ; DsField ( "ScpFormalIdSet" , IdentSetImage ( WScope ^ . ScpFormalIdSet ) , IdentSetImage ( WDef ^ . ScpFormalIdSet ) )
           ; DsField ( "ScpRefIdSet" , IdentSetImage ( WScope ^ . ScpRefIdSet ) , IdentSetImage ( WDef ^ . ScpRefIdSet ) )
@@ -489,18 +481,18 @@ MODULE FM3Scopes
           ; DsField ( "ScpDeclGraph" , ArcSetImage ( WScope ^ . ScpDeclGraph ) , ArcSetImage ( WDef ^ . ScpDeclGraph ) )
           ; DsField ( "ScpCurDeclRefNoSet" , DeclNoSetImage ( WScope ^ . ScpCurDeclRefNoSet ) , DeclNoSetImage ( WDef ^ . ScpCurDeclRefNoSet ) )
           ; DsField ( "ScpCurDefExprs" , DefExprsImage ( WScope ^ . ScpCurDefExprs ) , DefExprsImage ( WDef ^ . ScpCurDefExprs ) )
+          ; DsField ( "ScpIdentAtom" , IdentImageOfScopeRef ( WScope ) , IdentImageOfScopeRef ( WDef ) ) 
           ; DsField ( "ScpDeclListNo" , Fmt . Int ( WScope ^ . ScpDeclListNo ) , Fmt . Int ( WDef ^ . ScpDeclListNo ) )
           ; DsField ( "ScpMinDeclNo" , DeclNoImage ( WScope ^ . ScpMinDeclNo ) , DeclNoImage ( WDef ^ . ScpMinDeclNo ) )
+          ; DsField ( "ScpSelfScopeNo" , ScopeNoImageOfScopeRef ( WScope ) , ScopeNoImageOfScopeRef ( WDef ) )
           ; DsField ( "ScpOwningDeclNo" , DeclNoImage ( WScope ^ . ScpOwningDeclNo ) , DeclNoImage ( WDef ^ . ScpOwningDeclNo ) )
           ; DsField ( "ScpDeclStackHt" , Fmt . Int ( WScope ^ . ScpDeclStackHt ) , Fmt . Int ( WDef ^ . ScpDeclStackHt ) )
           ; DsField ( "ScpOpenStackHt" , Fmt . Int ( WScope ^ . ScpOpenStackHt ) , Fmt . Int ( WDef ^ . ScpOpenStackHt ) )
-          ; DsField ( "ScpCurDeclExprStackCt" , Fmt . Int ( WScope ^ . ScpCurDeclExprStackCt ) , Fmt . Int ( WDef ^ . ScpCurDeclExprStackCt ) )
+          ; DsField ( "ScpCurDeclExprStackCt" , Fmt . Int ( WScope ^ . ScpCurDeclExprStackCt ) , Fmt . Int ( WDef ^ . ScpCurDeclExprStackCt ) ) 
+          ; DsField ( "ScpPosition" , PositionImage ( WScope ^ . ScpPosition ) , PositionImage ( WDef ^ . ScpPosition ) )
+          ; DsField ( "ScpKind" , ScopeKindImage ( WScope ^ . ScpKind ) , ScopeKindImage ( WDef ^ . ScpKind ) )
           ; DsField ( "ScpInsideDecl" , Fmt . Bool ( WScope ^ . ScpInsideDecl ) , Fmt . Bool ( WDef ^ . ScpInsideDecl ) )
           ; DsField ( "ScpCurDefIsValue" , Fmt . Bool ( WScope ^ . ScpCurDefIsValue ) , Fmt . Bool ( WDef ^ . ScpCurDefIsValue ) )
-
-
-
-
           END (*WITH*) 
         END (*IF*) 
       END (*LOCK*) 
