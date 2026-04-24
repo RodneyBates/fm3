@@ -119,7 +119,7 @@ INTERFACE FM3Units
       ; UntPassNosDisAsmed : FM3CLOptions . PassNoSetTyp
       ; UntPassNosDumped : FM3CLOptions . PassNoSetTyp
       ; UntIdentAtomDict : FM3Atom_OAChars . T := NIL
-          (* ^Identifiers occurring in the unit, except reserved ids. *)   
+          (* ^Identifiers occurring in the unit, but not reserved ids. *)   
       ; UntNumLitAtomDict : FM3Atom_OAChars . T := NIL (* Numeric literals. *)  
       ; UntCharsLitAtomDict : FM3Atom_OAChars . T := NIL (* TEXT literals. *) 
       ; UntWCharsLitAtomDict : FM3Atom_OAWideChars . T := NIL
@@ -183,6 +183,9 @@ INTERFACE FM3Units
   PROCEDURE UnitNoRef ( UnitNo : FM3Globals . UnitNoTyp ) : UnitRefTyp
   (* Mainly for convenient calling by a debugger. *) 
 
+; PROCEDURE UnitRefImage ( UnitRef : UnitRefTyp ) : TEXT 
+  (* UnitNo, REF, and sourceFileName. *) 
+  
 ; VAR UnitsAtomDict : FM3Atom_Text . T
         (* ^Just one in entire compler run.  Map source file simple names as 
             TEXTS directly to unit numbers, which will be compact. See
@@ -206,12 +209,14 @@ INTERFACE FM3Units
 ; PROCEDURE NewUnitRef ( ) : UnitRefTyp
   (* Allocate, low-level initialize, give it a UnitNo, and put into UnitsMap. *)
 
+; PROCEDURE UnitRefIdImage ( UnitRef : UnitRefTyp ) : TEXT 
+
 ; PROCEDURE AllocateDeclNos ( Count : INTEGER ) : INTEGER 
   (* Allocate a contiguous range of Count Decl numbers, unique
      within the current unit, and return thxe lowest number.
   *) 
 
-; PROCEDURE TextOfIdAtom ( IdAtom : FM3Base . AtomTyp ) : TEXT
+; PROCEDURE IdentAtomImage ( IdAtom : FM3Base . AtomTyp ) : TEXT
   (* In the current unit. *) 
 
 ; VAR UnitStackTopRef : UnitRefTyp := NIL 

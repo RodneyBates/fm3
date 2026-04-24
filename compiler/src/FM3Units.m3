@@ -9,6 +9,7 @@
 MODULE FM3Units
 
 ; IMPORT Text
+; IMPORT Fmt 
 
 ; IMPORT IntSets 
 ; IMPORT IntIntVarArray AS VarArray_Int_Int (* FM3's naming convention. *)
@@ -96,6 +97,26 @@ MODULE FM3Units
     ; RETURN LUnitRef 
     END UnitNoRef
       
+(*EXPORTED.*)
+; PROCEDURE UnitRefImage ( UnitRef : UnitRefTyp ) : TEXT 
+  (* UnitNo, REF, and sourceFileName. *) 
+  
+  = VAR LResult : TEXT
+
+  ; BEGIN (*UnitRefImage*)
+      IF UnitRef = NIL THEN RETURN "NIL" END (*IF*)
+    ; LResult := FM3SharedUtils . CatArrT
+        ( ARRAY OF REFANY
+            { "UnitNo " 
+            , Fmt . Int ( UnitRef ^ . UntSelfUnitNo ) 
+            , " at " 
+            , FM3Utils . RefanyImage ( UnitRef )
+            , " "
+            , UnitRef ^ . UntSrcFileSimpleName 
+            }
+        ) 
+    ; RETURN LResult 
+    END UnitRefImage
 
 (*EXPORTED*) 
 ; PROCEDURE NewUnitRef ( ) : UnitRefTyp
@@ -204,6 +225,19 @@ MODULE FM3Units
     ; VarArray_Int_Refany . Assign ( UnitsMap , LUnitNo , LUnitRef )
     ; RETURN LUnitRef 
     END NewUnitRef
+
+(*EXPORTED.*)
+; PROCEDURE UnitRefIdImage ( UnitRef : UnitRefTyp ) : TEXT 
+
+  = VAR LName : TEXT 
+
+  ; BEGIN (*UnitRefIdImage*)
+      IF UnitRef = NIL THEN RETURN "<NIL_Unit>" END (*IF*)
+    ; LName := UnitRef ^ . UntSrcFileSimpleName 
+    ; IF LName = NIL THEN RETURN "<NIL_SourceFileName>" END (*IF*)
+    ; RETURN LName  
+    END UnitRefIdImage
+
     
 (*EXPORTED.*)
 ; PROCEDURE AllocateDeclNos ( Count : INTEGER ) : INTEGER 
@@ -221,20 +255,21 @@ MODULE FM3Units
     END AllocateDeclNos
     
 (*EXPORTED.*)
-; PROCEDURE TextOfIdAtom ( IdAtom : FM3Base . AtomTyp ) : TEXT 
+; PROCEDURE IdentAtomImage ( IdentAtom : FM3Base . AtomTyp ) : TEXT 
   (* In the current unit. *) 
 
   = VAR LCharsRef : FM3Atom_OAChars . KeyTyp
   ; VAR LIdentText : TEXT 
 
-  ; BEGIN (*TextOfIdAtom*)
-      IF IdAtom < 0
-      THEN
-        LIdentText := FM3SrcToks . Image ( - IdAtom ) 
+  ; BEGIN (*IdentAtomImage*)
+      IF IdentAtom = FM3Base . AtomNull
+      THEN LIdentText := "<Null>" 
+      ELSIF IdentAtom < 0
+      THEN LIdentText := FM3SrcToks . Image ( - IdentAtom ) 
       ELSE 
         IF NOT FM3Atom_OAChars . Key 
                  ( UnitStackTopRef ^ . UntIdentAtomDict
-                 , IdAtom
+                 , IdentAtom
                  , (*OUT*) LCharsRef
                  )
         THEN LIdentText := "<NotFound>"
@@ -244,7 +279,7 @@ MODULE FM3Units
         END (*IF*)
       END (*IF*)
     ; RETURN LIdentText 
-    END TextOfIdAtom
+    END IdentAtomImage
 
 (*EXPORTED.*)
 ; PROCEDURE PushUnit ( UnitRef : UnitRefTyp ) 
