@@ -109,6 +109,7 @@ INTERFACE FM3Decls
     ; DoFields := FALSE
     ; DefaultFields := FALSE
     ) 
+  (* DeclNo, REF, and Position. DoFields => the fields too. *)
 
 ; PROCEDURE DeclRefImage
     ( Decl : DeclRefTyp ; DoFields := FALSE ; DefaultFields := FALSE ) : TEXT
@@ -117,10 +118,10 @@ INTERFACE FM3Decls
 ; PROCEDURE DeclRefImageDebug ( DeclRef : DeclRefTyp ) : TEXT
   (* For calling by a debugger. *) 
 
-; PROCEDURE DeclNoImageOfDeclRef ( DeclRef : DeclRefTyp )  : TEXT 
-  (* Unit-relative/Scope-relative. *)
+; PROCEDURE DeclNoImage ( DeclNo : FM3Globals . DeclNoTyp ) : TEXT 
+  (* Unit-relative/Scope-relative, in current unit. *)
   
-; PROCEDURE DeclInfoImageOfDeclRef ( DeclRef : DeclRefTyp )  : TEXT 
+; PROCEDURE DeclInfoImageOfDeclRef ( DeclRef : DeclRefTyp ) : TEXT 
   (* Unit-relative/Scope-relative. *)
 
 ; PROCEDURE NewDeclRefListRef ( Ct : INTEGER ) : FM3Globals . DeclRefListRefTyp

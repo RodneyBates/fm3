@@ -9,7 +9,10 @@
 INTERFACE FM3Utils
 
 (* CM3 library: *)
-; IMPORT Wr 
+; IMPORT Wr
+
+(* Other libs:*)
+; IMPORT IntSets 
 
 (* FM3: *)
 ; IMPORT FM3Atom_OAChars
@@ -82,6 +85,26 @@ INTERFACE FM3Utils
   (* All asterisks, if --no-dump-addrs. *) 
 
 ; PROCEDURE LongHexImage ( Value : LONGINT ) : TEXT 
+
+; TYPE IntImageProcTyp = PROCEDURE ( Int : INTEGER ) : TEXT 
+
+; PROCEDURE IntSetElemsImages
+    ( IntSet : IntSets . T ; ElemImageProc : IntImageProcTyp )
+  : REF ARRAY OF TEXT
+  (* By applying ElemImageProc to each element of IntSet. *) 
+
+; PROCEDURE ListImage
+    ( READONLY Elems : ARRAY OF TEXT
+    ; Delims := ARRAY [ 0..2 ] OF CHAR { '{' , ',' , '}' } 
+    ; Prefix := ""
+    ; OnePerLine := FALSE
+    ; LineTo := 80 (* Zero origin. *) 
+    )
+  : TEXT
+  (* Brace-enclosed, comma-separated, multiple-on-a-line (unless OnePerLine),
+     list elements from Elems. 
+     Lines after the first will start with Prefix.
+  *) 
 
 ; END FM3Utils
 .

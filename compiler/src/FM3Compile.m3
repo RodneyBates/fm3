@@ -327,7 +327,13 @@ MODULE  FM3Compile
     ; Wr . PutText ( WrT , FM3Utils . RefanyImage ( Ref ) ) 
     ; Wr . PutText ( WrT , Wr . EOL )
     ; LScopeRef := Ref (* Implied NARROW. *)
-    ; FM3Scopes . Dump ( LScopeRef , WrT , Prefix := "  " ) 
+    ; FM3Scopes . DumpScope
+        ( LScopeRef
+        , WrT
+        , DoFields := TRUE
+        , DefaultFields := FALSE
+        , Prefix := "  "
+        ) 
     END DpiMethScope
 
 (*EXPORTED.*)

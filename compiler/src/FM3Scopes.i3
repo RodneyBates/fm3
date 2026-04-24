@@ -99,12 +99,13 @@ INTERFACE FM3Scopes
     , ScopeKindTyp . SkExcept 
     }
 
+; PROCEDURE ScopeKindImage ( Kind : ScopeKindTyp ) : TEXT 
+
 ; TYPE ScopeNoTyp = FM3Globals . ScopeNoTyp 
 
-; TYPE ScopeTyp
-    = RECORD
+; TYPE ScopeTyp = RECORD
         ScpDeclStackLink : ScopeRefTyp
-      ; ScpLookupScopeStackLink : ScopeRefTyp
+      ; ScpLookupStackLink : ScopeRefTyp
       ; ScpOwningUnitRef : FM3Units . UnitRefTyp := NIL 
       ; ScpDeclIdSet : IntSets . T
         (* ^IdentAtoms declared within, including imports of top-level scope. *)
@@ -176,13 +177,25 @@ INTERFACE FM3Scopes
   : ScopeRefTyp
   (* Allocate and connect a ScopeNo and ScopeRef, owned by OwningUnitRef. *) 
 
-; PROCEDURE ScopeRefImage ( ScopeRef : ScopeRefTyp ) : TEXT 
-  (* DeclNo, REF, and Position. *) 
+; PROCEDURE ScopeRefImage
+    ( ScopeRef : ScopeRefTyp ; DoFields := FALSE ; DefaultFields := FALSE ) : TEXT
+  (* ScopeNo, REF, and Position. Long => the fields too. *)
 
-; PROCEDURE ScopeRefOfScopeNo ( ScopeNo : FM3Globals . ScopeNoTyp )
-  : ScopeRefTyp 
-  (* In the current unit. *) 
+; PROCEDURE ScopeRefImageDebug ( ScopeRef : ScopeRefTyp ) : TEXT
+  (* For calling by a debugger. *) 
 
+; PROCEDURE IdentImageOfScopeRef ( ScopeRef : ScopeRefTyp ) : TEXT
+  (* Atom no, ident spelling. *) 
+
+; PROCEDURE ScopeNoImageOfScopeRef ( ScopeRef : ScopeRefTyp )  : TEXT 
+  (* ScopeNo, Ident spelling, position. *)
+  
+; PROCEDURE ScopeRefOfScopeNo
+    ( ScopeNo : FM3Globals . ScopeNoTyp 
+    ; UnitRef : FM3Units . UnitRefTyp := NIL (* NIL means current unit. *)
+    )
+  : ScopeRefTyp
+   
 ; TYPE ScopeMapTyp = FM3Base . MapTyp
   (* Map ScopeNoTyp to ScopeRefTyp. One of these per unit. *) 
 
@@ -213,7 +226,14 @@ INTERFACE FM3Scopes
 ; PROCEDURE PopScopeRefLookupStack ( ) : ScopeRefTyp  
 ; PROCEDURE PruneScopeLookupStack ( ToDepth : INTEGER := 0 )
 
-; PROCEDURE Dump ( ScopeRef : ScopeRefTyp ; WrT : Wr . T ; Prefix := "" )
+; PROCEDURE DumpScope
+    ( ScopeRef : ScopeRefTyp
+    ; WrT : Wr . T 
+    ; DoFields := FALSE
+    ; DefaultFields := FALSE
+    ; Prefix := "" 
+    ) 
+  (* ScopeNo, REF, and Position. DoFields => the fields too. *)
 
 ; END FM3Scopes
 .

@@ -62,30 +62,39 @@ MODULE FM3Decls
     END DeclKindImage
 
 (*EXPORTED.*)
-; PROCEDURE DeclNoImageOfDeclRef ( DeclRef : DeclRefTyp )  : TEXT 
-  (* Unit-relative/Scope-relative. *)
+; PROCEDURE DeclNoImage ( DeclNo : FM3Globals . DeclNoTyp )  : TEXT 
+  (* Unit-relative/Scope-relative, in current unit. *)
   
-  = VAR LScopeRef : FM3Scopes . ScopeRefTyp
-  ; VAR LDeclNo : FM3Globals . DeclNoTyp 
-  ; VAR LRelDeclNo : FM3Globals . DeclNoTyp 
+  = VAR LDeclRef : DeclRefTyp
+  ; VAR LScopeRef : FM3Scopes . ScopeRefTyp
+  ; VAR LRelDeclNoImage : TEXT 
   ; VAR LResult : TEXT 
+  ; VAR LRelDeclNo : FM3Globals . DeclNoTyp 
 
-  ; BEGIN (*DeclNoImageOfDeclRef*)
-      IF DeclRef = NIL THEN RETURN "<NIL DeclRef>" END (*IF*)
-    ; LScopeRef := DeclRef ^ . DclOwningScopeRef
-    ; IF LScopeRef = NIL THEN RETURN "<NIL ScopeRef>" END (*IF*)
-    ; LDeclNo := DeclRef ^ . DclSelfDeclNo 
-    ; LRelDeclNo := LDeclNo - LScopeRef ^ . ScpMinDeclNo
+  ; BEGIN (*DeclNoImage*)
+      LDeclRef := DeclRefOfDeclNo ( DeclNo ) 
+    ; IF LDeclRef = NIL 
+      THEN LRelDeclNoImage := "<NIL DeclRef>"
+      ELSE 
+        LScopeRef := LDeclRef ^ . DclOwningScopeRef
+      ; IF LScopeRef = NIL
+        THEN LRelDeclNoImage := "<NIL ScopeRef>"
+        ELSE 
+          LRelDeclNo := DeclNo - LScopeRef ^ . ScpMinDeclNo
+        ; LRelDeclNoImage := Fmt . Int ( LRelDeclNo )
+        END (*IF*)
+      END (*IF*) 
     ; LResult := FM3SharedUtils . CatArrT
         ( ARRAY OF REFANY
-            { Fmt . Int ( LDeclNo )  
-            , " (decl-rel:"
-            , Fmt . Int ( LRelDeclNo )
-            , ")"
+            { "["
+            , Fmt . Int ( DeclNo )  
+            , ", scope-rel:"
+            , LRelDeclNoImage 
+            , "]"
             }
         )
     ; RETURN LResult 
-    END DeclNoImageOfDeclRef
+    END DeclNoImage
 
 (*EXPORTED.*)
 ; PROCEDURE DeclInfoImageOfDeclRef ( DeclRef : DeclRefTyp )  : TEXT 
@@ -129,7 +138,8 @@ MODULE FM3Decls
   ; BEGIN (*AtomImageOfDeclRef*)
     (* Sheesh. This is a great example of the kind of code I had hoped to
        mimimize by making this a stream compiler instead of a tree compiler.
-       But it does try to prevent crashes, if things are undone or wrongly done.
+       But it does try to prevent crashes, if things are undone or wrongly done,
+       and maybe similar code is not too widespread.
     *)
       IF DeclRef = NIL THEN RETURN "<NIL DeclRef>" END (*IF*)
     ; LAtom := DeclRef ^ . DclIdAtom
@@ -158,7 +168,7 @@ MODULE FM3Decls
 (*EXPORTED.*)
 ; PROCEDURE DumpDecl
     ( DeclRef : DeclRefTyp
-    ; WrT : Wr . T 
+    ; WrT : Wr . T
     ; DoFields := FALSE
     ; DefaultFields := FALSE
     ) 
@@ -186,10 +196,7 @@ MODULE FM3Decls
 
   ; BEGIN (*DumpDecl*)
       IF DeclRef = NIL
-      THEN
-        Wr . PutText ( WrT , "NIL" )
-   (* ; Wr . PutText ( WrT , Wr . EOL ) *) 
-      ; RETURN
+      THEN Wr . PutText ( WrT , "NIL" ) ; RETURN
       END (*IF*)
     ; LOCK GMutex
       DO
@@ -213,7 +220,7 @@ MODULE FM3Decls
           ; DdField ( "DclDefValue" , ExprRefImage ( WDecl . DclDefValue ) , ExprRefImage ( WDef ^ . DclDefValue ) )
           ; DdField ( "DclIdAtom" , AtomImageOfDeclRef ( WDecl ) , AtomImageOfDeclRef ( WDef ) )
           ; DdField ( "DclIdNo" , Fmt . Int ( WDecl . DclIdNo ) , Fmt . Int ( WDef ^ . DclIdNo ) )
-          ; DdField ( "DclSelfDeclNo" , DeclNoImageOfDeclRef ( WDecl ) , DeclNoImageOfDeclRef ( WDef  ) )
+          ; DdField ( "DclSelfDeclNo" , Fmt . Int ( WDecl ^ . DclSelfDeclNo ) , Fmt . Int ( WDef ^ . DclSelfDeclNo ) )
           ; DdField ( "DclPos" , PositionImage ( WDecl . DclPos ) , PositionImage ( WDef ^ . DclPos ) )
           ; DdField ( "DclStdTok" , Stk . Name ( WDecl . DclStdTok ) , Stk . Name ( WDef ^ . DclStdTok ) )
           ; DdField ( "DclKind" , DeclKindImage ( WDecl . DclKind ) , DeclKindImage ( WDef ^ . DclKind ) ) 
@@ -295,13 +302,12 @@ MODULE FM3Decls
     ; UnitRef : FM3Units . UnitRefTyp := NIL (* NIL means current unit. *)
     )
   : DeclRefTyp
-  (* In the current unit. *) 
 
   = VAR LUnitRef : FM3Units . UnitRefTyp
   ; VAR LDeclMap : DeclMapTyp 
   ; VAR LDeclRef : DeclRefTyp
 
-  ; BEGIN
+  ; BEGIN (* DeclRefOfDeclNo *)
       IF UnitRef = NIL
       THEN LUnitRef := FM3Units . UnitStackTopRef 
       ELSE LUnitRef := UnitRef

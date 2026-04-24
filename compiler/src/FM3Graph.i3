@@ -38,11 +38,16 @@ INTERFACE FM3Graph
     ( VAR (*IN OUT *) Graph : GraphTyp ; Pred , Succ : INTEGER ) 
     RAISES { BadNodeNo }
 
-; PROCEDURE ArcCt ( Graph : GraphTyp ) : INTEGER 
+; PROCEDURE ArcCt ( Graph : GraphTyp ) : INTEGER
 
-; TYPE ArcVisitorProc = PROCEDURE ( Arc : ArcTyp (* Must = IntSets.ElemT. *))
+; PROCEDURE ArcImage ( Graph : GraphTyp ; Arc : ArcTyp ) : TEXT 
 
-; PROCEDURE ForAllArcsDo ( Graph : GraphTyp ; VisitArc : ArcVisitorProc )
+; PROCEDURE ArcSetImage ( Graph : GraphTyp ; Prefix := "    " )
+  : TEXT 
+
+; TYPE ArcVisitorProcTyp = PROCEDURE ( Arc : ArcTyp (* Must = IntSets.ElemT. *) )
+
+; PROCEDURE ForAllArcsDo ( Graph : GraphTyp ; VisitArc : ArcVisitorProcTyp )
   (* Call back VisitArc for each arc in Graph. *) 
 
 ; TYPE SCCVisitorProc

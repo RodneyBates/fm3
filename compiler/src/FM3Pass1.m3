@@ -2323,7 +2323,7 @@ MODULE FM3Pass1
 
           IF WScopeRefForDecls ^ . ScpKind = Skt . SkProcBody
           THEN
-            LFormalsScopeRef := WScopeRefForDecls ^ . ScpLookupScopeStackLink
+            LFormalsScopeRef := WScopeRefForDecls ^ . ScpLookupStackLink
           ; IF LFormalsScopeRef = NIL
                OR LFormalsScopeRef ^ . ScpKind # Skt . SkFormals
                OR LFormalsScopeRef ^ . ScpPosition 
@@ -2717,7 +2717,7 @@ MODULE FM3Pass1
         ; ScopeRef ^ . ScpRefIdSet 
             := IntSets . Intersection
                  ( ScopeRef ^ . ScpRefIdSet , ScopeRef ^ . ScpDeclIdSet )
-        ; LContainingScopeRef := ScopeRef ^ . ScpLookupScopeStackLink
+        ; LContainingScopeRef := ScopeRef ^ . ScpLookupStackLink
         ; IF Clt . CltRemoveUnusedDecls IN FM3CLOptions . OptionTokSet
              AND ScopeRef = LUnitRef ^ . UntScopeRef 
              AND FM3Units . CurrentUnitIsModule ( ) 

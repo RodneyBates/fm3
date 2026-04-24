@@ -1,4 +1,4 @@
-
+ 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2023..2026  Rodney M. Bates.                                    *)
@@ -21,6 +21,7 @@ MODULE FM3Utils
 ; IMPORT IntSets 
 ; IMPORT IntCharVarArray AS VarArr_Char 
 ; IMPORT IntWideCharVarArray AS VarArr_WChar
+; IMPORT Layout
 
 ; IMPORT FM3Atom_OAChars 
 ; IMPORT FM3Base
@@ -435,7 +436,6 @@ MODULE FM3Utils
     ; RETURN LResult 
     END SrcTokImage
       
-
 (*EXPORTED.*)
 ; PROCEDURE CharsOfAtom
     ( AtomMap : FM3Atom_OAChars . T ; Atom : FM3Base . AtomTyp )
@@ -489,6 +489,104 @@ MODULE FM3Utils
             ( FM3Fmt . LongUnsigned ( Value, 16 ) , 16 , padChar := '0' ) 
     END LongHexImage
 
+(*EXPORTED.*)
+; PROCEDURE IntSetElemsImages
+    ( IntSet : IntSets . T ; ElemImageProc : IntImageProcTyp )
+  : REF ARRAY OF TEXT 
+  (* By applying ElemImageProc to each element of IntSet. *) 
+
+  = VAR IseArrayRef : REF ARRAY OF TEXT
+  ; VAR IseElemNo : INTEGER 
+
+  ; PROCEDURE OneElem ( Elem : IntSets . ElemT )
+    (* A callback. *)
+    = BEGIN 
+        IseArrayRef ^ [ IseElemNo ] := ElemImageProc ( Elem ) 
+      ; INC ( IseElemNo ) 
+      END OneElem
+      
+  ; VAR LCt : INTEGER
+      
+  ; BEGIN (*IntSetElemsImages*)
+      LCt := IntSets . Card ( IntSet ) 
+    ; IseArrayRef := NEW ( REF ARRAY OF TEXT , LCt )
+    ; IF LCt = 0 THEN RETURN IseArrayRef END (*IF*)
+    ; IseElemNo := 0 
+    ; IntSets . ForAllDo ( IntSet , OneElem )
+    ; IF IseElemNo # LCt
+      THEN <* ASSERT FALSE , "IntSetElemsImages, wrong element count." *> 
+      END (*IF*)
+    ; RETURN IseArrayRef   
+    END IntSetElemsImages
+
+(*EXPORTED.*)
+; PROCEDURE ListImage
+    ( READONLY Elems : ARRAY OF TEXT
+    ; Delims := ARRAY [ 0..2 ] OF CHAR { '{' , ',' , '}' } 
+    ; Prefix := ""
+    ; OnePerLine := FALSE
+    ; LineTo := 80 (* Zero origin. *) 
+    )
+  : TEXT
+  (* Brace-enclosed, comma-separated, multiple-on-a-line (unless OnePerLine),
+     list elements from Elems. 
+     Lines after the first will start with Prefix.
+  *) 
+
+  = VAR LLeft , LSep , LRight : TEXT
+  ; VAR LElem : TEXT 
+  ; VAR LWrT : TextWr . T
+  ; VAR LLayoutT : Layout . T
+  ; VAR LResult : TEXT
+  ; VAR LLineTo : INTEGER
+  ; VAR LCt : INTEGER
+
+  ; BEGIN (*ListImage*)
+      LCt := NUMBER ( Elems  )
+    ; LLeft := Text . FromChar ( Delims [ 0 ] ) 
+    ; LSep := Text . FromChar ( Delims [ 1 ] ) 
+    ; LRight := Text . FromChar ( Delims [ 2 ] ) 
+    ; IF LCt = 0 THEN RETURN LLeft & " " & LRight END (*IF*)
+    ; LWrT := TextWr . New ( )
+    ; LLayoutT := NEW ( Layout . T ) 
+    ; EVAL Layout . Init ( LLayoutT , LWrT )
+    ; LLineTo := LineTo - Text . Length ( Prefix ) - 2 
+
+    ; Layout . PutText ( LLayoutT , Wr . EOL )
+    ; Layout . PutChar ( LLayoutT , Delims [ 0 ] ) 
+    ; Layout . PutChar ( LLayoutT , ' ' )
+    
+    ; FOR RI := 0 TO LCt - 1
+      DO
+        LElem := Elems [ RI ]
+      ; IF RI > 0
+           AND ( OnePerLine
+                 OR Layout . CharNo ( LLayoutT )
+                    + Text . Length ( LElem )
+                    + 2 * ( ORD ( Layout . LineNo ( LLayoutT ) = 0 ) )
+                    > LLineTo
+               ) 
+        THEN (* Start a new line. *) 
+          Layout . PutEol ( LLayoutT )
+        ; Layout . PutText ( LLayoutT , Prefix )
+        END (*IF*) 
+      ; Layout . PutChar ( LLayoutT , Delims [ 1 ] ) 
+      ; Layout . PutChar ( LLayoutT , ' ' ) 
+      ; Layout . PutText ( LLayoutT , LElem ) 
+      END (*FOR*) 
+
+    ; IF Layout . LineNo ( LLayoutT ) > 0
+         OR Layout . CharNo ( LLayoutT ) + 2 > LLineTo
+      THEN
+        Layout . PutEol ( LLayoutT )
+      ; Layout . PutText ( LLayoutT , Prefix ) 
+      ELSE Layout . PutChar ( LLayoutT , ' ' )
+      END (*IF*)
+    ; Layout . PutChar ( LLayoutT , Delims [ 2 ] )
+    ; LResult := TextWr . ToText ( LWrT )
+    
+    ; RETURN LResult        
+    END ListImage
  
 ; BEGIN
   END FM3Utils 

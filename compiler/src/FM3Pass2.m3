@@ -994,7 +994,7 @@ TRUE OR
         ; PutBwdP2 ( P2RdBack , VAL ( LPosition . Column , LONGINT ) )
         ; PutBwdP2 ( P2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
         ; PutBwdP2 ( P2RdBack , VAL ( TokResult. TrTok , LONGINT ) )
-
+        
       | Itk . ItkConstDeclType
       =>  DeclType ( "CONST" )
         ; HtPassTokenThru ( )
@@ -1968,7 +1968,7 @@ TRUE OR
       ; IF NOT LScopeRef ^ . ScpKind IN FM3Scopes . ScopeKindSetOpen
            (* ^Can this happen? *) 
         THEN (* Skip over this scope. *)
-          LScopeRef := LScopeRef ^ . ScpLookupScopeStackLink
+          LScopeRef := LScopeRef ^ . ScpLookupStackLink
         ELSIF IntSets . IsElement ( IdAtom , LScopeRef ^ . ScpDeclIdSet )
         THEN (* It's declared in this scope. *) 
           TRY 
@@ -1986,7 +1986,7 @@ TRUE OR
         ; <* ASSERT LFound *>
           RETURN VAL ( LDeclNoInt , FM3Globals . DeclNoTyp ) 
         ELSE (* Try the next outer scope. *) 
-          LScopeRef := LScopeRef ^ . ScpLookupScopeStackLink
+          LScopeRef := LScopeRef ^ . ScpLookupStackLink
         END (*IF*) 
       END (*LOOP*) 
     END LookupAtomInLookupScopes
@@ -2095,7 +2095,7 @@ TRUE OR
         ; IF LDeclRef ^ . DclKind # Dkt . DkDuplDecl
           THEN <* ASSERT FALSE , "Preexisting non-duplicate decl." *>
           END (*IF*)  
-        ; LIdentText := FM3Units . TextOfIdAtom ( DidAtom ) 
+        ; LIdentText := FM3Units . IdentAtomImage ( DidAtom ) 
         ; WHILE LDeclRef # NIL
           DO
             FM3Messages . ErrorArr
@@ -2281,7 +2281,7 @@ TRUE OR
          ( ARRAY OF REFANY 
              { Msg
              , " \""
-             , FM3Units . TextOfIdAtom ( IdentAtom )
+             , FM3Units . IdentAtomImage ( IdentAtom )
              , "\", (2.1)." 
              }
          , Position 

@@ -8,9 +8,12 @@
 
 MODULE FM3Graph
 
+; IMPORT Fmt 
 ; IMPORT Word 
 
-; IMPORT IntSets 
+; IMPORT IntSets
+
+; IMPORT FM3Utils 
 
 ; CONST Null = LAST ( INTEGER )  
 
@@ -108,9 +111,53 @@ MODULE FM3Graph
 
   = BEGIN
       RETURN IntSets . Card ( Graph ^ . GrArcSet ) 
-    END ArcCt 
+    END ArcCt
 
+(*EXPORTED.*)
+; PROCEDURE ArcImage ( Graph : GraphTyp ; Arc : ArcTyp ) : TEXT 
 
+  = VAR LResult : TEXT 
+
+  ; BEGIN (*ArcImage*)
+      LResult 
+        := Fmt . Int ( PredNodeNo ( Graph , Arc ) )
+           & " -> "
+           & Fmt . Int ( SuccNodeNo ( Graph , Arc ) )
+    ; RETURN LResult 
+    END ArcImage
+      
+(*EXPORTED:*)
+; PROCEDURE ArcSetImage ( Graph : GraphTyp ; Prefix := "    " )
+  : TEXT 
+
+  = VAR AsiArcImagesRef : REF ARRAY OF TEXT
+  ; VAR AsiNextArcNo : INTEGER
+
+  ; PROCEDURE DoOneArcImage ( Arc : ArcTyp )  
+    (* A callback. *) 
+
+    = VAR LArcImage : TEXT
+    
+    ; BEGIN (* DoOneArcImage*)
+        LArcImage := ArcImage ( Graph , Arc ) 
+      ; AsiArcImagesRef ^ [ AsiNextArcNo ] := LArcImage
+      ; INC ( AsiNextArcNo ) 
+      END DoOneArcImage
+
+  ; VAR LResult : TEXT
+  ; VAR LArcCt : INTEGER 
+      
+  ; BEGIN (*ArcSetImage*)
+      LArcCt := ArcCt ( Graph ) 
+    ; AsiArcImagesRef := NEW ( REF ARRAY OF TEXT , LArcCt )
+    ; AsiNextArcNo := 0 
+    ; ForAllArcsDo ( Graph , DoOneArcImage )
+    ; IF AsiNextArcNo # LArcCt
+      THEN <* ASSERT FALSE , "ArcSetImage, wrong arc count." *>
+      END (*IF*) 
+    ; LResult := FM3Utils . ListImage ( AsiArcImagesRef ^ , Prefix := Prefix ) 
+    ; RETURN LResult 
+    END ArcSetImage
 
 ; TYPE StackTyp = RECORD
     StkTopSs : INTEGER:= - 1 
@@ -148,8 +195,6 @@ MODULE FM3Graph
     ; RETURN LResult 
     END Pop
 
-; TYPE ProcOfValidElem = PROCEDURE ( Elem : IntSets . ValidElemT ) RAISES ANY
-
 ; PROCEDURE ForAllInRangeDo
     ( ArcSet : IntSets . T
     ; Visiter : IntSets . ProcOfElem
@@ -167,12 +212,12 @@ MODULE FM3Graph
     END ForAllInRangeDo 
 
 (*EXPORTED:*)
-; PROCEDURE ForAllArcsDo ( Graph : GraphTyp ; VisitArc : ArcVisitorProc )
+; PROCEDURE ForAllArcsDo ( Graph : GraphTyp ; VisitArc : ArcVisitorProcTyp )
   (* Call back VisitArc for each arc in Graph. *)
 
   = BEGIN
       IntSets . ForAllDo ( Graph ^ . GrArcSet , VisitArc )
-    END ForAllArcsDo 
+    END ForAllArcsDo
 
 (*EXPORTED:*)
 ; PROCEDURE SCCs ( Graph : GraphTyp ; VisitSCC : SCCVisitorProc )

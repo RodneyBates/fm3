@@ -164,7 +164,7 @@ INTERFACE Layout
 ; PROCEDURE PadAbsWide 
     ( Stream : T ; Pos : CARDINAL ; PadChar : WIDECHAR := W' ' ) 
   RAISES { Thread . Alerted , Wr . Failure } 
-  (* Write MAX(0,Pos-CharNo(Stream)) copies of PadChary. *) 
+  (* Write MAX(0,Pos-CharNo(Stream)) copies of PadChar. *) 
 
 ; PROCEDURE LineNo ( Stream : T ) : CARDINAL 
   (* The zero-origin line number currently being written into. *) 

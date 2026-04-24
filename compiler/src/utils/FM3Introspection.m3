@@ -89,7 +89,7 @@ MODULE FM3Introspection
 
   ; BEGIN (*DeclNoRefImage*)
       LDeclRef := DeclNoRef ( DeclNo ) 
-    ; LResult := FM3Decls . DeclNoImageOfDeclRef ( LDeclRef )
+    ; LResult := FM3Decls . DeclNoImage ( DeclNo )
     ; Wr . PutText ( Stdio . stderr , LResult )
     (* ^Because m3gdb will escape the NLs and run all together. *) 
     ; RETURN LResult 
