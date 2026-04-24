@@ -38,16 +38,16 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
     
 ; TYPE StateTyp = { DsHashed , DsUnsorted , DsSorted } 
 
-; REVEAL Private 
+; REVEAL T 
     = BRANDED BaseTypBrand 
       OBJECT
         DbTableRef : REF ARRAY OF RowTyp := NIL 
       ; DbHashFunc : HashFuncTyp := NIL 
       ; DbOccupiedCt : INTEGER := 0 
       ; DbState := StateTyp . DsUnsorted
-      END (*Private*)
+      END (*T*)
 
-; TYPE DictBaseTyp = Private
+; TYPE DictBaseTyp = T
 
 (* Although the two subtypes below have no fields, methods or overrides,
    their purpose is to make sure clients don't make mixed calls
@@ -640,7 +640,38 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
     ; LResult := TextWr . ToText ( LTextWrT )
     ; RETURN LResult 
     END dump
-*)
+*) 
+
+(*EXPORTED.*)
+; PROCEDURE Card ( Dict : DictBaseTyp ) : INTEGER 
+  (* Cardinality. *) 
+
+  = BEGIN (*Card*)
+      RETURN Dict . DbOccupiedCt 
+    END Card
+
+(*EXPORTED.*)
+; PROCEDURE ForAllDo ( Dict : DictBaseTyp ; Visit : VisitProcTyp ) 
+  (* In no particular order. *) 
+
+  = BEGIN (*ForAllDo*) 
+      IF Dict . DbState = StateTyp . DsHashed 
+      THEN 
+        FOR RI := 0 TO LAST ( Dict . DbTableRef ^ ) 
+        DO WITH WElem = Dict . DbTableRef ^ [ RI ] 
+          DO IF WElem . RowHash # FM3Utils.HashNull 
+            THEN Visit ( RI , WElem . RowKey , WElem . RowValue )   
+            END (*IF*) 
+          END (*WITH*) 
+        END (*FOR*) 
+      ELSE 
+        FOR RI := 0 TO Dict . DbOccupiedCt - 1  
+        DO WITH WElem = Dict . DbTableRef ^ [ RI ]  
+          DO Visit ( RI , WElem . RowKey , WElem . RowValue )   
+          END (*WITH*) 
+        END (*FOR*) 
+      END (*IF*) 
+    END ForAllDo
 
 ; BEGIN
   END FM3Dict 

@@ -52,7 +52,7 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
 
 ; TYPE HashFuncTyp = PROCEDURE ( Key : KeyTyp ) : FM3Base . HashTyp 
    
-; TYPE Private <: REFANY
+; TYPE T <: REFANY
 
 (* Fixed dictionaries. *) 
 
@@ -65,7 +65,7 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
    results from LookupFixed.
 *) 
 
-; TYPE FixedTyp <: Private 
+; TYPE FixedTyp <: T 
 
 ; VAR GMaxFixedSize := 15  
   (* More keys than this, and a hash table implementation will be
@@ -100,7 +100,7 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
    and Lookups can be interspersed arbitrarily
 *) 
 
-; TYPE GrowableTyp <: Private 
+; TYPE GrowableTyp <: T 
 
 ; PROCEDURE NewGrowable
     ( InitKeyCt : INTEGER ; HashFunc : HashFuncTyp ) : GrowableTyp 
@@ -129,6 +129,18 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
     )
   : BOOLEAN (* Was found. *)
   RAISES { Error } 
+
+; PROCEDURE Card ( Dict : T ) : INTEGER
+  (* Cardinality. *) 
+
+; TYPE VisitProcTyp = PROCEDURE 
+         ( No : INTEGER 
+         ; Key : KeyTyp 
+         ; Value : ValueTyp 
+         ) 
+
+; PROCEDURE ForAllDo ( Dict : T ; Visit : VisitProcTyp ) 
+  (* In no particular order. *) 
 
 ; END FM3Dict 
 .
