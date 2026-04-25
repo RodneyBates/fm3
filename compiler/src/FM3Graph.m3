@@ -148,7 +148,8 @@ MODULE FM3Graph
   ; VAR LArcCt : INTEGER 
       
   ; BEGIN (*ArcSetImage*)
-      LArcCt := ArcCt ( Graph ) 
+      IF Graph = NIL THEN RETURN "NIL" END (*IF*) 
+    ; LArcCt := ArcCt ( Graph ) 
     ; AsiArcImagesRef := NEW ( REF ARRAY OF TEXT , LArcCt )
     ; AsiNextArcNo := 0 
     ; ForAllArcsDo ( Graph , DoOneArcImage )

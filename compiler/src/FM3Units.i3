@@ -216,7 +216,7 @@ INTERFACE FM3Units
      within the current unit, and return thxe lowest number.
   *) 
 
-; PROCEDURE IdentAtomImage ( IdAtom : FM3Base . AtomTyp ) : TEXT
+; PROCEDURE IdAtomText ( IdAtom : FM3Base . AtomTyp ) : TEXT
   (* In the current unit. *) 
 
 ; VAR UnitStackTopRef : UnitRefTyp := NIL 

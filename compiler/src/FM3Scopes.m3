@@ -85,11 +85,11 @@ MODULE FM3Scopes
     
     ; BEGIN (*OneIdImage*)
         LElemImage
-          := "[" 
+          := "I" 
              & Fmt . Int ( Elem )
-             & ",\""
-             & FM3Units . IdentAtomImage ( Elem ) (* In the current unit. *) 
-             & "\"]"
+             & "(\""
+             & FM3Units . IdAtomText ( Elem ) (* In the current unit. *) 
+             & "\")"
        ; RETURN LElemImage 
       END OneIdImage
 
@@ -143,15 +143,16 @@ MODULE FM3Scopes
         LElemImage
           := Fmt . Int ( RuleNo )
              & ": "
-             & FM3Units . IdentAtomImage ( Key ) 
+             & FM3Units . IdAtomText ( Key ) 
              & " -> " 
              & FM3Decls . DeclNoImage ( Value )
       ; IddRulesImagesRef ^ [ RuleNo ] := LElemImage 
       END OneIdDeclImage
 
   ; VAR LResult : TEXT
-  ; BEGIN (*IdDeclDictImage*) 
-      IddRulesImagesRef
+  ; BEGIN (*IdDeclDictImage*)
+      IF Dict = NIL THEN RETURN "NIL" END (*IF*) 
+    ; IddRulesImagesRef
         := NEW ( REF ARRAY OF TEXT , FM3Dict_Int_Int . Card ( Dict ) )
     ; FM3Dict_Int_Int . ForAllDo ( Dict , OneIdDeclImage ) 
     ; LResult := FM3Utils . ListImage ( IddRulesImagesRef ^ , Prefix := Prefix ) 
@@ -190,8 +191,12 @@ MODULE FM3Scopes
 
   ; BEGIN (*DefExprsImage*)
       LResult
-        := "FALSE(type) = "
-           & FM3Exprs . ExprRefImage ( Exprs [ FALSE ] ) 
+        := Wr . EOL
+           & "    " 
+           & "FALSE(type) = "
+           & FM3Exprs . ExprRefImage ( Exprs [ FALSE ] )
+           & Wr . EOL  
+           & "    " 
            & "TRUE(value) = "
            & FM3Exprs . ExprRefImage ( Exprs [ TRUE ] ) 
     ; RETURN LResult 
@@ -378,44 +383,22 @@ MODULE FM3Scopes
   ; BEGIN (*ScopeNoImageOfScopeRef*)
       IF ScopeRef = NIL THEN RETURN "<NIL ScopeRef>" END (*IF*)
     ; LScopeNo := ScopeRef ^ . ScpSelfScopeNo 
-    ; LResult := FM3SharedUtils . CatArrT
-        ( ARRAY OF REFANY
-            { Fmt . Int ( LScopeNo )  
-            , " Id "
-            , IdentImageOfScopeRef ( ScopeRef )
-            , " at "
-            , PositionImage ( ScopeRef ^ . ScpPosition )
-            }
-        )
+    ; LResult := Fmt . Int ( LScopeNo )  
     ; RETURN LResult 
     END ScopeNoImageOfScopeRef
 
 (*EXPORTED.*)
-; PROCEDURE IdentImageOfScopeRef ( ScopeRef : ScopeRefTyp ) : TEXT
-  (* Atom no, ident spelling. *) 
+; PROCEDURE IdImageOfScopeRef ( ScopeRef : ScopeRefTyp ) : TEXT
 
-  = VAR LIdentAtom : FM3Base . AtomTyp
-  ; VAR LScopeRef : ScopeRefTyp
-  ; VAR LUnitRef : FM3Units . UnitRefTyp
-  ; VAR LDict : FM3Atom_OAChars . T
-  ; VAR LOACharsRef : REF ARRAY OF CHAR 
-  ; VAR LTextWrT : TextWr . T
-  ; VAR LSpelling : TEXT 
+  = VAR LIdAtom : FM3Base . AtomTyp
   ; VAR LResult : TEXT 
 
-  ; BEGIN (*IdentImageOfScopeRef*)
+  ; BEGIN (*IdImageOfScopeRef*)
       IF ScopeRef = NIL THEN RETURN "<NIL ScopeRef>" END (*IF*)
-    ; LIdentAtom := ScopeRef ^ . ScpIdentAtom
-    ; LSpelling := FM3Units . IdentAtomImage ( LIdentAtom ) 
-    ; LTextWrT := TextWr . New ( )
-    ; Wr . PutText ( LTextWrT , "[" ) 
-    ; Wr . PutText ( LTextWrT , Fmt . Int ( LIdentAtom ) ) 
-    ; Wr . PutText ( LTextWrT , "(,\"" ) 
-    ; Wr . PutText ( LTextWrT , LSpelling) 
-    ; Wr . PutText ( LTextWrT , "\"]" ) 
-    ; LResult := TextWr . ToText ( LTextWrT )
+    ; LIdAtom := ScopeRef ^ . ScpIdentAtom
+    ; LResult := FM3Utils . IdImageOfAtom ( LIdAtom ) 
     ; RETURN LResult 
-    END IdentImageOfScopeRef
+    END IdImageOfScopeRef
 
 ; VAR GMutex : MUTEX (* Protects GDefaultRef. *)
   (* Just in the unlikely event of multiple threads i here. *) 
@@ -430,8 +413,10 @@ MODULE FM3Scopes
     ; Prefix := "" 
     ) 
   (* ScopeNo, REF, and Position. DoFields => the fields too. *)
+  (* Will have final NL only if DoFields. *) 
 
   = VAR LResult : TEXT
+  ; VAR LDef : ScopeRefTyp 
 
   ; PROCEDURE DsField ( Name : TEXT ; Value : TEXT ; DefVal : TEXT )
 
@@ -455,53 +440,56 @@ MODULE FM3Scopes
       IF ScopeRef = NIL
       THEN Wr . PutText ( WrT , "NIL" ) ; RETURN
       END (*IF*) 
-    ; LOCK GMutex
-      DO
-        IF GDefaultRef = NIL THEN GDefaultRef := NEW ( ScopeRefTyp ) END (*IF*) 
-      ; Wr . PutText ( WrT , "ScopeNo ") 
-      ; Wr . PutText ( WrT , Fmt . Int ( ScopeRef ^ . ScpSelfScopeNo ) ) 
-      ; Wr . PutText ( WrT , " at " ) 
-      ; Wr . PutText ( WrT , FM3Utils . RefanyImage ( ScopeRef ) ) 
-      ; Wr . PutChar ( WrT , ' ' ) 
-      ; Wr . PutText ( WrT , IdentImageOfScopeRef ( ScopeRef ) )  
-      ; Wr . PutText ( WrT , Wr . EOL ) 
+    ; Wr . PutText ( WrT , "ScopeNo ") 
+    ; Wr . PutText ( WrT , Fmt . Int ( ScopeRef ^ . ScpSelfScopeNo ) ) 
+    ; Wr . PutText ( WrT , " at " ) 
+    ; Wr . PutText ( WrT , FM3Utils . RefanyImage ( ScopeRef ) ) 
+    ; Wr . PutChar ( WrT , ' ' ) 
+    ; Wr . PutText ( WrT , IdImageOfScopeRef ( ScopeRef ) )  
 
-      ; IF DoFields
-        THEN
-          WITH WScope = ScopeRef , WDef = GDefaultRef   
-          DO 
-            DsField ( "ScpDeclStackLink" , ScopeRefImage ( WScope ^ . ScpDeclStackLink , DoFields := FALSE ) , NIL ) 
-          ; DsField ( "ScpLookupStackLink" , ScopeRefImage ( WScope ^ . ScpLookupStackLink , DoFields := FALSE ) , NIL ) 
-          ; DsField ( "ScpOwningUnitRef" , UnitRefIdImage ( WScope ^ . ScpOwningUnitRef ) , NIL )
-          ; DsField ( "ScpDeclIdSet" , IdentSetImage ( WScope ^ . ScpDeclIdSet ) , IdentSetImage ( WDef ^ . ScpDeclIdSet ) )
-          ; DsField ( "ScpFormalIdSet" , IdentSetImage ( WScope ^ . ScpFormalIdSet ) , IdentSetImage ( WDef ^ . ScpFormalIdSet ) )
-          ; DsField ( "ScpRefIdSet" , IdentSetImage ( WScope ^ . ScpRefIdSet ) , IdentSetImage ( WDef ^ . ScpRefIdSet ) )
-          ; DsField ( "ScpDeclDict" , IdDeclDictImage ( WScope ^ . ScpDeclDict ) , IdDeclDictImage ( WDef ^ . ScpDeclDict ) )
-          ; DsField ( "ScpDeclListRef" , DeclRefListImage ( WScope ^ . ScpDeclListRef ) , DeclRefListImage ( WDef ^ . ScpDeclListRef ) )
-          ; DsField ( "ScpDeclGraph" , ArcSetImage ( WScope ^ . ScpDeclGraph ) , ArcSetImage ( WDef ^ . ScpDeclGraph ) )
-          ; DsField ( "ScpCurDeclRefNoSet" , DeclNoSetImage ( WScope ^ . ScpCurDeclRefNoSet ) , DeclNoSetImage ( WDef ^ . ScpCurDeclRefNoSet ) )
-          ; DsField ( "ScpCurDefExprs" , DefExprsImage ( WScope ^ . ScpCurDefExprs ) , DefExprsImage ( WDef ^ . ScpCurDefExprs ) )
-          ; DsField ( "ScpIdentAtom" , IdentImageOfScopeRef ( WScope ) , IdentImageOfScopeRef ( WDef ) ) 
-          ; DsField ( "ScpDeclListNo" , Fmt . Int ( WScope ^ . ScpDeclListNo ) , Fmt . Int ( WDef ^ . ScpDeclListNo ) )
-          ; DsField ( "ScpMinDeclNo" , DeclNoImage ( WScope ^ . ScpMinDeclNo ) , DeclNoImage ( WDef ^ . ScpMinDeclNo ) )
-          ; DsField ( "ScpSelfScopeNo" , ScopeNoImageOfScopeRef ( WScope ) , ScopeNoImageOfScopeRef ( WDef ) )
-          ; DsField ( "ScpOwningDeclNo" , DeclNoImage ( WScope ^ . ScpOwningDeclNo ) , DeclNoImage ( WDef ^ . ScpOwningDeclNo ) )
-          ; DsField ( "ScpDeclStackHt" , Fmt . Int ( WScope ^ . ScpDeclStackHt ) , Fmt . Int ( WDef ^ . ScpDeclStackHt ) )
-          ; DsField ( "ScpOpenStackHt" , Fmt . Int ( WScope ^ . ScpOpenStackHt ) , Fmt . Int ( WDef ^ . ScpOpenStackHt ) )
-          ; DsField ( "ScpCurDeclExprStackCt" , Fmt . Int ( WScope ^ . ScpCurDeclExprStackCt ) , Fmt . Int ( WDef ^ . ScpCurDeclExprStackCt ) ) 
-          ; DsField ( "ScpPosition" , PositionImage ( WScope ^ . ScpPosition ) , PositionImage ( WDef ^ . ScpPosition ) )
-          ; DsField ( "ScpKind" , ScopeKindImage ( WScope ^ . ScpKind ) , ScopeKindImage ( WDef ^ . ScpKind ) )
-          ; DsField ( "ScpInsideDecl" , Fmt . Bool ( WScope ^ . ScpInsideDecl ) , Fmt . Bool ( WDef ^ . ScpInsideDecl ) )
-          ; DsField ( "ScpCurDefIsValue" , Fmt . Bool ( WScope ^ . ScpCurDefIsValue ) , Fmt . Bool ( WDef ^ . ScpCurDefIsValue ) )
-          END (*WITH*) 
-        END (*IF*) 
-      END (*LOCK*) 
+    ; IF DoFields
+      THEN
+        LOCK GMutex
+        DO
+          IF GDefaultRef = NIL THEN GDefaultRef := NEW ( ScopeRefTyp ) END (*IF*)
+        ; LDef := GDefaultRef 
+        END (*LOCK*) 
+      ; Wr . PutText ( WrT , Wr . EOL ) 
+      ; WITH WScope = ScopeRef 
+        DO 
+          DsField ( "ScpDeclStackLink" , ScopeRefImage ( WScope ^ . ScpDeclStackLink , DoFields := FALSE ) , NIL ) 
+        ; DsField ( "ScpLookupStackLink" , ScopeRefImage ( WScope ^ . ScpLookupStackLink , DoFields := FALSE ) , NIL ) 
+        ; DsField ( "ScpOwningUnitRef" , UnitRefIdImage ( WScope ^ . ScpOwningUnitRef ) , NIL )
+        ; DsField ( "ScpDeclIdSet" , IdentSetImage ( WScope ^ . ScpDeclIdSet ) , IdentSetImage ( LDef ^ . ScpDeclIdSet ) )
+        ; DsField ( "ScpFormalIdSet" , IdentSetImage ( WScope ^ . ScpFormalIdSet ) , IdentSetImage ( LDef ^ . ScpFormalIdSet ) )
+        ; DsField ( "ScpRefIdSet" , IdentSetImage ( WScope ^ . ScpRefIdSet ) , IdentSetImage ( LDef ^ . ScpRefIdSet ) )
+        ; DsField ( "ScpDeclDict" , IdDeclDictImage ( WScope ^ . ScpDeclDict ) , IdDeclDictImage ( LDef ^ . ScpDeclDict ) )
+        ; DsField ( "ScpDeclListRef" , DeclRefListImage ( WScope ^ . ScpDeclListRef ) , DeclRefListImage ( LDef ^ . ScpDeclListRef ) )
+        ; DsField ( "ScpDeclGraph" , ArcSetImage ( WScope ^ . ScpDeclGraph ) , ArcSetImage ( LDef ^ . ScpDeclGraph ) )
+        ; DsField ( "ScpCurDeclRefNoSet" , DeclNoSetImage ( WScope ^ . ScpCurDeclRefNoSet ) , DeclNoSetImage ( LDef ^ . ScpCurDeclRefNoSet ) )
+        ; DsField ( "ScpCurDefExprs" , DefExprsImage ( WScope ^ . ScpCurDefExprs ) , DefExprsImage ( LDef ^ . ScpCurDefExprs ) )
+        ; DsField ( "ScpIdentAtom" , IdImageOfScopeRef ( WScope ) , IdImageOfScopeRef ( LDef ) ) 
+        ; DsField ( "ScpDeclListNo" , Fmt . Int ( WScope ^ . ScpDeclListNo ) , Fmt . Int ( LDef ^ . ScpDeclListNo ) )
+        ; DsField ( "ScpMinDeclNo" , DeclNoImage ( WScope ^ . ScpMinDeclNo ) , DeclNoImage ( LDef ^ . ScpMinDeclNo ) )
+        ; DsField ( "ScpSelfScopeNo" , Fmt . Int ( WScope ^ . ScpSelfScopeNo ) , Fmt . Int ( LDef ^ . ScpSelfScopeNo ) )
+        ; DsField ( "ScpOwningDeclNo" , DeclNoImage ( WScope ^ . ScpOwningDeclNo ) , DeclNoImage ( LDef ^ . ScpOwningDeclNo ) )
+        ; DsField ( "ScpDeclStackHt" , Fmt . Int ( WScope ^ . ScpDeclStackHt ) , Fmt . Int ( LDef ^ . ScpDeclStackHt ) )
+        ; DsField ( "ScpOpenStackHt" , Fmt . Int ( WScope ^ . ScpOpenStackHt ) , Fmt . Int ( LDef ^ . ScpOpenStackHt ) )
+        ; DsField ( "ScpCurDeclExprStackCt" , Fmt . Int ( WScope ^ . ScpCurDeclExprStackCt ) , Fmt . Int ( LDef ^ . ScpCurDeclExprStackCt ) ) 
+        ; DsField ( "ScpPosition" , PositionImage ( WScope ^ . ScpPosition ) , PositionImage ( LDef ^ . ScpPosition ) )
+        ; DsField ( "ScpKind" , ScopeKindImage ( WScope ^ . ScpKind ) , ScopeKindImage ( LDef ^ . ScpKind ) )
+        ; DsField ( "ScpInsideDecl" , Fmt . Bool ( WScope ^ . ScpInsideDecl ) , Fmt . Bool ( LDef ^ . ScpInsideDecl ) )
+        ; DsField ( "ScpCurDefIsValue" , Fmt . Bool ( WScope ^ . ScpCurDefIsValue ) , Fmt . Bool ( LDef ^ . ScpCurDefIsValue ) )
+        END (*WITH*) 
+      END (*IF*) 
     END DumpScope
 
 (*EXPORTED.*)
 ; PROCEDURE ScopeRefImage
-    ( ScopeRef : ScopeRefTyp ; DoFields := FALSE ; DefaultFields := FALSE ) : TEXT
+    ( ScopeRef : ScopeRefTyp ; DoFields := FALSE ; DefaultFields := FALSE )
+  : TEXT
   (* ScopeNo, REF, and Position. Long => the fields too. *)
+  (* Will have final NL only if DoFields. *) 
 
   = VAR LWrT : Wr . T
   ; VAR LResult : TEXT 
@@ -527,6 +515,7 @@ MODULE FM3Scopes
   ; ScopeDeclStackCt := 0 
   ; ScopeLookupStackTopRef := NIL
   ; ScopeLookupStackCt := 0 
+  ; GMutex := NEW ( MUTEX ) 
   END FM3Scopes
 .
 

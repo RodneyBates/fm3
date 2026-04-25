@@ -32,6 +32,7 @@ MODULE FM3Utils
 ; IMPORT FM3SharedGlobals
 ; IMPORT FM3SharedUtils 
 ; IMPORT FM3SrcToks
+; IMPORT FM3Units 
 
 ; TYPE IntRangeTyp = IntRanges . RangeTyp
 
@@ -490,6 +491,26 @@ MODULE FM3Utils
     END LongHexImage
 
 (*EXPORTED.*)
+; PROCEDURE IdImageOfAtom ( Atom : FM3Base . AtomTyp ) : TEXT 
+  (* Atom no, ident spelling. *) 
+
+  = VAR LSpelling : TEXT 
+  ; VAR LTextWrT : TextWr . T
+  ; VAR LResult : TEXT 
+
+  ; BEGIN (*IdImageOfAtom*)
+      LSpelling := FM3Units . IdAtomText ( Atom ) 
+    ; LTextWrT := TextWr . New ( )
+    ; Wr . PutText ( LTextWrT , "Id" ) 
+    ; Wr . PutText ( LTextWrT , FM3Fmt . Int ( Atom ) ) 
+    ; Wr . PutText ( LTextWrT , "(\"" ) 
+    ; Wr . PutText ( LTextWrT , LSpelling ) 
+    ; Wr . PutText ( LTextWrT , "\")" ) 
+    ; LResult := TextWr . ToText ( LTextWrT )
+    ; RETURN LResult 
+    END IdImageOfAtom
+
+(*EXPORTED.*) 
 ; PROCEDURE IntSetElemsImages
     ( IntSet : IntSets . T ; ElemImageProc : IntImageProcTyp )
   : REF ARRAY OF TEXT 
@@ -540,6 +561,7 @@ MODULE FM3Utils
   ; VAR LResult : TEXT
   ; VAR LLineTo : INTEGER
   ; VAR LCt : INTEGER
+  ; VAR LInFirstLine : BOOLEAN 
 
   ; BEGIN (*ListImage*)
       LCt := NUMBER ( Elems  )
@@ -550,41 +572,47 @@ MODULE FM3Utils
     ; LWrT := TextWr . New ( )
     ; LLayoutT := NEW ( Layout . T ) 
     ; EVAL Layout . Init ( LLayoutT , LWrT )
-    ; LLineTo := LineTo - Text . Length ( Prefix ) - 2 
+    ; LLineTo := LineTo - Text . Length ( Prefix ) 
 
+    (* Unroll 1st iteration: *) 
     ; Layout . PutText ( LLayoutT , Wr . EOL )
-    ; Layout . PutChar ( LLayoutT , Delims [ 0 ] ) 
+    ; Layout . PutText ( LLayoutT , Prefix )
+    ; Layout . PutText ( LLayoutT , LLeft ) 
     ; Layout . PutChar ( LLayoutT , ' ' )
+    ; Layout .PutText ( LLayoutT , Elems [ 0 ] )  
     
-    ; FOR RI := 0 TO LCt - 1
+    ; FOR RI := 1 TO LCt - 1
       DO
         LElem := Elems [ RI ]
-      ; IF RI > 0
-           AND ( OnePerLine
-                 OR Layout . CharNo ( LLayoutT )
-                    + Text . Length ( LElem )
-                    + 2 * ( ORD ( Layout . LineNo ( LLayoutT ) = 0 ) )
-                    > LLineTo
-               ) 
+      ; LInFirstLine := Layout . LineNo ( LLayoutT ) = 0  
+      ; IF OnePerLine
+           OR Layout . CharNo ( LLayoutT )
+              + Text . Length ( LElem )
+              + ( 1 + Text . Length ( LRight ) ) * ORD ( LInFirstLine )
+                (* Don't put another on 1st line unless it would leave
+                   room for the right stuff.
+                *) 
+              > LLineTo
         THEN (* Start a new line. *) 
           Layout . PutEol ( LLayoutT )
         ; Layout . PutText ( LLayoutT , Prefix )
-        END (*IF*) 
-      ; Layout . PutChar ( LLayoutT , Delims [ 1 ] ) 
-      ; Layout . PutChar ( LLayoutT , ' ' ) 
+        END (*IF*)
+      ; Layout . PutText ( LLayoutT , LSep ) 
+      ; Layout . PutChar ( LLayoutT , ' ' )
       ; Layout . PutText ( LLayoutT , LElem ) 
       END (*FOR*) 
 
-    ; IF Layout . LineNo ( LLayoutT ) > 0
-         OR Layout . CharNo ( LLayoutT ) + 2 > LLineTo
-      THEN
+    ; IF Layout . LineNo ( LLayoutT ) = 0 (* 1st line *) 
+         AND Layout . CharNo ( LLayoutT ) + 1 + Text . Length ( LRight )
+            <= LLineTo
+      THEN (* Put right stuff on current line. *) 
+        Layout . PutChar ( LLayoutT , ' ' )
+      ELSE 
         Layout . PutEol ( LLayoutT )
       ; Layout . PutText ( LLayoutT , Prefix ) 
-      ELSE Layout . PutChar ( LLayoutT , ' ' )
       END (*IF*)
-    ; Layout . PutChar ( LLayoutT , Delims [ 2 ] )
+    ; Layout . PutText ( LLayoutT , LRight )
     ; LResult := TextWr . ToText ( LWrT )
-    
     ; RETURN LResult        
     END ListImage
  

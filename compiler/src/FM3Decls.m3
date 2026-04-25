@@ -86,11 +86,10 @@ MODULE FM3Decls
       END (*IF*) 
     ; LResult := FM3SharedUtils . CatArrT
         ( ARRAY OF REFANY
-            { "["
-            , Fmt . Int ( DeclNo )  
-            , ", scope-rel:"
+            { Fmt . Int ( DeclNo )  
+            , "("
             , LRelDeclNoImage 
-            , "]"
+            , ")"
             }
         )
     ; RETURN LResult 
@@ -114,10 +113,10 @@ MODULE FM3Decls
     ; LResult := FM3SharedUtils . CatArrT
         ( ARRAY OF REFANY
             { Fmt . Int ( LDeclNo )  
-            , "/"
+            , "("
             , Fmt . Int ( LRelDeclNo )
-            , " Id "
-            , AtomImageOfDeclRef ( DeclRef )
+            , ") "
+            , IdImageOfDeclRef ( DeclRef )
             , " "
             , PositionImage ( DeclRef ^ . DclPos )
             }
@@ -125,41 +124,19 @@ MODULE FM3Decls
     ; RETURN LResult 
     END DeclInfoImageOfDeclRef
 
-; PROCEDURE AtomImageOfDeclRef ( DeclRef : DeclRefTyp ) : TEXT
+; PROCEDURE IdImageOfDeclRef ( DeclRef : DeclRefTyp ) : TEXT
 
   = VAR LAtom : FM3Base . AtomTyp
-  ; VAR LScopeRef : FM3Scopes . ScopeRefTyp
-  ; VAR LUnitRef : FM3Units . UnitRefTyp
-  ; VAR LDict : FM3Atom_OAChars . T
-  ; VAR LOACharsRef : REF ARRAY OF CHAR 
   ; VAR LTextWrT : TextWr . T
   ; VAR LResult : TEXT 
 
-  ; BEGIN (*AtomImageOfDeclRef*)
-    (* Sheesh. This is a great example of the kind of code I had hoped to
-       mimimize by making this a stream compiler instead of a tree compiler.
-       But it does try to prevent crashes, if things are undone or wrongly done,
-       and maybe similar code is not too widespread.
-    *)
+  ; BEGIN (*IdImageOfDeclRef*)
       IF DeclRef = NIL THEN RETURN "<NIL DeclRef>" END (*IF*)
     ; LAtom := DeclRef ^ . DclIdAtom
     ; IF LAtom = FM3Base. AtomNull THEN RETURN "<AtomNull>" END (*IF*)
-    ; LScopeRef := DeclRef ^ . DclOwningScopeRef
-    ; IF LScopeRef = NIL THEN RETURN "<NIL ScopeRef>" END (*IF*)
-    ; LUnitRef := LScopeRef ^ . ScpOwningUnitRef 
-    ; IF LUnitRef = NIL THEN RETURN "<NIL UnitRef>" END (*IF*)
-    ; LDict := LUnitRef ^ . UntIdentAtomDict 
-    ; IF LDict = NIL THEN RETURN "<NIL Dict>" END (*IF*)
-    ; LOACharsRef := FM3Utils . CharsOfAtom ( LDict , LAtom ) 
-    ; IF LOACharsRef = NIL THEN RETURN "<NIL Chars>" END (*IF*)
-    ; LTextWrT := TextWr . New ( )
-    ; Wr . PutText ( LTextWrT , Fmt . Int ( LAtom ) ) 
-    ; Wr . PutText ( LTextWrT , "(\"" ) 
-    ; Wr . PutString ( LTextWrT , LOACharsRef ^ ) 
-    ; Wr . PutText ( LTextWrT , "\")" ) 
-    ; LResult := TextWr . ToText ( LTextWrT )
+    ; LResult := FM3Utils . IdImageOfAtom (LAtom ) 
     ; RETURN LResult 
-    END AtomImageOfDeclRef
+    END IdImageOfDeclRef
 
 ; VAR GMutex : MUTEX (* Protects GDefaultRef. *)
   (* Just in the unlikely event of multiple threads i here. *) 
@@ -173,6 +150,8 @@ MODULE FM3Decls
     ; DefaultFields := FALSE
     ) 
   (* DeclNo, REF, and Position. DoFields => the fields too. *)
+  (* Will have final NL only if DoFields. *) 
+  
 
   = VAR LResult : TEXT
 
@@ -207,7 +186,6 @@ MODULE FM3Decls
       ; Wr . PutText ( WrT , FM3Utils . RefanyImage ( DeclRef ) ) 
       ; Wr . PutChar ( WrT , ' ' ) 
       ; Wr . PutText ( WrT , DeclInfoImageOfDeclRef ( DeclRef ) )  
-      ; Wr . PutText ( WrT , Wr . EOL ) 
 
       ; IF DoFields
         THEN
@@ -218,7 +196,7 @@ MODULE FM3Decls
           ; DdField ( "DclSelfScopeRef" , ScopeRefImage ( WDecl . DclSelfScopeRef ) , NIL )
           ; DdField ( "DclDefType" , ExprRefImage ( WDecl . DclDefType ) , ExprRefImage ( WDef ^ . DclDefType ) )
           ; DdField ( "DclDefValue" , ExprRefImage ( WDecl . DclDefValue ) , ExprRefImage ( WDef ^ . DclDefValue ) )
-          ; DdField ( "DclIdAtom" , AtomImageOfDeclRef ( WDecl ) , AtomImageOfDeclRef ( WDef ) )
+          ; DdField ( "DclIdAtom" , IdImageOfDeclRef ( WDecl ) , IdImageOfDeclRef ( WDef ) )
           ; DdField ( "DclIdNo" , Fmt . Int ( WDecl . DclIdNo ) , Fmt . Int ( WDef ^ . DclIdNo ) )
           ; DdField ( "DclSelfDeclNo" , Fmt . Int ( WDecl ^ . DclSelfDeclNo ) , Fmt . Int ( WDef ^ . DclSelfDeclNo ) )
           ; DdField ( "DclPos" , PositionImage ( WDecl . DclPos ) , PositionImage ( WDef ^ . DclPos ) )

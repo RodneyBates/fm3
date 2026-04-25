@@ -2095,7 +2095,7 @@ TRUE OR
         ; IF LDeclRef ^ . DclKind # Dkt . DkDuplDecl
           THEN <* ASSERT FALSE , "Preexisting non-duplicate decl." *>
           END (*IF*)  
-        ; LIdentText := FM3Units . IdentAtomImage ( DidAtom ) 
+        ; LIdentText := FM3Units . IdAtomText ( DidAtom ) 
         ; WHILE LDeclRef # NIL
           DO
             FM3Messages . ErrorArr
@@ -2281,7 +2281,7 @@ TRUE OR
          ( ARRAY OF REFANY 
              { Msg
              , " \""
-             , FM3Units . IdentAtomImage ( IdentAtom )
+             , FM3Units . IdAtomText ( IdentAtom )
              , "\", (2.1)." 
              }
          , Position 

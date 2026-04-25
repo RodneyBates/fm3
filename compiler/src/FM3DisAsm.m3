@@ -391,11 +391,12 @@ MODULE FM3DisAsm
               END (*IF*) 
             ELSE LIdentName := "<NoAtomIdent>" 
             END (*IF*)
+(* TODO: Elininate some duplcation with FM3Utils . IdImageOfAtom. *) 
           ; Wr . PutText ( WrT , "Id" ) 
           ; Wr . PutText ( WrT , Fmt . LongInt ( LArgL ) )
-          ; Wr . PutChar ( WrT , '\"' ) 
+          ; Wr . PutText ( WrT , "(\"" ) 
           ; Wr . PutText ( WrT , LIdentName )
-          ; Wr . PutChar ( WrT , '\"' ) 
+          ; Wr . PutText ( WrT , "\")" ) 
           END (*WITH*)
         END (*IF*) 
       END DobIdentAtomArg 

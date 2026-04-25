@@ -104,55 +104,53 @@ INTERFACE FM3Scopes
 ; TYPE ScopeNoTyp = FM3Globals . ScopeNoTyp 
 
 ; TYPE ScopeTyp = RECORD
-        ScpDeclStackLink : ScopeRefTyp
-      ; ScpLookupStackLink : ScopeRefTyp
+        ScpDeclStackLink : ScopeRefTyp := NIL
+      ; ScpLookupStackLink : ScopeRefTyp:= NIL 
       ; ScpOwningUnitRef : FM3Units . UnitRefTyp := NIL 
-      ; ScpDeclIdSet : IntSets . T
+      ; ScpDeclIdSet : IntSets . T := NIL 
         (* ^IdentAtoms declared within, including imports of top-level scope. *)
-      ; ScpFormalIdSet : IntSets . T
+      ; ScpFormalIdSet : IntSets . T := NIL 
         (* ^Formal parameter IdentAtoms declared within a signature scope. *) 
-      ; ScpRefIdSet : IntSets . T
+      ; ScpRefIdSet : IntSets . T := NIL 
         (* ^IdentAtoms referenced within.  Gradually pruned to those
            also declared within. *)
-      ; ScpDeclDict : FM3Dict_Int_Int . FixedTyp
+      ; ScpDeclDict : FM3Dict_Int_Int . FixedTyp := NIL
         (* ^IdentAtom to Decl no. *) 
         (* INVARIANT: Once ScpDeclIdSet and ScpDeclDict are both complete,
            Atom is in one IFF in the other.
         *)
-      ; ScpDeclListRef : FM3Globals . DeclRefListRefTyp
+      ; ScpDeclListRef : FM3Globals . DeclRefListRefTyp := NIL 
         (* Same decl contents as ScpDeclDict, in positional order.
            NIL if no decls.
         *)
-        (* Record or object type: Field decls.  
-           Procedure, proc type, method: Formal decls. 
+        (* For a record or object type: Field decls.  
+           For a procedure, proc type, or method: Formal decls. 
         *)
-      ; ScpDeclGraph : FM3Graph . GraphTyp 
+      ; ScpDeclGraph : FM3Graph . GraphTyp := NIL 
         (* Arcs are intra-scope RefId to DeclId.  Only those that would
            contribute to an illegal recursive decl cycle.
         *) 
-      ; ScpCurDeclRefNoSet : IntSets . T (*1*)
+      ; ScpCurDeclRefNoSet : IntSets . T (*1*) := NIL 
         (* Decl Nos of ident refs in definition(s) of the current decl to idents
            declared in the current containing open scope that do not legalize
            recursive declarations.
         *)
       ; ScpCurDefExprs
           := ARRAY BOOLEAN (*Is value expr*) OF REFANY { NIL , .. } (*1*)
-(****
-      ; ScpCurTypeExpr : REFANY := NIL (* FM3Defs . DeclDefTyp. *) (*1*) 
-      ; ScpCurValueExpr : REFANY := NIL (* FM3Defs . DeclDefTyp. *) (*1*)
-****)
       ; ScpIdentAtom : FM3Base . AtomTyp := FM3Base . AtomNull  
-      ; ScpDeclListNo : INTEGER (* # of contained decls still to be linked in. *)
+      ; ScpDeclListNo : INTEGER := 0 
+        (* # of contained decls still to be linked in. *)
       ; ScpMinDeclNo := FM3Globals . DeclNoNull
-      ; ScpSelfScopeNo : FM3Globals . ScopeNoTyp (* A self-reference. *)
-      ; ScpOwningDeclNo : FM3Globals . DeclNoTyp
+      ; ScpSelfScopeNo : FM3Globals . ScopeNoTyp := FM3Globals . ScopeNoNull
+        (* A self-reference. *)
+      ; ScpOwningDeclNo : FM3Globals . DeclNoTyp := FM3Globals . DeclNoNull
       ; ScpDeclStackHt : INTEGER := - 1 (* < 0 when nowhere on Decl stack. *) 
       ; ScpOpenStackHt : INTEGER := - 1 (* < 0 when nowhere on Open stack. *) 
         (* ^Number scopes beneath, where "beneath" is reflexively closed. *)
       ; ScpCurDeclExprStackCt : INTEGER := 0 (* At beginning and end of decl. *)
 (* CHECK ^Do we really need this? *) 
-      ; ScpPosition : FM3Base . tPosition 
-      ; ScpKind : ScopeKindTyp
+      ; ScpPosition : FM3Base . tPosition := FM3Base . PositionNull 
+      ; ScpKind := ScopeKindTyp . SkNull 
       ; ScpInsideDecl : BOOLEAN := FALSE (*1*)
       ; ScpCurDefIsValue : BOOLEAN := FALSE (*1*) (* As opposed to a type def. *)
       END (*ScopeTyp*)
@@ -184,7 +182,7 @@ INTERFACE FM3Scopes
 ; PROCEDURE ScopeRefImageDebug ( ScopeRef : ScopeRefTyp ) : TEXT
   (* For calling by a debugger. *) 
 
-; PROCEDURE IdentImageOfScopeRef ( ScopeRef : ScopeRefTyp ) : TEXT
+; PROCEDURE IdImageOfScopeRef ( ScopeRef : ScopeRefTyp ) : TEXT
   (* Atom no, ident spelling. *) 
 
 ; PROCEDURE ScopeNoImageOfScopeRef ( ScopeRef : ScopeRefTyp )  : TEXT 
@@ -234,6 +232,7 @@ INTERFACE FM3Scopes
     ; Prefix := "" 
     ) 
   (* ScopeNo, REF, and Position. DoFields => the fields too. *)
+  (* Will have final NL only if DoFields. *) 
 
 ; END FM3Scopes
 .

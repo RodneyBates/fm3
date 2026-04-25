@@ -255,13 +255,13 @@ MODULE FM3Units
     END AllocateDeclNos
     
 (*EXPORTED.*)
-; PROCEDURE IdentAtomImage ( IdentAtom : FM3Base . AtomTyp ) : TEXT 
+; PROCEDURE IdAtomText ( IdentAtom : FM3Base . AtomTyp ) : TEXT 
   (* In the current unit. *) 
 
-  = VAR LCharsRef : FM3Atom_OAChars . KeyTyp
+  = VAR LOACharsRef : FM3Atom_OAChars . KeyTyp
   ; VAR LIdentText : TEXT 
 
-  ; BEGIN (*IdentAtomImage*)
+  ; BEGIN (*IdAtomText*)
       IF IdentAtom = FM3Base . AtomNull
       THEN LIdentText := "<Null>" 
       ELSIF IdentAtom < 0
@@ -270,16 +270,16 @@ MODULE FM3Units
         IF NOT FM3Atom_OAChars . Key 
                  ( UnitStackTopRef ^ . UntIdentAtomDict
                  , IdentAtom
-                 , (*OUT*) LCharsRef
+                 , (*OUT*) LOACharsRef
                  )
         THEN LIdentText := "<NotFound>"
-        ELSIF LCharsRef = NIL
-        THEN LIdentText := "<NIL>"
-        ELSE LIdentText := Text . FromChars ( LCharsRef ^ )
-        END (*IF*)
+        ELSIF LOACharsRef = NIL
+        THEN LIdentText := "<NILSpelling>"
+        ELSE LIdentText := Text . FromChars ( LOACharsRef ^ )
+        END (*IF*) 
       END (*IF*)
     ; RETURN LIdentText 
-    END IdentAtomImage
+    END IdAtomText
 
 (*EXPORTED.*)
 ; PROCEDURE PushUnit ( UnitRef : UnitRefTyp ) 

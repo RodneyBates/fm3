@@ -323,14 +323,11 @@ MODULE  FM3Compile
   = VAR LScopeRef : FM3Scopes . ScopeRefTyp
 
   ; BEGIN (*DpiMethScope*) 
-      Wr . PutText ( WrT , " at " )
-    ; Wr . PutText ( WrT , FM3Utils . RefanyImage ( Ref ) ) 
-    ; Wr . PutText ( WrT , Wr . EOL )
-    ; LScopeRef := Ref (* Implied NARROW. *)
+      LScopeRef := Ref (* Implied NARROW. *)
     ; FM3Scopes . DumpScope
         ( LScopeRef
         , WrT
-        , DoFields := TRUE
+        , DoFields := TRUE (* The dump will end with a NL. *) 
         , DefaultFields := FALSE
         , Prefix := "  "
         ) 
@@ -346,7 +343,7 @@ MODULE  FM3Compile
         := NEW ( DumpInfoObj 
                , DpiUnitRef := UnitRef
                , DpiMap := UnitRef ^ . UntScopeMap 
-               , DpiTypeLabel := "Scopes"
+               , DpiTypeLabel := "Scope"
                , DpiDump := DpiMethScope 
                )
     ; DumpMappedRecs ( LInfo )
@@ -358,11 +355,6 @@ MODULE  FM3Compile
   = VAR LDeclRef : FM3Decls . DeclRefTyp
 
   ; BEGIN (*DpiMethDecl*)
-(* Duplicated inside FM3Decls . DumpDecl :
-      Wr . PutText ( WrT , " at " )
-    ; Wr . PutText ( WrT , FM3Utils . RefanyImage ( Ref ) ) 
-    ; Wr . PutText ( WrT , Wr . EOL )
-*) 
       LDeclRef := Ref (* Implied NARROW. *)
     ; FM3Decls . DumpDecl
         ( LDeclRef , WrT , DoFields := TRUE , DefaultFields := FALSE ) 

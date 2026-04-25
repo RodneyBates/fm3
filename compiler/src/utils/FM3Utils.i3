@@ -86,6 +86,9 @@ INTERFACE FM3Utils
 
 ; PROCEDURE LongHexImage ( Value : LONGINT ) : TEXT 
 
+; PROCEDURE IdImageOfAtom ( Atom : FM3Base . AtomTyp ) : TEXT 
+  (* Atom no, ident spelling. *) 
+
 ; TYPE IntImageProcTyp = PROCEDURE ( Int : INTEGER ) : TEXT 
 
 ; PROCEDURE IntSetElemsImages

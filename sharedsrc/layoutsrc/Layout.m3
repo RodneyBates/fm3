@@ -419,7 +419,7 @@ MODULE Layout
   (* The zero-origin character number about to be written-to. *) 
 
   = BEGIN 
-      RETURN Stream . LineNo 
+      RETURN Stream . CharNo 
     END CharNo 
 
 (* Constants, after module initialization. *) 
