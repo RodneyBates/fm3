@@ -1,4 +1,4 @@
-        
+       
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2024..2026  Rodney M. Bates.                                    *)
@@ -312,7 +312,7 @@ MODULE  FM3Compile
     ( <*UNUSED*> Info : DumpInfoObj ; Ref : REFANY ; WrT : Wr . T )   
     (* Dispatched-to. *) 
 
-  = BEGIN (*DpiImageNIL*) 
+  = BEGIN (*DpiMethNIL*) 
       Wr . PutText ( WrT , " is NIL " )
     ; Wr . PutText ( WrT , Wr . EOL ) 
     END DpiMethNIL
@@ -357,7 +357,11 @@ MODULE  FM3Compile
   ; BEGIN (*DpiMethDecl*)
       LDeclRef := Ref (* Implied NARROW. *)
     ; FM3Decls . DumpDecl
-        ( LDeclRef , WrT , DoFields := TRUE , DefaultFields := FALSE ) 
+        ( LDeclRef
+        , WrT
+        , DoFields := TRUE (* The dump will end with a NL. *) 
+        , DefaultFields := FALSE
+        ) 
     END DpiMethDecl
 
 (*EXPORTED.*)
@@ -397,6 +401,9 @@ MODULE  FM3Compile
     ; Wr . PutText ( LWrT , " of " )
     ; Wr . PutText ( LWrT , Info . DpiUnitRef ^ . UntSrcFileSimpleName ) 
     ; Wr . PutText ( LWrT , Wr . EOL ) 
+    ; Wr . PutText
+        ( LWrT , "Most fields equal to their default values are omitted." )
+    ; Wr . PutText ( LWrT , Wr . EOL ) 
     ; Wr . PutText ( LWrT , Wr . EOL ) 
     
     ; IF Info . DpiMap = NIL
@@ -432,7 +439,7 @@ MODULE  FM3Compile
 
 (* ------------------------------ Dumping Exprs. ---------------------------- *) 
       
-(*EXPORTED*) 
+(*EXPORTED*)
 ; PROCEDURE DumpPassExprs
     ( UnitRef : FM3Units . UnitRefTyp ; PassFileSuffix : TEXT )
   (* As they are when this is called.  After a particular pass. *) 

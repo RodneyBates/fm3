@@ -438,8 +438,12 @@ MODULE FM3Scopes
 
   ; BEGIN (*DumpScope*)
       IF ScopeRef = NIL
-      THEN Wr . PutText ( WrT , "NIL" ) ; RETURN
-      END (*IF*) 
+      THEN
+        Wr . PutText ( WrT , "NIL Scope ref" ) 
+      ; Wr . PutText ( WrT , Wr . EOL )
+      ; RETURN
+      END (*IF*)
+
     ; Wr . PutText ( WrT , "ScopeNo ") 
     ; Wr . PutText ( WrT , Fmt . Int ( ScopeRef ^ . ScpSelfScopeNo ) ) 
     ; Wr . PutText ( WrT , " at " ) 

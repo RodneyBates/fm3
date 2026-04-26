@@ -194,6 +194,8 @@ MODULE FM3Units
              )
     ; LUnitRef ^ . UntScopeMap
         := FM3Scopes . NewScopeMap ( FM3Globals . InitScopeCtPerUnit )
+    ; VarArray_Int_Refany . Touch
+        ( LUnitRef ^ .  UntScopeMap , Ranges_Int . RangeTyp { 0 , 0 } )
     ; LUnitRef ^ . UntExpImpIdSet := IntSets . Empty ( )
     ; LUnitRef ^ . UntExpImpMap
         := VarArray_Int_ExpImpProxy . New

@@ -357,16 +357,29 @@ RETURN ;
       TYPECASE ExprRef OF
       | NULL => RETURN "NIL"
       | ExprRefTyp ( TExprRef )
-      =>  LResult := FM3SharedUtils . CatArrT
-            ( ARRAY OF REFANY
-                { "ExprNo "
-                , Fmt . Int ( TExprRef ^ . ExpSelfExprNo )
-                , " at "
-                , FM3Utils . RefanyImage ( TExprRef )
-                , " "
-                , FM3Utils . PositionImage ( TExprRef ^ . ExpPosition )
-                }
-            ) 
+      =>  IF TExprRef ^ . ExpSelfExprNo < 0
+          THEN
+            LResult := FM3SharedUtils . CatArrT 
+              ( ARRAY OF REFANY
+                  { "ExprNo "
+                    , Fmt . Int ( TExprRef ^ . ExpSelfExprNo )
+                    , "("
+                    , FM3SrcToks . Image ( - TExprRef ^ . ExpSelfExprNo )
+                    , ")"
+                  }
+              ) 
+          ELSE
+            LResult := FM3SharedUtils . CatArrT 
+              ( ARRAY OF REFANY
+                  { "ExprNo "
+                  , Fmt . Int ( TExprRef ^ . ExpSelfExprNo )
+                  , " at "
+                  , FM3Utils . RefanyImage ( TExprRef )
+                  , " "
+                  , FM3Utils . PositionImage ( TExprRef ^ . ExpPosition )
+                  }
+              )
+          END (*IF*) 
         ; RETURN LResult 
       ELSE RETURN "Not an ExprRef: " & FM3SharedUtils . RefanyImage ( ExprRef )
       END (*TYPECASE*) 

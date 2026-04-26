@@ -156,7 +156,6 @@ MODULE FM3Decls
   = VAR LResult : TEXT
   ; VAR LDef : DeclRefTyp 
   
-
   ; PROCEDURE DdField ( Name : TEXT ; Value : TEXT ; DefVal : TEXT )
 
     = BEGIN (*DdField*)
@@ -177,7 +176,10 @@ MODULE FM3Decls
 
   ; BEGIN (*DumpDecl*)
       IF DeclRef = NIL
-      THEN Wr . PutText ( WrT , "NIL" ) ; RETURN
+      THEN
+        Wr . PutText ( WrT , "NIL Decl ref" ) 
+      ; Wr . PutText ( WrT , Wr . EOL )
+      ; RETURN
       END (*IF*)
     ; LOCK GMutex
       DO
@@ -193,11 +195,12 @@ MODULE FM3Decls
 
     ; IF DoFields
       THEN
-        WITH WDecl = DeclRef 
+        Wr . PutText ( WrT , Wr . EOL ) 
+      ; WITH WDecl = DeclRef 
         DO 
           DdField ( "DclLink" , DeclRefImage ( WDecl . DclLink , DoFields := FALSE ) , NIL ) 
         ; DdField ( "DclOwningScopeRef" , ScopeRefImage ( WDecl . DclOwningScopeRef ) , NIL )
-        ; DdField ( "DclSelfScopeRef" , ScopeRefImage ( WDecl . DclSelfScopeRef ) , NIL )
+        ; DdField ( "DclSelfScopeRef" , ScopeRefImage ( WDecl . DclSelfScopeRef ) , ScopeRefImage ( LDef ^ . DclSelfScopeRef ) ) 
         ; DdField ( "DclDefType" , ExprRefImage ( WDecl . DclDefType ) , ExprRefImage ( LDef ^ . DclDefType ) )
         ; DdField ( "DclDefValue" , ExprRefImage ( WDecl . DclDefValue ) , ExprRefImage ( LDef ^ . DclDefValue ) )
         ; DdField ( "DclIdAtom" , IdImageOfDeclRef ( WDecl ) , IdImageOfDeclRef ( LDef ) )

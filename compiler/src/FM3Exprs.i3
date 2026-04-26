@@ -286,13 +286,14 @@ INTERFACE FM3Exprs
      (* ExpOpnd1 is supertype, non-NIL even if defaulted. *)
      (* ExpOpnd2 is brand, NIL if no BRANDED. *) 
       ; ExpDeclListRef : FM3Globals . DeclRefListRefTyp
-        (* Array type: DclDefType is an element type.
+        (* For:
+           Array type: DclDefType is an element type.
            Array constructor: DclDefValue is element value. 
            Subscript: DclDefValue is element subscript expr.
-           Record type: Field decls.  Also accessed thru' DclSelfScope
+           Record type: Field decls.  Also accessible thru' DclSelfScopeRef.
            Record constructor, record ref allocator:
              field values, possibly keyword. 
-           Proc type: Formal decls.  Also accessed thru' DclSelfScopeRef.
+           Proc type: Formal decls.  Also accessible thru' DclSelfScopeRef.
            Call: actual values, possibly with keyword.
            Object type: DclIdAtom and DclDefValue denote an override.
            Revelation: TypeIdAtom, revealed as expr. 
