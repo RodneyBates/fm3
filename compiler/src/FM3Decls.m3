@@ -154,6 +154,8 @@ MODULE FM3Decls
   
 
   = VAR LResult : TEXT
+  ; VAR LDef : DeclRefTyp 
+  
 
   ; PROCEDURE DdField ( Name : TEXT ; Value : TEXT ; DefVal : TEXT )
 
@@ -179,33 +181,34 @@ MODULE FM3Decls
       END (*IF*)
     ; LOCK GMutex
       DO
-        IF GDefaultRef = NIL THEN GDefaultRef := NEW ( DeclRefTyp ) END (*IF*) 
-      ; Wr . PutText ( WrT , "DeclNo ") 
-      ; Wr . PutText ( WrT , Fmt . Int ( DeclRef ^ . DclSelfDeclNo ) ) 
-      ; Wr . PutText ( WrT , " at " ) 
-      ; Wr . PutText ( WrT , FM3Utils . RefanyImage ( DeclRef ) ) 
-      ; Wr . PutChar ( WrT , ' ' ) 
-      ; Wr . PutText ( WrT , DeclInfoImageOfDeclRef ( DeclRef ) )  
+        IF GDefaultRef = NIL THEN GDefaultRef := NEW ( DeclRefTyp ) END (*IF*)
+      ; LDef:= GDefaultRef
+      END (*LOCK*)
+    ; Wr . PutText ( WrT , "DeclNo ") 
+    ; Wr . PutText ( WrT , Fmt . Int ( DeclRef ^ . DclSelfDeclNo ) ) 
+    ; Wr . PutText ( WrT , " at " ) 
+    ; Wr . PutText ( WrT , FM3Utils . RefanyImage ( DeclRef ) ) 
+    ; Wr . PutChar ( WrT , ' ' ) 
+    ; Wr . PutText ( WrT , DeclInfoImageOfDeclRef ( DeclRef ) )  
 
-      ; IF DoFields
-        THEN
-          WITH WDecl = DeclRef , WDef = GDefaultRef   
-          DO 
-            DdField ( "DclLink" , DeclRefImage ( WDecl . DclLink , DoFields := FALSE ) , NIL ) 
-          ; DdField ( "DclOwningScopeRef" , ScopeRefImage ( WDecl . DclOwningScopeRef ) , NIL )
-          ; DdField ( "DclSelfScopeRef" , ScopeRefImage ( WDecl . DclSelfScopeRef ) , NIL )
-          ; DdField ( "DclDefType" , ExprRefImage ( WDecl . DclDefType ) , ExprRefImage ( WDef ^ . DclDefType ) )
-          ; DdField ( "DclDefValue" , ExprRefImage ( WDecl . DclDefValue ) , ExprRefImage ( WDef ^ . DclDefValue ) )
-          ; DdField ( "DclIdAtom" , IdImageOfDeclRef ( WDecl ) , IdImageOfDeclRef ( WDef ) )
-          ; DdField ( "DclIdNo" , Fmt . Int ( WDecl . DclIdNo ) , Fmt . Int ( WDef ^ . DclIdNo ) )
-          ; DdField ( "DclSelfDeclNo" , Fmt . Int ( WDecl ^ . DclSelfDeclNo ) , Fmt . Int ( WDef ^ . DclSelfDeclNo ) )
-          ; DdField ( "DclPos" , PositionImage ( WDecl . DclPos ) , PositionImage ( WDef ^ . DclPos ) )
-          ; DdField ( "DclStdTok" , Stk . Name ( WDecl . DclStdTok ) , Stk . Name ( WDef ^ . DclStdTok ) )
-          ; DdField ( "DclKind" , DeclKindImage ( WDecl . DclKind ) , DeclKindImage ( WDef ^ . DclKind ) ) 
-          ; DdField ( "DclIsUsable" , Fmt . Bool ( WDecl . DclIsUsable ) , Fmt . Bool ( WDef ^ . DclIsUsable ) )
-          END (*WITH*) 
-        END (*IF*) 
-      END (*LOCK*) 
+    ; IF DoFields
+      THEN
+        WITH WDecl = DeclRef 
+        DO 
+          DdField ( "DclLink" , DeclRefImage ( WDecl . DclLink , DoFields := FALSE ) , NIL ) 
+        ; DdField ( "DclOwningScopeRef" , ScopeRefImage ( WDecl . DclOwningScopeRef ) , NIL )
+        ; DdField ( "DclSelfScopeRef" , ScopeRefImage ( WDecl . DclSelfScopeRef ) , NIL )
+        ; DdField ( "DclDefType" , ExprRefImage ( WDecl . DclDefType ) , ExprRefImage ( LDef ^ . DclDefType ) )
+        ; DdField ( "DclDefValue" , ExprRefImage ( WDecl . DclDefValue ) , ExprRefImage ( LDef ^ . DclDefValue ) )
+        ; DdField ( "DclIdAtom" , IdImageOfDeclRef ( WDecl ) , IdImageOfDeclRef ( LDef ) )
+        ; DdField ( "DclIdNo" , Fmt . Int ( WDecl . DclIdNo ) , Fmt . Int ( LDef ^ . DclIdNo ) )
+        ; DdField ( "DclSelfDeclNo" , Fmt . Int ( WDecl ^ . DclSelfDeclNo ) , Fmt . Int ( LDef ^ . DclSelfDeclNo ) )
+        ; DdField ( "DclPos" , PositionImage ( WDecl . DclPos ) , PositionImage ( LDef ^ . DclPos ) )
+        ; DdField ( "DclStdTok" , Stk . Name ( WDecl . DclStdTok ) , Stk . Name ( LDef ^ . DclStdTok ) )
+        ; DdField ( "DclKind" , DeclKindImage ( WDecl . DclKind ) , DeclKindImage ( LDef ^ . DclKind ) ) 
+        ; DdField ( "DclIsUsable" , Fmt . Bool ( WDecl . DclIsUsable ) , Fmt . Bool ( LDef ^ . DclIsUsable ) )
+        END (*WITH*) 
+      END (*IF*) 
     END DumpDecl
 
 (*EXPORTED.*)
