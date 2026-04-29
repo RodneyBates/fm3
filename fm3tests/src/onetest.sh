@@ -71,7 +71,7 @@ PLAIN="\\033[0m"
         # Optional file named "clargs" contains compile command line options.
         if test -f clargs
         then CLARGS=`cat clargs`
-        else CLARGS="--no-disasm-verbose --disasm --exprs --no-expr-addrs --no-std-sources" 
+        else CLARGS="--no-disasm-verbose --disasm --exprs --scopes --decls --dump-addrs --no-std-sources" 
         fi 
         echo -e `$FM3 --version 2>&1` | tee -a $TMPCOMPILELOG 
         CMD="$FM3 $CLARGS $SOURCES"
