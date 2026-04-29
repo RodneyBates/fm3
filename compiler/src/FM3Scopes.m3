@@ -47,7 +47,9 @@ MODULE FM3Scopes
       | Skt . SkComp => LResult := "SkComp" 
       | Skt . SkUnit => LResult := "SkUnit" 
       | Skt . SkInterface => LResult := "SkInterface" 
+      | Skt . SkGenIntf => LResult := "SkGenIntf" 
       | Skt . SkModule => LResult := "SkModule" 
+      | Skt . SkGenMod => LResult := "SkGenMod" 
       | Skt . SkFormals => LResult := "SkFormals" 
       | Skt . SkProcBody => LResult := "SkProcBody" 
       | Skt . SkBlockStmt => LResult := "SkBlockStmt"
@@ -440,7 +442,6 @@ MODULE FM3Scopes
       IF ScopeRef = NIL
       THEN
         Wr . PutText ( WrT , "NIL Scope ref" ) 
-      ; Wr . PutText ( WrT , Wr . EOL )
       ; RETURN
       END (*IF*)
 

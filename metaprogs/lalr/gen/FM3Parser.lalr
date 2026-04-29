@@ -339,10 +339,12 @@ RULE
          LUnitRef ^ . UntKind := Ukt . UkInterface ; 
          LUnitRef ^ . UntUnsafe := $1 . PaBool ; 
          FM3Pass1 . InterfaceId ( LUnitRef , $3 . Scan ) ;
-         
          LScopeRef 
            := FM3Scopes . NewScopeRef 
                 ( LUnitRef , Skt . SkInterface , $2 . Scan . Position ) ;
+         LScopeRef ^ . ScpDeclGraph
+           := FM3Graph . NewEmpty
+                ( MaxNodeCt := IntSets . Card ( LScopeRef ^ . ScpDeclIdSet ) ) ;
          LUnitRef ^ . UntScopeRef := LScopeRef ; 
          FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) ; 
          FM3Pass1 . PutBwd_TIP
@@ -397,10 +399,6 @@ RULE
          THEN <* ASSERT FALSE , "Interface decl and open scopes #." *>
          END (*IF*) ; 
          FM3Pass1 . ScopeForDeclsRtL2R ( LDeclScopeRef ) ;
-         LDeclScopeRef ^ . ScpDeclGraph
-           := FM3Graph . NewEmpty
-                ( MaxNodeCt := IntSets . Card ( LDeclScopeRef ^ . ScpDeclIdSet )
-                ) ; 
          FM3Pass1 . PutBwd_TIP
            ( Itk . ItkScopeForDeclsRt
            , LDeclScopeRef ^ . ScpSelfScopeNo
@@ -443,6 +441,9 @@ RULE
          LScopeRef 
            := FM3Scopes . NewScopeRef 
                 ( LUnitRef , Skt . SkModule , $2 . Scan . Position ) ;
+         LScopeRef ^ . ScpDeclGraph
+           := FM3Graph . NewEmpty
+               ( MaxNodeCt := IntSets . Card ( LScopeRef ^ . ScpDeclIdSet ) ) ; 
          LUnitRef ^ . UntScopeRef := LScopeRef ; 
          FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) ; 
          FM3Pass1 . PutBwd_TIP
@@ -477,10 +478,8 @@ RULE
        END ; 
      } . 
 
-   ModBlock : /*Empty*/
-     { $$ . PaByte2 := ORD ( Skt . SkModule ) } ; .
-     
-   Module : ModuleMiddle ModBlock Block NonreservedIdent StkDot
+   Module : ModuleMiddle OpenDeclList StkRwBEGIN StmtList StkRwEND 
+            NonreservedIdent StkDot
      { VAR LDeclScopeRef : FM3Scopes . ScopeRefTyp ;
        VAR LLookupScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN
@@ -501,10 +500,6 @@ RULE
          THEN <* ASSERT FALSE , "Module decl and open scopes #." *>
          END (*IF*) ;  
          FM3Pass1 . ScopeForDeclsRtL2R ( LDeclScopeRef ) ;
-         LDeclScopeRef ^ . ScpDeclGraph
-           := FM3Graph . NewEmpty
-                ( MaxNodeCt := IntSets . Card ( LDeclScopeRef ^ . ScpDeclIdSet )
-                ) ; 
          FM3Pass1 . PutBwd_TIP
            ( Itk . ItkScopeForDeclsRt
            , LDeclScopeRef ^ . ScpSelfScopeNo
@@ -536,10 +531,10 @@ RULE
          FM3Pass1 . InterfaceId ( LUnitRef , $3 . Scan ) ;
          LScopeRef 
            := FM3Scopes . NewScopeRef
-                ( LUnitRef 
-                , Skt . SkInterface
-                , $2 . Scan . Position
-                ) ;
+                ( LUnitRef , Skt . SkGenIntf , $2 . Scan . Position ) ;
+         LScopeRef ^ . ScpDeclGraph
+           := FM3Graph . NewEmpty
+               ( MaxNodeCt := IntSets . Card ( LScopeRef ^ . ScpDeclIdSet ) ) ; 
          LUnitRef ^ . UntScopeRef := LScopeRef ;
        END ; 
      } .  
@@ -555,9 +550,6 @@ RULE
           , $1 . Scan . Position
           ) ;
         FM3Pass1 . ScopeForDeclsRtL2R ( LScopeRef ) ;
-        LScopeRef ^ . ScpDeclGraph
-          := FM3Graph . NewEmpty
-               ( MaxNodeCt := IntSets . Card ( LScopeRef ^ . ScpDeclIdSet ) ) ; 
        *)
        FM3Pass1 . CheckUnitFinalId
          ( FM3Units . UnitStackTopRef , $8 . Scan , Ukt . UkGenInterface ) ; 
@@ -574,17 +566,19 @@ RULE
          FM3Pass1 . ModuleId ( LUnitRef , $3 . Scan ) ;
          LScopeRef  
            := FM3Scopes . NewScopeRef
-                ( LUnitRef
-                , Skt . SkModule
-                , $1 . Scan . Position
-                ) ;
+                ( LUnitRef , Skt . SkGenMod , $1 . Scan . Position ) ;
+         LScopeRef ^ . ScpDeclGraph
+           := FM3Graph . NewEmpty
+               ( MaxNodeCt := IntSets . Card ( LScopeRef ^ . ScpDeclIdSet ) ) ; 
          LUnitRef ^ . UntScopeRef := LScopeRef  ; 
        END ; 
      } . 
 
    GenModule :
        GenModuleLt GenModuleKind GenFormalList StkSemicolon
-       ImportList ExpImpDone ModBlock Block NonreservedIdent StkDot 
+       ImportList ExpImpDone OpenDeclList
+       StkRwBEGIN StmtList StkRwEND NonreservedIdent StkDot
+
      { (* scope ref *)
        (* FM3Pass1 . PutBwd_TIP
             ( Itk . ItkScopeForDeclsRt
@@ -592,13 +586,10 @@ RULE
             , $1 . Scan . Position
             ) ;
         FM3Pass1 . ScopeForDeclsRtL2R ( LScopeRef ) ;
-        LScopeRef ^ . ScpDeclGraph
-          := FM3Graph . NewEmpty
-               ( MaxNodeCt := IntSets . Card ( LScopeRef ^ . ScpDeclIdSet ) ) ; 
        *) 
        FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkGenModule ; 
        FM3Pass1 . CheckUnitFinalId
-         ( FM3Units . UnitStackTopRef , $8 . Scan , Ukt . UkGenModule ) ;
+         ( FM3Units . UnitStackTopRef , $11 . Scan , Ukt . UkGenModule ) ;
      } .
 
 (* -------------------------------- Blocks ---------------------------------- *)
@@ -613,6 +604,9 @@ RULE
                 , VAL ( $0 . PaByte2 , Skt ) 
                 , FM3Scanner . Attribute . Position 
                 ) ;
+         LScopeRef ^ . ScpDeclGraph
+           := FM3Graph . NewEmpty
+               ( MaxNodeCt := IntSets . Card ( LScopeRef ^ . ScpDeclIdSet ) ) ; 
          FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) ;
          FM3Pass1 . PutBwd_TIP
            ( Itk . ItkScopeForDeclsLt
@@ -647,10 +641,6 @@ RULE
            , $3 . Scan . Position
            ) ;
          FM3Pass1 . ScopeForDeclsRtL2R ( LDeclScopeRef ) ;
-         LDeclScopeRef ^ . ScpDeclGraph
-           := FM3Graph . NewEmpty
-                ( MaxNodeCt := IntSets . Card ( LDeclScopeRef ^ . ScpDeclIdSet )
-                ) ; 
          FM3Pass1 . PutBwd_TIP
            ( Itk . ItkScopeForDeclsRt
            , LDeclScopeRef ^ . ScpSelfScopeNo
@@ -1415,11 +1405,6 @@ RULE
                 ) ;
          $$ . PaInt2 := LScopeRef ^ . ScpSelfScopeNo ; 
          FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) ;
-         FM3Pass1 . PutBwd_TIP
-           ( Itk . ItkScopeForDeclsLt
-           , LScopeRef ^ . ScpSelfScopeNo
-           , $1 . Scan . Position
-           ) ; 
        END; 
      } .
 
@@ -1432,12 +1417,6 @@ RULE
          END (*IF*) ; 
 
          FM3Pass1 . ScopeForDeclsRtL2R ( LScopeRef ) ;
-         FM3Pass1 . PutBwd_TIP
-           ( Itk . ItkScopeForDeclsRt
-           , LScopeRef ^ . ScpSelfScopeNo
-           , $3 . Scan . Position
-           ) ; 
-
          FM3Pass1 . PutBwd_LCIIP_riip
            ( Itk . ItkEnumTypeLt
            , $1 . PaPass1Coord
@@ -1538,13 +1517,7 @@ RULE
                 ) ;
          $$ . PaInt2 := LScopeRef ^ . ScpSelfScopeNo ; 
          FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) ;
-         FM3Pass1 . PutBwd_TIP
-           ( Itk . ItkScopeForDeclsLt
-           , LScopeRef ^ . ScpSelfScopeNo
-           , $1 . Scan . Position
-           ) ;
        END (*Block.*) 
-
      } . 
  
    Type : RecTypeLt FieldDeclList StkRwEND
@@ -1556,11 +1529,6 @@ RULE
          END (*IF*) ; 
 
          FM3Pass1 . ScopeForDeclsRtL2R ( LScopeRef ) ;
-         FM3Pass1 . PutBwd_TIP
-           ( Itk . ItkScopeForDeclsRt
-           , LScopeRef ^ . ScpSelfScopeNo
-           , $3 . Scan . Position
-           ) ; 
          FM3Pass1 . PutBwd_LCIIP_riip
            ( Itk . ItkRecTypeLt
            , $1 . PaPass1Coord
@@ -1792,7 +1760,7 @@ RULE
    ObjWExplSupertypeLt : ObjSupertype Brand StkRwOBJECT
      { (* Default Position & Coord. *) 
        FM3Pass1 . ObjTypeLtL2R
-         ( $$ , $2 . PaByte2 (* Brand kind, Bkt. *) , $3 . Scan . Position ) ;   
+         ( $$ , $2 . PaByte2 (* Brand kind, Bkt. *) , $3 . Scan . Position ) ; 
         (* ^Pushes parse info and scope. Sets $$ . PaDeclDepth.
             Sets $$ . PaInt2 to scope no.
         *) 
@@ -1819,11 +1787,6 @@ RULE
          THEN <* ASSERT FALSE , "P1, obj type rt, decl scope mismatch." *>
          END (*IF*) ; 
          FM3Pass1 . ScopeForDeclsRtL2R ( LScopeRef ) ;
-         FM3Pass1 . PutBwd_TIP
-           ( Itk . ItkScopeForDeclsRt
-           , LScopeRef ^ . ScpSelfScopeNo
-           , $5 . Scan . Position
-           ) ; 
          FM3Pass1 . PutBwd_LCIIIIP_riiiip
            ( Itk . ItkObjTypeLt
            , $1 . PaPass1Coord
@@ -1923,7 +1886,7 @@ RULE
          LFormalsScopeRef := FM3Scopes . PopScopeRefDeclsStack ( ) ; 
          IF LFormalsScopeRef = NIL
             OR LFormalsScopeRef . ScpSelfScopeNo # $1 . PaInt2 
-         THEN <* ASSERT FALSE , "No formals scope at right end." *>
+         THEN <* ASSERT FALSE , "Mismatched formals scope at right end." *>
          END (*IF*) ;
          
          FM3Pass1 . ScopeForDeclsRtL2R ( LFormalsScopeRef ) ;
@@ -2189,7 +2152,8 @@ RULE
             OR LFormalsScopeRef ^ . ScpKind # Skt . SkFormals
          THEN <* ASSERT FALSE , "No formals scope for proc body." *>
          END (*IF*) ;
-         
+
+         (* And repush formals scope onto lookup stack too. *) 
          FM3Scopes . PushScopeRefLookupStack ( LFormalsScopeRef ) ;
          FM3Pass1 . PutBwd_TIP
            ( Itk . ItkScopeForLookupLt

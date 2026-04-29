@@ -178,7 +178,6 @@ MODULE FM3Decls
       IF DeclRef = NIL
       THEN
         Wr . PutText ( WrT , "NIL Decl ref" ) 
-      ; Wr . PutText ( WrT , Wr . EOL )
       ; RETURN
       END (*IF*)
     ; LOCK GMutex

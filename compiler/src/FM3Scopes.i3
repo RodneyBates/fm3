@@ -45,8 +45,10 @@ INTERFACE FM3Scopes
       , SkUniverse (* {Standard, interfaces? *)
       , SkComp (* Interfaces touched by a compilation.  Only one such scope. *)
       , SkUnit (* Exports & Imports of a single compilation unit. *) 
-      , SkInterface (* Including generic and instantiation. *) 
+      , SkInterface (* Including generic and instantiation. *)
+      , SkGenIntf 
       , SkModule (* Including generic and instantiation. *)
+      , SkGenMod 
       , SkFormals (* Built as part of a signature definition, treated as
                      qualified when ref'd by a named formal within an actual
                      parameter list.  Treated as open for other lookups.
@@ -79,11 +81,14 @@ INTERFACE FM3Scopes
 
 ; CONST ScopeKindSetOpen = SET OF ScopeKindTyp
     { ScopeKindTyp . SkUnit
-    , ScopeKindTyp . SkInterface 
+    , ScopeKindTyp . SkInterface
+    , ScopeKindTyp . SkGenIntf 
     , ScopeKindTyp . SkModule 
+    , ScopeKindTyp . SkGenMod 
     , ScopeKindTyp . SkBlockStmt
     , ScopeKindTyp . SkProcBody
-    } 
+    }
+    (* ^ These are self-referential, i.e. refs w/in can refer to decls w/in. *)  
 
 ; CONST ScopeKindSetPositional = SET OF ScopeKindTyp
     { ScopeKindTyp . SkFormals
@@ -131,8 +136,8 @@ INTERFACE FM3Scopes
            contribute to an illegal recursive decl cycle.
         *) 
       ; ScpCurDeclRefNoSet : IntSets . T (*1*) := NIL 
-        (* Decl Nos of ident refs in definition(s) of the current decl to idents
-           declared in the current containing open scope that do not legalize
+        (* Decl Nos of refs in definition(s) of the current decl to things
+           declared in the decl's containing open scope that do not legalize
            recursive declarations.
         *)
       ; ScpCurDefExprs

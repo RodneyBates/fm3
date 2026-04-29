@@ -7,6 +7,9 @@
 
 MODULE FM3Pass1
 
+(* Driven by FM3Parser.m3, which is generated from FM3Parser.lalr.
+   The stuff here is mainly support, called by FM3Parser.
+*) 
 (* The first pass.
    1. Scan and Parse
    2. Replace identifers by numeric atoms, independently for each unit. 
@@ -14,7 +17,7 @@ MODULE FM3Pass1
       to a file ready to be read backwards.
    5. Build a global table of atom-accessed Units.UnitTyp records for
       compilation units,
-   6. For each unit, build atom-accessed records for identifiers, scopes,
+   6. For each unit, build integer-accessed records for identifiers, scopes,
       and declarations.
    7. For each scope, build a compact dictionary mapping identifier atoms
       to decl numbers.
@@ -2707,7 +2710,9 @@ MODULE FM3Pass1
     ; BEGIN (* Block. *)
         LUnitRef := ScopeRef ^ . ScpOwningUnitRef 
       ; IF ScopeRef = FM3Scopes . ScopeLookupStackTopRef
-        THEN (* A ref herein can refer to a decl also herein. *) 
+        THEN (* A ref herein can refer to a (possibly different) decl,
+                also herein.
+             *) 
         (* Move Idents ref'd but to decls in this scope out to 
            containing lookup scope.
         *)
@@ -2799,9 +2804,6 @@ MODULE FM3Pass1
              ) 
     ; LHSAttr . PaInt2 := LScopeRef ^ . ScpSelfScopeNo  
     ; FM3Scopes . PushScopeRefDeclsStack ( LScopeRef )
-    ; PutBwd_TIP
-        ( Itk . ItkScopeForDeclsLt , LScopeRef ^ . ScpSelfScopeNo , Position ) ; 
-
     END ObjTypeLtL2R  
 
 ; BEGIN (*FM3Pass1*)
