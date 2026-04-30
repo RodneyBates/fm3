@@ -499,7 +499,10 @@ MODULE FM3Utils
   ; VAR LResult : TEXT 
 
   ; BEGIN (*IdImageOfAtom*)
-      LSpelling := FM3Units . IdAtomText ( Atom ) 
+      IF Atom = FM3Base. AtomNull
+      THEN RETURN "Id" & FM3Fmt . Int ( Atom ) & "(<AtomNull>)"
+      END (*IF*)
+    ; LSpelling := FM3Units . IdAtomText ( Atom ) 
     ; LTextWrT := TextWr . New ( )
     ; Wr . PutText ( LTextWrT , "Id" ) 
     ; Wr . PutText ( LTextWrT , FM3Fmt . Int ( Atom ) ) 

@@ -429,8 +429,14 @@ MODULE  FM3Compile
             ; Wr . PutText ( LWrT , " no " )             
             ; Wr . PutText ( LWrT , Fmt . Int ( RRecNo ) ) 
             ; Wr . PutText ( LWrT , " has a NIL ref." )             
-            ELSE 
-              Info . DpiDump ( WRefAny , LWrT ) 
+            ; Wr . PutText ( LWrT , Wr . EOL ) 
+            ELSE
+              Wr . PutText ( LWrT , Info . DpiTypeLabel ) 
+            ; Wr . PutText ( LWrT , " map element no ") 
+            ; Wr . PutText ( LWrT , Fmt . Int ( RRecNo ) ) 
+            ; Wr . PutChar ( LWrT , ':' )             
+            ; Wr . PutText ( LWrT , Wr . EOL ) 
+            ; Info . DpiDump ( WRefAny , LWrT )
             END (*IF*) 
           ; Wr . PutText ( LWrT , Wr . EOL ) (* Blank line after each record. *)
           END (*WiTH *)

@@ -132,7 +132,6 @@ MODULE FM3Decls
   ; BEGIN (*IdImageOfDeclRef*)
       IF DeclRef = NIL THEN RETURN "<NIL DeclRef>" END (*IF*)
     ; LAtom := DeclRef ^ . DclIdAtom
-    ; IF LAtom = FM3Base. AtomNull THEN RETURN "<AtomNull>" END (*IF*)
     ; LResult := FM3Utils . IdImageOfAtom (LAtom ) 
     ; RETURN LResult 
     END IdImageOfDeclRef

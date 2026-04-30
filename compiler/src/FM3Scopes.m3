@@ -86,13 +86,17 @@ MODULE FM3Scopes
     = VAR LElemImage : TEXT
     
     ; BEGIN (*OneIdImage*)
-        LElemImage
+        RETURN FM3Utils . IdImageOfAtom ( Elem ) 
+(* REMOVEME: 
+      ; LElemImage 
+
           := "I" 
              & Fmt . Int ( Elem )
              & "(\""
              & FM3Units . IdAtomText ( Elem ) (* In the current unit. *) 
              & "\")"
-       ; RETURN LElemImage 
+       ; RETURN LElemImage
+*) 
       END OneIdImage
 
   ; VAR LElemImagesRef : REF ARRAY OF TEXT 
@@ -145,7 +149,7 @@ MODULE FM3Scopes
         LElemImage
           := Fmt . Int ( RuleNo )
              & ": "
-             & FM3Units . IdAtomText ( Key ) 
+             & FM3Utils . IdImageOfAtom ( Key ) 
              & " -> " 
              & FM3Decls . DeclNoImage ( Value )
       ; IddRulesImagesRef ^ [ RuleNo ] := LElemImage 
@@ -409,7 +413,7 @@ MODULE FM3Scopes
 (*EXPORTED.*)
 ; PROCEDURE DumpScope
     ( ScopeRef : ScopeRefTyp
-    ; WrT : Wr . T 
+    ; WrT : Wr . T
     ; DoFields := FALSE
     ; DefaultFields := FALSE
     ; Prefix := "" 
@@ -469,9 +473,9 @@ MODULE FM3Scopes
         ; DsField ( "ScpDeclIdSet" , IdentSetImage ( WScope ^ . ScpDeclIdSet ) , IdentSetImage ( LDef ^ . ScpDeclIdSet ) )
         ; DsField ( "ScpFormalIdSet" , IdentSetImage ( WScope ^ . ScpFormalIdSet ) , IdentSetImage ( LDef ^ . ScpFormalIdSet ) )
         ; DsField ( "ScpRefIdSet" , IdentSetImage ( WScope ^ . ScpRefIdSet ) , IdentSetImage ( LDef ^ . ScpRefIdSet ) )
-        ; DsField ( "ScpDeclDict" , IdDeclDictImage ( WScope ^ . ScpDeclDict ) , IdDeclDictImage ( LDef ^ . ScpDeclDict ) )
+        ; DsField ( "ScpDeclDict (abs(rel) decl nos)" , IdDeclDictImage ( WScope ^ . ScpDeclDict ) , IdDeclDictImage ( LDef ^ . ScpDeclDict ) )
         ; DsField ( "ScpDeclListRef" , DeclRefListImage ( WScope ^ . ScpDeclListRef ) , DeclRefListImage ( LDef ^ . ScpDeclListRef ) )
-        ; DsField ( "ScpDeclGraph" , ArcSetImage ( WScope ^ . ScpDeclGraph ) , ArcSetImage ( LDef ^ . ScpDeclGraph ) )
+        ; DsField ( "ScpDeclGraph (Relative decl nos)" , ArcSetImage ( WScope ^ . ScpDeclGraph ) , ArcSetImage ( LDef ^ . ScpDeclGraph ) )
         ; DsField ( "ScpCurDeclRefNoSet" , DeclNoSetImage ( WScope ^ . ScpCurDeclRefNoSet ) , DeclNoSetImage ( LDef ^ . ScpCurDeclRefNoSet ) )
         ; DsField ( "ScpCurDefExprs" , DefExprsImage ( WScope ^ . ScpCurDefExprs ) , DefExprsImage ( LDef ^ . ScpCurDefExprs ) )
         ; DsField ( "ScpIdentAtom" , IdImageOfScopeRef ( WScope ) , IdImageOfScopeRef ( LDef ) ) 
