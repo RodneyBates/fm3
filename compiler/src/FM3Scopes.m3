@@ -458,7 +458,8 @@ MODULE FM3Scopes
         DO
           IF GDefaultRef = NIL THEN GDefaultRef := NEW ( ScopeRefTyp ) END (*IF*)
         ; LDef := GDefaultRef 
-        END (*LOCK*) 
+        END (*LOCK*)
+        
       ; Wr . PutText ( WrT , Wr . EOL ) 
       ; WITH WScope = ScopeRef 
         DO 

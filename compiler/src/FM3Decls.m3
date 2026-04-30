@@ -127,7 +127,6 @@ MODULE FM3Decls
 ; PROCEDURE IdImageOfDeclRef ( DeclRef : DeclRefTyp ) : TEXT
 
   = VAR LAtom : FM3Base . AtomTyp
-  ; VAR LTextWrT : TextWr . T
   ; VAR LResult : TEXT 
 
   ; BEGIN (*IdImageOfDeclRef*)
@@ -144,7 +143,7 @@ MODULE FM3Decls
 
 (*EXPORTED.*)
 ; PROCEDURE DumpDecl
-    ( DeclRef : DeclRefTyp
+    ( DeclRef : DeclRefTyp 
     ; WrT : Wr . T
     ; DoFields := FALSE
     ; DefaultFields := FALSE
@@ -175,16 +174,13 @@ MODULE FM3Decls
       END DdField
 
   ; BEGIN (*DumpDecl*)
+
       IF DeclRef = NIL
       THEN
         Wr . PutText ( WrT , "NIL Decl ref" ) 
       ; RETURN
       END (*IF*)
-    ; LOCK GMutex
-      DO
-        IF GDefaultRef = NIL THEN GDefaultRef := NEW ( DeclRefTyp ) END (*IF*)
-      ; LDef:= GDefaultRef
-      END (*LOCK*)
+
     ; Wr . PutText ( WrT , "DeclNo ") 
     ; Wr . PutText ( WrT , Fmt . Int ( DeclRef ^ . DclSelfDeclNo ) ) 
     ; Wr . PutText ( WrT , " at " ) 
@@ -194,7 +190,13 @@ MODULE FM3Decls
 
     ; IF DoFields
       THEN
-        Wr . PutText ( WrT , Wr . EOL ) 
+        LOCK GMutex
+        DO
+          IF GDefaultRef = NIL THEN GDefaultRef := NEW ( DeclRefTyp ) END (*IF*)
+        ; LDef:= GDefaultRef
+        END (*LOCK*)
+        
+      ; Wr . PutText ( WrT , Wr . EOL ) 
       ; WITH WDecl = DeclRef 
         DO 
           DdField ( "DclLink" , DeclRefImage ( WDecl . DclLink , DoFields := FALSE ) , NIL ) 

@@ -414,16 +414,24 @@ MODULE  FM3Compile
       ; Wr . PutText ( LWrT , Wr . EOL ) 
       ELSE
         LRange := VarArray_Int_Refany . TouchedRange ( Info . DpiMap ) 
-      ; FOR RDeclNo := LRange . Lo TO LRange . Hi
+      ; FOR RRecNo := LRange . Lo TO LRange . Hi
         DO
         (* Duplicated inside FM3Decls . DumpDecl :
           Wr . PutText ( LWrT , Info . DpiTypeLabel )
         ; Wr . PutText ( LWrT , " No " )
-        ; Wr . PutText ( LWrT , Fmt . Int ( RDeclNo ) )
+        ; Wr . PutText ( LWrT , Fmt . Int ( RRecNo ) )
         *)
-          WITH WRefAny = VarArray_Int_Refany . Fetch ( Info . DpiMap , RDeclNo )
+          WITH WRefAny = VarArray_Int_Refany . Fetch ( Info . DpiMap , RRecNo )
           DO
-            Info . DpiDump ( WRefAny , LWrT ) 
+            IF WRefAny = NIL
+            THEN
+              Wr . PutText ( LWrT , Info . DpiTypeLabel )             
+            ; Wr . PutText ( LWrT , " no " )             
+            ; Wr . PutText ( LWrT , Fmt . Int ( RRecNo ) ) 
+            ; Wr . PutText ( LWrT , " has a NIL ref." )             
+            ELSE 
+              Info . DpiDump ( WRefAny , LWrT ) 
+            END (*IF*) 
           ; Wr . PutText ( LWrT , Wr . EOL ) (* Blank line after each record. *)
           END (*WiTH *)
         END (*FOR*)
