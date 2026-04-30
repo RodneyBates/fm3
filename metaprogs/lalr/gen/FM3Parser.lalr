@@ -342,6 +342,7 @@ RULE
          LScopeRef 
            := FM3Scopes . NewScopeRef 
                 ( LUnitRef , Skt . SkInterface , $2 . Scan . Position ) ;
+         LScopeRef ^ . ScpIdAtom := $3 . Scan . SaAtom ; 
          LUnitRef ^ . UntScopeRef := LScopeRef ; 
          FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) ; 
          FM3Pass1 . PutBwd_TIP
@@ -443,6 +444,7 @@ RULE
          LScopeRef 
            := FM3Scopes . NewScopeRef 
                 ( LUnitRef , Skt . SkModule , $2 . Scan . Position ) ;
+         LScopeRef ^ . ScpIdAtom := $3 . Scan . SaAtom ; 
          LUnitRef ^ . UntScopeRef := LScopeRef ; 
          FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) ; 
          FM3Pass1 . PutBwd_TIP
@@ -536,6 +538,7 @@ RULE
          LScopeRef 
            := FM3Scopes . NewScopeRef
                 ( LUnitRef , Skt . SkGenIntf , $2 . Scan . Position ) ;
+         LScopeRef ^ . ScpIdAtom := $3 . Scan . SaAtom ; 
          LUnitRef ^ . UntScopeRef := LScopeRef ;
        END ; 
      } .  
@@ -571,6 +574,7 @@ RULE
          LScopeRef  
            := FM3Scopes . NewScopeRef
                 ( LUnitRef , Skt . SkGenMod , $1 . Scan . Position ) ;
+         LScopeRef ^ . ScpIdAtom := $3 . Scan . SaAtom ; 
          LUnitRef ^ . UntScopeRef := LScopeRef  ; 
        END ; 
      } . 

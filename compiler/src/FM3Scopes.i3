@@ -142,7 +142,7 @@ INTERFACE FM3Scopes
         *)
       ; ScpCurDefExprs
           := ARRAY BOOLEAN (*Is value expr*) OF REFANY { NIL , .. } (*1*)
-      ; ScpIdentAtom : FM3Base . AtomTyp := FM3Base . AtomNull  
+      ; ScpIdAtom : FM3Base . AtomTyp := FM3Base . AtomNull  
       ; ScpDeclListNo : INTEGER := 0 
         (* # of contained decls still to be linked in. *)
       ; ScpMinDeclNo := FM3Globals . DeclNoNull

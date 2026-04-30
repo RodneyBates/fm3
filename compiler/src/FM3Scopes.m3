@@ -401,7 +401,7 @@ MODULE FM3Scopes
 
   ; BEGIN (*IdImageOfScopeRef*)
       IF ScopeRef = NIL THEN RETURN "<NIL ScopeRef>" END (*IF*)
-    ; LIdAtom := ScopeRef ^ . ScpIdentAtom
+    ; LIdAtom := ScopeRef ^ . ScpIdAtom
     ; LResult := FM3Utils . IdImageOfAtom ( LIdAtom ) 
     ; RETURN LResult 
     END IdImageOfScopeRef
@@ -478,7 +478,7 @@ MODULE FM3Scopes
         ; DsField ( "ScpDeclGraph (Relative decl nos)" , ArcSetImage ( WScope ^ . ScpDeclGraph ) , ArcSetImage ( LDef ^ . ScpDeclGraph ) )
         ; DsField ( "ScpCurDeclRefNoSet" , DeclNoSetImage ( WScope ^ . ScpCurDeclRefNoSet ) , DeclNoSetImage ( LDef ^ . ScpCurDeclRefNoSet ) )
         ; DsField ( "ScpCurDefExprs" , DefExprsImage ( WScope ^ . ScpCurDefExprs ) , DefExprsImage ( LDef ^ . ScpCurDefExprs ) )
-        ; DsField ( "ScpIdentAtom" , IdImageOfScopeRef ( WScope ) , IdImageOfScopeRef ( LDef ) ) 
+        ; DsField ( "ScpIdAtom" , IdImageOfScopeRef ( WScope ) , IdImageOfScopeRef ( LDef ) ) 
         ; DsField ( "ScpDeclListNo" , Fmt . Int ( WScope ^ . ScpDeclListNo ) , Fmt . Int ( LDef ^ . ScpDeclListNo ) )
         ; DsField ( "ScpMinDeclNo" , DeclNoImage ( WScope ^ . ScpMinDeclNo ) , DeclNoImage ( LDef ^ . ScpMinDeclNo ) )
         ; DsField ( "ScpSelfScopeNo" , Fmt . Int ( WScope ^ . ScpSelfScopeNo ) , Fmt . Int ( LDef ^ . ScpSelfScopeNo ) )
