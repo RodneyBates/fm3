@@ -1,3 +1,4 @@
+
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2024..2026  Rodney M. Bates.                                    *)
@@ -2329,8 +2330,6 @@ MODULE FM3Pass1
             LFormalsScopeRef := WScopeRefForDecls ^ . ScpLookupStackLink
           ; IF LFormalsScopeRef = NIL
                OR LFormalsScopeRef ^ . ScpKind # Skt . SkFormals
-               OR LFormalsScopeRef ^ . ScpPosition 
-                  # WScopeRefForDecls ^ . ScpPosition 
             THEN <* ASSERT FALSE , "P1 proc body lacks a formals scope." *>
             END (*IF*)
           ELSE LFormalsScopeRef := NIL
@@ -2803,7 +2802,7 @@ MODULE FM3Pass1
              , Position
              ) 
     ; LHSAttr . PaInt2 := LScopeRef ^ . ScpSelfScopeNo  
-    ; FM3Scopes . PushScopeRefDeclsStack ( LScopeRef )
+    ; FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) 
     END ObjTypeLtL2R  
 
 ; BEGIN (*FM3Pass1*)

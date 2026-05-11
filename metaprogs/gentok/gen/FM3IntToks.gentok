@@ -174,9 +174,9 @@ FIXED
     *)
     INT  (* ScopeNo. *) 
     INT  (* An enumeration, what kind of brand. *)
-    INT  (* Decls count (fields+methodn). *)
+    INT  (* Decls count (fields+methods). *)
     INT  (* Overrides count. *)
-    POS (* Position of OBJECT. *)
+    POS  (* Position of OBJECT. *)
   . 
 
   ItkSupertype POS 2 (* Position of OBJECT. *) .
@@ -445,8 +445,10 @@ LIST ItkSubscriptsPlusList .
 FIXED ItkActual   IDENT (* May be AtomNull *) POS (*Of ":=" or expr*) .
 
 FIXED ItkObjField IDENT POS (*Of ":=" *).
-FIXED ItkOverride IDENT (* LHS *) POS (*Of "=" *) . 
-      (* Surrounds the procedure ref. *) 
+FIXED ItkOverride IDENT POS (* LHS *) . 
+      (* Surrounds the RHS procedure ref. *) 
+
+LONE ItkOverrideAtom IDENT POS (* LHS ident *) 
 
 (* End of FM3IntToks. *) 
 

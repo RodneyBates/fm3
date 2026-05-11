@@ -16,9 +16,9 @@ INTERFACE FM3Exprs
    and can sometimes contain named references to other declarations.  Within
    a single scope, these can refer to each other left-to-right, right-to-left,
    and cyclically.  This can require an arbitrary mix of jumping leftward
-   and rigthward.  So we build in-memory, linked data structure for them.
+   and rightward.  So we build in-memory, linked data structure for them.
 
-   Remember that in Modula3, programmer-written constructs that define types
+   In Modula3, programmer-written constructs that define types
    are expressions along with value-computing expressions, and each can contain
    one of the other.  So they are all part of what's called "expressions".
 
@@ -31,14 +31,14 @@ INTERFACE FM3Exprs
    - Two expressions are *identical* if both refer to the same instance
      of an expression subtree.
    - An expression is *equality-eligible if it is free of errors and
-     defines a type or a value that is constant, not necessarily in
+     defines a type or a value that is constant, not necessarily limited to
      the Modula-3 sense of constant.  An ineligible expression is
      called *distinct*.
    - Two expressions are *equal* if they are equality-eligible and
-     structurally equal to eac other.
+     structurally equal to each other.
    - Equal expressions can be treated as interchangeable.  A group of
      interchangable expressions has a single *representative* that
-     stands for them all.  Such a group need not be maximal. Field
+     stands for them all.  Such a group need not be maximal.  Field
      ExpRepExprNo denotes an expression's representative, which can be
      itself. An eligible expression starts out its own representative
      in its own singleton group until some equalities might be discovered.
@@ -75,7 +75,7 @@ INTERFACE FM3Exprs
 
 (* Fields relevant to all ExprKinds: *) 
      (1) ExpPosition. ExpSelfExprNo, and ExpKind always
-     (1) ExpRepExprNo < ExprNoFirstReal or =ExpSelfExprNo
+     (1) ExpRepExprNo < ExprNoFirstReal or = ExpSelfExprNo
          May change when expr is found equal to another. 
 *) 
 
@@ -114,7 +114,7 @@ INTERFACE FM3Exprs
                       (*(1)ExpIsLegalRecursive=TRUE, ExpIsPresent=FALSE,
                            ExpState=EsResolved.
                       *)
-     , EkBrand        (*(1)ExpIsLegalRecursive=TRUE, ExpIsPresent,
+     , EkBrand        (*(1)ExpIsLegalRecursive=TRUE, ExpIsPresent=TRUE,
                            ExpState=EsResolved.
                       *)
      
@@ -150,7 +150,18 @@ INTERFACE FM3Exprs
 
 ; TYPE EkSetTyp = ExprKindSetTyp
 
-; CONST EkSetValue = EkSetTyp { Ekt . EkValue } 
+; CONST EkSetValue = EkSetTyp
+        { Ekt . EkLiteral 
+        , Ekt . EkIdentRef 
+        , Ekt . EkQualIdentRef 
+        , Ekt . EkRemoteRef 
+        , Ekt . EkDot 
+        , Ekt . EkUnOp
+        , Ekt . EkBinOp
+        , Ekt . EkCall
+        , Ekt . EkSubscript
+(* TODO: EkNamed needs to look at the RHS kind. *) 
+        } 
 
 ; CONST EkSetType = EkSetTyp { Ekt . EkType }
 
@@ -185,7 +196,7 @@ INTERFACE FM3Exprs
        } 
 
 ; CONST EkSetBrand
-    = EkSetTyp { Ekt . EkBrand , Ekt . EkValue } 
+    = EkSetValue + EkSetTyp { Ekt . EkNull (* Absent brand value *) }  
 
 ; CONST EkSetTypeOrValue = EkSetTyp { Ekt . EkValue , Ekt . EkValue } 
 

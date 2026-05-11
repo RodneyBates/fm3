@@ -17,8 +17,10 @@ INTERFACE FM3RTFailures
 (* Support for handling runtime errors and uncaught exceptions (which are
    turned into runtime errors). *)
 
-(* Lots of code in exporting module FM3RTFailures is invoked, directly or indirectly,
-   via its registering of a backstop callback with the runtime system. *)
+(* Lots of code in exporting module FM3RTFailures is invoked, directly or
+   indirectly, via its registering of a backstop callback with the runtime
+   system.
+*)
 
 ; IMPORT RT0
 ; IMPORT Thread 

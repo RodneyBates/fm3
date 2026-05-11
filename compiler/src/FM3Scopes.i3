@@ -137,7 +137,7 @@ INTERFACE FM3Scopes
         *) 
       ; ScpCurDeclRefNoSet : IntSets . T (*1*) := NIL 
         (* Decl Nos of refs in definition(s) of the current decl to things
-           declared in the decl's containing open scope that do not legalize
+           declared in the decl's containing lookup scope that do not legalize
            recursive declarations.
         *)
       ; ScpCurDefExprs

@@ -63,13 +63,15 @@ GLOBAL
     IMPORT FM3CLOptions; 
     IMPORT FM3CLToks; 
     IMPORT FM3Decls;
+    IMPORT FM3ExpImp;
     IMPORT FM3Messages;
     IMPORT FM3Globals;
     IMPORT FM3Graph; 
     IMPORT FM3IntToks AS Itk;
-    IMPORT FM3SrcToks AS Stk;
     IMPORT FM3Pass1;
-    IMPORT FM3ExpImp;
+    IMPORT FM3SrcToks;
+    IMPORT FM3SrcToks AS Stk;
+    IMPORT FM3Std; 
     FROM FM3Pass1 IMPORT Coord;
     FROM FM3Pass1 IMPORT PutBwd_Attribute;
     FROM FM3Pass1 IMPORT tParsAttribute;
@@ -660,7 +662,7 @@ RULE
      } .
 
    BlockStmt : /*Empty*/
-     { $$ . PaByte2 := ORD ( Skt . SkBlockStmt ) } ; . 
+     { $$ . PaByte2 := ORD ( Skt . SkBlockStmt ) ; } . 
 
    Stmt : BlockStmt Block { } . 
 
@@ -789,6 +791,29 @@ RULE
        $$ . Scan . SaAtom := $1 . Scan . SaAtom ;  
        $$ . Scan . SaBuiltinTok := $1 . Scan . SaBuiltinTok ;
        FM3Pass1 . QualIdentRefL2R ( $1 , $3 , $2 . Scan . Position ) ;
+     } .
+
+   OverrideRef : StkIdent /* Only in the LHS of an override. */ 
+     { $$ . Scan . SaChars := $1 . Scan . SaChars ;
+       $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
+       $$ . Scan . SaBuiltinTok := $1 . Scan . SaBuiltinTok ;
+
+       IF IntSets . IsElement
+         ( $1 . Scan . SaBuiltinTok , FM3Std . ReservedIdSet ) 
+       THEN 
+         FM3Messages . ErrorArr
+           ( ARRAY OF REFANY
+               { "Identifier "
+               , FM3SrcToks . Image ( $1 . Scan . SaBuiltinTok )
+               , " is reserved and cannot denote an overrideable method." 
+               }
+           , $1 . Scan . Position 
+           ) ; 
+         FM3Pass1 . PutNotUsable
+           ( $1 . Scan . SaBuiltinTok , $1 . Scan . Position ) ; 
+       ELSE FM3Pass1 . PutBwd_TIP
+         ( Itk . ItkOverrideAtom , $1 . Scan . SaAtom , $1 . Scan . Position ) ;
+       END (*IF*)  
      } .
 
 (* Qualified or unqualified ident reference. *)
@@ -1310,7 +1335,7 @@ RULE
 (* L2R parsing can't distinguish the start of a REF from an OBJECT type, and
    a brand of possibly unbounded complexity can be in between it and where
    we find out.  In case it turns out later to be OBJECT, we need to
-   consistently reduce something to a Supertype even if it is not explicit
+   consistently reduce something to a Supertype even if thatt is not explicit
    in the syntax.  So we reduce empty to SupertypeAbsent regardless of whether
    it will be REF or OBJECT.  If it's REF, there can actually be no supertype
    of any kind, but handling of the REF type later will just ignore and
@@ -1747,7 +1772,8 @@ RULE
 
    ObjTypeLt : ObjRootTypeLt
      /* Its supertype is implicitly ROOT, but that's syntactically absent. */  
-     { $$ . PaBool := FALSE (* Has explicit supertype. *) ;
+     { $$ . PaDeclDepth := $1 . PaDeclDepth ;
+       $$ . PaBool := FALSE (* Has explicit supertype. *) ;
        $$ . PaInt2 := $1 . PaInt2 (* Scope num. *) ; 
        $$ . PaByte2 := $1 . PaByte2 (* Brand kind, Bkt. *) ; 
        $$ . PaTok1 := Itk . ItkObjFieldDeclLt ;
@@ -1789,8 +1815,8 @@ RULE
        BEGIN
          (* Default Position & Coord. *)
          (* NOTE: This keeps the decl scope of the object type around during
-                  the OverrideList, but it's harmless, because parsing will
-                  ensure there are no decls in the OverrideList.
+                  the OverrideList.  An override is not a true decl, but we need
+                  the scope to find it, thus to hold a new value def for it. 
          *) 
          LScopeRef := FM3Scopes . PopScopeRefDeclsStack ( ) ;
          IF LScopeRef ^ . ScpSelfScopeNo # $1 . PaInt2

@@ -933,22 +933,16 @@ TRUE OR
       , Itk . ItkVarDeclRt 
       , Itk . ItkRecFieldDeclRt 
       , Itk . ItkObjFieldDeclRt
+      , Itk . ItkVALUEFormalRt
+      , Itk . ItkVARFormalRt
+      , Itk . ItkROFormalRt
+      , Itk . ItkFullRevealRt 
+      , Itk . ItkPartialRevealRt 
       =>  LScopeRef := FM3Scopes . ScopeDeclStackTopRef
         ; LScopeRef ^ . ScpCurDefExprs := ARRAY BOOLEAN OF REFANY { NIL , .. }
         ; LScopeRef ^ . ScpCurDefIsValue := TRUE
         ; LScopeRef ^ . ScpCurDeclExprStackCt := FM3Exprs . ExprStackCt 
         ; LScopeRef ^ .  ScpCurDeclRefNoSet := IntSets . Empty ( )
-        ; HtPassTokenThru ( )
-
-      | Itk . ItkVALUEFormalRt
-      , Itk . ItkVARFormalRt
-      , Itk . ItkROFormalRt
-      =>  FM3Scopes . ScopeDeclStackTopRef ^ . ScpCurDefExprs
-            := ARRAY BOOLEAN OF REFANY { NIL , .. }
-        ; FM3Scopes . ScopeDeclStackTopRef ^ . ScpCurDefIsValue := TRUE
-            (* ^Value def coming up next, R2L. *)
-        ; FM3Scopes . ScopeDeclStackTopRef ^ . ScpCurDeclExprStackCt
-            := FM3Exprs . ExprStackCt 
         ; HtPassTokenThru ( )
 
       | Itk . ItkConstDeclValue (* Parser ensures this exists, no boolean arg. *)
@@ -967,7 +961,7 @@ TRUE OR
       | Itk . ItkVALUEFormalValue
       , Itk . ItkROFormalValue
       =>  DeclValue ( "Default value of formal" , MustBeConst := FALSE ) 
-        ; HtPassTokenThru ( )
+        ; HtPassTokenThru ( ) 
 
       | Itk . ItkVARFormalValue
       =>  LValueExpr := FM3Exprs . PopExprStack ( ) 
@@ -975,6 +969,18 @@ TRUE OR
           FM3Scopes . ScopeDeclStackTopRef ^ . ScpCurDefIsValue := FALSE 
           (* ^Type is coming up next. *) 
         ; HtPassTokenThru ( )
+
+    | Itk . ItkFullRevealType 
+    , Itk . ItkPartialRevealSubtype
+    =>  LPosition := GetBwdPos ( TokResult . TrRdBack )
+
+      ; LValueExpr := FM3Exprs . PopExprStack ( )
+      ; FM3Scopes . ScopeDeclStackTopRef ^ . ScpCurDefExprs [ TRUE ]
+          := LValueExpr
+      ; FM3Scopes . ScopeDeclStackTopRef ^ . ScpCurDefIsValue := FALSE 
+        (* ^Actally, it's the opaque type ref coming up next. *) 
+      ; IF NOT LValueExpr ^ . ExpIsPresent THEN RETURN END (*IF*) 
+      ; IF NOT LValueExpr ^ . ExpIsUsable THEN RETURN END (*IF*)
 
       | Itk . ItkDeclTypeAbsent
       , Itk . ItkDeclValAbsent
@@ -1026,8 +1032,6 @@ TRUE OR
         ; HtPassTokenThru ( )
 
       | Itk . ItkTypeDeclRt
-      , Itk . ItkFullRevealRt 
-      , Itk . ItkPartialRevealRt
       =>  LScopeRef := FM3Scopes . ScopeDeclStackTopRef
         ; LScopeRef ^ . ScpCurDefExprs := ARRAY BOOLEAN OF REFANY { NIL , .. }
         ; LScopeRef ^ . ScpCurDefIsValue := FALSE 
@@ -1037,8 +1041,6 @@ TRUE OR
         ; HtPassTokenThru ( )
 
       | Itk . ItkTypeDeclType
-      , Itk . ItkFullRevealType 
-      , Itk . ItkPartialRevealSubtype
       =>  DeclType ( "type" ) 
         ; HtPassTokenThru ( )
 
@@ -1311,11 +1313,13 @@ TRUE OR
         
       (* Brands: *)
 
-      | Itk . ItkBrandAbsent
+      | Itk . ItkBrandAbsent (* Not even BRANDED appears in the source code. *) 
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN 
             LPosition := GetBwdPos ( TokResult . TrRdBack )
-            (* There's always an expression for a brand, even if it's absent. *)
+            (* There's always an expression for a brand, even if there is
+               no BRANDED in the source code.
+            *)
           ; LNewExprRef 
               := NEW ( FM3Exprs . ExprRefTyp
                      , ExpKind := Ekt . EkBrand
@@ -1332,45 +1336,51 @@ TRUE OR
       | Itk . ItkBrandAnon
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN 
-            WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
-            DO
-              LNewExprRef
-                := FM3Builtins . BuiltinExpr
-                     ( FM3SrcToks . StkRTUniqueBrand , WPosition )
-            ; LNewExprRef ^ . ExpRepExprNo := FM3Exprs . RepExprNoDistinct 
-            ; LNewExprRef ^ . ExpIsPresent := TRUE 
-            ; LNewExprRef ^ . ExpOpcode := Stk . StkRwBRANDED 
-            ; LNewExprRef ^ . ExpState := Est . EsResolved
+            LPosition := GetBwdPos ( TokResult . TrRdBack )
+          ; LNewExprRef 
+              := NEW ( FM3Exprs . ExprRefTyp
+                     , ExpKind := Ekt . EkBrand
+                     , ExpIsLegalRecursive := TRUE
+                     , ExpIsPresent := TRUE 
+                     , ExpOpcode := Stk . StkRwBRANDED 
+                     , ExpState := Est . EsResolved
+                     , ExpRepExprNo := FM3Exprs . RepExprNoDistinct 
+                     , ExpPosition := LPosition 
+                     , ExpOpnd1  
+                         := FM3Builtins . BuiltinExpr
+                              ( FM3SrcToks . StkRTUniqueBrand , LPosition )
+                     ) 
             ; FM3Exprs . RegisterExpr ( LNewExprRef , Mergeable := FALSE ) 
             ; NewExprRt ( LNewExprRef )
-            END (*WITH*)
           END (*IF*)
 
       | Itk . ItkBrandExplicitRt 
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN 
-            WITH WPosition = GetBwdPos ( TokResult . TrRdBack )
-            DO
-              LNewExprRef
-                := NEW ( FM3Exprs . ExprRefTyp
-                       , ExpKind := Ekt . EkBrand
-                       , ExpRepExprNo := FM3Exprs . RepExprNoDistinct 
-                       , ExpIsLegalRecursive := TRUE
-                       , ExpIsPresent := TRUE  
-                       , ExpOpcode := Stk . StkRwBRANDED 
-                       , ExpPosition := WPosition 
-                       ) 
-         (* Don't push it. The brands's value expr will serve.
-            ; FM3Exprs . RegisterExpr ( LNewExprRef , Mergeable := FALSE ) 
-            ; NewExprRt ( LNewExprRef )
-         *)
-            END (*WITH*)
+            LPosition := GetBwdPos ( TokResult . TrRdBack )
+          ; LNewExprRef
+              := NEW ( FM3Exprs . ExprRefTyp
+                     , ExpKind := Ekt . EkBrand
+                     , ExpRepExprNo := FM3Exprs . RepExprNoDistinct 
+                     , ExpIsLegalRecursive := TRUE
+                     , ExpIsPresent := TRUE 
+                     , ExpOpcode := Stk . StkRwBRANDED 
+                     , ExpState := Est . EsResolved
+                     , ExpRepExprNo := FM3Exprs . RepExprNoDistinct 
+                     , ExpPosition := LPosition 
+                     )
+          ; FM3Exprs . RegisterExpr ( LNewExprRef , Mergeable := FALSE ) 
+          ; NewExprRt ( LNewExprRef )
           END (*IF*)
 
       | Itk . ItkBrandExplicitLt 
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN
-            EVAL GetBwdPos ( TokResult . TrRdBack )
+            HtExprOpnd1 ( ) (* Brand text *)
+          ; SynthIsUsable1 ( FM3Exprs . ExprStackTopObj (* The REF Type. *) )
+          ; IF FM3Exprs . ExprStackTopObj ^ . ExpKind # Ekt . EkBrand
+            THEN <* ASSERT FALSE , "Mismatched brand explicit lt." *>
+            END (*IF*)
           END (*IF*)
 
       (* REF type: *) 
@@ -1412,8 +1422,7 @@ TRUE OR
             END (*IF*)
           ; EVAL FM3Exprs . PopExprStack ( )
             (* ^Of REF type, a supertype is bogus.  Ignore it. *)
-          ; IF NOT FM3Exprs . ExprStackTopObj ^ . ExpKind
-                   IN FM3Exprs . EkSetBrand 
+          ; IF NOT FM3Exprs . ExprStackTopObj ^ . ExpKind = Ekt . EkBrand 
             THEN <* ASSERT FALSE , "Ref type has no brand expr. " *>
             END (*IF*)
           ; HtExprOpnd1 ( ) (* Brand *)
@@ -1548,7 +1557,6 @@ TRUE OR
             ; LOverrideCt := GetBwdInt ( TokResult . TrRdBack ) (* Overrides. *) 
             ; LPosition := GetBwdPos ( TokResult . TrRdBack )
             
-            ; AssertTosDeclScopeNo ( LScopeNo , "object type right" )  
             ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo )
             ; FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) 
             ; LArgListRef := FM3Exprs . NewExprListRef ( LOverrideCt )
@@ -2349,8 +2357,7 @@ TRUE OR
     *) 
     ; IF NOT FM3Exprs . ExprStackTopObj ^ . ExpIsLegalRecursive
       THEN 
-        WITH WRefIdNoSet
-             = FM3Scopes . ScopeLookupStackTopRef ^ . ScpCurDeclRefNoSet
+        WITH WRefIdNoSet = LLookupScopeRef ^ . ScpCurDeclRefNoSet
         DO WRefIdNoSet := IntSets . Include ( WRefIdNoSet , RefDeclNo ) 
         END (*WITH*)
       END (*IF*)
@@ -2603,8 +2610,7 @@ TRUE OR
 TRUE OR
               AreInsideADecl ( )
           THEN (* Create an Expr node. *) 
-            CheckRecursiveRef ( LRefDeclNo )
-          ; LExprIdentRef := NEW ( FM3Exprs . ExprRefTyp )
+            LExprIdentRef := NEW ( FM3Exprs . ExprRefTyp )
           ; LExprIdentRef ^ . ExpIdentDeclNo := LRefDeclNo 
           ; LExprIdentRef ^ . ExpRepExprNo := FM3Exprs . RepExprNoDistinct 
           ; LExprIdentRef ^ . ExpPosition := LPosition
@@ -2615,6 +2621,7 @@ TRUE OR
           ; LExprRef := LExprIdentRef
           ; FM3Exprs . RegisterExpr ( LExprRef , Mergeable := FALSE ) 
           ; NewExprRt ( LExprRef )
+          ; CheckRecursiveRef ( LRefDeclNo )
           ELSE (* Change to a reference token with DeclNo instead of Atom. *)
 (* Probably remove this case, since we are building Expr objects everywhere. *) 
             PutBwdP2 ( WOutRdBack , VAL ( LPosition . Column , LONGINT ) ) 
@@ -2729,8 +2736,7 @@ TRUE OR
 TRUE OR
               AreInsideADecl ( ) 
           THEN (* Create an ExprIdNo node. *) 
-            CheckRecursiveRef ( LRefDeclNo )
-          ; WITH WDotExpr = NEW ( FM3Exprs . ExprRefTyp )
+            WITH WDotExpr = NEW ( FM3Exprs . ExprRefTyp )
                  , WLtExpr = NEW ( FM3Exprs . ExprRefTyp )
             DO 
               WDotExpr ^ . ExpOpnd1 := WLtExpr 
@@ -2748,6 +2754,7 @@ TRUE OR
 (* TODO    ^ Compute this            *) 
             ; FM3Exprs . RegisterExpr ( WLtExpr , Mergeable := FALSE ) 
             ; NewExprRt ( WLtExpr )
+            ; CheckRecursiveRef ( LRefDeclNo )
             END (*WITH*)
           ; EVAL FM3Exprs . PopExprStack ( ) (* WLtExpr *) 
           ELSE (* Emit tokens for a dot Id applied to a DeclNo Id reference. *)
@@ -3067,6 +3074,7 @@ TRUE OR
                , "."
                }
            )
+      ; EVAL UnitRef 
       END (*EXCEPT *)
     END TranslatePass2
   

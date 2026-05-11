@@ -432,7 +432,7 @@ ItkROFormalId    IDENT POS .
     *)
 (* ScopeNo. *)
 (* An enumeration, what kind of brand. *)
-(* Decls count (fields+methodn). *)
+(* Decls count (fields+methods). *)
 (* Overrides count. *)
 (* Position of OBJECT. *)
 (* FIXED ItkObjType: *)
@@ -1615,18 +1615,20 @@ LIST ItkIdPlusList
 ; CONST ItkObjFieldRt                   (*ArgCt: 3*) =  1121 (*16_e1 08 *)
 
 (* LHS *)
-(*Of "=" *)
 (* FIXED ItkOverride: *)
 ; CONST ItkOverrideLt                   (*ArgCt: 3*) =  1122 (*16_e2 08 *)
 ; CONST ItkOverrideLtTemp               (*ArgCt: 3*) =  1123 (*16_e3 08 *)
 ; CONST ItkOverrideLtPatch              (*ArgCt: 3*) =  1124 (*16_e4 08 *)
 ; CONST ItkOverrideRt                   (*ArgCt: 3*) =  1125 (*16_e5 08 *)
 
-(* Surrounds the procedure ref. *)
+(* Surrounds the RHS procedure ref. *)
+(* LHS ident *)
 (* End of FM3IntToks. *)
+(* LONE ItkOverrideAtom: *)
+; CONST ItkOverrideAtom                 (*ArgCt: 3*) =  1126 (*16_e6 08 *)
 ; CONST TkMinTok                                     =   210
 
-; CONST TkMaxTok                                     =  1125
+; CONST TkMaxTok                                     =  1126
 
 ; END FM3IntToks
 .
