@@ -81,6 +81,8 @@ INTERFACE FM3Exprs
 
 ; TYPE ExprKindTyp (* What kind of definition are we expanding? *) 
    = { EkNull
+     , EkAbsent (* Placeholder for any expr that is absent in source. *) 
+     , EkInvalid (* Don't apply any further semantic processing. *) 
 
 (* Fields relevant to specific expr kinds *) 
      , EkLiteral      (* (1)ExpScalarConstVal
@@ -117,8 +119,8 @@ INTERFACE FM3Exprs
      , EkBrand        (*(1)ExpIsLegalRecursive=TRUE, ExpIsPresent=TRUE,
                            ExpState=EsResolved.
                       *)
-     
      , EkBuiltin      (*Distinguished by ExpOpcode.*)
+     , EkANY          (*Special exprref for ANY. *)  
 
      , EkDot          (*(1)ExpDotIdtom.*)
                       (*(1)ExpOpnd1: [EkQualIdentRef|EkRemoteRef].*) 
@@ -137,7 +139,7 @@ INTERFACE FM3Exprs
 
      , EkType  (* Probably replace by a set of the above. *) 
      , EkValue (* Probably replace by a set of the above. *)
-     }
+     } 
      
 ; TYPE Ekt = ExprKindTyp
 
@@ -193,6 +195,13 @@ INTERFACE FM3Exprs
        , Ekt . EkCall
        , Ekt . EkSubscript 
        , Ekt . EkBrand
+       } 
+
+; CONST EkSetHasVarArgList = EkSetTyp
+  (* i.e., length is not a fixed property of the Kind.. *)  
+       { Ekt . EkSignature
+       , Ekt . EkCall
+       , Ekt . EkSubscript 
        } 
 
 ; CONST EkSetBrand
@@ -285,17 +294,18 @@ INTERFACE FM3Exprs
       ; ExpHash : FM3Utils . HashTyp := FM3Base . HashNull
       ; ExpOpnd1 : ExprRefTyp (* Left operand when binary. *)
       ; ExpOpnd2 : ExprRefTyp (* Right Operand when binary. *) 
+        (* An expr rec can denote a unary operator, in which case we use this
+           type with 2nd operand field just going unused.
+          For an object type:  
+            ExpOpnd1 is supertype, non-NIL even if defaulted. 
+            ExpOpnd2 is brand, NIL if no BRANDED.
+        *) 
       ; ExpOpnd3 : ExprRefTyp 
       ; ExpOpnd4 : ExprRefTyp
 
       ; ExpBuiltinOpLtOpndKindsAllowed := ExprKindSetTyp { } 
       ; ExpBuiltinOpRtOpndKindsAllowed := ExprKindSetTyp { }
-        (* This can denote a unary operator, in which case we use this
-           type with 2nd operand fields just going unused.
-        *) 
       ; ExpRangeBase : ExprRefTyp := NIL 
-     (* ExpOpnd1 is supertype, non-NIL even if defaulted. *)
-     (* ExpOpnd2 is brand, NIL if no BRANDED. *) 
       ; ExpDeclListRef : FM3Globals . DeclRefListRefTyp
         (* For:
            Array type: DclDefType is an element type.
@@ -311,7 +321,8 @@ INTERFACE FM3Exprs
         *)
       ; ExpArgListRef : ExprListRefTyp
      (* ^Subscript types of array type
-        subscript exprs of [ ]
+        [qual]idents of RAISES list. 
+        subscript exprs of [ ] 
      *) 
       ; ExpObjBrandKind : FM3Parser . BrandKindTyp 
       ; ExpScopeRef1 : FM3Scopes . ScopeRefTyp

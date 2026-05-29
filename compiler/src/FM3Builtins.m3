@@ -462,11 +462,26 @@ MODULE FM3Builtins
 
   ; BEGIN
       CASE Opcode OF
+      | FM3SrcToks . StkRwANY
+      =>  LResult := NEW ( FM3Exprs . ExprRefTyp )
+        ; FM3Exprs . RegisterExpr ( LResult , Mergeable := FALSE ) 
+        ; LResult ^ . ExpReachedDeclNoSet := IntSets . Empty ( )  
+        ; LResult ^ . ExpPosition := Position 
+        ; LResult ^ . ExpOpcode := Opcode 
+        ; LResult ^ . ExpKind := Ekt . EkANY 
+        ; FM3Utils . ContribToHashI ( LResult ^ . ExpHash , Opcode ) 
+        ; FM3Utils . ContribToHashI ( LResult ^ . ExpHash , Position . Line )
+        ; FM3Utils . ContribToHashI ( LResult ^ . ExpHash , Position . Column )
+(*TODO: Maybe. If no need for the position of a specific occurence of ANY
+               develops, have only one instance of this and thus can also
+               have only one open array of one element of this kind.
+*) 
+
       | FM3SrcToks . StkMinStatic .. FM3SrcToks . StkMaxStatic
       => LResult := GStaticArray [ Opcode ] 
 
       | FM3SrcToks . StkMinOperation .. FM3SrcToks . StkMaxOperation
-      => LResult := NewOpExpr ( Opcode , Position )
+      => LResult := NewOpExpr ( Opcode , Position ) 
 
       ELSE LResult := NIL
       END (*CASE*)

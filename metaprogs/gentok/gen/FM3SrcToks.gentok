@@ -8,6 +8,11 @@
 
 (* Input file FM3SrcTok.gentok, to metaprogram GenTok. *)
 
+(* Ater changes, rerun gentok with the following command, minus the quotes,
+   in this file's directory. 
+   "./gentok -S -L -i -n FM3SrcToks.gentok"
+*) 
+
 UNITNAME FM3SrcToks
 
 SRC 

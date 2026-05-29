@@ -2313,8 +2313,7 @@ MODULE FM3Pass1
     ; WITH WScopeRefForDecls = FM3Scopes . ScopeDeclStackTopRef 
            , WUntRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack 
       DO 
-        IF WScopeRefForDecls . ScpOwningUnitRef = FM3Units . UnitStackTopRef
-           (* ^Can this fail? *) 
+        IF WScopeRefForDecls . ScpKind IN FM3Scopes . ScopeKindSetUnit 
            AND NOT FM3ExpImp . CheckDuplicateExpImp
                      ( FM3Units . UnitStackTopRef
                      , LAtom

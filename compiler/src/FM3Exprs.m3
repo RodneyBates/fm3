@@ -39,6 +39,8 @@ MODULE FM3Exprs
   = BEGIN (*ExprKindImage*)
       CASE Kind OF
       | ExprKindTyp . EkNull => RETURN "EkNull" 
+      | ExprKindTyp . EkInvalid => RETURN "EkInvalid"  
+      | ExprKindTyp . EkAbsent => RETURN "EkAbsent" 
       | ExprKindTyp . EkLiteral => RETURN "EkLiteral"
       | ExprKindTyp . EkIdentRef => RETURN "EkIdentRef" 
       | ExprKindTyp . EkQualIdentRef => RETURN "EkQualIdentRef"
@@ -57,6 +59,7 @@ MODULE FM3Exprs
       | ExprKindTyp . EkCall => RETURN "EkCall" 
       | ExprKindTyp . EkSubscript => RETURN "EkSubscript" 
       | ExprKindTyp . EkBuiltin => RETURN "EkBuiltin"  
+      | ExprKindTyp . EkANY => RETURN "EkANY"  
       | ExprKindTyp . EkSignature => RETURN "EkSignature"  
       | ExprKindTyp . EkValue => RETURN "EkValue" 
       | ExprKindTyp . EkBrand => RETURN "EkBrand"  
@@ -556,7 +559,7 @@ RETURN ;
 ; PROCEDURE PushExprStack ( NewExpr : ExprRefTyp )
 
   = BEGIN
-      (* Let's crash on trying to push a NIL. *)
+      (* Let's just crash on trying to push a NIL. *)
       IF NewExpr ^ . ExpStackHt # 0 (* It's already somewhere on the stack *)  
       THEN <* ASSERT FALSE *>
       END (*IF*) 

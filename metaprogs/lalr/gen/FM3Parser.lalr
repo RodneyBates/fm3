@@ -793,7 +793,7 @@ RULE
        FM3Pass1 . QualIdentRefL2R ( $1 , $3 , $2 . Scan . Position ) ;
      } .
 
-   OverrideRef : StkIdent /* Only in the LHS of an override. */ 
+   OverrideRef : StkIdent /* Occurs only in the LHS of an override. */ 
      { $$ . Scan . SaChars := $1 . Scan . SaChars ;
        $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
        $$ . Scan . SaBuiltinTok := $1 . Scan . SaBuiltinTok ;
@@ -963,7 +963,7 @@ RULE
      } .
 
    OptConstDeclType : StkColon Type 
-     { $$ . PaBool (* Present. *) := TRUE ;
+     { $$ . PaBool (* Present. *) := TRUE ; 
        $$ . Scan . Position := $2 . Scan . Position 
      } .
 
@@ -1618,13 +1618,15 @@ RULE
          ) ; 
      } . 
 
-(* ----------------------------- Method Signatures -------------------------- *)
+(* --------------------------- Method Declarations -------------------------- *)
 
    MethodDeclLt : StkIdent 
      { (* Default Coord. *)
        $$ . Scan . SaAtom := $1 . Scan . SaAtom ; 
        $$ . PaInt1 (* Valid ident count, 0 or 1. *) 
-         := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkMethod , IdAttribute := $1 ) ) ;
+         := ORD ( FM3Pass1 . DeclIdL2R
+                    ( Dkt . DkMethod , IdAttribute := $1 )
+                ) ;
      } .
 
    MethodBody /* Empty */ :
@@ -1634,8 +1636,7 @@ RULE
      } .
 
    MethodBody : StkBecomes Expr
-     { $$ . Scan . Position := $1 . Scan . Position ; 
-     } . 
+     { $$ . Scan . Position := $1 . Scan . Position ; } . 
 
    MethodDecl : MethodDeclLt Signature MethodBody 
      { (* Default coord and position. *)
@@ -1646,10 +1647,13 @@ RULE
            ( Itk . ItkMethodDeclLt
            , $1 . PaPass1Coord 
            , $1 . Scan . Position
+           
            , $2 . PaPass1Coord 
-           , $2 . Scan . Position 
+           , $2 . Scan . Position
+           
            , $3 . PaPass1Coord 
-           , $3 . Scan . Position 
+           , $3 . Scan . Position
+           
            , $1 . Scan . Position 
            ) ;
        ELSE (* Method Id was invalid. *) 
@@ -1701,30 +1705,34 @@ RULE
 
 (* -------------------------------- Overrides ------------------------------- *)
 
-   Override : StkIdent StkEqual Expr 
+   OverrideId : StkIdent
+     { $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
+       $$ . PaInt1 (* Ident count, 0 if error, else 1. *)
+         := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkOverride , IdAttribute := $1 ) ) ;
+     } . 
+
+   Override : OverrideId StkBecomes Expr 
      { (* Default PaPos. *)
        (* Default PaPass1Coord. *)
-       $$ . PaInt1 (* valid ident count, 0 or 1. *)
-         := ORD ( FM3Pass1 . VerifyIdentNotReserved
-                    ( $1
-                    , $1 . Scan .Position
-                    , "denote a method to override"
-                    )
-                ) ;
-       
+
+       $$ . PaInt1 := $1 . PaInt1 (* Contribution to BlockDecl count. 0 or 1. *) ;
        IF $$ . PaInt1 = 0 
        THEN (* Skip the whole override. *) 
          FM3Pass1 . PutBwd_LCI_ri
            ( Itk . ItkSkipLt , $1 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
          INC ( FM3Globals . NextSkipNo ) ;
        ELSE
-         FM3Pass1 . PutBwd_LCIP_rip
-           ( Itk . ItkOverrideLt
+         FM3Pass1 . PutBwd_LCP_eCP_rP
+           ( Itk . ItkOverrideLt  
            , $1 . PaPass1Coord
-           , $1 . Scan . SaAtom 
            , $1 . Scan . Position
+           
+           , $2 . PaPass1Coord
+           , $2 . Scan . Position
+           
+           , $1 . Scan . Position 
            ) ;
-       END (*IF*) 
+       END (*IF*) ;
      } . 
 
 (* --------------------------------- Brands --------------------------------- *)
@@ -1851,42 +1859,22 @@ RULE
    Works for proc decl, proc definition, proc type decl, method decl. *)
 
    Signature : Formals ResultType Raises
-     { $$ . PaInt1 := $1 . PaInt1 (* valid ident ct. *) ;
+     { $$ . PaInt1 := $1 . PaInt1 (* valid formals ident ct. *) ;
        $$ . PaInt2 := $1 . PaInt2 (* Formals scope no. *) ;
-       VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
-       VAR LTok : FM3Base . TokTyp ;  
-       BEGIN
-         FM3Pass1 . PutBwd_LCIIBP_eCP_zCP_riibp
-           ( Itk . ItkSignatureLt  
-           , $1 . PaPass1Coord
-           , $1 . PaInt2 
-           , $1 . PaInt1
-           , $1 . PaBool (* Is function *) 
-           , $1 . Scan . Position
-           
-           , $2 . PaPass1Coord
-           , $2 . Scan . Position
-           
-           , $3 . PaPass1Coord
-           , $3 . Scan . Position 
-           ) ;
-       END (*Block*) ; 
+       FM3Pass1 . PutBwd_LCIIIP_riiip
+         ( Itk . ItkSignatureLt  
+         , $1 . PaPass1Coord
+         , $1 . PaInt2 (* Formals scope no. *) 
+         , $1 . PaInt1 (* valid formals ident ct. *)
+         , $3 . PaInt1 (* exceptions ct. *) 
+         , $1 . Scan . Position
+         ) ;
      } . 
 
 (* List of formal decls. *)
 
 (* FormalsLt Formals.PaInt1, FormalPlus.PaInt1, and FormalsList.PaInt1
    are formals count. *)
-
-   Formals : StkOpenParen StlCloseParen
-     { $$ . PaInt1 := 0 (* Valid ident ct. *) ;
-       $$ . PaInt2 := $1 . PaInt2 (* Formals scope no. *) ; 
-       FM3Pass1 . MakeListEmpty
-         ( $$
-         , Itk . ItkFormalsListLt
-         , $1 . Scan . Position
-         ) ;
-     } . 
 
    FormalsLt : StkOpenParen 
      { (* Default PaPos. *)
@@ -1910,7 +1898,17 @@ RULE
        END ;
      } .
 
-   Formals : FormalsLt FormalsList StkCloseParen
+   Formals : FormalsLt StlCloseParen /* Empty formals list. */ 
+     { $$ . PaInt1 := 0 (* Valid ident ct. *) ;
+       $$ . PaInt2 := $1 . PaInt2 (* Formals scope no. *) ; 
+       FM3Pass1 . MakeListEmpty
+         ( $$
+         , Itk . ItkFormalsListLt
+         , $1 . Scan . Position
+         ) ;
+     } . 
+
+   Formals : FormalsLt FormalsList StkCloseParen /* Nonempty. */
      { (* Default PaPos. *)
        (* Default PaPass1Coord. *)
        $$ . PaInt1 := $2 . PaInt1 (* Formals count. *) ;
@@ -2111,23 +2109,23 @@ RULE
    ResultType : StkColon Type 
      { $$ . PaBool (* Result type is present. *) := TRUE;
        $$ . Scan . Position := $1 . Scan . Position;
-       FM3Pass1 . PutBwd_LCP_rp
-         (Itk . ItkResultTypeLt,  $1 . PaPass1Coord , $1 . Scan . Position); 
+       FM3Pass1 . PutBwd_LP
+         (Itk . ItkSignatureResult , $1 . Scan . Position ) ;  
      } .
      
    ResultType : /*Empty*/
      { $$ . PaBool (* Result type is present. *) := FALSE (* Absent. *) ;
        $$ . Scan . Position := FM3Scanner . Attribute . Position; 
+       $$ . PaPass1Coord := FM3Pass1 . Coord ( ) ; 
        FM3Pass1 . PutBwd_LP
          ( Itk . ItkResultTypeAbsent , FM3Scanner . Attribute . Position ) ;
-       $$ . PaPass1Coord := FM3Pass1 . Coord ( ) ; 
      } .
 
 (* RAISES of signature. *) 
    Raises : /*Empty*/
      { $$ . PaBool (* Raises set is present. *) := FALSE (* Absent. *) ;
        FM3Pass1 . MakeListEmpty
-         ( $$ , Itk . ItkRaisesSetLt , FM3Scanner . Attribute . Position ) ; 
+         ( $$ , Itk . ItkRaisesListLt , FM3Scanner . Attribute . Position ) ; 
      } .
 
    Raises : StkRwRAISES StkRwANY 
@@ -2139,8 +2137,9 @@ RULE
    Raises
      : StkRwRAISES StkOpenBrace IdentOrQualRefStarList StkCloseBrace 
      { $$ . PaBool (* Raises set is present. *) := TRUE ;
+       $$ . PaInt1 := $3 . PaInt1 (* Ct of refs. *) ;  
        $$ . Scan . Position := $1 . Scan . Position ; 
-       MakeListPos ( $$ , Itk . ItkRaisesSetLt , $1 . Scan . Position , $2 ) ;
+       MakeListPos ( $$ , Itk . ItkRaisesListLt , $1 . Scan . Position , $2 ) ;
      } . 
 (* ------------------------------ Procedures ------------------------------ *)
 
@@ -2174,7 +2173,8 @@ RULE
        $$ . Scan . SaAtom := $2 . Scan . SaAtom ; 
        $$ . PaInt1 (* Valid ident count, 0 or 1. *) 
          := ORD ( FM3Pass1 . DeclIdL2R
-                    ( Dkt . DkProcDef , IdAttribute := $2 ) ) ;
+                    ( Dkt . DkProcDef , IdAttribute := $2 )
+                ) ;
        $$ . PaByte2 := ORD ( Skt . SkProcBody ) ;
        $$ . PaPos := $4 . Scan . Position ; 
        VAR LFormalsScopeRef : FM3Scopes . ScopeRefTyp ; 

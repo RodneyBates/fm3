@@ -92,11 +92,11 @@ INTERFACE FM3Scopes
 
 ; CONST ScopeKindSetPositional = SET OF ScopeKindTyp
     { ScopeKindTyp . SkFormals
-    , ScopeKindTyp . SkRec 
-    , ScopeKindTyp . SkObj
+    , ScopeKindTyp . SkRec (* Fields. *) 
+    , ScopeKindTyp . SkObj (* Fields+methods+overrides. *) 
     , ScopeKindTyp . SkEnum
     }
-  (* ^These have a meaningful ScpDeclListRef. *) 
+  (* ^These have meaningful ScpDeclListRef & ScpDeclListNo. *) 
 
 ; CONST ScopeKindSetBinding = SET OF ScopeKindTyp
     { ScopeKindTyp . SkWith
@@ -111,7 +111,8 @@ INTERFACE FM3Scopes
 ; TYPE ScopeTyp = RECORD
         ScpDeclStackLink : ScopeRefTyp := NIL
       ; ScpLookupStackLink : ScopeRefTyp:= NIL 
-      ; ScpOwningUnitRef : FM3Units . UnitRefTyp := NIL 
+      ; ScpOwningUnitRef : FM3Units . UnitRefTyp := NIL
+(* REVIEW^Is there any need for this? will it always be unit stack TOS? *) 
       ; ScpDeclIdSet : IntSets . T := NIL 
         (* ^IdentAtoms declared within, including imports of top-level scope. *)
       ; ScpFormalIdSet : IntSets . T := NIL 

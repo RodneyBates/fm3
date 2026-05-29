@@ -8,6 +8,11 @@
 
 (* Input file FM3IntToks.gentok, to metaprogram GenTok. *)
 
+(* Ater changes, rerun gentok with the following command, minus the quotes,
+   in this file's directory.
+   "./gentok -T -t -c -n -o  FM3IntToks.gentok"
+*)
+
 UNITNAME FM3IntToks
 (* DECREASING No need for this now. *)  
 
@@ -84,7 +89,8 @@ ItkQualIdUnitNoDeclNo INT   DECL  POS POS (* Lt UnitNo, Rt declNo. *) .
 ItkInvalidRef POS .
 
 FIXED   
-ItkSignature INT INT BOOL POS (* Scope #, Formals ct, Is function, Position. *)
+ItkSignature INT INT INT POS
+            (* Scope #, Formals ct, raises ct, Is function, Position. *)
   Result POS
   Raises POS . 
 ItkMethodDecl POS 
@@ -92,12 +98,11 @@ ItkMethodDecl POS
   Proc        POS (* Of ":=" *) .
 ItkFormalType POS 2 (* Position of colon. *) . 
 ItkFormalExpr POS 2 (* Position of ":=" *).
-ItkResultType POS 2 (* Position of colon. *).
-ItkRaisesSet INT POS 3 (* list count. Position of RAISES. *) . 
-ItkProcDecl IDENT POS 3 .
-ItkProcDef IDENT POS 3 
-  Body POS 2 (* Position of equal sign. *) .
-ItkProcType POS 2 (* Position of "PROCEDURE". *) . 
+ItkRaisesList INT POS 3 (* list count. Position of RAISES. *) . 
+ItkProcDecl   IDENT POS 3 .
+ItkProcDef    IDENT POS 3 
+  Body        POS 2 (* Position of equal sign. *) .
+ItkProcType   POS 2 (* Position of "PROCEDURE". *) . 
   
 FIXED
 ItkProcBlock INT POS 3 (* Construct no., Position of LM declaration. *)
@@ -119,9 +124,9 @@ ItkConstId IDENT POS 3 .
 
 FIXED
 ItkConstDecl POS
-  Type POS 
-  Value POS . 
- 
+  Type POS             (* Positionof ':'. *) 
+  Value POS            (* Position of '='. *) . 
+
 ItkTypeDecl POS 2 (* Position of ident. *)
   Type POS 2 . 
 ItkSubtypeDecl POS 2 (* Position of ident (Lt). *)
@@ -445,8 +450,8 @@ LIST ItkSubscriptsPlusList .
 FIXED ItkActual   IDENT (* May be AtomNull *) POS (*Of ":=" or expr*) .
 
 FIXED ItkObjField IDENT POS (*Of ":=" *).
-FIXED ItkOverride IDENT POS (* LHS *) . 
-      (* Surrounds the RHS procedure ref. *) 
+FIXED ItkOverride IDENT POS (* LHS *) 
+         Proc POS (* Of ":=" *) . 
 
 LONE ItkOverrideAtom IDENT POS (* LHS ident *) 
 

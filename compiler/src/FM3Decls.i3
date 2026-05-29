@@ -77,7 +77,7 @@ INTERFACE FM3Decls
 
 ; CONST DeclRefBrand = "DeclRef0.1" 
 ; REVEAL FM3Globals . DeclRefTyp = BRANDED DeclRefBrand REF DeclTyp 
-; TYPE DeclRefTyp = FM3Globals . DeclRefTyp 
+; TYPE DeclRefTyp = FM3Globals . DeclRefTyp (* Convenience. *) 
 ; TYPE DeclTyp
     = RECORD 
         DclLink : DeclRefTyp := NIL 
