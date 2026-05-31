@@ -46,11 +46,16 @@ MODULE FM3StreamUtils
 (*EXPORTED.*)
 ; PROCEDURE GetBwdScopeNo ( RdBack : RdBackFile . T ) : FM3Globals . ScopeNoTyp 
 
-  = VAR LResult : FM3Globals . ScopeNoTyp 
+  = VAR LReadVal : LONGINT
+  ; VAR LResult : FM3Globals . ScopeNoTyp 
 
   ; BEGIN (*GetBwdScopeNo*)
-      LResult
-        := VAL ( FM3Compress . GetBwd ( RdBack ) , FM3Globals . ScopeNoTyp ) 
+      LReadVal := FM3Compress . GetBwd ( RdBack )
+    ; TRY
+        LResult := VAL ( LReadVal , FM3Globals . ScopeNoTyp )
+      EXCEPT ELSE
+        <* ASSERT FALSE , "GetBwdScopeNo out of range." *>
+      END (*EXCEPT*) 
     ; RETURN LResult 
     END GetBwdScopeNo 
 

@@ -125,7 +125,7 @@ INTERFACE FM3Decls
   (* Unit-relative/Scope-relative. *)
 
 ; PROCEDURE NewDeclRefListRef ( Ct : INTEGER ) : FM3Globals . DeclRefListRefTyp
-  (* With all elements initialized to NIL. *) 
+  (* With all elements initialized to NIL, naturally. *) 
 
 ; TYPE DeclMapTyp = FM3Base . MapTyp  
     (* Map DeclNoTyp to DeclRefTyp. One of these per Unit. *)

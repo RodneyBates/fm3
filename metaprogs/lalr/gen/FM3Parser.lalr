@@ -1722,15 +1722,14 @@ RULE
            ( Itk . ItkSkipLt , $1 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
          INC ( FM3Globals . NextSkipNo ) ;
        ELSE
-         FM3Pass1 . PutBwd_LCP_eCP_rP
+         FM3Pass1 . PutBwd_LCIP_eCP_rip
            ( Itk . ItkOverrideLt  
            , $1 . PaPass1Coord
+           , $1 . Scan . SaAtom 
            , $1 . Scan . Position
            
            , $2 . PaPass1Coord
            , $2 . Scan . Position
-           
-           , $1 . Scan . Position 
            ) ;
        END (*IF*) ;
      } . 
@@ -1836,7 +1835,7 @@ RULE
            , $1 . PaPass1Coord
            , LScopeRef ^ . ScpSelfScopeNo 
            , $1 . PaByte2 (* BrandKind, Bkt. *)
-           , $2 . PaInt1 + $3 .PaInt1 (* Count of fields and methods. *) 
+           , $2 . PaInt1 + $3 .PaInt1 (* fields+methods. *) 
            , $4 . PaInt1 (* Count of overrides. *)
            , $1 . Scan . Position 
            ) ;
@@ -2109,8 +2108,11 @@ RULE
    ResultType : StkColon Type 
      { $$ . PaBool (* Result type is present. *) := TRUE;
        $$ . Scan . Position := $1 . Scan . Position;
-       FM3Pass1 . PutBwd_LP
-         (Itk . ItkSignatureResult , $1 . Scan . Position ) ;  
+       FM3Pass1 . PutBwd_ECP
+         ( Itk . ItkSignatureLt 
+         , $1 . PaPass1Coord 
+         , $1 . Scan . Position
+         ) ;  
      } .
      
    ResultType : /*Empty*/
@@ -2124,22 +2126,22 @@ RULE
 (* RAISES of signature. *) 
    Raises : /*Empty*/
      { $$ . PaBool (* Raises set is present. *) := FALSE (* Absent. *) ;
-       FM3Pass1 . MakeListEmpty
-         ( $$ , Itk . ItkRaisesListLt , FM3Scanner . Attribute . Position ) ; 
+       $$ . PaInt1 := 0 ; 
+       $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
      } .
 
    Raises : StkRwRAISES StkRwANY 
      { $$ . PaBool (* Raises set is present. *) := TRUE ;
-       $$ . Scan . Position := $1 . Scan . Position ; 
+       $$ . PaInt1 := 1 ;  
+       $$ . Scan . Position := $2 . Scan . Position ; 
        FM3Pass1 . PutBwd_LP_rp
-         ( Itk . ItkRaisesANY , $1 . Scan . Position ) ; 
+         ( Itk . ItkRaisesANY , $2 . Scan . Position ) ; 
      } . 
    Raises
      : StkRwRAISES StkOpenBrace IdentOrQualRefStarList StkCloseBrace 
      { $$ . PaBool (* Raises set is present. *) := TRUE ;
        $$ . PaInt1 := $3 . PaInt1 (* Ct of refs. *) ;  
        $$ . Scan . Position := $1 . Scan . Position ; 
-       MakeListPos ( $$ , Itk . ItkRaisesListLt , $1 . Scan . Position , $2 ) ;
      } . 
 (* ------------------------------ Procedures ------------------------------ *)
 
