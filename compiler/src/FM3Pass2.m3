@@ -1542,7 +1542,6 @@ TRUE OR
           ; IF LExprRef ^ . ExpKind # Ekt . EkObjType
             THEN <* ASSERT FALSE , "Override list not inside object type." *>
             END (*IF*)
-
           END (*IF*)
 
       | Itk . ItkOverrideListSep
@@ -1555,9 +1554,6 @@ TRUE OR
           ; IF LExprRef ^ . ExpKind # Ekt . EkObjType
             THEN <* ASSERT FALSE , "Override list not inside object type." *>
             END (*IF*)
-(*
-          ; DEC ( LExprRef ^ . ExpDeclListNo )
-*) 
           END (*IF*) 
 
       | Itk . ItkOverrideListLt
@@ -1566,12 +1562,10 @@ TRUE OR
             LCt := GetBwdInt ( TokResult . TrRdBack )
           ; LPosition := GetBwdPos ( TokResult . TrRdBack )
 
-(*
           ; LExprRef := FM3Exprs . ExprStackTopObj 
           ; IF LExprRef ^ . ExpDeclListNo > 0
             THEN <* ASSERT FALSE , "Too many overrides." *> 
             END (*IF*) 
-*) 
           END (*IF*)
 
       | Itk . ItkOverrideRt 
@@ -1584,22 +1578,6 @@ TRUE OR
           ; IF LExprRef ^ . ExpKind # Ekt . EkObjType
             THEN <* ASSERT FALSE , "Override not inside object type." *>
             END (*IF*)
-(*
-          ; IF LExprRef ^ . ExpDeclListNo < 0 
-            THEN <* ASSERT FALSE , "Too many overrides." *>
-            END (*IF*)
-          ; DEC ( LExprRef ^ . ExpDeclListNo ) 
-          ; WITH WNewOverrideRef 
-                   = LExprRef ^ . ExpDeclListRef
-                       ^ [ LExprRef ^ . ExpDeclListNo ] 
-            DO
-              WNewOverrideRef := NEW ( FM3Exprs . ExprRefTyp )
-            ; FM3Exprs . RegisterExpr ( WNewOverrideRef , Mergeable := FALSE ) 
-            ; WNewOverrideRef ^ . ExpKind := Ekt . EkOverride 
-            ; WNewOverrideRef ^ . ExpIdAtom := LAtom 
-            ; WNewOverrideRef ^ . ExpPosition := LPosition 
-            END (*WITH*)
-*) 
           END (*IF*)
           
       | Itk . ItkOverrideProc 
