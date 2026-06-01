@@ -2245,7 +2245,8 @@ TRUE OR
         =>  (* These don't go in the decl list. *) 
         
         | Dkt . DkEnumLit
-        =>  AppendToScpDeclList ( LDeclRef ) 
+        =>  AppendToScpDeclList ( LDeclRef )
+          ; LScopeRef := FM3Scopes . ScopeDeclStackTopRef 
           ; LValueExprRef
               := NEW ( FM3Exprs . ExprRefTyp
                      , ExpKind := Ekt . EkLiteral

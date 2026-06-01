@@ -49,6 +49,7 @@ MODULE FM3Decls
       | DeclKindTyp . DkVALUEFormal => RETURN "DkVALUEFormal"
       | DeclKindTyp . DkVARFormal => RETURN "DkVARFormal"
       | DeclKindTyp . DkROFormal => RETURN "DkROFormal"
+      | DeclKindTyp . DkEnumLit => RETURN "DkEnumLit"
       | DeclKindTyp . DkRecField => RETURN "DkRecField"
       | DeclKindTyp . DkObjField => RETURN "DkObjField"
       | DeclKindTyp . DkMethod => RETURN "DkMethod"
