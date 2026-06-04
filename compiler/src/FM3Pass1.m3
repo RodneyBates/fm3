@@ -2169,7 +2169,7 @@ MODULE FM3Pass1
     ; READONLY ElemsAttr : tParsAttribute 
     )
 
-(* TODO, Maybe.  Inline this is source code? 14 places as of 2026-4-1. *)   
+(* TODO, Maybe.  Inline this in source code? 14 places as of 2026-4-1. *)   
 
   = BEGIN
       LHSAttr . PaInt1 := ElemsAttr . PaInt1 (* Valid element count. *) 

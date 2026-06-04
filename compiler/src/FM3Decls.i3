@@ -75,9 +75,24 @@ INTERFACE FM3Decls
 
 ; PROCEDURE DeclKindImage ( Kind : DeclKindTyp ) : TEXT
 
+; TYPE DeclListElmtsTyp = REF ARRAY OF DeclRefTyp
+
+; TYPE DeclListTyp = FM3Globals . DeclListTyp (* Convenience. *) 
+
+; PROCEDURE NewDeclList ( Ct : INTEGER ) : DeclListTyp
+
+  (* With all elements initialized to NIL. *) 
+
+; PROCEDURE InsertDeclListR2L
+    ( VAR (*In OUT*) DeclList : DeclListTyp ; Elmt : DeclRefTyp )
+
+; PROCEDURE FinishDeclList ( DeclList : DeclListTyp )
+  (* Assert that it is exactly full. *) 
+
 ; CONST DeclRefBrand = "DeclRef0.1" 
 ; REVEAL FM3Globals . DeclRefTyp = BRANDED DeclRefBrand REF DeclTyp 
 ; TYPE DeclRefTyp = FM3Globals . DeclRefTyp (* Convenience. *) 
+
 ; TYPE DeclTyp
     = RECORD 
         DclLink : DeclRefTyp := NIL 
@@ -123,9 +138,6 @@ INTERFACE FM3Decls
   
 ; PROCEDURE DeclInfoImageOfDeclRef ( DeclRef : DeclRefTyp ) : TEXT 
   (* Unit-relative/Scope-relative. *)
-
-; PROCEDURE NewDeclRefListRef ( Ct : INTEGER ) : FM3Globals . DeclRefListRefTyp
-  (* With all elements initialized to NIL, naturally. *) 
 
 ; TYPE DeclMapTyp = FM3Base . MapTyp  
     (* Map DeclNoTyp to DeclRefTyp. One of these per Unit. *)

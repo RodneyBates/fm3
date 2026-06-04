@@ -850,7 +850,10 @@ RULE
      
    DeclIdListElems : DeclIdListElems StkComma StkIdent
      { IF FM3Pass1 . DeclIdL2R
-            ( VAL ( $0 . PaByte1 (* Decl Kind *) , Dkt ) , IdAttribute := $3 )
+            ( VAL ( $0 . PaByte1 (* Decl Kind *) , Dkt )
+            , IdAttribute := $3
+            , PriorIdCt := $1 . PaInt1
+            )
        (* ^No Itk separators here.  It would be kinda silly. *) 
        THEN (* Use this ident. *)
          $$ . PaInt1 := $1 . PaInt1 + 1 ;
@@ -1430,7 +1433,9 @@ RULE
 (* ---------------------------- Enumeration types ---------------------- *)
 
    EnumTypeLt : StkOpenBrace
-     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
+     { $$ . PaByte1 := ORD ( Dkt . DkEnumLit ) ; 
+
+       VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN
          LScopeRef 
            := FM3Scopes . NewScopeRef
@@ -1443,7 +1448,7 @@ RULE
        END; 
      } .
 
-   Type : EnumTypeLt EnumLitList StkCloseBrace
+   Type : EnumTypeLt DeclIdListElems StkCloseBrace
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN
          LScopeRef := FM3Scopes . PopScopeRefDeclsStack (  ) ;
@@ -1461,6 +1466,8 @@ RULE
            ) ;
        END; 
      } .
+
+(* OLD: 
 
    EnumLitList : /*Empty*/
      { $$ . PaInt1 (* Enum lit count. *) := 0 ;
@@ -1481,10 +1488,22 @@ RULE
      } . 
 
    EnumLitPlus : EnumLit  
-     { $$ . PaInt1 (* Enum lit count. *) := $1 . PaInt1 ; } . 
+     { $$ . PaInt1 (* Enum lit count. *) := $1 . PaInt1 ;
+       FM3Pass1 . PutBwd_LIP
+         ( Itk . ItkEnumLit
+         , $$ . PaInt1 (* Ct of this and lits to left. *) 
+         , $1 . Scan . Pos
+         ) 
+     } . 
 
    EnumLitPlus : EnumLitPlus StkComma EnumLit
-     { $$ . PaInt1 (* Decl count. *):= $1 . PaInt1 + $3 . PaInt1 ; } .
+     { $$ . PaInt1 (* Decl count. *):= $1 . PaInt1 + $3 . PaInt1 ;
+       FM3Pass1 . PutBwd_LIP
+         ( Itk . ItkEnumLit
+         , $$ . PaInt1 (* Ct of this and lits to left. *) 
+         , $1 . Scan . Pos
+         ) 
+     } .
      
    EnumLit : StkIdent
      { $$ . PaInt1 (* Ident count, 0 or 1. *) 
@@ -1492,6 +1511,9 @@ RULE
                     ( Dkt . DkEnumLit , IdAttribute := $1 )
                 ) ;
      } . 
+END OLD
+*) 
+
 
 (* --------------------------Field decl lists ------------------------- *)
 

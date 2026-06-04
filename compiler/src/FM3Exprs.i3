@@ -198,7 +198,7 @@ INTERFACE FM3Exprs
        } 
 
 ; CONST EkSetHasVarArgList = EkSetTyp
-  (* i.e., length is not a fixed property of the Kind.. *)  
+  (* i.e., list length is not a fixed property of the Kind.. *)  
        { Ekt . EkSignature
        , Ekt . EkCall
        , Ekt . EkSubscript 
@@ -224,13 +224,27 @@ INTERFACE FM3Exprs
 
 ; TYPE Est = ExprStateTyp
 
+; PROCEDURE NewExprRef ( ) : ExprRefTyp 
+
 ; PROCEDURE RegisterExpr ( Expr : ExprRefTyp ; Mergeable : BOOLEAN )
   (* Do not register a static builtin expression (type or consant) . *) 
 
-; TYPE ExprListRefTyp = REF ARRAY OF ExprRefTyp
+; TYPE ExprListElmtsTyp = REF ARRAY OF ExprRefTyp
 
-; PROCEDURE NewExprListRef ( Ct : INTEGER ) : ExprListRefTyp
+; TYPE ExprListTyp
+    = RECORD
+        ElListRef : ExprListElmtsTyp := NIL 
+      ; ElUnfilledCt : INTEGER := - 1 (* Filling R2L, unfilled elmts on left. *)
+      END 
+
+; PROCEDURE NewExprList ( Ct : INTEGER ) : ExprListTyp
   (* With all elements initialized to NIL. *) 
+
+; PROCEDURE InsertExprListR2L
+    ( VAR (*In OUT*) ExprList : ExprListTyp ; Elmt : ExprRefTyp )
+
+; PROCEDURE FinishExprList ( ExprList : ExprListTyp )
+  (* Assert that it is exactly full. *) 
 
 ; PROCEDURE ExprRefImage ( ExprRef : REFANY ) : TEXT 
   (* ExprNo, REF, and Position. *) 
@@ -306,7 +320,7 @@ INTERFACE FM3Exprs
       ; ExpBuiltinOpLtOpndKindsAllowed := ExprKindSetTyp { } 
       ; ExpBuiltinOpRtOpndKindsAllowed := ExprKindSetTyp { }
       ; ExpRangeBase : ExprRefTyp := NIL 
-      ; ExpDeclListRef : FM3Globals . DeclRefListRefTyp
+      ; ExpDeclList : FM3Globals . DeclListTyp
         (* For:
            Array type: DclDefType is an element type.
            Array constructor: DclDefValue is element value. 
@@ -319,7 +333,8 @@ INTERFACE FM3Exprs
            Object type: DclIdAtom and DclDefValue denote an override.
            Revelation: TypeIdAtom, revealed as expr. 
         *)
-      ; ExpArgListRef : ExprListRefTyp
+      ; ExpArgList : ExprListTyp 
+      ; ExpArgListRef : ExprListElmtsTyp
      (* ^Subscript types of array type
         [qual]idents of RAISES list. 
         subscript exprs of [ ] 

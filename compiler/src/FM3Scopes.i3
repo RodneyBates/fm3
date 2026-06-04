@@ -96,7 +96,7 @@ INTERFACE FM3Scopes
     , ScopeKindTyp . SkObj (* Fields+methods+overrides. *) 
     , ScopeKindTyp . SkEnum
     }
-  (* ^These have meaningful ScpDeclListRef & ScpDeclListNo. *) 
+  (* ^These have a meaningful ScpDeclList. *) 
 
 ; CONST ScopeKindSetBinding = SET OF ScopeKindTyp
     { ScopeKindTyp . SkWith
@@ -125,9 +125,9 @@ INTERFACE FM3Scopes
         (* INVARIANT: Once ScpDeclIdSet and ScpDeclDict are both complete,
            Atom is in one IFF in the other.
         *)
-      ; ScpDeclListRef : FM3Globals . DeclRefListRefTyp := NIL 
-        (* Same decl contents as ScpDeclDict, in positional order.
-           NIL if no decls.
+      ; ScpDeclList : FM3Globals . DeclListTyp  
+        (* Same decl contents as ScpDeclDict, but in positional order.
+           NIL if not used or zero decls.
         *)
         (* For a record or object type: Field decls.  
            For a procedure, proc type, or method: Formal decls. 

@@ -165,8 +165,8 @@ MODULE FM3Scopes
     ; RETURN LResult 
     END IdDeclDictImage
 
-; PROCEDURE DeclRefListImage
-    ( List : FM3Globals . DeclRefListRefTyp ; Prefix := "    " )
+; PROCEDURE DeclListImage
+    ( List : FM3Globals . DeclListTyp ; Prefix := "    " )
   : TEXT 
 
   = VAR LImagesRef : REF ARRAY OF TEXT 
@@ -175,20 +175,20 @@ MODULE FM3Scopes
   ; VAR LResult : TEXT
   ; VAR LCt : INTEGER 
     
-  ; BEGIN (*DeclRefListImage*)
-      IF List = NIL THEN RETURN "NIL" END (*IF*)
-    ; LCt := NUMBER ( List ^ )
+  ; BEGIN (*DeclListImage*)
+      IF List . DlListRef = NIL THEN RETURN "NIL" END (*IF*)
+    ; LCt := NUMBER ( List . DlListRef ^ )
     ; IF LCt = 0 THEN RETURN "{ }" END (*IF*) 
     ; LImagesRef := NEW ( REF ARRAY OF TEXT , LCt )
     ; FOR RI := 0 TO LCt - 1
       DO
-        LRef := List ^ [ RI ] (* Implied NARROW. *) 
+        LRef := List . DlListRef ^ [ RI ] (* Implied NARROW. *) 
       ; LElemImage := FM3Decls . DeclRefImage ( LRef ) 
       ; LImagesRef ^ [ RI ] := LElemImage 
       END (*FOR*) 
     ; LResult := FM3Utils . ListImage ( LImagesRef ^ , Prefix := Prefix ) 
     ; RETURN LResult 
-    END DeclRefListImage
+    END DeclListImage
 
 ; PROCEDURE DefExprsImage ( Exprs : ARRAY BOOLEAN (*Is value expr*) OF REFANY )
   : TEXT 
@@ -474,7 +474,7 @@ MODULE FM3Scopes
         ; DsField ( "ScpFormalIdSet" , IdentSetImage ( WScope ^ . ScpFormalIdSet ) , IdentSetImage ( LDef ^ . ScpFormalIdSet ) )
         ; DsField ( "ScpRefIdSet" , IdentSetImage ( WScope ^ . ScpRefIdSet ) , IdentSetImage ( LDef ^ . ScpRefIdSet ) )
         ; DsField ( "ScpDeclDict (abs(rel) decl nos)" , IdDeclDictImage ( WScope ^ . ScpDeclDict ) , IdDeclDictImage ( LDef ^ . ScpDeclDict ) )
-        ; DsField ( "ScpDeclListRef" , DeclRefListImage ( WScope ^ . ScpDeclListRef ) , DeclRefListImage ( LDef ^ . ScpDeclListRef ) )
+        ; DsField ( "ScpDeclList" , DeclListImage ( WScope ^ . ScpDeclList ) , DeclListImage ( LDef ^ . ScpDeclList ) )
         ; DsField ( "ScpDeclGraph (Relative decl nos)" , ArcSetImage ( WScope ^ . ScpDeclGraph ) , ArcSetImage ( LDef ^ . ScpDeclGraph ) )
         ; DsField ( "ScpCurDeclRefNoSet" , DeclNoSetImage ( WScope ^ . ScpCurDeclRefNoSet ) , DeclNoSetImage ( LDef ^ . ScpCurDeclRefNoSet ) )
         ; DsField ( "ScpCurDefExprs" , DefExprsImage ( WScope ^ . ScpCurDefExprs ) , DefExprsImage ( LDef ^ . ScpCurDefExprs ) )

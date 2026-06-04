@@ -132,6 +132,17 @@ MODULE FM3Exprs
       END (*CASE*) 
     END ExprStateImage
 
+(*EXPORTED.*)
+; PROCEDURE NewExprRef ( ) : ExprRefTyp 
+
+  = VAR LResult : ExprRefTyp 
+
+  ; BEGIN (*NewExprRef*)
+      LResult := NEW ( ExprRefTyp )
+(* TODO: accumuilate statistics. *) 
+    ; RETURN LResult 
+    END NewExprRef
+
 (* EXPORTED.*) 
 ; PROCEDURE RegisterExpr ( Expr : ExprRefTyp ; Mergeable : BOOLEAN )
   (* Do not register a static builtin expression (type or consant) . *) 
@@ -151,37 +162,62 @@ MODULE FM3Exprs
       END (*IF*) 
     END RegisterExpr 
 
-(*EXPORTED.*)
-; PROCEDURE NewExprListRef ( Ct : INTEGER ) : ExprListRefTyp
+(*EXPORTED.*) 
+; PROCEDURE NewExprList ( Ct : INTEGER ) : ExprListTyp
   (* With all elements initialized to NIL. *) 
 
-  = VAR LResult : ExprListRefTyp 
+  = VAR LResult : ExprListTyp 
 
-  ; BEGIN (*NewExprListRef*)
-      LResult := NEW ( ExprListRefTyp , Ct )
-    ; FOR RI := FIRST ( LResult ^ ) TO LAST ( LResult ^ )
-      DO LResult ^ [ RI ] := NIL 
+  ; BEGIN (*NewExprList*)
+      LResult . ElListRef := NEW ( ExprListElmtsTyp , Ct )
+    ; LResult . ElUnfilledCt := Ct 
+    ; FOR RI := FIRST ( LResult . ElListRef ^ ) TO LAST ( LResult . ElListRef ^ )
+      DO LResult .  ElListRef ^ [ RI ] := NIL 
       END (*FOR*)
     ; RETURN LResult 
-    END NewExprListRef
+    END NewExprList
 
-; PROCEDURE AppendExprList ( ExprList : ExprListRefTyp ) 
+(*EXPORTED.*)
+; PROCEDURE InsertExprListR2L
+    ( VAR (*In OUT*) ExprList : ExprListTyp ; Elmt : ExprRefTyp )
+
+  = BEGIN (*InsertExprListR2L*)
+      DEC ( ExprList . ElUnfilledCt )
+    ; WITH WElmt = ExprList . ElListRef ^ [ ExprList . ElUnfilledCt ]
+      DO IF WElmt # NIL 
+        THEN <* ASSERT FALSE , "duplicate insertion into ExprList" *>
+        END (*IF*)
+      ; WElmt := Elmt 
+      END (*WITH*) 
+    END InsertExprListR2L
+
+(*EXPORTED.*)
+; PROCEDURE FinishExprList ( ExprList : ExprListTyp )
+  (* Assert that it is exactly full. *) 
+
+  = BEGIN (*FinishExprList*)
+      IF ExprList . ElUnfilledCt # 0
+      THEN <* ASSERT FALSE , "improper ExprList" *>
+      END (*IF*) 
+    END FinishExprList
+
+; PROCEDURE AppendExprList ( ExprList : ExprListTyp ) 
 
   = BEGIN
-      IF ExprList = NIL THEN RETURN END (*IF*)
-    ; FOR RI := FIRST ( ExprList ^ ) TO LAST ( ExprList ^ ) 
+      IF ExprList . ElListRef = NIL THEN RETURN END (*IF*)
+    ; FOR RI := FIRST ( ExprList . ElListRef ^ )
+             TO LAST ( ExprList . ElListRef ^ ) 
       DO
         Wr . PutText ( GWrT , GIndentStrings [ ORD ( GDepth MOD 5 = 0 ) ] ) 
       ; Wr . PutChar ( GWrT , '[' )  
       ; Wr . PutText ( GWrT , Fmt . Int ( RI ) ) 
       ; Wr . PutChar ( GWrT , ']' )
       ; Wr . PutText ( GWrT , Wr . EOL ) 
-      ; AppendNestedExpr ( ExprList ^ [ RI ] ) 
+      ; AppendNestedExpr ( ExprList . ElListRef [ RI ] ) 
       ; Wr . PutText ( GWrT , "END" ) 
       ; Wr . PutText ( GWrT , Wr . EOL ) 
     END (*FOR*) 
     END AppendExprList
-
     
 ; VAR GWrT : Wr . T (* Sorry for the global. *)
 ; VAR GDepth : INTEGER
@@ -406,11 +442,11 @@ RETURN ;
       ; Field ( "ExpBuiltinOpRtOpndKindsAllowed" 
               , ExprKindSetMessage ( Expr ^ . ExpBuiltinOpRtOpndKindsAllowed ) 
               )
-      ; Field ( "ExpArgListRef" , "" )
-      ; AppendExprList ( Expr ^ . ExpArgListRef ) 
+      ; Field ( "ExpArgList" , "" )
+      ; AppendExprList ( Expr ^ . ExpArgList ) 
 
-      ; Field ( "ExpDeclListRef"
-              , FM3Utils . RefanyImage ( Expr ^ . ExpDeclListRef )
+      ; Field ( "ExpDeclList"
+              , FM3Utils . RefanyImage ( Expr ^ . ExpDeclList . DlListRef )
               )  
 
       ; Field ( "ExpObjBrandKind"

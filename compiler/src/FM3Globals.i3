@@ -40,7 +40,14 @@ INTERFACE FM3Globals
 ; CONST DeclNoMax = LAST ( DeclNoTyp )
 ; CONST DeclNoNotUseable = DeclNoNull + 1 
 ; CONST DeclNoFirstReal = DeclNoNotUseable + 1
-; TYPE DeclRefListRefTyp = REF ARRAY OF DeclRefTyp 
+; TYPE xDeclRefListRefTyp = REF ARRAY OF DeclRefTyp 
+; TYPE DeclListElmtsTyp = REF ARRAY OF DeclRefTyp
+; TYPE DeclListTyp
+    = RECORD
+        DlListRef : DeclListElmtsTyp := NIL 
+      ; DlUnfilledCt : INTEGER := - 1 (* Filling R2L, unfilled elmts on left. *)
+      END 
+
 
 ; TYPE ExprRefTyp <: REFANY  
 

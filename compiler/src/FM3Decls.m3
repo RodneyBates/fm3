@@ -62,6 +62,64 @@ MODULE FM3Decls
       END (*CASE*)
     END DeclKindImage
 
+(*EXPORTED.*) 
+; PROCEDURE NewDeclList ( Ct : INTEGER ) : DeclListTyp
+  (* With all elements initialized to NIL. *) 
+
+  = VAR LResult : DeclListTyp 
+
+  ; BEGIN (*NewDeclList*)
+      LResult . DlListRef := NEW ( DeclListElmtsTyp , Ct )
+    ; LResult . DlUnfilledCt := Ct 
+    ; FOR RI := FIRST ( LResult . DlListRef ^ ) TO LAST ( LResult . DlListRef ^ )
+      DO LResult .  DlListRef ^ [ RI ] := NIL 
+      END (*FOR*)
+    ; RETURN LResult 
+    END NewDeclList
+
+(*EXPORTED.*)
+; PROCEDURE InsertDeclListR2L
+    ( VAR (*In OUT*) DeclList : DeclListTyp ; Elmt : DeclRefTyp )
+
+  = BEGIN (*InsertDeclListR2L*)
+      DEC ( DeclList . DlUnfilledCt )
+    ; WITH WElmt = DeclList . DlListRef ^ [ DeclList . DlUnfilledCt ]
+      DO IF WElmt # NIL 
+        THEN <* ASSERT FALSE , "duplicate insertion into DeclList" *>
+        END (*IF*)
+      ; WElmt := Elmt
+      END (*WITH*) 
+    END InsertDeclListR2L
+
+(*EXPORTED.*)
+; PROCEDURE FinishDeclList ( DeclList : DeclListTyp )
+  (* Assert that it is exactly full. *) 
+
+  = BEGIN (*FinishDeclList*)
+      IF DeclList . DlUnfilledCt # 0
+      THEN <* ASSERT FALSE , "improper DeclList" *>
+      END (*IF*) 
+    END FinishDeclList
+    
+(* INCOMPLETE: This is for dumping: 
+; PROCEDURE AppendDeclList ( DeclList : DeclListRefTyp ) 
+
+  = BEGIN
+      IF DeclList = NIL THEN RETURN END (*IF*)
+    ; FOR RI := FIRST ( DeclList ^ ) TO LAST ( DeclList ^ ) 
+      DO
+        Wr . PutText ( GWrT , GIndentStrings [ ORD ( GDepth MOD 5 = 0 ) ] ) 
+      ; Wr . PutChar ( GWrT , '[' )  
+      ; Wr . PutText ( GWrT , Fmt . Int ( RI ) ) 
+      ; Wr . PutChar ( GWrT , ']' )
+      ; Wr . PutText ( GWrT , Wr . EOL ) 
+      ; AppendNestedDecl ( DeclList ^ [ RI ] ) 
+      ; Wr . PutText ( GWrT , "END" ) 
+      ; Wr . PutText ( GWrT , Wr . EOL ) 
+    END (*FOR*) 
+    END AppendDeclList
+*)
+
 (*EXPORTED.*)
 ; PROCEDURE DeclNoImage ( DeclNo : FM3Globals . DeclNoTyp )  : TEXT 
   (* Unit-relative/Scope-relative, in current unit. *)
@@ -238,20 +296,6 @@ MODULE FM3Decls
       RETURN
         DeclRefImage ( DeclRef , DoFields := TRUE , DefaultFields := TRUE )
     END DeclRefImageDebug  
-
-(*EXPORTED.*)
-; PROCEDURE NewDeclRefListRef ( Ct : INTEGER ) : FM3Globals . DeclRefListRefTyp
-  (* With all elements initialized to NIL. *) 
-
-  = VAR LResult : FM3Globals . DeclRefListRefTyp 
-
-  ; BEGIN (*NewDeclRefListRef*)
-      LResult := NEW ( FM3Globals . DeclRefListRefTyp , Ct )
-    ; FOR RI := FIRST ( LResult ^ ) TO LAST ( LResult ^ )
-      DO LResult ^ [ RI ] := NIL 
-      END (*FOR*)
-    ; RETURN LResult 
-    END NewDeclRefListRef
 
 (*EXPORTED*) 
 ; PROCEDURE NewDeclMap ( InitDeclCt : FM3Globals . DeclNoTyp ) : DeclMapTyp
