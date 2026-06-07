@@ -431,11 +431,6 @@ MODULE FM3Resolve
                    ( LeftExprRef ^ . ExpScopeRef1
                    , RightExprRef ^ . ExpScopeRef1
                    ) 
-          ; LResult 
-              := DeclListsEqual 
-                   ( LeftExprRef ^ . ExpDeclList
-                   , RightExprRef ^ . ExpDeclList
-                   ) 
         | Ekt . EkSubrType
         =>  LResult := Opnds1And2Equal ( LeftExprRef , RightExprRef ) 
         | Ekt . EkRefType

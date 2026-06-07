@@ -62,6 +62,7 @@ INTERFACE FM3Exprs
 ; IMPORT FM3SrcToks
 ; IMPORT FM3Utils 
 
+; TYPE DeclListTyp = FM3Globals . DeclListTyp (* Convenience. *) 
 ; TYPE OpcodeTyp = FM3Base .OpcodeTyp 
 
 (* Types in the compiled code, not in the compiler. *)
@@ -320,7 +321,7 @@ INTERFACE FM3Exprs
       ; ExpBuiltinOpLtOpndKindsAllowed := ExprKindSetTyp { } 
       ; ExpBuiltinOpRtOpndKindsAllowed := ExprKindSetTyp { }
       ; ExpRangeBase : ExprRefTyp := NIL 
-      ; ExpDeclList : FM3Globals . DeclListTyp
+
         (* For:
            Array type: DclDefType is an element type.
            Array constructor: DclDefValue is element value. 
@@ -334,14 +335,13 @@ INTERFACE FM3Exprs
            Revelation: TypeIdAtom, revealed as expr. 
         *)
       ; ExpArgList : ExprListTyp 
-      ; ExpArgListRef : ExprListElmtsTyp
      (* ^Subscript types of array type
         [qual]idents of RAISES list. 
         subscript exprs of [ ] 
      *) 
       ; ExpObjBrandKind : FM3Parser . BrandKindTyp 
       ; ExpScopeRef1 : FM3Scopes . ScopeRefTyp
-        (* ^For named access. *) 
+        (* ^For named access and sometimes positional. *) 
       ; ExpArgPrefix : ExprRefTyp (* Array of subscript or proc of call. *) 
 
       ; ExpIdentDeclNo : FM3Globals . DeclNoTyp
@@ -351,7 +351,6 @@ INTERFACE FM3Exprs
       ; ExpPosition : tPosition := FM3Base . PositionNull
       ; ExpOpcode : OpcodeTyp := FM3SrcToks . RidNull
       ; ExpIdAtom : FM3Base . AtomTyp
-      ; ExpDeclListNo : INTEGER (* # of contained decls still to be linked in. *)
       ; ExpArgListNo : INTEGER (* # of actuals still to be stored. *)
       ; ExpBuiltinOpActualsCt : INTEGER
       ; ExpStackHt : INTEGER := 0

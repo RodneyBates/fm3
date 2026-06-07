@@ -49,7 +49,8 @@ INTERFACE FM3Decls
       *)
       , DkConstructorField (* Possibly includes positional fields. *) 
       , DkActual (* Possibly includes positional actuals. *)
-      , DkReveal 
+      , DkPartReveal 
+      , DkFullReveal 
       }
 ; TYPE Dkt = DeclKindTyp
 
@@ -142,7 +143,7 @@ INTERFACE FM3Decls
 ; TYPE DeclMapTyp = FM3Base . MapTyp  
     (* Map DeclNoTyp to DeclRefTyp. One of these per Unit. *)
 
-; PROCEDURE NewDeclMap ( InitDeclCt : FM3Globals . DeclNoTyp ) : DeclMapTyp 
+; PROCEDURE NewDeclMap ( InitDeclCt : FM3Globals . DeclNoTyp ) : DeclMapTyp
 
 ; PROCEDURE NewDeclRef
     ( OwningScopeRef : FM3Globals . ScopeRefTyp

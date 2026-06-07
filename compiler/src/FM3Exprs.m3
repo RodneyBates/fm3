@@ -445,10 +445,6 @@ RETURN ;
       ; Field ( "ExpArgList" , "" )
       ; AppendExprList ( Expr ^ . ExpArgList ) 
 
-      ; Field ( "ExpDeclList"
-              , FM3Utils . RefanyImage ( Expr ^ . ExpDeclList . DlListRef )
-              )  
-
       ; Field ( "ExpObjBrandKind"
               , FM3Parser . BrandKindImage ( Expr ^ . ExpObjBrandKind )
               )  
@@ -463,7 +459,6 @@ RETURN ;
       ; Field ( "ExpPosition" , FM3Utils . PositionImage ( Expr ^ . ExpPosition ) )
       ; Field ( "ExpOpcode" , FM3SrcToks . Image ( Expr ^ . ExpOpcode ) )  
       ; Field ( "ExpIdAtom" , AtomTypImage ( Expr ^ . ExpIdAtom ) ) 
-      ; Field ( "ExpDeclListNo" , IntImage ( Expr ^ . ExpDeclListNo ) )  
       ; Field ( "ExpArgListNo" , IntImage ( Expr ^ . ExpArgListNo ) )  
       ; Field ( "ExpBuiltinOpActualsCt" , IntImage ( Expr ^ . ExpBuiltinOpActualsCt ) )
       ; Field ( "ExpStackHt" , IntImage ( Expr ^ . ExpStackHt ) ) 

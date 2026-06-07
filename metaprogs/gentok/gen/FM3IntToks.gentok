@@ -90,7 +90,7 @@ ItkInvalidRef POS .
 
 FIXED   
 ItkSignature INT INT INT POS
-            (* Scope #, Formals ct, raises ct, Is function, Position. *)
+            (* Scope #, Formals ct, raises ct, Position. *)
   Result POS
   Raises POS . 
 ItkMethodDecl POS 
@@ -193,7 +193,6 @@ LONE
   ItkBrandAnon POS (* anonymous brand value. *) .
 
 LIST
-ItkEnumLitList (* This list alone suffices to delimit an enumeration type. *) . 
 ItkFieldDeclList .
 ItkVarDeclList .
 ItkTypeDeclList .

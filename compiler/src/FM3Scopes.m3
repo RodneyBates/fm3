@@ -165,8 +165,7 @@ MODULE FM3Scopes
     ; RETURN LResult 
     END IdDeclDictImage
 
-; PROCEDURE DeclListImage
-    ( List : FM3Globals . DeclListTyp ; Prefix := "    " )
+; PROCEDURE DeclListImage ( List : DeclListTyp ; Prefix := "    " )
   : TEXT 
 
   = VAR LImagesRef : REF ARRAY OF TEXT 

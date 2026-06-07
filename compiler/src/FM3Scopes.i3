@@ -18,6 +18,8 @@ INTERFACE FM3Scopes
 ; IMPORT FM3Graph 
 ; IMPORT FM3Units
 
+; TYPE DeclListTyp = FM3Globals . DeclListTyp (* Convenience. *) 
+
 (* A scope and its directly-contained declarations are termed "Open"
    if the declarations can be referred-to by unqualified identifiers,
    which can happen only from inside the scope itself and deeplier-
@@ -125,8 +127,10 @@ INTERFACE FM3Scopes
         (* INVARIANT: Once ScpDeclIdSet and ScpDeclDict are both complete,
            Atom is in one IFF in the other.
         *)
-      ; ScpDeclList : FM3Globals . DeclListTyp  
-        (* Same decl contents as ScpDeclDict, but in positional order.
+      ; ScpDeclList : DeclListTyp  
+        (* Subset of decls in ScpDeclDict, but in positional order.
+           Only overrides of an obj type and only revelations of a unit.
+           Otherwise everything that is in ScpDeclDict.  
            NIL if not used or zero decls.
         *)
         (* For a record or object type: Field decls.  

@@ -343,7 +343,6 @@ MODULE FM3Pass2
   (* A value- or type-expression, maybe part of a decl. *) 
 
   = VAR LScopeRef : FM3Scopes . ScopeRefTyp
-  ; VAR LParentExprRef : FM3Exprs . ExprRefTyp 
   
   ; BEGIN (*AdoptOutExprRef*) 
       IF FM3Exprs . ExprStackTopObj = NIL
@@ -497,6 +496,7 @@ FALSE AND
 
 ; PROCEDURE DeclType ( DeclKindTag : TEXT ) 
   (* PRE: The type expression exists and is on the expression stack. *) 
+  (* Pop and store it temporarily in the current declaration scope. *) 
 
   = VAR  LTypeExpr : FM3Exprs . ExprRefTyp 
 
@@ -526,7 +526,8 @@ FALSE AND
     END DeclType
 
 ; PROCEDURE DeclValue ( DeclKindTag : TEXT ; MustBeConst : BOOLEAN ) 
-  (* PRE: The value expression exists and is on the expression stack. *) 
+  (* PRE: The value expression exists and is on the expression stack. *)
+  (* Pop and store it temporarily in the current declaration scope. *) 
 
   = VAR  LValueExpr : FM3Exprs . ExprRefTyp 
 
@@ -591,7 +592,7 @@ FALSE AND
   ; VAR LScopeRef : FM3Scopes . ScopeRefTyp
   ; VAR HtPass1RdBack : RdBackFile . T 
   ; VAR HtPass2RdBack : RdBackFile . T
-  ; VAR LExprRef , LNewExprRef , LValueExpr , LPrefixExpr , LListElem
+  ; VAR LExprRef , LNewExprRef , LValueExprRef , LPrefixExpr , LListElem
           : FM3Exprs . ExprRefTyp
   ; VAR LLongInt: LONGINT 
   ; VAR LScopeNo : FM3Globals . ScopeNoTyp
@@ -710,7 +711,7 @@ TRUE OR
 
     = BEGIN 
 (* TODO: Maybe inline this. *)
-(* REVIEW: make all callsites oo the htskipping thing, for other actions
+(* REVIEW: make all callsites do the htskipping thing, for other actions
            besides this.  Then only RegisterExpr remains, so inline it.
 *) 
         IF HtSkipping 
@@ -720,31 +721,6 @@ TRUE OR
         END (*IF*)
       END HtExprRt 
 
-  ; PROCEDURE HtScopeWPositionalDeclListRt
-      ( ScopeRef : FM3Scopes . ScopeRefTyp ; DeclCt : INTEGER )
-    (* PRE: Scope to be used is on TOS scope decl stack. *) 
-
-    = VAR LDeclList : FM3Globals . DeclListTyp 
-
-(* TODO: Maybe inline this. *) 
-    ; BEGIN (*HtScopeWPositionalDeclListRt*)
-        LDeclList := FM3Decls . NewDeclList ( DeclCt )
-      ; ScopeRef ^ . ScpDeclList := LDeclList
-      END HtScopeWPositionalDeclListRt
-
-  ; PROCEDURE HtScopeWPositionalDeclListLt ( ScopeNo : FM3Scopes . ScopeNoTyp )
-    (* Just assert correct number of decrements occurred.*) 
-
-    = VAR LScopeRef : FM3Scopes . ScopeRefTyp
-
-(* TODO: Maybe inline this. *) 
-    ; BEGIN (*HtScopeWPositionalDeclListLt*)
-        LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( ScopeNo ) 
-      ; IF LScopeRef ^ . ScpDeclListNo # 0
-        THEN <* ASSERT FALSE , "Short decls list." *>
-        END (*IF*)
-      END HtScopeWPositionalDeclListLt
-      
   ; PROCEDURE HtExprOpnd1 ( )
       (* PRE: TOS is 1st (LM) operand, TOS-1 is parent. *)
       (* Reads position. *) 
@@ -948,8 +924,15 @@ TRUE OR
 
       | Itk . ItkConstDeclRt 
       , Itk . ItkVarDeclRt 
-      , Itk . ItkRecFieldDeclRt 
       , Itk . ItkObjFieldDeclRt
+      =>  LScopeRef := FM3Scopes . ScopeDeclStackTopRef
+        ; LScopeRef ^ . ScpCurDefExprs := ARRAY BOOLEAN OF REFANY { NIL , .. }
+        ; LScopeRef ^ . ScpCurDefIsValue := TRUE
+        ; LScopeRef ^ . ScpCurDeclExprStackCt := FM3Exprs . ExprStackCt 
+        ; LScopeRef ^ .  ScpCurDeclRefNoSet := IntSets . Empty ( )
+(*???*) ; HtPassTokenThru ( )
+
+      | Itk . ItkRecFieldDeclRt 
       , Itk . ItkVALUEFormalRt
       , Itk . ItkVARFormalRt
       , Itk . ItkROFormalRt
@@ -981,8 +964,8 @@ TRUE OR
         ; HtPassTokenThru ( ) 
 
       | Itk . ItkVARFormalValue
-      =>  LValueExpr := FM3Exprs . PopExprStack ( ) 
-        ; <* ASSERT NOT LValueExpr ^ . ExpIsPresent *> 
+       =>  LValueExprRef := FM3Exprs . PopExprStack ( ) 
+        ; <* ASSERT NOT LValueExprRef ^ . ExpIsPresent *> 
           FM3Scopes . ScopeDeclStackTopRef ^ . ScpCurDefIsValue := FALSE 
           (* ^Type is coming up next. *) 
         ; HtPassTokenThru ( )
@@ -1236,8 +1219,8 @@ TRUE OR
                      , ExpIsLegalRecursive := TRUE
                      , ExpScopeRef1 := LScopeRef
                      , ExpArgList := FM3Exprs . ExprListTyp { NIL , LCt }
-                       (* No need for a list, just use ElUnfilledCt to assign
-                          values to the enum lits.
+                       (* No need for the list itself, just use ElUnfilledCt
+                          to assign values to the enum lits.
                        *) 
                      , ExpPosition := LPosition 
                      )
@@ -1245,7 +1228,8 @@ TRUE OR
               ( LNewExprRef ^ . ExpHash , LScopeRef ^ . ScpSelfScopeNo  ) 
           ; FM3Utils . ContribToHashI
               ( LNewExprRef ^ . ExpHash , LPosition . Line ) 
-          ; LScopeRef ^ . ScpDeclList . DlUnfilledCt := LCt 
+          ; LScopeRef ^ . ScpDeclList . DlUnfilledCt := LCt
+          ; LScopeRef ^ . ScpDeclList . DlListRef := NIL 
             (* No need for a list, just use DlUnfilledCt to assign values.*) 
           ; FM3Exprs . RegisterExpr ( LNewExprRef , Mergeable := FALSE )
           ; FM3Exprs . PushExprStack ( LNewExprRef ) 
@@ -1259,51 +1243,13 @@ TRUE OR
         
         ; IF NOT HtSkipping
           THEN 
-            LExprRef := FM3Exprs . ExprStackTopObj 
-          ; HtScopeWPositionalDeclListLt ( LScopeNo )
+            LExprRef := FM3Exprs . ExprStackTopObj
+          ; FM3Exprs . FinishExprList ( LExprRef ^ . ExpArgList ) 
+            (* ^No actual list, just assert ct. *) 
           ; EVAL FM3Scopes . PopScopeRefDeclsStack ( ) 
           END (*IF*) 
-(*
-(* FIXME: Some of these need to copy the token and arguments. *)   
-      | Itk . ItkEnumLitListRt
-      =>  IF NOT HtMaybePassTokenThru ( )
-          THEN
-            LCt := GetBwdInt ( TokResult . TrRdBack ) (* Enum lit count. *)
-          ; LPosition := GetBwdPos ( TokResult . TrRdBack )
-          
-          ; LScopeRef := FM3Scopes . ScopeDeclStackTopRef 
-          ; IF LScopeRef = NIL
-            OR LScopeRef . ScpKind # Skt . SkEnum
-            THEN <* ASSERT FALSE , "No enum decl scope at right end." *>
-            END (*IF*) 
-          ; LNewExprRef
-              := NEW ( FM3Exprs . ExprRefTyp
-                     , ExpKind := Ekt . EkEnumType 
-                     , ExpUpKind := Ekt . EkType
-                     , ExpScopeRef1 := LScopeRef 
-                     , ExpState := Est . EsResolved
-                     , ExpPosition := LPosition 
-                     )
-          ; FM3Utils . ContribToHashI ( LNewExprRef ^ . ExpHash , LCt ) 
-(* TODO: Compute a better hash, from the enum lits. *) 
-          ; HtExprRt ( LNewExprRef , Mergeable := TRUE )
-          END (*IF*)
 
-      | Itk . ItkEnumLitListSep
-      =>  IF NOT HtMaybePassTokenThru ( )
-          THEN
-            LCt := GetBwdInt ( TokResult . TrRdBack ) (* Field count. *)
-          ; LPosition := GetBwdPos ( TokResult . TrRdBack )
-          END (*IF*)
-
-      | Itk . ItkEnumLitListLt
-      =>  IF NOT HtMaybePassTokenThru ( )
-          THEN
-            LCt := GetBwdInt ( TokResult . TrRdBack ) (* Field count. *)
-          ; LPosition := GetBwdPos ( TokResult . TrRdBack )
-          END (*IF*)
-*)
-      (* Record type: *) 
+      (* Record types: *) 
 
       | Itk . ItkRecTypeRt
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
@@ -1321,7 +1267,7 @@ TRUE OR
                    , ExpScopeRef1 := LScopeRef 
                    , ExpPosition := LPosition 
                    )
-        ; HtScopeWPositionalDeclListRt ( LScopeRef , LFieldCt )
+        ; LScopeRef ^ . ScpDeclList := FM3Decls . NewDeclList ( LFieldCt )
         ; HtExprRt ( LNewExprRef , Mergeable := TRUE ) 
       
       | Itk . ItkRecTypeLt 
@@ -1330,8 +1276,10 @@ TRUE OR
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         
         ; AssertTosDeclScopeNo ( LScopeNo , "rec type left" )
-        ; HtScopeWPositionalDeclListLt ( LScopeNo )
-        ; EVAL FM3Scopes . PopScopeRefDeclsStack ( ) 
+        ; FM3Decls . FinishDeclList ( LScopeRef ^ . ScpDeclList ) 
+        ; EVAL FM3Scopes . PopScopeRefDeclsStack ( )
+
+      (* Signatures: *) 
 
       | Itk . ItkFormalsRt
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
@@ -1339,23 +1287,21 @@ TRUE OR
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
             
         ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) 
-        ; HtScopeWPositionalDeclListRt ( LScopeRef , LCt )
       
       | Itk . ItkFormalsLt 
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack )
         ; LCt := GetBwdInt ( TokResult . TrRdBack ) (* Formals. *) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         
-        ; HtScopeWPositionalDeclListLt ( LScopeNo )
-
       | Itk . ItkSignatureRt
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
         ; LCt := GetBwdInt ( TokResult . TrRdBack ) (* Formals. *)  
         ; LCt2 := GetBwdScopeNo ( TokResult . TrRdBack )
-                (*^  Raise exception ct. *) 
+                  (*^  Raises exception ct. *) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
             
         ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) 
+        ; LScopeRef ^ . ScpDeclList := FM3Decls . NewDeclList ( LCt )
         ; LNewExprRef
             := NEW ( FM3Exprs . ExprRefTyp
                    , ExpKind := Ekt . EkSignature 
@@ -1367,7 +1313,6 @@ TRUE OR
                    , ExpArgListNo := LCt2
                    , ExpPosition := LPosition 
                    )
-        ; HtScopeWPositionalDeclListRt ( LScopeRef , LCt ) 
         ; HtExprRt ( LNewExprRef , Mergeable := TRUE )
 
       | Itk . ItkRaisesANY
@@ -1377,7 +1322,7 @@ TRUE OR
         ; IF LExprRef . ExpKind # Ekt . EkSignature
           THEN <* ASSERT FALSE , "Raises any not in sinature" *>
           END (*IF*)
-        ; LExprRef . ExpArgListRef ^ [ 0 ]
+        ; LExprRef . ExpArgList .  ElListRef ^ [ 0 ]
             := FM3Builtins . BuiltinExpr ( FM3SrcToks . StkRwANY , LPosition ) 
       
       | Itk . ItkResultTypeAbsent  
@@ -1413,14 +1358,12 @@ TRUE OR
         ; LCt2 := GetBwdScopeNo ( TokResult . TrRdBack ) (* Raise refs. *) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
 
+        ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) 
         ; LExprRef := FM3Exprs . ExprStackTopObj 
         ; IF LExprRef ^ . ExpKind # Ekt . EkSignature
           THEN <* ASSERT FALSE , "ItkSignatureLt, not in signature." *>
           END (*IF*)
-        ; IF LExprRef ^ . ExpDeclListNo # 0 
-          THEN <* ASSERT FALSE , "Signature decl list no mismatch." *>
-          END (*IF*) 
-        ; HtScopeWPositionalDeclListLt ( LScopeNo ) 
+        ; FM3Decls . FinishDeclList ( LScopeRef ^ . ScpDeclList ) 
         
       (* Brands: *)
 
@@ -1583,6 +1526,11 @@ TRUE OR
           ; IF LExprRef ^ . ExpKind # Ekt . EkObjType
             THEN <* ASSERT FALSE , "Override list not inside object type." *>
             END (*IF*)
+          ; LScopeRef := LExprRef ^ . ExpScopeRef1
+          ; LScopeRef ^ . ScpDeclList := FM3Decls . NewDeclList ( LCt ) 
+          (* Hmm. ^This list could alternatively be rooted in the type
+             expr's scope.
+          *) 
           END (*IF*)
 
       | Itk . ItkOverrideListSep
@@ -1603,10 +1551,9 @@ TRUE OR
             LCt := GetBwdInt ( TokResult . TrRdBack )
           ; LPosition := GetBwdPos ( TokResult . TrRdBack )
 
-          ; LExprRef := FM3Exprs . ExprStackTopObj 
-          ; IF LExprRef ^ . ExpDeclListNo > 0
-            THEN <* ASSERT FALSE , "Too many overrides." *> 
-            END (*IF*) 
+          ; LExprRef := FM3Exprs . ExprStackTopObj
+          ; LScopeRef := LExprRef ^ . ExpScopeRef1
+          ; FM3Decls . FinishDeclList ( LScopeRef . ScpDeclList ) 
           END (*IF*)
 
       | Itk . ItkOverrideRt 
@@ -1635,24 +1582,11 @@ TRUE OR
             LAtom := GetBwdAtom ( TokResult . TrRdBack )
           ; LPosition := GetBwdPos ( TokResult . TrRdBack )
 
+          ; LValueExprRef := FM3Exprs . PopExprStack ( )  
           ; LExprRef := FM3Exprs . ExprStackTopObj 
           ; IF LExprRef ^ . ExpKind # Ekt . EkObjType
             THEN <* ASSERT FALSE , "Override list not inside object type." *>
             END (*IF*)
-(* 
-          ; DEC ( LExprRef ^ . ExpDeclListNo ) 
-          ; WITH WOverrideRef 
-                    = LExprRef ^ . ExpDeclList . DlListRef 
-                      ^ [ LExprRef ^ . ExpDeclList . DlUnfilledCt ]
-            DO IF WOverrideRef ^ . ExpKind # Ekt . EkOverride 
-              THEN <* ASSERT FALSE , "Expected override decl." *>
-              END (*IF*)
-            ; IF WOverrideRef ^ . ExpPosition # LPosition
-              THEN <* ASSERT FALSE , "Left override, mismatch." *>
-              END (*IF*)
-            ; WOverrideRef ^ . ExpOpnd1 := LValueExpr  
-            END (*WITH*)
-*) 
           END (*IF*)
 
       | Itk . ItkObjTypeRt 
@@ -1662,11 +1596,15 @@ TRUE OR
           ; BEGIN 
               LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack )
             ; LBrandKind := GetBwdBrandKind ( TokResult . TrRdBack )
-            ; LDeclCt := GetBwdInt ( TokResult . TrRdBack ) (* Fields. *) 
+            ; LDeclCt := GetBwdInt ( TokResult . TrRdBack )
+              (* ^Fields+methods. *) 
             ; LOverrideCt := GetBwdInt ( TokResult . TrRdBack ) (* Overrides. *) 
             ; LPosition := GetBwdPos ( TokResult . TrRdBack )
             
             ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo )
+            ; IF LScopeRef ^ . ScpKind # Skt . SkObj
+              THEN <* ASSERT FALSE , "P2 ObjTypeRt wrong Kind" *>
+              END (*IF*) 
             ; FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) 
             ; LNewExprRef
                 := NEW ( FM3Exprs . ExprRefTyp
@@ -1684,9 +1622,8 @@ TRUE OR
                        , ExpScopeRef1 := LScopeRef
                        , ExpPosition := LPosition 
                        )
-                       
-            ; HtScopeWPositionalDeclListRt ( LScopeRef , LOverrideCt )
             ; HtExprRt ( LNewExprRef , Mergeable := TRUE )
+            ; LScopeRef . ScpDeclList := FM3Decls . NewDeclList ( LOverrideCt )
             END (* Block. *) 
           END (*IF*)
           
@@ -1699,9 +1636,10 @@ TRUE OR
           ; LOverrideCt := GetBwdInt ( TokResult . TrRdBack ) (* Overrides. *)  
           ; LPosition := GetBwdPos ( TokResult . TrRdBack )
           
-          ; AssertTosDeclScopeNo ( LScopeNo , "object type left" )  
-          ; EVAL FM3Scopes . PopScopeRefDeclsStack ( ) 
-          ; HtScopeWPositionalDeclListLt ( LScopeNo )
+          ; AssertTosDeclScopeNo ( LScopeNo , "object type left" )
+          ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo )
+          ; FM3Decls . FinishDeclList ( LScopeRef ^ . ScpDeclList ) 
+          ; EVAL FM3Scopes . PopScopeRefDeclsStack ( )
           END (*IF*)
           
       | Itk . ItkSupertypeLt
@@ -1850,8 +1788,8 @@ TRUE OR
         
         ; IF LCt > 0
           THEN 
-            LValueExpr := FM3Exprs . ExprStackTopObj (* Call or subscript. *)
-          ; <* ASSERT LCt = LValueExpr ^ . ExpArgListNo *>
+            LValueExprRef := FM3Exprs . ExprStackTopObj (* Call or subscript. *)
+          ; <* ASSERT LCt = LValueExprRef ^ . ExpArgListNo *>
           END (*IF*)
 
       | Itk . ItkActualLt
@@ -1870,10 +1808,10 @@ TRUE OR
         ; IF LCt > 0
           THEN 
             LListElem := FM3Exprs . PopExprStack ( ) (* LM arg. *) 
-          ; LValueExpr := FM3Exprs . ExprStackTopObj 
-          ; <* ASSERT LValueExpr ^ . ExpArgListNo = 1 *> 
-            DEC ( LValueExpr ^ . ExpArgListNo )
-          ; LValueExpr ^ . ExpArgListRef ^ [ LValueExpr ^ . ExpArgListNo ]
+          ; LValueExprRef := FM3Exprs . ExprStackTopObj 
+          ; <* ASSERT LValueExprRef ^ . ExpArgListNo = 1 *> 
+            DEC ( LValueExprRef ^ . ExpArgListNo )
+          ; LValueExprRef ^ . ExpArgListRef ^ [ LValueExprRef ^ . ExpArgListNo ]
               := LListElem
           END (*IF*)
 *)
@@ -1889,14 +1827,14 @@ TRUE OR
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         
         ; LPrefixExpr := FM3Exprs . PopExprStack ( ) (* Procedure or array *) 
-        ; LValueExpr := FM3Exprs . ExprStackTopObj (* Call or proc. *) 
-        ; <* ASSERT LPosition = LValueExpr ^ . ExpPosition *>
-          <* ASSERT LValueExpr ^ . ExpArgListNo = 0 *>
-          FM3Exprs . FinishExprList ( LValueExpr ^ . ExpArgList ) 
-        ; LValueExpr ^ . ExpArgPrefix := LPrefixExpr
-        ; AdoptOutExprRef ( LValueExpr ) 
+        ; LValueExprRef := FM3Exprs . ExprStackTopObj (* Call or proc. *) 
+        ; <* ASSERT LPosition = LValueExprRef ^ . ExpPosition *>
+          <* ASSERT LValueExprRef ^ . ExpArgListNo = 0 *>
+          FM3Exprs . FinishExprList ( LValueExprRef ^ . ExpArgList ) 
+        ; LValueExprRef ^ . ExpArgPrefix := LPrefixExpr
+        ; AdoptOutExprRef ( LValueExprRef ) 
         ; PutBwdP2
-            ( HtPass2RdBack , VAL ( LValueExpr ^ . ExpSelfExprNo , LONGINT ) ) 
+            ( HtPass2RdBack , VAL ( LValueExprRef ^ . ExpSelfExprNo , LONGINT ) ) 
         ; PutBwdP2 ( HtPass2RdBack , VAL ( Itk . ItkExprTyp , LONGINT ) )
 
       | Itk . ItkInterfaceRt
@@ -2160,23 +2098,14 @@ TRUE OR
       END (* Block. *) 
     END DuplDeclIdR2L
 
-; PROCEDURE AppendToScpDeclList ( DeclRef : FM3Decls . DeclRefTyp )
+; PROCEDURE PrependToScpDeclList ( DeclRef : FM3Decls . DeclRefTyp )
 
   = VAR LScopeRef : FM3Scopes . ScopeRefTyp
 
-  ; BEGIN (*AppendToScpDeclList*)
+  ; BEGIN (*PrependToScpDeclList*)
       LScopeRef := FM3Scopes . ScopeDeclStackTopRef 
-    ; IF NOT LScopeRef ^ . ScpKind IN FM3Scopes . ScopeKindSetPositional 
-      THEN <* ASSERT FALSE , "Positional decl in wrong scope kind." *> 
-      END (*IF*)
-    ; IF LScopeRef ^ . ScpDeclListNo <= 0
-      THEN <* ASSERT FALSE , "Too few positional decls." *>
-      END (*IF*)
-    ; WITH WDeclList = LScopeRef ^ . ScpDeclList 
-      DO DEC ( WDeclList . DlUnfilledCt )
-      ; WDeclList . DlListRef ^ [ WDeclList . DlUnfilledCt ] := DeclRef
-      END (*WITH*) 
-    END AppendToScpDeclList
+    ; FM3Decls . InsertDeclListR2L ( LScopeRef ^ . ScpDeclList , DeclRef )   
+    END PrependToScpDeclList
     
 ; PROCEDURE ValidDeclIdR2L ( READONLY TokResult : TokResultTyp )
   : FM3Globals . DeclNoTyp
@@ -2210,6 +2139,7 @@ TRUE OR
     (* A callback. *) 
     (* PRE: DeclNoI IN FM3Globals . DeclNoTyp *) 
     (* PRE: DeclRefany <: FM3Decls . DeclRefTyp. *)
+    (* DeclRefAny is the field of the dictionary entry for DeclNoI. *) 
     
     = VAR LDeclRef : FM3Decls . DeclRefTyp
     ; VAR LScopeRef : FM3Scopes . ScopeRefTyp
@@ -2251,6 +2181,7 @@ TRUE OR
       ; LDeclRef ^ . DclIdAtom := DidAtom
       ; LDeclRef ^ . DclPos := DidPosition 
       ; LDeclRef ^ . DclKind := DidDeclKind
+      (* The following 2 exprs were stored earlier, before any decl existed. *) 
       ; LDeclRef ^ . DclDefValue
           := FM3Scopes . ScopeDeclStackTopRef ^ . ScpCurDefExprs [ TRUE ]  
       ; LDeclRef ^ . DclDefType 
@@ -2272,7 +2203,6 @@ TRUE OR
         | Dkt . DkType                        
         , Dkt . DkProcDecl
         , Dkt . DkProcDef
-        , Dkt . DkReveal 
         =>  IF NOT FM3Scopes . ScopeDeclStackTopRef ^ . ScpKind
                    IN FM3Scopes . ScopeKindSetOpen
             THEN <* ASSERT FALSE , "Decl in non-open decl scope" *> 
@@ -2283,34 +2213,41 @@ TRUE OR
         , Dkt . DkROFormal
         , Dkt . DkRecField
         , Dkt . DkOverride
-        =>  AppendToScpDeclList ( LDeclRef ) 
+        =>  LScopeRef := FM3Scopes . ScopeDeclStackTopRef 
+          ; FM3Decls . InsertDeclListR2L
+              ( LScopeRef ^ . ScpDeclList , LDeclRef )
 
         | Dkt . DkObjField
         , Dkt . DkMethod
-        =>  (* These don't go in the decl list. *) 
+        =>  (* These don't go in the decl *list*. *) 
         
         | Dkt . DkEnumLit
-        =>  AppendToScpDeclList ( LDeclRef )
-          ; LScopeRef := FM3Scopes . ScopeDeclStackTopRef 
+        =>  LScopeRef := FM3Scopes . ScopeDeclStackTopRef
+          ; LDeclRef ^ . DclDefType := FM3Exprs . ExprStackTopObj 
+          ; FM3Decls . InsertDeclListR2L
+              ( LScopeRef ^ . ScpDeclList , LDeclRef )   
+          (* No value def expr is in the input, so must create one here. *)
           ; LValueExprRef (* Value of the enumlit. *) 
               := NEW ( FM3Exprs . ExprRefTyp
+                     , ExpType := FM3Exprs . ExprStackTopObj 
                      , ExpKind := Ekt . EkLiteral
-                     , ExpType := LDeclRef ^ . DclDefType 
                      , ExpUpKind := Ekt . EkValue
                      , ExpIsConst := TRUE 
                      , ExpLoTypeInfoRef 
                          := FM3LoTypes . InfoRef ( FM3LoTypes . LoTypeNoLong )
                      , ExpScopeRef1 := LScopeRef 
                      , ExpState := Est . EsResolved
+                     , ExpScalarConstVal
+                         := VAL ( LScopeRef ^ . ScpDeclList . DlUnfilledCt
+                                , LONGINT
+                                ) 
                      , ExpConstValIsKnown := TRUE  
                      , ExpIsLegalRecursive := TRUE
                      , ExpPosition := DidPosition 
                      )
-          ; WITH WCt = LScopeRef ^ . ScpDeclList . DlUnfilledCt 
-            DO
-              DEC ( WCt )
-            ; LValueExprRef ^ . ExpScalarConstVal := VAL ( WCt , LONGINT )  
-            END (*WITH*) 
+          ; LDeclRef ^ . DclDefValue := LValueExprRef 
+          ; LValueExprRef ^ . ExpScalarConstVal
+              := VAL ( LScopeRef ^ . ScpDeclList . DlUnfilledCt , LONGINT )  
           ; FM3Utils . ContribToHashI ( LValueExprRef ^ . ExpHash , DidAtom ) 
           ; FM3Exprs . RegisterExpr ( LValueExprRef , Mergeable := FALSE )
 
@@ -2355,6 +2292,7 @@ TRUE OR
     ; DidAtom := GetBwdAtom ( TokResult . TrRdBack )
     ; DidStdTok := GetBwdInt ( TokResult . TrRdBack )
     ; DidPosition := GetBwdPos ( TokResult . TrRdBack )
+    
     ; IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
       THEN (* We are skipping output. *)
         RETURN FM3Globals . DeclNoNull 
@@ -2690,12 +2628,12 @@ TRUE OR
   
   ; BEGIN (*AccumulateVarArg*)
       LParentExprRef := FM3Exprs . ExprStackTopObj
-    ; IF LParentExprRef = NIL THEN RETURN END (*IF*)
     ; IF NOT LParentExprRef ^ . ExpKind IN FM3Exprs . EkSetHasVarArgList
       THEN RETURN 
       END (*IF*)
-    ; DEC ( LParentExprRef ^ . ExpArgListNo ) 
-    ; LParentExprRef ^ . ExpArgListRef ^ [ LParentExprRef ^ . ExpArgListNo ]
+    ; DEC ( LParentExprRef ^ . ExpArgList . ElUnfilledCt ) 
+    ; LParentExprRef ^ . ExpArgList . ElListRef
+        ^ [ LParentExprRef ^ . ExpArgList . ElUnfilledCt ]
         := ExprRef 
     END AccumulateVarArg
 
@@ -2720,6 +2658,7 @@ TRUE OR
   ; BEGIN (*IdentRefR2L*)
       LIdentRefAtom := GetBwdAtom ( TokResult . TrRdBack )
     ; LPosition := GetBwdPos ( TokResult . TrRdBack )
+    
     ; IF VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi > 0
       THEN (* We are skipping output. *) RETURN 
       END (*IF*)

@@ -59,6 +59,8 @@ MODULE FM3Decls
       | DeclKindTyp . DkWith => RETURN "DkWith"
       | DeclKindTyp . DkFor => RETURN "DkFor"
       | DeclKindTyp . DkExcArg => RETURN "DkExcArg"
+      | DeclKindTyp . DkPartReveal => RETURN "DkPartReveal"
+      | DeclKindTyp . DkFullReveal => RETURN "DkFullReveal"
       END (*CASE*)
     END DeclKindImage
 
@@ -82,8 +84,9 @@ MODULE FM3Decls
     ( VAR (*In OUT*) DeclList : DeclListTyp ; Elmt : DeclRefTyp )
 
   = BEGIN (*InsertDeclListR2L*)
-      DEC ( DeclList . DlUnfilledCt )
+      DEC ( DeclList . DlUnfilledCt ) (* Underflow will bounds-fault. *) 
     ; WITH WElmt = DeclList . DlListRef ^ [ DeclList . DlUnfilledCt ]
+           (* ^Will NIL-fault if list is not set up. *) 
       DO IF WElmt # NIL 
         THEN <* ASSERT FALSE , "duplicate insertion into DeclList" *>
         END (*IF*)
