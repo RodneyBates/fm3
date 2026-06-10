@@ -10,6 +10,8 @@ INTERFACE FM3Decls
 
 ; IMPORT Wr 
 
+; IMPORT IntSets 
+
 ; IMPORT FM3Base
 ; IMPORT FM3Exprs
 ; IMPORT FM3Globals 
@@ -80,12 +82,15 @@ INTERFACE FM3Decls
 
 ; TYPE DeclListTyp = FM3Globals . DeclListTyp (* Convenience. *) 
 
-; PROCEDURE NewDeclList ( Ct : INTEGER ) : DeclListTyp
-
+; PROCEDURE InitDeclList
+    ( VAR (*IN OUT*) DeclList : DeclListTyp ; Ct : INTEGER ) 
   (* With all elements initialized to NIL. *) 
 
-; PROCEDURE InsertDeclListR2L
-    ( VAR (*In OUT*) DeclList : DeclListTyp ; Elmt : DeclRefTyp )
+; PROCEDURE PrependDeclList
+    ( VAR (*In OUT*) DeclList : DeclListTyp
+    ; Elmt : DeclRefTyp
+    ; ExpectedSs : INTEGER := - 1 (* -1 means make no check. *) 
+    )
 
 ; PROCEDURE FinishDeclList ( DeclList : DeclListTyp )
   (* Assert that it is exactly full. *) 
@@ -137,6 +142,10 @@ INTERFACE FM3Decls
 ; PROCEDURE DeclNoImage ( DeclNo : FM3Globals . DeclNoTyp ) : TEXT 
   (* Unit-relative/Scope-relative, in current unit. *)
   
+; PROCEDURE DeclNoSetImage ( DeclNoSet : IntSets . T ; Prefix := "    " )
+  : TEXT 
+  (* Unit-relative/Scope-relative, in current unit. *)
+
 ; PROCEDURE DeclInfoImageOfDeclRef ( DeclRef : DeclRefTyp ) : TEXT 
   (* Unit-relative/Scope-relative. *)
 

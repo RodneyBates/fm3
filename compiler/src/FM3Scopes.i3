@@ -95,7 +95,7 @@ INTERFACE FM3Scopes
 ; CONST ScopeKindSetPositional = SET OF ScopeKindTyp
     { ScopeKindTyp . SkFormals
     , ScopeKindTyp . SkRec (* Fields. *) 
-    , ScopeKindTyp . SkObj (* Fields+methods+overrides. *) 
+    , ScopeKindTyp . SkObj (* Overrides only. *) 
     , ScopeKindTyp . SkEnum
     }
   (* ^These have a meaningful ScpDeclList. *) 
@@ -128,13 +128,12 @@ INTERFACE FM3Scopes
            Atom is in one IFF in the other.
         *)
       ; ScpDeclList : DeclListTyp  
-        (* Subset of decls in ScpDeclDict, but in positional order.
-           Only overrides of an obj type and only revelations of a unit.
-           Otherwise everything that is in ScpDeclDict.  
-           NIL if not used or zero decls.
-        *)
-        (* For a record or object type: Field decls.  
-           For a procedure, proc type, or method: Formal decls. 
+        (* Used for rec fields and formals, which can be subject to positional
+           matchups, where it contains the same decls as ScpDeclDict, but in
+           positional order.  Used similarly for enum lits, just to generate
+           their ORD values.  Also used for overides only of an obj type,
+           where order doesn't matter, but it's a quick way to find them. 
+           DlListRef is NIL if not used or empty.
         *)
       ; ScpDeclGraph : FM3Graph . GraphTyp := NIL 
         (* Arcs are intra-scope RefId to DeclId.  Only those that would
@@ -148,8 +147,6 @@ INTERFACE FM3Scopes
       ; ScpCurDefExprs
           := ARRAY BOOLEAN (*Is value expr*) OF REFANY { NIL , .. } (*1*)
       ; ScpIdAtom : FM3Base . AtomTyp := FM3Base . AtomNull  
-      ; ScpDeclListNo : INTEGER := 0 
-        (* # of contained decls still to be linked in. *)
       ; ScpMinDeclNo := FM3Globals . DeclNoNull
       ; ScpSelfScopeNo : FM3Globals . ScopeNoTyp := FM3Globals . ScopeNoNull
         (* A self-reference. *)

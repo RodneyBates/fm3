@@ -129,9 +129,9 @@ INTERFACE FM3Exprs
                       (*(2)ExpOpnd1.*) 
      , EkBinOp        (*(1)ExpOpcode.*)
                       (*(2)ExpOpnd1, ExpOpnd2.*) 
-     , EkCall         (*(1)ExpArgListRef, ExpArgNo.*) 
+     , EkCall         (*(1)ExpArgList, ExpArgNo.*) 
                       (*(1)ExpRepExprNo=ExpExprNoDistinct*)
-     , EkSubscript    (*(1)ExpArgListRef, ExpArgNo.*)
+     , EkSubscript    (*(1)ExpArgList, ExpArgNo.*)
                       (*(1)ExpRepExprNo=ExpExprNoDistinct*)
      , EkNamed        (*(1)ExpIdAtom, Opnd1 is the expression.*) 
 
@@ -238,11 +238,15 @@ INTERFACE FM3Exprs
       ; ElUnfilledCt : INTEGER := - 1 (* Filling R2L, unfilled elmts on left. *)
       END 
 
-; PROCEDURE NewExprList ( Ct : INTEGER ) : ExprListTyp
+; PROCEDURE InitExprList
+    ( VAR (*IN OUT*) ExprList : ExprListTyp ; Ct : INTEGER ) 
   (* With all elements initialized to NIL. *) 
 
-; PROCEDURE InsertExprListR2L
-    ( VAR (*In OUT*) ExprList : ExprListTyp ; Elmt : ExprRefTyp )
+; PROCEDURE PrependExprList
+    ( VAR (*IN OUT*) ExprList : ExprListTyp
+    ; Elmt : ExprRefTyp
+    ; ExpectedSs : INTEGER := - 1 (* -1 means make no check. *)
+    )
 
 ; PROCEDURE FinishExprList ( ExprList : ExprListTyp )
   (* Assert that it is exactly full. *) 
@@ -341,17 +345,18 @@ INTERFACE FM3Exprs
      *) 
       ; ExpObjBrandKind : FM3Parser . BrandKindTyp 
       ; ExpScopeRef1 : FM3Scopes . ScopeRefTyp
-        (* ^For named access and sometimes positional. *) 
+        (* ^For named access and sometimes positional. *)
+      ; ExpReachedRefNos : IntSets .T := NIL
+        (* Excluding those that lead to legal recursive decls. *) 
       ; ExpArgPrefix : ExprRefTyp (* Array of subscript or proc of call. *) 
 
       ; ExpIdentDeclNo : FM3Globals . DeclNoTyp
-        (* ^ABS ( ExpIdentDeclNo < 0 ) is builtin opcode. *)
+        (* ^ABS ( ExpIdentDeclNo < 0 is builtin opcode). *)
       ; ExpRemoteUnitNo : FM3Globals . UnitNoTyp
       ; ExpRemoteDeclNo : FM3Globals . DeclNoTyp
       ; ExpPosition : tPosition := FM3Base . PositionNull
       ; ExpOpcode : OpcodeTyp := FM3SrcToks . RidNull
       ; ExpIdAtom : FM3Base . AtomTyp
-      ; ExpArgListNo : INTEGER (* # of actuals still to be stored. *)
       ; ExpBuiltinOpActualsCt : INTEGER
       ; ExpStackHt : INTEGER := 0
       ; ExpSelfExprNo : ExprNoTyp (* < 0 for builtin ops. *)
@@ -367,7 +372,7 @@ INTERFACE FM3Exprs
 (* TODO ^ Can't we just use ExpState # Est . EsUnresolved for this? *)  
       ; ExpIsUsable : BOOLEAN := TRUE
       ; ExpIsLegalRecursive : BOOLEAN := FALSE
-        (* ^Self or any containing def could make it legal. *) 
+        (* ^But self or any containing expr could turn it TRUE. *) 
       ; ExpIsDesignator : BOOLEAN := FALSE
       ; ExpIsWritable : BOOLEAN := FALSE
       ; ExpIsPresent : BOOLEAN := TRUE  

@@ -108,29 +108,6 @@ MODULE FM3Scopes
     ; RETURN LResult 
     END IdentSetImage
 
-; PROCEDURE DeclNoSetImage ( DeclNoSet : IntSets . T ; Prefix := "    " )
-  : TEXT 
-
-  = PROCEDURE OneDeclNoImage ( Elem : IntSets . ElemT ) : TEXT 
-    (* A callback. *) 
-
-    = VAR LElemImage : TEXT
-    
-    ; BEGIN (*OneDeclNoImage*)
-        LElemImage := FM3Decls . DeclNoImage ( Elem ) 
-      ; RETURN LElemImage 
-      END OneDeclNoImage
-
-  ; VAR LElemImagesRef : REF ARRAY OF TEXT 
-  ; VAR LResult : TEXT
-      
-  ; BEGIN (*DeclNoSetImage*)
-      LElemImagesRef
-        := FM3Utils . IntSetElemsImages ( DeclNoSet , OneDeclNoImage )
-    ; LResult := FM3Utils . ListImage ( LElemImagesRef ^ , Prefix := Prefix ) 
-    ; RETURN LResult 
-    END DeclNoSetImage
-
 ; PROCEDURE IdDeclDictImage ( Dict : FM3Dict_Int_Int . T ; Prefix := "    " )
   : TEXT 
 
@@ -475,10 +452,9 @@ MODULE FM3Scopes
         ; DsField ( "ScpDeclDict (abs(rel) decl nos)" , IdDeclDictImage ( WScope ^ . ScpDeclDict ) , IdDeclDictImage ( LDef ^ . ScpDeclDict ) )
         ; DsField ( "ScpDeclList" , DeclListImage ( WScope ^ . ScpDeclList ) , DeclListImage ( LDef ^ . ScpDeclList ) )
         ; DsField ( "ScpDeclGraph (Relative decl nos)" , ArcSetImage ( WScope ^ . ScpDeclGraph ) , ArcSetImage ( LDef ^ . ScpDeclGraph ) )
-        ; DsField ( "ScpCurDeclRefNoSet" , DeclNoSetImage ( WScope ^ . ScpCurDeclRefNoSet ) , DeclNoSetImage ( LDef ^ . ScpCurDeclRefNoSet ) )
+        ; DsField ( "ScpCurDeclRefNoSet" , FM3Decls . DeclNoSetImage ( WScope ^ . ScpCurDeclRefNoSet ) , FM3Decls . DeclNoSetImage ( LDef ^ . ScpCurDeclRefNoSet ) )
         ; DsField ( "ScpCurDefExprs" , DefExprsImage ( WScope ^ . ScpCurDefExprs ) , DefExprsImage ( LDef ^ . ScpCurDefExprs ) )
         ; DsField ( "ScpIdAtom" , IdImageOfScopeRef ( WScope ) , IdImageOfScopeRef ( LDef ) ) 
-        ; DsField ( "ScpDeclListNo" , Fmt . Int ( WScope ^ . ScpDeclListNo ) , Fmt . Int ( LDef ^ . ScpDeclListNo ) )
         ; DsField ( "ScpMinDeclNo" , DeclNoImage ( WScope ^ . ScpMinDeclNo ) , DeclNoImage ( LDef ^ . ScpMinDeclNo ) )
         ; DsField ( "ScpSelfScopeNo" , Fmt . Int ( WScope ^ . ScpSelfScopeNo ) , Fmt . Int ( LDef ^ . ScpSelfScopeNo ) )
         ; DsField ( "ScpOwningDeclNo" , DeclNoImage ( WScope ^ . ScpOwningDeclNo ) , DeclNoImage ( LDef ^ . ScpOwningDeclNo ) )

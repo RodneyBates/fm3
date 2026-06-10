@@ -14,6 +14,7 @@ MODULE FM3Decls
 ; IMPORT Wr 
 
 ; IMPORT IntRanges 
+; IMPORT IntSets 
 
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Base
@@ -65,26 +66,33 @@ MODULE FM3Decls
     END DeclKindImage
 
 (*EXPORTED.*) 
-; PROCEDURE NewDeclList ( Ct : INTEGER ) : DeclListTyp
+; PROCEDURE InitDeclList
+    ( VAR (*IN OUT*) DeclList : DeclListTyp ; Ct : INTEGER ) 
   (* With all elements initialized to NIL. *) 
 
   = VAR LResult : DeclListTyp 
 
-  ; BEGIN (*NewDeclList*)
-      LResult . DlListRef := NEW ( DeclListElmtsTyp , Ct )
-    ; LResult . DlUnfilledCt := Ct 
-    ; FOR RI := FIRST ( LResult . DlListRef ^ ) TO LAST ( LResult . DlListRef ^ )
-      DO LResult .  DlListRef ^ [ RI ] := NIL 
+  ; BEGIN (*InitDeclList*)
+      DeclList . DlListRef := NEW ( DeclListElmtsTyp , Ct )
+    ; DeclList . DlUnfilledCt := Ct 
+    ; FOR RI := FIRST ( DeclList . DlListRef ^ )
+             TO LAST ( DeclList . DlListRef ^ )
+      DO DeclList .  DlListRef ^ [ RI ] := NIL 
       END (*FOR*)
-    ; RETURN LResult 
-    END NewDeclList
+    END InitDeclList
 
 (*EXPORTED.*)
-; PROCEDURE InsertDeclListR2L
-    ( VAR (*In OUT*) DeclList : DeclListTyp ; Elmt : DeclRefTyp )
+; PROCEDURE PrependDeclList
+    ( VAR (*In OUT*) DeclList : DeclListTyp
+    ; Elmt : DeclRefTyp
+    ; ExpectedSs : INTEGER := - 1 (* -1 means make no check. *) 
+    )
 
-  = BEGIN (*InsertDeclListR2L*)
+  = BEGIN (*PrependDeclList*)
       DEC ( DeclList . DlUnfilledCt ) (* Underflow will bounds-fault. *) 
+    ; IF ExpectedSs >= 0 AND DeclList . DlUnfilledCt # ExpectedSs
+      THEN <* ASSERT FALSE , "Decl list ss not as expected." *>
+      END (*IF*) 
     ; WITH WElmt = DeclList . DlListRef ^ [ DeclList . DlUnfilledCt ]
            (* ^Will NIL-fault if list is not set up. *) 
       DO IF WElmt # NIL 
@@ -92,7 +100,7 @@ MODULE FM3Decls
         END (*IF*)
       ; WElmt := Elmt
       END (*WITH*) 
-    END InsertDeclListR2L
+    END PrependDeclList
 
 (*EXPORTED.*)
 ; PROCEDURE FinishDeclList ( DeclList : DeclListTyp )
@@ -156,6 +164,31 @@ MODULE FM3Decls
         )
     ; RETURN LResult 
     END DeclNoImage
+
+(*EXPORTED.*)
+; PROCEDURE DeclNoSetImage ( DeclNoSet : IntSets . T ; Prefix := "    " )
+  : TEXT 
+  (* Unit-relative/Scope-relative, in current unit. *)
+
+  = PROCEDURE OneDeclNoImage ( Elem : IntSets . ElemT ) : TEXT 
+    (* A callback. *) 
+
+    = VAR LElemImage : TEXT
+    
+    ; BEGIN (*OneDeclNoImage*)
+        LElemImage := DeclNoImage ( Elem ) 
+      ; RETURN LElemImage 
+      END OneDeclNoImage
+
+  ; VAR LElemImagesRef : REF ARRAY OF TEXT 
+  ; VAR LResult : TEXT
+      
+  ; BEGIN (*DeclNoSetImage*)
+      LElemImagesRef
+        := FM3Utils . IntSetElemsImages ( DeclNoSet , OneDeclNoImage )
+    ; LResult := FM3Utils . ListImage ( LElemImagesRef ^ , Prefix := Prefix ) 
+    ; RETURN LResult 
+    END DeclNoSetImage
 
 (*EXPORTED.*)
 ; PROCEDURE DeclInfoImageOfDeclRef ( DeclRef : DeclRefTyp )  : TEXT 

@@ -21,6 +21,7 @@ MODULE FM3Exprs
 ; IMPORT FM3Base
 ; IMPORT FM3CLToks AS Clt
 ; IMPORT FM3CLOptions 
+; IMPORT FM3Decls
 ; IMPORT FM3Globals
 ; IMPORT FM3Messages
 ; IMPORT FM3Parser
@@ -163,33 +164,41 @@ MODULE FM3Exprs
     END RegisterExpr 
 
 (*EXPORTED.*) 
-; PROCEDURE NewExprList ( Ct : INTEGER ) : ExprListTyp
+; PROCEDURE InitExprList
+    ( VAR (*IN OUT*) ExprList : ExprListTyp ; Ct : INTEGER ) 
   (* With all elements initialized to NIL. *) 
 
   = VAR LResult : ExprListTyp 
 
-  ; BEGIN (*NewExprList*)
-      LResult . ElListRef := NEW ( ExprListElmtsTyp , Ct )
-    ; LResult . ElUnfilledCt := Ct 
-    ; FOR RI := FIRST ( LResult . ElListRef ^ ) TO LAST ( LResult . ElListRef ^ )
-      DO LResult .  ElListRef ^ [ RI ] := NIL 
+  ; BEGIN (*InitExprList*)
+      ExprList . ElListRef := NEW ( ExprListElmtsTyp , Ct )
+    ; ExprList . ElUnfilledCt := Ct 
+    ; FOR RI := FIRST ( ExprList . ElListRef ^ )
+             TO LAST ( ExprList . ElListRef ^ )
+      DO ExprList .  ElListRef ^ [ RI ] := NIL 
       END (*FOR*)
-    ; RETURN LResult 
-    END NewExprList
+    END InitExprList
 
 (*EXPORTED.*)
-; PROCEDURE InsertExprListR2L
-    ( VAR (*In OUT*) ExprList : ExprListTyp ; Elmt : ExprRefTyp )
+; PROCEDURE PrependExprList
+    ( VAR (*IN OUT*) ExprList : ExprListTyp
+    ; Elmt : ExprRefTyp
+    ; ExpectedSs : INTEGER := - 1 (* -1 means make no check. *) 
+    )
 
-  = BEGIN (*InsertExprListR2L*)
+  = BEGIN (*PrependExprList*)
       DEC ( ExprList . ElUnfilledCt )
-    ; WITH WElmt = ExprList . ElListRef ^ [ ExprList . ElUnfilledCt ]
+    ; IF ExpectedSs >= 0 AND ExprList . ElUnfilledCt # ExpectedSs
+      THEN <* ASSERT FALSE , "Expr list ss not as expected." *>
+      END (*IF*) 
+    ; WITH WElmt = ExprList . ElListRef ^ [ ExprList . ElUnfilledCt ] 
+           (* ^Will NIL-fault if list is not set up. *) 
       DO IF WElmt # NIL 
         THEN <* ASSERT FALSE , "duplicate insertion into ExprList" *>
         END (*IF*)
       ; WElmt := Elmt 
       END (*WITH*) 
-    END InsertExprListR2L
+    END PrependExprList
 
 (*EXPORTED.*)
 ; PROCEDURE FinishExprList ( ExprList : ExprListTyp )
@@ -451,6 +460,9 @@ RETURN ;
       ; Field ( "ExpScopeRef1"
               , FM3Scopes . ScopeRefImage ( Expr ^ . ExpScopeRef1 )
               ) 
+      ; Field ( "ExpReachedRefNos"
+              , FM3Decls . DeclNoSetImage ( Expr ^ . ExpReachedRefNos )
+              ) 
 
       ; Field ( "ExpIdentDeclNo" , IntImage ( Expr ^ . ExpIdentDeclNo ) ) 
       ; Field ( "ExpRemoteUnitNo" , IntImage ( Expr ^ . ExpRemoteUnitNo ) ) 
@@ -459,7 +471,6 @@ RETURN ;
       ; Field ( "ExpPosition" , FM3Utils . PositionImage ( Expr ^ . ExpPosition ) )
       ; Field ( "ExpOpcode" , FM3SrcToks . Image ( Expr ^ . ExpOpcode ) )  
       ; Field ( "ExpIdAtom" , AtomTypImage ( Expr ^ . ExpIdAtom ) ) 
-      ; Field ( "ExpArgListNo" , IntImage ( Expr ^ . ExpArgListNo ) )  
       ; Field ( "ExpBuiltinOpActualsCt" , IntImage ( Expr ^ . ExpBuiltinOpActualsCt ) )
       ; Field ( "ExpStackHt" , IntImage ( Expr ^ . ExpStackHt ) ) 
 
