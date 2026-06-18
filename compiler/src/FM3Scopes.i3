@@ -141,8 +141,8 @@ INTERFACE FM3Scopes
         *) 
       ; ScpCurDeclRefNoSet : IntSets . T (*1*) := NIL 
         (* Decl Nos of refs in definition(s) of the current decl to things
-           declared in the decl's containing lookup scope that do not legalize
-           recursive declarations.
+           declared in the decl's containing look up scope that do not make
+           for legal recursive declarations.
         *)
       ; ScpCurDefExprs
           := ARRAY BOOLEAN (*Is value expr*) OF REFANY { NIL , .. } (*1*)

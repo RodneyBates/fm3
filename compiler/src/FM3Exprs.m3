@@ -140,13 +140,14 @@ MODULE FM3Exprs
 
   ; BEGIN (*NewExprRef*)
       LResult := NEW ( ExprRefTyp )
-(* TODO: accumuilate statistics. *) 
+    ; LResult . ExpReachedRefNos := IntSets . Empty ( ) (* Not a constant. *) 
+(* TODO: accumulate statistics. *) 
     ; RETURN LResult 
     END NewExprRef
 
 (* EXPORTED.*) 
 ; PROCEDURE RegisterExpr ( Expr : ExprRefTyp ; Mergeable : BOOLEAN )
-  (* Do not register a static builtin expression (type or consant) . *) 
+  (* Do not register a static builtin expression (type or constant) . *) 
 
   = VAR LUnitRef : FM3Units . UnitRefTyp
   

@@ -1264,15 +1264,16 @@ RULE
    VarDeclLt : /* Empty */
      { $$ . PaTok1 := Itk . ItkVarDeclLt ;
        $$ . PaByte1 := ORD ( Dkt . DkVar ) ;
+       $$ . PaInt1 := 0 (* Decl id count. *) 
      } . 
 
    VarDecl : VarDeclLt DeclIdList DeclType OptDeclType DeclValue OptDeclValue  
      { IF FM3Pass1 . RequireTypeAndOrValue
             ( $5 . Scan . Position , $4 . PaBool , $6 . PaBool ) 
        (* ^This will happen even if there are no valid ids. *)
-          AND $1 . PaInt1 > 0 
+          AND $2 . PaInt1 > 0 
        THEN
-         $$ . PaInt1 := $1 . PaInt1 (* Valid id count. *) ;
+         $$ . PaInt1 := $2 . PaInt1 (* Valid id count. *) ;
          FM3Pass1 . PutBwd_LCP_rp (* The whole declaration. *) 
            ( FM3Decls . TopDeclParseInfo ( ) . DiDeclTok 
            , $1 . PaPass1Coord

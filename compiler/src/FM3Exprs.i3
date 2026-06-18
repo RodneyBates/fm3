@@ -228,7 +228,7 @@ INTERFACE FM3Exprs
 ; PROCEDURE NewExprRef ( ) : ExprRefTyp 
 
 ; PROCEDURE RegisterExpr ( Expr : ExprRefTyp ; Mergeable : BOOLEAN )
-  (* Do not register a static builtin expression (type or consant) . *) 
+  (* Do not register a static builtin expression (type or constant) . *) 
 
 ; TYPE ExprListElmtsTyp = REF ARRAY OF ExprRefTyp
 
@@ -287,7 +287,7 @@ INTERFACE FM3Exprs
      at runtime. 
 
      ExpRepExprNo >= ExprNoFirstReal denotes a representative expr node of a
-     class of Exprs that are all structurally and equal and interchangeable.
+     class of Exprs that are all structurally equal and interchangeable.
      E.g., type expressions and value expressions that have constant value.
   *)
 
@@ -346,8 +346,8 @@ INTERFACE FM3Exprs
       ; ExpObjBrandKind : FM3Parser . BrandKindTyp 
       ; ExpScopeRef1 : FM3Scopes . ScopeRefTyp
         (* ^For named access and sometimes positional. *)
-      ; ExpReachedRefNos : IntSets .T := NIL
-        (* Excluding those that lead to legal recursive decls. *) 
+      ; ExpReachedRefNos : IntSets . T := NIL
+        (* Excluding those that yield legal recursive decls. *) 
       ; ExpArgPrefix : ExprRefTyp (* Array of subscript or proc of call. *) 
 
       ; ExpIdentDeclNo : FM3Globals . DeclNoTyp
