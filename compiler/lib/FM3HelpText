@@ -127,7 +127,7 @@ Boolean options default to FALSE.
        Implies --keep-passes with same parameter.
        
 --[no-]dump-addrs
-       Include hex addresses in date structure dumps. (These will be different
+       Include hex addresses in data structure dumps. (These will be different
        in every run, even for equivalent data structure.) Defaults to FALSE.
 
 --[no-]decls

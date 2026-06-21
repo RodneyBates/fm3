@@ -1,1 +1,1 @@
---no-std-sources --disasm --no-disasm-verbose --exprs --no-expr-addrs
+--no-std-sources --disasm --no-disasm-verbose --exprs --decls --scopes --no-dump-addrs

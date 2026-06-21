@@ -73,12 +73,12 @@ PLAIN="\\033[0m"
         then CLARGS=`cat clargs`
         else CLARGS="--no-disasm-verbose --disasm --exprs --scopes --decls --dump-addrs --no-std-sources" 
         fi 
-        echo -e `$FM3 --version 2>&1` | tee -a $TMPCOMPILELOG 
+        echo -e `$FM3 --version` 2>&1 | tee -a $TMPCOMPILELOG 
         CMD="$FM3 $CLARGS $SOURCES"
         echo -e "$TAG Compiling in $SRCDIR," | tee -a $TMPCOMPILELOG 
         echo -e "$TAG   using command \"$CMD\"" | tee -a $TMPCOMPILELOG 
         cd $SRCDIR
-        $CMD 2>&1 > tmplog0 
+        $CMD > tmplog0 2>&1  
         ES=$?
         echo -e $TAG " Compiler exit status = " $ES >>tmplog0         
         cat tmplog0
@@ -319,11 +319,13 @@ else # Do this script.
   if [ $docheck = 0 ] || [ $docompile = 0 ]
   then # Doing check.  Report results.
     if [ $ESALL -ne 0 ]
-    then # Check failure 
+    then # Check failure
+      rm -f ${TESTDIR}/SUCCEEDED 
       touch ${TESTDIR}/FAILED 
       echo -e -n $TAG $RED "################ F A I L E D ################" $PLAIN | tee -a $CHECKLOG
       echo -e " check(s)  in `pwd`" | tee -a $CHECKLOG
     else # Check success.
+      rm -f ${TESTDIR}/FAILED 
       touch ${TESTDIR}/SUCCEEDED
       touch ${TESTDIR}/LASTSUCCEEDED
       echo -e "$TAG $GREEN ---------------- Succeeded in `pwd` $PLAIN" | tee -a $CHECKLOG 

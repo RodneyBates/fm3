@@ -492,7 +492,7 @@ FALSE AND
 
 ; PROCEDURE DeclDef
      ( IsValue : BOOLEAN ; Tag : TEXT := NIL ; MustBeConst := FALSE ) 
-  (* PRE: A type or value defining expression exists on the expression stack. *) 
+  (* PRE: A type- or value-defining expression exists on the expression stack. *) 
   (* Pop and store it temporarily in the current declaration scope. *)
   (* Tag and MustBeConst are unused, but preserved, just in case. *) 
 
@@ -501,9 +501,6 @@ FALSE AND
 
   ; BEGIN (*DeclDef*) 
       LDefExpr := FM3Exprs . PopExprStack ( )
-    ; IF FM3Exprs . ExprStackTopObj # NIL
-      THEN <* ASSERT FALSE , "decl def expr not top level" *>
-      END (*IF*) 
     ; LScopeRef := FM3Scopes . ScopeDeclStackTopRef  
     ; WITH WDefRef = LScopeRef ^ . ScpCurDefExprs [ IsValue ] 
       DO 
@@ -685,7 +682,7 @@ FALSE AND
     ; VAR LPosition : tPosition
 
     ; BEGIN
-        LOpcode := GetBwdInt ( TokResult . TrRdBack )
+        LOpcode := GetBwdAtom ( TokResult . TrRdBack )
       ; CASE LOpcode OF
         | Stk . StkIntLit
         , Stk . StkBasedLit
@@ -1773,7 +1770,7 @@ TRUE OR
       | Itk . ItkUnaryOpRt 
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN
-            LOpcode := GetBwdInt ( TokResult . TrRdBack ) (* Opcode. *) 
+            LOpcode := GetBwdAtom ( TokResult . TrRdBack ) (* Opcode. *) 
           ; LPosition := GetBwdPos ( TokResult . TrRdBack )
           
           ;  HtExprRt
@@ -1791,7 +1788,7 @@ TRUE OR
       | Itk . ItkUnaryOpLt 
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN  
-            LOpcode := GetBwdInt ( TokResult . TrRdBack ) (* Opcode. *) 
+            LOpcode := GetBwdAtom ( TokResult . TrRdBack ) (* Opcode. *) 
           ; HtExprOpnd1 ( ) (* The only operand. *)
           ; IF NOT HtSkipping THEN UnaryOp ( LOpcode ) END (*IF*)
           END (*IF*) 
@@ -1800,7 +1797,7 @@ TRUE OR
       | Itk . ItkBinaryOpRt 
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN 
-            LOpcode := GetBwdInt ( TokResult . TrRdBack ) (* Opcode. *) 
+            LOpcode := GetBwdAtom ( TokResult . TrRdBack ) (* Opcode. *) 
           ; LPosition := GetBwdPos ( TokResult . TrRdBack )
           
           ; HtExprRt
@@ -1818,14 +1815,14 @@ TRUE OR
       | Itk . ItkBinaryOpOperator
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN 
-            LOpcode := GetBwdInt ( TokResult . TrRdBack ) (* Opcode. *) 
+            LOpcode := GetBwdAtom ( TokResult . TrRdBack ) (* Opcode. *) 
           ; HtExprOpnd2 ( ) (* Right operand. *)
           END (*IF*) 
 
       | Itk . ItkBinaryOpLt 
       =>  IF NOT HtMaybePassTokenThru ( )
           THEN  
-            LOpcode := GetBwdInt ( TokResult . TrRdBack ) 
+            LOpcode := GetBwdAtom ( TokResult . TrRdBack ) 
           
           ; HtExprOpnd1 ( ) (* Left operand. *)
           ; IF NOT HtSkipping THEN BinaryOp ( LOpcode ) END (*IF*)
@@ -1908,7 +1905,12 @@ TRUE OR
       =>  FM3Scopes . PruneScopeDeclsStack
             ( LUnitRef ^ . UntScopeDeclStackBaseCt ) 
         ; FM3Scopes . PruneScopeLookupStack
-            ( LUnitRef ^ . UntLookupScopeStackBaseCt )
+            ( LUnitRef ^ . UntLookupScopeStackBaseCt ) 
+        ; HtPassTokenThru ( )
+
+      | Itk . ItkBecomesLt
+      =>  EVAL FM3Exprs . PopExprStack ( ) (* LHS *) 
+        ; EVAL FM3Exprs . PopExprStack ( ) (* RHS *) 
         ; HtPassTokenThru ( )
 
       (* Discard these tokens: *)
@@ -2244,9 +2246,12 @@ TRUE OR
                    IN FM3Scopes . ScopeKindSetOpen
             THEN <* ASSERT FALSE , "VAR decl in non-open decl scope" *> 
             END (*IF*)
-          ; LScopeRef := FM3Scopes . ScopeDeclStackTopRef 
+          ; LScopeRef := FM3Scopes . ScopeDeclStackTopRef
+(* DECIDE: Do we need a positional decl list for variables, etc? *)
+(*
           ; FM3Decls . PrependDeclList
-              ( LScopeRef ^ . ScpDeclList , LDeclRef , DidDeclNo )   
+              ( LScopeRef ^ . ScpDeclList , LDeclRef , DidDeclNo )
+*) 
 
         | Dkt . DkConst
         =>  IF NOT FM3Scopes . ScopeDeclStackTopRef ^ . ScpKind
@@ -2268,13 +2273,24 @@ TRUE OR
         , Dkt . DkRecField
         =>  LScopeRef := FM3Scopes . ScopeDeclStackTopRef 
           ; FM3Decls . PrependDeclList
-              ( LScopeRef ^ . ScpDeclList , LDeclRef , DidDeclNo )
+              ( LScopeRef ^ . ScpDeclList
+              , LDeclRef
+              , DidDeclNo - LScopeRef ^ . ScpMinDeclNo
+              )
 
         | Dkt . DkOverride
         =>  LScopeRef := FM3Scopes . ScopeDeclStackTopRef 
           ; FM3Decls . PrependDeclList
-              ( LScopeRef ^ . ScpDeclList , LDeclRef )
-(*TODO: pass expected SS, DidDeclNo - # of fields - # of methods. *) 
+              ( LScopeRef ^ . ScpDeclList
+              , LDeclRef
+              , DidDeclNo
+                - ( LScopeRef ^ . ScpMinDeclNo
+                    + FM3Dict_Int_Int . Card ( LScopeRef ^ . ScpDeclDict )
+                      (* ^Cts of fields + methods + overrides. *) 
+                    - NUMBER ( LScopeRef ^ . ScpDeclList . DlListRef ^ )
+                      (* ^Ct of overrides. *) 
+                  ) (* DeclNo of LM override. *)   
+              )
 
         | Dkt . DkObjField
         , Dkt . DkMethod
@@ -2365,7 +2381,7 @@ TRUE OR
         END (*IF*) 
       ; VarArray_Int_Refany . CallbackWithElem 
           ( FM3Units . UnitStackTopRef ^ . UntDeclMap 
-          , DidDeclNo
+          , DidDeclNo 
           , DidVisitDecl
           )
       ; PutBwdP2 ( WOutRdBack , VAL ( DidPosition . Column , LONGINT ) ) 
