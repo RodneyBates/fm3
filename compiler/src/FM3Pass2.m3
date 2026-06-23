@@ -1322,6 +1322,7 @@ TRUE OR
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         
         ; AssertTosDeclScopeNo ( LScopeNo , "rec type left" )
+        ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) 
         ; FM3Decls . FinishDeclList ( LScopeRef ^ . ScpDeclList ) 
         ; EVAL FM3Scopes . PopScopeRefDeclsStack ( )
 

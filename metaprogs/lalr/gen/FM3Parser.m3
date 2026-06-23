@@ -2998,7 +2998,7 @@ yyNonterminal := 134;
                 DEC (yyStackPtr, 1); yyNonterminal := 156;
                 (* line 840 of "FM3Parser.lalr" *)
                  IF FM3Pass1 . DeclIdL2R
-                            ( VAL ( yyAttributeStack^[yyStackPtr] . PaByte1 (* Decl Kind *) , Dkt ) , IdAttribute := yyAttributeStack^[yyStackPtr+1] )
+                            ( FM3Decls . TopDeclParseInfo ( ) . DiKind , IdAttribute := yyAttributeStack^[yyStackPtr+1] )
                        THEN (* Use this ident. *) 
                          yySynAttribute . PaInt1 := 1 ;
                          yySynAttribute . PaRefany := IntSets . Singleton ( yyAttributeStack^[yyStackPtr+1] . Scan . SaAtom ) 
@@ -3011,7 +3011,7 @@ yyNonterminal := 134;
                 DEC (yyStackPtr, 3); yyNonterminal := 156;
                 (* line 852 of "FM3Parser.lalr" *)
                  IF FM3Pass1 . DeclIdL2R
-                            ( VAL ( yyAttributeStack^[yyStackPtr] . PaByte1 (* Decl Kind *) , Dkt )
+                            ( FM3Decls . TopDeclParseInfo ( ) . DiKind 
                             , IdAttribute := yyAttributeStack^[yyStackPtr+3]
                             , PriorIdCt := yyAttributeStack^[yyStackPtr+1] . PaInt1
                             )
@@ -3475,7 +3475,7 @@ yyNonterminal := 194;
                 (* line 1271 of "FM3Parser.lalr" *)
                  IF FM3Pass1 . RequireTypeAndOrValue
                             ( yyAttributeStack^[yyStackPtr+5] . Scan . Position , yyAttributeStack^[yyStackPtr+4] . PaBool , yyAttributeStack^[yyStackPtr+6] . PaBool ) 
-                       (* ^This will happen even if there are no valid ids. *)
+                       (* ^This will fail even if there are no valid ids. *)
                           AND yyAttributeStack^[yyStackPtr+2] . PaInt1 > 0 
                        THEN
                          yySynAttribute . PaInt1 := yyAttributeStack^[yyStackPtr+2] . PaInt1 (* Valid id count. *) ;
@@ -3484,7 +3484,7 @@ yyNonterminal := 194;
                            , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
                            , yyAttributeStack^[yyStackPtr+1] . Scan . Position
                            ) ; 
-                       ELSE (* Skip all but the empty id list. *) 
+                       ELSE (* Skip all but the id list. *) 
                          FM3Pass1 . PutBwd_LCI_ri
                            ( Itk . ItkSkipLt , yyAttributeStack^[yyStackPtr+2] . PaPass1Coord , FM3Globals . NextSkipNo ) ;
                          INC ( FM3Globals . NextSkipNo ) ; 
