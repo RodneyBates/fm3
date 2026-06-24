@@ -95,7 +95,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 
   ; BEGIN
       LNew := NEW ( GrowableTyp )  
-    ; LTableNumber := InitKeyCt + InitKeyCt DIV 2 (* 2/3 full. *) 
+    ; LTableNumber := InitKeyCt + InitKeyCt DIV 3 (* Not over 3/4 full. *) 
     ; LTableNumber := FM3Primes . NextLargerOrEqualPrime ( LTableNumber )
     ; LNew . DbTableRef := NEW ( REF ARRAY OF RowTyp , LTableNumber )
     ; LNew . DbHashFunc := HashFunc 
@@ -248,7 +248,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
   ; BEGIN
       LOldNumber := NUMBER ( DictBase . DbTableRef ^ )
     ; LOldOccupiedCt := DictBase . DbOccupiedCt
-    ; IF LOldOccupiedCt + LOldOccupiedCt DIV 3 < LOldNumber (* < 75% full *)
+    ; IF LOldOccupiedCt + LOldOccupiedCt DIV 3 < LOldNumber (* <= 75% full *)
       THEN RETURN
       END (*IF*) 
     ; LNewNumber := LOldOccupiedCt * 2
@@ -629,7 +629,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
       ; Wr . PutText ( LTextWrT , " Hash = " ) 
       ; Wr . PutText
           ( LTextWrT , Fmt . Int ( DictBase . DbTableRef ^ [ RI ] . Hash ) )
-      ; Wr . PutText ( LTextWrT , " Key = : ) 
+      ; Wr . PutText ( LTextWrT , " Key = " ) 
       ; Wr . PutText 
           ( LTextWrT , KeyImage ( DictBase . DbTableRef ^ [ RI ] . Key ) )
       ; Wr . PutText ( LTextWrT , " Value = " ) 
@@ -654,20 +654,25 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 ; PROCEDURE ForAllDo ( Dict : DictBaseTyp ; Visit : VisitProcTyp ) 
   (* In no particular order. *) 
 
-  = BEGIN (*ForAllDo*) 
+  = VAR LRuleNo : INTEGER 
+
+  ; BEGIN (*ForAllDo*) 
       IF Dict . DbState = StateTyp . DsHashed 
       THEN 
-        FOR RI := 0 TO LAST ( Dict . DbTableRef ^ ) 
+        LRuleNo := 0 
+      ; FOR RI := 0 TO LAST ( Dict . DbTableRef ^ ) 
         DO WITH WElem = Dict . DbTableRef ^ [ RI ] 
           DO IF WElem . RowHash # FM3Utils.HashNull 
-            THEN Visit ( RI , WElem . RowKey , WElem . RowValue )   
+            THEN 
+              Visit ( LRuleNo , WElem . RowKey , WElem . RowValue )   
+            ; INC ( LRuleNo ) 
             END (*IF*) 
           END (*WITH*) 
         END (*FOR*) 
       ELSE 
         FOR RI := 0 TO Dict . DbOccupiedCt - 1  
         DO WITH WElem = Dict . DbTableRef ^ [ RI ]  
-          DO Visit ( RI , WElem . RowKey , WElem . RowValue )   
+          DO Visit ( RI , WElem . RowKey , WElem . RowValue ) 
           END (*WITH*) 
         END (*FOR*) 
       END (*IF*) 
