@@ -215,7 +215,10 @@ MODULE FM3Scopes
     ; LScopeRef ^ . ScpDeclIdSet := IntSets . Empty ( )
     ; LScopeRef ^ . ScpDeclDict := NIL 
     ; LScopeRef ^ . ScpFormalIdSet := IntSets . Empty ( )  
-    ; LScopeRef ^ . ScpRefIdSet := IntSets . Empty ( )  
+    ; LScopeRef ^ . ScpRefIdSet := IntSets . Empty ( )
+    ; LScopeRef ^ . ScpDeclList . DlListRef := NIL 
+    ; LScopeRef ^ . ScpMinDeclNo := - 1  
+
     ; LScopeRef ^ . ScpOwningUnitRef := OwningUnitRef 
     ; LScopeRef ^ . ScpOwningDeclNo := FM3Globals . DeclNoNull
     ; VarArray_Int_Refany . Assign ( LUnitScopeMap , LScopeNo , LScopeRef )

@@ -2301,7 +2301,10 @@ TRUE OR
         =>  LScopeRef := FM3Scopes . ScopeDeclStackTopRef
           ; LDeclRef ^ . DclDefType := FM3Exprs . ExprStackTopObj 
           ; FM3Decls . PrependDeclList
-              ( LScopeRef ^ . ScpDeclList , LDeclRef , DidDeclNo )   
+              ( LScopeRef ^ . ScpDeclList
+              , LDeclRef
+              , DidDeclNo - LScopeRef . ScpMinDeclNo
+              )   
           (* No value def expr is in the input, so must create one here. *)
           ; LValueExprRef (* Value of the enumlit. *) 
               := NEW ( FM3Exprs . ExprRefTyp

@@ -829,14 +829,26 @@ RULE
        $$ . Scan . SaBuiltinTok := $1 . Scan . SaBuiltinTok ;
      } . 
    
-   (* DeclIdListElems . PaInt1 > 0 is count of valid Idents. *)
+   DeclIdPlusList : DeclIdPlusListElems
+     { $$ . Scan . Position := $1 . Scan . Position ;
+       $$ . PaInt1 := $1 . PaInt1 (* element ct.  Do we use this on $$? *) ;  
+       MakeListPos (* The identifier list. *) 
+         ( $$
+         , Itk . ItkDeclIdListLt 
+         , $1 . Scan . Position
+         , ElemsAttr := $1
+         ) ; 
+     } .
+
+   (* DeclIdPlusListElems . PaInt1 > 0 is count of valid Idents. *)
    (* In source syntax, this list is never empty and always
       comma-separated.  Internally, invalid (reserved or repeated)
       idents may be removed, which could leave it empty.  If so,
       the entire declaration is removed after issuing error messages.
-   *) 
-
-   DeclIdListElems : StkIdent
+      Since each element is a single token, no Itk separators are inserted.
+   *)
+   
+   DeclIdPlusListElems : StkIdent
      { IF FM3Pass1 . DeclIdL2R
             ( FM3Decls . TopDeclParseInfo ( ) . DiKind , IdAttribute := $1 )
        THEN (* Use this ident. *) 
@@ -846,9 +858,9 @@ RULE
          $$ . PaInt1 := 0 ;
          $$ . PaRefany := IntSets . Empty ( ) 
        END (*IF*) ; 
-     } . 
-     
-   DeclIdListElems : DeclIdListElems StkComma StkIdent
+     } .
+
+   DeclIdPlusListElems : DeclIdPlusListElems StkComma StkIdent
      { IF FM3Pass1 . DeclIdL2R
             ( FM3Decls . TopDeclParseInfo ( ) . DiKind 
             , IdAttribute := $3
@@ -1267,7 +1279,7 @@ RULE
        $$ . PaInt1 := 0 (* Decl id count. *) 
      } . 
 
-   VarDecl : VarDeclLt DeclIdList DeclType OptDeclType DeclValue OptDeclValue  
+   VarDecl : VarDeclLt DeclIdPlusList DeclType OptDeclType DeclValue OptDeclValue  
      { IF FM3Pass1 . RequireTypeAndOrValue
             ( $5 . Scan . Position , $4 . PaBool , $6 . PaBool ) 
        (* ^This will fail even if there are no valid ids. *)
@@ -1286,17 +1298,6 @@ RULE
          $$ . PaInt1 := 0 (* Contribution to BlockDeclCt. *) ; 
        END (*IF*)
      } . 
-
-   DeclIdList : DeclIdListElems
-   
-     { $$ . Scan . Position := $1 . Scan . Position ;
-       MakeListPos (* The identifier list. *) 
-         ( $$
-         , Itk . ItkDeclIdListLt 
-         , $1 . Scan . Position
-         , ElemsAttr := $1
-         ) ; 
-     } .
 
 (* --------------------------------- Types ----------------------------- *)
 
@@ -1433,8 +1434,35 @@ RULE
 
 (* ---------------------------- Enumeration types ---------------------- *)
 
+   Type : StkOpenBrace StkCloseBrace /* Empty enum type. */
+     { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
+       BEGIN
+         LScopeRef 
+           := FM3Scopes . NewScopeRef
+                ( FM3Units . UnitStackTopRef
+                , Skt . SkEnum
+                , $1 . Scan . Position
+                ) ;
+
+         FM3Pass1 . PutBwd_LCIIP_riip
+           ( Itk . ItkEnumTypeLt
+           , $1 . PaPass1Coord
+           , LScopeRef ^ . ScpSelfScopeNo 
+           , 0 
+           , $1 . Scan . Position
+           ) ;
+       END ; 
+     } . 
+
    EnumTypeLt : StkOpenBrace
      { $$ . PaByte1 := ORD ( Dkt . DkEnumLit ) ; 
+       $$ . PaDeclDepth 
+         := FM3Decls . PushDeclParseInfo
+              ( FM3Decls . DeclParseInfoTyp
+                  { DiDeclTok := Itk . ItkEnumTypeLt
+                  , DiKind := Dkt . DkEnumLit
+                  }
+              ) ;
 
        VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN
@@ -1449,7 +1477,7 @@ RULE
        END ; 
      } .
 
-   Type : EnumTypeLt DeclIdListElems StkCloseBrace
+   Type : EnumTypeLt DeclIdPlusListElems StkCloseBrace
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN
          LScopeRef := FM3Scopes . PopScopeRefDeclsStack (  ) ;
@@ -1466,6 +1494,7 @@ RULE
            , $1 . Scan . Position
            ) ;
        END ; 
+       <* ASSERT FM3Decls . PopDeclParseInfo ( ) = $1 . PaDeclDepth *>
      } .
 
 (* OLD: 
@@ -2035,7 +2064,7 @@ END OLD
               ) ;
      } .
 
-   FormalIds /* Parsing at Left of type. */ : FormalMode DeclIdList 
+   FormalIds /* Parsing at Left of type. */ : FormalMode DeclIdPlusList 
      { (* Default coord. *)
        $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
        $$ . PaTok1 := $1 . PaTok1  (* Decl tok. *) ; 
