@@ -113,10 +113,7 @@ MODULE FM3Patch
 
 (*EXPORTED*) 
 ; PROCEDURE CopyOperandsInOrder
-    ( OpndCt : [ 0 .. 6 ] 
-    ; FromRdBack , ToRdBack : RdBackFile . T
-    ; MaybeSkip : BOOLEAN (* ToRdBack is conditional on SkipNoStack. *) 
-    )
+    ( OpndCt : [ 0 .. 6 ] ; FromRdBack , ToRdBack : RdBackFile . T )
   (* This is tricky.  Pop then push reverses them, but this procedure does
      a compensating reverse, for net same order. 
   *)
@@ -124,47 +121,38 @@ MODULE FM3Patch
   = VAR LOpnd1 , LOpnd2 , LOpnd3 , LOpnd4 , LOpnd5 , LOpnd6 : LONGINT
   
   ; BEGIN (*CopyOperandsInOrder*)
-<* ASSERT MaybeSkip = ( ToRdBack = FM3Globals . P2RdBack ) *> 
-      IF MaybeSkip
-         AND VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi
-             > 0 
-      THEN DiscardOperands ( OpndCt , FromRdBack ) 
-      ELSE (* Actually copy, with net reversal. *) 
-        (* The obvious loop is unrolled, not so obviously. *) 
-        IF OpndCt >= 1 
-        THEN
-          LOpnd1 := FM3Compress . GetBwd ( FromRdBack )
-        ; IF OpndCt >= 2
-          THEN LOpnd2 := FM3Compress . GetBwd ( FromRdBack )
-          ; IF OpndCt >= 3
-            THEN LOpnd3 := FM3Compress . GetBwd ( FromRdBack )
-            ; IF OpndCt >= 4
-              THEN LOpnd4 := FM3Compress . GetBwd ( FromRdBack )
-              ; IF OpndCt >= 5
-                THEN LOpnd5 := FM3Compress . GetBwd ( FromRdBack )
-                ; IF OpndCt >= 6
-                  THEN LOpnd6 := FM3Compress . GetBwd ( FromRdBack )
-                  ; FM3Compress . PutBwd ( ToRdBack , LOpnd6 ) 
-                  END (*IF*) 
-                ; FM3Compress . PutBwd ( ToRdBack , LOpnd5 ) 
+      (* Actually copy, with net reversal. *) 
+      (* The obvious loop is unrolled, not so obviously. *) 
+      IF OpndCt >= 1 
+      THEN
+        LOpnd1 := FM3Compress . GetBwd ( FromRdBack )
+      ; IF OpndCt >= 2
+        THEN LOpnd2 := FM3Compress . GetBwd ( FromRdBack )
+        ; IF OpndCt >= 3
+          THEN LOpnd3 := FM3Compress . GetBwd ( FromRdBack )
+          ; IF OpndCt >= 4
+            THEN LOpnd4 := FM3Compress . GetBwd ( FromRdBack )
+            ; IF OpndCt >= 5
+              THEN LOpnd5 := FM3Compress . GetBwd ( FromRdBack )
+              ; IF OpndCt >= 6
+                THEN LOpnd6 := FM3Compress . GetBwd ( FromRdBack )
+                ; FM3Compress . PutBwd ( ToRdBack , LOpnd6 ) 
                 END (*IF*) 
-              ; FM3Compress . PutBwd ( ToRdBack , LOpnd4 ) 
+              ; FM3Compress . PutBwd ( ToRdBack , LOpnd5 ) 
               END (*IF*) 
-            ; FM3Compress . PutBwd ( ToRdBack , LOpnd3 ) 
+            ; FM3Compress . PutBwd ( ToRdBack , LOpnd4 ) 
             END (*IF*) 
-          ; FM3Compress . PutBwd ( ToRdBack , LOpnd2 ) 
-          END (*IF*)
-        ; FM3Compress . PutBwd ( ToRdBack , LOpnd1 ) 
+          ; FM3Compress . PutBwd ( ToRdBack , LOpnd3 ) 
+          END (*IF*) 
+        ; FM3Compress . PutBwd ( ToRdBack , LOpnd2 ) 
         END (*IF*)
+      ; FM3Compress . PutBwd ( ToRdBack , LOpnd1 ) 
       END (*IF*) 
     END CopyOperandsInOrder
 
 (*EXPORTED*) 
 ; PROCEDURE CopyOperandsReverse
-    ( OpndCt : [ 0 .. 6 ] 
-    ; FromRdBack , ToRdBack : RdBackFile . T
-    ; MaybeSkip : BOOLEAN (* ToRdBack is conditional on SkipNoStack. *) 
-    )
+    ( OpndCt : [ 0 .. 6 ] ; FromRdBack , ToRdBack : RdBackFile . T )
   (* Copy operands, up to 6. This is could be confusing.  One-at-a-time pop, then
      push temporally reverses them left-to-right.  But if the caller is copying
      to a RdBack that is to be read in the opposite direction, that will
@@ -173,38 +161,32 @@ MODULE FM3Patch
   *)
   
   = BEGIN
-      IF MaybeSkip
-         AND VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi
-             > 0 
-      THEN DiscardOperands ( OpndCt , FromRdBack )
-      ELSE (* Actually copy. *) 
-      (* The obvious loop is unrolled. *) 
-        IF OpndCt >= 1 
+    (* The obvious loop is unrolled. *) 
+      IF OpndCt >= 1 
+      THEN FM3Compress . PutBwd
+             ( ToRdBack , FM3Compress . GetBwd ( FromRdBack ) ) 
+      ; IF OpndCt >= 2
         THEN FM3Compress . PutBwd
-               ( ToRdBack , FM3Compress . GetBwd ( FromRdBack ) ) 
-        ; IF OpndCt >= 2
+               ( ToRdBack , FM3Compress . GetBwd ( FromRdBack ) )
+        ; IF OpndCt >= 3
           THEN FM3Compress . PutBwd
                  ( ToRdBack , FM3Compress . GetBwd ( FromRdBack ) )
-          ; IF OpndCt >= 3
+          ; IF OpndCt >= 4
             THEN FM3Compress . PutBwd
                    ( ToRdBack , FM3Compress . GetBwd ( FromRdBack ) )
-            ; IF OpndCt >= 4
+            ; IF OpndCt >= 5
               THEN FM3Compress . PutBwd
                      ( ToRdBack , FM3Compress . GetBwd ( FromRdBack ) )
-              ; IF OpndCt >= 5
+              ; IF OpndCt >= 6
                 THEN FM3Compress . PutBwd
                        ( ToRdBack , FM3Compress . GetBwd ( FromRdBack ) )
-                ; IF OpndCt >= 6
-                  THEN FM3Compress . PutBwd
-                         ( ToRdBack , FM3Compress . GetBwd ( FromRdBack ) )
-                  ; <* ASSERT OpndCt < 7 *> 
-                  END (*IF*) 
+                ; <* ASSERT OpndCt < 7 *> 
                 END (*IF*) 
               END (*IF*) 
             END (*IF*) 
           END (*IF*) 
         END (*IF*) 
-      END (*IF*)
+      END (*IF*) 
     END CopyOperandsReverse
 
 (*Temporary, for debugging.*)
@@ -266,7 +248,13 @@ MODULE FM3Patch
           PutBwdPatch ( LPatchRdBack , LPatchStackTopCoord )
             (* ^Push the current patch coordinate back on patch stack, just
                for stack consistency. *)
-        ; Result . TrRdBack := NIL
+          (* Finish with the skip stack. *) 
+        ; <* ASSERT
+               VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi 
+               = FM3Units . UnitStackTopRef ^ . UntSkipStackBase 
+          *> 
+               
+          Result . TrRdBack := NIL
         ; Result . TrTok := Itk . ItkBOF
         ; RETURN 
         END (*IF*)
@@ -316,7 +304,6 @@ MODULE FM3Patch
                 (* ^This number does not include the patch-at coordinate. *) 
               , LPass1RdBack
               , LPatchRdBack
-              , MaybeSkip := FALSE
               )
           ; LPatchedToken := LToken - Itk . LtToPatch
 (* FIXME: The patch operation can apply to any non-Rt token.  I think
