@@ -2106,10 +2106,8 @@ END OLD
              , $1 . Scan . Position
              ) ;
            $$ . PaBool (* OK. *) := FALSE ; 
-           (* Skip the decl, except for the idents. *)
-           FM3Pass1 . PutBwd_LCI_ri
-             ( Itk . ItkSkipLt , $1 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
-           INC ( FM3Globals . NextSkipNo ) ;
+           FM3Pass1 . PutBwd_TP
+             ( Itk . ItkDeclTypeAbsent , $2 . Scan . Position ) ; 
          
          ELSIF $2 . PaBool (* Value is present? *) 
          THEN
@@ -2119,26 +2117,26 @@ END OLD
                  { "VAR formal cannot have a default (2.2.8)." }
              , $2 . Scan . Position
              ) ;
-           (* Skip the default value . *)
+           (* Skip the default value, but replace by an absent token. *)
            FM3Pass1 . PutBwd_LCI_ri
              ( Itk . ItkSkipLt , $2 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
            INC ( FM3Globals . NextSkipNo ) ;
            FM3Pass1 . PutBwd_TP
              ( Itk . ItkDeclValAbsent , $2 . Scan . Position ) ; 
-         ELSE (* Emit the declaration. *) 
-           FM3Pass1 . PutBwd_LCP_rp 
-             ( $1 . PaTok1 (* Decl tok. *)
-             , $1 . PaPass1Coord
-             , $1 . Scan . Position
-             ) ;
          END (*IF*) ;
+         (* Emit the declaration. *) 
+         FM3Pass1 . PutBwd_LCP_rp 
+           ( $1 . PaTok1 (* Decl tok. *)
+           , $1 . PaPass1Coord
+           , $1 . Scan . Position
+           ) ;
          
        ELSE (* VALUE or READONLY formal. *)
          $$ . PaBool (* OK. *)
            := FM3Pass1 . RequireTypeAndOrValue
                 ( $2 . Scan . Position , $1 . PaBool , $2 . PaBool ) ; 
        
-         IF $$ . PaBool    
+         IF TRUE OR $$ . PaBool    
          THEN (* Emit the declaration. *) 
            FM3Pass1 . PutBwd_LCP_rp 
              ( $1 . PaTok1 (* Decl tok. *) 

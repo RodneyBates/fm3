@@ -759,14 +759,19 @@ TRUE OR
          
       | Itk . ItkVALUEFormalValue
       , Itk . ItkROFormalValue
-      =>  DeclDef ( IsValue := TRUE , Tag := "Default value of formal" , MustBeConst := FALSE ) 
+      =>  DeclDef
+            ( IsValue := TRUE
+            , Tag := "Default value of formal"
+            , MustBeConst := FALSE
+            ) 
         ; HtPassTokenThru ( ) 
 
       | Itk . ItkVARFormalValue
-       =>  LValueExprRef := FM3Exprs . PopExprStack ( ) 
-        ; <* ASSERT NOT LValueExprRef ^ . ExpIsPresent *> 
-          FM3Scopes . ScopeDeclStackTopRef ^ . ScpCurDefIsValue := FALSE 
-          (* ^Type is coming up next. *) 
+       =>  LValueExprRef
+             := FM3Exprs . PopExprStack ( ) (* the "absent" dumb expr. *)
+           (* The decl's value expr will end up NIL. *) 
+        ; FM3Scopes . ScopeDeclStackTopRef ^ . ScpCurDefIsValue := FALSE 
+          (* ^Type is coming up next. (Needed?) *) 
         ; HtPassTokenThru ( )
 
     | Itk . ItkFullRevealType 
@@ -1796,13 +1801,13 @@ TRUE OR
          the front of a linked list rooted at DeclRefAny.
       *) 
         LOldDeclRef := DeclRefany (* Implicit NARROW. *) 
-      ; LNewDeclRef
-          := FM3Decls . NewDeclRef ( DdiOrigScopeRef , DeclNoI )
+      ; LNewDeclRef  := FM3Decls . NewDeclRef ( DdiOrigScopeRef , DeclNoI )
       ; LNewDeclRef . DclLink := LOldDeclRef 
       ; LNewDeclRef . DclSelfScopeRef := DdiOrigScopeRef (* Why not? *)
       ; LNewDeclRef . DclIdAtom := DdiAtom 
       ; LNewDeclRef . DclPos := DdiPosition 
-      ; LNewDeclRef . DclKind := Dkt . DkDuplDecl
+      ; LNewDeclRef . DclKind := Dkt . DkDuplDecl 
+      ; LNewDeclRef ^ . DclIsUsable := FALSE (* Used? *)
       ; VarArray_Int_Refany . Assign
           ( FM3Units . UnitStackTopRef ^ . UntDeclMap
           , (* Implicit NARROW. *) DeclNoI
@@ -1831,7 +1836,8 @@ TRUE OR
   (* ^The leftmost and only-valid decl of DeclIdAtom in top decl scope. *)
   (* Handles refinements too: overrides and revelations. *) 
 
-  = VAR DidAtom : FM3Base . AtomTyp
+  = VAR DidScopeRef : FM3Scopes . ScopeRefTyp
+  ; VAR DidAtom : FM3Base . AtomTyp
   ; VAR DidStdTok : FM3SrcToks . TokTyp 
   ; VAR DidDeclNo : FM3Globals . DeclNoTyp
   ; VAR DidPosition : tPosition
@@ -1841,15 +1847,12 @@ TRUE OR
     (* A callback. *)
     (* A non-legally-recursive ref into same open scope this decl is in. *)
 
-    = VAR LScopeRef : FM3Scopes . ScopeRefTyp
-
-    ; BEGIN (* DidVisitRefNo *) 
-        LScopeRef := FM3Scopes . ScopeDeclStackTopRef 
-      ; FM3Graph . AddArc
-          ( (*IN OUT*) LScopeRef ^ . ScpDeclGraph
-          , DidDeclNo - LScopeRef ^ . ScpMinDeclNo
-            (* ^v Bias decl nos to zero in graph. *) 
-          , RefNoI - LScopeRef ^ . ScpMinDeclNo
+    = BEGIN (* DidVisitRefNo *) 
+        FM3Graph . AddArc
+          ( (*IN OUT*) DidScopeRef ^ . ScpDeclGraph
+          , DidDeclNo - DidScopeRef ^ . ScpMinDeclNo
+            (* ^v Bias decl nos down to zero in graph. *) 
+          , RefNoI - DidScopeRef ^ . ScpMinDeclNo
           )
       END DidVisitRefNo
 
@@ -1861,7 +1864,6 @@ TRUE OR
     (* DeclRefAny is the field of the dictionary entry for DeclNoI. *) 
     
     = VAR LDeclRef : FM3Decls . DeclRefTyp
-    ; VAR LScopeRef : FM3Scopes . ScopeRefTyp
     ; VAR LParentExprRef : FM3Exprs . ExprRefTyp
     ; VAR LValueExprRef : FM3Exprs . ExprRefTyp
     ; VAR LIdentText : TEXT
@@ -1912,11 +1914,10 @@ TRUE OR
                    IN FM3Scopes . ScopeKindSetOpen
             THEN <* ASSERT FALSE , "VAR decl in non-open decl scope" *> 
             END (*IF*)
-          ; LScopeRef := FM3Scopes . ScopeDeclStackTopRef
 (* DECIDE: Do we need a positional decl list for variables, etc? *)
 (*
           ; FM3Decls . PrependDeclList
-              ( LScopeRef ^ . ScpDeclList , LDeclRef , DidDeclNo )
+              ( DidScopeRef ^ . ScpDeclList , LDeclRef , DidDeclNo )
 *) 
 
         | Dkt . DkConst
@@ -1936,24 +1937,21 @@ TRUE OR
         | Dkt . DkVALUEFormal
         , Dkt . DkVARFormal
         , Dkt . DkROFormal
-        , Dkt . DkRecField
-        =>  LScopeRef := FM3Scopes . ScopeDeclStackTopRef 
-          ; FM3Decls . PrependDeclList
-              ( LScopeRef ^ . ScpDeclList
+        => FM3Decls . PrependDeclList
+              ( DidScopeRef ^ . ScpDeclList
               , LDeclRef
-              , DidDeclNo - LScopeRef ^ . ScpMinDeclNo
+              , DidDeclNo - DidScopeRef ^ . ScpMinDeclNo
               )
 
         | Dkt . DkOverride
-        =>  LScopeRef := FM3Scopes . ScopeDeclStackTopRef 
-          ; FM3Decls . PrependDeclList
-              ( LScopeRef ^ . ScpDeclList
+        =>  FM3Decls . PrependDeclList
+              ( DidScopeRef ^ . ScpDeclList
               , LDeclRef
               , DidDeclNo
-                - ( LScopeRef ^ . ScpMinDeclNo
-                    + FM3Dict_Int_Int . Card ( LScopeRef ^ . ScpDeclDict )
+                - ( DidScopeRef ^ . ScpMinDeclNo
+                    + FM3Dict_Int_Int . Card ( DidScopeRef ^ . ScpDeclDict )
                       (* ^Cts of fields + methods + overrides. *) 
-                    - NUMBER ( LScopeRef ^ . ScpDeclList . DlListRef ^ )
+                    - NUMBER ( DidScopeRef ^ . ScpDeclList . DlListRef ^ )
                       (* ^Ct of overrides. *) 
                   ) (* DeclNo of LM override. *)   
               )
@@ -1963,12 +1961,11 @@ TRUE OR
         =>  (* These don't go in the decl *list*. *) 
         
         | Dkt . DkEnumLit
-        =>  LScopeRef := FM3Scopes . ScopeDeclStackTopRef
-          ; LDeclRef ^ . DclDefType := FM3Exprs . ExprStackTopObj 
+        =>  LDeclRef ^ . DclDefType := FM3Exprs . ExprStackTopObj 
           ; FM3Decls . PrependDeclList
-              ( LScopeRef ^ . ScpDeclList
+              ( DidScopeRef ^ . ScpDeclList
               , LDeclRef
-              , DidDeclNo - LScopeRef . ScpMinDeclNo
+              , DidDeclNo - DidScopeRef . ScpMinDeclNo
               )   
           (* No value def expr is in the input, so must create one here. *)
           ; LValueExprRef (* Value of the enumlit. *) 
@@ -1979,7 +1976,7 @@ TRUE OR
                      , ExpIsConst := TRUE 
                      , ExpLoTypeInfoRef 
                          := FM3LoTypes . InfoRef ( FM3LoTypes . LoTypeNoLong )
-                     , ExpScopeRef1 := LScopeRef 
+                     , ExpScopeRef1 := DidScopeRef 
                      , ExpState := Est . EsResolved
                      , ExpConstValIsKnown := TRUE  
                      , ExpIsLegalRecursive := TRUE
@@ -1987,7 +1984,7 @@ TRUE OR
                      )
           ; LDeclRef ^ . DclDefValue := LValueExprRef
           ; LValueExprRef ^ . ExpScalarConstVal
-              := VAL ( LScopeRef ^ . ScpDeclList . DlUnfilledCt , LONGINT )  
+              := VAL ( DidScopeRef ^ . ScpDeclList . DlUnfilledCt , LONGINT )  
           ; LValueExprRef ^ . ExpReachedRefNos := IntSets . Empty ( ) 
           ; FM3Utils . ContribToHashI ( LValueExprRef ^ . ExpHash , DidAtom ) 
           ; FM3Exprs . RegisterExpr ( LValueExprRef , Mergeable := FALSE )
@@ -2011,6 +2008,7 @@ TRUE OR
         , Dkt . DkFor
         , Dkt . DkExcArg
         => <* ASSERT FALSE *>
+        ELSE <* ASSERT FALSE *>
         END (*CASE*)
 
       ; IF FM3Scopes . ScopeDeclStackTopRef ^ . ScpKind
@@ -2035,13 +2033,12 @@ TRUE OR
     ; DidStdTok := GetBwdInt ( TokResult . TrRdBack )
     ; DidPosition := GetBwdPos ( TokResult . TrRdBack )
     
+    ; DidScopeRef := FM3Scopes . ScopeDeclStackTopRef 
     ; WITH WOutRdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack
       DO 
-        DidDeclNo
-          := LookupDeclNoInScope
-               ( FM3Scopes . ScopeDeclStackTopRef ^ , DidAtom ) 
+        DidDeclNo := LookupDeclNoInScope ( DidScopeRef ^ , DidAtom ) 
       ; IF DidDeclNo = FM3Globals . DeclNoNull 
-        THEN <*ASSERT FALSE , "" *>
+        THEN <*ASSERT FALSE , "Missing decl no." *>
         END (*IF*) 
       ; VarArray_Int_Refany . CallbackWithElem 
           ( FM3Units . UnitStackTopRef ^ . UntDeclMap 

@@ -89,12 +89,17 @@ MODULE FM3Decls
     )
 
   = BEGIN (*PrependDeclList*)
-      DEC ( DeclList . DlUnfilledCt ) (* Underflow will bounds-fault. *) 
-    ; IF ExpectedSs >= 0 AND DeclList . DlUnfilledCt # ExpectedSs
-      THEN <* ASSERT FALSE , "Decl list ss not as expected." *>
+      IF DeclList . DlListRef = NIL 
+      THEN <* ASSERT FALSE , "Uninitialized decl list." *>
+      END (*IF*) 
+    ; IF DeclList . DlUnfilledCt < 0
+      THEN <* ASSERT FALSE , "Decl list underflow." *>
+      END (*IF*) 
+    ; DEC ( DeclList . DlUnfilledCt ) (* Underflow will bounds-fault. *) 
+    ; IF DeclList . DlUnfilledCt # ExpectedSs
+      THEN <* ASSERT FALSE , "Decl list ,mismatched ss." *>
       END (*IF*) 
     ; WITH WElmt = DeclList . DlListRef ^ [ DeclList . DlUnfilledCt ]
-           (* ^Will NIL-fault if list is not set up. *) 
       DO IF WElmt # NIL 
         THEN <* ASSERT FALSE , "duplicate insertion into DeclList" *>
         END (*IF*)
