@@ -1956,6 +1956,13 @@ TRUE OR
                   ) (* DeclNo of LM override. *)   
               )
 
+        | Dkt . DkRecField
+        =>  FM3Decls . PrependDeclList
+              ( DidScopeRef ^ . ScpDeclList
+              , LDeclRef
+              , DidDeclNo - DidScopeRef . ScpMinDeclNo
+              )
+
         | Dkt . DkObjField
         , Dkt . DkMethod
         =>  (* These don't go in the decl *list*. *) 
