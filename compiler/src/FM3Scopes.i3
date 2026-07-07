@@ -152,7 +152,7 @@ INTERFACE FM3Scopes
         (* A self-reference. *)
       ; ScpOwningDeclNo : FM3Globals . DeclNoTyp := FM3Globals . DeclNoNull
       ; ScpDeclStackHt : INTEGER := - 1 (* < 0 when nowhere on Decl stack. *) 
-      ; ScpOpenStackHt : INTEGER := - 1 (* < 0 when nowhere on Open stack. *) 
+      ; ScpLookupStackHt : INTEGER := - 1 (* < 0 when nowhere on Lookup stack. *)
         (* ^Number scopes beneath, where "beneath" is reflexively closed. *)
       ; ScpCurDeclExprStackCt : INTEGER := 0 (* At beginning and end of decl. *)
 (* CHECK ^Do we really need this? *) 

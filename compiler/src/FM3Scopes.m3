@@ -210,7 +210,7 @@ MODULE FM3Scopes
     ; LScopeRef ^ . ScpKind := ScopeKind
     ; LScopeRef ^ . ScpPosition := Position
     ; LScopeRef ^ . ScpDeclStackHt := - 1 
-    ; LScopeRef ^ . ScpOpenStackHt := - 1 
+    ; LScopeRef ^ . ScpLookupStackHt := - 1 
  
     ; LScopeRef ^ . ScpDeclIdSet := IntSets . Empty ( )
     ; LScopeRef ^ . ScpDeclDict := NIL 
@@ -308,11 +308,11 @@ MODULE FM3Scopes
 
   = BEGIN (*PushScopeRefLookupStack*)
       IF ScopeRef = NIL THEN RETURN END (*IF*)
-    ; <* ASSERT ScopeRef ^ . ScpOpenStackHt = - 1 *>
+    ; <* ASSERT ScopeRef ^ . ScpLookupStackHt = - 1 *>
       IF ScopeLookupStackTopRef = NIL
-      THEN ScopeRef ^ . ScpOpenStackHt := 1 
-      ELSE ScopeRef ^ . ScpOpenStackHt
-             := ScopeLookupStackTopRef ^ . ScpOpenStackHt + 1
+      THEN ScopeRef ^ . ScpLookupStackHt := 1 
+      ELSE ScopeRef ^ . ScpLookupStackHt
+             := ScopeLookupStackTopRef ^ . ScpLookupStackHt + 1
       END (*IF*) 
     ; ScopeRef ^ . ScpLookupStackLink := ScopeLookupStackTopRef
     ; ScopeLookupStackTopRef := ScopeRef
@@ -329,7 +329,7 @@ MODULE FM3Scopes
     ; ScopeLookupStackTopRef := LPoppedScopeRef ^ . ScpLookupStackLink
     ; DEC ( ScopeLookupStackCt ) 
     ; <* ASSERT ( ScopeLookupStackTopRef = NIL ) = ( ScopeLookupStackCt = 0 ) *>
-      LPoppedScopeRef ^ . ScpOpenStackHt := - 1 
+      LPoppedScopeRef ^ . ScpLookupStackHt := - 1 
     ; RETURN LPoppedScopeRef
     END PopScopeRefLookupStack (*EXPORTED.*)
 
@@ -462,7 +462,7 @@ MODULE FM3Scopes
         ; DsField ( "ScpSelfScopeNo" , Fmt . Int ( WScope ^ . ScpSelfScopeNo ) , Fmt . Int ( LDef ^ . ScpSelfScopeNo ) )
         ; DsField ( "ScpOwningDeclNo" , DeclNoImage ( WScope ^ . ScpOwningDeclNo ) , DeclNoImage ( LDef ^ . ScpOwningDeclNo ) )
         ; DsField ( "ScpDeclStackHt" , Fmt . Int ( WScope ^ . ScpDeclStackHt ) , Fmt . Int ( LDef ^ . ScpDeclStackHt ) )
-        ; DsField ( "ScpOpenStackHt" , Fmt . Int ( WScope ^ . ScpOpenStackHt ) , Fmt . Int ( LDef ^ . ScpOpenStackHt ) )
+        ; DsField ( "ScpLookupStackHt" , Fmt . Int ( WScope ^ . ScpLookupStackHt ) , Fmt . Int ( LDef ^ . ScpLookupStackHt ) )
         ; DsField ( "ScpCurDeclExprStackCt" , Fmt . Int ( WScope ^ . ScpCurDeclExprStackCt ) , Fmt . Int ( LDef ^ . ScpCurDeclExprStackCt ) ) 
         ; DsField ( "ScpPosition" , PositionImage ( WScope ^ . ScpPosition ) , PositionImage ( LDef ^ . ScpPosition ) )
         ; DsField ( "ScpKind" , ScopeKindImage ( WScope ^ . ScpKind ) , ScopeKindImage ( LDef ^ . ScpKind ) )
