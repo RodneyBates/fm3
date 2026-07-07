@@ -1340,9 +1340,8 @@ TRUE OR
       =>  LAtom := GetBwdAtom ( TokResult . TrRdBack )
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
 
-        ; LValueExprRef := FM3Exprs . PopExprStack ( )  
         ; LExprRef := FM3Exprs . ExprStackTopObj 
-        ; IF LExprRef ^ . ExpKind # Ekt . EkObjType
+        ; IF LExprRef = NIL OR LExprRef ^ . ExpKind # Ekt . EkObjType
           THEN <* ASSERT FALSE , "Override list not inside object type." *>
           END (*IF*)
 
