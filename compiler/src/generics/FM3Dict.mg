@@ -334,7 +334,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 (* Fixed dictionaries have some restrictions, but may be more compact
    and possibly faster, if you can live with them and if MaxKeyCt is smallish. 
    All calls on InsertFixed must precede a call on FinalizeFixedFixed,
-   before any calls on LookupFixed.  Also, duplicate keys will result
+   before any calls on LookupFixed.  Also, duplicate keys will result in
    Error's being raised, or possibly in undetected duplicate entries,
    with different values, and nondeterministic results from LookupFixed.
 *) 

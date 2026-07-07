@@ -574,7 +574,7 @@ MODULE  FM3Compile
     ; UnitRef ^ . UntSkipStackBase
         := VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi 
     ; FM3Pass1 . RunPass1 ( )
-    ; FM3Pass2 . RunPass2 ( )
+    ; IF UnitRef ^ . UntParseResult <= 0 THEN FM3Pass2 . RunPass2 ( ) END (*IF*) 
 
     ; RdBackFile . Close 
         ( UnitRef ^ . UntPass2OutRdBack , - 1L (* Leave full length. *) )

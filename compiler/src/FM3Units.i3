@@ -163,7 +163,7 @@ INTERFACE FM3Units
       ; UntSelfUnitNo : FM3Globals . UnitNoTyp := FM3Globals . UnitNoNull
           (* ^Self-referential. *) 
       ; UntScanResult : INTEGER 
-      ; UntParseResult : INTEGER 
+      ; UntParseResult : INTEGER (* Parse error count.*) 
       ; UntPass2Result : INTEGER
       ; UntPass3Result : INTEGER
       ; UntFirstTrueDeclNo : INTEGER := 1 
