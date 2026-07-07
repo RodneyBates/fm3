@@ -50,7 +50,7 @@ MODULE FM3Scopes
       | Skt . SkGenIntf => LResult := "SkGenIntf" 
       | Skt . SkModule => LResult := "SkModule" 
       | Skt . SkGenMod => LResult := "SkGenMod" 
-      | Skt . SkFormals => LResult := "SkFormals" 
+      | Skt . SkFormals => LResult := "SkFormals"
       | Skt . SkProcBody => LResult := "SkProcBody" 
       | Skt . SkBlockStmt => LResult := "SkBlockStmt"
       | Skt . SkCompEnv => LResult := "SkCompEnv" 

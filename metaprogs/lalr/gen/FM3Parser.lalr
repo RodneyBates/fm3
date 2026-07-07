@@ -377,7 +377,8 @@ RULE
            , $4 . Scan . Position 
            ) ;
        END ; 
-     } . 
+     } .
+     
    Interface : InterfaceMiddle OpenDeclList StkRwEND NonreservedIdent StkDot
      { VAR LDeclScopeRef : FM3Scopes . ScopeRefTyp ;
        VAR LLookupScopeRef : FM3Scopes . ScopeRefTyp ;
@@ -1925,7 +1926,8 @@ END OLD
 (* List of formal decls. *)
 
 (* FormalsLt Formals.PaInt1, FormalPlus.PaInt1, and FormalsList.PaInt1
-   are formals count. *)
+   are formals count.
+*)
 
    FormalsLt : StkOpenParen 
      { (* Default PaPos. *)
@@ -1948,7 +1950,8 @@ END OLD
 
        END ;
      } .
-
+     
+(* Non-deterministic: FormalsList -> empty. 
    Formals : FormalsLt StlCloseParen /* Empty formals list. */ 
      { $$ . PaInt1 := 0 (* Valid ident ct. *) ;
        $$ . PaInt2 := $1 . PaInt2 (* Formals scope no. *) ; 
@@ -1958,8 +1961,9 @@ END OLD
          , $1 . Scan . Position
          ) ;
      } . 
+*)
 
-   Formals : FormalsLt FormalsList StkCloseParen /* Nonempty. */
+   Formals : FormalsLt FormalsList StkCloseParen 
      { (* Default PaPos. *)
        (* Default PaPass1Coord. *)
        $$ . PaInt1 := $2 . PaInt1 (* Formals count. *) ;
@@ -2002,7 +2006,7 @@ END OLD
    FormalPlus : FormalPlus StkSemicolon Formal 
      { $$ . PaInt1 := $1 . PaInt1 + $3 . PaInt1 (* Formals count. *);
        FM3Pass1 . PutBwd_ECIP
-         ( Itk . ItkFormalsListLt 
+         ( Itk . ItkFormalsListLt (* Separator. *) 
          , $2 . PaPass1Coord 
          , $1 . PaInt1 (* Number of formals to left. *) 
          , $2 . Scan . Position
@@ -2222,43 +2226,21 @@ END OLD
    /* Procedure that has a body in source code, not necessarily legally. */
    ProcDefLt : StkRwPROCEDURE StkIdent Signature StkEqual
      { (* Default coord and position. *)
-       $$ . Scan . SaAtom := $2 . Scan . SaAtom ; 
+       $$ . Scan . SaAtom := $2 . Scan . SaAtom ;
+       $$ . PaInt2 := $3 . PaInt2 (* Formals scope no. *) ;
        $$ . PaInt1 (* Valid ident count, 0 or 1. *) 
          := ORD ( FM3Pass1 . DeclIdL2R
                     ( Dkt . DkProcDef , IdAttribute := $2 )
                 ) ;
-       $$ . PaByte2 := ORD ( Skt . SkProcBody ) ;
        $$ . PaPos := $4 . Scan . Position ; 
-       VAR LFormalsScopeRef : FM3Scopes . ScopeRefTyp ; 
-       VAR LBodyScopeRef : FM3Scopes . ScopeRefTyp ; 
-       BEGIN
-         (* Repush formals scope onto lookup stack.*) 
-         LFormalsScopeRef := FM3Scopes . ScopeRefOfScopeNo ( $3 . PaInt2 ) ;
-         (* ^From Formals, via Signature. *) 
-
-         IF LFormalsScopeRef = NIL
-            OR LFormalsScopeRef ^ . ScpKind # Skt . SkFormals
-         THEN <* ASSERT FALSE , "No formals scope for proc body." *>
-         END (*IF*) ;
-
-         (* And repush formals scope onto lookup stack too. *) 
-         FM3Scopes . PushScopeRefLookupStack ( LFormalsScopeRef ) ;
-         FM3Pass1 . PutBwd_TIP
-           ( Itk . ItkScopeForLookupLt
-           , $3 . PaInt2
-           , $4 . Scan . Position 
-           ) ;
-       END (*Block*) ; 
+       $$ . PaByte2 := ORD ( Skt . SkProcBody ) (* For Block in ProcDecl. *) ; 
      } .
 
    ProcDecl : ProcDefLt Block StkIdent StkSemicolon  
      { (* Default Coord, Position. *)
        $$ . PaAtom := $1 . PaAtom ; 
-       VAR LLookupScopeRef : FM3Scopes . ScopeRefTyp ; 
-       VAR LDeclsScopeRef : FM3Scopes . ScopeRefTyp ; 
        VAR LFormalsScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN
-         $$ . PaByte2 := ORD ( Skt . SkProcBody ) ; 
          IF NOT FM3Units . CurrentUnitIsModule ( )
          THEN 
            FM3Messages . ErrorArr
@@ -2266,10 +2248,10 @@ END OLD
                { "A procedure in an interface must not have a body (2.5.2)." }
              , $1 . PaPos 
              ) ;
+           (* Convert to a (bodyless) proc decl. *)
            FM3Pass1 . PutBwd_LCI_ri (* Skip the proc body. *) 
              ( Itk . ItkSkipLt , $2 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
            INC ( FM3Globals . NextSkipNo ) ;
-           (* Convert to a (bodyless) proc decl. *)
            FM3Pass1 . PutBwd_LCIP_riP
              ( Itk . ItkProcDeclLt 
              , $1 . PaPass1Coord
@@ -2277,13 +2259,13 @@ END OLD
              , $1 . Scan . Position
              , $3 . Scan . Position 
              ) ;
-         ELSE
-           (* The formals scope, now on the lookup stack. *) 
-           LFormalsScopeRef := FM3Scopes . PopScopeRefLookupStack ( );
+         ELSE (* Body is present and legal. *) 
+           LFormalsScopeRef := FM3Scopes . ScopeRefOfScopeNo ( $1 . PaInt2 ) ;
            IF LFormalsScopeRef = NIL 
               OR LFormalsScopeRef ^ . ScpKind # Skt . SkFormals 
-           THEN <* ASSERT FALSE , "P1, no formal scope at proc body rt. " *>
+           THEN <* ASSERT FALSE , "Pass1, no formal scope at proc body rt. " *>
            END (*IF*) ;
+           FM3Scopes . PushScopeRefLookupStack ( LFormalsScopeRef ) ;
            FM3Pass1 . PutBwd_TIP
              ( Itk . ItkScopeForLookupRt
              , LFormalsScopeRef ^ . ScpSelfScopeNo
