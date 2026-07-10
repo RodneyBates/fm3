@@ -785,14 +785,16 @@ TRUE OR
       , Itk . ItkDeclValAbsent
       , Itk . ItkSubscriptTypeAbsent
       =>  LPosition := GetBwdPos ( TokResult . TrRdBack )
-          (* An especially dumb ExprRef, just to keep expr stack consistent. *)
-        ; FM3Exprs . PushExprStack
-            ( NEW ( FM3Exprs . ExprRefTyp
-                  , ExpKind := Ekt . EkAbsent 
-                  , ExpIsPresent := FALSE
-                  , ExpPosition := LPosition
-                  )
-            )
+
+        ; LExprRef
+            := NEW ( FM3Exprs . ExprRefTyp
+                   , ExpKind := Ekt . EkAbsent 
+                   , ExpIsPresent := FALSE
+                   , ExpPosition := LPosition
+                   )
+        ; FM3Exprs . RegisterExpr ( LExprRef , Mergeable := TRUE ) 
+        ; FM3Exprs . PushExprStack ( LExprRef ) 
+            
         ; PutBwdP2 ( P2RdBack , VAL ( LPosition . Column , LONGINT ) )
         ; PutBwdP2 ( P2RdBack , VAL ( LPosition . Line , LONGINT ) ) 
         ; PutBwdP2 ( P2RdBack , VAL ( TokResult. TrTok , LONGINT ) )

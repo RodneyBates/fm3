@@ -4276,7 +4276,7 @@ yyNonterminal := 248;
                        yySynAttribute . PaInt1 := yyAttributeStack^[yyStackPtr+1] . PaInt1 (* Ident count. *) ; 
                 
                        IF VAL ( yyAttributeStack^[yyStackPtr+1] . PaByte1 , Dkt ) = Dkt . DkVARFormal   
-                       THEN
+                       THEN (* VAR formals, different definition rules. *) 
                          yySynAttribute . PaBool (* OK, for now. *) := TRUE ; 
                          
                          IF NOT yyAttributeStack^[yyStackPtr+1] . PaBool  
@@ -4289,8 +4289,8 @@ yyNonterminal := 248;
                            yySynAttribute . PaBool (* OK. *) := FALSE ; 
                            FM3Pass1 . PutBwd_TP
                              ( Itk . ItkDeclTypeAbsent , yyAttributeStack^[yyStackPtr+2] . Scan . Position ) ; 
-                         
-                         ELSIF yyAttributeStack^[yyStackPtr+2] . PaBool (* Value is present? *) 
+                         END (*IF*) ; 
+                         IF yyAttributeStack^[yyStackPtr+2] . PaBool (* Value is present? *) 
                          THEN
                            yySynAttribute . PaBool (* OK. *) := FALSE ; 
                            FM3Messages . ErrorArr
@@ -4298,13 +4298,13 @@ yyNonterminal := 248;
                                  { "VAR formal cannot have a default (2.2.8)." }
                              , yyAttributeStack^[yyStackPtr+2] . Scan . Position
                              ) ;
-                           (* Skip the default value, but replace by an absent token. *)
+                           (* Skip the default value. *)
                            FM3Pass1 . PutBwd_LCI_ri
                              ( Itk . ItkSkipLt , yyAttributeStack^[yyStackPtr+2] . PaPass1Coord , FM3Globals . NextSkipNo ) ;
                            INC ( FM3Globals . NextSkipNo ) ;
-                           FM3Pass1 . PutBwd_TP
-                             ( Itk . ItkDeclValAbsent , yyAttributeStack^[yyStackPtr+2] . Scan . Position ) ; 
                          END (*IF*) ;
+                         FM3Pass1 . PutBwd_TP (* Either way, it's now absent. *)
+                           ( Itk . ItkDeclValAbsent , yyAttributeStack^[yyStackPtr+2] . Scan . Position ) ; 
                          (* Emit the declaration. *) 
                          FM3Pass1 . PutBwd_LCP_rp 
                            ( yyAttributeStack^[yyStackPtr+1] . PaTok1 (* Decl tok. *)

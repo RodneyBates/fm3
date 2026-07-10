@@ -2093,13 +2093,13 @@ END OLD
          ( $1 . PaTok1 , FM3Scanner . Attribute . Position ) ;
      } .
 
-   Formal : /* At right of entire formal. */ FormalType OptDeclValue   
+   Formal : /* At right of entire formal. */ FormalType OptDeclValue 
      { (* Default position. *) 
        $$ . PaDeclDepth := $1 . PaDeclDepth (* DeclParseInfoDepth. *) ;
        $$ . PaInt1 := $1 . PaInt1 (* Ident count. *) ; 
 
        IF VAL ( $1 . PaByte1 , Dkt ) = Dkt . DkVARFormal   
-       THEN
+       THEN (* VAR formals, different definition rules. *) 
          $$ . PaBool (* OK, for now. *) := TRUE ; 
          
          IF NOT $1 . PaBool  
@@ -2112,8 +2112,8 @@ END OLD
            $$ . PaBool (* OK. *) := FALSE ; 
            FM3Pass1 . PutBwd_TP
              ( Itk . ItkDeclTypeAbsent , $2 . Scan . Position ) ; 
-         
-         ELSIF $2 . PaBool (* Value is present? *) 
+         END (*IF*) ; 
+         IF $2 . PaBool (* Value is present? *) 
          THEN
            $$ . PaBool (* OK. *) := FALSE ; 
            FM3Messages . ErrorArr
@@ -2121,13 +2121,13 @@ END OLD
                  { "VAR formal cannot have a default (2.2.8)." }
              , $2 . Scan . Position
              ) ;
-           (* Skip the default value, but replace by an absent token. *)
+           (* Skip the default value. *)
            FM3Pass1 . PutBwd_LCI_ri
              ( Itk . ItkSkipLt , $2 . PaPass1Coord , FM3Globals . NextSkipNo ) ;
            INC ( FM3Globals . NextSkipNo ) ;
-           FM3Pass1 . PutBwd_TP
-             ( Itk . ItkDeclValAbsent , $2 . Scan . Position ) ; 
          END (*IF*) ;
+         FM3Pass1 . PutBwd_TP (* Either way, it's now absent. *)
+           ( Itk . ItkDeclValAbsent , $2 . Scan . Position ) ; 
          (* Emit the declaration. *) 
          FM3Pass1 . PutBwd_LCP_rp 
            ( $1 . PaTok1 (* Decl tok. *)

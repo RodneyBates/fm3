@@ -9,10 +9,9 @@ INTERFACE Intfxx
 
 ; PROCEDURE Pa ( F : R1 ; G := C0 )
 ; PROCEDURE P ( F ; VAR G := Ss ; READONLY H ; VALUE I )
-
 ; PROCEDURE Body ( ) = BEGIN END Body
-
 ; PROCEDURE Nobody ( ) 
+
 ; TYPE Ra = RECORD S : R1 ; T := C0 END 
 ; TYPE R = RECORD S ; T END
 ; TYPE Obja = OBJECT METHODS m ( F : CHAR ) END

@@ -632,6 +632,8 @@ RETURN ;
     ; RETURN LPoppedExprObj 
     END PopExprStack
 
+; VAR GFailPrune := TRUE 
+
 (*EXPORTED.*)
 ; PROCEDURE PruneExprStack ( ToDepth : INTEGER := 0 )
 
@@ -649,7 +651,10 @@ RETURN ;
               , "." 
               } 
           , ExprStackTopObj ^ . ExpPosition
-          ) 
+          )
+      ; IF GFailPrune
+        THEN <* ASSERT FALSE , "" *>
+        END (*IF*) 
       ; REPEAT EVAL PopExprStack ( ) 
       ; UNTIL ExprStackCt <= ToDepth  
       END (*IF*) 
