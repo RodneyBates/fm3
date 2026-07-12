@@ -2233,7 +2233,22 @@ END OLD
                     ( Dkt . DkProcDef , IdAttribute := $2 )
                 ) ;
        $$ . PaPos := $4 . Scan . Position ; 
-       $$ . PaByte2 := ORD ( Skt . SkProcBody ) (* For Block in ProcDecl. *) ; 
+       $$ . PaByte2 := ORD ( Skt . SkProcBody ) (* For Block in ProcDecl. *) ;
+       
+       VAR LFormalsScopeRef : FM3Scopes . ScopeRefTyp ; 
+       BEGIN
+         LFormalsScopeRef := FM3Scopes . ScopeRefOfScopeNo ( $3 . PaInt2 ) ;
+         IF LFormalsScopeRef = NIL 
+            OR LFormalsScopeRef ^ . ScpKind # Skt . SkFormals 
+         THEN <* ASSERT FALSE , "Pass1, no formal scope at proc body lt. " *>
+         END (*IF*) ;
+         FM3Scopes . PushScopeRefLookupStack ( LFormalsScopeRef ) ;
+         FM3Pass1 . PutBwd_TIP
+           ( Itk . ItkScopeForLookupLt
+           , LFormalsScopeRef ^ . ScpSelfScopeNo
+           , $3 . Scan . Position
+           ) ;
+       END (*block*) 
      } .
 
    ProcDecl : ProcDefLt Block StkIdent StkSemicolon  
@@ -2260,17 +2275,6 @@ END OLD
              , $3 . Scan . Position 
              ) ;
          ELSE (* Body is present and legal. *) 
-           LFormalsScopeRef := FM3Scopes . ScopeRefOfScopeNo ( $1 . PaInt2 ) ;
-           IF LFormalsScopeRef = NIL 
-              OR LFormalsScopeRef ^ . ScpKind # Skt . SkFormals 
-           THEN <* ASSERT FALSE , "Pass1, no formal scope at proc body rt. " *>
-           END (*IF*) ;
-           FM3Scopes . PushScopeRefLookupStack ( LFormalsScopeRef ) ;
-           FM3Pass1 . PutBwd_TIP
-             ( Itk . ItkScopeForLookupRt
-             , LFormalsScopeRef ^ . ScpSelfScopeNo
-             , $3 . Scan . Position
-             ) ;
            FM3Pass1 . PutBwd_LCIP_eCP_rIP  
              ( Itk . ItkProcDefLt 
              , $1 . PaPass1Coord
@@ -2283,7 +2287,16 @@ END OLD
              , $3 . Scan . SaAtom (* NB. the *final* ident. *) 
              , $3 . Scan . Position  
              ) ;
-         END (*IF*)
+         END (*IF*) ; 
+         LFormalsScopeRef := FM3Scopes . ScopeRefOfScopeNo ( $1 . PaInt2 ) ;
+         IF FM3Scopes . PopScopeRefLookupStack ( ) # LFormalsScopeRef
+         THEN <* ASSERT FALSE , "P1 formals scope mismatch at body rt." *> 
+         END (*IF*) ;
+         FM3Pass1 . PutBwd_TIP
+           ( Itk . ItkScopeForLookupRt
+           , LFormalsScopeRef ^ . ScpSelfScopeNo
+           , $3 . Scan . Position
+           ) ;
        END (*Block*)
      } .
      
