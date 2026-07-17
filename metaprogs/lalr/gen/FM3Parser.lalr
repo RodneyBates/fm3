@@ -1247,7 +1247,7 @@ RULE
      { $$ . PaBool (* Present. *) := FALSE (* Absent. *) ;
        $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
        FM3Pass1 . PutBwd_LP
-         ( Itk . ItkDeclTypeAbsent , $0 . Scan . Position ) ; 
+         ( Itk . ItkDeclTypeAbsent , FM3Scanner . Attribute . Position ) ; 
      } .
      
    DeclValue : /* Absent or present, do this. */
@@ -2107,7 +2107,7 @@ END OLD
            FM3Messages . ErrorArr
              ( ARRAY OF REFANY 
                  { "VAR formal must have a type (2.2.8)." }
-             , $1 . Scan . Position
+             , $2 . Scan . Position
              ) ;
            $$ . PaBool (* OK. *) := FALSE ; 
          END (*IF*) ; 

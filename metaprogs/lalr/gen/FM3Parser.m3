@@ -3426,7 +3426,7 @@ yyNonterminal := 192;
                  yySynAttribute . PaBool (* Present. *) := FALSE (* Absent. *) ;
                        yySynAttribute . Scan . Position := FM3Scanner . Attribute . Position ; 
                        FM3Pass1 . PutBwd_LP
-                         ( Itk . ItkDeclTypeAbsent , yyAttributeStack^[yyStackPtr] . Scan . Position ) ; 
+                         ( Itk . ItkDeclTypeAbsent , FM3Scanner . Attribute . Position ) ; 
                      
               | 558 => (* P117 DeclValue (193): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
@@ -4284,7 +4284,7 @@ yyNonterminal := 248;
                            FM3Messages . ErrorArr
                              ( ARRAY OF REFANY 
                                  { "VAR formal must have a type (2.2.8)." }
-                             , yyAttributeStack^[yyStackPtr+1] . Scan . Position
+                             , yyAttributeStack^[yyStackPtr+2] . Scan . Position
                              ) ;
                            yySynAttribute . PaBool (* OK. *) := FALSE ; 
                          END (*IF*) ; 
