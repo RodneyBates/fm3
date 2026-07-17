@@ -2081,7 +2081,7 @@ END OLD
          ) ;
      } .
 
-   FormalType /* At right of formal's type. */ : FormalIds OptDeclType  
+   FormalType /* Reduced at right of formal's type. */ : FormalIds OptDeclType  
      { (* Default coord and position. *)
        $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
        $$ . PaTok1 := $1 . PaTok1 (* Decl tok. *) ; 
@@ -2093,7 +2093,7 @@ END OLD
          ( $1 . PaTok1 , FM3Scanner . Attribute . Position ) ;
      } .
 
-   Formal : /* At right of entire formal. */ FormalType OptDeclValue 
+   Formal : /* Reduced at right of entire formal. */ FormalType OptDeclValue 
      { (* Default position. *) 
        $$ . PaDeclDepth := $1 . PaDeclDepth (* DeclParseInfoDepth. *) ;
        $$ . PaInt1 := $1 . PaInt1 (* Ident count. *) ; 
@@ -2110,8 +2110,6 @@ END OLD
              , $1 . Scan . Position
              ) ;
            $$ . PaBool (* OK. *) := FALSE ; 
-           FM3Pass1 . PutBwd_TP
-             ( Itk . ItkDeclTypeAbsent , $2 . Scan . Position ) ; 
          END (*IF*) ; 
          IF $2 . PaBool (* Value is present? *) 
          THEN
