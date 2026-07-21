@@ -52,11 +52,12 @@ ItkModule INT POS 3 (* UnitNo, Position. *)
 
 
 LONE
-  ItkFormalTypeAbsent POS 2 (* Position. *).
-  ItkFormalExprAbsent POS 2 (* Position. *).
-  (*ItkRaisesSetAbsent POS 2 (* Position. *) *) . 
+  ItkFormalTypeAbsent POS 2 (* Position. *) .
+  ItkFormalExprAbsent POS 2 (* Position. *) .
+  ItkRaisesListEmpty POS 2 (* Position. *) . 
   ItkRaisesANY POS 2 (* Position. *) .
-  ItkResultTypeAbsent POS 2 (* Position. *). 
+  ItkExceptRef . 
+  ItkResultTypeAbsent POS 2 (* Position. *) . 
 
   ItkIdRefAtomNotUsable IDENT POS . 
 

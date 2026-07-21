@@ -886,12 +886,13 @@ RULE
      { $$ . PaInt1 := 0 ; } . 
 
 (* List of zero or more comma-separated maybe-qualified Idents. *)
+   (* Only used for raises list. Let ItkRaisesList handle it. *) 
    IdentOrQualRefStarList : /*Empty*/
      { $$ . PaInt1 := 0 ; } .
    IdentOrQualRefStarList : IdentOrQualRefPlusList
      { $$ . PaInt1 := $1 . PaInt1 ; } .
    IdentOrQualRefPlusList : IdentOrQualRef
-     { $$ . PaInt1 := 1 } . 
+     { $$ . PaInt1 := 1 ; } . 
    IdentOrQualRefPlusList : IdentOrQualRefPlusList StkComma IdentOrQualRef
      { $$ . PaInt1 := $1 . PaInt1 + 1 ; } .
      
@@ -2166,7 +2167,7 @@ END OLD
          , $1 . Scan . Position
          ) ;  
      } .
-     
+    
    ResultType : /*Empty*/
      { $$ . PaBool (* Result type is present. *) := FALSE (* Absent. *) ;
        $$ . Scan . Position := FM3Scanner . Attribute . Position; 
@@ -2176,25 +2177,36 @@ END OLD
      } .
 
 (* RAISES of signature. *) 
+   Raises : StkRwRAISES StkRwANY 
+     { $$ . PaInt1 := 0 (*This does not go into a list*) ;  
+       FM3Pass1 . PutBwd_LP ( Itk . ItkRaisesANY , $2 . Scan . Position ) ; 
+     } .
+     
    Raises : /*Empty*/
-     { $$ . PaBool (* Raises set is present. *) := FALSE (* Absent. *) ;
-       $$ . PaInt1 := 0 ; 
-       $$ . Scan . Position := FM3Scanner . Attribute . Position ; 
+     { $$ . PaInt1 := 0 ; 
+       FM3Pass1 . PutBwd_LP ( Itk . ItkRaisesListEmpty , $2 . Scan . Position ) ; 
      } .
 
-   Raises : StkRwRAISES StkRwANY 
-     { $$ . PaBool (* Raises set is present. *) := TRUE ;
-       $$ . PaInt1 := 1 ;  
-       $$ . Scan . Position := $2 . Scan . Position ; 
-       FM3Pass1 . PutBwd_LP_rp
-         ( Itk . ItkRaisesANY , $2 . Scan . Position ) ; 
-     } . 
    Raises
-     : StkRwRAISES StkOpenBrace IdentOrQualRefStarList StkCloseBrace 
-     { $$ . PaBool (* Raises set is present. *) := TRUE ;
-       $$ . PaInt1 := $3 . PaInt1 (* Ct of refs. *) ;  
-       $$ . Scan . Position := $1 . Scan . Position ; 
+     : StkRwRAISES StkOpenBrace StkCloseBrace 
+     { $$ . PaInt1 := 0 (* Ct of refs. *) ;  
+       FM3Pass1 . PutBwd_LP ( Itk . ItkRaisesListEmpty , $2 . Scan . Position ) ;
      } . 
+     
+   Raises
+     : StkRwRAISES StkOpenBrace ExceptRefPlusList StkCloseBrace 
+     { $$ . PaInt1 := $3 . PaInt1 (* Ct of refs. *) ; } .
+     
+   ExceptRefPlusList : IdentOrQualRef
+     { $$ . PaInt1 := 1 ;
+       FM3Pass1 . PutBwd_LC ( Itk . ItkExceptRef , $1 . PaPass1Coord )
+     } .
+     
+   ExceptRefPlusList : ExceptRefPlusList StkComma IdentOrQualRef
+     { $$ . PaInt1 := $1 . PaInt1 + 1 ;
+       FM3Pass1 . PutBwd_LC ( Itk . ItkExceptRef , $3 . PaPass1Coord )
+     } .
+     
 (* ------------------------------ Procedures ------------------------------ *)
 
    /* Procedure that lacks a body in source code, not necessarily legally. */

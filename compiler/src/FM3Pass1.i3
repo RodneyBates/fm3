@@ -214,6 +214,8 @@ INTERFACE FM3Pass1
     ; READONLY Position : tPosition
     )
 
+; PROCEDURE PutBwd_LC ( T : Itk . TokTyp ; C : LONGINT )
+
 ; PROCEDURE PutBwd_LCr ( T : Itk . TokTyp ; C : LONGINT )
 
 ; PROCEDURE PutBwd_LCP_rp

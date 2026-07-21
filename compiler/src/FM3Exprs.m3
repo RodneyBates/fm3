@@ -169,15 +169,18 @@ MODULE FM3Exprs
     ( VAR (*IN OUT*) ExprList : ExprListTyp ; Ct : INTEGER ) 
   (* With all elements initialized to NIL. *) 
 
-  = VAR LResult : ExprListTyp 
-
-  ; BEGIN (*InitExprList*)
-      ExprList . ElListRef := NEW ( ExprListElmtsTyp , Ct )
-    ; ExprList . ElUnfilledCt := Ct 
-    ; FOR RI := FIRST ( ExprList . ElListRef ^ )
-             TO LAST ( ExprList . ElListRef ^ )
-      DO ExprList .  ElListRef ^ [ RI ] := NIL 
-      END (*FOR*)
+  = BEGIN (*InitExprList*)
+      ExprList . ElUnfilledCt := Ct
+    ; IF Ct <= 0
+      THEN ExprList . ElListRef := NIL
+      ELSE 
+        ExprList . ElListRef := NEW ( ExprListElmtsTyp , Ct )
+      ; ExprList . ElUnfilledCt := Ct 
+      ; FOR RI := FIRST ( ExprList . ElListRef ^ )
+               TO LAST ( ExprList . ElListRef ^ )
+        DO ExprList .  ElListRef ^ [ RI ] := NIL 
+        END (*FOR*)
+      END (*IF*) 
     END InitExprList
 
 (*EXPORTED.*)
@@ -211,7 +214,7 @@ MODULE FM3Exprs
       END (*IF*) 
     END FinishExprList
 
-; PROCEDURE AppendExprList ( ExprList : ExprListTyp ) 
+; PROCEDURE AppendExprListImage ( ExprList : ExprListTyp ) 
 
   = BEGIN
       IF ExprList . ElListRef = NIL THEN RETURN END (*IF*)
@@ -227,7 +230,7 @@ MODULE FM3Exprs
       ; Wr . PutText ( GWrT , "END" ) 
       ; Wr . PutText ( GWrT , Wr . EOL ) 
     END (*FOR*) 
-    END AppendExprList
+    END AppendExprListImage
     
 ; VAR GWrT : Wr . T (* Sorry for the global. *)
 ; VAR GDepth : INTEGER
@@ -453,7 +456,7 @@ RETURN ;
               , ExprKindSetMessage ( Expr ^ . ExpBuiltinOpRtOpndKindsAllowed ) 
               )
       ; Field ( "ExpArgList" , "" )
-      ; AppendExprList ( Expr ^ . ExpArgList ) 
+      ; AppendExprListImage ( Expr ^ . ExpArgList ) 
 
       ; Field ( "ExpObjBrandKind"
               , FM3Parser . BrandKindImage ( Expr ^ . ExpObjBrandKind )
@@ -487,9 +490,10 @@ RETURN ;
       ; Field ( "ExpIsLegalRecursive" , Fmt . Bool ( Expr ^ . ExpIsLegalRecursive ) )
       ; Field ( "ExpIsDesignator" , Fmt . Bool ( Expr ^ . ExpIsDesignator ) ) 
       ; Field ( "ExpIsWritable" , Fmt . Bool ( Expr ^ . ExpIsWritable ) )  
-      ; Field ( "ExpIsPresent" , Fmt . Bool ( Expr ^ . ExpIsPresent ) )  
       ; Field ( "ExpIsUntraced" , Fmt . Bool ( Expr ^ . ExpIsUntraced ) )
       ; Field ( "ExpArrayTypeIsOpen" , Fmt . Bool ( Expr ^ . ExpArrayTypeIsOpen ) )
+      ; Field ( "ExpIsUntraced" , Fmt . Bool ( Expr ^ . ExpIsUntraced ) )
+      ; Field ( "ExpRaisesANY" , Fmt . Bool ( Expr ^ . ExpRaisesANY ) )
 
       ; NestedField ( "ExpType" , Expr ^ . ExpType ) 
       ; NestedField ( "ExpOpnd1" , Expr ^ . ExpOpnd1 ) 

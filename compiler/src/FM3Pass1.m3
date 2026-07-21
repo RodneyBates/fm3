@@ -1083,6 +1083,17 @@ MODULE FM3Pass1
     END PutBwd_ECIP
 
 (*EXPORTED:*)
+; PROCEDURE PutBwd_LC ( T : Itk . TokTyp ; C : LONGINT )
+
+  = BEGIN
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      DO 
+        PutBwd ( WRdBack , C ) 
+      ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
+      END (*WITH*) 
+    END PutBwd_LC
+
+(*EXPORTED:*)
 ; PROCEDURE PutBwd_LCr ( T : Itk . TokTyp ; C : LONGINT )
 
   = BEGIN

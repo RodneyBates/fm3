@@ -131,8 +131,8 @@ INTERFACE FM3Scopes
         (* Used for rec fields and formals, which can be subject to positional
            matchups, where it contains the same decls as ScpDeclDict, but in
            positional order.  Used similarly for enum lits, just to generate
-           their ORD values.  Also used for overides only of an obj type,
-           where order doesn't matter, but it's a quick way to find them. 
+           their ORD values.  Also used for only the overides of an obj type,
+           where order doesn't matter, but it's an easy way to find them. 
            DlListRef is NIL if not used or empty.
         *)
       ; ScpDeclGraph : FM3Graph . GraphTyp := NIL 

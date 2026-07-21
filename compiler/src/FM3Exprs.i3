@@ -135,7 +135,8 @@ INTERFACE FM3Exprs
                       (*(1)ExpRepExprNo=ExpExprNoDistinct*)
      , EkNamed        (*(1)ExpIdAtom, Opnd1 is the expression.*) 
 
-     , EkSignature    (* Treat as a procedure type. *) 
+     , EkSignature    (* Treat as a procedure type. *)
+                      (*(1)ExpRaisesANY. *) 
      , EkOverride 
 
      , EkType  (* Probably replace by a set of the above. *) 
@@ -377,7 +378,8 @@ INTERFACE FM3Exprs
       ; ExpIsWritable : BOOLEAN := FALSE
       ; ExpIsPresent : BOOLEAN := TRUE  
       ; ExpArrayTypeIsOpen : BOOLEAN := FALSE
-      ; ExpIsUntraced : BOOLEAN 
+      ; ExpIsUntraced : BOOLEAN := FALSE 
+      ; ExpRaisesANY : BOOLEAN := FALSE 
 (*
       METHODS
         appendDump ( )  

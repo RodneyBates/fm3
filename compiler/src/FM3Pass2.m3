@@ -1091,7 +1091,7 @@ TRUE OR
       =>  LScopeNo := GetBwdScopeNo ( TokResult . TrRdBack ) 
         ; LCt := GetBwdInt ( TokResult . TrRdBack ) (* Formals. *)  
         ; LCt2 := GetBwdScopeNo ( TokResult . TrRdBack )
-                  (*^  Raises exception ct. *) 
+                  (*^  Raises exception ct (ANY does noit count). *) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
             
         ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) 
@@ -1109,20 +1109,6 @@ TRUE OR
         ; FM3Exprs . InitExprList ( LNewExprRef ^ . ExpArgList , LCt2 ) 
         ; HtExprRt ( LNewExprRef , Mergeable := TRUE )
 
-      | Itk . ItkRaisesANY
-      =>  LPosition := GetBwdPos ( TokResult . TrRdBack )
-
-        ; LExprRef := FM3Exprs . ExprStackTopObj
-        ; IF LExprRef . ExpKind # Ekt . EkSignature
-          THEN <* ASSERT FALSE , "Raises any not in signature" *>
-          END (*IF*)
-(* TODO: make sure ExpArgList is created with one element. *)
-        ; FM3Exprs . PrependExprList
-            ( LExprRef . ExpArgList
-            , FM3Builtins . BuiltinExpr ( FM3SrcToks . StkRwANY , LPosition )
-            , ExpectedSs := 0 
-            ) 
-      
       | Itk . ItkResultTypeAbsent  
       =>  LPosition := GetBwdPos ( TokResult . TrRdBack )
 
@@ -1140,12 +1126,47 @@ TRUE OR
           END (*IF*)
         ; FM3Exprs . ExprStackTopObj  ^ . ExpOpnd1 := LExprRef 
         
+      | Itk . ItkRaisesANY 
+      =>  LPosition := GetBwdPos ( TokResult . TrRdBack )
+
+        ; LExprRef := FM3Exprs . ExprStackTopObj 
+        ; IF LExprRef ^ . ExpKind # Ekt . EkSignature
+          THEN <* ASSERT FALSE , "RaisesANY not in signature." *>
+          END (*IF*)
+        ; LExprRef ^ . ExpRaisesANY := TRUE 
+(* Alt representation, singleton list of builtin.
+   TODO: make sure ExpArgList is created with one element. 
+        ; FM3Exprs . PrependExprList
+            ( LExprRef . ExpArgList
+            , FM3Builtins . BuiltinExpr ( FM3SrcToks . StkRwANY , LPosition )
+            , ExpectedSs := 0 
+            )
+*) 
+
+      | Itk . ItkRaisesListEmpty
+      =>  LExprRef := FM3Exprs . ExprStackTopObj 
+        ; IF LExprRef ^ . ExpKind # Ekt . EkSignature
+          THEN <* ASSERT FALSE , "Empty raises list not in signature." *>
+          END (*IF*)
+        ; FM3Patch . DiscardOperands
+            ( FM3Utils . TokenOpndCt ( TokResult . TrTok )
+            , TokResult . TrRdBack
+            ) 
+      
+      | Itk . ItkExceptRef
+      =>  LListElem := FM3Exprs . PopExprStack ( )  
+        ; LExprRef := FM3Exprs . ExprStackTopObj   
+        ; IF LExprRef ^ . ExpKind # Ekt . EkSignature
+          THEN <* ASSERT FALSE , "Exception ref not in signature." *>
+          END (*IF*)
+        ; FM3Exprs . PrependExprList ( LExprRef ^ . ExpArgList , LListElem )  
+
       | Itk . ItkSignatureRaises 
       =>  LPosition := GetBwdPos ( TokResult . TrRdBack )
 
         ; LExprRef := FM3Exprs . ExprStackTopObj 
         ; IF LExprRef ^ . ExpKind # Ekt . EkSignature
-          THEN <* ASSERT FALSE , "Result type not in signature." *>
+          THEN <* ASSERT FALSE , "Raises list not in signature." *>
           END (*IF*)
         ; FM3Exprs . FinishExprList ( LExprRef ^ . ExpArgList )
         
