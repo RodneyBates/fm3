@@ -4396,13 +4396,13 @@ yyNonterminal := 243;
                 DEC (yyStackPtr, 1); yyNonterminal := 251;
                 (* line 2201 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt1 := 1 ;
-                       FM3Pass1 . PutBwd_LC ( Itk . ItkExceptRef , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord )
+                       FM3Pass1 . PutBwd_LC ( Itk . ItkExceptRefLt , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord )
                      
               | 651,414 => (* P210 ExceptRefPlusList (251): ExceptRefPlusList StkComma IdentOrQualRef .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 251;
                 (* line 2206 of "FM3Parser.lalr" *)
                  yySynAttribute . PaInt1 := yyAttributeStack^[yyStackPtr+1] . PaInt1 + 1 ;
-                       FM3Pass1 . PutBwd_LC ( Itk . ItkExceptRef , yyAttributeStack^[yyStackPtr+3] . PaPass1Coord )
+                       FM3Pass1 . PutBwd_LC ( Itk . ItkExceptRefLt , yyAttributeStack^[yyStackPtr+3] . PaPass1Coord )
                      
               | 652,233 => (* P211 ProcDecl (252): StkRwPROCEDURE StkIdent Signature StkSemicolon .*)
                 DEC (yyStackPtr, 4); yyNonterminal := 252;

@@ -902,7 +902,7 @@ TRUE OR
       | Itk . ItkIdRefAtom
       => IdentRefR2L ( TokResult )
 
-      | Itk . ItkIdRefAtomNotUsable 
+      | Itk . ItkIdRefAtomNotUsable  
       =>  LNewExprRef := FM3Exprs . NewExprRef ( )  
         ; LOpcode := GetBwdAtom ( TokResult . TrRdBack )
         ; LNewExprRef ^ . ExpOpcode := LOpcode
@@ -1153,7 +1153,7 @@ TRUE OR
             , TokResult . TrRdBack
             ) 
       
-      | Itk . ItkExceptRef
+      | Itk . ItkExceptRefLt
       =>  LListElem := FM3Exprs . PopExprStack ( )  
         ; LExprRef := FM3Exprs . ExprStackTopObj   
         ; IF LExprRef ^ . ExpKind # Ekt . EkSignature

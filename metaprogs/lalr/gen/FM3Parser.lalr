@@ -2199,12 +2199,12 @@ END OLD
      
    ExceptRefPlusList : IdentOrQualRef
      { $$ . PaInt1 := 1 ;
-       FM3Pass1 . PutBwd_LC ( Itk . ItkExceptRef , $1 . PaPass1Coord )
+       FM3Pass1 . PutBwd_LC ( Itk . ItkExceptRefLt , $1 . PaPass1Coord )
      } .
      
    ExceptRefPlusList : ExceptRefPlusList StkComma IdentOrQualRef
      { $$ . PaInt1 := $1 . PaInt1 + 1 ;
-       FM3Pass1 . PutBwd_LC ( Itk . ItkExceptRef , $3 . PaPass1Coord )
+       FM3Pass1 . PutBwd_LC ( Itk . ItkExceptRefLt , $3 . PaPass1Coord )
      } .
      
 (* ------------------------------ Procedures ------------------------------ *)

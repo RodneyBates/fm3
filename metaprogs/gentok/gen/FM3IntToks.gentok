@@ -56,10 +56,11 @@ LONE
   ItkFormalExprAbsent POS 2 (* Position. *) .
   ItkRaisesListEmpty POS 2 (* Position. *) . 
   ItkRaisesANY POS 2 (* Position. *) .
-  ItkExceptRef . 
   ItkResultTypeAbsent POS 2 (* Position. *) . 
-
   ItkIdRefAtomNotUsable IDENT POS . 
+
+FIXED
+  ItkExceptRef . 
 
 (* Scopes and declarations within. *) 
 LONE
