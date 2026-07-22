@@ -117,8 +117,9 @@ MODULE FM3Decls
       END (*IF*) 
     END FinishDeclList
     
-(* INCOMPLETE: This is for dumping: 
-; PROCEDURE AppendDeclList ( DeclList : DeclListRefTyp ) 
+(* INCOMPLETE: This is for dumping:
+   ** Unused ** 
+; PROCEDURE AppendDeclListImage ( DeclList : DeclListRefTyp ) 
 
   = BEGIN
       IF DeclList = NIL THEN RETURN END (*IF*)
@@ -133,7 +134,7 @@ MODULE FM3Decls
       ; Wr . PutText ( GWrT , "END" ) 
       ; Wr . PutText ( GWrT , Wr . EOL ) 
     END (*FOR*) 
-    END AppendDeclList
+    END AppendDeclListImage
 *)
 
 (*EXPORTED.*)

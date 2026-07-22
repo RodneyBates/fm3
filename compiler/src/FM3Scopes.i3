@@ -98,7 +98,9 @@ INTERFACE FM3Scopes
     , ScopeKindTyp . SkObj (* Overrides only. *) 
     , ScopeKindTyp . SkEnum
     }
-  (* ^These have a meaningful ScpDeclList. *) 
+  (* ^These have a meaningful ScpDeclList, so they can be accessed
+      positionally .
+  *) 
 
 ; CONST ScopeKindSetBinding = SET OF ScopeKindTyp
     { ScopeKindTyp . SkWith
