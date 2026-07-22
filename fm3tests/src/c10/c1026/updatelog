@@ -1,0 +1,11 @@
+[33mscript:[0m  Command entered in directory = /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026
+[33mscript:[0m  Test directory is /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026
+[33mscript:[0m  Running  cp -p /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026/src/FM3Log /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026/src/FM3Log.expected ...[32m OK. [0m
+[33mscript:[0m  Running  cp -p /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026/src/I.i3.Log /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026/src/I.i3.Log.expected ...[32m OK. [0m
+[33mscript:[0m  Running  cp -p /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026/src/Main.m3.Log /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026/src/Main.m3.Log.expected ...[32m OK. [0m
+[33mscript:[0m  Running  cp -p /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026/build/I.i3.FM3Pass1.DisAsm /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026/build/I.i3.FM3Pass1.DisAsm.expected ...[32m OK. [0m
+[33mscript:[0m  Running  cp -p /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026/build/I.i3.FM3Pass2.DisAsm /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026/build/I.i3.FM3Pass2.DisAsm.expected ...[32m OK. [0m
+[33mscript:[0m  Running  cp -p /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026/build/I.i3.FM3Pass2.Exprs /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026/build/I.i3.FM3Pass2.Exprs.expected ...[32m OK. [0m
+[33mscript:[0m  Running  cp -p /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026/build/Main.m3.FM3Pass1.DisAsm /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026/build/Main.m3.FM3Pass1.DisAsm.expected ...[32m OK. [0m
+[33mscript:[0m  Running  cp -p /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026/build/Main.m3.FM3Pass2.DisAsm /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026/build/Main.m3.FM3Pass2.DisAsm.expected ...[32m OK. [0m
+[33mscript:[0m  Running  cp -p /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026/build/Main.m3.FM3Pass2.Exprs /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026/build/Main.m3.FM3Pass2.Exprs.expected ...[32m OK. [0m

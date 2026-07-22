@@ -1,0 +1,24 @@
+[33mscript:[0m  Command entered in directory = /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026
+[33mscript:[0m  Test directory is /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026
+
+[33mscript:[0m  Compiling in /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026/src,
+[33mscript:[0m    using command "/home/rodney/proj/m3/fm3/git/compiler/AMD64_LINUX/FM3 --no-disasm-verbose --disasm --exprs --scopes --decls --dump-addrs --no-std-sources I.i3
+Main.m3"
+[32mFM3:   [0mCompiling with command line: 
+         "/home/rodney/proj/m3/fm3/git/compiler/AMD64_LINUX/FM3 --no-disasm-verbose --disasm --exprs --scopes --decls --dump-addrs --no-std-sources I.i3 Main.m3"
+[32mFM3:   [0mGetting dependencies of 
+         /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026/src/Main.m3 ...
+[32mFM3:   [0mGetting dependencies of 
+         /home/rodney/proj/m3/fm3/git/fm3tests/src/c10/c1026/src/I.i3 ...
+[32mFM3:   [0mCompiling I.i3 ...
+[32mINFO:  [0mI.i3 Pass 1 output file I.i3.FM3Pass1 has 92 bytes.
+[32mINFO:  [0mI.i3 Patch stack I.i3.FM3Patch peak size = 35 bytes.
+[32mINFO:  [0mI.i3 Pass 2 output file I.i3.FM3Pass2 has 65 bytes.
+[32mFM3:   [0mFinished compiling I.i3.
+[32mFM3:   [0mCompiling Main.m3 ...
+[32mINFO:  [0mMain.m3 Pass 1 output file Main.m3.FM3Pass1 has 767 bytes.
+[32mINFO:  [0mMain.m3 Patch stack Main.m3.FM3Patch peak size = 67 bytes.
+[32mINFO:  [0mMain.m3 Pass 2 output file Main.m3.FM3Pass2 has 374 bytes.
+[32mFM3:   [0mFinished compiling Main.m3.
+[33mscript:[0m  Compiler exit status =  0
+[33mscript:[0m  [32mCompile finished OK [0m
