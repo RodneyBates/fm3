@@ -21,7 +21,8 @@
 
 (* Where is the right place for this? *) 
   TYPE BrandKindTyp =
-         { BkAbsent (* No BRANDED. *) 
+         { BkNull
+         , BkAbsent (* No BRANDED. *) 
          , BkAnon (* BRANDED, but no string given. *) 
          , BkExplicit (* BRANDED, with string following. *)
          } ;

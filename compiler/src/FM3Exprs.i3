@@ -344,7 +344,7 @@ INTERFACE FM3Exprs
         [qual]idents of RAISES list. 
         subscript exprs of [ ] 
      *) 
-      ; ExpObjBrandKind : FM3Parser . BrandKindTyp 
+      ; ExpObjBrandKind := FM3Parser . BrandKindTyp . BkNull 
       ; ExpScopeRef1 : FM3Scopes . ScopeRefTyp
         (* ^For named access and sometimes positional. *)
       ; ExpReachedRefNos : IntSets . T := NIL

@@ -38,7 +38,8 @@ EXPORT
 
 (* Where is the right place for this? *) 
   TYPE BrandKindTyp =
-         { BkAbsent (* No BRANDED. *) 
+         { BkNull
+         , BkAbsent (* No BRANDED. *) 
          , BkAnon (* BRANDED, but no string given. *) 
          , BkExplicit (* BRANDED, with string following. *)
          } ;
@@ -87,6 +88,7 @@ GLOBAL
 
     = BEGIN
         CASE Kind OF
+        | Bkt . BkNull => RETURN "BkNull"
         | Bkt . BkAbsent => RETURN "BkAbsent"
         | Bkt . BkAnon => RETURN "BkAnon"
         | Bkt . BkExplicit => RETURN "BkExplicit"
