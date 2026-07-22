@@ -117,26 +117,6 @@ MODULE FM3Decls
       END (*IF*) 
     END FinishDeclList
     
-(* INCOMPLETE: This is for dumping:
-   ** Unused ** 
-; PROCEDURE AppendDeclListImage ( DeclList : DeclListRefTyp ) 
-
-  = BEGIN
-      IF DeclList = NIL THEN RETURN END (*IF*)
-    ; FOR RI := FIRST ( DeclList ^ ) TO LAST ( DeclList ^ ) 
-      DO
-        Wr . PutText ( GWrT , GIndentStrings [ ORD ( GDepth MOD 5 = 0 ) ] ) 
-      ; Wr . PutChar ( GWrT , '[' )  
-      ; Wr . PutText ( GWrT , Fmt . Int ( RI ) ) 
-      ; Wr . PutChar ( GWrT , ']' )
-      ; Wr . PutText ( GWrT , Wr . EOL ) 
-      ; AppendNestedDecl ( DeclList ^ [ RI ] ) 
-      ; Wr . PutText ( GWrT , "END" ) 
-      ; Wr . PutText ( GWrT , Wr . EOL ) 
-    END (*FOR*) 
-    END AppendDeclListImage
-*)
-
 (*EXPORTED.*)
 ; PROCEDURE DeclNoImage ( DeclNo : FM3Globals . DeclNoTyp )  : TEXT 
   (* Unit-relative/Scope-relative, in current unit. *)
