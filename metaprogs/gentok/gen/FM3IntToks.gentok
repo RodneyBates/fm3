@@ -454,8 +454,6 @@ FIXED ItkObjField IDENT POS (*Of ":=" *).
 FIXED ItkOverride IDENT POS (* LHS *) 
          Proc POS (* Of ":=" *) . 
 
-LONE ItkOverrideAtom IDENT POS (* LHS ident *) 
-
 (* End of FM3IntToks. *) 
 
 

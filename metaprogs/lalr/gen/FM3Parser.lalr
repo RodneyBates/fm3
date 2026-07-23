@@ -796,29 +796,6 @@ RULE
        FM3Pass1 . QualIdentRefL2R ( $1 , $3 , $2 . Scan . Position ) ;
      } .
 
-   OverrideRef : StkIdent /* Occurs only in the LHS of an override. */ 
-     { $$ . Scan . SaChars := $1 . Scan . SaChars ;
-       $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
-       $$ . Scan . SaBuiltinTok := $1 . Scan . SaBuiltinTok ;
-
-       IF IntSets . IsElement
-         ( $1 . Scan . SaBuiltinTok , FM3Std . ReservedIdSet ) 
-       THEN 
-         FM3Messages . ErrorArr
-           ( ARRAY OF REFANY
-               { "Identifier "
-               , FM3SrcToks . Image ( $1 . Scan . SaBuiltinTok )
-               , " is reserved and cannot denote an overrideable method." 
-               }
-           , $1 . Scan . Position 
-           ) ; 
-         FM3Pass1 . PutNotUsable
-           ( $1 . Scan . SaBuiltinTok , $1 . Scan . Position ) ; 
-       ELSE FM3Pass1 . PutBwd_TIP
-         ( Itk . ItkOverrideAtom , $1 . Scan . SaAtom , $1 . Scan . Position ) ;
-       END (*IF*)  
-     } .
-
 (* Qualified or unqualified ident reference. *)
 
    IdentOrQualRef : IdentRef

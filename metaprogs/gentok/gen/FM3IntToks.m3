@@ -931,7 +931,6 @@ MODULE FM3IntToks
       | 1119 => RETURN "ItkOverrideProc"
       | 1120 => RETURN "ItkOverrideProcTemp"
       | 1121 => RETURN "ItkOverrideProcPatch"
-      | 1122 => RETURN "ItkOverrideAtom"
       ELSE RETURN "<Undef>"
       END (*CASE*) 
     END Name
@@ -1853,7 +1852,6 @@ MODULE FM3IntToks
       | 1119 => RETURN "_P"
       | 1120 => RETURN "_P"
       | 1121 => RETURN "_C_P"
-      | 1122 => RETURN "_I_P"
       ELSE RETURN "<Undef>"
       END (*CASE*) 
     END Operands

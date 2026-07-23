@@ -1616,13 +1616,10 @@ LIST ItkIdPlusList
 ; CONST ItkOverrideProcTemp             (*ArgCt: 2*) =  1120 (*16_e0 08 *)
 ; CONST ItkOverrideProcPatch            (*ArgCt: 2*) =  1121 (*16_e1 08 *)
 
-(* LHS ident *)
 (* End of FM3IntToks. *)
-(* LONE ItkOverrideAtom: *)
-; CONST ItkOverrideAtom                 (*ArgCt: 3*) =  1122 (*16_e2 08 *)
 ; CONST TkMinTok                                     =   210
 
-; CONST TkMaxTok                                     =  1122
+; CONST TkMaxTok                                     =  1121
 
 ; END FM3IntToks
 .

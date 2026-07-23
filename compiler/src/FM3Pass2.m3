@@ -332,7 +332,7 @@ FALSE AND
 
 ; PROCEDURE DeclDef
      ( IsValue : BOOLEAN ; Tag : TEXT := NIL ; MustBeConst := FALSE ) 
-  (* PRE: A type- or value-defining expression exists on the expression stack. *) 
+  (* PRE: A type- or value-defining expression exists on the expression stack. *)
   (* Pop and store it temporarily in the current declaration scope. *)
   (* Tag and MustBeConst are now unused, but kept around, just in case. *) 
 
@@ -1376,7 +1376,10 @@ TRUE OR
           ; LDeclCt := GetBwdInt ( TokResult . TrRdBack )
             (* ^Fields+methods. *)
 (* TODO^ LDeclCt is no longer used.  Remove it from ItkObjType* . *) 
-          ; LOverrideCt := GetBwdInt ( TokResult . TrRdBack ) (* Overrides. *) 
+          ; LOverrideCt := GetBwdInt ( TokResult . TrRdBack ) (* Overrides. *)
+(*TODO^ override ct is not used, remove it from IktObjType.
+        ItkOverrideList is where we get it from.
+*) 
           ; LPosition := GetBwdPos ( TokResult . TrRdBack )
 
           ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo )
