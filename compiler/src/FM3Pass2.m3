@@ -1826,12 +1826,12 @@ TRUE OR
          the front of a linked list rooted at DeclRefAny.
       *) 
         LOldDeclRef := DeclRefany (* Implicit NARROW. *) 
-      ; LNewDeclRef  := FM3Decls . NewDeclRef ( DdiOrigScopeRef , DeclNoI )
-      ; LNewDeclRef . DclLink := LOldDeclRef 
-      ; LNewDeclRef . DclSelfScopeRef := DdiOrigScopeRef (* Why not? *)
-      ; LNewDeclRef . DclIdAtom := DdiAtom 
-      ; LNewDeclRef . DclPos := DdiPosition 
-      ; LNewDeclRef . DclKind := Dkt . DkDuplDecl 
+      ; LNewDeclRef := FM3Decls . NewDeclRef ( DdiOrigScopeRef , DeclNoI )
+      ; LNewDeclRef ^ . DclLink := LOldDeclRef 
+      ; LNewDeclRef ^ . DclSelfScopeRef := DdiOrigScopeRef (* Why not? *)
+      ; LNewDeclRef ^ . DclIdAtom := DdiAtom 
+      ; LNewDeclRef ^ . DclPos := DdiPosition 
+      ; LNewDeclRef ^ . DclKind := Dkt . DkDuplDecl 
       ; LNewDeclRef ^ . DclIsUsable := FALSE (* Used? *)
       ; VarArray_Int_Refany . Assign
           ( FM3Units . UnitStackTopRef ^ . UntDeclMap
@@ -1847,8 +1847,7 @@ TRUE OR
       ; DdiOrigScopeNo := GetBwdScopeNo ( TokResult . TrRdBack )
       ; DdiOrigScopeRef := FM3Scopes . ScopeRefOfScopeNo ( DdiOrigScopeNo ) 
       ; DdiPosition := GetBwdPos ( TokResult . TrRdBack )
-      ; LDeclNo
-          := LookupDeclNoInScope ( DdiOrigScopeRef ^ , DdiAtom )
+      ; LDeclNo := LookupDeclNoInScope ( DdiOrigScopeRef ^ , DdiAtom )
       ; <*ASSERT LDeclNo # FM3Globals . DeclNoNull *>
         VarArray_Int_Refany . CallbackWithElem
           ( FM3Units . UnitStackTopRef ^ . UntDeclMap , LDeclNo , DdiVisit )

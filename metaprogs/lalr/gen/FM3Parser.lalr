@@ -1444,7 +1444,6 @@ RULE
                   , DiKind := Dkt . DkEnumLit
                   }
               ) ;
-
        VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN
          LScopeRef 
@@ -1741,14 +1740,17 @@ END OLD
    OverrideId : StkIdent
      { $$ . Scan . SaAtom := $1 . Scan . SaAtom ;
        $$ . PaInt1 (* Ident count, 0 if error, else 1. *)
-         := ORD ( FM3Pass1 . DeclIdL2R ( Dkt . DkOverride , IdAttribute := $1 ) ) ;
+         := ORD ( FM3Pass1 . DeclIdL2R
+                    ( Dkt . DkOverride , IdAttribute := $1 )
+                ) ;
      } . 
 
    Override : OverrideId StkBecomes Expr 
      { (* Default PaPos. *)
        (* Default PaPass1Coord. *)
 
-       $$ . PaInt1 := $1 . PaInt1 (* Contribution to BlockDecl count. 0 or 1. *) ;
+       $$ . PaInt1
+          := $1 . PaInt1 (* Contribution to BlockDecl count. 0 or 1. *) ;
        IF $$ . PaInt1 = 0 
        THEN (* Skip the whole override. *) 
          FM3Pass1 . PutBwd_LCI_ri

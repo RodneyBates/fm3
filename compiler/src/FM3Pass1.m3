@@ -2312,29 +2312,33 @@ MODULE FM3Pass1
 
   = VAR LFormalsScopeRef : FM3Scopes . ScopeRefTyp
   ; VAR LPriorScopeForDeclsRef : FM3Scopes . ScopeRefTyp
+  ; VAR LKindText : TEXT 
   ; VAR LAtom : FM3Base . AtomTyp
 
   ; BEGIN (*DeclIdL2R*)
+      IF DeclKind = Dkt . DkOverride
+      THEN LKindText := "be overridden"
+      ELSE LKindText := "be declared"
+      END (*IF*) 
       IF NOT VerifyIdentNotReserved
-               ( IdAttr , IdAttr . Scan . Position , "be declared" )
+               ( IdAttr , IdAttr . Scan . Position , LKindText )
       THEN (* Reserved Ident. Message has already been emitted. *)
         RETURN FALSE
       END (*IF*) 
     ; LAtom := IdAttr . Scan . SaAtom 
     ; WITH WScopeRefForDecls = FM3Scopes . ScopeDeclStackTopRef 
            , WUntRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack 
-      DO 
-        IF WScopeRefForDecls . ScpKind IN FM3Scopes . ScopeKindSetUnit 
-           AND NOT FM3ExpImp . CheckDuplicateExpImp
-                     ( FM3Units . UnitStackTopRef
-                     , LAtom
-                     , IdAttr . Scan . Position
-                     , "declaration"
-                     )
+      DO IF WScopeRefForDecls . ScpKind IN FM3Scopes . ScopeKindSetUnit 
+            AND NOT FM3ExpImp . CheckDuplicateExpImp
+                      ( FM3Units . UnitStackTopRef
+                      , LAtom
+                      , IdAttr . Scan . Position
+                      , "declaration"
+                      )
         THEN (* LAtom duplicates export or import. Message already emitted. *)
-          RETURN FALSE 
+          RETURN FALSE
+          
         ELSE
-
           IF WScopeRefForDecls ^ . ScpKind = Skt . SkProcBody
           THEN
             LFormalsScopeRef := WScopeRefForDecls ^ . ScpLookupStackLink
@@ -2352,6 +2356,7 @@ MODULE FM3Pass1
             LPriorScopeForDeclsRef := LFormalsScopeRef
           ELSIF IntSets . IsElement
                   ( LAtom , WScopeRefForDecls ^ . ScpDeclIdSet )
+                (* An override behaves partly like a decl & is included here. *)
           THEN (* LAtom duplicates a previously declared id in this scope. *) 
             LPriorScopeForDeclsRef := WScopeRefForDecls
           ELSE 
@@ -2374,7 +2379,7 @@ MODULE FM3Pass1
           ; PutBwd ( WUntRdBack , VAL ( LAtom , LONGINT ) ) 
           ; PutBwd ( WUntRdBack , VAL ( Itk . ItkDuplDeclId , LONGINT ) )
           ; RETURN FALSE (* Caller, Don't use this Id. *)
-          ELSE (* 1st declaration of Ident in scope(s) . *) 
+          ELSE (* 1st declaration of Ident in scope(s) . *)
             WScopeRefForDecls . ScpDeclIdSet
               := IntSets . Include ( WScopeRefForDecls . ScpDeclIdSet , LAtom )
 
