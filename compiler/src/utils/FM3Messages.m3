@@ -205,7 +205,7 @@ MODULE FM3Messages
   ; BEGIN
       LWrT := TextWr . New ( )
     ; FM3SharedUtils . PutTextishArr ( LWrT , Label ) 
-    ; LUnitRef := FM3Units . UnitStackTopRef 
+    ; LUnitRef := FM3Units . UnitTStackTopRef 
     ; IF LUnitRef # NIL
       THEN
       (* I think we don't really want the whole path:  

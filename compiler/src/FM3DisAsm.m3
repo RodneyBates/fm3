@@ -377,11 +377,11 @@ MODULE FM3DisAsm
             ( WrT , FM3SrcToks . Image ( VAL ( - LArgL , FM3SrcToks . TokTyp ) )
             ) 
         ELSE 
-          WITH WUnitRef = FM3Units . UnitStackTopRef
-          DO IF WUnitRef = NIL
+          WITH WUnitTRef = FM3Units . UnitTStackTopRef 
+          DO IF WUnitTRef = NIL
             THEN LIdentName := "<NoUnit>"
             ELSIF FM3Atom_OAChars . Key 
-                    ( WUnitRef ^ . UntIdentAtomDict
+                    ( WUnitTRef ^ . UntIdentAtomDict
                     , VAL ( LArgL , FM3Base . AtomTyp )
                     , (*OUT*) LIdentOAChars
                     )

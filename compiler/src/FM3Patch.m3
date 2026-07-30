@@ -213,7 +213,7 @@ MODULE FM3Patch
   ; VAR LPatchedTokenL : LONGINT 
   ; VAR LToken : Itk . TokTyp
   ; VAR LPatchedToken : Itk . TokTyp
-  ; VAR LUnitRef : FM3Units . UnitRefTyp
+  ; VAR LUnitTRef : FM3Units . UnitRefTyp
   ; VAR LPass1RdBack : RdBackFile . T 
   ; VAR LPatchRdBack : RdBackFile . T
 
@@ -225,11 +225,11 @@ MODULE FM3Patch
           END Catch
 
   ; BEGIN (* GetTokCode *) 
-      LUnitRef := FM3Units . UnitStackTopRef
+      LUnitTRef := FM3Units . UnitTStackTopRef 
     (* ItkSkip[Lt|Rt] pairs are inserted during pass 1 and acted-on in pass 2.*)
-    ; LPass1RdBack := LUnitRef ^ . UttPass1OutRdBack 
-    ; LPatchRdBack := LUnitRef ^ . UttPatchStackRdBack 
-    ; LMPass1Coord := MAX ( LMPass1Coord , LUnitRef ^ . UttPass1OutEmptyCoord )
+    ; LPass1RdBack := LUnitTRef ^ . UttPass1OutRdBack 
+    ; LPatchRdBack := LUnitTRef ^ . UttPatchStackRdBack 
+    ; LMPass1Coord := MAX ( LMPass1Coord , LUnitTRef ^ . UttPass1OutEmptyCoord )
 
     ; LOOP (* Thru' a sequence of SkipRt & SkipLt tokens plus one other. *)  
         LPass1Coord := RdBackFile . LengthL ( LPass1RdBack )
@@ -238,12 +238,12 @@ MODULE FM3Patch
       ; IF LPass1Coord <= LMPass1Coord
            (* ^Nothing more to read from the Pass1 file. *) 
            AND RdBackFile . LengthL ( LPatchRdBack )
-               <= LUnitRef ^ . UttPatchStackEmptyCoord
+               <= LUnitTRef ^ . UttPatchStackEmptyCoord
            (* ^ Nothing more to pop off Patch stack. *) 
         THEN (* Done with the entire file. *)
           <* ASSERT 
                RdBackFile . LengthL ( LPatchRdBack )
-               = LUnitRef ^ . UttPatchStackEmptyCoord 
+               = LUnitTRef ^ . UttPatchStackEmptyCoord 
           *>
           PutBwdPatch ( LPatchRdBack , LPatchStackTopCoord )
             (* ^Push the current patch coordinate back on patch stack, just
@@ -251,7 +251,7 @@ MODULE FM3Patch
           (* Finish with the skip stack. *) 
         ; <* ASSERT
                VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi 
-               = FM3Units . UnitStackTopRef ^ . UttSkipStackBase 
+               = FM3Units . UnitTStackTopRef ^ . UttSkipStackBase 
           *> 
                
           Result . TrRdBack := NIL

@@ -2427,37 +2427,37 @@ PROCEDURE TokenName (Token: INTEGER; VAR Name: TEXT) =
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 116;
                 (* line 307 of "FM3Parser.lalr" *)
-                 FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInterface ; 
+                 FM3Units . UnitTStackTopRef ^ . UntKind := Ukt . UkInterface ; 
               | 450 => (* P9 ModuleKind (117): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 117;
                 (* line 310 of "FM3Parser.lalr" *)
-                 FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkModule ; 
+                 FM3Units . UnitTStackTopRef ^ . UntKind := Ukt . UkModule ; 
               | 451 => (* P10 GenInterfaceKind (118): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 118;
                 (* line 313 of "FM3Parser.lalr" *)
-                 FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkGenInterface ; 
+                 FM3Units . UnitTStackTopRef ^ . UntKind := Ukt . UkGenInterface ; 
               | 452 => (* P11 GenModuleKind (119): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 119;
                 (* line 316 of "FM3Parser.lalr" *)
-                 FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkGenModule ; 
+                 FM3Units . UnitTStackTopRef ^ . UntKind := Ukt . UkGenModule ; 
               | 453 => (* P12 InstInterfaceKind (120): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 120;
                 (* line 319 of "FM3Parser.lalr" *)
-                 FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstInterface ; 
+                 FM3Units . UnitTStackTopRef ^ . UntKind := Ukt . UkInstInterface ; 
               | 454 => (* P13 InstModuleKind (121): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 121;
                 (* line 322 of "FM3Parser.lalr" *)
-                 FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstModule ; 
+                 FM3Units . UnitTStackTopRef ^ . UntKind := Ukt . UkInstModule ; 
               | 455,222 => (* P14 OptUnsafe (122): StkRwUNSAFE .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 122;
                 (* line 325 of "FM3Parser.lalr" *)
@@ -2483,21 +2483,21 @@ yyNonterminal := 123;
               | 459 => (* P18 InterfaceLt (126): OptUnsafe StkRwINTERFACE NonreservedIdent IntfPragmas .*)
                 DEC (yyStackPtr, 4); yyNonterminal := 126;
                 (* line 336 of "FM3Parser.lalr" *)
-                 VAR LUnitRef : FM3Units . UnitRefTyp ; 
+                 VAR LUnitTRef : FM3Units . UnitRefTyp ; 
                        VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN
                          (* Default Coord. *) 
                          yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+2] . Scan . Position ; 
-                         LUnitRef := FM3Units . UnitStackTopRef ;
+                         LUnitTRef := FM3Units . UnitTStackTopRef ;
                            (* ^Already pushed when source file was opened. *) 
-                         LUnitRef ^ . UntKind := Ukt . UkInterface ; 
-                         LUnitRef ^ . UntUnsafe := yyAttributeStack^[yyStackPtr+1] . PaBool ; 
-                         FM3Pass1 . InterfaceId ( LUnitRef , yyAttributeStack^[yyStackPtr+3] . Scan ) ;
+                         LUnitTRef ^ . UntKind := Ukt . UkInterface ; 
+                         LUnitTRef ^ . UntUnsafe := yyAttributeStack^[yyStackPtr+1] . PaBool ; 
+                         FM3Pass1 . InterfaceId ( LUnitTRef , yyAttributeStack^[yyStackPtr+3] . Scan ) ;
                          LScopeRef 
                            := FM3Scopes . NewScopeRef 
-                                ( LUnitRef , Skt . SkInterface , yyAttributeStack^[yyStackPtr+2] . Scan . Position ) ;
+                                ( LUnitTRef , Skt . SkInterface , yyAttributeStack^[yyStackPtr+2] . Scan . Position ) ;
                          LScopeRef ^ . ScpIdAtom := yyAttributeStack^[yyStackPtr+3] . Scan . SaAtom ; 
-                         LUnitRef ^ . UntScopeRef := LScopeRef ; 
+                         LUnitTRef ^ . UntScopeRef := LScopeRef ; 
                          FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) ; 
                          FM3Pass1 . PutBwd_TIP
                            ( Itk . ItkScopeForDeclsLt
@@ -2509,10 +2509,10 @@ yyNonterminal := 123;
               | 460,230 => (* P19 InstInterface (114): InterfaceLt StkEqual NonreservedIdent GenActualList StkRwEND NonreservedIdent StkDot .*)
                 DEC (yyStackPtr, 7); yyNonterminal := 114;
                 (* line 363 of "FM3Parser.lalr" *)
-                 FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstInterface ;
+                 FM3Units . UnitTStackTopRef ^ . UntKind := Ukt . UkInstInterface ;
                 (*INCOMPLETE.*)
                        FM3Pass1 . CheckUnitFinalId
-                         ( FM3Units . UnitStackTopRef , yyAttributeStack^[yyStackPtr+6] . Scan , Ukt . UkInstInterface ) ; 
+                         ( FM3Units . UnitTStackTopRef , yyAttributeStack^[yyStackPtr+6] . Scan , Ukt . UkInstInterface ) ; 
                      
               | 461,334 => (* P20 InterfaceMiddle (130): InterfaceLt StkSemicolon ImportList ExpImpDone .*)
                 DEC (yyStackPtr, 4); yyNonterminal := 130;
@@ -2565,12 +2565,12 @@ yyNonterminal := 123;
                            ) ;
                            
                          FM3Pass1 . CheckUnitFinalId
-                           ( FM3Units . UnitStackTopRef , yyAttributeStack^[yyStackPtr+4] . Scan , Ukt . UkInterface ) ; 
-                         FM3Pass1 . CheckStdUnitPragma ( FM3Units . UnitStackTopRef ) ; 
+                           ( FM3Units . UnitTStackTopRef , yyAttributeStack^[yyStackPtr+4] . Scan , Ukt . UkInterface ) ; 
+                         FM3Pass1 . CheckStdUnitPragma ( FM3Units . UnitTStackTopRef ) ; 
                          FM3Pass1 . PutBwd_LCIP_rip 
                            ( Itk . ItkInterfaceLt
                            , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
-                           , FM3Units . UnitStackTopRef ^ . UttSelfUnitNo 
+                           , FM3Units . UnitTStackTopRef ^ . UttSelfUnitNo 
                            , yyAttributeStack^[yyStackPtr+1] . Scan . Position 
                            ) ;
                        END ; 
@@ -2594,21 +2594,21 @@ yyNonterminal := 125;
               | 467,330 => (* P26 ModuleLt (133): OptUnsafe StkRwMODULE NonreservedIdent .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 133;
                 (* line 439 of "FM3Parser.lalr" *)
-                 VAR LUnitRef : FM3Units . UnitRefTyp ; 
+                 VAR LUnitTRef : FM3Units . UnitRefTyp ; 
                        VAR LScopeRef : FM3Scopes . ScopeRefTyp ;  
                        BEGIN
                          (* Default Coord. *) 
                          yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+3] . Scan . Position ; 
                          (* ^Module name position, in case no explicit EXPORTS. *) 
-                         LUnitRef := FM3Units . UnitStackTopRef ;
+                         LUnitTRef := FM3Units . UnitTStackTopRef ;
                            (* ^Already pushed when source file was opened. *) 
-                         LUnitRef ^ . UntUnsafe := yyAttributeStack^[yyStackPtr+1] . PaBool ; 
-                         FM3Pass1 . ModuleId ( LUnitRef , yyAttributeStack^[yyStackPtr+3] . Scan ) ;
+                         LUnitTRef ^ . UntUnsafe := yyAttributeStack^[yyStackPtr+1] . PaBool ; 
+                         FM3Pass1 . ModuleId ( LUnitTRef , yyAttributeStack^[yyStackPtr+3] . Scan ) ;
                          LScopeRef 
                            := FM3Scopes . NewScopeRef 
-                                ( LUnitRef , Skt . SkModule , yyAttributeStack^[yyStackPtr+2] . Scan . Position ) ;
+                                ( LUnitTRef , Skt . SkModule , yyAttributeStack^[yyStackPtr+2] . Scan . Position ) ;
                          LScopeRef ^ . ScpIdAtom := yyAttributeStack^[yyStackPtr+3] . Scan . SaAtom ; 
-                         LUnitRef ^ . UntScopeRef := LScopeRef ; 
+                         LUnitTRef ^ . UntScopeRef := LScopeRef ; 
                          FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) ; 
                          FM3Pass1 . PutBwd_TIP
                            ( Itk . ItkScopeForDeclsLt
@@ -2620,10 +2620,10 @@ yyNonterminal := 125;
               | 468,316 => (* P27 InstModule (115): ModuleLt StkEqual NonreservedIdent GenActualList StkRwEND NonreservedIdent StkDot .*)
                 DEC (yyStackPtr, 7); yyNonterminal := 115;
                 (* line 466 of "FM3Parser.lalr" *)
-                 FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstModule ;
+                 FM3Units . UnitTStackTopRef ^ . UntKind := Ukt . UkInstModule ;
                 (*INCOMPLETE.*)
                        FM3Pass1 . CheckUnitFinalId
-                         ( FM3Units . UnitStackTopRef , yyAttributeStack^[yyStackPtr+6] . Scan , Ukt . UkInstModule ) ; 
+                         ( FM3Units . UnitTStackTopRef , yyAttributeStack^[yyStackPtr+6] . Scan , Ukt . UkInstModule ) ; 
                      
               | 469,441 => (* P28 ModuleMiddle (135): ModuleLt Exports StkSemicolon ImportList ExpImpDone .*)
                 DEC (yyStackPtr, 5); yyNonterminal := 135;
@@ -2631,7 +2631,7 @@ yyNonterminal := 125;
                  VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
                        BEGIN
                          (* Default Position & Coord. *) 
-                         FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkModule ; 
+                         FM3Units . UnitTStackTopRef ^ . UntKind := Ukt . UkModule ; 
                          LScopeRef := FM3Scopes . ScopeDeclStackTopRef ; 
                          FM3Scopes . PushScopeRefLookupStack ( LScopeRef ) ;
                          FM3Pass1 . PutBwd_TIP
@@ -2676,11 +2676,11 @@ yyNonterminal := 125;
                            ) ; 
                          
                          FM3Pass1 . CheckUnitFinalId
-                           ( FM3Units . UnitStackTopRef , yyAttributeStack^[yyStackPtr+6] .Scan , Ukt . UkModule ) ; 
+                           ( FM3Units . UnitTStackTopRef , yyAttributeStack^[yyStackPtr+6] .Scan , Ukt . UkModule ) ; 
                          FM3Pass1 . PutBwd_LCIP_eCiP_riP 
                            ( Itk . ItkModuleLt
                            , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord
-                           , FM3Units . UnitStackTopRef ^ . UttSelfUnitNo 
+                           , FM3Units . UnitTStackTopRef ^ . UttSelfUnitNo 
                            , yyAttributeStack^[yyStackPtr+1] . Scan . Position 
                            , yyAttributeStack^[yyStackPtr+3] . PaPass1Coord
                            , yyAttributeStack^[yyStackPtr+3] . Scan . Position
@@ -2691,19 +2691,19 @@ yyNonterminal := 125;
               | 471,321 => (* P30 GenInterfaceLt (137): StkRwGENERIC StkRwINTERFACE NonreservedIdent .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 137;
                 (* line 535 of "FM3Parser.lalr" *)
-                 VAR LUnitRef : FM3Units . UnitRefTyp ; 
+                 VAR LUnitTRef : FM3Units . UnitRefTyp ; 
                        VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN 
                          yySynAttribute . PaBool := yyAttributeStack^[yyStackPtr+1] . PaBool ;
                          yySynAttribute . PaByte1 := ORD ( Ukt . UkInterface ) ;
                          yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+2] . Scan . Position ; 
-                         LUnitRef := FM3Units . UnitStackTopRef ;
-                         FM3Pass1 . InterfaceId ( LUnitRef , yyAttributeStack^[yyStackPtr+3] . Scan ) ;
+                         LUnitTRef := FM3Units . UnitTStackTopRef ;
+                         FM3Pass1 . InterfaceId ( LUnitTRef , yyAttributeStack^[yyStackPtr+3] . Scan ) ;
                          LScopeRef 
                            := FM3Scopes . NewScopeRef
-                                ( LUnitRef , Skt . SkGenIntf , yyAttributeStack^[yyStackPtr+2] . Scan . Position ) ;
+                                ( LUnitTRef , Skt . SkGenIntf , yyAttributeStack^[yyStackPtr+2] . Scan . Position ) ;
                          LScopeRef ^ . ScpIdAtom := yyAttributeStack^[yyStackPtr+3] . Scan . SaAtom ; 
-                         LUnitRef ^ . UntScopeRef := LScopeRef ;
+                         LUnitTRef ^ . UntScopeRef := LScopeRef ;
                        END ; 
                      
               | 472,319 => (* P31 GenInterface (112): GenInterfaceLt GenInterfaceKind GenFormalList StkSemicolon ImportList ExpImpDone OpenDeclList StkRwEND NonreservedIdent StkDot .*)
@@ -2721,24 +2721,24 @@ yyNonterminal := 125;
                         FM3Pass1 . ScopeForDeclsRtL2R ( LScopeRef ) ;
                        *)
                        FM3Pass1 . CheckUnitFinalId
-                         ( FM3Units . UnitStackTopRef , yyAttributeStack^[yyStackPtr+8] . Scan , Ukt . UkGenInterface ) ; 
+                         ( FM3Units . UnitTStackTopRef , yyAttributeStack^[yyStackPtr+8] . Scan , Ukt . UkGenInterface ) ; 
                      
               | 473,322 => (* P32 GenModuleLt (139): StkRwGENERIC StkRwMODULE NonreservedIdent .*)
                 DEC (yyStackPtr, 3); yyNonterminal := 139;
                 (* line 571 of "FM3Parser.lalr" *)
-                 VAR LUnitRef : FM3Units . UnitRefTyp ; 
+                 VAR LUnitTRef : FM3Units . UnitRefTyp ; 
                        VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
                        BEGIN 
                          yySynAttribute . PaBool := yyAttributeStack^[yyStackPtr+1] . PaBool ;
                          yySynAttribute . PaByte1 := ORD ( Ukt . UkGenModule ) ;
                          yySynAttribute . Scan . Position := yyAttributeStack^[yyStackPtr+2] . Scan . Position ; 
-                         LUnitRef := FM3Units . UnitStackTopRef ;
-                         FM3Pass1 . ModuleId ( LUnitRef , yyAttributeStack^[yyStackPtr+3] . Scan ) ;
+                         LUnitTRef := FM3Units . UnitTStackTopRef ;
+                         FM3Pass1 . ModuleId ( LUnitTRef , yyAttributeStack^[yyStackPtr+3] . Scan ) ;
                          LScopeRef  
                            := FM3Scopes . NewScopeRef
-                                ( LUnitRef , Skt . SkGenMod , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ;
+                                ( LUnitTRef , Skt . SkGenMod , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ;
                          LScopeRef ^ . ScpIdAtom := yyAttributeStack^[yyStackPtr+3] . Scan . SaAtom ; 
-                         LUnitRef ^ . UntScopeRef := LScopeRef  ; 
+                         LUnitTRef ^ . UntScopeRef := LScopeRef  ; 
                        END ; 
                      
               | 474,320 => (* P33 GenModule (113): GenModuleLt GenModuleKind GenFormalList StkSemicolon ImportList ExpImpDone OpenDeclList StkRwBEGIN StmtList StkRwEND NonreservedIdent StkDot .*)
@@ -2755,9 +2755,9 @@ yyNonterminal := 125;
                                ( MaxNodeCt := IntSets . Card ( LScopeRef ^ . ScpDeclIdSet ) ) ; 
                         FM3Pass1 . ScopeForDeclsRtL2R ( LScopeRef ) ;
                        *) 
-                       FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkGenModule ; 
+                       FM3Units . UnitTStackTopRef ^ . UntKind := Ukt . UkGenModule ; 
                        FM3Pass1 . CheckUnitFinalId
-                         ( FM3Units . UnitStackTopRef , yyAttributeStack^[yyStackPtr+11] . Scan , Ukt . UkGenModule ) ;
+                         ( FM3Units . UnitTStackTopRef , yyAttributeStack^[yyStackPtr+11] . Scan , Ukt . UkGenModule ) ;
                      
               | 475 => (* P34 BlockLt (140): .*)
                 yyAttributeStack [ yyStackPtr + 1 ] . Scan . Position
@@ -2769,7 +2769,7 @@ yyNonterminal := 140;
                        BEGIN
                          LScopeRef 
                            := FM3Scopes . NewScopeRef
-                                ( FM3Units . UnitStackTopRef
+                                ( FM3Units . UnitTStackTopRef
                                 , VAL ( yyAttributeStack^[yyStackPtr] . PaByte2 , Skt ) 
                                 , FM3Scanner . Attribute . Position 
                                 ) ;
@@ -2905,22 +2905,22 @@ yyNonterminal := 129;
     := FM3Scanner . Attribute . Position; 
 yyNonterminal := 134;
                 (* line 737 of "FM3Parser.lalr" *)
-                 VAR LUnitRef : FM3Units . UnitRefTyp ;
+                 VAR LUnitTRef : FM3Units . UnitRefTyp ;
                        BEGIN
                          IF FM3SharedUtils . CompareAToT 
-                              ( FM3Units . UnitStackTopRef ^ . UntUnitIdent ^ , "Main" )
+                              ( FM3Units . UnitTStackTopRef ^ . UntUnitIdent ^ , "Main" )
                             = FM3Base . CmpEQ
                             AND NOT FM3CLToks . CltStdSources IN FM3CLOptions . OptionTokSet
                          THEN (* Don't bring in Main.i3 when exported implicitly. *)
                          ELSE  
-                           LUnitRef
+                           LUnitTRef
                              := FM3ExpImp . GetInterface 
-                                  ( FM3Units . UnitStackTopRef ^ . UntUnitIdent
+                                  ( FM3Units . UnitTStackTopRef ^ . UntUnitIdent
                                   , yyAttributeStack^[yyStackPtr] . PaPos 
                                   , IsExport := TRUE
                                   ) ;
                            FM3ExpImp . ImportAllDecls
-                             ( LUnitRef , yyAttributeStack^[yyStackPtr] . Scan . Position ) ;
+                             ( LUnitTRef , yyAttributeStack^[yyStackPtr] . Scan . Position ) ;
                          END (*IF*) ; 
                        END (* Block. *) ;  
                      
@@ -2936,15 +2936,15 @@ yyNonterminal := 134;
               | 497,438 => (* P56 ExportIdent (151): NonreservedIdent .*)
                 DEC (yyStackPtr, 1); yyNonterminal := 151;
                 (* line 764 of "FM3Parser.lalr" *)
-                 VAR LUnitRef : FM3Units . UnitRefTyp ;
+                 VAR LUnitTRef : FM3Units . UnitRefTyp ;
                        BEGIN
-                          LUnitRef
+                          LUnitTRef
                             := FM3ExpImp . GetInterface
                                  ( yyAttributeStack^[yyStackPtr+1] . Scan . SaChars
                                  , yyAttributeStack^[yyStackPtr+1] . Scan . Position
                                  , IsExport := TRUE
                                  ) ;
-                         FM3ExpImp . ImportAllDecls ( LUnitRef , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ;
+                         FM3ExpImp . ImportAllDecls ( LUnitTRef , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ;
                        END (* Block. *) ;  
                      
               | 498,221 => (* P57 NonreservedIdent (124): StkIdent .*)
@@ -3645,7 +3645,7 @@ yyNonterminal := 194;
                        BEGIN
                          LScopeRef 
                            := FM3Scopes . NewScopeRef
-                                ( FM3Units . UnitStackTopRef
+                                ( FM3Units . UnitTStackTopRef
                                 , Skt . SkEnum
                                 , yyAttributeStack^[yyStackPtr+1] . Scan . Position
                                 ) ;
@@ -3674,7 +3674,7 @@ yyNonterminal := 194;
                        BEGIN
                          LScopeRef 
                            := FM3Scopes . NewScopeRef
-                                ( FM3Units . UnitStackTopRef
+                                ( FM3Units . UnitTStackTopRef
                                 , Skt . SkEnum
                                 , yyAttributeStack^[yyStackPtr+1] . Scan . Position
                                 ) ;
@@ -3758,7 +3758,7 @@ yyNonterminal := 221;
                        BEGIN 
                          LScopeRef 
                            := FM3Scopes . NewScopeRef
-                                ( FM3Units . UnitStackTopRef
+                                ( FM3Units . UnitTStackTopRef
                                 , Skt . SkRec
                                 , yyAttributeStack^[yyStackPtr+1] . Scan . Position
                                 ) ;
@@ -4118,7 +4118,7 @@ yyNonterminal := 213;
                        BEGIN
                          LScopeRef (* Formals scope. *) 
                            := FM3Scopes . NewScopeRef
-                                ( FM3Units . UnitStackTopRef
+                                ( FM3Units . UnitTStackTopRef
                                 , Skt . SkFormals  
                                 , yyAttributeStack^[yyStackPtr+1] . Scan . Position
                                 ) ;

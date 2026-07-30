@@ -163,7 +163,7 @@ INTERFACE FM3Decls
 
 ; PROCEDURE DeclRefOfDeclNo
     ( DeclNo : FM3Globals . DeclNoTyp
-    ; UnitRef : FM3Units . UnitRefTyp := NIL (* NIL means current unit. *)
+    ; UnitTRef : FM3Units . UnitRefTyp := NIL (* NIL means current unit. *)
     )
   : DeclRefTyp
 

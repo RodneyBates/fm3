@@ -186,7 +186,7 @@ MODULE FM3Scopes
 
 (*EXPORTED*) 
 ; PROCEDURE NewScopeRef
-    ( OwningUnitRef : FM3Units . UnitRefTyp
+    ( OwningUnitRef: FM3Units . UnitRefTyp
     ; ScopeKind : ScopeKindTyp
     ; READONLY Position : FM3Base . tPosition
     )
@@ -199,7 +199,7 @@ MODULE FM3Scopes
   ; VAR LRange : Ranges_Int . RangeTyp  
 
   ; BEGIN (*NewScopeRef*) 
-      LUnitScopeMap := OwningUnitRef ^ . UntScopeMap 
+      LUnitScopeMap := OwningUnitRef^ . UntScopeMap 
     ; LRange := VarArray_Int_Refany . TouchedRange ( LUnitScopeMap )
     ; IF Ranges_Int . RangeIsEmpty ( LRange ) 
       THEN LScopeNo := FM3Globals . ScopeNoFirstReal
@@ -228,20 +228,20 @@ MODULE FM3Scopes
 (*EXPORTED.*)
 ; PROCEDURE ScopeRefOfScopeNo
     ( ScopeNo : FM3Globals . ScopeNoTyp 
-    ; UnitRef : FM3Units . UnitRefTyp := NIL (* NIL means current unit. *)
+    ; UnitTRef : FM3Units . UnitRefTyp := NIL (* NIL means current unit. *)
     )
   : ScopeRefTyp 
    
-  = VAR LUnitRef : FM3Units . UnitRefTyp
+  = VAR LUnitTRef : FM3Units . UnitRefTyp
   ; VAR LScopeMap : ScopeMapTyp 
   ; VAR LScopeRef : ScopeRefTyp
 
   ; BEGIN
-      IF UnitRef = NIL
-      THEN LUnitRef := FM3Units . UnitStackTopRef 
-      ELSE LUnitRef := UnitRef
+      IF UnitTRef = NIL
+      THEN LUnitTRef := FM3Units . UnitTStackTopRef 
+      ELSE LUnitTRef := UnitTRef
       END (*IF*) 
-    ; LScopeMap := LUnitRef ^ . UntScopeMap
+    ; LScopeMap := LUnitTRef ^ . UntScopeMap
     ; IF LScopeMap = NIL THEN RETURN NIL END 
     ; LScopeRef := VarArray_Int_Refany . Fetch ( LScopeMap , ScopeNo )
       (*        ^Implied NARROW *)

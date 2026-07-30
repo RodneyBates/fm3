@@ -24,7 +24,7 @@ INTERFACE FM3Compile
   *) 
 
 ; PROCEDURE FindAndOpenUnitSrcFile
-    ( UnitRef : FM3Units . UnitRefTyp
+    ( UnitTRef : FM3Units . UnitRefTyp
     ; Adjective : TEXT
     ; ExpImpPosition : FM3Base . tPosition
     )
@@ -33,10 +33,10 @@ INTERFACE FM3Compile
            and fields UntSrcFilePath, UntSrcUniRd, and UntState are set.
   *) 
 
-; PROCEDURE CloseUnitSrcFile ( UnitRef : FM3Units . UnitRefTyp ) 
+; PROCEDURE CloseUnitSrcFile ( UnitTRef : FM3Units . UnitRefTyp ) 
 
 ; PROCEDURE MakePassFileCopy
-    ( UnitRef : FM3Units . UnitRefTyp
+    ( UnitTRef : FM3Units . UnitRefTyp
     ; PassFileSuffix : TEXT
     ; RdBackFile : RdBackFile . T  
     )
@@ -46,26 +46,26 @@ INTERFACE FM3Compile
   *)
 
 ; PROCEDURE DisAsmPassFile
-    ( UnitRef : FM3Units . UnitRefTyp ; PassFileSuffix : TEXT ; L2R : BOOLEAN )
+    ( UnitTRef : FM3Units . UnitRefTyp ; PassFileSuffix : TEXT ; L2R : BOOLEAN )
   RAISES { RdBackFile . BOF }
   (* PRE: A dispensible .Copy file exists in the build directory. *)
   (* POST: The disassembly file has been written in the build directory. *)
   (* POST: The copy file has been removed. *) 
 
 
-; PROCEDURE CleanPassFilesAndCopies ( UnitRef : FM3Units . UnitRefTyp )
+; PROCEDURE CleanPassFilesAndCopies ( UnitTRef : FM3Units . UnitRefTyp )
   (* Only after all passes have been run do we know what pass file
      copies are still hanging around.  Delete them. 
   *)
 
 ; PROCEDURE DumpPassExprs
-    ( UnitRef : FM3Units . UnitRefTyp ; PassFileSuffix : TEXT ) 
+    ( UnitTRef : FM3Units . UnitRefTyp ; PassFileSuffix : TEXT ) 
 
-; PROCEDURE DumpScopes ( UnitRef : FM3Units . UnitRefTyp ) 
+; PROCEDURE DumpScopes ( UnitTRef : FM3Units . UnitRefTyp ) 
 
-; PROCEDURE DumpDecls ( UnitRef : FM3Units . UnitRefTyp ) 
+; PROCEDURE DumpDecls ( UnitTRef : FM3Units . UnitRefTyp ) 
 
-; PROCEDURE CompileUnitFromSrc ( UnitRef : FM3Units . UnitRefTyp )
+; PROCEDURE CompileUnitFromSrc ( UnitTRef : FM3Units . UnitRefTyp )
 
 ; PROCEDURE CompileOrLoadCLUnit ( SrcFileName : TEXT )
   (* Compile or load the top unit, as named on the command line. *) 

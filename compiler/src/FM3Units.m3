@@ -86,33 +86,33 @@ MODULE FM3Units
 ; <*INLINE*>
   PROCEDURE UnitNoRef ( UnitNo : FM3Globals . UnitNoTyp ) : UnitRefTyp 
 
-  = VAR LUnitRef : UnitRefTyp 
+  = VAR LUnitTRef : UnitRefTyp 
 
   ; BEGIN (*UnitNoRef*)
-      LUnitRef
+      LUnitTRef 
         := NARROW
              ( VarArray_Int_Refany . Fetch ( FM3Units . UnitsMap , UnitNo )
              , UnitRefTyp
              ) 
-    ; RETURN LUnitRef 
+    ; RETURN LUnitTRef 
     END UnitNoRef
       
 (*EXPORTED.*)
-; PROCEDURE UnitRefImage ( UnitRef : UnitRefTyp ) : TEXT 
+; PROCEDURE UnitRefImage ( UnitTRef : UnitRefTyp ) : TEXT 
   (* UnitNo, REF, and sourceFileName. *) 
   
   = VAR LResult : TEXT
 
   ; BEGIN (*UnitRefImage*)
-      IF UnitRef = NIL THEN RETURN "NIL" END (*IF*)
+      IF UnitTRef = NIL THEN RETURN "NIL" END (*IF*)
     ; LResult := FM3SharedUtils . CatArrT
         ( ARRAY OF REFANY
             { "UnitNo " 
-            , Fmt . Int ( UnitRef ^ . UttSelfUnitNo ) 
+            , Fmt . Int ( UnitTRef ^ . UttSelfUnitNo ) 
             , " at " 
-            , FM3Utils . RefanyImage ( UnitRef )
+            , FM3Utils . RefanyImage ( UnitTRef )
             , " "
-            , UnitRef ^ . UntSrcFileSimpleName 
+            , UnitTRef ^ . UntSrcFileSimpleName 
             }
         ) 
     ; RETURN LResult 
@@ -122,12 +122,12 @@ MODULE FM3Units
 ; PROCEDURE NewUnitRef ( ) : UnitRefTyp
   (* Allocate, low-level initialize, give it a UnitNo, and put into UnitsMap. *)
 
-  = VAR LUnitRef : UnitRefTyp
+  = VAR LUnitTRef : UnitRefTyp
   ; VAR LUnitNo : FM3Globals . UnitNoTyp 
 
   ; BEGIN
-      LUnitRef := NEW ( UnitRefTyp )
-    ; IF LUnitRef = NIL
+      LUnitTRef := NEW ( UnitRefTyp )
+    ; IF LUnitTRef = NIL
       THEN
         FM3Messages  . FatalArr
           ( ARRAY OF REFANY { "Allocation of a FM3Units.UnitRefTyp failed." } )
@@ -139,103 +139,103 @@ MODULE FM3Units
 (* TODO: Either complete the list of constant-initialized fields, or bite
          nails and rely on the declaration.
 *) 
-    ; LUnitRef ^ . UttStackLink := NIL 
-    ; LUnitRef ^ . UttStackDepth := 0
-    ; LUnitRef ^ . UttSelfUnitNo := LUnitNo
-    ; LUnitRef ^ . UntSrcFileSimpleName := NIL 
-    ; LUnitRef ^ . UntSrcFilePath := NIL
-    ; LUnitRef ^ . UntBuildDirPath := NIL
-    ; LUnitRef ^ . UttPatchStackSimpleName := NIL
-    ; LUnitRef ^ . UttPatchStackRdBack := NIL
-    ; LUnitRef ^ . UttMaxPatchStackDepth := 0L 
-    ; LUnitRef ^ . UttImportingUnitRef := NIL 
-    ; LUnitRef ^ . UttPositionOfImport := FM3Base . PositionNull  
-    ; LUnitRef ^ . UttPass1OutSimpleName := NIL
-    ; LUnitRef ^ . UttPass1OutRdBack := NIL
-    ; LUnitRef ^ . UttMaxPass1OutLength := 0L 
-    ; LUnitRef ^ . UttPass2OutSimpleName := NIL
-    ; LUnitRef ^ . UttPass2OutRdBack := NIL
-    ; LUnitRef ^ . UntScopeRef := NIL
-    ; LUnitRef ^ . UntExpImpCt := FM3Globals . DeclNoNull 
-    ; LUnitRef ^ . UttSkipStackBase := 0 
-    ; LUnitRef ^ . UntUnitIdent := NIL 
-    ; LUnitRef ^ . UntUnitIdentPos := FM3Base . PositionNull
-    ; LUnitRef ^ . UntState := UnitStateTyp . UsNull
-    ; LUnitRef ^ . UntUnsafe := FALSE 
-    ; LUnitRef ^ . UntInExpImpCycle := FALSE
-    ; LUnitRef ^ . UntHasStdUnitPragma := FALSE 
-    ; LUnitRef ^ . UntIdentAtomDict 
+    ; LUnitTRef ^ . UttStackLink := NIL 
+    ; LUnitTRef ^ . UttStackDepth := 0
+    ; LUnitTRef ^ . UttSelfUnitNo := LUnitNo
+    ; LUnitTRef ^ . UntSrcFileSimpleName := NIL 
+    ; LUnitTRef ^ . UntSrcFilePath := NIL
+    ; LUnitTRef ^ . UntBuildDirPath := NIL
+    ; LUnitTRef ^ . UttPatchStackSimpleName := NIL
+    ; LUnitTRef ^ . UttPatchStackRdBack := NIL
+    ; LUnitTRef ^ . UttMaxPatchStackDepth := 0L 
+    ; LUnitTRef ^ . UttImportingUnitRef := NIL 
+    ; LUnitTRef ^ . UttPositionOfImport := FM3Base . PositionNull  
+    ; LUnitTRef ^ . UttPass1OutSimpleName := NIL
+    ; LUnitTRef ^ . UttPass1OutRdBack := NIL
+    ; LUnitTRef ^ . UttMaxPass1OutLength := 0L 
+    ; LUnitTRef ^ . UttPass2OutSimpleName := NIL
+    ; LUnitTRef ^ . UttPass2OutRdBack := NIL
+    ; LUnitTRef ^ . UntScopeRef := NIL
+    ; LUnitTRef ^ . UntExpImpCt := FM3Globals . DeclNoNull 
+    ; LUnitTRef ^ . UttSkipStackBase := 0 
+    ; LUnitTRef ^ . UntUnitIdent := NIL 
+    ; LUnitTRef ^ . UntUnitIdentPos := FM3Base . PositionNull
+    ; LUnitTRef ^ . UntState := UnitStateTyp . UsNull
+    ; LUnitTRef ^ . UntUnsafe := FALSE 
+    ; LUnitTRef ^ . UntInExpImpCycle := FALSE
+    ; LUnitTRef ^ . UntHasStdUnitPragma := FALSE 
+    ; LUnitTRef ^ . UntIdentAtomDict 
         := FM3Atom_OAChars . New
              ( FM3Globals . IdentAtomInitSize
              , FM3Base . AtomFirstReal
              , HashFunc := FM3Utils . HashOfOAChars 
              , DoReverseMap := TRUE
              )
-    ; LUnitRef ^ . UntNumLitAtomDict 
+    ; LUnitTRef ^ . UntNumLitAtomDict 
         := FM3Atom_OAChars . New
              ( FM3Globals . NumberAtomInitSize
              , FM3Base . AtomFirstReal
              , HashFunc := FM3Utils . HashOfOAChars 
              , DoReverseMap := TRUE
              )
-    ; LUnitRef ^ . UntCharsLitAtomDict 
+    ; LUnitTRef ^ . UntCharsLitAtomDict 
         := FM3Atom_OAChars . New
              ( FM3Globals . CharsAtomInitSize
              , FM3Base . AtomFirstReal
              , HashFunc := FM3Utils . HashOfOAChars 
              , DoReverseMap := TRUE
              )
-    ; LUnitRef ^ . UntWCharsLitAtomDict 
+    ; LUnitTRef ^ . UntWCharsLitAtomDict 
         := FM3Atom_OAWideChars . New
              ( FM3Globals . WideCharsAtomInitSize
              , FM3Base . AtomFirstReal
              , HashFunc := FM3Utils . HashOfOAWChars
              , DoReverseMap := TRUE
              )
-    ; LUnitRef ^ . UntScopeMap
+    ; LUnitTRef ^ . UntScopeMap
         := FM3Scopes . NewScopeMap ( FM3Globals . InitScopeCtPerUnit )
     ; VarArray_Int_Refany . Touch
-        ( LUnitRef ^ .  UntScopeMap , Ranges_Int . RangeTyp { 0 , 0 } )
-    ; LUnitRef ^ . UntExpImpIdSet := IntSets . Empty ( )
-    ; LUnitRef ^ . UntExpImpMap
+        ( LUnitTRef ^ .  UntScopeMap , Ranges_Int . RangeTyp { 0 , 0 } )
+    ; LUnitTRef ^ . UntExpImpIdSet := IntSets . Empty ( )
+    ; LUnitTRef ^ . UntExpImpMap
         := VarArray_Int_ExpImpProxy . New
              ( ExpImpProxyNull
              , Ranges_Int . RangeTyp { 0 , FM3Globals . InitImportsCt - 1 } 
              )
     ; VarArray_Int_ExpImpProxy . Touch
-        ( LUnitRef ^ .  UntExpImpMap , Ranges_Int . RangeTyp { 0 , 0 } )
-    ; LUnitRef ^ . UttNextDeclNo := 1 
-    ; LUnitRef ^ . UntStdTok := FM3Base . TokNull  
-    ; LUnitRef ^ . UntDeclMap 
+        ( LUnitTRef ^ .  UntExpImpMap , Ranges_Int . RangeTyp { 0 , 0 } )
+    ; LUnitTRef ^ . UttNextDeclNo := 1 
+    ; LUnitTRef ^ . UntStdTok := FM3Base . TokNull  
+    ; LUnitTRef ^ . UntDeclMap 
         := FM3Decls . NewDeclMap ( FM3Globals . InitDeclCtPerUnit ) 
     ; VarArray_Int_Refany . Touch
-        ( LUnitRef ^ .  UntDeclMap , Ranges_Int . RangeTyp { 0 , 0 } )
-    ; LUnitRef ^ . UntExprMap 
+        ( LUnitTRef ^ .  UntDeclMap , Ranges_Int . RangeTyp { 0 , 0 } )
+    ; LUnitTRef ^ . UntExprMap 
         := FM3Exprs . NewExprMap ( FM3Globals . InitDefCtPerUnit ) 
     ; VarArray_Int_Refany . Touch
-        ( LUnitRef ^ .  UntExprMap
+        ( LUnitTRef ^ .  UntExprMap
         , Ranges_Int . RangeTyp
             { FM3Exprs . ExprNoNull , FM3Exprs . ExprNoFirstReal - 1 }
         )
-    ; LUnitRef ^ . UttNextDeclNo := 1
-    ; LUnitRef ^ . UntFirstTrueDeclNo := 1
-    ; LUnitRef ^ . UttSkipStackBase
+    ; LUnitTRef ^ . UttNextDeclNo := 1
+    ; LUnitTRef ^ . UntFirstTrueDeclNo := 1
+    ; LUnitTRef ^ . UttSkipStackBase
         := VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi
-    ; LUnitRef ^ . UttExprStackBaseCt := 0 
-    ; LUnitRef ^ . UttScopeDeclStackBaseCt := 0 
-    ; LUnitRef ^ . UttLookupScopeStackBaseCt := 0 
-    ; VarArray_Int_Refany . Assign ( UnitsMap , LUnitNo , LUnitRef )
-    ; RETURN LUnitRef 
+    ; LUnitTRef ^ . UttExprStackBaseCt := 0 
+    ; LUnitTRef ^ . UttScopeDeclStackBaseCt := 0 
+    ; LUnitTRef ^ . UttLookupScopeStackBaseCt := 0 
+    ; VarArray_Int_Refany . Assign ( UnitsMap , LUnitNo , LUnitTRef )
+    ; RETURN LUnitTRef 
     END NewUnitRef
 
 (*EXPORTED.*)
-; PROCEDURE UnitRefIdImage ( UnitRef : UnitRefTyp ) : TEXT 
+; PROCEDURE UnitRefIdImage ( UnitTRef : UnitRefTyp ) : TEXT 
 
   = VAR LName : TEXT 
 
   ; BEGIN (*UnitRefIdImage*)
-      IF UnitRef = NIL THEN RETURN "<NIL_Unit>" END (*IF*)
-    ; LName := UnitRef ^ . UntSrcFileSimpleName 
+      IF UnitTRef = NIL THEN RETURN "<NIL_Unit>" END (*IF*)
+    ; LName := UnitTRef ^ . UntSrcFileSimpleName 
     ; IF LName = NIL THEN RETURN "<NIL_SourceFileName>" END (*IF*)
     ; RETURN LName  
     END UnitRefIdImage
@@ -250,9 +250,9 @@ MODULE FM3Units
   = VAR LResult : INTEGER 
 
   ; BEGIN (*AllocateDeclNos*)
-      IF UnitStackTopRef = NIL THEN RETURN FM3Globals . DeclNoNull END (*IF*)
-    ; LResult := UnitStackTopRef ^ . UttNextDeclNo
-    ; INC ( UnitStackTopRef ^ . UttNextDeclNo , Count )
+      IF UnitTStackTopRef = NIL THEN RETURN FM3Globals . DeclNoNull END (*IF*)
+    ; LResult := UnitTStackTopRef ^ . UttNextDeclNo
+    ; INC ( UnitTStackTopRef ^ . UttNextDeclNo , Count )
     ; RETURN LResult 
     END AllocateDeclNos
     
@@ -270,7 +270,7 @@ MODULE FM3Units
       THEN LIdentText := FM3SrcToks . Image ( - IdentAtom ) 
       ELSE 
         IF NOT FM3Atom_OAChars . Key 
-                 ( UnitStackTopRef ^ . UntIdentAtomDict
+                 ( UnitTStackTopRef ^ . UntIdentAtomDict
                  , IdentAtom
                  , (*OUT*) LOACharsRef
                  )
@@ -284,78 +284,78 @@ MODULE FM3Units
     END IdAtomText
 
 (*EXPORTED.*)
-; PROCEDURE PushUnit ( UnitRef : UnitRefTyp ) 
+; PROCEDURE PushUnit ( UnitTRef : UnitRefTyp ) 
 
   = VAR LBeneathUnitRef : UnitRefTyp
 
   ; BEGIN (*PushUnit*)
-      IF UnitRef = NIL THEN RETURN END (*IF*) 
-    ; <* ASSERT UnitRef . UttStackDepth = 0 *> (* Not already on stack. *)
-      LBeneathUnitRef := UnitStackTopRef 
+      IF UnitTRef = NIL THEN RETURN END (*IF*) 
+    ; <* ASSERT UnitTRef . UttStackDepth = 0 *> (* Not already on stack. *)
+      LBeneathUnitRef := UnitTStackTopRef 
     ; IF LBeneathUnitRef = NIL
-      THEN UnitRef . UttStackDepth := 1
-      ELSE UnitRef . UttStackDepth := LBeneathUnitRef . UttStackDepth + 1
+      THEN UnitTRef . UttStackDepth := 1
+      ELSE UnitTRef . UttStackDepth := LBeneathUnitRef . UttStackDepth + 1
       END (*IF*)
-    ; UnitRef ^ . UttStackLink := LBeneathUnitRef  
-    ; UnitStackTopRef := UnitRef
+    ; UnitTRef ^ . UttStackLink := LBeneathUnitRef  
+    ; UnitTStackTopRef := UnitTRef 
     END PushUnit
 
 (*EXPORTED.*)
 ; PROCEDURE CacheTopUnitValues ( )
 
   = BEGIN
-      IF UnitStackTopRef = NIL 
+      IF UnitTStackTopRef = NIL 
       THEN
         FM3Globals . P1RdBack := NIL 
       ; FM3Globals . PatchRdBack := NIL 
       ; FM3Globals . P2RdBack := NIL 
       ELSE 
-        FM3Globals . P1RdBack := UnitStackTopRef . UttPass1OutRdBack 
-      ; FM3Globals . PatchRdBack := UnitStackTopRef . UttPatchStackRdBack 
-      ; FM3Globals . P2RdBack := UnitStackTopRef . UttPass2OutRdBack
-      ; FM3Globals . P3RdBack := UnitStackTopRef . UttPass3OutRdBack
+        FM3Globals . P1RdBack := UnitTStackTopRef . UttPass1OutRdBack 
+      ; FM3Globals . PatchRdBack := UnitTStackTopRef . UttPatchStackRdBack 
+      ; FM3Globals . P2RdBack := UnitTStackTopRef . UttPass2OutRdBack
+      ; FM3Globals . P3RdBack := UnitTStackTopRef . UttPass3OutRdBack
       END (*IF*)    
     END CacheTopUnitValues 
 
 (*EXPORTED.*)
 ; PROCEDURE PopUnit ( ) : UnitRefTyp  
 
-  = VAR LPoppedUnitRef : UnitRefTyp
+  = VAR LPoppedUnitTRef : UnitRefTyp
 
   ; BEGIN (*PopUnit*)
-      LPoppedUnitRef := UnitStackTopRef  
-    ; <* ASSERT LPoppedUnitRef # NIL *>
-      UnitStackTopRef := LPoppedUnitRef ^ . UttStackLink
-    ; IF UnitStackTopRef = NIL
-      THEN <* ASSERT LPoppedUnitRef ^ . UttStackDepth = 1 *> 
+      LPoppedUnitTRef := UnitTStackTopRef  
+    ; <* ASSERT LPoppedUnitTRef # NIL *>
+      UnitTStackTopRef := LPoppedUnitTRef ^ . UttStackLink
+    ; IF UnitTStackTopRef = NIL
+      THEN <* ASSERT LPoppedUnitTRef ^ . UttStackDepth = 1 *> 
       ELSE 
         <* ASSERT
-             UnitStackTopRef ^ . UttStackDepth
-             = LPoppedUnitRef ^ . UttStackDepth - 1
+             UnitTStackTopRef ^ . UttStackDepth
+             = LPoppedUnitTRef ^ . UttStackDepth - 1
         *>
       END (*IF*)
-    ; LPoppedUnitRef . UttStackDepth := 0
+    ; LPoppedUnitTRef . UttStackDepth := 0
       (* ^Note that it's no longer on the unit stack. *)  
-    ; RETURN LPoppedUnitRef
+    ; RETURN LPoppedUnitTRef
     END PopUnit
 
 (*EXPORTED.*)
 ; PROCEDURE CurrentUnitIsModule ( ) : BOOLEAN
 
   = BEGIN 
-      RETURN UnitStackTopRef ^ . UntKind IN UnitKindSetModule  
+      RETURN UnitTStackTopRef ^ . UntKind IN UnitKindSetModule  
     END CurrentUnitIsModule
 
 (*EXPORTED.*)
 ; PROCEDURE CharsOfIdentAtom
-    ( UnitRef : UnitRefTyp ; Atom : FM3Base . AtomTyp )
+    ( UnitTRef : UnitRefTyp ; Atom : FM3Base . AtomTyp )
   : FM3Atom_OAChars . KeyTyp (* Which is ARRAY OF CHAR. *) 
 
   = VAR LIdentChars : FM3Atom_OAChars . KeyTyp 
 
   ; BEGIN 
       IF NOT FM3Atom_OAChars . Key 
-               ( UnitRef ^ . UntIdentAtomDict , Atom , (*OUT*) LIdentChars )
+               ( UnitTRef ^ . UntIdentAtomDict , Atom , (*OUT*) LIdentChars )
       THEN LIdentChars := NIL
       END (*IF*)
     ; RETURN LIdentChars
@@ -372,7 +372,7 @@ MODULE FM3Units
            
   ; UnitsMap := NewUnitsMap ( FM3Globals . InitUnitsCt - 1 )
   ; NextUnitNo := 1
-  ; UnitStackTopRef := NIL 
+  ; UnitTStackTopRef := NIL 
   END FM3Units
 .
 

@@ -80,62 +80,6 @@ INTERFACE FM3Units
 
 ; TYPE UnitTyp
     = RECORD
-
-        UttStackLink : UnitRefTyp := NIL
-      ; UttUnitRef : UnitRefTyp 
-      ; UttSrcUniRd : UniRd . T 
-      ; UttLogSimpleName : TEXT := NIL 
-      ; UttLogWrT : Wr . T := NIL
-      ; UttPatchStackSimpleName : TEXT := NIL
-      ; UttPatchStackRdBack : RdBackFile . T := NIL
-      ; UttMaxPatchStackDepth : LONGINT := 0L
-      ; UttPatchStackEmptyCoord : LONGINT := 0L
-        (* ^Value of RdBackFile.LengthL when conceptually empty, but may be
-           nonzero, on account of file tag, length, etc. *) 
-      ; UttPatchStackTopCoord : LONGINT := 0L
-
-(*TODO: box up pass-dependent groups like this one.  Maybe heap-allocate. *)  
-      ; UttPass1OutSimpleName : TEXT := NIL
-      ; UttPass1OutRdBack : RdBackFile . T := NIL
-      ; UttPass1OutDataLength : LONGINT := 0L
-        (* ^Excludng final boilerplate tokens. *) 
-      ; UttMaxPass1OutLength : LONGINT := 0L 
-      ; UttPass1OutEmptyCoord : LONGINT := 0L
-(**) 
-      ; UttPass2OutSimpleName : TEXT := NIL (* Parse pass output file. *) 
-      ; UttPass2OutRdBack : RdBackFile . T := NIL
-      ; UttMaxPass2OutLength : LONGINT := 0L 
-      ; UttPass2OutEmptyCoord : LONGINT := 0L
-
-      ; UttPass3OutSimpleName : TEXT := NIL (* Parse pass output file. *) 
-      ; UttPass3OutRdBack : RdBackFile . T := NIL
-      ; UttMaxPass3OutLength : LONGINT := 0L 
-      ; UttPass3OutEmptyCoord : LONGINT := 0L
-
-      ; UttImportingUnitRef : UnitRefTyp
-          (* ^The unit this one is in process of [ex|im]porting. *) 
-      ; UttPositionOfImport : FM3Base . tPosition
-          (* ^Of the being-[ex|im]ported identifier. *) 
-      ; UttExpUnitSet : IntSets . T := NIL (* IntSets . Empty ( ) *)
-          (* Unit Nos of units exported by this unit. *) 
-      ; UttSkipStackBase : INTEGER := 0 
-          (* TOS Subscript at beginning and end of unit compile. *) 
-      ; UttExprStackBaseCt : INTEGER := 0 
-          (* TOS Subscript at beginning and end of unit compile. *) 
-      ; UttScopeDeclStackBaseCt : INTEGER := 0 
-          (* TOS Subscript at beginning and end of unit compile. *) 
-      ; UttLookupScopeStackBaseCt : INTEGER := 0 
-          (* TOS Subscript at beginning and end of unit compile. *) 
-      ; UttStackDepth : INTEGER := 0
-          (* ^Where on the units stack this UnitRef is. *) 
-      ; UttSelfUnitNo : FM3Globals . UnitNoTyp := FM3Globals . UnitNoNull
-          (* ^Self-referential. *) 
-      ; UttNextDeclNo : INTEGER := 1
-; 
-
-
-
-
         UntSrcFileSimpleName : TEXT := NIL (* Simple name *) 
       ; UntSrcFilePath : TEXT := NIL
         (* ^ I.e, directory wherein UntSimpleSrcFileName lives. *)
@@ -187,18 +131,8 @@ INTERFACE FM3Units
       ; UntUnsafe : BOOLEAN := FALSE  
       ; UntInExpImpCycle : BOOLEAN := FALSE
       ; UntHasStdUnitPragma : BOOLEAN := FALSE (* Has the FM3_STDUNIT pragma. *)
-      END (*UnitTyp*)
 
-(* Transient info about a unit. Present the unit is in compilation or loaded
-   after being compiled in a prior run.
-*) 
-; CONST UnitTransRefBrand = "UnitTransRef0.1"
-; TYPE UnitTransRefTyp = REF UnitTransTyp 
-
-; TYPE UnitTransTyp
-    = RECORD
-
-(* 
+(***)  ; 
         UttStackLink : UnitRefTyp := NIL
       ; UttUnitRef : UnitRefTyp 
       ; UttSrcUniRd : UniRd . T 
@@ -219,7 +153,6 @@ INTERFACE FM3Units
         (* ^Excludng final boilerplate tokens. *) 
       ; UttMaxPass1OutLength : LONGINT := 0L 
       ; UttPass1OutEmptyCoord : LONGINT := 0L
-(**) 
       ; UttPass2OutSimpleName : TEXT := NIL (* Parse pass output file. *) 
       ; UttPass2OutRdBack : RdBackFile . T := NIL
       ; UttMaxPass2OutLength : LONGINT := 0L 
@@ -245,19 +178,77 @@ INTERFACE FM3Units
       ; UttLookupScopeStackBaseCt : INTEGER := 0 
           (* TOS Subscript at beginning and end of unit compile. *) 
       ; UttStackDepth : INTEGER := 0
-          (* ^Where on the units stack this UnitRef is. *) 
+          (* ^Where on the units stack this UnitTRef is. *) 
       ; UttSelfUnitNo : FM3Globals . UnitNoTyp := FM3Globals . UnitNoNull
           (* ^Self-referential. *) 
       ; UttNextDeclNo : INTEGER := 1
+(***) 
+      END (*UnitTyp*)
 
+(* Transient info about a unit. Present the unit is in compilation or loaded
+   after being compiled in a prior run.
 *) 
+; CONST UnitTransRefBrand = "UnitTransRef0.1"
+; TYPE UnitTransRefTyp = REF UnitTransTyp 
+
+; TYPE UnitTransTyp
+    = RECORD
+        UttStackLink : UnitRefTyp := NIL
+      ; UttUnitRef : UnitRefTyp 
+      ; UttSrcUniRd : UniRd . T 
+      ; UttLogSimpleName : TEXT := NIL 
+      ; UttLogWrT : Wr . T := NIL
+      ; UttPatchStackSimpleName : TEXT := NIL
+      ; UttPatchStackRdBack : RdBackFile . T := NIL
+      ; UttMaxPatchStackDepth : LONGINT := 0L
+      ; UttPatchStackEmptyCoord : LONGINT := 0L
+        (* ^Value of RdBackFile.LengthL when conceptually empty, but may be
+           nonzero, on account of file tag, length, etc. *) 
+      ; UttPatchStackTopCoord : LONGINT := 0L
+
+(*TODO: box up pass-dependent groups like this one.  Maybe heap-allocate. *)  
+      ; UttPass1OutSimpleName : TEXT := NIL
+      ; UttPass1OutRdBack : RdBackFile . T := NIL
+      ; UttPass1OutDataLength : LONGINT := 0L
+        (* ^Excludng final boilerplate tokens. *) 
+      ; UttMaxPass1OutLength : LONGINT := 0L 
+      ; UttPass1OutEmptyCoord : LONGINT := 0L
+      ; UttPass2OutSimpleName : TEXT := NIL (* Parse pass output file. *) 
+      ; UttPass2OutRdBack : RdBackFile . T := NIL
+      ; UttMaxPass2OutLength : LONGINT := 0L 
+      ; UttPass2OutEmptyCoord : LONGINT := 0L
+
+      ; UttPass3OutSimpleName : TEXT := NIL (* Parse pass output file. *) 
+      ; UttPass3OutRdBack : RdBackFile . T := NIL
+      ; UttMaxPass3OutLength : LONGINT := 0L 
+      ; UttPass3OutEmptyCoord : LONGINT := 0L
+
+      ; UttImportingUnitRef : UnitRefTyp
+          (* ^The unit this one is in process of [ex|im]porting. *) 
+      ; UttPositionOfImport : FM3Base . tPosition
+          (* ^Of the being-[ex|im]ported identifier. *) 
+      ; UttExpUnitSet : IntSets . T := NIL (* IntSets . Empty ( ) *)
+          (* Unit Nos of units exported by this unit. *) 
+      ; UttSkipStackBase : INTEGER := 0 
+          (* TOS Subscript at beginning and end of unit compile. *) 
+      ; UttExprStackBaseCt : INTEGER := 0 
+          (* TOS Subscript at beginning and end of unit compile. *) 
+      ; UttScopeDeclStackBaseCt : INTEGER := 0 
+          (* TOS Subscript at beginning and end of unit compile. *) 
+      ; UttLookupScopeStackBaseCt : INTEGER := 0 
+          (* TOS Subscript at beginning and end of unit compile. *) 
+      ; UttStackDepth : INTEGER := 0
+          (* ^Where on the units stack this UnitTRef is. *) 
+      ; UttSelfUnitNo : FM3Globals . UnitNoTyp := FM3Globals . UnitNoNull
+          (* ^Self-referential. *) 
+      ; UttNextDeclNo : INTEGER := 1
       END (*UnitTransTyp*)
 
 ; <*INLINE*>
   PROCEDURE UnitNoRef ( UnitNo : FM3Globals . UnitNoTyp ) : UnitRefTyp
   (* Mainly for convenient calling by a debugger. *) 
 
-; PROCEDURE UnitRefImage ( UnitRef : UnitRefTyp ) : TEXT 
+; PROCEDURE UnitRefImage ( UnitTRef : UnitRefTyp ) : TEXT 
   (* UnitNo, REF, and sourceFileName. *) 
   
 ; VAR UnitsAtomDict : FM3Atom_Text . T
@@ -283,7 +274,7 @@ INTERFACE FM3Units
 ; PROCEDURE NewUnitRef ( ) : UnitRefTyp
   (* Allocate, low-level initialize, give it a UnitNo, and put into UnitsMap. *)
 
-; PROCEDURE UnitRefIdImage ( UnitRef : UnitRefTyp ) : TEXT 
+; PROCEDURE UnitRefIdImage ( UnitTRef : UnitRefTyp ) : TEXT 
 
 ; PROCEDURE AllocateDeclNos ( Count : INTEGER ) : INTEGER 
   (* Allocate a contiguous range of Count Decl numbers, unique
@@ -293,11 +284,11 @@ INTERFACE FM3Units
 ; PROCEDURE IdAtomText ( IdAtom : FM3Base . AtomTyp ) : TEXT
   (* In the current unit. *) 
 
-; VAR UnitStackTopRef : UnitRefTyp := NIL 
+; VAR UnitTStackTopRef : UnitRefTyp := NIL 
     (* One UnitStack in a run of the compiler. *)
     (* This is the Unit curently being worked-on. *) 
     
-; PROCEDURE PushUnit ( UnitRef : UnitRefTyp ) 
+; PROCEDURE PushUnit ( UnitTRef : UnitRefTyp ) 
 
 ; PROCEDURE PopUnit ( ) : UnitRefTyp
 
@@ -307,7 +298,7 @@ INTERFACE FM3Units
 ; PROCEDURE CurrentUnitIsModule ( ) : BOOLEAN 
 
 ; PROCEDURE CharsOfIdentAtom
-    ( UnitRef : UnitRefTyp ; Atom : FM3Base . AtomTyp )
+    ( UnitTRef : UnitRefTyp ; Atom : FM3Base . AtomTyp )
   : FM3Atom_OAChars . KeyTyp (* Which is ARRAY OF CHAR. *) 
 ;
  END FM3Units

@@ -196,7 +196,7 @@ MODULE FM3Resolve
   ; VAR LExprNo : FM3Exprs . ExprNoTyp 
 
   ; BEGIN (*RepExprNo*) 
-      LExprMap := FM3Units . UnitStackTopRef ^ . UntExprMap 
+      LExprMap := FM3Units . UnitTStackTopRef ^ . UntExprMap 
     ; LExprNo := ExprNo 
     ; LOOP 
         IF LExprNo < FM3Exprs . ExprNoFirstReal 
@@ -457,7 +457,7 @@ MODULE FM3Resolve
     ; IF LResult 
       THEN
         (* Discovered a new structural equality.  Record it for posterity. *) 
-        LExprMap := FM3Units . UnitStackTopRef ^ . UntExprMap 
+        LExprMap := FM3Units . UnitTStackTopRef ^ . UntExprMap 
       ; LRightRepExprRef := FM3Exprs . ExprRefOfExprNo ( LRightRepNo ) 
       ; LRightRepExprRef ^ . ExpRepExprNo := LLeftRepNo  
       END (*IF*) 

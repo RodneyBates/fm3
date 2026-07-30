@@ -350,20 +350,20 @@ MODULE FM3Decls
 (*EXPORTED.*)
 ; PROCEDURE DeclRefOfDeclNo
     ( DeclNo : FM3Globals . DeclNoTyp
-    ; UnitRef : FM3Units . UnitRefTyp := NIL (* NIL means current unit. *)
+    ; UnitTRef : FM3Units . UnitRefTyp := NIL (* NIL means current unit. *)
     )
   : DeclRefTyp
 
-  = VAR LUnitRef : FM3Units . UnitRefTyp
+  = VAR LUnitTRef : FM3Units . UnitRefTyp
   ; VAR LDeclMap : DeclMapTyp 
   ; VAR LDeclRef : DeclRefTyp
 
   ; BEGIN (* DeclRefOfDeclNo *)
-      IF UnitRef = NIL
-      THEN LUnitRef := FM3Units . UnitStackTopRef 
-      ELSE LUnitRef := UnitRef
+      IF UnitTRef = NIL
+      THEN LUnitTRef := FM3Units . UnitTStackTopRef 
+      ELSE LUnitTRef := UnitTRef 
       END (*IF*) 
-    ; LDeclMap := LUnitRef ^ . UntDeclMap
+    ; LDeclMap := LUnitTRef ^ . UntDeclMap
     ; IF LDeclMap = NIL THEN RETURN NIL END 
     ; LDeclRef := VarArray_Int_Refany . Fetch ( LDeclMap , DeclNo )
      (*        ^Implied NARROW *)

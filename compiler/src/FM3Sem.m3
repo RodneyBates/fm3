@@ -44,7 +44,7 @@ MODULE FM3Sem
         CASE LProcExpr ^ . ExpKind OF 
         | Ekt . EkIdentRef 
         =>  GetStdUnitNDeclToks 
-              ( FM3Units . UnitStackTopRef ^ . UntSelfUnitNo 
+              ( FM3Units . UnitTStackTopRef ^ . UntSelfUnitNo 
               , LProcExpr ^ . ExpIdentDeclNo 
               , (*OUT*) LUnitTok 
               , (*OUT*) LDeclTok 

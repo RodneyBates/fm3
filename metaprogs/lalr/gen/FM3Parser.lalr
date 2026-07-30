@@ -304,22 +304,22 @@ RULE
    Compilation : InstModule .
 
    InterfaceKind : /*Empty*/ 
-       { FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInterface ; } .
+       { FM3Units . UnitTStackTopRef ^ . UntKind := Ukt . UkInterface ; } .
 
    ModuleKind : /*Empty*/ 
-       { FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkModule ; } .
+       { FM3Units . UnitTStackTopRef ^ . UntKind := Ukt . UkModule ; } .
 
    GenInterfaceKind : /*Empty*/ 
-       { FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkGenInterface ; } . 
+       { FM3Units . UnitTStackTopRef ^ . UntKind := Ukt . UkGenInterface ; } . 
 
    GenModuleKind : /*Empty*/ 
-       { FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkGenModule ; } . 
+       { FM3Units . UnitTStackTopRef ^ . UntKind := Ukt . UkGenModule ; } . 
 
    InstInterfaceKind : /*Empty*/ 
-       { FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstInterface ; } . 
+       { FM3Units . UnitTStackTopRef ^ . UntKind := Ukt . UkInstInterface ; } . 
 
    InstModuleKind : /*Empty*/ 
-       { FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstModule ; } . 
+       { FM3Units . UnitTStackTopRef ^ . UntKind := Ukt . UkInstModule ; } . 
 
    OptUnsafe : StkRwUNSAFE
      { $$ . PaBool (* Unsafe.*) := TRUE ; } .
@@ -333,21 +333,21 @@ RULE
      } . 
  
    InterfaceLt : OptUnsafe StkRwINTERFACE NonreservedIdent IntfPragmas
-     { VAR LUnitRef : FM3Units . UnitRefTyp ; 
+     { VAR LUnitTRef : FM3Units . UnitRefTyp ; 
        VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN
          (* Default Coord. *) 
          $$ . Scan . Position := $2 . Scan . Position ; 
-         LUnitRef := FM3Units . UnitStackTopRef ;
+         LUnitTRef := FM3Units . UnitTStackTopRef ;
            (* ^Already pushed when source file was opened. *) 
-         LUnitRef ^ . UntKind := Ukt . UkInterface ; 
-         LUnitRef ^ . UntUnsafe := $1 . PaBool ; 
-         FM3Pass1 . InterfaceId ( LUnitRef , $3 . Scan ) ;
+         LUnitTRef ^ . UntKind := Ukt . UkInterface ; 
+         LUnitTRef ^ . UntUnsafe := $1 . PaBool ; 
+         FM3Pass1 . InterfaceId ( LUnitTRef , $3 . Scan ) ;
          LScopeRef 
            := FM3Scopes . NewScopeRef 
-                ( LUnitRef , Skt . SkInterface , $2 . Scan . Position ) ;
+                ( LUnitTRef , Skt . SkInterface , $2 . Scan . Position ) ;
          LScopeRef ^ . ScpIdAtom := $3 . Scan . SaAtom ; 
-         LUnitRef ^ . UntScopeRef := LScopeRef ; 
+         LUnitTRef ^ . UntScopeRef := LScopeRef ; 
          FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) ; 
          FM3Pass1 . PutBwd_TIP
            ( Itk . ItkScopeForDeclsLt
@@ -360,10 +360,10 @@ RULE
    InstInterface :
      InterfaceLt StkEqual NonreservedIdent GenActualList StkRwEND
      NonreservedIdent StkDot 
-     { FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstInterface ;
+     { FM3Units . UnitTStackTopRef ^ . UntKind := Ukt . UkInstInterface ;
 (*INCOMPLETE.*)
        FM3Pass1 . CheckUnitFinalId
-         ( FM3Units . UnitStackTopRef , $6 . Scan , Ukt . UkInstInterface ) ; 
+         ( FM3Units . UnitTStackTopRef , $6 . Scan , Ukt . UkInstInterface ) ; 
      } . 
 
    InterfaceMiddle : InterfaceLt StkSemicolon ImportList ExpImpDone 
@@ -414,12 +414,12 @@ RULE
            ) ;
            
          FM3Pass1 . CheckUnitFinalId
-           ( FM3Units . UnitStackTopRef , $4 . Scan , Ukt . UkInterface ) ; 
-         FM3Pass1 . CheckStdUnitPragma ( FM3Units . UnitStackTopRef ) ; 
+           ( FM3Units . UnitTStackTopRef , $4 . Scan , Ukt . UkInterface ) ; 
+         FM3Pass1 . CheckStdUnitPragma ( FM3Units . UnitTStackTopRef ) ; 
          FM3Pass1 . PutBwd_LCIP_rip 
            ( Itk . ItkInterfaceLt
            , $1 . PaPass1Coord
-           , FM3Units . UnitStackTopRef ^ . UttSelfUnitNo 
+           , FM3Units . UnitTStackTopRef ^ . UttSelfUnitNo 
            , $1 . Scan . Position 
            ) ;
        END ; 
@@ -436,21 +436,21 @@ RULE
      { FM3Pass1 . UnrecognizedPragma ( $2 ) ; } .
 
    ModuleLt : OptUnsafe StkRwMODULE NonreservedIdent 
-     { VAR LUnitRef : FM3Units . UnitRefTyp ; 
+     { VAR LUnitTRef : FM3Units . UnitRefTyp ; 
        VAR LScopeRef : FM3Scopes . ScopeRefTyp ;  
        BEGIN
          (* Default Coord. *) 
          $$ . Scan . Position := $3 . Scan . Position ; 
          (* ^Module name position, in case no explicit EXPORTS. *) 
-         LUnitRef := FM3Units . UnitStackTopRef ;
+         LUnitTRef := FM3Units . UnitTStackTopRef ;
            (* ^Already pushed when source file was opened. *) 
-         LUnitRef ^ . UntUnsafe := $1 . PaBool ; 
-         FM3Pass1 . ModuleId ( LUnitRef , $3 . Scan ) ;
+         LUnitTRef ^ . UntUnsafe := $1 . PaBool ; 
+         FM3Pass1 . ModuleId ( LUnitTRef , $3 . Scan ) ;
          LScopeRef 
            := FM3Scopes . NewScopeRef 
-                ( LUnitRef , Skt . SkModule , $2 . Scan . Position ) ;
+                ( LUnitTRef , Skt . SkModule , $2 . Scan . Position ) ;
          LScopeRef ^ . ScpIdAtom := $3 . Scan . SaAtom ; 
-         LUnitRef ^ . UntScopeRef := LScopeRef ; 
+         LUnitTRef ^ . UntScopeRef := LScopeRef ; 
          FM3Scopes . PushScopeRefDeclsStack ( LScopeRef ) ; 
          FM3Pass1 . PutBwd_TIP
            ( Itk . ItkScopeForDeclsLt
@@ -463,17 +463,17 @@ RULE
    InstModule :
      ModuleLt StkEqual NonreservedIdent GenActualList StkRwEND
      NonreservedIdent StkDot 
-     { FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkInstModule ;
+     { FM3Units . UnitTStackTopRef ^ . UntKind := Ukt . UkInstModule ;
 (*INCOMPLETE.*)
        FM3Pass1 . CheckUnitFinalId
-         ( FM3Units . UnitStackTopRef , $6 . Scan , Ukt . UkInstModule ) ; 
+         ( FM3Units . UnitTStackTopRef , $6 . Scan , Ukt . UkInstModule ) ; 
      } . 
 
    ModuleMiddle : ModuleLt Exports StkSemicolon ImportList ExpImpDone 
      { VAR LScopeRef : FM3Scopes . ScopeRefTyp ;
        BEGIN
          (* Default Position & Coord. *) 
-         FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkModule ; 
+         FM3Units . UnitTStackTopRef ^ . UntKind := Ukt . UkModule ; 
          LScopeRef := FM3Scopes . ScopeDeclStackTopRef ; 
          FM3Scopes . PushScopeRefLookupStack ( LScopeRef ) ;
          FM3Pass1 . PutBwd_TIP
@@ -518,11 +518,11 @@ RULE
            ) ; 
          
          FM3Pass1 . CheckUnitFinalId
-           ( FM3Units . UnitStackTopRef , $6 .Scan , Ukt . UkModule ) ; 
+           ( FM3Units . UnitTStackTopRef , $6 .Scan , Ukt . UkModule ) ; 
          FM3Pass1 . PutBwd_LCIP_eCiP_riP 
            ( Itk . ItkModuleLt
            , $1 . PaPass1Coord
-           , FM3Units . UnitStackTopRef ^ . UttSelfUnitNo 
+           , FM3Units . UnitTStackTopRef ^ . UttSelfUnitNo 
            , $1 . Scan . Position 
            , $3 . PaPass1Coord
            , $3 . Scan . Position
@@ -532,19 +532,19 @@ RULE
      } .
 
    GenInterfaceLt : StkRwGENERIC StkRwINTERFACE NonreservedIdent 
-     { VAR LUnitRef : FM3Units . UnitRefTyp ; 
+     { VAR LUnitTRef : FM3Units . UnitRefTyp ; 
        VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN 
          $$ . PaBool := $1 . PaBool ;
          $$ . PaByte1 := ORD ( Ukt . UkInterface ) ;
          $$ . Scan . Position := $2 . Scan . Position ; 
-         LUnitRef := FM3Units . UnitStackTopRef ;
-         FM3Pass1 . InterfaceId ( LUnitRef , $3 . Scan ) ;
+         LUnitTRef := FM3Units . UnitTStackTopRef ;
+         FM3Pass1 . InterfaceId ( LUnitTRef , $3 . Scan ) ;
          LScopeRef 
            := FM3Scopes . NewScopeRef
-                ( LUnitRef , Skt . SkGenIntf , $2 . Scan . Position ) ;
+                ( LUnitTRef , Skt . SkGenIntf , $2 . Scan . Position ) ;
          LScopeRef ^ . ScpIdAtom := $3 . Scan . SaAtom ; 
-         LUnitRef ^ . UntScopeRef := LScopeRef ;
+         LUnitTRef ^ . UntScopeRef := LScopeRef ;
        END ; 
      } .  
 
@@ -564,23 +564,23 @@ RULE
         FM3Pass1 . ScopeForDeclsRtL2R ( LScopeRef ) ;
        *)
        FM3Pass1 . CheckUnitFinalId
-         ( FM3Units . UnitStackTopRef , $8 . Scan , Ukt . UkGenInterface ) ; 
+         ( FM3Units . UnitTStackTopRef , $8 . Scan , Ukt . UkGenInterface ) ; 
      } .
 
    GenModuleLt : StkRwGENERIC StkRwMODULE NonreservedIdent  
-     { VAR LUnitRef : FM3Units . UnitRefTyp ; 
+     { VAR LUnitTRef : FM3Units . UnitRefTyp ; 
        VAR LScopeRef : FM3Scopes . ScopeRefTyp ; 
        BEGIN 
          $$ . PaBool := $1 . PaBool ;
          $$ . PaByte1 := ORD ( Ukt . UkGenModule ) ;
          $$ . Scan . Position := $2 . Scan . Position ; 
-         LUnitRef := FM3Units . UnitStackTopRef ;
-         FM3Pass1 . ModuleId ( LUnitRef , $3 . Scan ) ;
+         LUnitTRef := FM3Units . UnitTStackTopRef ;
+         FM3Pass1 . ModuleId ( LUnitTRef , $3 . Scan ) ;
          LScopeRef  
            := FM3Scopes . NewScopeRef
-                ( LUnitRef , Skt . SkGenMod , $1 . Scan . Position ) ;
+                ( LUnitTRef , Skt . SkGenMod , $1 . Scan . Position ) ;
          LScopeRef ^ . ScpIdAtom := $3 . Scan . SaAtom ; 
-         LUnitRef ^ . UntScopeRef := LScopeRef  ; 
+         LUnitTRef ^ . UntScopeRef := LScopeRef  ; 
        END ; 
      } . 
 
@@ -600,9 +600,9 @@ RULE
                ( MaxNodeCt := IntSets . Card ( LScopeRef ^ . ScpDeclIdSet ) ) ; 
         FM3Pass1 . ScopeForDeclsRtL2R ( LScopeRef ) ;
        *) 
-       FM3Units . UnitStackTopRef ^ . UntKind := Ukt . UkGenModule ; 
+       FM3Units . UnitTStackTopRef ^ . UntKind := Ukt . UkGenModule ; 
        FM3Pass1 . CheckUnitFinalId
-         ( FM3Units . UnitStackTopRef , $11 . Scan , Ukt . UkGenModule ) ;
+         ( FM3Units . UnitTStackTopRef , $11 . Scan , Ukt . UkGenModule ) ;
      } .
 
 (* -------------------------------- Blocks ---------------------------------- *)
@@ -613,7 +613,7 @@ RULE
        BEGIN
          LScopeRef 
            := FM3Scopes . NewScopeRef
-                ( FM3Units . UnitStackTopRef
+                ( FM3Units . UnitTStackTopRef
                 , VAL ( $0 . PaByte2 , Skt ) 
                 , FM3Scanner . Attribute . Position 
                 ) ;
@@ -734,22 +734,22 @@ RULE
 
    Exports : /* Empty */
    /* An implied export. */ 
-     { VAR LUnitRef : FM3Units . UnitRefTyp ;
+     { VAR LUnitTRef : FM3Units . UnitRefTyp ;
        BEGIN
          IF FM3SharedUtils . CompareAToT 
-              ( FM3Units . UnitStackTopRef ^ . UntUnitIdent ^ , "Main" )
+              ( FM3Units . UnitTStackTopRef ^ . UntUnitIdent ^ , "Main" )
             = FM3Base . CmpEQ
             AND NOT FM3CLToks . CltStdSources IN FM3CLOptions . OptionTokSet
          THEN (* Don't bring in Main.i3 when exported implicitly. *)
          ELSE  
-           LUnitRef
+           LUnitTRef
              := FM3ExpImp . GetInterface 
-                  ( FM3Units . UnitStackTopRef ^ . UntUnitIdent
+                  ( FM3Units . UnitTStackTopRef ^ . UntUnitIdent
                   , $0 . PaPos 
                   , IsExport := TRUE
                   ) ;
            FM3ExpImp . ImportAllDecls
-             ( LUnitRef , $0 . Scan . Position ) ;
+             ( LUnitTRef , $0 . Scan . Position ) ;
          END (*IF*) ; 
        END (* Block. *) ;  
      } .
@@ -761,15 +761,15 @@ RULE
    ExportIdPlusList : ExportIdPlusList StkComma ExportIdent . 
 
    ExportIdent : NonreservedIdent 
-     { VAR LUnitRef : FM3Units . UnitRefTyp ;
+     { VAR LUnitTRef : FM3Units . UnitRefTyp ;
        BEGIN
-          LUnitRef
+          LUnitTRef
             := FM3ExpImp . GetInterface
                  ( $1 . Scan . SaChars
                  , $1 . Scan . Position
                  , IsExport := TRUE
                  ) ;
-         FM3ExpImp . ImportAllDecls ( LUnitRef , $1 . Scan . Position ) ;
+         FM3ExpImp . ImportAllDecls ( LUnitTRef , $1 . Scan . Position ) ;
        END (* Block. *) ;  
      } .
 
@@ -1420,7 +1420,7 @@ RULE
        BEGIN
          LScopeRef 
            := FM3Scopes . NewScopeRef
-                ( FM3Units . UnitStackTopRef
+                ( FM3Units . UnitTStackTopRef
                 , Skt . SkEnum
                 , $1 . Scan . Position
                 ) ;
@@ -1448,7 +1448,7 @@ RULE
        BEGIN
          LScopeRef 
            := FM3Scopes . NewScopeRef
-                ( FM3Units . UnitStackTopRef
+                ( FM3Units . UnitTStackTopRef
                 , Skt . SkEnum
                 , $1 . Scan . Position
                 ) ;
@@ -1578,7 +1578,7 @@ END OLD
        BEGIN 
          LScopeRef 
            := FM3Scopes . NewScopeRef
-                ( FM3Units . UnitStackTopRef
+                ( FM3Units . UnitTStackTopRef
                 , Skt . SkRec
                 , $1 . Scan . Position
                 ) ;
@@ -1918,7 +1918,7 @@ END OLD
        BEGIN
          LScopeRef (* Formals scope. *) 
            := FM3Scopes . NewScopeRef
-                ( FM3Units . UnitStackTopRef
+                ( FM3Units . UnitTStackTopRef
                 , Skt . SkFormals  
                 , $1 . Scan . Position
                 ) ;

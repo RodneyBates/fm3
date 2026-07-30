@@ -44,7 +44,7 @@ MODULE FM3Introspection
   = VAR LUnitRef : FM3Units . UnitRefTyp 
 
   ; BEGIN (*CurrentSrcFileName*)
-      LUnitRef := FM3Units . UnitStackTopRef 
+      LUnitRef := FM3Units . UnitTStackTopRef  
     ; IF LUnitRef = NIL
       THEN RETURN "No current unit." 
       ELSE RETURN LUnitRef ^ . UntSrcFileSimpleName
@@ -65,7 +65,7 @@ MODULE FM3Introspection
 
   ; BEGIN (*DeclNoRef*)
       IF UnitNo = FM3Globals . UnitNoNull 
-      THEN LUnitRef := FM3Units . UnitStackTopRef
+      THEN LUnitRef := FM3Units . UnitTStackTopRef
       ELSE LUnitRef := FM3Units . UnitNoRef ( UnitNo )
       END (*IF*) 
     ; IF LUnitRef = NIL
@@ -77,7 +77,7 @@ MODULE FM3Introspection
       END (*IF*)
     ; LDeclRef(* Implicit NARROW. *) 
         := VarArray_Int_Refany . Fetch
-             ( FM3Units . UnitStackTopRef ^ . UntDeclMap , DeclNo )
+             ( FM3Units . UnitTStackTopRef ^ . UntDeclMap , DeclNo )
     ; RETURN LDeclRef 
     END DeclNoRef
 
@@ -104,7 +104,7 @@ MODULE FM3Introspection
   ; VAR LResult : TEXT 
 
   ; BEGIN (*ScopeDeclsInfo*)
-      LUnitRef := FM3Units . UnitStackTopRef
+      LUnitRef := FM3Units . UnitTStackTopRef
     ; IF LUnitRef = NIL THEN RETURN "<NoUnitRef>" END (*IF*)
     ; LScopeRef := FM3Scopes . ScopeLookupStackTopRef
     ; IF LScopeRef = NIL THEN RETURN "<NIL Scope>" END (*IF*)
