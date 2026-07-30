@@ -56,7 +56,7 @@ MODULE FM3ExpImp
               , LUnitRef ^ . UntSrcFileSimpleName
               )
           )
-      ; LNextUnitRef := LUnitRef ^ . UntImportingUnitRef 
+      ; LNextUnitRef := LUnitRef ^ . UttImportingUnitRef 
       ; IF LNextUnitRef = UnitRef 
         THEN (* Coming back to the the starting unit. *) 
           Wr . PutChar ( LWrT , '.' ) 
@@ -66,10 +66,10 @@ MODULE FM3ExpImp
           Wr . PutText ( LWrT , ", which at " ) 
         ; Wr . PutText
             ( LWrT
-            , FM3Utils . PositionImage ( LUnitRef ^ . UntPositionOfImport )
+            , FM3Utils . PositionImage ( LUnitRef ^ . UttPositionOfImport )
             )
         ; Wr . PutText ( LWrT , ", imports" )
-        ; LUnitRef ^ . UntImportingUnitRef := NIL  
+        ; LUnitRef ^ . UttImportingUnitRef := NIL  
         ; LUnitRef ^ . UntInExpImpCycle := TRUE
         ; LUnitRef := LNextUnitRef 
         END (*IF*) 
@@ -129,10 +129,10 @@ MODULE FM3ExpImp
         END (*IF*)
 
       (* Compile LIntfUnitRef^. *) 
-      ; FM3Units . UnitStackTopRef ^ . UntImportingUnitRef
+      ; FM3Units . UnitStackTopRef ^ . UttImportingUnitRef
           := LIntfUnitRef
         (*^ To detect future cyclic imports. *) 
-      ; FM3Units . UnitStackTopRef ^ . UntPositionOfImport := Position
+      ; FM3Units . UnitStackTopRef ^ . UttPositionOfImport := Position
         (* ^For possible cyclic-imports message. *) 
       ; LIntfUnitRef ^ . UntState := Ust . UsImporting
 
@@ -140,32 +140,32 @@ MODULE FM3ExpImp
       ; FM3Units . CacheTopUnitValues ( )
         (* SetUnitLog will have to wait until Pass1.InitPass1 has
            created its WrT.  
-           FM3Messages . SetUnitLog ( LIntfUnitRef ^ . UntLogWrT )
+           FM3Messages . SetUnitLog ( LIntfUnitRef ^ . UttLogWrT )
         *) 
       ; FM3Compile . CompileUnitFromSrc ( LIntfUnitRef ) 
       ; <* ASSERT FM3Units . PopUnit ( ) = LIntfUnitRef *>
-        FM3Messages . SetUnitLog ( FM3Units . UnitStackTopRef ^ . UntLogWrT ) 
+        FM3Messages . SetUnitLog ( FM3Units . UnitStackTopRef ^ . UttLogWrT ) 
       ; FM3Units . CacheTopUnitValues ( )
-      ; FM3Units . UnitStackTopRef ^ . UntImportingUnitRef := NIL 
-      ; FM3Units . UnitStackTopRef ^ . UntPositionOfImport
+      ; FM3Units . UnitStackTopRef ^ . UttImportingUnitRef := NIL 
+      ; FM3Units . UnitStackTopRef ^ . UttPositionOfImport
           := FM3Base . PositionNull 
       ; LIntfUnitRef ^ . UntState := Ust . UsCompiled 
       ; RETURN LIntfUnitRef 
 
       ELSE (* This unit already exists and is usable. *)
 (* TODO: This will need some thought and work for compiled but outdated units. *)
-        FM3Units . UnitStackTopRef ^ . UntImportingUnitRef
+        FM3Units . UnitStackTopRef ^ . UttImportingUnitRef
           := LIntfUnitRef
         (*^ To detect future cyclic imports. *) 
-      ; FM3Units . UnitStackTopRef ^ . UntPositionOfImport := Position
+      ; FM3Units . UnitStackTopRef ^ . UttPositionOfImport := Position
         (* ^For possible cyclic-imports message. *)
-      ; IF LIntfUnitRef ^ . UntImportingUnitRef # NIL 
+      ; IF LIntfUnitRef ^ . UttImportingUnitRef # NIL 
         THEN (* Cyclic imports/exports. *)
           ReportCyclic  ( LIntfUnitRef , Position )
         ; RETURN NIL 
         END (*IF*)
-      ; FM3Units . UnitStackTopRef ^ . UntImportingUnitRef := NIL 
-      ; FM3Units . UnitStackTopRef ^ . UntPositionOfImport
+      ; FM3Units . UnitStackTopRef ^ . UttImportingUnitRef := NIL 
+      ; FM3Units . UnitStackTopRef ^ . UttPositionOfImport
           := FM3Base . PositionNull
       ; RETURN LIntfUnitRef 
       END (*IF*)
@@ -300,9 +300,9 @@ MODULE FM3ExpImp
            , DuplicatorKindText 
            )
       THEN (* All is legal, so do the real import. *)
-        LProxy . EipUnitNo := FromUnitRef ^ . UntSelfUnitNo 
+        LProxy . EipUnitNo := FromUnitRef ^ . UttSelfUnitNo 
       ; LProxy . EipDeclNo  := FromUnitDeclNo
-      ; LProxy . EipImportingUnitNo := LIntoUnitRef ^ . UntSelfUnitNo 
+      ; LProxy . EipImportingUnitNo := LIntoUnitRef ^ . UttSelfUnitNo 
       ; LProxy . EipImportingUnitPosition := ExpImpPosition
       ; InsertExpImp ( LIntoUnitRef , LIntoIdentAtom , LProxy ) 
       ; RETURN TRUE
@@ -385,7 +385,7 @@ MODULE FM3ExpImp
                )
       ; LProxy . EipUnitNo := FM3Globals . UnitNoNull
       (* ^Makes it present but not useable. *) 
-      ; LProxy . EipImportingUnitNo := LIntoUnitRef ^ . UntSelfUnitNo  
+      ; LProxy . EipImportingUnitNo := LIntoUnitRef ^ . UttSelfUnitNo  
       ; LProxy . EipDeclNo := FM3Globals . DeclNoNull 
       ; LProxy . EipImportingUnitPosition := IdScanAttribute . Position
       ; InsertExpImp ( LIntoUnitRef , LIntoIdentAtom , LProxy ) 
@@ -414,10 +414,10 @@ MODULE FM3ExpImp
       ( <*UNUSED*> Ss : INTEGER ; VAR (*READONLY*) Elem : FM3ExpImpProxy . T ) 
 
     = BEGIN
-        Elem . EipUnitNo := LIntfUnitRef . UntSelfUnitNo
+        Elem . EipUnitNo := LIntfUnitRef . UttSelfUnitNo
       ; Elem . EipDeclNo := FM3Globals . DeclNoNull
       ; Elem . EipImportingUnitNo
-          := FM3Units . UnitStackTopRef ^ . UntSelfUnitNo
+          := FM3Units . UnitStackTopRef ^ . UttSelfUnitNo
       ; Elem . EipImportingUnitPosition := ASScanAttr . Position 
       END AssignProxy
  
@@ -509,7 +509,7 @@ MODULE FM3ExpImp
   ; BEGIN
       LUnitRef := FM3Units . UnitStackTopRef 
     ; VarArray_Int_ExpImpProxy . Compact ( LUnitRef ^ . UntExpImpMap )
-    ; LUnitRef ^ . UntNextDeclNo
+    ; LUnitRef ^ . UttNextDeclNo
         := VarArray_Int_ExpImpProxy . TouchedRange ( LUnitRef ^ . UntExpImpMap )
            . Hi
            + 1

@@ -125,8 +125,8 @@ MODULE FM3Pass2
 
   ; BEGIN (* Pass2Tokens *) 
       LUnitRef := FM3Units . UnitStackTopRef
-    ; LPass1RdBack := LUnitRef ^ . UntPass1OutRdBack 
-    ; LMPass1Coord := MAX ( LMPass1Coord , LUnitRef ^ . UntPass1OutEmptyCoord )
+    ; LPass1RdBack := LUnitRef ^ . UttPass1OutRdBack 
+    ; LMPass1Coord := MAX ( LMPass1Coord , LUnitRef ^ . UttPass1OutEmptyCoord )
     ; <* ASSERT GetBwd ( LPass1RdBack ) = VAL ( Itk . ItkEOF , LONGINT ) *> 
       <* ASSERT GetBwd ( LPass1RdBack ) = VAL ( Itk . ItkRightEnd , LONGINT )*> 
 
@@ -652,8 +652,8 @@ TRUE OR
 
   ; BEGIN (*HandleTok*) 
       LUnitRef := FM3Units . UnitStackTopRef
-    ; HtPass1RdBack := LUnitRef ^ . UntPass1OutRdBack 
-    ; HtPass2RdBack := LUnitRef ^ . UntPass2OutRdBack
+    ; HtPass1RdBack := LUnitRef ^ . UttPass1OutRdBack 
+    ; HtPass2RdBack := LUnitRef ^ . UttPass2OutRdBack
 
     ; CASE TokResult . TrTok OF     
 
@@ -1588,17 +1588,17 @@ TRUE OR
         ; PutBwdP2 ( HtPass2RdBack , VAL ( Itk . ItkExprTyp , LONGINT ) )
 
       | Itk . ItkInterfaceRt
-      =>  LUnitRef ^ . UntScopeDeclStackBaseCt
+      =>  LUnitRef ^ . UttScopeDeclStackBaseCt
       := FM3Scopes . ScopeDeclStackCt 
-        ; LUnitRef ^ . UntLookupScopeStackBaseCt
+        ; LUnitRef ^ . UttLookupScopeStackBaseCt
             := FM3Scopes . ScopeLookupStackCt 
         ; HtPassTokenThru ( )
         
       | Itk . ItkInterfaceLt
       =>  FM3Scopes . PruneScopeDeclsStack
-            ( LUnitRef ^ . UntScopeDeclStackBaseCt ) 
+            ( LUnitRef ^ . UttScopeDeclStackBaseCt ) 
         ; FM3Scopes . PruneScopeLookupStack
-            ( LUnitRef ^ . UntLookupScopeStackBaseCt ) 
+            ( LUnitRef ^ . UttLookupScopeStackBaseCt ) 
         ; HtPassTokenThru ( )
 
       | Itk . ItkBecomesRt
@@ -2065,7 +2065,7 @@ TRUE OR
     ; DidPosition := GetBwdPos ( TokResult . TrRdBack )
     
     ; DidScopeRef := FM3Scopes . ScopeDeclStackTopRef 
-    ; WITH WOutRdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack
+    ; WITH WOutRdBack = FM3Units . UnitStackTopRef ^ . UttPass2OutRdBack
       DO 
         DidDeclNo := LookupDeclNoInScope ( DidScopeRef ^ , DidAtom ) 
       ; IF DidDeclNo = FM3Globals . DeclNoNull 
@@ -2136,7 +2136,7 @@ TRUE OR
           AreInsideADecl ( )
       THEN PushExprIgnore ( Position , Ekt . EkInvalid )
       ELSE 
-        WITH WOutRdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack
+        WITH WOutRdBack = FM3Units . UnitStackTopRef ^ . UttPass2OutRdBack
         DO 
           PutBwdP2 ( WOutRdBack , VAL ( Position . Column , LONGINT ) ) 
         ; PutBwdP2 ( WOutRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -2428,7 +2428,7 @@ TRUE OR
       ; RETURN
       END (*IF*)
 
-    ; WITH WOutRdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack 
+    ; WITH WOutRdBack = FM3Units . UnitStackTopRef ^ . UttPass2OutRdBack 
       DO
         (* Look for a reference to a decl in an enclosing* open scope. *) 
         LRefDeclNo := LookupAtomInLookupScopes ( LIdentRefAtom )
@@ -2554,7 +2554,7 @@ TRUE OR
     ; LAtomRt := GetBwdAtom ( Pass1RdBack ) 
     ; LPosLt := GetBwdPos ( Pass1RdBack ) 
     ; LPosRt := GetBwdPos ( Pass1RdBack )
-    ; WITH WOutRdBack = FM3Units . UnitStackTopRef ^ . UntPass2OutRdBack 
+    ; WITH WOutRdBack = FM3Units . UnitStackTopRef ^ . UttPass2OutRdBack 
       DO
       
       (* Look for a left reference to a decl in an enclosing open scope. *) 
@@ -2672,7 +2672,7 @@ TRUE OR
               THEN
                 LExprRemoteRef := FM3Exprs . NewExprRef ( ) 
               ; LExprRemoteRef ^ . ExpRemoteUnitNo
-                  := LIntfUnitRef ^ . UntSelfUnitNo 
+                  := LIntfUnitRef ^ . UttSelfUnitNo 
               ; LExprRemoteRef ^ . ExpRemoteDeclNo := LRemoteDeclNoInt 
               ; LExprRemoteRef ^ . ExpPosition := LPosLt
               ; LExprRemoteRef ^ . ExpKind := Ekt . EkRemoteRef
@@ -2690,7 +2690,7 @@ TRUE OR
               ; PutBwdP2 ( WOutRdBack , VAL ( LRemoteDeclNoInt , LONGINT ) ) 
               ; PutBwdP2
                   ( WOutRdBack
-                  , VAL ( LIntfUnitRef ^ . UntSelfUnitNo , LONGINT )
+                  , VAL ( LIntfUnitRef ^ . UttSelfUnitNo , LONGINT )
                   ) 
               ; PutBwdP2
                   ( WOutRdBack , VAL ( Itk . ItkQualIdUnitNoDeclNo , LONGINT ) )
@@ -2819,7 +2819,7 @@ TRUE OR
 
     (* Create the pass 2 output file. *)
       TRY (*EXCEPT*)
-        UnitRef ^ . UntPass2OutSimpleName
+        UnitRef ^ . UttPass2OutSimpleName
           := Pathname . Join
                ( NIL 
                , UnitRef ^ . UntSrcFileSimpleName
@@ -2828,10 +2828,10 @@ TRUE OR
       ; LPass2FileFullName
           := Pathname . Join
                ( UnitRef ^ . UntBuildDirPath
-               , UnitRef ^ . UntPass2OutSimpleName 
+               , UnitRef ^ . UttPass2OutSimpleName 
                , NIL 
                )
-      ; UnitRef ^ . UntPass2OutRdBack
+      ; UnitRef ^ . UttPass2OutRdBack
           := RdBackFile . Create ( LPass2FileFullName )
       ; FM3Units . CacheTopUnitValues ( )
       EXCEPT
@@ -2849,11 +2849,11 @@ TRUE OR
 
     (* Write pass 2 output file initial tokens. *)
     ; PutBwdP2
-        ( UnitRef ^ . UntPass2OutRdBack , VAL ( Itk . ItkBOF , LONGINT ) ) 
+        ( UnitRef ^ . UttPass2OutRdBack , VAL ( Itk . ItkBOF , LONGINT ) ) 
     ; PutBwdP2
-        ( UnitRef ^ . UntPass2OutRdBack , VAL ( Itk . ItkRightEnd , LONGINT ) )
-    ; UnitRef ^ . UntPass2OutEmptyCoord
-        := RdBackFile . LengthL ( UnitRef ^ . UntPass2OutRdBack )  
+        ( UnitRef ^ . UttPass2OutRdBack , VAL ( Itk . ItkRightEnd , LONGINT ) )
+    ; UnitRef ^ . UttPass2OutEmptyCoord
+        := RdBackFile . LengthL ( UnitRef ^ . UttPass2OutRdBack )  
     END InitPass2
 
 ; PROCEDURE TranslatePass2 ( UnitRef : FM3Units . UnitRefTyp )
@@ -2865,15 +2865,15 @@ TRUE OR
   
     (* Write the Pass2 RdBack. *)
       TRY 
-        Pass2Tokens ( UnitRef ^ . UntPass1OutEmptyCoord ) 
+        Pass2Tokens ( UnitRef ^ . UttPass1OutEmptyCoord ) 
 
       (* Write final successful pass 2 output tokens. *)
       ; PutBwdP2
-          ( UnitRef ^ . UntPass2OutRdBack , VAL ( Itk . ItkLeftEnd , LONGINT ) )
+          ( UnitRef ^ . UttPass2OutRdBack , VAL ( Itk . ItkLeftEnd , LONGINT ) )
       ; PutBwdP2
-          ( UnitRef ^ . UntPass2OutRdBack , VAL ( Itk . ItkEOF , LONGINT ) )
+          ( UnitRef ^ . UttPass2OutRdBack , VAL ( Itk . ItkEOF , LONGINT ) )
 
-      ; RdBackFile . Flush ( UnitRef ^ . UntPass2OutRdBack ) 
+      ; RdBackFile . Flush ( UnitRef ^ . UttPass2OutRdBack ) 
 
       EXCEPT
       | FM3SharedUtils . Terminate ( Arg )
@@ -2889,10 +2889,10 @@ TRUE OR
 
       (* Disassemble what there is of the failed file. *)
       ; PutBwdP2
-          ( UnitRef ^ . UntPass2OutRdBack
+          ( UnitRef ^ . UttPass2OutRdBack
           , VAL ( Itk . ItkLeftEndIncomplete , LONGINT ) 
           )
-      ; RdBackFile . Flush ( UnitRef ^ . UntPass2OutRdBack )
+      ; RdBackFile . Flush ( UnitRef ^ . UttPass2OutRdBack )
 
       ; DisAsmPass2 ( UnitRef , DoEarlierPasses := TRUE )
 
@@ -2900,7 +2900,7 @@ TRUE OR
            ( ARRAY OF REFANY
                { "Failure writing pass 2 output at depth "
                , Fmt . LongInt
-                   ( RdBackFile . LengthL ( UnitRef ^ . UntPass2OutRdBack ) )
+                   ( RdBackFile . LengthL ( UnitRef ^ . UttPass2OutRdBack ) )
                , FM3Messages . NLIndent 
                , "Exception "
                , FM3RTFailures . ExcNameFromAddr
@@ -2932,21 +2932,21 @@ TRUE OR
 (* TODO^ Maybe do this elsewhere. *) 
 
     (* Finish with and close patch stack. *)
-    ; UnitRef ^ . UntMaxPatchStackDepth
-        := RdBackFile . MaxLengthL ( UnitRef ^ . UntPatchStackRdBack )
-    ; LPatchCoordL := FM3Compress . GetBwd ( UnitRef ^ . UntPatchStackRdBack )
+    ; UnitRef ^ . UttMaxPatchStackDepth
+        := RdBackFile . MaxLengthL ( UnitRef ^ . UttPatchStackRdBack )
+    ; LPatchCoordL := FM3Compress . GetBwd ( UnitRef ^ . UttPatchStackRdBack )
     (* This is the initial pseudo coord, & patch stack sentinal. *)
     ; IF LPatchCoordL # FM3Globals . PatchStackEmptySentinel
       THEN <* ASSERT FALSE , "Mismatched coordinate sentinel." *>
       END (*IF*) 
-    ; LLengthL := RdBackFile . LengthL ( UnitRef ^ . UntPatchStackRdBack )
-    ; RdBackFile . Close (  UnitRef ^ . UntPatchStackRdBack , TruncTo := 0L )
+    ; LLengthL := RdBackFile . LengthL ( UnitRef ^ . UttPatchStackRdBack )
+    ; RdBackFile . Close (  UnitRef ^ . UttPatchStackRdBack , TruncTo := 0L )
       (* No point in keeping the patch stack.  It has pogo-sticked and 
          now should be devoid of significant content. *)
     ; LPatchFullFileName
         := Pathname . Join
              ( UnitRef ^ . UntBuildDirPath 
-             , UnitRef ^ . UntPatchStackSimpleName
+             , UnitRef ^ . UttPatchStackSimpleName
              , NIL
              )
     ; FM3SharedUtils . DeleteFile ( LPatchFullFileName )
@@ -2954,14 +2954,14 @@ TRUE OR
     ; FM3Messages . InfoArr
         ( ARRAY OF REFANY
             { "Patch stack "
-              , UnitRef ^ . UntPatchStackSimpleName
+              , UnitRef ^ . UttPatchStackSimpleName
               , " peak size = "
-              , FM3Base . Int64Image  ( UnitRef ^ . UntMaxPatchStackDepth )
+              , FM3Base . Int64Image  ( UnitRef ^ . UttMaxPatchStackDepth )
               , " bytes."
             } 
         )
     ; LLengthImage := FM3Base . Int64Image ( LLengthL ) 
-    ; IF LLengthL # UnitRef ^ . UntPatchStackEmptyCoord 
+    ; IF LLengthL # UnitRef ^ . UttPatchStackEmptyCoord 
       THEN
         UnitRef ^ . UntPass2Result := FM3CLArgs . CcPatchStackNotEmpty  
       ; DisAsmPass2 ( UnitRef , DoEarlierPasses := TRUE )
@@ -2971,17 +2971,17 @@ TRUE OR
               { "Patch stack ending size = "
               , LLengthImage
               , " bytes, should be "  
-              , FM3Base . Int64Image ( UnitRef ^ . UntPatchStackEmptyCoord )
+              , FM3Base . Int64Image ( UnitRef ^ . UttPatchStackEmptyCoord )
               , "." 
               } 
           )
       END (*IF*)
       
     (* Finish with and close pass 1 output. *)
-    ; LLengthL := RdBackFile . LengthL ( UnitRef ^ . UntPass1OutRdBack )
+    ; LLengthL := RdBackFile . LengthL ( UnitRef ^ . UttPass1OutRdBack )
     ; RdBackFile . Close 
-        (  UnitRef ^ . UntPass1OutRdBack , - 1L (* Leave full length. *) )
-    ; IF LLengthL # UnitRef ^ . UntPass1OutEmptyCoord
+        (  UnitRef ^ . UttPass1OutRdBack , - 1L (* Leave full length. *) )
+    ; IF LLengthL # UnitRef ^ . UttPass1OutEmptyCoord
       THEN
         UnitRef ^ . UntPass2Result := FM3CLArgs . CcPass1OutNotEmpty  
       ; DisAsmPass2 ( UnitRef , DoEarlierPasses := TRUE )
@@ -2991,7 +2991,7 @@ TRUE OR
               { "Pass 1 output file final size = "
               , LLengthImage
               , " bytes, should be "
-              , FM3Base . Int64Image ( UnitRef ^ . UntPass1OutEmptyCoord )
+              , FM3Base . Int64Image ( UnitRef ^ . UttPass1OutEmptyCoord )
               , "."
               }
           )
@@ -3001,17 +3001,17 @@ TRUE OR
     ; LPass2FullFileName
         := Pathname . Join
              ( UnitRef ^ . UntBuildDirPath 
-             , UnitRef ^ . UntPass2OutSimpleName
+             , UnitRef ^ . UttPass2OutSimpleName
              , NIL
              )
-    ; UnitRef ^ . UntMaxPass2OutLength
-        := RdBackFile . MaxLengthL ( UnitRef ^ . UntPass2OutRdBack )
+    ; UnitRef ^ . UttMaxPass2OutLength
+        := RdBackFile . MaxLengthL ( UnitRef ^ . UttPass2OutRdBack )
     ; FM3Messages . InfoArr
         ( ARRAY OF REFANY
             { "Pass 2 output file "
-            , UnitRef ^ . UntPass2OutSimpleName
+            , UnitRef ^ . UttPass2OutSimpleName
             , " has "
-            , FM3Base . Int64Image  ( UnitRef ^ . UntMaxPass2OutLength )
+            , FM3Base . Int64Image  ( UnitRef ^ . UttMaxPass2OutLength )
             , " bytes."
             } 
         )
@@ -3038,7 +3038,7 @@ TRUE OR
       END (*IF*) 
 
     (* Close the source file. *) 
-    ; UniRd . Close ( UnitRef ^ . UntSrcUniRd ) 
+    ; UniRd . Close ( UnitRef ^ . UttSrcUniRd ) 
 
     END FinishPass2
 

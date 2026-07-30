@@ -227,9 +227,9 @@ MODULE FM3Patch
   ; BEGIN (* GetTokCode *) 
       LUnitRef := FM3Units . UnitStackTopRef
     (* ItkSkip[Lt|Rt] pairs are inserted during pass 1 and acted-on in pass 2.*)
-    ; LPass1RdBack := LUnitRef ^ . UntPass1OutRdBack 
-    ; LPatchRdBack := LUnitRef ^ . UntPatchStackRdBack 
-    ; LMPass1Coord := MAX ( LMPass1Coord , LUnitRef ^ . UntPass1OutEmptyCoord )
+    ; LPass1RdBack := LUnitRef ^ . UttPass1OutRdBack 
+    ; LPatchRdBack := LUnitRef ^ . UttPatchStackRdBack 
+    ; LMPass1Coord := MAX ( LMPass1Coord , LUnitRef ^ . UttPass1OutEmptyCoord )
 
     ; LOOP (* Thru' a sequence of SkipRt & SkipLt tokens plus one other. *)  
         LPass1Coord := RdBackFile . LengthL ( LPass1RdBack )
@@ -238,12 +238,12 @@ MODULE FM3Patch
       ; IF LPass1Coord <= LMPass1Coord
            (* ^Nothing more to read from the Pass1 file. *) 
            AND RdBackFile . LengthL ( LPatchRdBack )
-               <= LUnitRef ^ . UntPatchStackEmptyCoord
+               <= LUnitRef ^ . UttPatchStackEmptyCoord
            (* ^ Nothing more to pop off Patch stack. *) 
         THEN (* Done with the entire file. *)
           <* ASSERT 
                RdBackFile . LengthL ( LPatchRdBack )
-               = LUnitRef ^ . UntPatchStackEmptyCoord 
+               = LUnitRef ^ . UttPatchStackEmptyCoord 
           *>
           PutBwdPatch ( LPatchRdBack , LPatchStackTopCoord )
             (* ^Push the current patch coordinate back on patch stack, just
@@ -251,7 +251,7 @@ MODULE FM3Patch
           (* Finish with the skip stack. *) 
         ; <* ASSERT
                VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi 
-               = FM3Units . UnitStackTopRef ^ . UntSkipStackBase 
+               = FM3Units . UnitStackTopRef ^ . UttSkipStackBase 
           *> 
                
           Result . TrRdBack := NIL

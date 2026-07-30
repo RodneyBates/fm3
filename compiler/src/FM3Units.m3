@@ -108,7 +108,7 @@ MODULE FM3Units
     ; LResult := FM3SharedUtils . CatArrT
         ( ARRAY OF REFANY
             { "UnitNo " 
-            , Fmt . Int ( UnitRef ^ . UntSelfUnitNo ) 
+            , Fmt . Int ( UnitRef ^ . UttSelfUnitNo ) 
             , " at " 
             , FM3Utils . RefanyImage ( UnitRef )
             , " "
@@ -139,25 +139,25 @@ MODULE FM3Units
 (* TODO: Either complete the list of constant-initialized fields, or bite
          nails and rely on the declaration.
 *) 
-    ; LUnitRef ^ . UntStackLink := NIL 
-    ; LUnitRef ^ . UntStackDepth := 0
-    ; LUnitRef ^ . UntSelfUnitNo := LUnitNo
+    ; LUnitRef ^ . UttStackLink := NIL 
+    ; LUnitRef ^ . UttStackDepth := 0
+    ; LUnitRef ^ . UttSelfUnitNo := LUnitNo
     ; LUnitRef ^ . UntSrcFileSimpleName := NIL 
     ; LUnitRef ^ . UntSrcFilePath := NIL
     ; LUnitRef ^ . UntBuildDirPath := NIL
-    ; LUnitRef ^ . UntPatchStackSimpleName := NIL
-    ; LUnitRef ^ . UntPatchStackRdBack := NIL
-    ; LUnitRef ^ . UntMaxPatchStackDepth := 0L 
-    ; LUnitRef ^ . UntImportingUnitRef := NIL 
-    ; LUnitRef ^ . UntPositionOfImport := FM3Base . PositionNull  
-    ; LUnitRef ^ . UntPass1OutSimpleName := NIL
-    ; LUnitRef ^ . UntPass1OutRdBack := NIL
-    ; LUnitRef ^ . UntMaxPass1OutLength := 0L 
-    ; LUnitRef ^ . UntPass2OutSimpleName := NIL
-    ; LUnitRef ^ . UntPass2OutRdBack := NIL
+    ; LUnitRef ^ . UttPatchStackSimpleName := NIL
+    ; LUnitRef ^ . UttPatchStackRdBack := NIL
+    ; LUnitRef ^ . UttMaxPatchStackDepth := 0L 
+    ; LUnitRef ^ . UttImportingUnitRef := NIL 
+    ; LUnitRef ^ . UttPositionOfImport := FM3Base . PositionNull  
+    ; LUnitRef ^ . UttPass1OutSimpleName := NIL
+    ; LUnitRef ^ . UttPass1OutRdBack := NIL
+    ; LUnitRef ^ . UttMaxPass1OutLength := 0L 
+    ; LUnitRef ^ . UttPass2OutSimpleName := NIL
+    ; LUnitRef ^ . UttPass2OutRdBack := NIL
     ; LUnitRef ^ . UntScopeRef := NIL
     ; LUnitRef ^ . UntExpImpCt := FM3Globals . DeclNoNull 
-    ; LUnitRef ^ . UntSkipStackBase := 0 
+    ; LUnitRef ^ . UttSkipStackBase := 0 
     ; LUnitRef ^ . UntUnitIdent := NIL 
     ; LUnitRef ^ . UntUnitIdentPos := FM3Base . PositionNull
     ; LUnitRef ^ . UntState := UnitStateTyp . UsNull
@@ -204,7 +204,7 @@ MODULE FM3Units
              )
     ; VarArray_Int_ExpImpProxy . Touch
         ( LUnitRef ^ .  UntExpImpMap , Ranges_Int . RangeTyp { 0 , 0 } )
-    ; LUnitRef ^ . UntNextDeclNo := 1 
+    ; LUnitRef ^ . UttNextDeclNo := 1 
     ; LUnitRef ^ . UntStdTok := FM3Base . TokNull  
     ; LUnitRef ^ . UntDeclMap 
         := FM3Decls . NewDeclMap ( FM3Globals . InitDeclCtPerUnit ) 
@@ -217,13 +217,13 @@ MODULE FM3Units
         , Ranges_Int . RangeTyp
             { FM3Exprs . ExprNoNull , FM3Exprs . ExprNoFirstReal - 1 }
         )
-    ; LUnitRef ^ . UntNextDeclNo := 1
+    ; LUnitRef ^ . UttNextDeclNo := 1
     ; LUnitRef ^ . UntFirstTrueDeclNo := 1
-    ; LUnitRef ^ . UntSkipStackBase
+    ; LUnitRef ^ . UttSkipStackBase
         := VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi
-    ; LUnitRef ^ . UntExprStackBaseCt := 0 
-    ; LUnitRef ^ . UntScopeDeclStackBaseCt := 0 
-    ; LUnitRef ^ . UntLookupScopeStackBaseCt := 0 
+    ; LUnitRef ^ . UttExprStackBaseCt := 0 
+    ; LUnitRef ^ . UttScopeDeclStackBaseCt := 0 
+    ; LUnitRef ^ . UttLookupScopeStackBaseCt := 0 
     ; VarArray_Int_Refany . Assign ( UnitsMap , LUnitNo , LUnitRef )
     ; RETURN LUnitRef 
     END NewUnitRef
@@ -251,8 +251,8 @@ MODULE FM3Units
 
   ; BEGIN (*AllocateDeclNos*)
       IF UnitStackTopRef = NIL THEN RETURN FM3Globals . DeclNoNull END (*IF*)
-    ; LResult := UnitStackTopRef ^ . UntNextDeclNo
-    ; INC ( UnitStackTopRef ^ . UntNextDeclNo , Count )
+    ; LResult := UnitStackTopRef ^ . UttNextDeclNo
+    ; INC ( UnitStackTopRef ^ . UttNextDeclNo , Count )
     ; RETURN LResult 
     END AllocateDeclNos
     
@@ -290,13 +290,13 @@ MODULE FM3Units
 
   ; BEGIN (*PushUnit*)
       IF UnitRef = NIL THEN RETURN END (*IF*) 
-    ; <* ASSERT UnitRef . UntStackDepth = 0 *> (* Not already on stack. *)
+    ; <* ASSERT UnitRef . UttStackDepth = 0 *> (* Not already on stack. *)
       LBeneathUnitRef := UnitStackTopRef 
     ; IF LBeneathUnitRef = NIL
-      THEN UnitRef . UntStackDepth := 1
-      ELSE UnitRef . UntStackDepth := LBeneathUnitRef . UntStackDepth + 1
+      THEN UnitRef . UttStackDepth := 1
+      ELSE UnitRef . UttStackDepth := LBeneathUnitRef . UttStackDepth + 1
       END (*IF*)
-    ; UnitRef ^ . UntStackLink := LBeneathUnitRef  
+    ; UnitRef ^ . UttStackLink := LBeneathUnitRef  
     ; UnitStackTopRef := UnitRef
     END PushUnit
 
@@ -310,10 +310,10 @@ MODULE FM3Units
       ; FM3Globals . PatchRdBack := NIL 
       ; FM3Globals . P2RdBack := NIL 
       ELSE 
-        FM3Globals . P1RdBack := UnitStackTopRef . UntPass1OutRdBack 
-      ; FM3Globals . PatchRdBack := UnitStackTopRef . UntPatchStackRdBack 
-      ; FM3Globals . P2RdBack := UnitStackTopRef . UntPass2OutRdBack
-      ; FM3Globals . P3RdBack := UnitStackTopRef . UntPass3OutRdBack
+        FM3Globals . P1RdBack := UnitStackTopRef . UttPass1OutRdBack 
+      ; FM3Globals . PatchRdBack := UnitStackTopRef . UttPatchStackRdBack 
+      ; FM3Globals . P2RdBack := UnitStackTopRef . UttPass2OutRdBack
+      ; FM3Globals . P3RdBack := UnitStackTopRef . UttPass3OutRdBack
       END (*IF*)    
     END CacheTopUnitValues 
 
@@ -325,16 +325,16 @@ MODULE FM3Units
   ; BEGIN (*PopUnit*)
       LPoppedUnitRef := UnitStackTopRef  
     ; <* ASSERT LPoppedUnitRef # NIL *>
-      UnitStackTopRef := LPoppedUnitRef ^ . UntStackLink
+      UnitStackTopRef := LPoppedUnitRef ^ . UttStackLink
     ; IF UnitStackTopRef = NIL
-      THEN <* ASSERT LPoppedUnitRef ^ . UntStackDepth = 1 *> 
+      THEN <* ASSERT LPoppedUnitRef ^ . UttStackDepth = 1 *> 
       ELSE 
         <* ASSERT
-             UnitStackTopRef ^ . UntStackDepth
-             = LPoppedUnitRef ^ . UntStackDepth - 1
+             UnitStackTopRef ^ . UttStackDepth
+             = LPoppedUnitRef ^ . UttStackDepth - 1
         *>
       END (*IF*)
-    ; LPoppedUnitRef . UntStackDepth := 0
+    ; LPoppedUnitRef . UttStackDepth := 0
       (* ^Note that it's no longer on the unit stack. *)  
     ; RETURN LPoppedUnitRef
     END PopUnit

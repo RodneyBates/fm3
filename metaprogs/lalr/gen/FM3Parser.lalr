@@ -419,7 +419,7 @@ RULE
          FM3Pass1 . PutBwd_LCIP_rip 
            ( Itk . ItkInterfaceLt
            , $1 . PaPass1Coord
-           , FM3Units . UnitStackTopRef ^ . UntSelfUnitNo 
+           , FM3Units . UnitStackTopRef ^ . UttSelfUnitNo 
            , $1 . Scan . Position 
            ) ;
        END ; 
@@ -522,7 +522,7 @@ RULE
          FM3Pass1 . PutBwd_LCIP_eCiP_riP 
            ( Itk . ItkModuleLt
            , $1 . PaPass1Coord
-           , FM3Units . UnitStackTopRef ^ . UntSelfUnitNo 
+           , FM3Units . UnitStackTopRef ^ . UttSelfUnitNo 
            , $1 . Scan . Position 
            , $3 . PaPass1Coord
            , $3 . Scan . Position

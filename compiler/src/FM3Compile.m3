@@ -141,7 +141,7 @@ MODULE  FM3Compile
     )
   : BOOLEAN (* Success *)
   (* POST: IF result, then the source file for UnitRef^ was found and opened,
-           and fields UntSrcFilePath, UntSrcUniRd, and UntState are set.
+           and fields UntSrcFilePath, UttSrcUniRd, and UntState are set.
   *) 
 
   = VAR LUniRdT : UniRd . T
@@ -197,7 +197,7 @@ MODULE  FM3Compile
       ; IF LUniRdT # NIL
         THEN (* Found a source file. *)
           UnitRef ^ . UntSrcFilePath := LSearchDir
-        ; UnitRef ^ . UntSrcUniRd := LUniRdT
+        ; UnitRef ^ . UttSrcUniRd := LUniRdT
         ; UnitRef ^ . UntState := Us . UsExporting
         ; RETURN TRUE 
         ELSE
@@ -212,9 +212,9 @@ MODULE  FM3Compile
 
   = BEGIN
       IF UnitRef = NIL THEN RETURN END (*IF*) 
-    ; IF UnitRef ^ . UntSrcUniRd = NIL THEN RETURN END (*IF*)
-    ; UniRd . Close ( UnitRef ^ . UntSrcUniRd )
-    ; UnitRef ^ . UntSrcUniRd := NIL 
+    ; IF UnitRef ^ . UttSrcUniRd = NIL THEN RETURN END (*IF*)
+    ; UniRd . Close ( UnitRef ^ . UttSrcUniRd )
+    ; UnitRef ^ . UttSrcUniRd := NIL 
     END CloseUnitSrcFile 
 
 (*EXPORTED*) 
@@ -571,25 +571,25 @@ MODULE  FM3Compile
             , " ..."
             }
         )
-    ; UnitRef ^ . UntSkipStackBase
+    ; UnitRef ^ . UttSkipStackBase
         := VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi 
     ; FM3Pass1 . RunPass1 ( )
     ; IF UnitRef ^ . UntParseResult <= 0 THEN FM3Pass2 . RunPass2 ( ) END (*IF*) 
 
     ; RdBackFile . Close 
-        ( UnitRef ^ . UntPass2OutRdBack , - 1L (* Leave full length. *) )
+        ( UnitRef ^ . UttPass2OutRdBack , - 1L (* Leave full length. *) )
       (* ^When the next pass is implemented, don't do this. *)
 
     ; CleanPassFilesAndCopies ( UnitRef ) 
     ; <*ASSERT
-          UnitRef ^ . UntSkipStackBase 
+          UnitRef ^ . UttSkipStackBase 
             = VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi
       *> 
       FM3Messages . FM3LogArr
         ( ARRAY OF REFANY
             { "Finished compiling " , UnitRef ^ . UntSrcFileSimpleName , "." }
         )
-    ; Wr . Close ( UnitRef ^ . UntLogWrT ) 
+    ; Wr . Close ( UnitRef ^ . UttLogWrT ) 
     END CompileUnitFromSrc
 
 (*EXPORTED*)
@@ -617,7 +617,7 @@ MODULE  FM3Compile
         ; CompileUnitFromSrc ( LUnitRef )
         ; <* ASSERT FM3Units . UnitStackTopRef = LUnitRef *>
           EVAL FM3Units . PopUnit ( ) 
-        ; FM3Messages . SetUnitLog ( LUnitRef ^ . UntLogWrT ) 
+        ; FM3Messages . SetUnitLog ( LUnitRef ^ . UttLogWrT ) 
         ; FM3Units . CacheTopUnitValues ( ) 
         END (*IF*)
       END (*IF*)

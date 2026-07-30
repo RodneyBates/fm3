@@ -197,7 +197,7 @@ MODULE FM3Scanner
 
   = BEGIN 
       IF GTopSsRef = NIL THEN RETURN FM3Globals . UnitNoNull END (*IF*) 
-    ; RETURN GTopSsRef . SsUnitRef ^ . UntSelfUnitNo  
+    ; RETURN GTopSsRef . SsUnitRef ^ . UttSelfUnitNo  
     END CurrentUnitNo 
 
 ; PROCEDURE ErrorAtPos ( READONLY Frags : ARRAY OF REFANY ; CharPos : INTEGER )

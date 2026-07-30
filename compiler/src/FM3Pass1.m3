@@ -207,7 +207,7 @@ MODULE FM3Pass1
       EnsureBuildDirectory ( UnitRef , UnitRef ^ . UntSrcFilePath ) 
 
     (* Create the unit log output file. A pure text file. *)
-    ; UnitRef ^ . UntLogSimpleName
+    ; UnitRef ^ . UttLogSimpleName
         := Pathname . Join
              ( NIL
              , UnitRef ^ . UntSrcFileSimpleName
@@ -215,16 +215,16 @@ MODULE FM3Pass1
              ) 
     ; LUnitLogFullName
         := Pathname . Join
-             ( UnitRef ^ . UntSrcFilePath , UnitRef ^ . UntLogSimpleName , NIL )
+             ( UnitRef ^ . UntSrcFilePath , UnitRef ^ . UttLogSimpleName , NIL )
     ; IF Clt . CltUnitLog IN FM3CLOptions . OptionTokSet
       THEN 
-        TRY UnitRef ^ . UntLogWrT := FileWr . Open ( LUnitLogFullName ) 
+        TRY UnitRef ^ . UttLogWrT := FileWr . Open ( LUnitLogFullName ) 
         EXCEPT
         | OSError . E ( EAtoms )
         => <*FATAL Thread . Alerted , Wr . Failure *>
            BEGIN
              Wr . PutText ( Stdio . stderr , "Unable to open unit log file " ) 
-           ; Wr . PutText ( Stdio . stderr , UnitRef ^ . UntLogSimpleName ) 
+           ; Wr . PutText ( Stdio . stderr , UnitRef ^ . UttLogSimpleName ) 
            ; Wr . PutText ( Stdio . stderr , ": " ) 
            ; Wr . PutText
                ( Stdio . stderr , FM3Messages . AtomListToOSError ( EAtoms ) ) 
@@ -233,21 +233,21 @@ MODULE FM3Pass1
            ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
            ; Wr . Flush ( Stdio . stderr )
            END (*Block.*) 
-        ; UnitRef ^ . UntLogWrT := NIL
+        ; UnitRef ^ . UttLogWrT := NIL
         ELSE (* Remove any leftover unit log file. *) 
           FM3SharedUtils . DeleteFile ( LUnitLogFullName ) 
         END (*IF*) 
       END (*EXCEPT*)
-    ; FM3Messages . SetUnitLog ( UnitRef ^ . UntLogWrT )
+    ; FM3Messages . SetUnitLog ( UnitRef ^ . UttLogWrT )
 
     (* Create build files for the pass. *) 
-    ; UnitRef ^ . UntPass1OutSimpleName
+    ; UnitRef ^ . UttPass1OutSimpleName
         := Pathname . Join
              ( NIL
              , UnitRef ^ . UntSrcFileSimpleName
              , FM3Globals . Pass1OutSuffix
              )
-    ; UnitRef ^ . UntPatchStackSimpleName
+    ; UnitRef ^ . UttPatchStackSimpleName
         := Pathname . Join
              ( NIL
              , UnitRef ^ . UntSrcFileSimpleName
@@ -258,25 +258,25 @@ MODULE FM3Pass1
         LFullPass1OutName
           := Pathname . Join
                ( UnitRef ^ . UntBuildDirPath 
-               , UnitRef ^ . UntPass1OutSimpleName
+               , UnitRef ^ . UttPass1OutSimpleName
                , NIL
                )
       ; LFullFileName :=  LFullPass1OutName 
-      ; UnitRef ^ . UntPass1OutRdBack
+      ; UnitRef ^ . UttPass1OutRdBack
           := RdBackFile . Create ( LFullPass1OutName ) 
-      ; FM3Globals . P1RdBack := UnitRef ^ . UntPass1OutRdBack
+      ; FM3Globals . P1RdBack := UnitRef ^ . UttPass1OutRdBack
         (* ^Cache for faster access. *)
 
       ; LFullPatchStackName
           := Pathname . Join
                ( UnitRef ^ . UntBuildDirPath 
-               , UnitRef ^ . UntPatchStackSimpleName
+               , UnitRef ^ . UttPatchStackSimpleName
                , NIL
                ) 
       ; LFullFileName :=  LFullPatchStackName 
-      ; UnitRef ^ . UntPatchStackRdBack
+      ; UnitRef ^ . UttPatchStackRdBack
           := RdBackFile . Create ( LFullPatchStackName )
-      ; FM3Globals . PatchRdBack := UnitRef ^ . UntPatchStackRdBack 
+      ; FM3Globals . PatchRdBack := UnitRef ^ . UttPatchStackRdBack 
         (* ^Cache for faster access. *) 
       
       EXCEPT
@@ -295,27 +295,27 @@ MODULE FM3Pass1
     (* Initialize the readback files. *)
 
     ; PutBwd
-        ( UnitRef ^ . UntPass1OutRdBack , VAL ( Itk . ItkBOF , LONGINT ) ) 
+        ( UnitRef ^ . UttPass1OutRdBack , VAL ( Itk . ItkBOF , LONGINT ) ) 
     ; PutBwd
-        ( UnitRef ^ . UntPass1OutRdBack , VAL ( Itk . ItkLeftEnd , LONGINT ) )
-    ; UnitRef ^ . UntPass1OutEmptyCoord
-        := RdBackFile . LengthL ( UnitRef ^ . UntPass1OutRdBack )
-    ; UnitRef ^ . UntMaxPass1OutLength
-        := UnitRef ^ . UntPass1OutEmptyCoord
+        ( UnitRef ^ . UttPass1OutRdBack , VAL ( Itk . ItkLeftEnd , LONGINT ) )
+    ; UnitRef ^ . UttPass1OutEmptyCoord
+        := RdBackFile . LengthL ( UnitRef ^ . UttPass1OutRdBack )
+    ; UnitRef ^ . UttMaxPass1OutLength
+        := UnitRef ^ . UttPass1OutEmptyCoord
         
     (* Write initial tokens to output files. *) 
 
     ; PutBwd
-        ( UnitRef ^ . UntPatchStackRdBack , VAL ( Itk . ItkBOF , LONGINT ) )
+        ( UnitRef ^ . UttPatchStackRdBack , VAL ( Itk . ItkBOF , LONGINT ) )
     ; PutBwd
-        ( UnitRef ^ . UntPatchStackRdBack , VAL ( Itk . ItkLeftEnd , LONGINT ) )
-    ; UnitRef ^ . UntPatchStackEmptyCoord
-        := RdBackFile . LengthL ( UnitRef ^ . UntPatchStackRdBack )
-    ; UnitRef ^ . UntMaxPatchStackDepth
-        := UnitRef ^ . UntPatchStackEmptyCoord
-    ; UnitRef . UntPatchStackTopCoord := UnitRef . UntPass1OutEmptyCoord
+        ( UnitRef ^ . UttPatchStackRdBack , VAL ( Itk . ItkLeftEnd , LONGINT ) )
+    ; UnitRef ^ . UttPatchStackEmptyCoord
+        := RdBackFile . LengthL ( UnitRef ^ . UttPatchStackRdBack )
+    ; UnitRef ^ . UttMaxPatchStackDepth
+        := UnitRef ^ . UttPatchStackEmptyCoord
+    ; UnitRef . UttPatchStackTopCoord := UnitRef . UttPass1OutEmptyCoord
     ; PutBwd
-        ( UnitRef ^ . UntPatchStackRdBack
+        ( UnitRef ^ . UttPatchStackRdBack
         , FM3Globals . PatchStackEmptySentinel
         )
       (* ^A sentinel for when the patch stack is empty of actual tokens. 
@@ -328,7 +328,7 @@ MODULE FM3Pass1
 
     (* Initialize Scanner for unit. *)
       
-    ; FM3Scanner . PushState ( UnitRef ^ . UntSrcUniRd , UnitRef )
+    ; FM3Scanner . PushState ( UnitRef ^ . UttSrcUniRd , UnitRef )
 (* CHECK: ? *)
 
     END InitPass1
@@ -343,18 +343,18 @@ MODULE FM3Pass1
 (* TODO:           ^Something with this? *)
 
       (* Write final successful Pass 1 output file tokens. *)
-      ; UnitRef ^ . UntPass1OutDataLength
-          := RdBackFile . LengthL ( UnitRef ^ . UntPass1OutRdBack )
+      ; UnitRef ^ . UttPass1OutDataLength
+          := RdBackFile . LengthL ( UnitRef ^ . UttPass1OutRdBack )
         (* ^Not including the boilerplate stuff below. *) 
       ; PutBwd
-          ( UnitRef ^ . UntPass1OutRdBack
+          ( UnitRef ^ . UttPass1OutRdBack
           , VAL ( Itk . ItkRightEnd , LONGINT )
           )
       ; PutBwd
-          ( UnitRef ^ . UntPass1OutRdBack
+          ( UnitRef ^ . UttPass1OutRdBack
           , VAL ( Itk . ItkEOF , LONGINT )
           )
-      ; RdBackFile . Flush ( UnitRef ^ . UntPass1OutRdBack ) 
+      ; RdBackFile . Flush ( UnitRef ^ . UttPass1OutRdBack ) 
       
       ; FM3Parser . CloseFM3Parser ( )
 (*TODO ^ Do this sometime later? *)
@@ -364,7 +364,7 @@ MODULE FM3Pass1
       ; FM3Compile . MakePassFileCopy
           ( UnitRef
           , FM3Globals . Pass1OutSuffix
-          , UnitRef ^ . UntPass1OutRdBack
+          , UnitRef ^ . UttPass1OutRdBack
           )
         (*^ This copy may be used by disassembly called for by command-line
             option, a later pass failure, or not at all. *)
@@ -379,16 +379,16 @@ MODULE FM3Pass1
 
       (* Writing of pass 1 output file failed. *)
         PutBwd
-          ( UnitRef ^ . UntPass1OutRdBack
+          ( UnitRef ^ . UttPass1OutRdBack
           , VAL ( Itk . ItkRightEndIncomplete , LONGINT )
           )
 
-      ; RdBackFile . Flush ( UnitRef ^ . UntPass1OutRdBack ) 
+      ; RdBackFile . Flush ( UnitRef ^ . UttPass1OutRdBack ) 
 (* ** Not needed after rework of RdBackFile. **
       ; FM3Compile . MakePassFileCopy
           ( UnitRef
           , FM3Globals . Pass1OutSuffix
-          , UnitRef ^ . UntPass1OutRdBack
+          , UnitRef ^ . UttPass1OutRdBack
           )
         (* ^This copy will be used immediately to disassemble
             what there is of the failed file. *)
@@ -399,7 +399,7 @@ MODULE FM3Pass1
            ( ARRAY OF REFANY
                { "Failure writing pass 1 output file at length "
                , Fmt . LongInt
-                   ( RdBackFile . LengthL ( UnitRef ^ . UntPass1OutRdBack ) )
+                   ( RdBackFile . LengthL ( UnitRef ^ . UttPass1OutRdBack ) )
                , FM3Messages . NLIndent 
                , "Exception "
                , FM3RTFailures . ExcNameFromAddr
@@ -429,18 +429,18 @@ MODULE FM3Pass1
       LPass1FullFileName
         := Pathname . Join
              ( UnitRef ^ . UntBuildDirPath 
-             , UnitRef ^ . UntPass1OutSimpleName
+             , UnitRef ^ . UttPass1OutSimpleName
              , NIL
              )
 
-    ; UnitRef ^ . UntMaxPass1OutLength
-        := RdBackFile . MaxLengthL ( UnitRef ^ . UntPass1OutRdBack )
+    ; UnitRef ^ . UttMaxPass1OutLength
+        := RdBackFile . MaxLengthL ( UnitRef ^ . UttPass1OutRdBack )
     ; FM3Messages . InfoArr
         ( ARRAY OF REFANY
             { "Pass 1 output file "
-            , UnitRef ^ . UntPass1OutSimpleName
+            , UnitRef ^ . UttPass1OutSimpleName
             , " has "
-            , FM3Base . Int64Image  ( UnitRef ^ . UntMaxPass1OutLength )
+            , FM3Base . Int64Image  ( UnitRef ^ . UttMaxPass1OutLength )
             , " bytes."
             } 
         )
@@ -646,7 +646,7 @@ MODULE FM3Pass1
   
   = BEGIN
       RETURN RdBackFile . LengthL
-               ( FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack ) 
+               ( FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack ) 
     END Coord
 
 (*EXPORTED:*)
@@ -656,7 +656,7 @@ MODULE FM3Pass1
 
   ; BEGIN (*PutBwd_TextLit*)
       LNumber := NUMBER ( ParsAttr . Scan . SaChars ^ )
-    ; WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+    ; WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO PutBwd
           ( WRdBack , VAL ( ParsAttr . Scan . Position . Column , LONGINT ) )
       ; PutBwd
@@ -697,7 +697,7 @@ MODULE FM3Pass1
 
   ; BEGIN (*PutBwd_WideTextLit*)
       LNumber := NUMBER ( ParsAttr . Scan . SaWideChars ^ )
-    ; WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+    ; WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO PutBwd
           ( WRdBack , VAL ( ParsAttr . Scan . Position . Column , LONGINT ) )
       ; PutBwd
@@ -737,7 +737,7 @@ MODULE FM3Pass1
    
   = BEGIN
 (*FIXME: Don't push unnest if skipping.. *) 
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO
 (* Keep DumpWork.DumpNumericBwd consistent with this:*) 
         CASE ParsAttr . Scan . SaTok OF (* Optional varterm-specific value info: *) 
@@ -820,7 +820,7 @@ MODULE FM3Pass1
 
   = BEGIN
       PutBwd
-        ( FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+        ( FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
         , VAL ( Value , LONGINT ) 
         )
 
@@ -831,7 +831,7 @@ MODULE FM3Pass1
   
   = BEGIN
       PutBwd
-        ( FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack , Value )
+        ( FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack , Value )
     END PutBwdLong
 
 (*EXPORTED:*)
@@ -843,7 +843,7 @@ MODULE FM3Pass1
     )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -859,7 +859,7 @@ MODULE FM3Pass1
 
   = BEGIN
       PutBwd
-        ( FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+        ( FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
         , VAL ( T , LONGINT ) 
         )
     END PutBwd_L
@@ -869,7 +869,7 @@ MODULE FM3Pass1
     ( T : Itk . TokTyp ; READONLY Position : tPosition )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -882,7 +882,7 @@ MODULE FM3Pass1
     ( T : Itk . TokTyp ; N : LONGINT ; READONLY Position : tPosition )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -896,7 +896,7 @@ MODULE FM3Pass1
     ( T : Itk . TokTyp ; N1 , N2 : LONGINT ; READONLY Position : tPosition )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -915,7 +915,7 @@ MODULE FM3Pass1
     )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -930,7 +930,7 @@ MODULE FM3Pass1
     ( T : Itk . TokTyp ; READONLY Position : tPosition )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -947,7 +947,7 @@ MODULE FM3Pass1
     ( T : Itk . TokTyp ; READONLY Position : tPosition )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -959,7 +959,7 @@ MODULE FM3Pass1
 ; PROCEDURE PutBwd_LI ( T : Itk . TokTyp ; I : INTEGER )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( T , LONGINT ) ) 
@@ -970,7 +970,7 @@ MODULE FM3Pass1
 ; PROCEDURE PutBwd_TI ( T : Itk . TokTyp ; I : INTEGER )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( T , LONGINT ) ) 
@@ -982,7 +982,7 @@ MODULE FM3Pass1
     ( T : Itk . TokTyp ; I : INTEGER ; READONLY Position : tPosition )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -996,7 +996,7 @@ MODULE FM3Pass1
     ( T : Itk . TokTyp ; I1 , I2 : INTEGER ; READONLY Position : tPosition )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -1011,7 +1011,7 @@ MODULE FM3Pass1
     ( T : Itk . TokTyp ; I : INTEGER ; READONLY Position : tPosition )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -1029,7 +1029,7 @@ MODULE FM3Pass1
 ; PROCEDURE PutBwd_EP ( T : Itk . TokTyp ; READONLY Position : tPosition )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -1041,7 +1041,7 @@ MODULE FM3Pass1
 ; PROCEDURE PutBwd_ZP ( T : Itk . TokTyp ; READONLY Position : tPosition )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -1054,7 +1054,7 @@ MODULE FM3Pass1
     ( T : Itk . TokTyp ; I : INTEGER ; READONLY Position : tPosition )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -1072,7 +1072,7 @@ MODULE FM3Pass1
     )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -1086,7 +1086,7 @@ MODULE FM3Pass1
 ; PROCEDURE PutBwd_LC ( T : Itk . TokTyp ; C : LONGINT )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , C ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToPatch , LONGINT ) ) 
@@ -1097,7 +1097,7 @@ MODULE FM3Pass1
 ; PROCEDURE PutBwd_LCr ( T : Itk . TokTyp ; C : LONGINT )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) ) 
       ; PutBwd ( WRdBack , C ) 
@@ -1110,7 +1110,7 @@ MODULE FM3Pass1
    ( T : Itk . TokTyp ; C : LONGINT ; READONLY Position : tPosition )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -1132,7 +1132,7 @@ MODULE FM3Pass1
    )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -1158,7 +1158,7 @@ MODULE FM3Pass1
    )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( PositionRt . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( PositionRt . Line , LONGINT ) ) 
@@ -1188,7 +1188,7 @@ MODULE FM3Pass1
     )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
@@ -1212,7 +1212,7 @@ MODULE FM3Pass1
     )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -1231,7 +1231,7 @@ MODULE FM3Pass1
     )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -1256,7 +1256,7 @@ MODULE FM3Pass1
     )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( PositionRt . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( PositionRt . Line , LONGINT ) ) 
@@ -1281,7 +1281,7 @@ MODULE FM3Pass1
     )
     
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -1314,7 +1314,7 @@ MODULE FM3Pass1
     )
     
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( PositionRt . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( PositionRt . Line , LONGINT ) ) 
@@ -1349,7 +1349,7 @@ MODULE FM3Pass1
     )
     
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( PL . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( PL . Line , LONGINT ) ) 
@@ -1385,7 +1385,7 @@ MODULE FM3Pass1
     )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( PositionLt . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( PositionLt . Line , LONGINT ) ) 
@@ -1419,7 +1419,7 @@ MODULE FM3Pass1
     )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( PositionLeft . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( PositionLeft . Line , LONGINT ) ) 
@@ -1457,7 +1457,7 @@ MODULE FM3Pass1
     )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -1483,7 +1483,7 @@ MODULE FM3Pass1
     )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -1511,7 +1511,7 @@ MODULE FM3Pass1
     )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -1541,7 +1541,7 @@ MODULE FM3Pass1
     )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -1568,7 +1568,7 @@ MODULE FM3Pass1
     )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( RPos . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( RPos . Line , LONGINT ) ) 
@@ -1599,7 +1599,7 @@ MODULE FM3Pass1
     )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( LPos . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( LPos . Line , LONGINT ) ) 
@@ -1632,7 +1632,7 @@ MODULE FM3Pass1
     )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( RPos . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( RPos . Line , LONGINT ) ) 
@@ -1657,7 +1657,7 @@ MODULE FM3Pass1
 ; PROCEDURE PutBwd_TP ( T : Itk . TokTyp ; READONLY P : tPosition )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( P . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( P. Line , LONGINT ) ) 
@@ -1670,7 +1670,7 @@ MODULE FM3Pass1
     ( T : Itk . TokTyp ; B : BOOLEAN ; READONLY P : tPosition )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( P . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( P. Line , LONGINT ) ) 
@@ -1684,7 +1684,7 @@ MODULE FM3Pass1
    ( T : Itk . TokTyp ; C : LONGINT ; READONLY P : tPosition )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( P . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( P. Line , LONGINT ) ) 
@@ -1704,7 +1704,7 @@ MODULE FM3Pass1
    )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( PositionRt . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( PositionRt . Line , LONGINT ) ) 
@@ -1735,7 +1735,7 @@ MODULE FM3Pass1
    )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Pr . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Pr . Line , LONGINT ) ) 
@@ -1772,7 +1772,7 @@ MODULE FM3Pass1
    )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Pr . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Pr . Line , LONGINT ) ) 
@@ -1810,7 +1810,7 @@ MODULE FM3Pass1
    )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Pr . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Pr . Line , LONGINT ) ) 
@@ -1844,7 +1844,7 @@ MODULE FM3Pass1
    )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( PositionInfix . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( PositionInfix . Line , LONGINT ) )
@@ -1867,7 +1867,7 @@ MODULE FM3Pass1
    ( T : Itk . TokTyp ; C : LONGINT ; READONLY Position : tPosition )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -1881,7 +1881,7 @@ MODULE FM3Pass1
    ( T : Itk . TokTyp ; C : LONGINT ; READONLY Position : tPosition )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -1900,7 +1900,7 @@ MODULE FM3Pass1
    )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( PositionRt . Column , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( PositionRt . Line , LONGINT ) ) 
@@ -1919,7 +1919,7 @@ MODULE FM3Pass1
 ; PROCEDURE PutBwd_LCBr ( T : Itk . TokTyp ; C : LONGINT ; B : BOOLEAN )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) ) 
 
@@ -1933,7 +1933,7 @@ MODULE FM3Pass1
 ; PROCEDURE PutBwd_LCI_ri ( T : Itk . TokTyp ; C : LONGINT ; I : INTEGER )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) ) 
@@ -1948,7 +1948,7 @@ MODULE FM3Pass1
 ; PROCEDURE PutBwd_LI3 ( T : Itk . TokTyp ; I0 , I1 , I2 : INTEGER )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( I2 , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( I1 , LONGINT ) ) 
@@ -1962,7 +1962,7 @@ MODULE FM3Pass1
     ( T : Itk . TokTyp ; I0 , I1 , I2 , I3 , I4 , I5 : INTEGER )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( I5 , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( I4 , LONGINT ) ) 
@@ -1978,7 +1978,7 @@ MODULE FM3Pass1
 ; PROCEDURE PutBwd_LC_eC_r ( T : Itk . TokTyp ; Ct , Co : LONGINT )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) ) 
       ; PutBwd ( WRdBack , Co ) 
@@ -1993,7 +1993,7 @@ MODULE FM3Pass1
     ( T : Itk . TokTyp ; Ct : LONGINT ; I : INTEGER ; Co : LONGINT )
 
   = BEGIN
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( WRdBack , VAL ( I , LONGINT ) ) 
       ; PutBwd ( WRdBack , VAL ( T + LtToRt , LONGINT ) ) 
@@ -2011,7 +2011,7 @@ MODULE FM3Pass1
 ; PROCEDURE Pop4 ( )
 
   = BEGIN (*Pop4*)
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO
         TRY 
           EVAL GetBwd ( WRdBack ) 
@@ -2032,7 +2032,7 @@ MODULE FM3Pass1
 ; PROCEDURE Pop8 ( )
 
   = BEGIN (*Pop4*)
-      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         TRY 
           EVAL GetBwd ( WRdBack ) 
@@ -2320,14 +2320,14 @@ MODULE FM3Pass1
       THEN LKindText := "be overridden"
       ELSE LKindText := "be declared"
       END (*IF*) 
-      IF NOT VerifyIdentNotReserved
+    ; IF NOT VerifyIdentNotReserved
                ( IdAttr , IdAttr . Scan . Position , LKindText )
       THEN (* Reserved Ident. Message has already been emitted. *)
         RETURN FALSE
       END (*IF*) 
     ; LAtom := IdAttr . Scan . SaAtom 
     ; WITH WScopeRefForDecls = FM3Scopes . ScopeDeclStackTopRef 
-           , WUntRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack 
+           , WUntRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack 
       DO IF WScopeRefForDecls . ScpKind IN FM3Scopes . ScopeKindSetUnit 
             AND NOT FM3ExpImp . CheckDuplicateExpImp
                       ( FM3Units . UnitStackTopRef
@@ -2508,7 +2508,7 @@ MODULE FM3Pass1
     )
 
   = BEGIN 
-      WITH Wp1RdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH Wp1RdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO 
         PutBwd ( Wp1RdBack , VAL ( Position . Column , LONGINT ) ) 
       ; PutBwd ( Wp1RdBack , VAL ( Position . Line , LONGINT ) ) 
@@ -2542,7 +2542,7 @@ MODULE FM3Pass1
   = VAR LIsLegal : BOOLEAN
 
   ; BEGIN (*QualIdentRefL2R*)
-      WITH WUntRdBack = FM3Units . UnitStackTopRef ^ . UntPass1OutRdBack
+      WITH WUntRdBack = FM3Units . UnitStackTopRef ^ . UttPass1OutRdBack
       DO LIsLegal
            := VerifyIdentNotReserved
                 ( LtIdAttr , Position , "have a qualifier." )
