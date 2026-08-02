@@ -80,7 +80,7 @@ INTERFACE FM3Scanner
      a single instance suffices. *) 
 
 ; PROCEDURE PushState 
-     ( NewUniRd : UniRd . T ; UnitTRef : FM3Units . UnitRefTyp ) 
+     ( NewUniRd : UniRd . T ; UnitTRef : FM3Units . UnitTRefTyp ) 
   (* PRE: NewUniRd is open and ready to be read. but not locked. *) 
 
 ; PROCEDURE PopState ( ) : UniRd . T (* Previous reader. *)  

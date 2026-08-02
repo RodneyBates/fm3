@@ -46,15 +46,16 @@ MODULE  FM3Compile
 ; TYPE Us = FM3Units . UnitStateTyp 
 
 (*EXPORTED.*)
-; PROCEDURE GetUnitRefOfFileName ( SrcFileName : TEXT ) : FM3Units . UnitRefTyp
-  (* POST: Result, # NIL, references a UnitTyp, whose source file is named in
+; PROCEDURE GetUnitTRefOfFileName
+    ( SrcFileName : TEXT ) : FM3Units . UnitTRefTyp
+  (* POST: Result, # NIL, references a UnitTTyp, whose source file is named in
            FM3Units . UnitsAtomDict, and has field UntSrcFileSimpleName set,
            using the file name taken from SrcFileName, which may include a
-           path.  Allocate the UnitTyp if necessary. 
+           path.  Allocate the UnitTTyp if necessary. 
   *) 
 
   = VAR LSimpleName : TEXT
-  ; VAR LUnitTRef : FM3Units . UnitRefTyp
+  ; VAR LUnitTRef : FM3Units . UnitTRefTyp
   ; VAR LUnitNameAtom : FM3Base . AtomTyp 
 
   ; BEGIN
@@ -66,17 +67,17 @@ MODULE  FM3Compile
              , Hash := FM3Utils . HashOfText ( LSimpleName ) 
              )
     ; LUnitTRef 
-        := VarArray_Int_Refany . Fetch ( FM3Units . UnitsMap , LUnitNameAtom )
+        := VarArray_Int_Refany . Fetch ( FM3Units . UnitsTMap , LUnitNameAtom )
       (* ^Implied NARROW *)
     ; IF LUnitTRef = NIL
       THEN
-        LUnitTRef := FM3Units . NewUnitRef ( )
-      ; LUnitTRef ^ . UntSrcFileSimpleName := LSimpleName 
+        LUnitTRef := FM3Units . NewUnitTRef ( )
+      ; LUnitTRef ^ . UttUnitRef ^. UntSrcFileSimpleName := LSimpleName 
       ; VarArray_Int_Refany . Assign
-          ( FM3Units . UnitsMap , LUnitNameAtom , LUnitTRef )
+          ( FM3Units . UnitsTMap , LUnitNameAtom , LUnitTRef )
       END (*IF*)
     ; RETURN LUnitTRef 
-    END GetUnitRefOfFileName
+    END GetUnitTRefOfFileName
 
 ; VAR GSearchPathShown := FALSE 
 
@@ -135,7 +136,7 @@ MODULE  FM3Compile
 
 (*EXPORTED*) 
 ; PROCEDURE FindAndOpenUnitSrcFile
-    ( UnitTRef : FM3Units . UnitRefTyp
+    ( UnitTRef : FM3Units . UnitTRefTyp
     ; Adjective : TEXT
     ; ExpImpPosition : FM3Base . tPosition
     )
@@ -153,11 +154,11 @@ MODULE  FM3Compile
 
   ; BEGIN
       IF UnitTRef = NIL THEN RETURN FALSE END (*IF*) 
-    ; IF UnitTRef ^ . UntSrcFileSimpleName = NIL THEN RETURN FALSE END (*IF*) 
-    ; IF UnitTRef ^ . UntState # Us . UsNull THEN RETURN FALSE END (*IF*)
-    ; UnitTRef ^ . UntStdTok
-        := StdUnitTok ( UnitTRef ^ . UntSrcFileSimpleName )
-    ; IF UnitTRef ^ . UntStdTok # FM3Base . TokNull 
+    ; IF UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName = NIL THEN RETURN FALSE END (*IF*) 
+    ; IF UnitTRef ^ . UttUnitRef ^ . UntState # Us . UsNull THEN RETURN FALSE END (*IF*)
+    ; UnitTRef ^ . UttUnitRef ^ . UntStdTok
+        := StdUnitTok ( UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName )
+    ; IF UnitTRef ^ . UttUnitRef ^ . UntStdTok # FM3Base . TokNull 
       THEN LSrcDirList := FM3CLOptions . ResourceDirNameList
       ELSE LSrcDirList := FM3CLOptions . SrcDirList 
       END (*IF*) 
@@ -172,12 +173,12 @@ MODULE  FM3Compile
                 { "Unable to locate "
                 , Adjective
                 , "source file "
-                , UnitTRef ^ . UntSrcFileSimpleName
+                , UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName
                 , SrcSearchPathOnce ( ) 
                 }
             , ExpImpPosition 
             )
-        ; UnitTRef . UntState := Us . UsNotUsable
+        ; UnitTRef ^ . UttUnitRef ^ . UntState := Us . UsNotUsable
         ; RETURN FALSE
         END (*IF*) 
       ; LSearchDir := FM3SharedUtils . AbsFileName ( LSrcDirList ^ [ LDirSs ] )
@@ -186,7 +187,7 @@ MODULE  FM3Compile
           LUniRdT
             := FM3Files . OpenUniRd
                  ( LSearchDir
-                 , UnitTRef ^ . UntSrcFileSimpleName
+                 , UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName
                  , "source file "
                  , NIL
                  )
@@ -196,9 +197,9 @@ MODULE  FM3Compile
         END (*EXCEPT*)
       ; IF LUniRdT # NIL
         THEN (* Found a source file. *)
-          UnitTRef ^ . UntSrcFilePath := LSearchDir
+          UnitTRef ^ . UttUnitRef ^ . UntSrcFilePath := LSearchDir
         ; UnitTRef ^ . UttSrcUniRd := LUniRdT
-        ; UnitTRef ^ . UntState := Us . UsExporting
+        ; UnitTRef ^ . UttUnitRef ^ . UntState := Us . UsExporting
         ; RETURN TRUE 
         ELSE
           INC ( LDirSs )
@@ -208,7 +209,7 @@ MODULE  FM3Compile
     END FindAndOpenUnitSrcFile 
 
 (*EXPORTED*) 
-; PROCEDURE CloseUnitSrcFile ( UnitTRef : FM3Units . UnitRefTyp ) 
+; PROCEDURE CloseUnitSrcFile ( UnitTRef : FM3Units . UnitTRefTyp ) 
 
   = BEGIN
       IF UnitTRef = NIL THEN RETURN END (*IF*) 
@@ -219,7 +220,7 @@ MODULE  FM3Compile
 
 (*EXPORTED*) 
 ; PROCEDURE MakePassFileCopy
-    ( UnitTRef : FM3Units . UnitRefTyp
+    ( UnitTRef : FM3Units . UnitTRefTyp
     ; PassFileSuffix : TEXT
     ; RdBackFileT : RdBackFile . T  
     )
@@ -235,10 +236,14 @@ MODULE  FM3Compile
   ; BEGIN
       LPassFileSimpleName
         := Pathname . Join
-             ( NIL , UnitTRef ^ . UntSrcFileSimpleName , PassFileSuffix )
+             ( NIL , UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName
+             , PassFileSuffix
+             )
     ; LPassFileFullName
         := Pathname . Join
-             ( UnitTRef ^ . UntBuildDirPath , LPassFileSimpleName , NIL )
+             ( UnitTRef ^ . UttUnitRef ^ . UntBuildDirPath
+             , LPassFileSimpleName , NIL
+             )
     ; LCopyFullName 
         := Pathname . Join
              ( NIL , LPassFileFullName , FM3Globals . CopyFileSuffix ) 
@@ -248,7 +253,10 @@ MODULE  FM3Compile
 
 (*EXPORTED*) 
 ; PROCEDURE DisAsmPassFile
-    ( UnitTRef : FM3Units . UnitRefTyp ; PassFileSuffix : TEXT ; L2R : BOOLEAN ) 
+    ( UnitTRef : FM3Units . UnitTRefTyp
+    ; PassFileSuffix : TEXT
+    ; L2R : BOOLEAN
+    ) 
   RAISES { RdBackFile . BOF }
   (* PRE: A dispensible .Copy file exists in the build directory. *)
   (* POST: The disassembly file has been written in the build directory. *)
@@ -263,8 +271,8 @@ MODULE  FM3Compile
   ; BEGIN
       LPassFileFullName
         := Pathname . Join
-             ( UnitTRef ^ . UntBuildDirPath
-             , UnitTRef ^ . UntSrcFileSimpleName 
+             ( UnitTRef ^ . UttUnitRef ^ . UntBuildDirPath
+             , UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName 
              , PassFileSuffix
              )
     ; LDisAsmFileFullName
@@ -334,15 +342,15 @@ MODULE  FM3Compile
     END DpiMethScope
 
 (*EXPORTED.*)
-; PROCEDURE DumpScopes ( UnitTRef : FM3Units . UnitRefTyp ) 
+; PROCEDURE DumpScopes ( UnitRef : FM3Units . UnitRefTyp ) 
 
   = VAR LInfo : DumpInfoObj 
 
   ; BEGIN (*DumpScopes*)
       LInfo 
         := NEW ( DumpInfoObj 
-               , DpiUnitRef := UnitTRef 
-               , DpiMap := UnitTRef ^ . UntScopeMap 
+               , DpiUnitRef := UnitRef 
+               , DpiMap := UnitRef ^ . UntScopeMap 
                , DpiTypeLabel := "Scope"
                , DpiDump := DpiMethScope 
                )
@@ -365,15 +373,15 @@ MODULE  FM3Compile
     END DpiMethDecl
 
 (*EXPORTED.*)
-; PROCEDURE DumpDecls ( UnitTRef : FM3Units . UnitRefTyp ) 
+; PROCEDURE DumpDecls ( UnitRef : FM3Units . UnitRefTyp ) 
 
   = VAR LInfo : DumpInfoObj 
 
   ; BEGIN (*DumpDecls*)
       LInfo 
         := NEW ( DumpInfoObj 
-               , DpiUnitRef := UnitTRef 
-               , DpiMap := UnitTRef ^ . UntDeclMap 
+               , DpiUnitRef := UnitRef 
+               , DpiMap := UnitRef ^ . UntDeclMap 
                , DpiTypeLabel := "Decl"
                , DpiDump := DpiMethDecl
                )
@@ -455,7 +463,7 @@ MODULE  FM3Compile
       
 (*EXPORTED*)
 ; PROCEDURE DumpPassExprs
-    ( UnitTRef : FM3Units . UnitRefTyp ; PassFileSuffix : TEXT )
+    ( UnitTRef : FM3Units . UnitTRefTyp ; PassFileSuffix : TEXT )
   (* As they are when this is called.  After a particular pass. *) 
 
   = VAR LPassFileName : TEXT 
@@ -468,15 +476,15 @@ MODULE  FM3Compile
   ; BEGIN
       LPassFileName
         := Pathname . Join
-             ( UnitTRef ^ . UntBuildDirPath
-             , UnitTRef ^ . UntSrcFileSimpleName 
+             ( UnitTRef ^ . UttUnitRef ^ . UntBuildDirPath
+             , UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName 
              , PassFileSuffix
              )
     ; LExprsFileFullName 
         := Pathname . Join
              ( NIL , LPassFileName , FM3Globals . ExprsFileSuffix ) 
     ; LWrT := FileWr . Open ( LExprsFileFullName )
-    ; LExprMap := UnitTRef ^ . UntExprMap
+    ; LExprMap := UnitTRef ^ . UttUnitRef ^ . UntExprMap
     ; IF LExprMap = NIL
       THEN
         Wr . PutText ( LWrT , "<No expression map>" )
@@ -521,7 +529,7 @@ MODULE  FM3Compile
         } 
 
 (*EXPORTED*) 
-; PROCEDURE CleanPassFilesAndCopies ( UnitTRef : FM3Units . UnitRefTyp )
+; PROCEDURE CleanPassFilesAndCopies ( UnitTRef : FM3Units . UnitTRefTyp )
   (* Only after all passes have been run do we know what pass file
      copies are still hanging around.  Delete them.  Also, the existence
      of a copy file implies that no disassembly file was written during
@@ -536,12 +544,12 @@ MODULE  FM3Compile
       FOR RPassNo := FIRST ( FM3CLOptions . PassNoTyp ) 
                   TO LAST ( FM3CLOptions . PassNoTyp )
       DO 
-        IF FM3CLOptions . PassNo2 IN UnitTRef ^ . UntPassNosDisAsmed
+        IF FM3CLOptions . PassNo2 IN UnitTRef ^ . UttUnitRef ^ . UntPassNosDisAsmed
         THEN
           LPassFileFullName
             := Pathname . Join
-                 ( UnitTRef ^ . UntBuildDirPath
-                 , UnitTRef ^ . UntSrcFileSimpleName 
+                 ( UnitTRef ^ . UttUnitRef ^ . UntBuildDirPath
+                 , UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName 
                  , PassNoSuffixes [ RPassNo ] 
                  )
         ; LCopyFileFullName 
@@ -556,7 +564,7 @@ MODULE  FM3Compile
     END CleanPassFilesAndCopies
 
 (*EXPORTED*)
-; PROCEDURE CompileUnitFromSrc ( UnitTRef : FM3Units . UnitRefTyp )
+; PROCEDURE CompileUnitFromSrc ( UnitTRef : FM3Units . UnitTRefTyp )
 
   = BEGIN (*CompileUnitFromSrc*)
       FM3Messages . FM3LogArr
@@ -565,8 +573,8 @@ MODULE  FM3Compile
             , FM3Messages . NLIndent
             , "  " 
             , Pathname . Join
-                ( UnitTRef ^ . UntSrcFilePath
-                , UnitTRef ^ . UntSrcFileSimpleName
+                ( UnitTRef ^ . UttUnitRef ^ . UntSrcFilePath
+                , UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName
                 ) 
             , " ..."
             }
@@ -574,7 +582,7 @@ MODULE  FM3Compile
     ; UnitTRef ^ . UttSkipStackBase
         := VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi 
     ; FM3Pass1 . RunPass1 ( )
-    ; IF UnitTRef ^ . UntParseResult <= 0 THEN FM3Pass2 . RunPass2 ( ) END (*IF*) 
+    ; IF UnitTRef ^ . UttUnitRef ^ . UntParseResult <= 0 THEN FM3Pass2 . RunPass2 ( ) END (*IF*) 
 
     ; RdBackFile . Close 
         ( UnitTRef ^ . UttPass2OutRdBack , - 1L (* Leave full length. *) )
@@ -587,7 +595,7 @@ MODULE  FM3Compile
       *> 
       FM3Messages . FM3LogArr
         ( ARRAY OF REFANY
-            { "Finished compiling " , UnitTRef ^ . UntSrcFileSimpleName , "." }
+            { "Finished compiling " , UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName , "." }
         )
     ; Wr . Close ( UnitTRef ^ . UttLogWrT ) 
     END CompileUnitFromSrc
@@ -596,10 +604,11 @@ MODULE  FM3Compile
 ; PROCEDURE CompileOrLoadCLUnit ( SrcFileName : TEXT )
   (* Compile or load the top unit, as named on the command line. *) 
 
-  = VAR LUnitTRef , LUnitRef2 : FM3Units . UnitRefTyp
+  = VAR LUnitTRef : FM3Units . UnitTRefTyp
+  
   ; BEGIN 
-      LUnitTRef := GetUnitRefOfFileName ( SrcFileName )
-    ; IF LUnitTRef . UntState = Us . UsNull 
+      LUnitTRef := GetUnitTRefOfFileName ( SrcFileName )
+    ; IF LUnitTRef ^ . UttUnitRef ^ . UntState = Us . UsNull 
       THEN (* Haven't seen this unit yet. *)
       (* Compile it. *)
       (* Compare this to similar code in FM3ImpExp.Interface *) 
@@ -609,7 +618,7 @@ MODULE  FM3Compile
              , ExpImpPosition := FM3Base . PositionNull
              )
         THEN 
-          LUnitTRef ^ . UntState := Us . UsExporting 
+          LUnitTRef ^ . UttUnitRef ^ . UntState := Us . UsExporting 
         ; FM3Units . PushUnit ( LUnitTRef )
         ; FM3Units . CacheTopUnitValues ( )
         (* SetUnitLog will have to wait until Pass1.InitPass1 has

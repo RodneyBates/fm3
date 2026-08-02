@@ -77,25 +77,25 @@ INTERFACE FM3Pass1
       } 
 
 ; PROCEDURE InterfaceId
-    ( UnitTRef : FM3Units . UnitRefTyp
+    ( UnitTRef : FM3Units . UnitTRefTyp
     ; READONLY IdScanAttribute : FM3Scanner . tScanAttribute 
     )
   (*PRE: UnitTRef # NIL *) 
 
 ; PROCEDURE ModuleId
-    ( UnitTRef : FM3Units . UnitRefTyp
+    ( UnitTRef : FM3Units . UnitTRefTyp
     ; READONLY IdScanAttribute : FM3Scanner . tScanAttribute
     )
   (*PRE: UnitTRef # NIL *) 
     
 
 ; PROCEDURE CheckUnitFinalId
-    ( UnitTRef : FM3Units . UnitRefTyp
+    ( UnitTRef : FM3Units . UnitTRefTyp
     ; READONLY EndIdScanAttribute : FM3Scanner . tScanAttribute 
     ; UnitKind : FM3Units . UnitKindTyp
     )
     
-; PROCEDURE CheckStdUnitPragma ( UnitTRef : FM3Units . UnitRefTyp )
+; PROCEDURE CheckStdUnitPragma ( UnitTRef : FM3Units . UnitTRefTyp )
     
 (* ------------------------- Pass1 output file ---------------------- *)
 
@@ -560,7 +560,7 @@ INTERFACE FM3Pass1
     ; Position : tPosition
     ) 
 
-; PROCEDURE DisAsmPass1 ( UnitTRef : FM3Units . UnitRefTyp )
+; PROCEDURE DisAsmPass1 ( UnitTRef : FM3Units . UnitTRefTyp )
   RAISES { RdBackFile . BOF }
 
 ; PROCEDURE RunPass1 ( ) 

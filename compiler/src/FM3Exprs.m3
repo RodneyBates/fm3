@@ -149,15 +149,15 @@ MODULE FM3Exprs
 ; PROCEDURE RegisterExpr ( Expr : ExprRefTyp ; Mergeable : BOOLEAN )
   (* Do not register a static builtin expression (type or constant) . *) 
 
-  = VAR LUnitTRef : FM3Units . UnitRefTyp
+  = VAR LUnitRef : FM3Units . UnitRefTyp
   
   ; BEGIN
-      LUnitTRef := FM3Units . UnitTStackTopRef 
+      LUnitRef := FM3Units . UnitTStackTopRef ^ . UttUnitRef 
     ; Expr ^ . ExpSelfExprNo 
         := VarArray_Int_Refany . TouchedRange
-             ( LUnitTRef ^ . UntExprMap ) . Hi + 1
+             ( LUnitRef ^ . UntExprMap ) . Hi + 1
     ; VarArray_Int_Refany . Assign
-        ( LUnitTRef ^ . UntExprMap , Expr ^ . ExpSelfExprNo , Expr )
+        ( LUnitRef ^ . UntExprMap , Expr ^ . ExpSelfExprNo , Expr )
     ; IF Mergeable
       THEN Expr ^ . ExpRepExprNo := Expr ^ . ExpSelfExprNo
       ELSE Expr ^ . ExpRepExprNo := RepExprNoDistinct
@@ -377,7 +377,7 @@ RETURN ;
   ; BEGIN
       LFound
         := FM3Atom_OAChars . Key 
-             ( FM3Units . UnitTStackTopRef ^ . UntIdentAtomDict
+             ( FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntIdentAtomDict
              , Value
              , (*OUT*) LChars
              )
@@ -595,7 +595,7 @@ RETURN ;
   ; VAR LExprRef : ExprRefTyp
 
   ; BEGIN
-      LExprMap := FM3Units . UnitTStackTopRef ^ . UntExprMap 
+      LExprMap := FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntExprMap 
     ; IF LExprMap = NIL THEN RETURN NIL END 
     ; LExprRef := VarArray_Int_Refany . Fetch ( LExprMap , ExprNo )
       (*      ^Implied NARROW *)

@@ -33,7 +33,7 @@ INTERFACE FM3ExpImp
       (* ^Of the [ex/im]port identifier in the current unit. *) 
     ; IsExport : BOOLEAN
     )
-  : FM3Units . UnitRefTyp
+  : FM3Units . UnitTRefTyp
     (* ^The interface unit to be [ex/im]ported, possibly NIL *)
   (* If not already done, compile or load the interface named by IdentChars. *)
 
@@ -48,7 +48,7 @@ INTERFACE FM3ExpImp
   (* Emit error return FALSE, if failure. *) 
 
 ; PROCEDURE ImportDeclByNo
-    ( FromUnitRef : FM3Units . UnitRefTyp
+    ( FromUnitTRef : FM3Units . UnitTRefTyp
     ; FromUnitDeclNo : FM3Globals . DeclNoTyp
     ; Position : FM3Base . tPosition
     ; DuplicatorKindText : TEXT  
@@ -57,7 +57,7 @@ INTERFACE FM3ExpImp
   (* PRE: FromUnitDeclNo leads to a DeclRef in FromUnitRef^. *)
 
 ; PROCEDURE ImportDeclByIdent
-    ( FromUnitRef : FM3Units . UnitRefTyp
+    ( FromUnitTRef : FM3Units . UnitTRefTyp
     ; READONLY IdScanAttribute : FM3Scanner . tScanAttribute
       (* ^Containing info about the to-be-imported identifier. *) 
     )
@@ -72,7 +72,7 @@ INTERFACE FM3ExpImp
     : INTEGER (* Number of decls in FromUnitRef^ *) 
 
 ; PROCEDURE ImportAllDecls
-    ( FromUnitRef :  FM3Units . UnitRefTyp
+    ( FromUnitTRef :  FM3Units . UnitTRefTyp
     ; READONLY ExportPosition : FM3Base . tPosition
       (* ^Of the EXPORTS directive's identifier. *)
     )

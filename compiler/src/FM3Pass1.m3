@@ -124,24 +124,25 @@ MODULE FM3Pass1
 (*EXPORTED*) 
 ; PROCEDURE RunPass1 ( ) 
 
-  = VAR LUnitTRef : FM3Units . UnitRefTyp
+  = VAR LUnitTRef : FM3Units . UnitTRefTyp
 
   ; BEGIN (*RunPass1*)
       LUnitTRef := FM3Units . UnitTStackTopRef 
     ; InitPass1 ( LUnitTRef )
-    ; LUnitTRef ^ . UntPassNosDisAsmed := FM3CLOptions . PassNoSetEmpty 
+    ; LUnitTRef ^ . UttUnitRef ^ . UntPassNosDisAsmed
+        := FM3CLOptions . PassNoSetEmpty 
     ; TranslatePass1 ( LUnitTRef ) 
     ; FinishPass1 ( LUnitTRef ) 
     END RunPass1
 
 ; PROCEDURE EnsureBuildDirectory
-    ( UnitTRef : FM3Units . UnitRefTyp ; SrcFilePath : TEXT )
+    ( UnitTRef : FM3Units . UnitTRefTyp ; SrcFilePath : TEXT )
 
   = BEGIN (*EnsureBuildDirectory*)
-      UnitTRef ^ . UntBuildDirPath
+      UnitTRef ^ . UttUnitRef ^ . UntBuildDirPath
         := SrcFilePath & "/" & FM3CLOptions . BuildDirRelPath
     ; TRY
-        FS . CreateDirectory ( UnitTRef ^ . UntBuildDirPath )
+        FS . CreateDirectory ( UnitTRef ^ . UttUnitRef ^ . UntBuildDirPath )
       EXCEPT
       | OSError . E ( EAtoms ) 
       => IF EAtoms . tail = NIL
@@ -158,13 +159,14 @@ MODULE FM3Pass1
            BEGIN
              Wr . PutText
                ( Stdio . stderr , "Unable to create build directory " ) 
-           ; Wr . PutText ( Stdio . stderr , UnitTRef ^ . UntBuildDirPath ) 
+           ; Wr . PutText
+               ( Stdio . stderr , UnitTRef ^ . UttUnitRef ^ . UntBuildDirPath ) 
            ; Wr . PutText ( Stdio . stderr , ": " ) 
            ; Wr . PutText
                ( Stdio . stderr , FM3Messages . AtomListToOSError ( EAtoms ) ) 
            ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
            ; Wr . PutText
-               ( Stdio . stderr , "Forging ahead, assuming it already exists." ) 
+               ( Stdio . stderr , "Forging ahead, assuming it already exists." )
            ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
            ; Wr . Flush ( Stdio . stderr )
            END (*Block.*)
@@ -175,23 +177,26 @@ MODULE FM3Pass1
     END EnsureBuildDirectory
 
 (*EXPORTED*) 
-; PROCEDURE DisAsmPass1 ( UnitTRef : FM3Units . UnitRefTyp )
+; PROCEDURE DisAsmPass1 ( UnitTRef : FM3Units . UnitTRefTyp )
   RAISES { RdBackFile . BOF }
 
   = BEGIN (*DisAsmPass1*)
-      IF NOT FM3CLOptions . PassNo1 IN UnitTRef ^ . UntPassNosDisAsmed 
+      IF NOT FM3CLOptions . PassNo1
+             IN UnitTRef ^ . UttUnitRef ^ . UntPassNosDisAsmed 
       THEN (* Disassembly file is not already written. *) 
         FM3Compile . DisAsmPassFile
           ( UnitTRef , FM3Globals . Pass1OutSuffix , L2R := FALSE )
       ; FM3CLOptions . InclPassNo
-          ( UnitTRef ^ . UntPassNosDisAsmed , FM3CLOptions . PassNo1 ) 
+          ( UnitTRef ^ . UttUnitRef ^ . UntPassNosDisAsmed
+          , FM3CLOptions . PassNo1
+          ) 
       END (*IF*) 
     END DisAsmPass1
 
 ; CONST UnitLogSuffix = ".log" 
 
 (*EXPORTED.*)
-; PROCEDURE InitPass1 ( UnitTRef : FM3Units . UnitRefTyp ) 
+; PROCEDURE InitPass1 ( UnitTRef : FM3Units . UnitTRefTyp ) 
 
   = VAR LFullFileName : TEXT
   ; VAR LFullPass1OutName : TEXT 
@@ -204,18 +209,20 @@ MODULE FM3Pass1
 (* FIXME: FM3CLArgs wants a build directory to put a log file in, even before
           we get here.  Is this the right place for it?
 *)
-      EnsureBuildDirectory ( UnitTRef , UnitTRef ^ . UntSrcFilePath ) 
+      EnsureBuildDirectory
+        ( UnitTRef , UnitTRef ^ . UttUnitRef ^ . UntSrcFilePath ) 
 
     (* Create the unit log output file. A pure text file. *)
     ; UnitTRef ^ . UttLogSimpleName
         := Pathname . Join
              ( NIL
-             , UnitTRef ^ . UntSrcFileSimpleName
+             , UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName
              , FM3Globals . UnitLogSuffix
              ) 
     ; LUnitLogFullName
         := Pathname . Join
-             ( UnitTRef ^ . UntSrcFilePath , UnitTRef ^ . UttLogSimpleName , NIL )
+             ( UnitTRef ^ . UttUnitRef ^ . UntSrcFilePath , UnitTRef
+               ^ . UttLogSimpleName , NIL )
     ; IF Clt . CltUnitLog IN FM3CLOptions . OptionTokSet
       THEN 
         TRY UnitTRef ^ . UttLogWrT := FileWr . Open ( LUnitLogFullName ) 
@@ -244,20 +251,20 @@ MODULE FM3Pass1
     ; UnitTRef ^ . UttPass1OutSimpleName
         := Pathname . Join
              ( NIL
-             , UnitTRef ^ . UntSrcFileSimpleName
+             , UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName
              , FM3Globals . Pass1OutSuffix
              )
     ; UnitTRef ^ . UttPatchStackSimpleName
         := Pathname . Join
              ( NIL
-             , UnitTRef ^ . UntSrcFileSimpleName
+             , UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName
              , FM3Globals . PatchStackSuffix
              )
     ; TRY (*EXCEPT*)
         (* Heh, heh.  Code the exception handler only once for both files. *) 
         LFullPass1OutName
           := Pathname . Join
-               ( UnitTRef ^ . UntBuildDirPath 
+               ( UnitTRef ^ . UttUnitRef ^ . UntBuildDirPath 
                , UnitTRef ^ . UttPass1OutSimpleName
                , NIL
                )
@@ -269,7 +276,7 @@ MODULE FM3Pass1
 
       ; LFullPatchStackName
           := Pathname . Join
-               ( UnitTRef ^ . UntBuildDirPath 
+               ( UnitTRef ^ . UttUnitRef ^ . UntBuildDirPath 
                , UnitTRef ^ . UttPatchStackSimpleName
                , NIL
                ) 
@@ -333,13 +340,13 @@ MODULE FM3Pass1
 
     END InitPass1
 
-; PROCEDURE TranslatePass1 ( UnitTRef : FM3Units . UnitRefTyp )
+; PROCEDURE TranslatePass1 ( UnitTRef : FM3Units . UnitTRefTyp )
 
   = BEGIN (*TranslatePass1*)
       TRY
 
       (* Run the translation part of pass 1. *)
-        UnitTRef ^ . UntParseResult := FM3Parser . FM3Parser ( )
+        UnitTRef ^ . UttUnitRef ^ . UntParseResult := FM3Parser . FM3Parser ( )
 (* TODO:           ^Something with this? *)
 
       (* Write final successful Pass 1 output file tokens. *)
@@ -416,7 +423,7 @@ MODULE FM3Pass1
     END TranslatePass1
 
 (*EXPORTED.*)
-; PROCEDURE FinishPass1 ( UnitTRef : FM3Units . UnitRefTyp ) 
+; PROCEDURE FinishPass1 ( UnitTRef : FM3Units . UnitTRefTyp ) 
 
   = VAR LPass1LengthL : LONGINT
   ; VAR LLengthL : LONGINT
@@ -428,7 +435,7 @@ MODULE FM3Pass1
     (* Report size and maybe disassemble pass 1 output file. *) 
       LPass1FullFileName
         := Pathname . Join
-             ( UnitTRef ^ . UntBuildDirPath 
+             ( UnitTRef ^ . UttUnitRef ^ . UntBuildDirPath 
              , UnitTRef ^ . UttPass1OutSimpleName
              , NIL
              )
@@ -456,7 +463,7 @@ MODULE FM3Pass1
     
 (*
 ; PROCEDURE UnitId 
-    ( UnitTRef : FM3Units . UnitRefTyp
+    ( UnitTRef : FM3Units . UnitTRefTyp
     ; IdScanAttr : FM3Scanner . tScanAttribute 
     ; VAR (*OUT*) NameFromFileName : TEXT 
     )
@@ -465,18 +472,19 @@ MODULE FM3Pass1
       NameFromFileName := NIL 
     ; IF UnitTRef # NIL
       THEN 
-        UnitTRef ^ . UntUnitIdentPos := IdScanAttr . Position 
-      ; UnitTRef ^ . UntUnitIdent := IdText 
-      ; IF UnitTRef ^ . UntSrcFileSimpleName # NIL
+        UnitTRef ^ . UttUnitRef ^ . UntUnitIdentPos := IdScanAttr . Position 
+      ; UnitTRef ^ . UttUnitRef ^ . UntUnitIdent := IdText 
+      ; IF UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName # NIL
         THEN
           NameFromFileName
-            := FM3Files . RemoveSuffix ( UnitTRef ^ . UntSrcFileSimpleName )
+            := FM3Files . RemoveSuffix
+                 ( UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName )
         END (*IF*) 
       END (*IF*) 
     END UnitId 
 
 ; PROCEDURE NameFromFileName 
-    ( UnitTRef : FM3Units . UnitRefTyp
+    ( UnitTRef : FM3Units . UnitTRefTyp
     ; IdScanAttr : FM3Scanner . tScanAttribute 
     )
   : REF ARRAY OF CHAR
@@ -491,7 +499,7 @@ MODULE FM3Pass1
 
   ; BEGIN (* UnitId *)
       IF UnitTRef = NIL THEN RETURN NIL END (*IF*) 
-    ; LOACharsRef := UnitTRef ^ . UntUnitIdentOA
+    ; LOACharsRef := UnitTRef ^ . UttUnitRef ^ . UntUnitIdentOA
     ; IF LOACharsRef = NIL THEN RETURN NIL END (*IF*)
     ; LNumber := NUMBER ( LOACharsRef ^ )
     ; LSs := LNumber - 1
@@ -508,7 +516,7 @@ MODULE FM3Pass1
 *) 
 
 ; PROCEDURE UnitNameTFromFileName 
-    ( UnitTRef : FM3Units . UnitRefTyp ) : TEXT 
+    ( UnitTRef : FM3Units . UnitTRefTyp ) : TEXT 
   (*PRE: UnitTRef # NIL *) 
   (* If the unit name has a suffix of the form .c*, where c is any non-dot,
      remove it.  NIL if no unit name exists. 
@@ -518,7 +526,7 @@ MODULE FM3Pass1
   ; VAR LBase : TEXT 
 
   ; BEGIN (* UnitNameTFromFileName *)
-      LFileNameT := UnitTRef ^ . UntSrcFileSimpleName 
+      LFileNameT := UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName 
     ; IF LFileNameT = NIL THEN RETURN NIL END (*IF*)
     ; LBase := Pathname . Base ( LFileNameT )
     ; RETURN LBase 
@@ -526,7 +534,7 @@ MODULE FM3Pass1
 
 (*EXPORTED:*)
 ; PROCEDURE InterfaceId
-    ( UnitTRef : FM3Units . UnitRefTyp
+    ( UnitTRef : FM3Units . UnitTRefTyp
     ; READONLY IdScanAttr : FM3Scanner . tScanAttribute 
     )
   (*PRE: UnitTRef # NIL *) 
@@ -534,25 +542,26 @@ MODULE FM3Pass1
   = VAR LNameFromFileName : TEXT
 
   ; BEGIN (* InterfaceId *)
-      UnitTRef ^ . UntUnitIdent := IdScanAttr . SaChars 
-    ; UnitTRef ^ . UntUnitIdentPos := IdScanAttr . Position
-    ; <* ASSERT UnitTRef ^ . UntStdTok = IdScanAttr . SaBuiltinTok
+      UnitTRef ^ . UttUnitRef ^ . UntUnitIdent := IdScanAttr . SaChars 
+    ; UnitTRef ^ . UttUnitRef ^ . UntUnitIdentPos := IdScanAttr . Position
+    ; <* ASSERT UnitTRef ^ . UttUnitRef ^ . UntStdTok
+                = IdScanAttr . SaBuiltinTok
          , "Std unit Toks for filename and interface name disagree."
       *>
-      IF UnitTRef ^ . UntUnitIdent = NIL THEN RETURN END (*IF*) 
+      IF UnitTRef ^ . UttUnitRef ^ . UntUnitIdent = NIL THEN RETURN END (*IF*) 
     ; LNameFromFileName := UnitNameTFromFileName ( UnitTRef ) 
     ; IF LNameFromFileName = NIL THEN RETURN END (*IF*) 
     ; IF NOT Text . Equal
-               ( Text . FromChars ( UnitTRef ^ . UntUnitIdent ^ )
+               ( Text . FromChars ( UnitTRef ^ . UttUnitRef ^ . UntUnitIdent ^ )
                , LNameFromFileName
                ) 
       THEN
         FM3Messages . ErrorArr
           ( ARRAY OF REFANY
               { "Interface name \""
-              , UnitTRef ^ . UntUnitIdent 
+              , UnitTRef ^ . UttUnitRef ^ . UntUnitIdent 
               , "\" does not agree with file name \""
-              , UnitTRef ^ . UntSrcFileSimpleName
+              , UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName
               , "\" (FM3 requirement)." 
               }
           , IdScanAttr . Position
@@ -562,7 +571,7 @@ MODULE FM3Pass1
 
 (*EXPORTED:*)
 ; PROCEDURE ModuleId
-    ( UnitTRef : FM3Units . UnitRefTyp
+    ( UnitTRef : FM3Units . UnitTRefTyp
     ; READONLY IdScanAttr : FM3Scanner . tScanAttribute 
     )
   (*PRE: UnitTRef # NIL *) 
@@ -570,22 +579,22 @@ MODULE FM3Pass1
   = VAR LNameFromFileName : TEXT
 
   ; BEGIN (* ModuleId *) 
-      UnitTRef ^ . UntUnitIdent := IdScanAttr . SaChars 
-    ; UnitTRef ^ . UntUnitIdentPos := IdScanAttr . Position
-    ; IF UnitTRef ^ . UntUnitIdent = NIL THEN RETURN END (*IF*) 
+      UnitTRef ^ . UttUnitRef ^ . UntUnitIdent := IdScanAttr . SaChars 
+    ; UnitTRef ^ . UttUnitRef ^ . UntUnitIdentPos := IdScanAttr . Position
+    ; IF UnitTRef ^ . UttUnitRef ^ . UntUnitIdent = NIL THEN RETURN END (*IF*) 
     ; LNameFromFileName := UnitNameTFromFileName ( UnitTRef ) 
     ; IF LNameFromFileName = NIL THEN RETURN END (*IF*) 
     ; IF NOT Text . Equal
-               ( Text . FromChars ( UnitTRef ^ . UntUnitIdent ^ )
+               ( Text . FromChars ( UnitTRef ^ . UttUnitRef ^ . UntUnitIdent ^ )
                , LNameFromFileName
                ) 
       THEN
         FM3Messages . InfoArr
           ( ARRAY OF REFANY
               { "Module name \""
-              , UnitTRef ^ . UntUnitIdent  
+              , UnitTRef ^ . UttUnitRef ^ . UntUnitIdent  
               , "\" is not consistent with file name \""
-              , UnitTRef ^ . UntSrcFileSimpleName
+              , UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName
               , "\"." 
               }
          , IdScanAttr . Position 
@@ -595,16 +604,17 @@ MODULE FM3Pass1
 
 (*EXPORTED:*)
 ; PROCEDURE CheckUnitFinalId
-    ( UnitTRef : FM3Units . UnitRefTyp
+    ( UnitTRef : FM3Units . UnitTRefTyp
     ; READONLY EndIdScanAttr : FM3Scanner . tScanAttribute 
     ; UnitKind : FM3Units . UnitKindTyp
     )
     
   = BEGIN (* CheckUnitFinalId *)
       IF UnitTRef = NIL THEN RETURN END (*IF*) 
-    ; IF UnitTRef ^ . UntUnitIdent = NIL THEN RETURN END (*IF*) 
+    ; IF UnitTRef ^ . UttUnitRef ^ . UntUnitIdent = NIL THEN RETURN END (*IF*) 
     ; IF EndIdScanAttr . SaChars = NIL THEN RETURN END (*IF*)
-    ; IF EndIdScanAttr . SaChars ^ # UnitTRef ^ . UntUnitIdent ^   
+    ; IF EndIdScanAttr . SaChars ^
+         # UnitTRef ^ . UttUnitRef ^ . UntUnitIdent ^   
       THEN
         FM3Messages . ErrorArr
           ( ARRAY OF REFANY 
@@ -613,9 +623,9 @@ MODULE FM3Pass1
               , "\" at end of "
               , FM3Units . UnitKindImage ( UnitKind )
               , " named \""
-              , UnitTRef ^ . UntUnitIdent 
+              , UnitTRef ^ . UttUnitRef ^ . UntUnitIdent 
               , "\", at " 
-              , PosImage ( UnitTRef ^ . UntUnitIdentPos )  
+              , PosImage ( UnitTRef ^ . UttUnitRef ^ . UntUnitIdentPos )  
               , ", must repeat its name ("
               , FM3Units . UnitKindSectionNo ( UnitKind )
               , ")." 
@@ -626,15 +636,17 @@ MODULE FM3Pass1
     END CheckUnitFinalId
 
 (*EXPORTED:*)
-; PROCEDURE CheckStdUnitPragma ( UnitTRef : FM3Units . UnitRefTyp )
+; PROCEDURE CheckStdUnitPragma ( UnitTRef : FM3Units . UnitTRefTyp )
     
   = BEGIN (* CheckStdUnitPragma *)
       IF UnitTRef = NIL THEN RETURN END (*IF*)
-    ; IF UnitTRef ^ . UntKind # Ukt . UkInterface THEN RETURN END (*IF*)
-    ; <* ASSERT UnitTRef ^ . UntHasStdUnitPragma
-                = ( UnitTRef ^ . UntStdTok # FM3Base . TokNull ) 
+    ; IF UnitTRef ^ . UttUnitRef ^ . UntKind # Ukt . UkInterface
+      THEN RETURN
+      END (*IF*)
+    ; <* ASSERT UnitTRef ^ . UttUnitRef ^ . UntHasStdUnitPragma
+                = ( UnitTRef ^ . UttUnitRef ^ . UntStdTok # FM3Base . TokNull ) 
       , "HasStdUnitPragma disagrees with UntStdTok for "
-        & UnitTRef ^ . UntSrcFileSimpleName
+        & UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName
       *> 
     END CheckStdUnitPragma
 
@@ -740,7 +752,8 @@ MODULE FM3Pass1
       WITH WRdBack = FM3Units . UnitTStackTopRef ^ . UttPass1OutRdBack
       DO
 (* Keep DumpWork.DumpNumericBwd consistent with this:*) 
-        CASE ParsAttr . Scan . SaTok OF (* Optional varterm-specific value info: *) 
+        CASE ParsAttr . Scan . SaTok
+        OF (* Optional varterm-specific value info: *) 
      (* | FM3SrcToks . StkIdent
           => Ident spelling? Probably not.
              PushOACharsBwd ( WRdBack , ParsAttr . Scan . SaChars )
@@ -2252,7 +2265,7 @@ MODULE FM3Pass1
   = BEGIN (*ScopeEmpty*)
       RETURN
         FM3Scopes . NewScopeRef
-          ( FM3Units . UnitTStackTopRef , ScopeKind , Position ) 
+          ( FM3Units . UnitTStackTopRef ^ . UttUnitRef , ScopeKind , Position ) 
     END ScopeEmpty
     
 (* Left-to-right scope handling.  These are called by the parser. *)
@@ -2262,7 +2275,8 @@ MODULE FM3Pass1
 
   = BEGIN
       RETURN FM3Atom_OAChars . MakeAtom 
-                ( FM3Units . UnitTStackTopRef ^ . UntIdentAtomDict
+                ( FM3Units . UnitTStackTopRef ^ . UttUnitRef
+                  ^ . UntIdentAtomDict
                 , IdAttr . Scan . SaChars 
                 , IdAttr . Scan . SaHash 
                 ) 
@@ -2330,7 +2344,7 @@ MODULE FM3Pass1
            , WUntRdBack = FM3Units . UnitTStackTopRef ^ . UttPass1OutRdBack 
       DO IF WScopeRefForDecls . ScpKind IN FM3Scopes . ScopeKindSetUnit 
             AND NOT FM3ExpImp . CheckDuplicateExpImp
-                      ( FM3Units . UnitTStackTopRef 
+                      ( FM3Units . UnitTStackTopRef ^ . UttUnitRef 
                       , LAtom
                       , IdAttr . Scan . Position
                       , "declaration"
@@ -2473,7 +2487,8 @@ MODULE FM3Pass1
   = BEGIN
       CASE PragmaAttr . Scan . SaBuiltinTok OF
       | FM3PgToks . PgFM3StdUnit
-       => FM3Units . UnitTStackTopRef ^ . UntHasStdUnitPragma := TRUE 
+      => FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntHasStdUnitPragma
+         := TRUE 
       ELSE
         FM3Messages . WarningArr
           ( ARRAY OF REFANY
@@ -2524,8 +2539,10 @@ MODULE FM3Pass1
 
   = BEGIN
       IF IdAttr . Scan . SaTok # Stk . StkIdent THEN RETURN FALSE END (*IF*)
-    ; IF IdAttr . Scan . SaAtom # FM3Base . AtomNull THEN RETURN FALSE END (*IF*)
-         (* ^Declared. *) 
+    ; IF IdAttr . Scan . SaAtom # FM3Base . AtomNull
+      THEN RETURN FALSE
+      END (*IF*)
+     (* ^Declared. *) 
     ; <* ASSERT IntSets . IsElement
                   ( IdAttr . Scan . SaBuiltinTok , FM3Std . ReservedIdSet )
       *>
@@ -2703,7 +2720,7 @@ MODULE FM3Pass1
   = VAR SrtDeclNo : INTEGER (* Counts up. *) 
 
   ; BEGIN (*ScopeForDeclsRtL2R*)
-      VAR LUnitTRef : FM3Units . UnitRefTyp
+      VAR LUnitRef : FM3Units . UnitRefTyp
     ; VAR LContainingScopeRef : FM3Scopes . ScopeRefTyp
     ; VAR LEscapingRefSet : IntSets . T 
     ; VAR LDeclCt : INTEGER
@@ -2722,12 +2739,12 @@ MODULE FM3Pass1
         END SrtVisit
 
     ; BEGIN (* Block. *)
-        LUnitTRef := ScopeRef ^ . ScpOwningUnitRef 
+        LUnitRef := ScopeRef ^ . ScpOwningUnitRef 
       ; IF ScopeRef = FM3Scopes . ScopeLookupStackTopRef
         THEN (* A ref herein can refer to a (possibly different) decl,
                 also herein.
              *) 
-        (* Move Idents ref'd but to decls in this scope out to 
+        (* Move Idents ref'd but not to decls in this scope out to 
            containing lookup scope.
         *)
           LEscapingRefSet
@@ -2738,7 +2755,7 @@ MODULE FM3Pass1
                  ( ScopeRef ^ . ScpRefIdSet , ScopeRef ^ . ScpDeclIdSet )
         ; LContainingScopeRef := ScopeRef ^ . ScpLookupStackLink
         ; IF Clt . CltRemoveUnusedDecls IN FM3CLOptions . OptionTokSet
-             AND ScopeRef = LUnitTRef ^ . UntScopeRef 
+             AND ScopeRef = LUnitRef ^ . UntScopeRef 
              AND FM3Units . CurrentUnitIsModule ( ) 
           THEN (* It's a module. *) 
             ScopeRef ^ . ScpDeclIdSet 
@@ -2812,7 +2829,7 @@ MODULE FM3Pass1
     
     ; LScopeRef 
         := FM3Scopes . NewScopeRef
-             ( FM3Units . UnitTStackTopRef 
+             ( FM3Units . UnitTStackTopRef ^ . UttUnitRef  
              , Skt . SkObj
              , Position
              ) 

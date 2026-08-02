@@ -131,9 +131,10 @@ INTERFACE FM3Units
       ; UntUnsafe : BOOLEAN := FALSE  
       ; UntInExpImpCycle : BOOLEAN := FALSE
       ; UntHasStdUnitPragma : BOOLEAN := FALSE (* Has the FM3_STDUNIT pragma. *)
+      ; UntNextDeclNo : INTEGER := 1
 
-(***)  ; 
-        UttStackLink : UnitRefTyp := NIL
+(*   ; 
+        UttStackLink : UnitTRefTyp := NIL
       ; UttUnitRef : UnitRefTyp 
       ; UttSrcUniRd : UniRd . T 
       ; UttLogSimpleName : TEXT := NIL 
@@ -163,7 +164,7 @@ INTERFACE FM3Units
       ; UttMaxPass3OutLength : LONGINT := 0L 
       ; UttPass3OutEmptyCoord : LONGINT := 0L
 
-      ; UttImportingUnitRef : UnitRefTyp
+      ; UttImportingUnitTRef : UnitTRefTyp
           (* ^The unit this one is in process of [ex|im]porting. *) 
       ; UttPositionOfImport : FM3Base . tPosition
           (* ^Of the being-[ex|im]ported identifier. *) 
@@ -181,19 +182,18 @@ INTERFACE FM3Units
           (* ^Where on the units stack this UnitTRef is. *) 
       ; UttSelfUnitNo : FM3Globals . UnitNoTyp := FM3Globals . UnitNoNull
           (* ^Self-referential. *) 
-      ; UttNextDeclNo : INTEGER := 1
-(***) 
+*)  
       END (*UnitTyp*)
 
 (* Transient info about a unit. Present the unit is in compilation or loaded
    after being compiled in a prior run.
 *) 
 ; CONST UnitTransRefBrand = "UnitTransRef0.1"
-; TYPE UnitTransRefTyp = REF UnitTransTyp 
+; TYPE UnitTRefTyp = REF UnitTTyp 
 
-; TYPE UnitTransTyp
+; TYPE UnitTTyp
     = RECORD
-        UttStackLink : UnitRefTyp := NIL
+        UttStackLink : UnitTRefTyp := NIL
       ; UttUnitRef : UnitRefTyp 
       ; UttSrcUniRd : UniRd . T 
       ; UttLogSimpleName : TEXT := NIL 
@@ -223,7 +223,7 @@ INTERFACE FM3Units
       ; UttMaxPass3OutLength : LONGINT := 0L 
       ; UttPass3OutEmptyCoord : LONGINT := 0L
 
-      ; UttImportingUnitRef : UnitRefTyp
+      ; UttImportingUnitTRef : UnitTRefTyp
           (* ^The unit this one is in process of [ex|im]porting. *) 
       ; UttPositionOfImport : FM3Base . tPosition
           (* ^Of the being-[ex|im]ported identifier. *) 
@@ -241,14 +241,13 @@ INTERFACE FM3Units
           (* ^Where on the units stack this UnitTRef is. *) 
       ; UttSelfUnitNo : FM3Globals . UnitNoTyp := FM3Globals . UnitNoNull
           (* ^Self-referential. *) 
-      ; UttNextDeclNo : INTEGER := 1
-      END (*UnitTransTyp*)
+      END (*UnitTTyp*)
 
 ; <*INLINE*>
-  PROCEDURE UnitNoRef ( UnitNo : FM3Globals . UnitNoTyp ) : UnitRefTyp
+  PROCEDURE UnitTRefOfUnitNo ( UnitNo : FM3Globals . UnitNoTyp ) : UnitTRefTyp
   (* Mainly for convenient calling by a debugger. *) 
 
-; PROCEDURE UnitRefImage ( UnitTRef : UnitRefTyp ) : TEXT 
+; PROCEDURE UnitRefImage ( UnitTRef : UnitTRefTyp ) : TEXT 
   (* UnitNo, REF, and sourceFileName. *) 
   
 ; VAR UnitsAtomDict : FM3Atom_Text . T
@@ -257,9 +256,9 @@ INTERFACE FM3Units
             comments in FM3Scope.i3.
         *) 
 ; VAR UnitsAtomInitSize := 50
-; VAR UnitsMap : VarArray_Int_Refany . T 
-    (* Only one UnitsMap in a compile.  Maps both Atoms from UnitsAtomDict
-       and unit numbers (which are the same) directly into UnitRefs.
+; VAR UnitsTMap : VarArray_Int_Refany . T 
+    (* Only one UnitsTMap in a compile.  Maps both IdAtoms from UnitsAtomDict
+       and unit numbers (which the the same va;uie) directly into UnitTRefs.
     *)
 
 ; CONST ExpImpProxyNull
@@ -271,10 +270,12 @@ INTERFACE FM3Units
         , EipImportingUnitPosition := FM3Base . PositionNull
         } 
 
-; PROCEDURE NewUnitRef ( ) : UnitRefTyp
-  (* Allocate, low-level initialize, give it a UnitNo, and put into UnitsMap. *)
+; PROCEDURE NewUnitTRef ( ) : UnitTRefTyp
+  (* Allocate a UnitTTyp and a UnitTyp, Point the former to the latter, low-
+     level initialize their fields, give it a UnitNo, and put into UnitsTMap.
+  *)
 
-; PROCEDURE UnitRefIdImage ( UnitTRef : UnitRefTyp ) : TEXT 
+; PROCEDURE UnitRefIdImage ( UnitRef : UnitRefTyp ) : TEXT 
 
 ; PROCEDURE AllocateDeclNos ( Count : INTEGER ) : INTEGER 
   (* Allocate a contiguous range of Count Decl numbers, unique
@@ -284,13 +285,13 @@ INTERFACE FM3Units
 ; PROCEDURE IdAtomText ( IdAtom : FM3Base . AtomTyp ) : TEXT
   (* In the current unit. *) 
 
-; VAR UnitTStackTopRef : UnitRefTyp := NIL 
+; VAR UnitTStackTopRef : UnitTRefTyp := NIL 
     (* One UnitStack in a run of the compiler. *)
     (* This is the Unit curently being worked-on. *) 
     
-; PROCEDURE PushUnit ( UnitTRef : UnitRefTyp ) 
+; PROCEDURE PushUnit ( UnitTRef : UnitTRefTyp ) 
 
-; PROCEDURE PopUnit ( ) : UnitRefTyp
+; PROCEDURE PopUnit ( ) : UnitTRefTyp
 
 ; PROCEDURE CacheTopUnitValues ( )
   (* Cache some fields of top unit in global variables for faster access. *) 
@@ -298,7 +299,7 @@ INTERFACE FM3Units
 ; PROCEDURE CurrentUnitIsModule ( ) : BOOLEAN 
 
 ; PROCEDURE CharsOfIdentAtom
-    ( UnitTRef : UnitRefTyp ; Atom : FM3Base . AtomTyp )
+    ( UnitTRef : UnitTRefTyp ; Atom : FM3Base . AtomTyp )
   : FM3Atom_OAChars . KeyTyp (* Which is ARRAY OF CHAR. *) 
 ;
  END FM3Units

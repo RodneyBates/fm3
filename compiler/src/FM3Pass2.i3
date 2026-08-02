@@ -13,7 +13,7 @@ INTERFACE FM3Pass2
 ; PROCEDURE RunPass2 ( ) 
 
 ; PROCEDURE DisAsmPass2
-    ( UnitRef : FM3Units . UnitRefTyp ; DoEarlierPasses : BOOLEAN )
+    ( UnitRef : FM3Units . UnitTRefTyp ; DoEarlierPasses : BOOLEAN )
 
 ; END FM3Pass2
 .

@@ -228,11 +228,12 @@ MODULE FM3Scopes
 (*EXPORTED.*)
 ; PROCEDURE ScopeRefOfScopeNo
     ( ScopeNo : FM3Globals . ScopeNoTyp 
-    ; UnitTRef : FM3Units . UnitRefTyp := NIL (* NIL means current unit. *)
+    ; UnitTRef : FM3Units . UnitTRefTyp := NIL (* NIL means current TOSunit. *)
     )
   : ScopeRefTyp 
    
-  = VAR LUnitTRef : FM3Units . UnitRefTyp
+  = VAR LUnitTRef : FM3Units . UnitTRefTyp
+  ; VAR LUnitRef : FM3Units . UnitRefTyp
   ; VAR LScopeMap : ScopeMapTyp 
   ; VAR LScopeRef : ScopeRefTyp
 
@@ -240,8 +241,9 @@ MODULE FM3Scopes
       IF UnitTRef = NIL
       THEN LUnitTRef := FM3Units . UnitTStackTopRef 
       ELSE LUnitTRef := UnitTRef
-      END (*IF*) 
-    ; LScopeMap := LUnitTRef ^ . UntScopeMap
+      END (*IF*)
+    ; LUnitRef := LUnitTRef ^ . UttUnitRef
+    ; LScopeMap := LUnitRef ^ . UntScopeMap
     ; IF LScopeMap = NIL THEN RETURN NIL END 
     ; LScopeRef := VarArray_Int_Refany . Fetch ( LScopeMap , ScopeNo )
       (*        ^Implied NARROW *)

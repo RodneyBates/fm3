@@ -119,7 +119,7 @@ MODULE FM3Pass2
 (*EXPORTED*)
 ; PROCEDURE Pass2Tokens ( LMPass1Coord : LONGINT )
 
-  = VAR LUnitTRef : FM3Units . UnitRefTyp
+  = VAR LUnitTRef : FM3Units . UnitTRefTyp
   ; VAR LPass1RdBack : RdBackFile . T 
   ; VAR LTokResult : TokResultTyp 
 
@@ -474,7 +474,7 @@ FALSE AND
 
 ; PROCEDURE HandleTok ( READONLY TokResult : TokResultTyp ) 
 
-  = VAR LUnitTRef : FM3Units . UnitRefTyp
+  = VAR LUnitTRef : FM3Units . UnitTRefTyp
   ; VAR LScopeRef : FM3Scopes . ScopeRefTyp
   ; VAR HtPass1RdBack : RdBackFile . T 
   ; VAR HtPass2RdBack : RdBackFile . T
@@ -1673,11 +1673,11 @@ TRUE OR
 
   ; BEGIN
       IF IntSets . IsElement
-           ( IdAtom , FM3Units . UnitTStackTopRef ^ . UntExpImpIdSet ) 
+           ( IdAtom , FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntExpImpIdSet ) 
       THEN (* It's [ex|im]ported. *) 
         LExpImpProxy
           := VarArray_Int_ExpImpProxy . Fetch
-               ( FM3Units . UnitTStackTopRef ^ . UntExpImpMap , IdAtom )
+               ( FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntExpImpMap , IdAtom )
       ; UnitNo := LExpImpProxy . EipUnitNo 
       ; DeclNo := LExpImpProxy . EipDeclNo
       ; RETURN TRUE
@@ -1712,11 +1712,11 @@ TRUE OR
       ; LDeclNo := SCC [ 0 ] + OslScopeRef ^ . ScpMinDeclNo (* Remove bias. *) 
       ; LDeclRef0 (* Implicit NARROW. *) 
           := VarArray_Int_Refany . Fetch
-               ( FM3Units . UnitTStackTopRef ^ . UntDeclMap , LDeclNo )
+               ( FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntDeclMap , LDeclNo )
       ; FM3Utils . PutOACharsWr
           ( LWrT
           , FM3Utils . CharsOfAtom
-              ( FM3Units . UnitTStackTopRef ^ . UntIdentAtomDict
+              ( FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntIdentAtomDict
               , LDeclRef0 ^ . DclIdAtom
               )
           ) 
@@ -1733,11 +1733,11 @@ TRUE OR
               := SCC [ RI ] + OslScopeRef ^ . ScpMinDeclNo (* Remove bias. *) 
           ; LDeclRefn (* Implicit NARROW. *) 
               := VarArray_Int_Refany . Fetch
-                   ( FM3Units . UnitTStackTopRef ^ . UntDeclMap , LDeclNo )  
+                   ( FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntDeclMap , LDeclNo )  
           ; FM3Utils . PutOACharsWr
               ( LWrT
               , FM3Utils . CharsOfAtom
-                  ( FM3Units . UnitTStackTopRef ^ . UntIdentAtomDict
+                  ( FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntIdentAtomDict
                   , LDeclRefn ^ . DclIdAtom
                   )
               ) 
@@ -1834,7 +1834,7 @@ TRUE OR
       ; LNewDeclRef ^ . DclKind := Dkt . DkDuplDecl 
       ; LNewDeclRef ^ . DclIsUsable := FALSE (* Used? *)
       ; VarArray_Int_Refany . Assign
-          ( FM3Units . UnitTStackTopRef ^ . UntDeclMap
+          ( FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntDeclMap
           , (* Implicit NARROW. *) DeclNoI
           , LNewDeclRef
           )
@@ -1850,7 +1850,7 @@ TRUE OR
       ; LDeclNo := LookupDeclNoInScope ( DdiOrigScopeRef ^ , DdiAtom )
       ; <*ASSERT LDeclNo # FM3Globals . DeclNoNull *>
         VarArray_Int_Refany . CallbackWithElem
-          ( FM3Units . UnitTStackTopRef ^ . UntDeclMap , LDeclNo , DdiVisit )
+          ( FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntDeclMap , LDeclNo , DdiVisit )
       ; RETURN LDeclNo
       END (* Block. *) 
     END DuplDeclIdR2L
@@ -2072,7 +2072,7 @@ TRUE OR
         THEN <*ASSERT FALSE , "Missing decl no." *>
         END (*IF*) 
       ; VarArray_Int_Refany . CallbackWithElem 
-          ( FM3Units . UnitTStackTopRef ^ . UntDeclMap 
+          ( FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntDeclMap 
           , DidDeclNo 
           , DidVisitDecl
           )
@@ -2370,12 +2370,13 @@ TRUE OR
       UnitTok := FM3Base . TokNull 
     ; DeclTok := FM3Base . TokNull 
     ; IF UnitNo = FM3Globals . UnitNoNull THEN RETURN END (*IF*)
-    ; LUnitTRef := VarArray_Int_Refany . Fetch ( FM3Units . UnitsMap , UnitNo )
+    ; LUnitTRef := VarArray_Int_Refany . Fetch ( FM3Units . UnitsTMap , UnitNo )
             (* ^ Implied NARROW. *) 
     ; IF LUnitTRef = NIL THEN RETURN END (*IF*)
     ; IF DeclNo = FM3Globals . DeclNoNull THEN RETURN END (*IF*)  
-    ; LDeclRef := VarArray_Int_Refany . Fetch ( LUnitTRef . UntDeclMap , DeclNo ) 
-           (* ^ Implied NARROW. *) 
+    ; LDeclRef
+        := VarArray_Int_Refany . Fetch ( LUnitTRef . UntDeclMap , DeclNo ) 
+     (* ^ Implied NARROW. *) 
     ; IF LDeclRef = NIL THEN RETURN END (*IF*)
     ; IF LUnitTRef ^. UntHasStdUnitPragma
       THEN
@@ -2407,7 +2408,7 @@ TRUE OR
   ; VAR LExprRef : FM3Exprs . ExprRefTyp 
   ; VAR LExprIdentRef : FM3Exprs . ExprRefTyp 
   ; VAR LExprRemoteRef : FM3Exprs . ExprRefTyp
-  ; VAR LUnitTRef : FM3Units . UnitRefTyp 
+  ; VAR LUnitTRef : FM3Units . UnitTRefTyp 
   ; VAR LUnitNo : FM3Globals . UnitNoTyp
   ; VAR LIdentRefAtom : FM3Base . AtomTyp
   ; VAR LRefDeclNo : FM3Globals . DeclNoTyp
@@ -2472,7 +2473,7 @@ TRUE OR
 (* CHECK: ^v Which of these ways denoting unusability can happen? *) 
           ELSE
             LExpImpUnitRef (* Implicit NARROW. *) 
-              := VarArray_Int_Refany . Fetch ( FM3Units . UnitsMap , LUnitNo )
+              := VarArray_Int_Refany . Fetch ( FM3Units . UnitsTMap , LUnitNo )
           ; LIsUsable := LExpImpUnitRef ^ . UntState # Ust . UsNotUsable
 (* Consistify: Two ways of denoting nonusability. *) 
           END (*IF*)
@@ -2481,7 +2482,7 @@ TRUE OR
             IF LRefDeclNo = FM3Globals . DeclNoNull
             THEN (* Interface name w/o a selection--illegal. *) 
               IF NOT FM3Atom_OAChars . Key
-                       ( FM3Units . UnitTStackTopRef ^ . UntIdentAtomDict
+                       ( FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntIdentAtomDict
                        , LIdentRefAtom
 (* CHECK: Negative atom => reserved ident. *) 
                        , (*OUT*) LIntfNameChars
@@ -2539,7 +2540,8 @@ TRUE OR
          ( This was ensured by Pass1.)
   *) 
 
-  = VAR LIntfUnitTRef : FM3Units . UnitRefTyp
+  = VAR LIntfUnitTRef : FM3Units . UnitTRefTyp
+  ; VAR LIntfUnitRef : FM3Units . UnitRefTyp 
   ; VAR LExprRemoteRef : FM3Exprs . ExprRefTyp 
   ; VAR LIdentChars : FM3Atom_OAChars . KeyTyp 
   ; VAR LUnitNoLt : FM3Globals . UnitNoTyp
@@ -2621,21 +2623,25 @@ TRUE OR
           ELSIF LRefDeclNoLt = FM3Globals . DeclNoNull
           THEN (* Lt names an imported interface with no dot selection. *)
             LIntfUnitTRef (*Implicit NARROW*) 
-              := VarArray_Int_Refany . Fetch ( FM3Units . UnitsMap , LUnitNoLt )
+              := VarArray_Int_Refany . Fetch
+                   ( FM3Units . UnitsTMap , LUnitNoLt )
           ; <* ASSERT LIntfUnitTRef # NIL *>
+            LIntfUnitRef := LIntfUnitTRef ^ . UttUnitRef 
+          ; <* ASSERT LIntfUnitRef # NIL *>
             LRemoteAtom
               := FM3Compile . ConvertIdentAtom
                    ( LAtomRt
-                   , FromUnitRef := FM3Units . UnitTStackTopRef 
-                   , ToUnitRef := LIntfUnitTRef
+                   , FromUnitRef := FM3Units . UnitTStackTopRef ^ . UttUnitRef 
+                   , ToUnitRef := LIntfUnitRef
                    )
           ; IF IntSets . IsElement
-                 ( LRemoteAtom , LIntfUnitTRef ^ . UntExpImpIdSet )
+                 ( LRemoteAtom , LIntfUnitRef ^ . UntExpImpIdSet )
             THEN (* Rt ident is imported into the remote interface,
                     (not transitively referenceable by local unit).
                  *)
               IF NOT FM3Atom_OAChars . Key
-                       ( FM3Units . UnitTStackTopRef ^ . UntIdentAtomDict
+                       ( FM3Units . UnitTStackTopRef ^ . UttUnitRef
+                         ^ . UntIdentAtomDict
                        , LAtomRt 
                        , (*OUT*) LIdentChars
                        )
@@ -2644,7 +2650,7 @@ TRUE OR
             ; FM3Messages . ErrorArr
                 ( ARRAY OF REFANY
                     { "Interface \""
-                    , LIntfUnitTRef ^ . UntUnitIdent
+                    , LIntfUnitRef ^ . UntUnitIdent
                     , "\" does not declare \""
                     , LIdentChars 
                     , "\" (2.6.3)"
@@ -2655,12 +2661,12 @@ TRUE OR
             ; PutNotUsable ( LAtomRt , LPosRt )
             ELSIF IntSets . IsElement
                     ( LRemoteAtom
-                    , LIntfUnitTRef ^ . UntScopeRef ^ . ScpDeclIdSet
+                    , LIntfUnitRef ^ . UntScopeRef ^ . ScpDeclIdSet
                     )
             THEN (* Right ident is declared in LIntfUnitTRef. *) 
               <* ASSERT
                    FM3Dict_Int_Int . LookupFixed 
-                     ( LIntfUnitTRef ^ . UntScopeRef ^ . ScpDeclDict
+                     ( LIntfUnitRef ^ . UntScopeRef ^ . ScpDeclDict
                      , LRemoteAtom
                      , FM3Base . HashNull
                      , (*OUT*) LRemoteDeclNoInt 
@@ -2697,7 +2703,8 @@ TRUE OR
               END (*IF*) 
             ELSE (* Right ident is not known in left-named interface. *)
               IF NOT FM3Atom_OAChars . Key
-                       ( FM3Units . UnitTStackTopRef ^ . UntIdentAtomDict
+                       ( FM3Units . UnitTStackTopRef ^ . UttUnitRef
+                         ^ . UntIdentAtomDict
                        , LAtomRt 
                        , (*OUT*) LIdentChars
                        )
@@ -2706,7 +2713,7 @@ TRUE OR
             ; FM3Messages . ErrorArr
               ( ARRAY OF REFANY
                   { "Interface \""
-                  , LIntfUnitTRef ^ . UntUnitIdent
+                  , LIntfUnitRef ^ . UntUnitIdent
                   , "\" does not declare \""
                   , LIdentChars 
                   , "\" (2.6.3)"
@@ -2779,7 +2786,7 @@ TRUE OR
 (*EXPORTED*) 
 ; PROCEDURE RunPass2 ( ) 
 
-  = VAR LUnitTRef : FM3Units . UnitRefTyp  
+  = VAR LUnitTRef : FM3Units . UnitTRefTyp  
 
   ; BEGIN (*RunPass2*)
       LUnitTRef := FM3Units . UnitTStackTopRef 
@@ -2790,10 +2797,13 @@ TRUE OR
 
 (*EXPORTED*)
 ; PROCEDURE DisAsmPass2
-    ( UnitTRef : FM3Units . UnitRefTyp ; DoEarlierPasses : BOOLEAN )
+    ( UnitTRef : FM3Units . UnitTRefTyp ; DoEarlierPasses : BOOLEAN )
 
-  = BEGIN (*DisAsmPass2*)
-      IF NOT FM3CLOptions . PassNo2 IN UnitTRef ^ . UntPassNosDisAsmed 
+  = VAR LUnitRef : FM3Units . UnitRefTyp
+  
+  ; BEGIN (*DisAsmPass2*)
+      LUnitRef := UnitTRef ^ . UttUnitRef 
+    ; IF NOT FM3CLOptions . PassNo2 IN LUnitRef ^ . UntPassNosDisAsmed 
       THEN (* Disassembly file is not already written. *)
         TRY 
           FM3Compile . DisAsmPassFile
@@ -2804,30 +2814,33 @@ TRUE OR
           END (*EXCEPT*)
           
       ; FM3CLOptions . InclPassNo
-          ( UnitTRef ^ . UntPassNosDisAsmed , FM3CLOptions . PassNo2 ) 
+          ( LUnitRef ^ . UntPassNosDisAsmed , FM3CLOptions . PassNo2 ) 
       END (*IF*) 
     ; IF DoEarlierPasses
       THEN FM3Pass1 . DisAsmPass1 ( UnitTRef )
       END (*IF*) 
     END DisAsmPass2
 
-; PROCEDURE InitPass2 ( UnitTRef : FM3Units . UnitRefTyp )
+; PROCEDURE InitPass2 ( UnitTRef : FM3Units . UnitTRefTyp )
 
-  = VAR LPass2FileFullName : TEXT
+  = VAR LUnitRef : FM3Units . UnitRefTyp
+  ; VAR LPass2FileFullName : TEXT
   
   ; BEGIN (*InitPass2*)
 
+      LUnitRef := UnitTRef ^ . UttUnitRef
+      
     (* Create the pass 2 output file. *)
-      TRY (*EXCEPT*)
+    ; TRY (*EXCEPT*)
         UnitTRef ^ . UttPass2OutSimpleName
           := Pathname . Join
                ( NIL 
-               , UnitTRef ^ . UntSrcFileSimpleName
+               , LUnitRef ^ . UntSrcFileSimpleName
                , FM3Globals . Pass2OutSuffix
                ) 
       ; LPass2FileFullName
           := Pathname . Join
-               ( UnitTRef ^ . UntBuildDirPath
+               ( LUnitRef ^ . UntBuildDirPath
                , UnitTRef ^ . UttPass2OutSimpleName 
                , NIL 
                )
@@ -2856,15 +2869,17 @@ TRUE OR
         := RdBackFile . LengthL ( UnitTRef ^ . UttPass2OutRdBack )  
     END InitPass2
 
-; PROCEDURE TranslatePass2 ( UnitTRef : FM3Units . UnitRefTyp )
+; PROCEDURE TranslatePass2 ( UnitTRef : FM3Units . UnitTRefTyp )
 
-  = VAR LFailureMsg : TEXT
+  = VAR LUnitRef : FM3Units . UnitRefTyp
+  ; VAR LFailureMsg : TEXT
   ; VAR LFailureLoc : TEXT
 
   ; BEGIN (*TranslatePass2*)
   
+      LUnitRef := UnitTRef ^ . UttUnitRef 
     (* Write the Pass2 RdBack. *)
-      TRY 
+    ; TRY 
         Pass2Tokens ( UnitTRef ^ . UttPass1OutEmptyCoord ) 
 
       (* Write final successful pass 2 output tokens. *)
@@ -2917,17 +2932,19 @@ TRUE OR
       END (*EXCEPT *)
     END TranslatePass2
   
-; PROCEDURE FinishPass2 ( UnitTRef : FM3Units . UnitRefTyp )
+; PROCEDURE FinishPass2 ( UnitTRef : FM3Units . UnitTRefTyp )
 
-  = VAR LPatchFullFileName : TEXT
+  = VAR LUnitRef : FM3Units . UnitRefTyp
+  ; VAR LPatchFullFileName : TEXT
   ; VAR LPass2FullFileName : TEXT 
   ; VAR LLengthImage : TEXT
   ; VAR LLengthL : LONGINT 
   ; VAR LPatchCoordL : LONGINT 
 
   ; BEGIN (*FinishPass2*)
+      LUnitRef := UnitTRef ^ . UttUnitRef 
     (* Close pass 2. *) 
-      UnitTRef ^ . UntPass2Result := 0 
+    ; LUnitRef ^ . UntPass2Result := 0 
     ; EVAL FM3Scanner . PopState ( )
 (* TODO^ Maybe do this elsewhere. *) 
 
@@ -2945,7 +2962,7 @@ TRUE OR
          now should be devoid of significant content. *)
     ; LPatchFullFileName
         := Pathname . Join
-             ( UnitTRef ^ . UntBuildDirPath 
+             ( LUnitRef ^ . UntBuildDirPath 
              , UnitTRef ^ . UttPatchStackSimpleName
              , NIL
              )
@@ -2963,7 +2980,7 @@ TRUE OR
     ; LLengthImage := FM3Base . Int64Image ( LLengthL ) 
     ; IF LLengthL # UnitTRef ^ . UttPatchStackEmptyCoord 
       THEN
-        UnitTRef ^ . UntPass2Result := FM3CLArgs . CcPatchStackNotEmpty  
+        LUnitRef ^ . UntPass2Result := FM3CLArgs . CcPatchStackNotEmpty  
       ; DisAsmPass2 ( UnitTRef , DoEarlierPasses := TRUE )
       ; LLengthImage := FM3Base . Int64Image ( LLengthL ) 
       ; FM3Messages . FatalArr
@@ -2983,7 +3000,8 @@ TRUE OR
         (  UnitTRef ^ . UttPass1OutRdBack , - 1L (* Leave full length. *) )
     ; IF LLengthL # UnitTRef ^ . UttPass1OutEmptyCoord
       THEN
-        UnitTRef ^ . UntPass2Result := FM3CLArgs . CcPass1OutNotEmpty  
+        LUnitRef ^ . UntPass2Result
+          := FM3CLArgs . CcPass1OutNotEmpty  
       ; DisAsmPass2 ( UnitTRef , DoEarlierPasses := TRUE )
       ; LLengthImage := FM3Base . Int64Image ( LLengthL ) 
       ; FM3Messages . FatalArr
@@ -3000,7 +3018,7 @@ TRUE OR
     (* Report size and maybe disassemble pass 2 output file. *) 
     ; LPass2FullFileName
         := Pathname . Join
-             ( UnitTRef ^ . UntBuildDirPath 
+             ( LUnitRef ^ . UntBuildDirPath 
              , UnitTRef ^ . UttPass2OutSimpleName
              , NIL
              )
@@ -3016,25 +3034,28 @@ TRUE OR
             } 
         )
     ; IF FM3CLOptions . PassNo2 IN FM3CLOptions . PassNosToDisAsm 
-      THEN DisAsmPass2 ( UnitTRef , DoEarlierPasses := FALSE )
+      THEN DisAsmPass2 ( UnitTRef, DoEarlierPasses := FALSE )
       END (*IF*)
 
     ; IF FM3CLOptions . PassNo2 IN FM3CLOptions . PassNosToDumpExprs 
-         AND NOT FM3CLOptions . PassNo2 IN UnitTRef ^ . UntPassNosDumped 
+         AND NOT FM3CLOptions . PassNo2
+                 IN LUnitRef ^ . UntPassNosDumped 
       THEN
         FM3Compile . DumpPassExprs ( UnitTRef , FM3Globals . Pass2OutSuffix )
       ; FM3CLOptions . InclPassNo
-          ( UnitTRef ^ . UntPassNosDumped , FM3CLOptions . PassNo2 ) 
+          ( LUnitRef ^ . UntPassNosDumped
+          , FM3CLOptions . PassNo2
+          ) 
       END (*IF*)
 
     ; IF Clt . CltScopes IN FM3CLOptions . OptionTokSet
       THEN
-        FM3Compile . DumpScopes ( UnitTRef ) 
+        FM3Compile . DumpScopes ( LUnitRef) 
       END (*IF*) 
 
     ; IF Clt . CltDecls IN FM3CLOptions . OptionTokSet
       THEN
-        FM3Compile . DumpDecls ( UnitTRef ) 
+        FM3Compile . DumpDecls ( LUnitRef ) 
       END (*IF*) 
 
     (* Close the source file. *) 

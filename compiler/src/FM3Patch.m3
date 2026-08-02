@@ -213,7 +213,7 @@ MODULE FM3Patch
   ; VAR LPatchedTokenL : LONGINT 
   ; VAR LToken : Itk . TokTyp
   ; VAR LPatchedToken : Itk . TokTyp
-  ; VAR LUnitTRef : FM3Units . UnitRefTyp
+  ; VAR LUnitTRef : FM3Units . UnitTRefTyp
   ; VAR LPass1RdBack : RdBackFile . T 
   ; VAR LPatchRdBack : RdBackFile . T
 
@@ -250,7 +250,8 @@ MODULE FM3Patch
                for stack consistency. *)
           (* Finish with the skip stack. *) 
         ; <* ASSERT
-               VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi 
+               VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack )
+               . Hi 
                = FM3Units . UnitTStackTopRef ^ . UttSkipStackBase 
           *> 
                

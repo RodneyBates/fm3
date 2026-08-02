@@ -8,7 +8,9 @@
 
 INTERFACE FM3ExpImpProxy
 (* For instantiating. *)
-(* A way to refer to a declaration [ex|im]ported from a remote unit. *) 
+(* A way to refer to a declaration [ex|im]ported from a remote unit.
+   Its contents are necessarily transient.
+*) 
 
 ; IMPORT FM3Base
 ; IMPORT FM3Globals
@@ -22,8 +24,8 @@ INTERFACE FM3ExpImpProxy
         (* DeclNoNull, if this is a reference to the unit itself. *)
       ; EipImportingUnitNo : FM3Globals . UnitNoTyp
       ; EipImportingUnitPosition : FM3Base . tPosition
-        (* ^Of the EXPORTS or IMPORT ident that brought it in to the unit
-           containing this export/import node.  Its position in the remote
+        (* ^Of the EXPORTS or IMPORT ident that brought the decl in to
+           the unit containing this record.  Its position in the remote
            unit can be found in the remote unit's Decl node for it.
         *) 
       END

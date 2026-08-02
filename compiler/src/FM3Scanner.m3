@@ -100,7 +100,7 @@ MODULE FM3Scanner
            (* ^Of SsLink's scanner instance.  Possibly SsLink is NIL, 
               in which case, it is just ScanAttributeDefault. *) 
          ; SsUniRd : UniRd . T := NIL 
-         ; SsUnitTRef : FM3Units . UnitRefTyp 
+         ; SsUnitTRef : FM3Units . UnitTRefTyp 
          ; SsPragmaDepth : INTEGER := 0  
          ; SsWCh : WIDECHAR 
          ; SsCh : CHAR 
@@ -123,7 +123,7 @@ MODULE FM3Scanner
 
 (* EXPORTED: *) 
 ; PROCEDURE PushState 
-     ( NewUniRd : UniRd . T ; UnitTRef : FM3Units . UnitRefTyp ) 
+     ( NewUniRd : UniRd . T ; UnitTRef : FM3Units . UnitTRefTyp ) 
   (* PRE: NewUniRd is open and ready to be read. but not locked. *) 
 
   = VAR LSsRef : ScanStateRefTyp (* Topmost after push. *) 
@@ -471,7 +471,7 @@ MODULE FM3Scanner
           => (* It's not a pragma ident. Make it an ordinary ident. *) 
              Attribute . SaAtom 
               := FM3Atom_OAChars . MakeAtom 
-                   ( GTopSsRef . SsUnitTRef ^ . UntIdentAtomDict
+                   ( GTopSsRef . SsUnitTRef ^ . UttUnitRef ^ . UntIdentAtomDict
                    , Attribute . SaChars 
                    , ScHash 
                    ) 
@@ -506,7 +506,7 @@ MODULE FM3Scanner
              *) 
               Attribute . SaAtom 
                 := FM3Atom_OAChars . MakeAtom 
-                     ( GTopSsRef . SsUnitTRef ^ . UntIdentAtomDict
+                     ( GTopSsRef . SsUnitTRef ^ . UttUnitRef ^ . UntIdentAtomDict
                      , Attribute . SaChars 
                      , ScHash 
                      ) 
@@ -518,7 +518,7 @@ MODULE FM3Scanner
              *)
               Attribute . SaAtom 
                 := FM3Atom_OAChars . MakeAtom 
-                     ( GTopSsRef . SsUnitTRef ^ . UntIdentAtomDict
+                     ( GTopSsRef . SsUnitTRef ^ . UttUnitRef ^ . UntIdentAtomDict
                      , Attribute . SaChars 
                      , ScHash 
                      ) 
@@ -733,7 +733,7 @@ MODULE FM3Scanner
           Probably only the binary version of the value. *) 
       ; Attribute . SaAtom 
           := FM3Atom_OAChars . MakeAtom 
-               ( GTopSsRef ^ . SsUnitTRef ^ . UntNumLitAtomDict 
+               ( GTopSsRef ^ . SsUnitTRef ^ . UttUnitRef ^ . UntNumLitAtomDict 
                , Attribute . SaChars 
                , ScHash 
                ) 
@@ -1039,7 +1039,7 @@ MODULE FM3Scanner
           := FM3Utils . CharVarArrayToOAChar ( ScCharVarArr ) 
       ; Attribute . SaAtom 
           := FM3Atom_OAChars . MakeAtom 
-               ( GTopSsRef ^ . SsUnitTRef ^ . UntCharsLitAtomDict 
+               ( GTopSsRef ^ . SsUnitTRef ^ . UttUnitRef ^ . UntCharsLitAtomDict 
                , Attribute . SaChars 
                , ScHash 
                ) 
@@ -1089,7 +1089,7 @@ MODULE FM3Scanner
           := FM3Utils . WCharVarArrayToOAWChar ( ScWCharVarArr ) 
       ; Attribute . SaAtom 
           := FM3Atom_OAWideChars . MakeAtom 
-               ( GTopSsRef ^ . SsUnitTRef ^ . UntWCharsLitAtomDict 
+               ( GTopSsRef ^ . SsUnitTRef ^ . UttUnitRef ^ . UntWCharsLitAtomDict 
                , Attribute . SaWideChars 
                , ScHash 
                ) 

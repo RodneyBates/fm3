@@ -381,7 +381,7 @@ MODULE FM3DisAsm
           DO IF WUnitTRef = NIL
             THEN LIdentName := "<NoUnit>"
             ELSIF FM3Atom_OAChars . Key 
-                    ( WUnitTRef ^ . UntIdentAtomDict
+                    ( WUnitTRef ^ . UttUnitRef ^ . UntIdentAtomDict
                     , VAL ( LArgL , FM3Base . AtomTyp )
                     , (*OUT*) LIdentOAChars
                     )

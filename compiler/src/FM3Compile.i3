@@ -16,7 +16,8 @@ INTERFACE FM3Compile
 ; IMPORT FM3Units
 ; IMPORT RdBackFile
 
-; PROCEDURE GetUnitRefOfFileName ( SrcFileName : TEXT ) : FM3Units . UnitRefTyp
+; PROCEDURE GetUnitTRefOfFileName
+    ( SrcFileName : TEXT ) : FM3Units . UnitTRefTyp
   (* POST: Result, # NIL, references a UnitTyp, whose source file is named in
            FM3Units . UnitsAtomDict, and has field UntSrcFileSimpleName set,
            using the simple name taken from SrcFileName, which may include a
@@ -24,19 +25,19 @@ INTERFACE FM3Compile
   *) 
 
 ; PROCEDURE FindAndOpenUnitSrcFile
-    ( UnitTRef : FM3Units . UnitRefTyp
+    ( UnitTRef : FM3Units . UnitTRefTyp
     ; Adjective : TEXT
     ; ExpImpPosition : FM3Base . tPosition
     )
   : BOOLEAN (* Success *)
   (* POST: IF result, then the source file for UnitRef^ was found and opened,
-           and fields UntSrcFilePath, UntSrcUniRd, and UntState are set.
+           and fields UntSrcFilePath, UttSrcUniRd, and UntState are set.
   *) 
 
-; PROCEDURE CloseUnitSrcFile ( UnitTRef : FM3Units . UnitRefTyp ) 
+; PROCEDURE CloseUnitSrcFile ( UnitTRef : FM3Units . UnitTRefTyp ) 
 
 ; PROCEDURE MakePassFileCopy
-    ( UnitTRef : FM3Units . UnitRefTyp
+    ( UnitTRef : FM3Units . UnitTRefTyp
     ; PassFileSuffix : TEXT
     ; RdBackFile : RdBackFile . T  
     )
@@ -46,26 +47,29 @@ INTERFACE FM3Compile
   *)
 
 ; PROCEDURE DisAsmPassFile
-    ( UnitTRef : FM3Units . UnitRefTyp ; PassFileSuffix : TEXT ; L2R : BOOLEAN )
+    ( UnitTRef : FM3Units . UnitTRefTyp
+    ; PassFileSuffix : TEXT
+    ; L2R : BOOLEAN
+    )
   RAISES { RdBackFile . BOF }
   (* PRE: A dispensible .Copy file exists in the build directory. *)
   (* POST: The disassembly file has been written in the build directory. *)
   (* POST: The copy file has been removed. *) 
 
 
-; PROCEDURE CleanPassFilesAndCopies ( UnitTRef : FM3Units . UnitRefTyp )
+; PROCEDURE CleanPassFilesAndCopies ( UnitTRef : FM3Units . UnitTRefTyp )
   (* Only after all passes have been run do we know what pass file
      copies are still hanging around.  Delete them. 
   *)
 
 ; PROCEDURE DumpPassExprs
-    ( UnitTRef : FM3Units . UnitRefTyp ; PassFileSuffix : TEXT ) 
+    ( UnitTRef : FM3Units . UnitTRefTyp ; PassFileSuffix : TEXT ) 
 
-; PROCEDURE DumpScopes ( UnitTRef : FM3Units . UnitRefTyp ) 
+; PROCEDURE DumpScopes ( UnitRef : FM3Units . UnitRefTyp ) 
 
-; PROCEDURE DumpDecls ( UnitTRef : FM3Units . UnitRefTyp ) 
+; PROCEDURE DumpDecls ( UnitRef : FM3Units . UnitRefTyp ) 
 
-; PROCEDURE CompileUnitFromSrc ( UnitTRef : FM3Units . UnitRefTyp )
+; PROCEDURE CompileUnitFromSrc ( UnitTRef : FM3Units . UnitTRefTyp )
 
 ; PROCEDURE CompileOrLoadCLUnit ( SrcFileName : TEXT )
   (* Compile or load the top unit, as named on the command line. *) 

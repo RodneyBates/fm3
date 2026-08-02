@@ -199,7 +199,7 @@ INTERFACE FM3Scopes
   
 ; PROCEDURE ScopeRefOfScopeNo
     ( ScopeNo : FM3Globals . ScopeNoTyp 
-    ; UnitRef : FM3Units . UnitRefTyp := NIL (* NIL means current unit. *)
+    ; UnitTRef : FM3Units . UnitTRefTyp := NIL (* NIL means current TOS unit. *)
     )
   : ScopeRefTyp
    

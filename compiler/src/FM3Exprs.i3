@@ -61,7 +61,6 @@ INTERFACE FM3Exprs
 ; IMPORT FM3Scopes
 ; IMPORT FM3SrcToks
 ; IMPORT FM3Utils 
-
 ; TYPE DeclListTyp = FM3Globals . DeclListTyp (* Convenience. *) 
 ; TYPE OpcodeTyp = FM3Base .OpcodeTyp 
 
