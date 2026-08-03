@@ -129,8 +129,6 @@ MODULE FM3Pass1
   ; BEGIN (*RunPass1*)
       LUnitTRef := FM3Units . UnitTStackTopRef 
     ; InitPass1 ( LUnitTRef )
-    ; LUnitTRef ^ . UttUnitRef ^ . UntPassNosDisAsmed
-        := FM3CLOptions . PassNoSetEmpty 
     ; TranslatePass1 ( LUnitTRef ) 
     ; FinishPass1 ( LUnitTRef ) 
     END RunPass1

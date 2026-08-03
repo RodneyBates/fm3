@@ -88,13 +88,15 @@ INTERFACE FM3Units
       ; UntSrcFilePath : TEXT := NIL
         (* ^ I.e, directory wherein UntSimpleSrcFileName lives. *)
       ; UntLogSimpleName : TEXT := NIL 
-      ; UntUnitIdent : FM3OpenArray_Char . T 
-      ; UntUnitIdentPos : FM3Base . tPosition 
+      ; UntUnitIdent : FM3OpenArray_Char . T := NIL 
+      ; UntUnitIdentPos : FM3Base . tPosition := FM3Base . PositionNull 
       ; UntBuildDirPath : TEXT := NIL 
       (* ^Same for pass1 output, patch stack, and pass2 output files. *)  
 
       ; UntPassNosDisAsmed : FM3CLOptions . PassNoSetTyp
+          := FM3CLOptions . PassNoSetEmpty 
       ; UntPassNosDumped : FM3CLOptions . PassNoSetTyp
+          := FM3CLOptions . PassNoSetEmpty 
       ; UntIdentAtomDict : FM3Atom_OAChars . T := NIL
           (* ^Identifiers occurring in the unit, but not reserved ids. *)   
       ; UntNumLitAtomDict : FM3Atom_OAChars . T := NIL (* Numeric literals. *)  
@@ -114,17 +116,19 @@ INTERFACE FM3Units
       ; UntExpImpMap : VarArray_Int_ExpImpProxy . T 
           (* ^Unit Ident atom to ExpImpProxy.
              We fill this very early, during [ex|im]port processing of the unit,
-             so the atoms will be compactly numbered.
+             so exported and imported atoms will be compactly numbered.
           *)
           (* INVARIANT: Atom is in UntExpImpMap IFF in UntExpImpIdSet. *) 
-      ; UntExpImpRefSet : IntSets . T := NIL (* IntSets . Empty ( ) *) 
+      ; UntExpImpRefSetxxx : IntSets . T := NIL (* IntSets . Empty ( ) *) 
       ; UntScopeRef : FM3Globals . ScopeRefTyp := NIL  
-          (* ^Contains Atoms of [ex|im]ports and decls known at unit's top level *)
+          (* ^Contains IdAtoms of [ex|im]ports and decls known at
+              unit's top level
+          *)
       ; UntExpImpCt : FM3Globals . DeclNoTyp := FM3Globals . DeclNoNull 
-      ; UntScanResult : INTEGER 
+      ; UntScanResult : INTEGER := - 1  
       ; UntParseResult : INTEGER (* Parse error count.*) 
-      ; UntPass2Result : INTEGER
-      ; UntPass3Result : INTEGER
+      ; UntPass2Result : INTEGER := - 1
+      ; UntPass3Result : INTEGER := - 1
       ; UntFirstTrueDeclNo : INTEGER := 1 
         (* ^In the unit's top-level scope.  As opposed to imported proxies,
             which are all lower-numbered. *) 
@@ -139,7 +143,7 @@ INTERFACE FM3Units
       END (*UnitTyp*)
 
 (* Transient info about a unit. Present while the unit is in compilation
-   or loaded after being compiled in a prior run.
+   or loaded after being compiled by a prior run.
 *) 
 ; CONST UnitTransRefBrand = "UnitTransRef0.1"
 ; TYPE UnitTRefTyp = REF UnitTTyp 
@@ -147,8 +151,8 @@ INTERFACE FM3Units
 ; TYPE UnitTTyp
     = RECORD
         UttStackLink : UnitTRefTyp := NIL
-      ; UttUnitRef : UnitRefTyp 
-      ; UttSrcUniRd : UniRd . T 
+      ; UttUnitRef : UnitRefTyp := NIL 
+      ; UttSrcUniRd : UniRd . T := NIL 
       ; UttLogSimpleName : TEXT := NIL 
       ; UttLogWrT : Wr . T := NIL
       ; UttPatchStackSimpleName : TEXT := NIL
@@ -166,24 +170,23 @@ INTERFACE FM3Units
         (* ^Excludng final boilerplate tokens. *) 
       ; UttMaxPass1OutLength : LONGINT := 0L 
       ; UttPass1OutEmptyCoord : LONGINT := 0L
-      ; UttPass2OutSimpleName : TEXT := NIL (* Parse pass output file. *) 
+      ; UttPass2OutSimpleName : TEXT := NIL 
       ; UttPass2OutRdBack : RdBackFile . T := NIL
       ; UttMaxPass2OutLength : LONGINT := 0L 
       ; UttPass2OutEmptyCoord : LONGINT := 0L
 
-      ; UttPass3OutSimpleName : TEXT := NIL (* Parse pass output file. *) 
+      ; UttPass3OutSimpleName : TEXT := NIL 
       ; UttPass3OutRdBack : RdBackFile . T := NIL
       ; UttMaxPass3OutLength : LONGINT := 0L 
       ; UttPass3OutEmptyCoord : LONGINT := 0L
 
-      ; UttImportingUnitTRef : UnitTRefTyp
+      ; UttImportingUnitTRef : UnitTRefTyp := NIL 
           (* ^The unit this one is in process of [ex|im]porting. *) 
-      ; UttPositionOfImport : FM3Base . tPosition
+      ; UttPositionOfImport : FM3Base . tPosition := FM3Base . PositionNull 
           (* ^Of the being-[ex|im]ported identifier. *) 
       ; UttExpUnitSet : IntSets . T := NIL (* IntSets . Empty ( ) *)
           (* Unit Nos of units exported by this unit. *) 
       ; UttSkipStackBase : INTEGER := 0 
-          (* TOS Subscript at beginning and end of unit compile. *) 
       ; UttExprStackBaseCt : INTEGER := 0 
           (* TOS Subscript at beginning and end of unit compile. *) 
       ; UttScopeDeclStackBaseCt : INTEGER := 0 

@@ -148,44 +148,14 @@ MODULE FM3Units
     ; INC ( NextUnitNo )
 (* TODO: Either complete the list of constant-initialized fields, or bite
          nails and rely on the declaration.
-*) 
-    ; LUnitTRef ^ . UttStackLink := NIL 
-    ; LUnitTRef ^ . UttStackDepth := 0
+*)
+    (* Non-constant field initializations. *) 
     ; LUnitTRef ^ . UttSelfUnitNo := LUnitNo
-    ; LUnitTRef ^ . UttPatchStackSimpleName := NIL
-    ; LUnitTRef ^ . UttPatchStackRdBack := NIL
-    ; LUnitTRef ^ . UttMaxPatchStackDepth := 0L 
-    ; LUnitTRef ^ . UttImportingUnitTRef := NIL 
-    ; LUnitTRef ^ . UttPositionOfImport := FM3Base . PositionNull  
-    ; LUnitTRef ^ . UttPass1OutSimpleName := NIL
-    ; LUnitTRef ^ . UttPass1OutRdBack := NIL
-    ; LUnitTRef ^ . UttMaxPass1OutLength := 0L 
-    ; LUnitTRef ^ . UttPass2OutSimpleName := NIL
-    ; LUnitTRef ^ . UttPass2OutRdBack := NIL
-    ; LUnitTRef ^ . UttSkipStackBase := 0
     ; LUnitTRef ^ . UttSkipStackBase
         := VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi
-    ; LUnitTRef ^ . UttExprStackBaseCt := 0 
-    ; LUnitTRef ^ . UttScopeDeclStackBaseCt := 0 
-    ; LUnitTRef ^ . UttLookupScopeStackBaseCt := 0 
+    ; LUnitTRef ^ . UttExpUnitSet := IntSets . Empty ( ) 
     ; VarArray_Int_Refany . Assign ( UnitsTMap , LUnitNo , LUnitTRef )
 
-
-
-
-    ; LUnitRef ^ . UntNextDeclNo := 1
-    ; LUnitRef ^ . UntFirstTrueDeclNo := 1
-    ; LUnitRef ^ . UntScopeRef := NIL
-    ; LUnitRef ^ . UntExpImpCt := FM3Globals . DeclNoNull 
-    ; LUnitRef ^ . UntSrcFileSimpleName := NIL 
-    ; LUnitRef ^ . UntSrcFilePath := NIL
-    ; LUnitRef ^ . UntBuildDirPath := NIL
-    ; LUnitRef ^ . UntUnitIdent := NIL 
-    ; LUnitRef ^ . UntUnitIdentPos := FM3Base . PositionNull
-    ; LUnitRef ^ . UntState := UnitStateTyp . UsNull
-    ; LUnitRef ^ . UntUnsafe := FALSE 
-    ; LUnitRef ^ . UntInExpImpCycle := FALSE
-    ; LUnitRef ^ . UntHasStdUnitPragma := FALSE 
     ; LUnitRef ^ . UntIdentAtomDict 
         := FM3Atom_OAChars . New
              ( FM3Globals . IdentAtomInitSize
@@ -226,9 +196,6 @@ MODULE FM3Units
              )
     ; VarArray_Int_ExpImpProxy . Touch
         ( LUnitRef ^ .  UntExpImpMap , Ranges_Int . RangeTyp { 0 , 0 } )
-
-    ; LUnitRef ^ . UntNextDeclNo := 1 
-    ; LUnitRef ^ . UntStdTok := FM3Base . TokNull  
     ; LUnitRef ^ . UntDeclMap 
         := FM3Decls . NewDeclMap ( FM3Globals . InitDeclCtPerUnit ) 
     ; VarArray_Int_Refany . Touch
