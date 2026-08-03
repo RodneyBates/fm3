@@ -73,10 +73,14 @@ INTERFACE FM3Units
         , UnitStateTyp . UsLoaded
         }
 
-(* Persistent info about a unit. Pickled when compiled. *) 
+(* Persistent info about a unit. Pickled when compiled.
+   Reloaded when exported or imported and exists and is current.
+*) 
 ; CONST UnitRefBrand = "UnitRef0.1"
+
 ; REVEAL FM3Globals . UnitRefTyp = BRANDED UnitRefBrand REF UnitTyp 
-; TYPE UnitRefTyp = FM3Globals . UnitRefTyp 
+; TYPE UnitRefTyp = FM3Globals . UnitRefTyp
+(* ^To avoid cyclic imports. *) 
 
 ; TYPE UnitTyp
     = RECORD
@@ -132,61 +136,10 @@ INTERFACE FM3Units
       ; UntInExpImpCycle : BOOLEAN := FALSE
       ; UntHasStdUnitPragma : BOOLEAN := FALSE (* Has the FM3_STDUNIT pragma. *)
       ; UntNextDeclNo : INTEGER := 1
-
-(*   ; 
-        UttStackLink : UnitTRefTyp := NIL
-      ; UttUnitRef : UnitRefTyp 
-      ; UttSrcUniRd : UniRd . T 
-      ; UttLogSimpleName : TEXT := NIL 
-      ; UttLogWrT : Wr . T := NIL
-      ; UttPatchStackSimpleName : TEXT := NIL
-      ; UttPatchStackRdBack : RdBackFile . T := NIL
-      ; UttMaxPatchStackDepth : LONGINT := 0L
-      ; UttPatchStackEmptyCoord : LONGINT := 0L
-        (* ^Value of RdBackFile.LengthL when conceptually empty, but may be
-           nonzero, on account of file tag, length, etc. *) 
-      ; UttPatchStackTopCoord : LONGINT := 0L
-
-(*TODO: box up pass-dependent groups like this one.  Maybe heap-allocate. *)  
-      ; UttPass1OutSimpleName : TEXT := NIL
-      ; UttPass1OutRdBack : RdBackFile . T := NIL
-      ; UttPass1OutDataLength : LONGINT := 0L
-        (* ^Excludng final boilerplate tokens. *) 
-      ; UttMaxPass1OutLength : LONGINT := 0L 
-      ; UttPass1OutEmptyCoord : LONGINT := 0L
-      ; UttPass2OutSimpleName : TEXT := NIL (* Parse pass output file. *) 
-      ; UttPass2OutRdBack : RdBackFile . T := NIL
-      ; UttMaxPass2OutLength : LONGINT := 0L 
-      ; UttPass2OutEmptyCoord : LONGINT := 0L
-
-      ; UttPass3OutSimpleName : TEXT := NIL (* Parse pass output file. *) 
-      ; UttPass3OutRdBack : RdBackFile . T := NIL
-      ; UttMaxPass3OutLength : LONGINT := 0L 
-      ; UttPass3OutEmptyCoord : LONGINT := 0L
-
-      ; UttImportingUnitTRef : UnitTRefTyp
-          (* ^The unit this one is in process of [ex|im]porting. *) 
-      ; UttPositionOfImport : FM3Base . tPosition
-          (* ^Of the being-[ex|im]ported identifier. *) 
-      ; UttExpUnitSet : IntSets . T := NIL (* IntSets . Empty ( ) *)
-          (* Unit Nos of units exported by this unit. *) 
-      ; UttSkipStackBase : INTEGER := 0 
-          (* TOS Subscript at beginning and end of unit compile. *) 
-      ; UttExprStackBaseCt : INTEGER := 0 
-          (* TOS Subscript at beginning and end of unit compile. *) 
-      ; UttScopeDeclStackBaseCt : INTEGER := 0 
-          (* TOS Subscript at beginning and end of unit compile. *) 
-      ; UttLookupScopeStackBaseCt : INTEGER := 0 
-          (* TOS Subscript at beginning and end of unit compile. *) 
-      ; UttStackDepth : INTEGER := 0
-          (* ^Where on the units stack this UnitTRef is. *) 
-      ; UttSelfUnitNo : FM3Globals . UnitNoTyp := FM3Globals . UnitNoNull
-          (* ^Self-referential. *) 
-*)  
       END (*UnitTyp*)
 
-(* Transient info about a unit. Present the unit is in compilation or loaded
-   after being compiled in a prior run.
+(* Transient info about a unit. Present while the unit is in compilation
+   or loaded after being compiled in a prior run.
 *) 
 ; CONST UnitTransRefBrand = "UnitTransRef0.1"
 ; TYPE UnitTRefTyp = REF UnitTTyp 

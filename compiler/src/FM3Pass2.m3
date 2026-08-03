@@ -1712,7 +1712,9 @@ TRUE OR
       ; LDeclNo := SCC [ 0 ] + OslScopeRef ^ . ScpMinDeclNo (* Remove bias. *) 
       ; LDeclRef0 (* Implicit NARROW. *) 
           := VarArray_Int_Refany . Fetch
-               ( FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntDeclMap , LDeclNo )
+               ( FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntDeclMap
+               , LDeclNo
+               )
       ; FM3Utils . PutOACharsWr
           ( LWrT
           , FM3Utils . CharsOfAtom
@@ -1733,7 +1735,9 @@ TRUE OR
               := SCC [ RI ] + OslScopeRef ^ . ScpMinDeclNo (* Remove bias. *) 
           ; LDeclRefn (* Implicit NARROW. *) 
               := VarArray_Int_Refany . Fetch
-                   ( FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntDeclMap , LDeclNo )  
+                   ( FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntDeclMap
+                   , LDeclNo
+                   )  
           ; FM3Utils . PutOACharsWr
               ( LWrT
               , FM3Utils . CharsOfAtom
@@ -1850,7 +1854,10 @@ TRUE OR
       ; LDeclNo := LookupDeclNoInScope ( DdiOrigScopeRef ^ , DdiAtom )
       ; <*ASSERT LDeclNo # FM3Globals . DeclNoNull *>
         VarArray_Int_Refany . CallbackWithElem
-          ( FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntDeclMap , LDeclNo , DdiVisit )
+          ( FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntDeclMap
+          , LDeclNo
+          , DdiVisit
+          )
       ; RETURN LDeclNo
       END (* Block. *) 
     END DuplDeclIdR2L
@@ -2404,7 +2411,8 @@ TRUE OR
      PRE: The atom does not denote a reserved ident. 
   *) 
 
-  = VAR LExpImpUnitRef : FM3Units . UnitRefTyp
+  = VAR LExpImpUnitTRef : FM3Units . UnitTRefTyp
+  ; VAR LExpImpUnitRef : FM3Units . UnitRefTyp
   ; VAR LExprRef : FM3Exprs . ExprRefTyp 
   ; VAR LExprIdentRef : FM3Exprs . ExprRefTyp 
   ; VAR LExprRemoteRef : FM3Exprs . ExprRefTyp
@@ -2472,8 +2480,9 @@ TRUE OR
           THEN LIsUsable := FALSE
 (* CHECK: ^v Which of these ways denoting unusability can happen? *) 
           ELSE
-            LExpImpUnitRef (* Implicit NARROW. *) 
+            LExpImpUnitTRef (* Implicit NARROW. *) 
               := VarArray_Int_Refany . Fetch ( FM3Units . UnitsTMap , LUnitNo )
+          ; LExpImpUnitRef := LExpImpUnitTRef ^ . UttUnitRef 
           ; LIsUsable := LExpImpUnitRef ^ . UntState # Ust . UsNotUsable
 (* Consistify: Two ways of denoting nonusability. *) 
           END (*IF*)
