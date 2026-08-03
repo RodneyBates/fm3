@@ -51,11 +51,13 @@ MODULE  FM3Compile
   (* POST: Result, # NIL, references a UnitTTyp, whose source file is named in
            FM3Units . UnitsAtomDict, and has field UntSrcFileSimpleName set,
            using the file name taken from SrcFileName, which may include a
-           path.  Allocate the UnitTTyp if necessary. 
+           path.  If it doesn't allready exist, Allocate the UnitTTyp and a
+           UnitType and connect them.
   *) 
 
   = VAR LSimpleName : TEXT
   ; VAR LUnitTRef : FM3Units . UnitTRefTyp
+  ; VAR LUnitRef : FM3Units . UnitRefTyp
   ; VAR LUnitNameAtom : FM3Base . AtomTyp 
 
   ; BEGIN
@@ -71,7 +73,9 @@ MODULE  FM3Compile
       (* ^Implied NARROW *)
     ; IF LUnitTRef = NIL
       THEN
-        LUnitTRef := FM3Units . NewUnitTRef ( )
+        LUnitRef:= FM3Units . NewUnitRef ( ) 
+      ; LUnitTRef := FM3Units . NewUnitTRef ( )
+      ; LUnitTRef ^ . UttUnitRef := LUnitRef 
       ; LUnitTRef ^ . UttUnitRef ^. UntSrcFileSimpleName := LSimpleName 
       ; VarArray_Int_Refany . Assign
           ( FM3Units . UnitsTMap , LUnitNameAtom , LUnitTRef )

@@ -119,12 +119,11 @@ MODULE FM3Units
 
 (*EXPORTED*) 
 ; PROCEDURE NewUnitTRef ( ) : UnitTRefTyp
-  (* Allocate a UnitTTyp and a UnitTyp, Point the former to the latter, low-
-     level initialize their fields, give it a UnitNo, and put into UnitsTMap.
+  (* Allocate a UnitTTyp (transient), initialize non-constant fields, 
+     give it a UnitNo, and put into UnitsTMap.
   *)
 
   = VAR LUnitTRef : UnitTRefTyp
-  ; VAR LUnitRef : UnitRefTyp
   ; VAR LUnitNo : FM3Globals . UnitNoTyp 
 
   ; BEGIN
@@ -135,20 +134,9 @@ MODULE FM3Units
           ( ARRAY OF REFANY { "Allocation of a FM3Units.UnitTRefTyp failed." } )
       ; RAISE FM3SharedUtils . AllocationFailure ( "allocating a UnitRef" ) 
       END 
-     ; LUnitRef := NEW ( UnitRefTyp )
-    ; IF LUnitRef = NIL
-      THEN
-        FM3Messages  . FatalArr
-          ( ARRAY OF REFANY { "Allocation of a FM3Units.UnitRefTyp failed." } )
-      ; RAISE FM3SharedUtils . AllocationFailure ( "allocating a UnitRef" ) 
-      END
-    ; LUnitTRef ^ . UttUnitRef := LUnitRef 
-
     ; LUnitNo := NextUnitNo
     ; INC ( NextUnitNo )
-(* TODO: Either complete the list of constant-initialized fields, or bite
-         nails and rely on the declaration.
-*)
+
     (* Non-constant field initializations. *) 
     ; LUnitTRef ^ . UttSelfUnitNo := LUnitNo
     ; LUnitTRef ^ . UttSkipStackBase
@@ -156,6 +144,27 @@ MODULE FM3Units
     ; LUnitTRef ^ . UttExpUnitSet := IntSets . Empty ( ) 
     ; VarArray_Int_Refany . Assign ( UnitsTMap , LUnitNo , LUnitTRef )
 
+    ; RETURN LUnitTRef 
+    END NewUnitTRef
+
+(*EXPORTED*) 
+; PROCEDURE NewUnitRef ( ) : UnitRefTyp
+  (* Allocate a UnitTyp, & Initialize non-constant fields. *) 
+
+  = VAR LUnitTRef : UnitTRefTyp
+  ; VAR LUnitRef : UnitRefTyp
+  ; VAR LUnitNo : FM3Globals . UnitNoTyp 
+
+  ; BEGIN (* NewUnitRef *) 
+      LUnitRef := NEW ( UnitRefTyp )
+    ; IF LUnitRef = NIL
+      THEN
+        FM3Messages  . FatalArr
+          ( ARRAY OF REFANY { "Allocation of a FM3Units.UnitRefTyp failed." } )
+      ; RAISE FM3SharedUtils . AllocationFailure ( "allocating a UnitRef" ) 
+      END
+    
+    (* Non-constant field initializations. *) 
     ; LUnitRef ^ . UntIdentAtomDict 
         := FM3Atom_OAChars . New
              ( FM3Globals . IdentAtomInitSize
@@ -207,8 +216,8 @@ MODULE FM3Units
         , Ranges_Int . RangeTyp
             { FM3Exprs . ExprNoNull , FM3Exprs . ExprNoFirstReal - 1 }
         )
-    ; RETURN LUnitTRef 
-    END NewUnitTRef
+    ; RETURN LUnitRef 
+    END NewUnitRef
 
 (*EXPORTED.*)
 ; PROCEDURE UnitRefIdImage ( UnitRef : UnitRefTyp ) : TEXT 

@@ -227,9 +227,12 @@ INTERFACE FM3Units
         } 
 
 ; PROCEDURE NewUnitTRef ( ) : UnitTRefTyp
-  (* Allocate a UnitTTyp and a UnitTyp, Point the former to the latter, low-
-     level initialize their fields, give it a UnitNo, and put into UnitsTMap.
+  (* Allocate a UnitTTyp (transient), initialize non-constant fields, 
+     give it a UnitNo, and put into UnitsTMap.
   *)
+
+; PROCEDURE NewUnitRef ( ) : UnitRefTyp
+  (* Allocate a UnitTyp (persistent), & Initialize non-constant fields. *) 
 
 ; PROCEDURE UnitRefIdImage ( UnitRef : UnitRefTyp ) : TEXT 
 
