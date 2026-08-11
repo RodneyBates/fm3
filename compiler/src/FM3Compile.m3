@@ -10,11 +10,15 @@ MODULE  FM3Compile
 
 (* Overall build and compilation process. *) 
 
-; IMPORT FileWr
+; IMPORT FileRd 
+; IMPORT FileWr 
 ; IMPORT Fmt 
 ; IMPORT OSError 
 ; IMPORT Pathname
-; IMPORT Text 
+; IMPORT Pickle2 AS Pickle
+; IMPORT Rd 
+; IMPORT Text
+; IMPORT Time 
 ; IMPORT UniRd
 ; IMPORT Wr
 
@@ -35,10 +39,12 @@ MODULE  FM3Compile
 ; IMPORT FM3Pass1
 ; IMPORT FM3Pass2
 ; IMPORT FM3Scopes 
+; IMPORT FM3SharedGlobals
 ; IMPORT FM3SharedUtils
 ; IMPORT FM3SrcToks
 ; IMPORT FM3Dict_Text_Int 
 ; IMPORT FM3Units
+; IMPORT FM3UnsafeUtils 
 ; IMPORT FM3Utils
 ; IMPORT RdBackFile
 ; IMPORT VarArray_Int_Refany
@@ -149,8 +155,7 @@ MODULE  FM3Compile
            and fields UntSrcFilePath, UttSrcUniRd, and UntState are set.
   *) 
 
-  = VAR LUniRdT : UniRd . T
-  ; VAR LSrcDirList : REF ARRAY OF TEXT 
+  = VAR LSrcDirList : REF ARRAY OF TEXT 
   ; VAR LSearchDir : TEXT 
   ; VAR LDirNumber : INTEGER
   ; VAR LDirSs : INTEGER
@@ -158,8 +163,12 @@ MODULE  FM3Compile
 
   ; BEGIN
       IF UnitTRef = NIL THEN RETURN FALSE END (*IF*) 
-    ; IF UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName = NIL THEN RETURN FALSE END (*IF*) 
-    ; IF UnitTRef ^ . UttUnitRef ^ . UntState # Us . UsNull THEN RETURN FALSE END (*IF*)
+    ; IF UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName = NIL
+      THEN RETURN FALSE
+      END (*IF*) 
+    ; IF UnitTRef ^ . UttUnitRef ^ . UntState # Us . UsNull
+      THEN RETURN FALSE
+      END (*IF*)
     ; UnitTRef ^ . UttUnitRef ^ . UntStdTok
         := StdUnitTok ( UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName )
     ; IF UnitTRef ^ . UttUnitRef ^ . UntStdTok # FM3Base . TokNull 
@@ -182,36 +191,75 @@ MODULE  FM3Compile
                 }
             , ExpImpPosition 
             )
+        ; UnitTRef ^ . UttSrcUniRd := NIL 
+        ; UnitTRef ^ . UttUnitRef ^ . UntSrcFilePath := ""
+        ; UnitTRef ^ . UttUnitRef ^ . UntSrcFileTime := 0.0D0
         ; UnitTRef ^ . UttUnitRef ^ . UntState := Us . UsNotUsable
         ; RETURN FALSE
         END (*IF*) 
       ; LSearchDir := FM3SharedUtils . AbsFileName ( LSrcDirList ^ [ LDirSs ] )
-      ; LUniRdT := NIL 
       ; TRY 
-          LUniRdT
-            := FM3Files . OpenUniRd
-                 ( LSearchDir
-                 , UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName
-                 , "source file "
-                 , NIL
-                 )
+          FM3Files . OpenUniRd
+            ( LSearchDir
+            , UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName
+            , (*OUT*) UnitTRef ^ . UttSrcUniRd 
+            , (*OUT*) UnitTRef ^ . UttUnitRef ^ . UntSrcFileTime 
+            )
         EXCEPT
-        | OSError . E ( EMsg ) (* This can't happen. *) 
-          => LUniRdT := NIL 
+        | OSError . E ( EMsg )
+        => (* Not found in this dir, just loop. *)  
+           INC ( LDirSs )
         END (*EXCEPT*)
-      ; IF LUniRdT # NIL
-        THEN (* Found a source file. *)
-          UnitTRef ^ . UttUnitRef ^ . UntSrcFilePath := LSearchDir
-        ; UnitTRef ^ . UttSrcUniRd := LUniRdT
-        ; UnitTRef ^ . UttUnitRef ^ . UntState := Us . UsExporting
-        ; RETURN TRUE 
-        ELSE
-          INC ( LDirSs )
-          (* And loop. *) 
-        END (*IF*)
+      (* Found it. *) 
+      ; UnitTRef ^ . UttUnitRef ^ . UntSrcFilePath := LSearchDir
+      ; UnitTRef ^ . UttUnitRef ^ . UntState := Us . UsExporting
+      ; RETURN TRUE 
       END (*LOOP*) 
     END FindAndOpenUnitSrcFile 
+(* TODO: Move to FM3Files. *)
+(*EXPORTED*) 
+; PROCEDURE FindAndOpenRdFile
+    ( DirNameList : REF ARRAY OF TEXT 
+    ; FileSimpleName : TEXT 
+    ; VAR (*OUT*) FoundInDirName : TEXT 
+    ; VAR (*OUT*) ResultFile : File . T
+    )
 
+  = VAR LDirNumber : INTEGER
+  ; VAR LDirSs : INTEGER
+  ; VAR LLSimpleSearchDir : TEXT 
+  ; VAR LAbsSearchDir : TEXT 
+  ; VAR LFullFilePath : Pathname . T 
+
+  ; BEGIN (* FindAndOpenRdFile *) 
+      FoundInDirName := NIL
+    ; ResultFile := NIL 
+    ; IF UnitTRef = NIL THEN RETURN END (*IF*) 
+    ; IF DirNameList = NIL THEN RETURN END (*IF*)
+    ; IF FileSimpleName = NIL OR Text . Equal ( FileSimpleName , "" )
+      THEN RETURN
+      END (*IF*)
+    ; LDirNumber := NUMBER ( DirNameList ^ ) 
+    ; LDirSs := 0
+    ; LOOP
+        IF LDirSs >= LDirNumber THEN RETURN END (*IF*) 
+      ; LSimpleSearchDir := DirNameList ^ [ LDirSs ] 
+      ; LAbsSearchDir := FM3SharedUtils . AbsFileName ( LSimpleSearchDir )
+      ; LFullFilePath
+          := Pathname . Join ( LAbsSearchDir , FileSimpleName , NIL ) 
+      ; TRY ResultFile := FS . OpenFileReadonly (*M3If79*) ( LFullFilePath )
+        EXCEPT OSError . E ( EMsg )
+        =>  ResultFile := NIL 
+        END (*EXCEPT*)
+      ; IF ResultFile = NIL 
+        THEN INC ( LDirSs )
+        ELSE 
+          FoundInDirName := LSimpleSearchDir
+        ; RETURN
+        END (*IF*) 
+      END (*LOOP*) 
+    END FindAndOpenRdFile 
+*)
 (*EXPORTED*) 
 ; PROCEDURE CloseUnitSrcFile ( UnitTRef : FM3Units . UnitTRefTyp ) 
 
@@ -710,11 +758,169 @@ MODULE  FM3Compile
              , FM3Utils . HashNull 
              )
     ; RETURN LToAtom  
-    END ConvertAndCreateIdentAtom 
+    END ConvertAndCreateIdentAtom
+
+(*EXPORTED.*)
+; PROCEDURE WriteUnitFile ( UnitTRef : FM3Units . UnitTRefTyp )
+  (* Create or overlay. *) 
+
+  = VAR LUnitRef : FM3Units . UnitRefTyp
+  ; VAR LUnitFileFullName : TEXT
+  ; VAR LUnitWrT : Wr .T
+  ; VAR LSrcTimeL : LONGINT (* Just a LOOPHOLE of a LONGREAL *)
+  ; VAR LHashArray : FM3Utils . HashCharArrayTyp
+  ; VAR LSrcTimeArray : FM3Utils . LongCharArrayTyp
+
+  ; BEGIN (*WriteUnitFile*)
+      LUnitRef := UnitTRef ^ . UttUnitRef
+    ; LUnitRef ^ . UntUnitFileSimpleName
+        := Pathname . Join
+             ( NIL
+             , LUnitRef ^ . UntSrcFileSimpleName
+             , FM3Globals . UnitFileSuffix
+             )
+    ; LUnitFileFullName
+        := Pathname . Join
+             ( UnitTRef ^ . UttUnitRef ^ . UntBuildDirPath
+             , UnitTRef ^ . UttUnitRef ^ . UntUnitFileSimpleName 
+             )
+    ; LUnitWrT := FileWr . Open ( LUnitFileFullName )
+    ; Wr . PutText
+        ( LUnitWrT
+        , FM3SharedUtils . FilePrefixT
+            ( FM3SharedGlobals . FM3FileKindUnit
+            , FM3SharedGlobals . FM3FileVersion0
+            )
+        )
+
+    (* Unit file hash and src file time are copies brought out front so a
+       unit file's relevance can be checked w/o unpickling the whole thing.
+    *)
+    ; LHashArray := FM3Utils . HashToChars ( LUnitRef ^ . UntHash )
+    ; Wr . PutString ( LUnitWrT , LHashArray )
+
+    ; LSrcTimeL := FM3UnsafeUtils . LongRealToLongInt ( LUnitRef . UntSrcTime )
+    ; LSrcTimeArray := FM3Utils . LongToChars ( LSrcTimeL ) 
+    ; Wr . PutString ( LUnitWrT , LSrcTimeArray )
+
+    ; Pickle . Write ( LUnitWrT , LUnitRef , write16BitWidechar := FALSE ) 
+
+    ; Wr . Close ( LUnitWrT )
+    END WriteUnitFile
+
+; EXCEPTION ReadUnitFailure
+  (* In case caller of ReadUnitFile has an alternative. *) 
+
+(*EXPORTED.*)
+; PROCEDURE ReadUnitFile
+    ( UnitTRef : FM3Units . UnitTRefTyp ; FileSimpleName : TEXT )
+  RAISES { ReadUnitFailure } 
+
+  = VAR LUnitRef : FM3Units . UnitRefTyp
+  ; VAR LUnitFileFullName : TEXT
+  ; VAR LUnitRdT : Rd .T
+  ; VAR LFrontTimeL : LONGINT 
+  ; VAR LFrontTime : Time . T
+  ; VAR LRefany : REFANY
+  ; VAR LFrontHash : FM3Utils . HashTyp
+  ; VAR LLen : CARDINAL 
+  ; VAR LHashArray : FM3Utils . HashCharArrayTyp
+  ; VAR LSrcTimeArray : FM3Utils . LongCharArrayTyp
+  ; VAR LKind : FM3SharedGlobals . FileKindTyp
+  ; VAR LVersion : FM3SharedGlobals . FileVersionTyp 
+  ; VAR LPrefixIsOK : BOOLEAN
+
+  ; PROCEDURE Failure ( Reason : TEXT ) 
+    (* Boy, are there a lot of things that could go wrong here. *) 
+    = BEGIN
+        FM3Messages . InfoArr
+          ( ARRAY OF REFANY
+              { "Unable to  read unit file \" "
+              , LUnitFileFullName
+              , "\" (" 
+              , Reason
+              , ")"
+              } 
+          , UnitTRef . UttPositionOfImport 
+          )
+      ; RAISE ReadUnitFailure
+      END Failure 
+
+  ; BEGIN (*ReadUnitFile*)
+      LUnitRef ^ . UntUnitFileSimpleName
+        := Pathname . Join
+             ( NIL
+             , FileSimpleName
+             , FM3Globals . UnitFileSuffix
+             )
+    ; LUnitFileFullName
+        := Pathname . Join
+             ( UnitTRef ^ . UttUnitRef ^ . UntBuildDirPath
+             , UnitTRef ^ . UttUnitRef ^ . UntUnitFileSimpleName 
+             )
+    ; TRY LUnitRdT := FileRd . Open ( LUnitFileFullName )
+      EXCEPT ELSE Failure ( "opening" )  
+      END (*EXCEPT*) 
+    ; FM3SharedUtils . ReadPrefixR
+        ( LUnitRdT
+        , (*OUT*) LKind  
+        , (*OUT*) LVersion 
+        , (*OUT*) LPrefixIsOK 
+        )
+    ; TRY
+        FM3SharedUtils .CheckPrefix
+         ( LPrefixIsOK
+         , LKind , FM3SharedGlobals . FM3FileKindUnit 
+         , LVersion , FM3SharedGlobals . FM3FileVersion0
+         , "Compiled file"
+         , LUnitFileFullName
+         )
+       EXCEPT FM3SharedUtils . FatalError
+       => RAISE ReadUnitFailure
+       END (*EXCEPT*)
+
+    (* Unit file hash and src file time are copies brought out front so a
+       unit file's relevance can be checked w/o unpickling the whole thing.
+    *)
+    ; TRY
+        LLen := Rd . GetSub ( LUnitRdT , (*OUT*) LHashArray )
+      ; LLen := Rd . GetSub ( LUnitRdT , (*OUT*) LSrcTimeArray )
+      EXCEPT ELSE Failure ( "reading" )  
+      END (*EXCEPT*) 
+    ; LFrontHash := FM3Utils . CharsToHash ( LHashArray ) 
+    ; LFrontTimeL := FM3Utils . CharsToLong ( LSrcTimeArray ) 
+    ; LFrontTime := FM3UnsafeUtils . LongIntToLongReal ( LFrontTimeL )
+
+(* Split here so can read just the hash and time and possibly skip
+   reading the pickle, if it's outdated or inconsistent. 
+*)
+
+
+    ; TRY LRefany := Pickle . Read ( LUnitRdT )
+      EXCEPT ELSE Failure ( "unpickling" )  
+      END (*EXCEPT*) 
+    ; TYPECASE LRefany OF
+      | NULL => Failure ( "NIL pickle" )  
+      | FM3Units . UnitRefTyp ( LUnitRef )
+      => UnitTRef ^ . UttUnitRef:= LUnitRef 
+      ELSE Failure ( "mistyped pickle" )  
+      END (*TYPECASE*)
+
+    ; IF LFrontHash # LUnitRef . UntHash
+      THEN Failure ( "hash mismatch" )
+      END (*IF*) 
+
+    ; IF LFrontTime # LUnitRef . UntSrcTime 
+      THEN Failure ( "time mismatch" )  
+      END (*IF*) 
+
+    ; TRY Rd . Close ( LUnitRdT ) 
+      EXCEPT ELSE Failure ( "closing" )  
+      END (*EXCEPT*) 
+    END ReadUnitFile
     
 ; BEGIN
     GSearchPathShown := FALSE 
   ; InitStdFileNames ( )
   END FM3Compile
 .
-

@@ -22,6 +22,7 @@ INTERFACE FM3Globals
  *)
 
 
+; TYPE UnitTRefTyp <: REFANY 
 ; TYPE UnitRefTyp <: REFANY 
 ; TYPE UnitNoTyp = INTEGER
 ; CONST UnitNoNull = FIRST ( CARDINAL )
@@ -55,7 +56,7 @@ INTERFACE FM3Globals
 
 (* Suffixes are W/O  '.', so can use Pathname.Join. *) 
 ; CONST PatchStackSuffix = "FM3Patch"
-      (* The patch stack, used and emptied during parse pass 1. *)
+      (* The patch stack, used and emptied during pass 1. *)
 ; CONST PatchStackEmptySentinel = -1L
         (* ^An artificial coordinate to the patch file. *) 
 ; CONST Pass1OutSuffix = "FM3Pass1" (* Output of pass 1. *)
@@ -63,12 +64,13 @@ INTERFACE FM3Globals
 ; CONST Pass3OutSuffix = "FM3Pass3" (* Output of pass 3. *)
 ; CONST CopyFileSuffix = "Copy" 
 ; CONST DisAsmFileSuffix = "DisAsm"
-; CONST ScopesFileSuffix = "Scopes"
-; CONST DeclsFileSuffix = "Decls"
-; CONST ExprsFileSuffix = "Exprs"
+; CONST ScopesFileSuffix = "ScopesDump"
+; CONST DeclsFileSuffix = "DeclsDump"
+; CONST ExprsFileSuffix = "ExprsDump"
+; CONST UnitFileSuffix = "UnitPkl"
 ; CONST UnitLogSuffix = "Log" 
 
-(* These are cached copies of Unt* fields of the current Unit, for faster
+(* These are cached copies of Utt* fields of the current Unit, for faster
    access via static addressing.
 *) 
 ; VAR P1RdBack : RdBackFile . T := NIL 

@@ -680,7 +680,7 @@ MODULE RdBackFile
             )
         END (*IF*) 
       END (*IF*)
-    ; WriteHeader ( RbFile , "Copy" ) (* Just for examination at this point. *)  
+    ; WriteHeader ( RbFile , "Copy" ) (* Just for examination at this point. *) 
     ; CopyFile ^ . RbCoordL := RbFile ^ . RbCoordL 
     ; CopyFile ^ . RbMaxLengthL := RbFile ^ . RbMaxLengthL 
     ; CopyFile ^ . RbDiskLengthL := RbFile ^ . RbDiskLengthL 

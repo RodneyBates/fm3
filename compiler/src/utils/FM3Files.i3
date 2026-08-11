@@ -8,10 +8,12 @@
 
 INTERFACE FM3Files
 
+; IMPORT OSError 
 ; IMPORT Thread 
 
 ; IMPORT FM3LexTable
-; IMPORT FM3SharedGlobals  
+; IMPORT FM3SharedGlobals
+; IMPORT Time 
 ; IMPORT UniRd 
 
 ; TYPE SuffixTyp = { SfxNull , Sfxi3 , Sfxig , Sfxm3 , Sfxmg }
@@ -30,7 +32,12 @@ INTERFACE FM3Files
 (*; PROCEDURE AbsFileName ( Name : TEXT ) : TEXT *)
 
 ; PROCEDURE OpenUniRd
-    ( FileName , PathHame , Note1 , Note2 : TEXT := "" ) : UniRd . T
+    ( DirName : TEXT
+    ; FileName : TEXT
+    ; VAR (*OUT*) UniRdT : UniRd . T
+    ; VAR (*OUT*) Time : Time . T
+    ) 
+  RAISES { OSError . E (* Which means not found. *) } 
 
 ; PROCEDURE ReadFsm
     ( NamePrefix : TEXT ; Kind : FM3SharedGlobals . FileKindTyp )

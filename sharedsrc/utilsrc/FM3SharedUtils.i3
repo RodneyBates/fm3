@@ -126,7 +126,8 @@ INTERFACE FM3SharedUtils
 ; PROCEDURE CheckPrefix
     ( IsOK : BOOLEAN
     ; ActualFileKind , ExpectedFileKind : FM3SharedGlobals . FileKindTyp
-    ; ActualFileVersion , ExpectedFileVersion : FM3SharedGlobals . FileVersionTyp
+    ; ActualFileVersion , ExpectedFileVersion
+        : FM3SharedGlobals . FileVersionTyp
     ; FileTag , FileName : TEXT 
     )
   RAISES { FatalError } 

@@ -8,13 +8,15 @@
 
 MODULE FM3Files
 
+; IMPORT File
 ; IMPORT FileRd
 ; IMPORT FS 
 ; IMPORT OSError
 ; IMPORT Pathname 
 ; IMPORT Rd
 ; IMPORT Text 
-; IMPORT Thread 
+; IMPORT Thread
+; IMPORT Time 
 ; IMPORT UniEncoding 
 ; IMPORT UniRd 
 
@@ -61,26 +63,28 @@ MODULE FM3Files
 
 (*EXPORTED*) 
 ; PROCEDURE OpenUniRd
-    ( DirName , FileName , Note1 , Note2 : TEXT := "" ) : UniRd . T
-  RAISES { } 
-
+    ( DirName : TEXT
+    ; FileName : TEXT
+    ; VAR (*OUT*) UniRdT : UniRd . T
+    ; VAR (*OUT*) Time : Time . T
+    ) 
+  RAISES { OSError . E (* Which means not found. *) }
+  
   = VAR LFullFileName : TEXT
+  ; VAR LFile : File . T 
   ; VAR LRdT : Rd . T
-  ; VAR LResult : UniRd . T 
   
   ; BEGIN
-      LFullFileName := Pathname . Join ( DirName , FileName ) 
-    ; TRY 
-       LRdT := FileRd . Open ( LFullFileName ) 
-      EXCEPT
-      | OSError . E ( EMsg )
-      => LRdT := NIL 
-      END (*EXCEPT*)
-    ; IF LRdT = NIL
-      THEN LResult := NIL
-      ELSE LResult := UniRd . New ( LRdT , SrcEnc )
-      END (*IF*) 
-    ; RETURN LResult 
+      LFullFileName := Pathname . Join ( DirName , FileName )
+    ; UniRdT := NIL
+    ; Time := 0.0D0
+    
+    (* Any of the following could raise OSError.E.  Let it propate out. *)
+    ; LFile := FS . OpenFileReadonly ( LFullFileName ) (*M3If79*) 
+    ; LRdT := NEW ( FileRd . T ) . init (*M3Ifp60*) ( LFile )  
+    ; Time := LFile . status (*M3Ifp64*) ( ) . modificationTime
+    
+    (* Phew. no exceptions raised. Success. *) 
     END OpenUniRd
 
 (*EXPORTED*) 

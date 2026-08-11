@@ -46,6 +46,14 @@ INTERFACE FM3Utils
 
 ; PROCEDURE HashOfOAWChars ( Key : REF ARRAY OF WIDECHAR ) : HashTyp
 
+; CONST HashByteSize = BYTESIZE ( HashTyp )  
+; TYPE HashCharArrayTyp = ARRAY [ 0 .. HashByteSize - 1 ] OF CHAR 
+
+; PROCEDURE HashToChars ( Hash : HashTyp ) : HashCharArrayTyp 
+
+; PROCEDURE LongToChars ( Long : LONGINT ) : LongCharArrayTyp 
+; TYPE LongCharArrayTyp = ARRAY [ 0 .. 7 ] OF CHAR 
+
 ; PROCEDURE CharVarArrayToOAChar
     ( VarArr : VarArr_Char . T ) : REF ARRAY OF CHAR 
 

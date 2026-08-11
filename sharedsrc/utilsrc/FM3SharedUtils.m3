@@ -486,7 +486,8 @@ MODULE FM3SharedUtils
 ; PROCEDURE CheckPrefix
     ( IsOK : BOOLEAN
     ; ActualFileKind , ExpectedFileKind : FM3SharedGlobals . FileKindTyp
-    ; ActualFileVersion , ExpectedFileVersion : FM3SharedGlobals . FileVersionTyp
+    ; ActualFileVersion , ExpectedFileVersion
+        : FM3SharedGlobals . FileVersionTyp
     ; FileTag , FileName : TEXT 
     )
   RAISES { FatalError } 
@@ -495,7 +496,8 @@ MODULE FM3SharedUtils
       IF NOT IsOK
       THEN
         RaiseFatal
-          ( CatStrings ( FileTag , FileName , " is not an FM3 internal file." ) )
+          ( CatStrings ( FileTag , FileName , " is not an FM3 internal file." )
+          )
       ELSIF ActualFileKind # ExpectedFileKind 
       THEN 
         RaiseFatal

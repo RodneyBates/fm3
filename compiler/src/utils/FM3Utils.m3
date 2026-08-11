@@ -33,6 +33,7 @@ MODULE FM3Utils
 ; IMPORT FM3SharedUtils 
 ; IMPORT FM3SrcToks
 ; IMPORT FM3Units 
+; IMPORT FM3UnsafeUtils 
 
 ; TYPE IntRangeTyp = IntRanges . RangeTyp
 
@@ -133,6 +134,61 @@ MODULE FM3Utils
       END (*FOR*) 
     ; RETURN LResult 
     END HashOfOAWChars 
+
+(* These are intended to self-adapt to INTEGER or LONGINT as HashTyp. *) 
+
+(*EXPORTED.*)
+; PROCEDURE HashToChars ( Hash : HashTyp ) : HashCharArrayTyp 
+
+  = VAR LResult : HashCharArrayTyp
+  ; VAR LResidueL : LONGINT  
+  ; VAR LByteValL : LONGINT  
+
+  ; BEGIN (*HashToChars*)
+      LResidueL := VAL ( Hash , LONGINT )
+      (* Let's put these bytes in big-endian order, for simpler reconvert. *) 
+    ; FOR RI := HashByteSize - 1 TO 0 BY - 1
+      DO
+        LByteValL := BitArith . And ( LResidueL , 16_FFL )
+      ; LResult [ RI ] := VAL ( LByteValL , CHAR )
+      ; LResidueL := BitArith . RightShift ( LResidueL , 8 ) 
+      END (*FOR*) 
+    ; RETURN LResult 
+    END HashToChars
+
+(*EXPORTED.*)
+; PROCEDURE CharsToHash ( Chars : HashCharArrayTyp ) : HashTyp 
+
+  = VAR LResultL : LONGINT 
+
+  ; BEGIN (*CharsToHash*)
+      LResultL := 0L 
+    ; FOR RI := 0 TO HashByteSize
+      DO
+        LResultL := BitArith . LeftShift ( LResultL , 8 )
+      ; LResultL := LResultL + VAL ( ORD ( Chars [ RI ] ) , LONGINT )
+      END (*FOR*)
+    ; RETURN VAL ( LResultL , HashTyp ) 
+    END CharsToHash
+
+(*EXPORTED.*)
+; PROCEDURE LongToChars ( Long : LONGINT ) : LongCharArrayTyp 
+
+  = VAR LResult : LongCharArrayTyp
+  ; VAR LResidueL : LONGINT  
+  ; VAR LByteValL : LONGINT  
+
+  ; BEGIN (*LongToChars*)
+      LResidueL := Long 
+      (* Let's put these bytes in big-endian order, for simpler reconvert. *) 
+    ; FOR RI := 7  TO 0 BY - 1
+      DO
+        LByteValL := BitArith . And ( LResidueL , 16_FFL )
+      ; LResult [ RI ] := VAL ( LByteValL , CHAR )
+      ; LResidueL := BitArith . RightShift ( LResidueL , 8 ) 
+      END (*FOR*) 
+    ; RETURN LResult 
+    END LongToChars
 
 (*EXPORTED:*)
 ; PROCEDURE CharVarArrayToOAChar

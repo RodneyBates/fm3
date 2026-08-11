@@ -10,7 +10,8 @@ INTERFACE FM3Units
 
 ; IMPORT Wr
 
-; IMPORT IntSets 
+; IMPORT IntSets
+; IMPORT Time 
 ; IMPORT UniRd 
 ; IMPORT VarArray_Int_ExpImpProxy  
 ; IMPORT VarArray_Int_Refany 
@@ -23,7 +24,8 @@ INTERFACE FM3Units
 ; IMPORT FM3ExpImpProxy
 ; IMPORT FM3Globals 
 ; IMPORT FM3OpenArray_Char
-; IMPORT FM3SrcToks 
+; IMPORT FM3SrcToks
+; IMPORT FM3Utils 
 ; IMPORT RdBackFile
 
 ; TYPE UnitKindTyp
@@ -80,18 +82,21 @@ INTERFACE FM3Units
 
 ; REVEAL FM3Globals . UnitRefTyp = BRANDED UnitRefBrand REF UnitTyp 
 ; TYPE UnitRefTyp = FM3Globals . UnitRefTyp
-(* ^To avoid cyclic imports. *) 
+(* ^Avoiding cyclic imports. *) 
 
 ; TYPE UnitTyp
     = RECORD
         UntSrcFileSimpleName : TEXT := NIL (* Simple name *) 
       ; UntSrcFilePath : TEXT := NIL
         (* ^ I.e, directory wherein UntSimpleSrcFileName lives. *)
+      ; UntSrcFileTime : Time . T 
+      ; UntUnitFileSimpleName : TEXT := NIL 
       ; UntLogSimpleName : TEXT := NIL 
       ; UntUnitIdent : FM3OpenArray_Char . T := NIL 
       ; UntUnitIdentPos : FM3Base . tPosition := FM3Base . PositionNull 
       ; UntBuildDirPath : TEXT := NIL 
-      (* ^Same for pass1 output, patch stack, and pass2 output files. *)  
+      (* ^Same for pass1 output, patch stack, and pass2 output files. *)
+      ; UntSrcTime : Time . T := FIRST ( Time . T ) 
 
       ; UntPassNosDisAsmed : FM3CLOptions . PassNoSetTyp
           := FM3CLOptions . PassNoSetEmpty 
@@ -124,6 +129,7 @@ INTERFACE FM3Units
           (* ^Contains IdAtoms of [ex|im]ports and decls known at
               unit's top level
           *)
+      ; UntHash : FM3Utils . HashTyp := FM3Utils . HashNull 
       ; UntExpImpCt : FM3Globals . DeclNoTyp := FM3Globals . DeclNoNull 
       ; UntScanResult : INTEGER := - 1  
       ; UntParseResult : INTEGER (* Parse error count.*) 
@@ -145,8 +151,11 @@ INTERFACE FM3Units
 (* Transient info about a unit. Present while the unit is in compilation
    or loaded after being compiled by a prior run.
 *) 
-; CONST UnitTransRefBrand = "UnitTransRef0.1"
-; TYPE UnitTRefTyp = REF UnitTTyp 
+; CONST UnitTRefBrand = "UnitTRef0.1"
+
+; REVEAL FM3Globals . UnitTRefTyp = BRANDED UnitTRefBrand REF UnitTTyp 
+; TYPE UnitTRefTyp = FM3Globals . UnitTRefTyp
+(* ^Avoiding cyclic imports. *) 
 
 ; TYPE UnitTTyp
     = RECORD
@@ -179,6 +188,8 @@ INTERFACE FM3Units
       ; UttPass3OutRdBack : RdBackFile . T := NIL
       ; UttMaxPass3OutLength : LONGINT := 0L 
       ; UttPass3OutEmptyCoord : LONGINT := 0L
+
+      ; UttUnitOutSimpleName : TEXT := NIL 
 
       ; UttImportingUnitTRef : UnitTRefTyp := NIL 
           (* ^The unit this one is in process of [ex|im]porting. *) 
