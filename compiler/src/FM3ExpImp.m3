@@ -66,7 +66,7 @@ MODULE FM3ExpImp
           Wr . PutText ( LWrT , ", which at " ) 
         ; Wr . PutText
             ( LWrT
-            , FM3Utils . PositionImage ( LUnitTRef ^ . UttPositionOfImport )
+            , FM3Utils . PositionImage ( LUnitTRef ^ . UttRequestPosition )
             )
         ; Wr . PutText ( LWrT , ", imports" )
         ; LUnitTRef ^ . UttImportingUnitTRef := NIL  
@@ -106,7 +106,8 @@ MODULE FM3ExpImp
              , Text . FromChars ( IdentChars ^ )
              , FM3Base . InterfaceFileNameSuffix
              ) 
-    ; LIntfUnitTRef := FM3Compile . GetUnitTRefOfFileName ( LSrcFileName )
+    ; LIntfUnitTRef
+        := FM3Compile . GetUnitTRefOfFileName ( LSrcFileName , Position )
     ; IF LIntfUnitTRef ^ . UttUnitRef ^ . UntState = Ust . UsNotUsable
       THEN RETURN NIL
       END (*IF*) 
@@ -132,7 +133,7 @@ MODULE FM3ExpImp
       ; FM3Units . UnitTStackTopRef ^ . UttImportingUnitTRef
           := LIntfUnitTRef
         (*^ To detect future cyclic imports. *) 
-      ; FM3Units . UnitTStackTopRef ^ . UttPositionOfImport := Position
+      ; FM3Units . UnitTStackTopRef ^ . UttRequestPosition := Position
         (* ^For possible cyclic-imports message. *) 
       ; LIntfUnitTRef ^ . UttUnitRef ^ . UntState := Ust . UsImporting
 
@@ -147,7 +148,7 @@ MODULE FM3ExpImp
         FM3Messages . SetUnitLog ( FM3Units . UnitTStackTopRef ^ . UttLogWrT ) 
       ; FM3Units . CacheTopUnitValues ( )
       ; FM3Units . UnitTStackTopRef ^ . UttImportingUnitTRef := NIL 
-      ; FM3Units . UnitTStackTopRef ^ . UttPositionOfImport
+      ; FM3Units . UnitTStackTopRef ^ . UttRequestPosition
           := FM3Base . PositionNull 
       ; LIntfUnitTRef ^ . UttUnitRef ^ . UntState := Ust . UsCompiled 
       ; RETURN LIntfUnitTRef 
@@ -157,7 +158,7 @@ MODULE FM3ExpImp
         FM3Units . UnitTStackTopRef ^ . UttImportingUnitTRef
           := LIntfUnitTRef
         (*^ To detect future cyclic imports. *) 
-      ; FM3Units . UnitTStackTopRef ^ . UttPositionOfImport := Position
+      ; FM3Units . UnitTStackTopRef ^ . UttRequestPosition := Position
         (* ^For possible cyclic-imports message. *)
       ; IF LIntfUnitTRef ^ . UttImportingUnitTRef # NIL 
         THEN (* Cyclic imports/exports. *)
@@ -165,7 +166,7 @@ MODULE FM3ExpImp
         ; RETURN NIL 
         END (*IF*)
       ; FM3Units . UnitTStackTopRef ^ . UttImportingUnitTRef := NIL 
-      ; FM3Units . UnitTStackTopRef ^ . UttPositionOfImport
+      ; FM3Units . UnitTStackTopRef ^ . UttRequestPosition
           := FM3Base . PositionNull
       ; RETURN LIntfUnitTRef 
       END (*IF*)

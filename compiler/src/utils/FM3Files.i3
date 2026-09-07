@@ -8,6 +8,7 @@
 
 INTERFACE FM3Files
 
+; IMPORT File 
 ; IMPORT OSError 
 ; IMPORT Thread 
 
@@ -30,6 +31,13 @@ INTERFACE FM3Files
 ; PROCEDURE RemoveSuffix ( FileName : TEXT ) : TEXT  
 
 (*; PROCEDURE AbsFileName ( Name : TEXT ) : TEXT *)
+
+; PROCEDURE FindAndOpenRdFile
+    ( DirNameList : REF ARRAY OF TEXT 
+    ; FileSimpleName : TEXT 
+    ; VAR (*OUT*) FoundInDirName : TEXT 
+    ; VAR (*OUT*) ResultFile : File . T
+    )
 
 ; PROCEDURE OpenUniRd
     ( DirName : TEXT

@@ -62,6 +62,48 @@ MODULE FM3Files
     END RemoveSuffix 
 
 (*EXPORTED*) 
+; PROCEDURE FindAndOpenRdFile
+    ( DirNameList : REF ARRAY OF TEXT 
+    ; FileSimpleName : TEXT
+    ; VAR (*OUT*) FoundInDirName : TEXT 
+    ; VAR (*OUT*) ResultFile : File . T
+    )
+
+  = VAR LDirNumber : INTEGER
+  ; VAR LDirSs : INTEGER
+  ; VAR LSimpleSearchDir : TEXT 
+  ; VAR LAbsSearchDir : TEXT 
+  ; VAR LFullFilePath : Pathname . T 
+
+  ; BEGIN (* FindAndOpenRdFile *) 
+      FoundInDirName := NIL
+    ; ResultFile := NIL 
+    ; IF DirNameList = NIL THEN RETURN END (*IF*)
+    ; IF FileSimpleName = NIL OR Text . Equal ( FileSimpleName , "" )
+      THEN RETURN
+      END (*IF*)
+    ; LDirNumber := NUMBER ( DirNameList ^ ) 
+    ; LDirSs := 0
+    ; LOOP
+        IF LDirSs >= LDirNumber THEN RETURN END (*IF*) 
+      ; LSimpleSearchDir := DirNameList ^ [ LDirSs ] 
+      ; LAbsSearchDir := FM3SharedUtils . AbsFileName ( LSimpleSearchDir )
+      ; LFullFilePath
+          := Pathname . Join ( LAbsSearchDir , FileSimpleName , NIL ) 
+      ; TRY ResultFile := FS . OpenFileReadonly (*M3If79*) ( LFullFilePath )
+        EXCEPT OSError . E ( EMsg )
+        =>  ResultFile := NIL 
+        END (*EXCEPT*)
+      ; IF ResultFile = NIL 
+        THEN INC ( LDirSs )
+        ELSE 
+          FoundInDirName := LSimpleSearchDir
+        ; RETURN
+        END (*IF*) 
+      END (*LOOP*) 
+    END FindAndOpenRdFile 
+
+(*EXPORTED*) 
 ; PROCEDURE OpenUniRd
     ( DirName : TEXT
     ; FileName : TEXT

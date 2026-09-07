@@ -783,7 +783,7 @@ MODULE FM3CLArgs
   = VAR LExeName : TEXT
     
   ; BEGIN (*SetDefaults*) 
-      FM3CLOptions . SrcDirList := NIL 
+      FM3CLOptions . PkgDir := NIL 
     ; FM3CLOptions . SourceFileNames := NIL
     ; FM3CLOptions . ImportDirNames := NIL
     ; FM3CLOptions . SourceFileCt := 0
@@ -880,8 +880,8 @@ MODULE FM3CLArgs
     ; FM3CLOptions . ResourceDirNameList ^ [ 0 ]
         := FM3CLOptions . ResourceDirName 
 
-    ; FM3CLOptions . SrcDirList := DerivedDirs ( )
-    ; FM3CLOptions . SrcDirMsg := DerivedDirsMsg ( FM3CLOptions . SrcDirList )  
+    ; FM3CLOptions . PkgDir := DerivedDirs ( )
+    ; FM3CLOptions . PkgDirMsg := FM3CLOptions . PkgDir  
 
 (* TOTO: remove any leftover old versions of files not to be generated
          by this run.  Keep pass files, disasm files, logs.

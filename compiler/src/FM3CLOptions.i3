@@ -20,8 +20,8 @@ INTERFACE FM3CLOptions
 ; IMPORT FM3CLToks 
 ; IMPORT FM3LexTable 
 
-; VAR SrcDirList : REF ARRAY OF TEXT 
-; VAR SrcDirMsg : TEXT 
+; VAR PkgDir : TEXT 
+; VAR PkgDirMsg : TEXT 
 ; VAR SourceFileNames : AtomList . T := NIL 
 ; VAR ImportDirNames : AtomList . T := NIL 
 ; VAR SourceFileCt : INTEGER := 0 

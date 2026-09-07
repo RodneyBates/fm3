@@ -8,20 +8,26 @@
 
 INTERFACE FM3Compile
 
-(* Overall build and compilation process. *) 
+(* Overall build and compilation process. *)
+
+; IMPORT File 
+; IMPORT Pickle2 AS Pickle 
+; IMPORT Time 
 
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Base 
 ; IMPORT FM3Scopes 
 ; IMPORT FM3Units
+; IMPORT FM3Utils
 ; IMPORT RdBackFile
 
 ; PROCEDURE GetUnitTRefOfFileName
-    ( SrcFileName : TEXT ) : FM3Units . UnitTRefTyp
-  (* POST: Result, # NIL, references a UnitTyp, whose source file is named in
-           FM3Units . UnitsAtomDict, and has field UntSrcFileSimpleName set,
-           using the simple name taken from SrcFileName, which may include a
-           path.  Allocate the UnitTyp if necessary. 
+    ( SrcFilePath : TEXT ; RequestPosition : FM3Base . tPosition )
+  : FM3Units . UnitTRefTyp
+  (* POST: Result, # NIL, references a UnitTTyp, whose source file is named in
+           FM3Units . UnitsAtomDict, and has fields UttSrcFilePath  and
+           UttRequstPosition set and UttState = UttsNew. 
+           If it doesn't already exist, Allocate the UnitTTyp. 
   *) 
 
 ; PROCEDURE FindAndOpenUnitSrcFile
@@ -71,7 +77,7 @@ INTERFACE FM3Compile
 
 ; PROCEDURE CompileUnitFromSrc ( UnitTRef : FM3Units . UnitTRefTyp )
 
-; PROCEDURE CompileOrLoadCLUnit ( SrcFileName : TEXT )
+; PROCEDURE CompileOrLoadCLUnit ( SrcFilePath : TEXT )
   (* Compile or load the top unit, as named on the command line. *) 
 
 ; PROCEDURE CompileCLUnits ( )
@@ -97,6 +103,16 @@ INTERFACE FM3Compile
      that FromAtom has in FromUnitRef, creating the atom in ToUnitRef
      if it does not already exist.  
   *) 
+
+; EXCEPTION ReadUnitFailure
+  (* In case caller of ReadUnit* has an alternative. *) 
+
+; PROCEDURE AcquireUnit
+    ( SrcFilePath : TEXT 
+    ; RequestPosition : FM3Base . tPosition
+      (* ^Null means requested on comand line. *)
+    ; DoForce : BOOLEAN
+    )
 
 ; END FM3Compile
 .

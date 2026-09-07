@@ -97,13 +97,20 @@ MODULE FM3Units
     END UnitTRefOfUnitNo
       
 (*EXPORTED.*)
-; PROCEDURE UnitRefImage ( UnitTRef : UnitTRefTyp ) : TEXT 
-  (* UnitNo, REF, and sourceFileName. *) 
+; PROCEDURE UnitTRefImage ( UnitTRef : UnitTRefTyp ; ShowFields := FALSE )
+    : TEXT 
+  (* UnitNo, REF, and source file path. *) 
   
-  = VAR LResult : TEXT
+  = VAR LFields : TEXT
+  ; VAR LResult : TEXT
 
-  ; BEGIN (*UnitRefImage*)
+  ; BEGIN (*UnitTRefImage*)
       IF UnitTRef = NIL THEN RETURN "NIL" END (*IF*)
+    ; LFields := ""
+    ; IF ShowFields
+      THEN 
+(* COMPLETEME*)
+      END (*IF*) 
     ; LResult := FM3SharedUtils . CatArrT
         ( ARRAY OF REFANY
             { "UnitNo " 
@@ -111,11 +118,26 @@ MODULE FM3Units
             , " at " 
             , FM3Utils . RefanyImage ( UnitTRef )
             , " "
-            , UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName 
+            , UnitTRef ^ . UttSrcFilePath
+            , LFields 
             }
         ) 
     ; RETURN LResult 
-    END UnitRefImage
+    END UnitTRefImage
+
+(*EXPORTED.*)
+; PROCEDURE UnitTStateImage ( State : UnitTStateTyp ) : TEXT 
+
+  = BEGIN (*UnitTStateImage*)
+      CASE State OF
+      | UnitTStateTyp . UttsNull => RETURN "UttsNull" 
+      | UnitTStateTyp . UttsNew => RETURN "UttsNew" 
+      | UnitTStateTyp . UttsNotFound => RETURN "UttsNotFound" 
+      | UnitTStateTyp . UttsNotLoadable => RETURN "UttsNotLoadable" 
+      | UnitTStateTyp . UttsLoaded => RETURN "UttsLoaded" 
+      | UnitTStateTyp . UttsCompiled => RETURN "UttsCompiled" 
+      END (*CASE*)   
+   END UnitTStateImage
 
 (*EXPORTED*) 
 ; PROCEDURE NewUnitTRef ( ) : UnitTRefTyp

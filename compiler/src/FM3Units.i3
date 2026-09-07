@@ -8,6 +8,8 @@
 
 INTERFACE FM3Units
 
+; IMPORT File
+; IMPORT Pickle2 AS Pickle 
 ; IMPORT Wr
 
 ; IMPORT IntSets
@@ -155,12 +157,32 @@ INTERFACE FM3Units
 
 ; REVEAL FM3Globals . UnitTRefTyp = BRANDED UnitTRefBrand REF UnitTTyp 
 ; TYPE UnitTRefTyp = FM3Globals . UnitTRefTyp
-(* ^Avoiding cyclic imports. *) 
+(* ^Avoiding cyclic imports. *)
+
+; TYPE UnitTStateTyp
+       = { UttsNull
+         , UttsNew 
+         , UttsNotFound   
+         , UttsNotLoadable 
+         , UttsLoaded
+             (* obj file exists, was loaded earlier in this compile run,
+                and is up to date WRC its src.
+             *)
+         , UttsCompiled
+            (* obj file exists in the compile package, was compiled earlier in
+              this compile run, and is thus up to date WRT src.
+            *)
+         } 
+
+; PROCEDURE UnitTStateImage ( State : UnitTStateTyp ) : TEXT 
 
 ; TYPE UnitTTyp
     = RECORD
         UttStackLink : UnitTRefTyp := NIL
-      ; UttUnitRef : UnitRefTyp := NIL 
+      ; UttSrcFilePath : TEXT 
+      ; UttUnitRef : UnitRefTyp := NIL
+      ; UttLoadFileT : File . T
+      ; UttPickleReader : Pickle . Reader 
       ; UttSrcUniRd : UniRd . T := NIL 
       ; UttLogSimpleName : TEXT := NIL 
       ; UttLogWrT : Wr . T := NIL
@@ -193,8 +215,7 @@ INTERFACE FM3Units
 
       ; UttImportingUnitTRef : UnitTRefTyp := NIL 
           (* ^The unit this one is in process of [ex|im]porting. *) 
-      ; UttPositionOfImport : FM3Base . tPosition := FM3Base . PositionNull 
-          (* ^Of the being-[ex|im]ported identifier. *) 
+      ; UttRequestPosition : FM3Base . tPosition := FM3Base . PositionNull 
       ; UttExpUnitSet : IntSets . T := NIL (* IntSets . Empty ( ) *)
           (* Unit Nos of units exported by this unit. *) 
       ; UttSkipStackBase : INTEGER := 0 
@@ -207,15 +228,18 @@ INTERFACE FM3Units
       ; UttStackDepth : INTEGER := 0
           (* ^Where on the units stack this UnitTRef is. *) 
       ; UttSelfUnitNo : FM3Globals . UnitNoTyp := FM3Globals . UnitNoNull
-          (* ^Self-referential. *) 
+          (* ^Self-referential. *)
+      ; UttState := UnitTStateTyp . UttsNull 
+      ; UttIsUsable : BOOLEAN := FALSE 
       END (*UnitTTyp*)
 
 ; <*INLINE*>
   PROCEDURE UnitTRefOfUnitNo ( UnitNo : FM3Globals . UnitNoTyp ) : UnitTRefTyp
   (* Mainly for convenient calling by a debugger. *) 
 
-; PROCEDURE UnitRefImage ( UnitTRef : UnitTRefTyp ) : TEXT 
-  (* UnitNo, REF, and sourceFileName. *) 
+; PROCEDURE UnitTRefImage ( UnitTRef : UnitTRefTyp ; ShowFields := FALSE )
+    : TEXT 
+  (* UnitNo, REF, and source file path. *) 
   
 ; VAR UnitsAtomDict : FM3Atom_Text . T
         (* ^Just one in entire compiler run.  Map source file simple names as 

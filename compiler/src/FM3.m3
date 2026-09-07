@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2025  Rodney M. Bates.                                    *)
+(* Copyright 2023..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
@@ -25,12 +25,12 @@ MODULE FM3 EXPORTS Main
 (* W A R N I N G ! ! -------------------------
   The code in FM3Introspection is intended to be called by m3gdb commands.
   There may not be any calls on it in compiled code.  But if it is not
-  named in any IMPORT in the export/import closure, the compiler will
+  named in any IMPORT in the export/import closure, the CM3 compiler will
   not set up global variable addressing for it in the way that m3gdb depends
   on.  So Don't delete this IMPORT even though it is not needed to compile
   and will provoke an "unused" warning.
 *) 
-; IMPORT FM3Introspection
+; <* NOWARN *> IMPORT FM3Introspection
 
 ; IMPORT FM3Messages 
 ; IMPORT FM3RTFailures 

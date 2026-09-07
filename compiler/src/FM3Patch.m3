@@ -250,8 +250,7 @@ MODULE FM3Patch
                for stack consistency. *)
           (* Finish with the skip stack. *) 
         ; <* ASSERT
-               VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack )
-               . Hi 
+               VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi 
                = FM3Units . UnitTStackTopRef ^ . UttSkipStackBase 
           *> 
                
