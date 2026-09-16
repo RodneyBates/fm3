@@ -20,9 +20,8 @@ INTERFACE FM3CLOptions
 ; IMPORT FM3CLToks 
 ; IMPORT FM3LexTable 
 
-; VAR PkgDir : TEXT 
 ; VAR PkgDirMsg : TEXT 
-; VAR SourceFileNames : AtomList . T := NIL 
+; VAR SrcFileNames : AtomList . T := NIL 
 ; VAR ImportDirNames : AtomList . T := NIL 
 ; VAR SourceFileCt : INTEGER := 0 
 ; VAR ImportDirCt : INTEGER := 0
@@ -40,8 +39,8 @@ INTERFACE FM3CLOptions
       (* ^Relative to where the current unit's source file lives. *)
 
 ; VAR ResourceDirName : TEXT := "."
-; VAR ResourceDirNameList : REF ARRAY OF TEXT := NIL 
 
+; VAR PkgDirName : TEXT := ""
 (* ------------------- Boolean options are kept in a set -------------------- *)
 
 ; TYPE OptionTokTyp = [ FM3CLToks . TkMinTok .. FM3CLToks . TkMaxTok ] 
@@ -61,8 +60,6 @@ INTERFACE FM3CLOptions
 ; PROCEDURE InclOptionTok ( VAR Set : OptionTokSetTyp ; No : OptionTokTyp )
 
 ; PROCEDURE ExclOptionTok ( VAR Set : OptionTokSetTyp ; No : OptionTokTyp )
-
-; VAR SrcFileName : TEXT := NIL
 
 (* --------------------- Pass numbers are kept in sets ---------------------- *)
 

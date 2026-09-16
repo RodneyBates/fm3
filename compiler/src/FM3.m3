@@ -16,11 +16,13 @@ MODULE FM3 EXPORTS Main
 ; IMPORT Thread 
 ; IMPORT Wr
 
+; IMPORT FM3Base
 ; IMPORT FM3CLArgs
 ; IMPORT FM3CLOptions
 ; IMPORT FM3CLToks AS Clt 
 ; IMPORT FM3Compile
 ; IMPORT FM3Globals
+; IMPORT FM3Units 
 
 (* W A R N I N G ! ! -------------------------
   The code in FM3Introspection is intended to be called by m3gdb commands.
@@ -37,10 +39,13 @@ MODULE FM3 EXPORTS Main
 ; IMPORT FM3Scanner
 ; IMPORT FM3SharedUtils
 
+; TYPE Uttr = FM3Units . UnitReqKindTyp
+
 ; PROCEDURE Work ( )
   RAISES { FM3SharedUtils . FatalError , FM3SharedUtils . Terminate } 
 
-  = VAR LDebug : INTEGER := 5 (* For breakpoint *) 
+  = VAR LLibUnitTRef : FM3Units . UnitTRefTyp
+  ; VAR LDebug : INTEGER := 5 (* For breakpoint *) 
   ; VAR LTerminate : INTEGER := 7 (* For breakpoint *)
 
   ; <*FATAL Thread . Alerted , Wr . Failure *>
@@ -63,10 +68,13 @@ MODULE FM3 EXPORTS Main
         ; IF FALSE (* Rely on EXPORTS to bring these in. *) 
              AND Clt . CltStdSources IN FM3CLOptions . OptionTokSet
           THEN 
-            FM3Compile . CompileOrLoadCLUnit ( "Main.i3" )
+            LLibUnitTRef := FM3Compile . GetUnitTRefOfFileName ( "Main.m3" )
+          ; FM3Compile . AcquireUnit
+              ( LLibUnitTRef , FM3Base . PositionNull , Uttr . UttrBuiltin ) 
 (*        
-          ; FM3Compile . CompileOrLoadCLUnit ( "Word.i3" ) 
-          ; FM3Compile . CompileOrLoadCLUnit ( "Word.m3" )
+          "Word.i3"  
+          "Word.m3"
+          And others 
 *)
           END (*IF*) 
         ; FM3Compile . CompileCLUnits ( )

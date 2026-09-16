@@ -198,8 +198,7 @@ MODULE FM3Patch
         <* ASSERT Coord = 25L *>
       END 
     END xxxtest
-      
-
+    
 (*EXPORTED*) 
 ; PROCEDURE GetTokCode
     ( LMPass1Coord : LONGINT ; VAR (*OUT*) Result : TokResultTyp )
@@ -248,13 +247,8 @@ MODULE FM3Patch
           PutBwdPatch ( LPatchRdBack , LPatchStackTopCoord )
             (* ^Push the current patch coordinate back on patch stack, just
                for stack consistency. *)
-          (* Finish with the skip stack. *) 
-        ; <* ASSERT
-               VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi 
-               = FM3Units . UnitTStackTopRef ^ . UttSkipStackBase 
-          *> 
                
-          Result . TrRdBack := NIL
+        ; Result . TrRdBack := NIL
         ; Result . TrTok := Itk . ItkBOF
         ; RETURN 
         END (*IF*)

@@ -1,7 +1,7 @@
         
 $Z(* -----------------------------------------------------------------------1- *)
 $Z(* This file is part of the FM3 Modula-3 compiler.                           *)
-$Z(* Copyright 2024..2025  Rodney M. Bates.                                    *)
+$Z(* Copyright 2024..2026  Rodney M. Bates.                                    *)
 $Z(* rodney.m.bates@acm.org                                                    *)
 $Z(* Licensed under the MIT License.                                           *)
 $Z(* -----------------------------------------------------------------------2- *)
@@ -33,6 +33,15 @@ with no delimiter or stand alone in the following argument.
 Some options accumulate when they occur multiple times. Those that do
 not can also occur multiple times, in which case the last one prevails.
 
+Compilation occurs primarily within a "package" directory, here denoted
+as <pkgdir>, which, by default is the current working directory, but can
+be specified elsewhere with the --pkg-dir option.  
+
+Arguments denoting source files are file system paths relative to
+<pkgdir>/src.  Compilation results are by default written into
+<pkgdir>/build, but this can be changed by the --build_dir option.
+The build directory is created if absent. 
+
 Boolean options default to FALSE. 
 
 -v
@@ -42,28 +51,38 @@ Boolean options default to FALSE.
 -h
 --help
        Display help and exit.
+       
+--pkg-dir <directory>
+       Use <directory> as the compilation package directory.  Specified relative
+       to the current working directory. Defaults to the current working directory.
 
+<filename>
 -s<filename> 
---src-file[=]<filename>
+--src-file[=]<filename> 
        Compile <filename>
+       <filename> must end in one of ".i3", ".m3", ".ig", or ".mg"
+
 
 -I<directory>
 --import-dir[=]<directory>
-       Look for compiled versions of exported and imported interfaces
-       in <directory>. Accumulates. 
-
--S<directory>
---src-dir[=]<directory>
-       Look for source files with unqualified names in <directory>.
-       Includes files named by a dashless argument, --src-file, -s, and
-       exported and imported interfaces not found compiled in any
-       --import-dir. Accumulates.
+       Search for a previously compiled unit that is exported, imported, or is a
+       generic actual of a unit being compiled, and is not found inside <pkgdir>.
+       Accumulates.  Search in the same order as multiple occurrences of this option.
+       Do not find or compile a source file. 
 
 -B<directory>
 --build-dir[=]<directory>
-       Put compiled files in <directory>.  Defaults to <1stsrcdir>/../build,
-       where <1stsrcdir> is the directory containing the first-named source
-       file to be compiled.
+       Put compiled files in <directory>.  Create it if absent. Defaults
+       to <pkgdir>/build,
+
+--[no-]force
+       Recompile a source file even if an up-to-date compiled unit exists.
+       Does not apply to compiled units in other, library packages. Defaults
+       to FALSE.
+
+-- [no-]recompile-imports
+       Recompile an out-of-date unit inside <pkgdir> that is imported or
+       exported by a compiled unit. 
 
 --resource-dir[=]<directory>
        Look in <directory> for various resource files needed by the compiler.
@@ -76,19 +95,19 @@ Boolean options default to FALSE.
       
 --[no-]log 
        Write compilation process messages to compiler log file FM3Log,
-       in the current working directory.  Defaults to TRUE 
+       in <pkgdir>.  Defaults to TRUE 
 
 --[no-]stdout
        Write compiled code messages to stdout.  Defaults to TRUE 
 
 --[no-]unit-log 
-       Write compiled code messages for each compiled source code unit
-       to a unit-specific log file named <srcFileName>.log, in the same
-       directory as <srcFileName>. 
+       Write compiled code messages for each compiled source code unit to
+       a unit-specific log file named <srcFileName>.log, in <pkgdir>/src.
 
 -K
 --[no-]keep
-       Keep intermediate compilation files in the build directory.
+       Keep intermediate compilation files in the build directory. Defaults
+       to FALSE.
 
 --[no-]remove-unused-decls
        Don't compile declarations that can have no references.  Declarations in

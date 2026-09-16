@@ -20,6 +20,7 @@ MODULE FM3Files
 ; IMPORT UniEncoding 
 ; IMPORT UniRd 
 
+; IMPORT FM3CLOptions 
 ; IMPORT FM3LexTable 
 ; IMPORT FM3SharedGlobals  
 ; IMPORT FM3SharedUtils 
@@ -59,37 +60,86 @@ MODULE FM3Files
         LLength := Text . Length ( FileName )
       ; RETURN Text . Sub ( FileName , 0 , LLength - 3 ) 
       END (*IF*) 
-    END RemoveSuffix 
+    END RemoveSuffix
+
+(*EXPORTED.*)
+; PROCEDURE OpenUniRd ( SrcFileT : File . T ) : UniRd . T
+  RAISES { OSError . E }
+  (* PRE: We already have an open File . T for the source file we want. *)
+  (* Create an Rd.T on it and then a UniRd.T for that. *) 
+
+  = VAR LRdT : Rd . T
+  ; VAR LResult : UniRd . T 
+
+  ; BEGIN (*OpenUniRd*)
+      TRY 
+        LRdT := NEW ( FileRd . T ) . init (*M3Ifp60*) ( SrcFileT )
+      ; LResult := UniRd . New ( LRdT , UniEncoding . Encoding . ISO8859_1 )
+      EXCEPT ELSE
+        LResult := NIL 
+      END (*EXCEPT*) 
+    ; RETURN LResult 
+    END OpenUniRd
+
+(*EXPORTED*) 
+; PROCEDURE CloseUniRd ( UniRdT : UniRd . T ) 
+
+  = VAR LRdT : Rd . T
+
+  ; BEGIN (*CloseUniRd*) 
+      IF UniRdT = NIL THEN RETURN END (*IF*)
+    ; LRdT := UniRd . Source ( UniRdT )  
+    ; UniRd . Close ( UniRdT )
+    ; IF LRdT = NIL THEN RETURN END (*IF*)
+    ; Rd . Close ( LRdT )
+    END CloseUniRd 
 
 (*EXPORTED*) 
 ; PROCEDURE FindAndOpenRdFile
-    ( DirNameList : REF ARRAY OF TEXT 
+    ( READONLY DirNameList : ARRAY OF TEXT 
     ; FileSimpleName : TEXT
+    ; SeekSrcFile : BOOLEAN
+      (* Look for a source file in <somepkgdir>/src.
+         Otherwise a unit file in <somepkgdir>/<unitfile>.
+      *)
     ; VAR (*OUT*) FoundInDirName : TEXT 
     ; VAR (*OUT*) ResultFile : File . T
     )
+    : BOOLEAN (* Found one. *) 
 
   = VAR LDirNumber : INTEGER
   ; VAR LDirSs : INTEGER
-  ; VAR LSimpleSearchDir : TEXT 
-  ; VAR LAbsSearchDir : TEXT 
+  ; VAR LPkgChildDir : TEXT 
+  ; VAR LPkgDir : TEXT 
+  ; VAR LSearchDir : TEXT 
+  ; VAR LAbsSearchDir : TEXT
+  ; VAR LOpenFileSimpleName : TEXT 
   ; VAR LFullFilePath : Pathname . T 
 
   ; BEGIN (* FindAndOpenRdFile *) 
       FoundInDirName := NIL
     ; ResultFile := NIL 
-    ; IF DirNameList = NIL THEN RETURN END (*IF*)
+    ; LDirNumber := NUMBER ( DirNameList ) 
+    ; IF LDirNumber = 0 THEN RETURN FALSE END (*IF*)
     ; IF FileSimpleName = NIL OR Text . Equal ( FileSimpleName , "" )
-      THEN RETURN
+      THEN RETURN FALSE 
       END (*IF*)
-    ; LDirNumber := NUMBER ( DirNameList ^ ) 
+    ; IF SeekSrcFile
+      THEN
+        LPkgChildDir := SrcDirName 
+      ; LOpenFileSimpleName := FileSimpleName 
+      ELSE
+        LPkgChildDir := FM3CLOptions . BuildDirRelPath 
+      ; LOpenFileSimpleName := Pathname . Join ( NIL , FileSimpleName , "unit" )
+      END (*IF*) 
     ; LDirSs := 0
     ; LOOP
-        IF LDirSs >= LDirNumber THEN RETURN END (*IF*) 
-      ; LSimpleSearchDir := DirNameList ^ [ LDirSs ] 
-      ; LAbsSearchDir := FM3SharedUtils . AbsFileName ( LSimpleSearchDir )
+        IF LDirSs >= LDirNumber THEN RETURN FALSE END (*IF*) 
+      ; LPkgDir := DirNameList [ LDirSs ]
+      ; LSearchDir := Pathname . Join ( LPkgDir , LPkgChildDir , NIL )  
+      ; LAbsSearchDir := FM3SharedUtils . AbsFileName ( LSearchDir )
       ; LFullFilePath
-          := Pathname . Join ( LAbsSearchDir , FileSimpleName , NIL ) 
+          := Pathname . Join ( LAbsSearchDir , LOpenFileSimpleName , NIL ) 
       ; TRY ResultFile := FS . OpenFileReadonly (*M3If79*) ( LFullFilePath )
         EXCEPT OSError . E ( EMsg )
         =>  ResultFile := NIL 
@@ -97,37 +147,11 @@ MODULE FM3Files
       ; IF ResultFile = NIL 
         THEN INC ( LDirSs )
         ELSE 
-          FoundInDirName := LSimpleSearchDir
-        ; RETURN
+          FoundInDirName := LPkgDir
+        ; RETURN TRUE 
         END (*IF*) 
       END (*LOOP*) 
     END FindAndOpenRdFile 
-
-(*EXPORTED*) 
-; PROCEDURE OpenUniRd
-    ( DirName : TEXT
-    ; FileName : TEXT
-    ; VAR (*OUT*) UniRdT : UniRd . T
-    ; VAR (*OUT*) Time : Time . T
-    ) 
-  RAISES { OSError . E (* Which means not found. *) }
-  
-  = VAR LFullFileName : TEXT
-  ; VAR LFile : File . T 
-  ; VAR LRdT : Rd . T
-  
-  ; BEGIN
-      LFullFileName := Pathname . Join ( DirName , FileName )
-    ; UniRdT := NIL
-    ; Time := 0.0D0
-    
-    (* Any of the following could raise OSError.E.  Let it propate out. *)
-    ; LFile := FS . OpenFileReadonly ( LFullFileName ) (*M3If79*) 
-    ; LRdT := NEW ( FileRd . T ) . init (*M3Ifp60*) ( LFile )  
-    ; Time := LFile . status (*M3Ifp64*) ( ) . modificationTime
-    
-    (* Phew. no exceptions raised. Success. *) 
-    END OpenUniRd
 
 (*EXPORTED*) 
 ; PROCEDURE ReadFsm

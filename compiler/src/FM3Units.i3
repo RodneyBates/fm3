@@ -8,8 +8,6 @@
 
 INTERFACE FM3Units
 
-; IMPORT File
-; IMPORT Pickle2 AS Pickle 
 ; IMPORT Wr
 
 ; IMPORT IntSets
@@ -61,21 +59,13 @@ INTERFACE FM3Units
 ; TYPE UnitStateTyp
          = { UsNull
            , UsNotUsable 
-           , UsExporting 
-           , UsImporting 
-           , UsCompiling
            , UsCompiled
            , UsLoaded
            }
 
 ; CONST UnitStateSetUsable
     = SET OF UnitStateTyp
-        { UnitStateTyp . UsExporting
-        , UnitStateTyp . UsImporting
-        , UnitStateTyp . UsCompiling
-        , UnitStateTyp . UsCompiled
-        , UnitStateTyp . UsLoaded
-        }
+        { UnitStateTyp . UsCompiled , UnitStateTyp . UsLoaded }
 
 (* Persistent info about a unit. Pickled when compiled.
    Reloaded when exported or imported and exists and is current.
@@ -90,10 +80,8 @@ INTERFACE FM3Units
     = RECORD
         UntSrcFileSimpleName : TEXT := NIL (* Simple name *) 
       ; UntSrcFilePath : TEXT := NIL
-        (* ^ I.e, directory wherein UntSimpleSrcFileName lives. *)
       ; UntSrcFileTime : Time . T 
       ; UntUnitFileSimpleName : TEXT := NIL 
-      ; UntLogSimpleName : TEXT := NIL 
       ; UntUnitIdent : FM3OpenArray_Char . T := NIL 
       ; UntUnitIdentPos : FM3Base . tPosition := FM3Base . PositionNull 
       ; UntBuildDirPath : TEXT := NIL 
@@ -163,7 +151,11 @@ INTERFACE FM3Units
        = { UttsNull
          , UttsNew 
          , UttsNotFound   
-         , UttsNotLoadable 
+         , UttsNotLoadable
+         , UttsNotUsable
+         , UttsExporting
+         , UttsImporting
+         , UttsCompiling 
          , UttsLoaded
              (* obj file exists, was loaded earlier in this compile run,
                 and is up to date WRC its src.
@@ -174,17 +166,36 @@ INTERFACE FM3Units
             *)
          } 
 
-; PROCEDURE UnitTStateImage ( State : UnitTStateTyp ) : TEXT 
+; PROCEDURE UnitTStateImage ( State : UnitTStateTyp ) : TEXT
+
+; CONST UnitTStateSetUsable
+        = SET OF UnitTStateTyp
+            { UnitTStateTyp . UttsCompiled 
+            , UnitTStateTyp . UttsLoaded
+            } 
+
+(* What kind of request called for this unit? *) 
+; TYPE UnitReqKindTyp
+       = { UttrNull
+         , UttrBuiltin 
+         , UttrCL  
+         , UttrExport
+         , UttrImport 
+         , UttrGenActual  
+         } 
+
+; PROCEDURE UnitReqKindImage ( Kind : UnitReqKindTyp ) : TEXT 
+
+; PROCEDURE UnitReqKindTag ( Kind : UnitReqKindTyp ) : TEXT
+  (* For use in messages. *) 
 
 ; TYPE UnitTTyp
     = RECORD
         UttStackLink : UnitTRefTyp := NIL
       ; UttSrcFilePath : TEXT 
+      ; UttSrcFileSimpleName : TEXT 
       ; UttUnitRef : UnitRefTyp := NIL
-      ; UttLoadFileT : File . T
-      ; UttPickleReader : Pickle . Reader 
-      ; UttSrcUniRd : UniRd . T := NIL 
-      ; UttLogSimpleName : TEXT := NIL 
+      ; UttSrcUniRdT : UniRd . T := NIL 
       ; UttLogWrT : Wr . T := NIL
       ; UttPatchStackSimpleName : TEXT := NIL
       ; UttPatchStackRdBack : RdBackFile . T := NIL
@@ -213,12 +224,12 @@ INTERFACE FM3Units
 
       ; UttUnitOutSimpleName : TEXT := NIL 
 
-      ; UttImportingUnitTRef : UnitTRefTyp := NIL 
-          (* ^The unit this one is in process of [ex|im]porting. *) 
-      ; UttRequestPosition : FM3Base . tPosition := FM3Base . PositionNull 
+      ; UttImportsUnitTRef : UnitTRefTyp := NIL 
+          (* ^The unit this one is in process of [ex|im]porting.
+              Temporary, during the process.
+          *) 
       ; UttExpUnitSet : IntSets . T := NIL (* IntSets . Empty ( ) *)
           (* Unit Nos of units exported by this unit. *) 
-      ; UttSkipStackBase : INTEGER := 0 
       ; UttExprStackBaseCt : INTEGER := 0 
           (* TOS Subscript at beginning and end of unit compile. *) 
       ; UttScopeDeclStackBaseCt : INTEGER := 0 
@@ -229,7 +240,7 @@ INTERFACE FM3Units
           (* ^Where on the units stack this UnitTRef is. *) 
       ; UttSelfUnitNo : FM3Globals . UnitNoTyp := FM3Globals . UnitNoNull
           (* ^Self-referential. *)
-      ; UttState := UnitTStateTyp . UttsNull 
+      ; UttState := UnitTStateTyp . UttsNull
       ; UttIsUsable : BOOLEAN := FALSE 
       END (*UnitTTyp*)
 
@@ -283,9 +294,9 @@ INTERFACE FM3Units
     (* One UnitStack in a run of the compiler. *)
     (* This is the Unit curently being worked-on. *) 
     
-; PROCEDURE PushUnit ( UnitTRef : UnitTRefTyp ) 
+; PROCEDURE PushUnitT ( UnitTRef : UnitTRefTyp ) 
 
-; PROCEDURE PopUnit ( ) : UnitTRefTyp
+; PROCEDURE PopUnitT ( ) : UnitTRefTyp
 
 ; PROCEDURE CacheTopUnitValues ( )
   (* Cache some fields of top unit in global variables for faster access. *) 

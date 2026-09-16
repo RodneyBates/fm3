@@ -139,6 +139,32 @@ MODULE FM3Units
       END (*CASE*)   
    END UnitTStateImage
 
+(*EXPORTED.*)
+; PROCEDURE UnitReqKindImage ( Kind : UnitReqKindTyp ) : TEXT
+
+  = BEGIN (*UnitReqKindImage*) 
+      CASE Kind OF
+      | UnitReqKindTyp . UttrNull => RETURN "UttrNull"
+      | UnitReqKindTyp . UttrCL => RETURN "UttrCL"  
+      | UnitReqKindTyp . UttrExport => RETURN "UttrExport"
+      | UnitReqKindTyp . UttrImport => RETURN "UttrImport" 
+      | UnitReqKindTyp . UttrGenActual => RETURN "UttrGenActual"
+      END (*CASE*) 
+    END UnitReqKindImage 
+
+(*EXPORTED.*)
+; PROCEDURE UnitReqKindTag ( Kind : UnitReqKindTyp ) : TEXT
+
+  = BEGIN (*UnitReqKindTag*) 
+      CASE Kind OF
+      | UnitReqKindTyp . UttrNull => RETURN ""
+      | UnitReqKindTyp . UttrCL => RETURN "command line"  
+      | UnitReqKindTyp . UttrExport => RETURN "export"
+      | UnitReqKindTyp . UttrImport => RETURN "import" 
+      | UnitReqKindTyp . UttrGenActual => RETURN "generic actual"
+      END (*CASE*) 
+    END UnitReqKindTag 
+
 (*EXPORTED*) 
 ; PROCEDURE NewUnitTRef ( ) : UnitTRefTyp
   (* Allocate a UnitTTyp (transient), initialize non-constant fields, 
@@ -161,8 +187,6 @@ MODULE FM3Units
 
     (* Non-constant field initializations. *) 
     ; LUnitTRef ^ . UttSelfUnitNo := LUnitNo
-    ; LUnitTRef ^ . UttSkipStackBase
-        := VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi
     ; LUnitTRef ^ . UttExpUnitSet := IntSets . Empty ( ) 
     ; VarArray_Int_Refany . Assign ( UnitsTMap , LUnitNo , LUnitTRef )
 
@@ -173,9 +197,7 @@ MODULE FM3Units
 ; PROCEDURE NewUnitRef ( ) : UnitRefTyp
   (* Allocate a UnitTyp, & Initialize non-constant fields. *) 
 
-  = VAR LUnitTRef : UnitTRefTyp
-  ; VAR LUnitRef : UnitRefTyp
-  ; VAR LUnitNo : FM3Globals . UnitNoTyp 
+  = VAR LUnitRef : UnitRefTyp
 
   ; BEGIN (* NewUnitRef *) 
       LUnitRef := NEW ( UnitRefTyp )
@@ -298,11 +320,11 @@ MODULE FM3Units
     END IdAtomText
 
 (*EXPORTED.*)
-; PROCEDURE PushUnit ( UnitTRef : UnitTRefTyp ) 
+; PROCEDURE PushUnitT ( UnitTRef : UnitTRefTyp ) 
 
   = VAR LBeneathUnitTRef : UnitTRefTyp
 
-  ; BEGIN (*PushUnit*)
+  ; BEGIN (*PushUnitT*)
       IF UnitTRef = NIL THEN RETURN END (*IF*) 
     ; <* ASSERT UnitTRef . UttStackDepth = 0 *> (* Not already on stack. *)
       LBeneathUnitTRef := UnitTStackTopRef 
@@ -312,7 +334,7 @@ MODULE FM3Units
       END (*IF*)
     ; UnitTRef ^ . UttStackLink := LBeneathUnitTRef  
     ; UnitTStackTopRef := UnitTRef 
-    END PushUnit
+    END PushUnitT
 
 (*EXPORTED.*)
 ; PROCEDURE CacheTopUnitValues ( )
@@ -323,6 +345,7 @@ MODULE FM3Units
         FM3Globals . P1RdBack := NIL 
       ; FM3Globals . PatchRdBack := NIL 
       ; FM3Globals . P2RdBack := NIL 
+      ; FM3Globals . P3RdBack := NIL 
       ELSE 
         FM3Globals . P1RdBack := UnitTStackTopRef . UttPass1OutRdBack 
       ; FM3Globals . PatchRdBack := UnitTStackTopRef . UttPatchStackRdBack 
@@ -332,11 +355,11 @@ MODULE FM3Units
     END CacheTopUnitValues 
 
 (*EXPORTED.*)
-; PROCEDURE PopUnit ( ) : UnitTRefTyp  
+; PROCEDURE PopUnitT ( ) : UnitTRefTyp  
 
   = VAR LPoppedUnitTRef : UnitTRefTyp
 
-  ; BEGIN (*PopUnit*)
+  ; BEGIN (*PopUnitT*)
       LPoppedUnitTRef := UnitTStackTopRef  
     ; <* ASSERT LPoppedUnitTRef # NIL *>
       UnitTStackTopRef := LPoppedUnitTRef ^ . UttStackLink
@@ -351,7 +374,7 @@ MODULE FM3Units
     ; LPoppedUnitTRef . UttStackDepth := 0
       (* ^Note that it's no longer on the unit stack. *)  
     ; RETURN LPoppedUnitTRef
-    END PopUnit
+    END PopUnitT
 
 (*EXPORTED.*)
 ; PROCEDURE CurrentUnitIsModule ( ) : BOOLEAN

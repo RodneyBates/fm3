@@ -1,7 +1,7 @@
-       
+      
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2025  Rodney M. Bates.                                    *)
+(* Copyright 2023..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -261,9 +261,17 @@ MODULE FM3CLArgs
 
   ; PROCEDURE PaCheckValidSrcFile ( FileName : TEXT ) RAISES { TerminateCL }
 
-    = BEGIN
-        IF FM3Files . FileSuffix ( FileName ) = FM3Files . SuffixTyp . SfxNull
-        THEN RAISE TerminateCL ( "Invalid source file name." )
+    = VAR LSuffix : FM3Files . SuffixTyp
+
+    ; BEGIN
+        LSuffix := FM3Files . FileSuffix ( FileName ) 
+      ; IF NOT LSuffix IN FM3Files . M3SuffixSet 
+        THEN
+          RAISE TerminateCL
+                  ( "Invalid source file suffix;" 
+                    & FM3Messages . NLIndent
+                    & "Must be one of \".i3\", \".m3\", \".ig\", or \".mg\"." 
+                  )
         END (*IF*) 
       END PaCheckValidSrcFile 
 
@@ -430,15 +438,14 @@ MODULE FM3CLArgs
           ; PaFindParam ( )
           ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs )
           ; PaCheckValidSrcFile ( LParam ) 
-          ; PrependTextToList ( FM3CLOptions . SourceFileNames , LParam )
+          ; PrependTextToList ( FM3CLOptions . SrcFileNames , LParam )
           ; INC ( FM3CLOptions . SourceFileCt ) 
-          ; FM3CLOptions . SrcFileName := LParam  
         
-        | Clt . CltSrcDir  
+        | Clt . CltPkgDir  
         =>  PaNoNo ( LNo )
           ; PaFindParam ( )
           ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs )
-          ; DirElem ( LParam , LNo ) 
+          ; FM3CLOptions . PkgDirName := LParam
         
         | Clt . CltImportDir  
         =>  PaNoNo ( LNo )
@@ -452,12 +459,6 @@ MODULE FM3CLArgs
           ; PaFindParam ( )
           ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
           ; FM3CLOptions . ResourceDirName := LParam
-        
-        | Clt . CltBuildDir 
-        =>  PaNoNo ( LNo )
-          ; PaFindParam ( )
-          ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
-          ; FM3CLOptions . BuildDir := LParam
         
         | Clt . CltKeepPasses 
         =>  PaFindParam ( )
@@ -498,7 +499,9 @@ MODULE FM3CLArgs
         , Clt . CltDumpAddrs
         , Clt . CltStdSources
         , Clt . CltDecls 
-        , Clt . CltScopes 
+        , Clt . CltScopes
+        , Clt . CltForceCompile 
+        , Clt . CltRecompileImports  
         =>  PaNoEqualSign ( )
           ; AssignOptionSetElem 
               ( FM3CLOptions . OptionTokSet , LLexValue , Value := NOT LNo ) 
@@ -541,9 +544,8 @@ MODULE FM3CLArgs
           =>  PaFindParam ( )
             ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
             ; PaCheckValidSrcFile ( LParam ) 
-            ; PrependTextToList ( FM3CLOptions . SourceFileNames , LParam )
+            ; PrependTextToList ( FM3CLOptions . SrcFileNames , LParam )
             ; INC ( FM3CLOptions . SourceFileCt ) 
-            ; FM3CLOptions . SrcFileName := LParam 
             ; EXIT 
 
           | 'S' (* Source directory. *) 
@@ -645,9 +647,8 @@ MODULE FM3CLArgs
             END (*IF*) 
           ELSE (* No hyphens. *)
             PaCheckValidSrcFile ( PaArgText ) 
-          ; PrependTextToList ( FM3CLOptions . SourceFileNames , PaArgText )
+          ; PrependTextToList ( FM3CLOptions . SrcFileNames , PaArgText )
           ; INC ( FM3CLOptions . SourceFileCt ) 
-          ; FM3CLOptions . SrcFileName := PaArgText 
           END (*IF*) 
         ; INC ( PaArgNo )
         END (*WHILE*)
@@ -783,8 +784,8 @@ MODULE FM3CLArgs
   = VAR LExeName : TEXT
     
   ; BEGIN (*SetDefaults*) 
-      FM3CLOptions . PkgDir := NIL 
-    ; FM3CLOptions . SourceFileNames := NIL
+      FM3CLOptions . PkgDirName := "." 
+    ; FM3CLOptions . SrcFileNames := NIL
     ; FM3CLOptions . ImportDirNames := NIL
     ; FM3CLOptions . SourceFileCt := 0
     ; FM3CLOptions . ImportDirCt := 0
@@ -794,8 +795,6 @@ MODULE FM3CLArgs
 
     ; FM3CLOptions . BuildDirRelPath := "../build"
     
-    ; FM3CLOptions . SrcFileName := "" 
-
     ; FM3CLOptions . OptionTokSet := OptionTokSetDefault 
              
     ; FM3CLOptions . PassNosToKeep := FM3CLOptions . PassNoSetEmpty 
@@ -803,8 +802,6 @@ MODULE FM3CLArgs
     ; FM3CLOptions . PassNosToDumpExprs := FM3CLOptions . PassNoSetEmpty 
 
   (* TEMPORARY: during development: *)
-
-    ; FM3CLOptions . SrcFileName := "Main.m3"
 
     (* Write logs: *) 
     ; AssignOptionSetElem
@@ -876,12 +873,10 @@ MODULE FM3CLArgs
       (* Push this out so FM3SharedUtils need not import FM3CLOptions and thus
          can be used in other main programs that get their options other ways.
       *)
-    ; FM3CLOptions . ResourceDirNameList := NEW ( REF ARRAY OF TEXT , 1 )
-    ; FM3CLOptions . ResourceDirNameList ^ [ 0 ]
-        := FM3CLOptions . ResourceDirName 
-
+(*
     ; FM3CLOptions . PkgDir := DerivedDirs ( )
-    ; FM3CLOptions . PkgDirMsg := FM3CLOptions . PkgDir  
+*) 
+    ; FM3CLOptions . PkgDirMsg := FM3CLOptions . PkgDirName
 
 (* TOTO: remove any leftover old versions of files not to be generated
          by this run.  Keep pass files, disasm files, logs.

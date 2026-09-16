@@ -68,7 +68,8 @@ INTERFACE FM3Globals
 ; CONST DeclsFileSuffix = "DeclsDump"
 ; CONST ExprsFileSuffix = "ExprsDump"
 ; CONST UnitFileSuffix = "UnitPkl"
-; CONST UnitLogSuffix = "Log" 
+; CONST UnitLogSuffix = "Log"
+; CONST SemFileSuffix = "sem" 
 
 (* These are cached copies of Utt* fields of the current Unit, for faster
    access via static addressing.
@@ -81,6 +82,7 @@ INTERFACE FM3Globals
 (* One set of skip numbering should suffice for all units. *)
 ; VAR InitSkipStackCt := 255 (* Sometimes many compile errors? *) 
 ; VAR SkipNoStack : VarArray_Int_Int . T
+
 ; VAR NextSkipNo : INTEGER := 1 
 
 ; VAR M3RwDict : FM3Dict_OAChars_Int . GrowableTyp  

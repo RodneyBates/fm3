@@ -29,13 +29,13 @@ INTERFACE FM3ExpImp
 ; PROCEDURE GetInterface
     ( IdentChars : FM3OpenArray_Char . T
       (* ^Interface unit name, without file name suffix. *)  
-    ; Position : FM3Base . tPosition
-      (* ^Of the [ex/im]port identifier in the current unit. *) 
-    ; IsExport : BOOLEAN
+    ; ReqPosition : FM3Base . tPosition
+      (* ^v In the current unit of the to-be [ex/im]ported identifier. *) 
+    ; ReqKind : FM3Units . UnitReqKindTyp 
     )
   : FM3Units . UnitTRefTyp
-    (* ^The interface unit to be [ex/im]ported, possibly NIL *)
-  (* If not already done, compile or load the interface named by IdentChars. *)
+    (* ^The Desired interface. *)
+  (* Compile or load the interface named by IdentChars, as appropriate. *) 
 
 ; PROCEDURE CheckDuplicateExpImp 
     ( IntoUnitRef : FM3Units . UnitRefTyp

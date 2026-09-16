@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2024..2025  Rodney M. Bates.                                    *)
+(* Copyright 2024..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -30,11 +30,12 @@ CltVersion               "version" .
 CltHelp                  "help" .
 
 CltSrcFile               "src-file" .
-CltSrcDir                "src-dir" .
+CltPkgDir                "pkg-dir" .
 CltImportDir             "import-dir" .
 CltResourceDir           "resource-dir" . 
-CltBuildDir              "build-dir" .
-      
+
+CltForceCompile          "force-compile" .
+CltRecompileImports      "recompile-imports" . 
 CltDisAsmPasses          "disasm-passes" .
 CltDisAsmVerbose         "disasm-verbose" . 
 CltDisAsm                "disasm" .

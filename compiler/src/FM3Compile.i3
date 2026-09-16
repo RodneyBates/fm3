@@ -21,26 +21,13 @@ INTERFACE FM3Compile
 ; IMPORT FM3Utils
 ; IMPORT RdBackFile
 
-; PROCEDURE GetUnitTRefOfFileName
-    ( SrcFilePath : TEXT ; RequestPosition : FM3Base . tPosition )
+; PROCEDURE GetUnitTRefOfFileName ( SrcFilePath : TEXT )
   : FM3Units . UnitTRefTyp
   (* POST: Result, # NIL, references a UnitTTyp, whose source file is named in
-           FM3Units . UnitsAtomDict, and has fields UttSrcFilePath  and
-           UttRequstPosition set and UttState = UttsNew. 
-           If it doesn't already exist, Allocate the UnitTTyp. 
+           FM3Units . UnitsAtomDict, has field UttSrcFilePath set.
+           If it doesn't already exist, allocate the UnitTTyp and
+           set UttState := UttsNew. 
   *) 
-
-; PROCEDURE FindAndOpenUnitSrcFile
-    ( UnitTRef : FM3Units . UnitTRefTyp
-    ; Adjective : TEXT
-    ; ExpImpPosition : FM3Base . tPosition
-    )
-  : BOOLEAN (* Success *)
-  (* POST: IF result, then the source file for UnitRef^ was found and opened,
-           and fields UntSrcFilePath, UttSrcUniRd, and UntState are set.
-  *) 
-
-; PROCEDURE CloseUnitSrcFile ( UnitTRef : FM3Units . UnitTRefTyp ) 
 
 ; PROCEDURE MakePassFileCopy
     ( UnitTRef : FM3Units . UnitTRefTyp
@@ -77,9 +64,6 @@ INTERFACE FM3Compile
 
 ; PROCEDURE CompileUnitFromSrc ( UnitTRef : FM3Units . UnitTRefTyp )
 
-; PROCEDURE CompileOrLoadCLUnit ( SrcFilePath : TEXT )
-  (* Compile or load the top unit, as named on the command line. *) 
-
 ; PROCEDURE CompileCLUnits ( )
   (* Compile the units specified on the command line. *) 
 
@@ -108,11 +92,11 @@ INTERFACE FM3Compile
   (* In case caller of ReadUnit* has an alternative. *) 
 
 ; PROCEDURE AcquireUnit
-    ( SrcFilePath : TEXT 
-    ; RequestPosition : FM3Base . tPosition
-      (* ^Null means requested on comand line. *)
-    ; DoForce : BOOLEAN
+    ( UnitTRef : FM3Units . UnitTRefTyp
+    ; ReqPosition : FM3Base . tPosition
+    ; ReqKind : FM3Units . UnitReqKindTyp 
     )
+    (* Load it, compile it, or mark it something bad. *) 
 
 ; END FM3Compile
 .

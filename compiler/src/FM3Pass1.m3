@@ -133,6 +133,7 @@ MODULE FM3Pass1
     ; FinishPass1 ( LUnitTRef ) 
     END RunPass1
 
+(*
 ; PROCEDURE EnsureBuildDirectory
     ( UnitTRef : FM3Units . UnitTRefTyp ; SrcFilePath : TEXT )
 
@@ -173,6 +174,7 @@ MODULE FM3Pass1
 (* TODO: Use Pathname to construct paths, so this works in Windows too. *)  
 (* CHECK^ Or would it be better to use FS.GetAbsolutePathname? *)  
     END EnsureBuildDirectory
+*)
 
 (*EXPORTED*) 
 ; PROCEDURE DisAsmPass1 ( UnitTRef : FM3Units . UnitTRefTyp )
@@ -193,6 +195,9 @@ MODULE FM3Pass1
 
 ; CONST UnitLogSuffix = ".log" 
 
+(*TODO: Most or all of InitiPass1 would be better placed in
+        FM3Compile . CompileUnit, since it affects more than just pass1.
+*) 
 (*EXPORTED.*)
 ; PROCEDURE InitPass1 ( UnitTRef : FM3Units . UnitTRefTyp ) 
 
@@ -203,10 +208,8 @@ MODULE FM3Pass1
 
   ; BEGIN (*InitPass1*)
   
+(* Moved to FM3Compile . Compile **
     (* Create the build directory: *)
-(* FIXME: FM3CLArgs wants a build directory to put a log file in, even before
-          we get here.  Is this the right place for it?
-*)
       EnsureBuildDirectory
         ( UnitTRef , UnitTRef ^ . UttUnitRef ^ . UntSrcFilePath ) 
 
@@ -244,9 +247,10 @@ MODULE FM3Pass1
         END (*IF*) 
       END (*EXCEPT*)
     ; FM3Messages . SetUnitLog ( UnitTRef ^ . UttLogWrT )
+** *) 
 
     (* Create build files for the pass. *) 
-    ; UnitTRef ^ . UttPass1OutSimpleName
+      UnitTRef ^ . UttPass1OutSimpleName
         := Pathname . Join
              ( NIL
              , UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName
@@ -333,7 +337,7 @@ MODULE FM3Pass1
 
     (* Initialize Scanner for unit. *)
       
-    ; FM3Scanner . PushState ( UnitTRef ^ . UttSrcUniRd , UnitTRef )
+    ; FM3Scanner . PushState ( UnitTRef ^ . UttSrcUniRdT , UnitTRef )
 (* CHECK: ? *)
 
     END InitPass1

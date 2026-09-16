@@ -2795,13 +2795,20 @@ TRUE OR
 (*EXPORTED*) 
 ; PROCEDURE RunPass2 ( ) 
 
-  = VAR LUnitTRef : FM3Units . UnitTRefTyp  
+  = VAR LUnitTRef : FM3Units . UnitTRefTyp
+  ; VAR LSkipStackBase : INTEGER 
 
   ; BEGIN (*RunPass2*)
-      LUnitTRef := FM3Units . UnitTStackTopRef 
+      LUnitTRef := FM3Units . UnitTStackTopRef
+    ; LSkipStackBase
+        := VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi 
     ; InitPass2 ( LUnitTRef ) 
     ; TranslatePass2 ( LUnitTRef ) 
-    ; FinishPass2 ( LUnitTRef ) 
+    ; FinishPass2 ( LUnitTRef )
+    ; <* ASSERT
+           VarArray_Int_Int . TouchedRange ( FM3Globals . SkipNoStack ) . Hi 
+           = LSkipStackBase 
+      *> 
     END RunPass2
 
 (*EXPORTED*)
@@ -2875,7 +2882,7 @@ TRUE OR
     ; PutBwdP2
         ( UnitTRef ^ . UttPass2OutRdBack , VAL ( Itk . ItkRightEnd , LONGINT ) )
     ; UnitTRef ^ . UttPass2OutEmptyCoord
-        := RdBackFile . LengthL ( UnitTRef ^ . UttPass2OutRdBack )  
+        := RdBackFile . LengthL ( UnitTRef ^ . UttPass2OutRdBack )
     END InitPass2
 
 ; PROCEDURE TranslatePass2 ( UnitTRef : FM3Units . UnitTRefTyp )
@@ -3045,6 +3052,9 @@ TRUE OR
     ; IF FM3CLOptions . PassNo2 IN FM3CLOptions . PassNosToDisAsm 
       THEN DisAsmPass2 ( UnitTRef, DoEarlierPasses := FALSE )
       END (*IF*)
+    ; RdBackFile . Close 
+        ( UnitTRef ^ . UttPass2OutRdBack , - 1L (* Leave full length. *) )
+      (* ^When the next pass is implemented, don't do this. *)
 
     ; IF FM3CLOptions . PassNo2 IN FM3CLOptions . PassNosToDumpExprs 
          AND NOT FM3CLOptions . PassNo2
@@ -3068,7 +3078,7 @@ TRUE OR
       END (*IF*) 
 
     (* Close the source file. *) 
-    ; UniRd . Close ( UnitTRef ^ . UttSrcUniRd ) 
+    ; UniRd . Close ( UnitTRef ^ . UttSrcUniRdT ) 
 
     END FinishPass2
 

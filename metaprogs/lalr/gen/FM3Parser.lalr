@@ -83,6 +83,7 @@ GLOBAL
     FROM FM3Utils IMPORT PositionImage;
 
     TYPE Bkt = BrandKindTyp ;
+    TYPE Uttr = FM3Units . UnitReqKindTyp ; 
     
     PROCEDURE BrandKindImage ( Kind : BrandKindTyp ) : TEXT
 
@@ -711,7 +712,7 @@ RULE
          := FM3ExpImp . GetInterface
               ( $2 . Scan . SaChars
               , $2 . Scan . Position
-              , IsExport := FALSE
+              , Uttr . UttrImport 
               ) ; 
      } . 
  
@@ -748,7 +749,7 @@ RULE
              := FM3ExpImp . GetInterface 
                   ( FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntUnitIdent
                   , $0 . PaPos 
-                  , IsExport := TRUE
+                  , Uttr . UttrExport
                   ) ;
            FM3ExpImp . ImportAllDecls
              ( LUnitTRef , $0 . Scan . Position ) ;
@@ -769,7 +770,7 @@ RULE
             := FM3ExpImp . GetInterface
                  ( $1 . Scan . SaChars
                  , $1 . Scan . Position
-                 , IsExport := TRUE
+                 , Uttr . UttrExport
                  ) ;
          FM3ExpImp . ImportAllDecls ( LUnitTRef , $1 . Scan . Position ) ;
        END (* Block. *) ;  
