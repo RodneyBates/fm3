@@ -25,10 +25,13 @@ MODULE FM3CLArgs
 ; IMPORT Rd 
 ; IMPORT Stdio
 ; IMPORT Text 
-; IMPORT TextWr 
+; IMPORT TextWr
+; IMPORT Thread 
 ; IMPORT Wr
 
-; IMPORT IntSets 
+; IMPORT IntSets
+; IMPORT Ranges_Int 
+; IMPORT VarArray_Int_Text
 
 ; IMPORT FM3Atom_Text 
 ; IMPORT FM3Base
@@ -36,16 +39,34 @@ MODULE FM3CLArgs
 ; IMPORT FM3CLToks 
 ; IMPORT FM3CLToks AS Clt
 ; IMPORT FM3Files 
-; IMPORT FM3Globals
 ; IMPORT FM3LexTable 
 ; IMPORT FM3Messages 
 ; IMPORT FM3SharedGlobals 
 ; IMPORT FM3SharedUtils 
 ; IMPORT FM3TextColors
 ; IMPORT FM3Utils 
-; IMPORT FM3Version  
+; IMPORT FM3Version
+
+; TYPE Sfx =FM3Files . SuffixTyp 
 
 ; EXCEPTION TerminateCL ( TEXT (* Message. *) )
+
+; VAR FilesAtomDict := FM3Atom_Text . New
+        ( 60 (* CL-named src files + import dirs. *) 
+        , FM3Base . AtomFirstReal
+        , HashFunc := FM3Utils . HashOfText 
+        , DoReverseMap := TRUE
+        )
+; VAR FilesAtomSet := IntSets . Empty ( ) 
+      (* Command-line-named files and import dirs.
+         ^We can put all three in a single atom space and set,
+         because they have distinct suffixes.
+         vBut segregate then to go different places.
+      *)
+
+; VAR SrcFileIntfArr : VarArray_Int_Text . T 
+; VAR SrcFileModArr  : VarArray_Int_Text . T  
+; VAR ImportDirArr   : VarArray_Int_Text . T 
 
 ; PROCEDURE PrependTextToList ( VAR List : AtomList . T ; Txt : TEXT )
 
@@ -133,84 +154,110 @@ MODULE FM3CLArgs
       END (*IF*) 
     END DirElem
 
-; PROCEDURE DerivedDirs ( ) : REF ARRAY OF TEXT
-  (* Call once for the whole list. *) 
+  ; PROCEDURE ImportDirName ( DirName : TEXT ) RAISES { TerminateCL }
 
-  = VAR LArrRef : REF ARRAY OF TEXT 
-  ; VAR LArrRefLong : REF ARRAY OF TEXT
-  ; VAR LDirName : TEXT 
-  ; VAR LCt : INTEGER
-  ; VAR LNextIn : INTEGER
-  ; VAR LDir : REF DirListElemTyp
-  ; VAR LEmptyCt : INTEGER
-  ; VAR LIsGoodDir : BOOLEAN 
-
-  ; BEGIN
-      LCt := IntSets . Card ( DirsSet )
-    ; LArrRef := NEW ( REF ARRAY OF TEXT , LCt )
-    ; LNextIn := 0
-    ; LDir := DirsList
-    ; IF LDir = NIL
-      THEN
-        LArrRef := NEW ( REF ARRAY OF TEXT , 1 )
-      ; LArrRef ^ [ 0 ] := "." 
-      ELSE 
-        WHILE LDir # NIL
-        DO IF IntSets . IsElement ( LDir ^ . Atom , DirsSet )
+    = VAR LAtom : FM3Base . AtomTyp 
+    ; VAR LSuffix : FM3Files . SuffixTyp
+    
+    ; <* FATAL VarArray_Int_Text.AllocationFailure *>
+      BEGIN (*ImportDirName*) 
+        LSuffix := FM3Files . FileSuffix ( DirName )
+      ; IF LSuffix = Sfx . SfxNull
+        THEN (* This is what we want. *) 
+          LAtom := FM3Atom_Text . MakeAtom
+                     ( FilesAtomDict
+                     , DirName 
+                     , Hash := FM3Utils . HashOfText ( DirName )
+                     )
+        ; IF IntSets . IsElement ( LAtom , FilesAtomSet )
           THEN
-            <* ASSERT FM3Atom_Text . Key
-                 ( DirsAtomDict , LDir ^ . Atom , (*OUT*) LDirName )
-            *>
-            LIsGoodDir := TRUE 
-          ; TRY
-              IF FS . Status ( LDirName ) . type # FS . DirectoryFileType
-              THEN LIsGoodDir := FALSE
-              END (*IF*) 
-            EXCEPT OSError . E
-            => LIsGoodDir := FALSE  
-            END (*EXCEPT*) 
-          ; IF LIsGoodDir
-            THEN 
-              LArrRef ^ [ LNextIn ] := LDirName
-            ; INC ( LNextIn )
-            END (*IF*) 
-          ; DirsSet := IntSets . Exclude ( DirsSet , LDir ^ . Atom ) 
-          END (*IF*)
-        ; LDir := LDir ^ . Link 
-        END (*WHILE*)
-      ; <* ASSERT IntSets . IsEmpty ( DirsSet ) *>
-        LEmptyCt := LCt - LNextIn 
-      ; IF LEmptyCt > 0 
-        THEN
-          LArrRefLong := LArrRef
-        ; LArrRef := NEW ( REF ARRAY OF TEXT , LNextIn )
-        ; LArrRef ^ := SUBARRAY ( LArrRefLong ^ , 0 , LNextIn )
+            FM3Messages . FM3LogArr
+              ( ARRAY OF REFANY 
+                  { "Duplicate import directory: \""
+                  , DirName
+                  , "\", ignored."
+                  }
+              )
+          ELSIF FS . Status ( DirName ) . type # FS . DirectoryFileType
+          THEN 
+            RAISE TerminateCL
+                    ( "Import directory name \"" 
+                      & DirName 
+                      & "\" does not name a directory."
+                    )
+
+          ELSE 
+            FilesAtomSet := IntSets . Include ( FilesAtomSet , LAtom )
+          ; VarArray_Int_Text . Assign
+              ( ImportDirArr
+              , VarArray_Int_Text . TouchedRange
+                  ( ImportDirArr ) . Hi + 1
+              , DirName
+              ) 
+          END (*IF*) 
+        ELSE (* It's a Modula 3 source file name. *) 
+          RAISE TerminateCL
+                  ( "Source file name \"" 
+                    & DirName 
+                    & "\" is not a valid import directory name."
+                  )
         END (*IF*)
-      END (*IF*) 
-    ; RETURN LArrRef 
-    END DerivedDirs
+      END ImportDirName 
 
-; PROCEDURE DerivedDirsMsg ( List : REF ARRAY OF TEXT ) : TEXT  
+  ; PROCEDURE SrcFileName ( FileName : TEXT ) RAISES { TerminateCL }
 
-  = VAR LWrT : TextWr . T
-  ; VAR LResult : TEXT 
-
-  ; BEGIN
-      IF List = NIL OR NUMBER ( List ^ ) <= 0  
-      THEN LResult := "<empty>"
-      ELSE 
-        LWrT := TextWr . New ( ) 
-      ; FOR RI := FIRST ( List ^ ) TO LAST ( List ^ )
-        DO
-          Wr . PutText ( LWrT , FM3Messages . NLIndent )
-        ; Wr . PutChar ( LWrT , '\"' ) 
-        ; Wr . PutText ( LWrT , List ^ [ RI ] ) 
-        ; Wr . PutChar ( LWrT , '\"' ) 
-        END (*FOR*)
-      ; LResult := TextWr . ToText ( LWrT )
-      END (*IF*) 
-    ; RETURN LResult 
-    END DerivedDirsMsg 
+    = VAR LVarArr : VarArray_Int_Text . T 
+    ; VAR LAtom : FM3Base . AtomTyp 
+    ; VAR LSuffix : FM3Files . SuffixTyp
+    
+    ; <* FATAL VarArray_Int_Text.AllocationFailure *>
+      BEGIN
+        LSuffix := FM3Files . FileSuffix ( FileName )
+      ; CASE LSuffix OF
+        | Sfx . SfxNull 
+        =>  RAISE TerminateCL
+                    ( "Invalid source file suffix:" 
+                      & FM3Messages . NLIndent
+                      & "Must be one of \".i3\", \".m3\", \".ig\", or \".mg\"." 
+                    )
+        | Sfx . Sfxig 
+        , Sfx . Sfxmg
+        =>  FM3Messages . FM3LogArr
+              ( ARRAY OF REFANY
+                  { "Generic source files are not compiled: \""
+                  , FileName
+                  , "\", ignored."
+                  }
+              )
+          ; RETURN 
+        | Sfx . Sfxi3 
+        => LVarArr := SrcFileIntfArr 
+        | Sfx . Sfxm3
+        => LVarArr := SrcFileModArr 
+        END (*CASE*)
+      ; LAtom := FM3Atom_Text . MakeAtom
+                   ( FilesAtomDict
+                   , FileName 
+                   , Hash := FM3Utils . HashOfText ( FileName )
+                   )
+      ; IF IntSets . IsElement ( LAtom , FilesAtomSet )
+        THEN
+          FM3Messages . FM3LogArr
+            ( ARRAY OF REFANY 
+                { "Duplicate source file \""
+                , FileName
+                , "\", ignored."
+                }
+            )
+        ELSE
+          FilesAtomSet := IntSets . Include ( FilesAtomSet , LAtom )
+        ; VarArray_Int_Text . Assign
+            ( LVarArr
+            , VarArray_Int_Text . TouchedRange ( LVarArr ) . Hi + 1
+            , FileName
+            ) 
+        END (*IF*) 
+      END SrcFileName 
 
 ; PROCEDURE ParseArgs ( )
   RAISES { FM3SharedUtils . Terminate } 
@@ -258,22 +305,6 @@ MODULE FM3CLArgs
         (* This entire arg is the parameter. *) 
         END (*IF*)
       END PaFindParam 
-
-  ; PROCEDURE PaCheckValidSrcFile ( FileName : TEXT ) RAISES { TerminateCL }
-
-    = VAR LSuffix : FM3Files . SuffixTyp
-
-    ; BEGIN
-        LSuffix := FM3Files . FileSuffix ( FileName ) 
-      ; IF NOT LSuffix IN FM3Files . M3SuffixSet 
-        THEN
-          RAISE TerminateCL
-                  ( "Invalid source file suffix;" 
-                    & FM3Messages . NLIndent
-                    & "Must be one of \".i3\", \".m3\", \".ig\", or \".mg\"." 
-                  )
-        END (*IF*) 
-      END PaCheckValidSrcFile 
 
   ; PROCEDURE PaNoNo ( No : BOOLEAN ) RAISES { TerminateCL } 
 
@@ -437,7 +468,7 @@ MODULE FM3CLArgs
         =>  PaNoNo ( LNo )
           ; PaFindParam ( )
           ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs )
-          ; PaCheckValidSrcFile ( LParam ) 
+          ; SrcFileName ( LParam ) 
           ; PrependTextToList ( FM3CLOptions . SrcFileNames , LParam )
           ; INC ( FM3CLOptions . SourceFileCt ) 
         
@@ -450,9 +481,8 @@ MODULE FM3CLArgs
         | Clt . CltImportDir  
         =>  PaNoNo ( LNo )
           ; PaFindParam ( )
-          ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
-          ; PrependTextToList ( FM3CLOptions . ImportDirNames , LParam ) 
-          ; INC ( FM3CLOptions . ImportDirCt ) 
+          ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs )
+          ; ImportDirName ( LParam ) 
         
         | Clt . CltResourceDir  
         =>  PaNoNo ( LNo )
@@ -543,7 +573,7 @@ MODULE FM3CLArgs
           | 's' (* Source file. *) 
           =>  PaFindParam ( )
             ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
-            ; PaCheckValidSrcFile ( LParam ) 
+            ; SrcFileName ( LParam ) 
             ; PrependTextToList ( FM3CLOptions . SrcFileNames , LParam )
             ; INC ( FM3CLOptions . SourceFileCt ) 
             ; EXIT 
@@ -556,9 +586,8 @@ MODULE FM3CLArgs
         
           | 'I'
           =>  PaFindParam ( ) 
-            ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
-            ; PrependTextToList ( FM3CLOptions . ImportDirNames , LParam ) 
-            ; INC ( FM3CLOptions . ImportDirCt ) 
+            ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs )
+            ; ImportDirName ( LParam ) 
 
           | 'B'
           =>  PaFindParam ( )
@@ -627,7 +656,8 @@ MODULE FM3CLArgs
         END (*LOOP*) 
       END PaHyphenArg 
 
-  ; BEGIN (* ParseArgs *) 
+  ; <* FATAL Thread . Alerted , Wr . Failure *>
+    BEGIN (* ParseArgs *) 
       PaArgCt := Params . Count 
     ; PaArgNo := 1
 
@@ -646,7 +676,7 @@ MODULE FM3CLArgs
             ; PaHyphenArg ( )
             END (*IF*) 
           ELSE (* No hyphens. *)
-            PaCheckValidSrcFile ( PaArgText ) 
+            SrcFileName ( PaArgText ) 
           ; PrependTextToList ( FM3CLOptions . SrcFileNames , PaArgText )
           ; INC ( FM3CLOptions . SourceFileCt ) 
           END (*IF*) 
@@ -691,7 +721,8 @@ MODULE FM3CLArgs
 
 ; PROCEDURE DisplayVersion ( )
 
-  = BEGIN
+  = <* FATAL Thread . Alerted , Wr . Failure *>
+    BEGIN
       Wr . PutText ( Stdio . stderr , Wr . EOL )
     ; Wr . PutText ( Stdio . stderr , FM3TextColors . FGDkGreen ) 
     ; Wr . PutText ( Stdio . stderr , "Running " ) 
@@ -715,7 +746,8 @@ MODULE FM3CLArgs
   ; VAR LLength : INTEGER 
   ; VAR LOpenFailed : BOOLEAN 
 
-  ; BEGIN
+  ; <* FATAL Thread . Alerted , Wr . Failure , Rd . EndOfFile , Rd . Failure *>
+    BEGIN
       LOpenFailed := FALSE 
     ; TRY (*EXCEPT*)
         LHelpRdT
@@ -751,8 +783,7 @@ MODULE FM3CLArgs
       ; Wr . Flush ( Stdio . stderr ) 
       ELSE      
         WHILE NOT Rd . EOF ( LHelpRdT )
-        DO
-          LLine := Rd . GetLine ( LHelpRdT )
+        DO LLine := Rd . GetLine ( LHelpRdT )
         ; LLength := Text . Length ( LLine )
         ; IF LLength >= 2
              AND Text . GetChar ( LLine , 0 ) = '$' 
@@ -787,14 +818,22 @@ MODULE FM3CLArgs
       FM3CLOptions . PkgDirName := "." 
     ; FM3CLOptions . SrcFileNames := NIL
     ; FM3CLOptions . ImportDirNames := NIL
+    ; SrcFileIntfArr
+        := VarArray_Int_Text . New ( NIL , Ranges_Int . RangeTyp {  0 , 20 } )
+    ; SrcFileModArr
+        := VarArray_Int_Text . New ( NIL , Ranges_Int . RangeTyp {  0 , 20 } )
+    ; ImportDirArr
+        := VarArray_Int_Text . New ( NIL , Ranges_Int . RangeTyp {  0 , 20 } )
+    ; VarArray_Int_Text . Touch
+        ( ImportDirArr , Ranges_Int . RangeTyp {  0 , 0 } )
+      (* ^Leave space to insert things after we know ResourceDirName. *) 
+
     ; FM3CLOptions . SourceFileCt := 0
     ; FM3CLOptions . ImportDirCt := 0
     ; LExeName := Params . Get ( 0 )
     ; FM3CLOptions . ResourceDirName
         := FM3SharedUtils  . DefaultResourceDirName ( ) 
 
-    ; FM3CLOptions . BuildDirRelPath := "../build"
-    
     ; FM3CLOptions . OptionTokSet := OptionTokSetDefault 
              
     ; FM3CLOptions . PassNosToKeep := FM3CLOptions . PassNoSetEmpty 
@@ -842,7 +881,21 @@ MODULE FM3CLArgs
 ; PROCEDURE ComputeDerivedInfo ( ) 
 
   = BEGIN
-      FM3CLOptions . PassNoSetUnion
+      FM3CLOptions . SrcFileIntfList
+        := FM3Utils . TextVarToOAText ( SrcFileIntfArr ) 
+    ; FM3CLOptions . SrcFileModList
+        := FM3Utils . TextVarToOAText ( SrcFileModArr )
+    ; VarArray_Int_Text . Assign   
+        ( ImportDirArr , 0 , FM3CLOptions . ResourceDirName & "/m3core" )
+    ; FM3CLOptions . ImportPkgDirList
+        := FM3Utils . TextVarToOAText ( ImportDirArr )
+
+    (* We're done with these: *) 
+    ; SrcFileIntfArr := NIL 
+    ; SrcFileModArr := NIL 
+    ; ImportDirArr := NIL 
+ 
+    ; FM3CLOptions . PassNoSetUnion
         ( (*IN OUT*) FM3CLOptions . PassNosToKeep
         , FM3CLOptions . PassNosToDisAsm
         ) 
@@ -873,10 +926,8 @@ MODULE FM3CLArgs
       (* Push this out so FM3SharedUtils need not import FM3CLOptions and thus
          can be used in other main programs that get their options other ways.
       *)
-(*
-    ; FM3CLOptions . PkgDir := DerivedDirs ( )
-*) 
-    ; FM3CLOptions . PkgDirMsg := FM3CLOptions . PkgDirName
+    ; FM3CLOptions . PkgDirAbsName
+        := FM3SharedUtils . AbsFileName ( FM3CLOptions . PkgDirName ) 
 
 (* TOTO: remove any leftover old versions of files not to be generated
          by this run.  Keep pass files, disasm files, logs.
@@ -897,7 +948,8 @@ MODULE FM3CLArgs
 (*EXPORTED*)
 ; PROCEDURE Cleanup ( )
 
-  = BEGIN
+  = <* FATAL Thread . Alerted , Wr . Failure *>
+    BEGIN
       IF FM3Messages . FM3LogFileWrT # NIL
       THEN Wr . Close ( FM3Messages . FM3LogFileWrT )
       END (*IF*) 
@@ -909,7 +961,8 @@ MODULE FM3CLArgs
   = VAR LWrT : Wr . T
   ; VAR LResult : TEXT 
 
-  ; BEGIN
+  ; <* FATAL Thread . Alerted , Wr . Failure *>
+    BEGIN
       LWrT := TextWr . New ( )
     ; Wr . PutText ( LWrT , Params . Get ( 0 ) ) 
     ; FOR RArgNo := 1 TO Params . Count - 1
@@ -921,7 +974,8 @@ MODULE FM3CLArgs
     ; RETURN LResult 
     END ArgListAsText 
 
-; BEGIN
+; <* FATAL VarArray_Int_Text.AllocationFailure *>
+  BEGIN
   END FM3CLArgs
 .
 

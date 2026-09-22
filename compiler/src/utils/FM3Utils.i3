@@ -23,6 +23,8 @@ INTERFACE FM3Utils
 
 ; IMPORT IntCharVarArray AS VarArr_Char 
 ; IMPORT IntWideCharVarArray AS VarArr_WChar
+; IMPORT VarArray_Int_Text AS VarArr_Text
+(* TODO: regularize spellings of these vararrays. *) 
 
 ; TYPE HashTyp = FM3Base . HashTyp
 ; CONST HashNull = FM3Base . HashNull 
@@ -55,10 +57,13 @@ INTERFACE FM3Utils
 ; TYPE LongCharArrayTyp = ARRAY [ 0 .. 7 ] OF CHAR 
 
 ; PROCEDURE CharVarArrayToOAChar
-    ( VarArr : VarArr_Char . T ) : REF ARRAY OF CHAR 
+    ( READONLY VarArr : VarArr_Char . T ) : REF ARRAY OF CHAR 
 
 ; PROCEDURE WCharVarArrayToOAWChar
-    ( VarArr : VarArr_WChar . T ) : REF ARRAY OF WIDECHAR
+    ( READONLY VarArr : VarArr_WChar . T ) : REF ARRAY OF WIDECHAR
+
+; PROCEDURE TextVarToOAText ( READONLY VarArr : VarArr_Text . T )
+  : REF ARRAY OF TEXT
 
 ; PROCEDURE EscapeChar ( WrT : Wr . T ; WCh : WIDECHAR ; Wide : BOOLEAN )
 

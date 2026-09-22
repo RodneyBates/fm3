@@ -69,7 +69,10 @@ INTERFACE FM3Globals
 ; CONST ExprsFileSuffix = "ExprsDump"
 ; CONST UnitFileSuffix = "UnitPkl"
 ; CONST UnitLogSuffix = "Log"
-; CONST SemFileSuffix = "sem" 
+; CONST SemFileSuffix = "sem"
+
+; CONST SrcDirName    = "src" 
+; CONST BuildDirName  = "build" 
 
 (* These are cached copies of Utt* fields of the current Unit, for faster
    access via static addressing.

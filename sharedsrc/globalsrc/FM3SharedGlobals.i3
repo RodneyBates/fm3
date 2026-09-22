@@ -72,6 +72,7 @@ INTERFACE FM3SharedGlobals
 ; CONST FM3FileKindSrcPkl  = 'D'
 ; CONST FM3FileKindRdBack  = 'E' (* Readback file. *)
 ; CONST FM3FileKindUnit    = 'F' (* Internal data structure file. *)
+; CONST FM3FileKindSem     = 'G' (* Semantics file. *) 
 ; CONST FM3FileVersion0    = '0' 
 
 ; TYPE FileVersionTyp = CHAR(* Separate numbering for each Kind. *) 

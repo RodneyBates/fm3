@@ -65,10 +65,10 @@ MODULE FM3Units
       END (*CASE*) 
     END UnitKindSectionNo  
 
-; PROCEDURE NewUnitsTMap
+; PROCEDURE NewUnitTMap
     ( InitUnitCt : FM3Globals . UnitNoTyp ) : VarArray_Int_Refany . T
   (* PRE: InitUnitCt > 0. *) 
-  (* One UnitsTMap in a compile. *) 
+  (* One UnitTMap in a compile. *) 
 
   = VAR LResult : VarArray_Int_Refany . T 
 
@@ -79,7 +79,7 @@ MODULE FM3Units
     ; VarArray_Int_Refany . Touch
         ( LResult , Ranges_Int . RangeTyp {  0 , 0  } )
     ; RETURN LResult 
-    END NewUnitsTMap
+    END NewUnitTMap
 
 (*EXPORTED.*)
 ; <*INLINE*>
@@ -90,7 +90,7 @@ MODULE FM3Units
   ; BEGIN (*UnitTRefOfUnitNo*)
       LUnitTRef 
         := NARROW
-             ( VarArray_Int_Refany . Fetch ( FM3Units . UnitsTMap , UnitNo )
+             ( VarArray_Int_Refany . Fetch ( FM3Units . UnitTMap , UnitNo )
              , UnitTRefTyp
              ) 
     ; RETURN LUnitTRef 
@@ -168,7 +168,7 @@ MODULE FM3Units
 (*EXPORTED*) 
 ; PROCEDURE NewUnitTRef ( ) : UnitTRefTyp
   (* Allocate a UnitTTyp (transient), initialize non-constant fields, 
-     give it a UnitNo, and put into UnitsTMap.
+     give it a UnitNo, and put into UnitTMap.
   *)
 
   = VAR LUnitTRef : UnitTRefTyp
@@ -188,7 +188,7 @@ MODULE FM3Units
     (* Non-constant field initializations. *) 
     ; LUnitTRef ^ . UttSelfUnitNo := LUnitNo
     ; LUnitTRef ^ . UttExpUnitSet := IntSets . Empty ( ) 
-    ; VarArray_Int_Refany . Assign ( UnitsTMap , LUnitNo , LUnitTRef )
+    ; VarArray_Int_Refany . Assign ( UnitTMap , LUnitNo , LUnitTRef )
 
     ; RETURN LUnitTRef 
     END NewUnitTRef
@@ -410,7 +410,7 @@ MODULE FM3Units
            , DoReverseMap := TRUE (* Needed? *) 
            )
            
-  ; UnitsTMap := NewUnitsTMap ( FM3Globals . InitUnitsCt - 1 )
+  ; UnitTMap := NewUnitTMap ( FM3Globals . InitUnitsCt - 1 )
   ; NextUnitNo := 1
   ; UnitTStackTopRef := NIL 
   END FM3Units

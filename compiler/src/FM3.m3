@@ -77,7 +77,11 @@ MODULE FM3 EXPORTS Main
           And others 
 *)
           END (*IF*) 
-        ; FM3Compile . CompileCLUnits ( )
+        ; FM3Compile . CompileCLUnits ( FM3CLOptions . SrcFileIntfList )
+          (* ^Do all the interfaces first, just to minimize the export/import
+              compile closure.
+          *)
+        ; FM3Compile . CompileCLUnits ( FM3CLOptions . SrcFileModList ) 
         ; FM3Globals . Finalize ( ) 
         FINALLY FM3CLArgs . Cleanup ( ) 
         END (*FINALLY*)

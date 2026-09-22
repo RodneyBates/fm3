@@ -1,7 +1,7 @@
         
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024        Rodney M. Bates.                                    *)
+(* Copyright 2023..2026        Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -168,7 +168,7 @@ MODULE FM3Messages
     ; LMsg := TextWr . ToText ( LWrT ) 
     
     ; TRY (*EXCEPT*)
-        PutStdOut ( LMsg ) 
+        PutStdErr ( LMsg ) 
       ; PutFM3Log ( LMsg ) 
       EXCEPT Thread . Alerted => END (*EXCEPT*) 
     END FM3LogArr
@@ -387,7 +387,6 @@ MODULE FM3Messages
     ; Wr . PutText ( WrT , Fmt . Int ( Pos . Column ) ) 
     ; Wr . PutChar ( WrT , ']' )
     END PutPositionImage 
-
 
 (*EXPORTED*)
 ; PROCEDURE StartUnit ( UnitName : TEXT ) RAISES { Thread . Alerted } 

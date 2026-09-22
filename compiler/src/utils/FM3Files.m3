@@ -16,17 +16,15 @@ MODULE FM3Files
 ; IMPORT Rd
 ; IMPORT Text 
 ; IMPORT Thread
-; IMPORT Time 
 ; IMPORT UniEncoding 
 ; IMPORT UniRd 
 
-; IMPORT FM3CLOptions 
 ; IMPORT FM3LexTable 
 ; IMPORT FM3SharedGlobals  
 ; IMPORT FM3SharedUtils 
 
-; VAR SrcEnc : UniEncoding . Encoding := UniEncoding . Encoding . ISO8859_1
-      (* UTF8 is a reasonable alternative. *)   
+; VAR SrcEncoding := UniEncoding . Encoding . ISO8859_1
+(* TODO: Someday, make this a command-line option. *)
 
 (*EXPORTED*) 
 ; PROCEDURE FileSuffix ( FileName : TEXT ) : SuffixTyp 
@@ -64,7 +62,6 @@ MODULE FM3Files
 
 (*EXPORTED.*)
 ; PROCEDURE OpenUniRd ( SrcFileT : File . T ) : UniRd . T
-  RAISES { OSError . E }
   (* PRE: We already have an open File . T for the source file we want. *)
   (* Create an Rd.T on it and then a UniRd.T for that. *) 
 
@@ -74,7 +71,7 @@ MODULE FM3Files
   ; BEGIN (*OpenUniRd*)
       TRY 
         LRdT := NEW ( FileRd . T ) . init (*M3Ifp60*) ( SrcFileT )
-      ; LResult := UniRd . New ( LRdT , UniEncoding . Encoding . ISO8859_1 )
+      ; LResult := UniRd . New ( LRdT , SrcEncoding )
       EXCEPT ELSE
         LResult := NIL 
       END (*EXCEPT*) 
@@ -86,7 +83,8 @@ MODULE FM3Files
 
   = VAR LRdT : Rd . T
 
-  ; BEGIN (*CloseUniRd*) 
+  ; <* FATAL Rd . Failure , Thread . Alerted *>
+    BEGIN (*CloseUniRd*) 
       IF UniRdT = NIL THEN RETURN END (*IF*)
     ; LRdT := UniRd . Source ( UniRdT )  
     ; UniRd . Close ( UniRdT )
@@ -95,63 +93,56 @@ MODULE FM3Files
     END CloseUniRd 
 
 (*EXPORTED*) 
-; PROCEDURE FindAndOpenRdFile
+; PROCEDURE FindAndOpenRdFileT
     ( READONLY DirNameList : ARRAY OF TEXT 
-    ; FileSimpleName : TEXT
-    ; SeekSrcFile : BOOLEAN
-      (* Look for a source file in <somepkgdir>/src.
-         Otherwise a unit file in <somepkgdir>/<unitfile>.
-      *)
-    ; VAR (*OUT*) FoundInDirName : TEXT 
-    ; VAR (*OUT*) ResultFile : File . T
+    ; ChildDir : TEXT 
+    ; FileSimpleName : TEXT 
+    ; VAR (*OUT*) FoundInParentDirName : TEXT 
+    ; VAR (*OUT*) ResultFileT : File . T
     )
     : BOOLEAN (* Found one. *) 
+  (* Look in subdirectory ChildDir of each directory in DirNameList, in
+     order, for the first file named FileSimpleName. Open, readonly,
+     and return a File . T for it.
+  *)
 
   = VAR LDirNumber : INTEGER
   ; VAR LDirSs : INTEGER
-  ; VAR LPkgChildDir : TEXT 
-  ; VAR LPkgDir : TEXT 
+  ; VAR LParentDir : TEXT 
   ; VAR LSearchDir : TEXT 
   ; VAR LAbsSearchDir : TEXT
-  ; VAR LOpenFileSimpleName : TEXT 
   ; VAR LFullFilePath : Pathname . T 
 
-  ; BEGIN (* FindAndOpenRdFile *) 
-      FoundInDirName := NIL
-    ; ResultFile := NIL 
+  ; BEGIN (* FindAndOpenRdFileT *) 
+      FoundInParentDirName := NIL
+    ; ResultFileT := NIL
+    
     ; LDirNumber := NUMBER ( DirNameList ) 
     ; IF LDirNumber = 0 THEN RETURN FALSE END (*IF*)
     ; IF FileSimpleName = NIL OR Text . Equal ( FileSimpleName , "" )
       THEN RETURN FALSE 
       END (*IF*)
-    ; IF SeekSrcFile
-      THEN
-        LPkgChildDir := SrcDirName 
-      ; LOpenFileSimpleName := FileSimpleName 
-      ELSE
-        LPkgChildDir := FM3CLOptions . BuildDirRelPath 
-      ; LOpenFileSimpleName := Pathname . Join ( NIL , FileSimpleName , "unit" )
-      END (*IF*) 
+      
     ; LDirSs := 0
     ; LOOP
         IF LDirSs >= LDirNumber THEN RETURN FALSE END (*IF*) 
-      ; LPkgDir := DirNameList [ LDirSs ]
-      ; LSearchDir := Pathname . Join ( LPkgDir , LPkgChildDir , NIL )  
+      ; LParentDir := DirNameList [ LDirSs ]
+      ; LSearchDir := Pathname . Join ( LParentDir , ChildDir , NIL )  
       ; LAbsSearchDir := FM3SharedUtils . AbsFileName ( LSearchDir )
       ; LFullFilePath
-          := Pathname . Join ( LAbsSearchDir , LOpenFileSimpleName , NIL ) 
-      ; TRY ResultFile := FS . OpenFileReadonly (*M3If79*) ( LFullFilePath )
-        EXCEPT OSError . E ( EMsg )
-        =>  ResultFile := NIL 
+          := Pathname . Join ( LAbsSearchDir , FileSimpleName , NIL ) 
+      ; TRY ResultFileT := FS . OpenFileReadonly (*M3If79*) ( LFullFilePath )
+        EXCEPT OSError . E ( <* UNUSED *> EMsg )
+        =>  ResultFileT := NIL 
         END (*EXCEPT*)
-      ; IF ResultFile = NIL 
+      ; IF ResultFileT = NIL 
         THEN INC ( LDirSs )
         ELSE 
-          FoundInDirName := LPkgDir
+          FoundInParentDirName := LParentDir
         ; RETURN TRUE 
         END (*IF*) 
       END (*LOOP*) 
-    END FindAndOpenRdFile 
+    END FindAndOpenRdFileT 
 
 (*EXPORTED*) 
 ; PROCEDURE ReadFsm

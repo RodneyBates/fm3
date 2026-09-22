@@ -8,7 +8,6 @@
 
 MODULE FM3Utils
 
-; IMPORT AtomList
 ; IMPORT Fmt AS FM3Fmt (* Why? *)  
 ; IMPORT Long AS BitArith
 ; IMPORT Text
@@ -22,6 +21,7 @@ MODULE FM3Utils
 ; IMPORT IntCharVarArray AS VarArr_Char 
 ; IMPORT IntWideCharVarArray AS VarArr_WChar
 ; IMPORT Layout
+; IMPORT VarArray_Int_Text AS VarArr_Text 
 
 ; IMPORT FM3Atom_OAChars 
 ; IMPORT FM3Base
@@ -33,7 +33,6 @@ MODULE FM3Utils
 ; IMPORT FM3SharedUtils 
 ; IMPORT FM3SrcToks
 ; IMPORT FM3Units 
-; IMPORT FM3UnsafeUtils 
 
 ; TYPE IntRangeTyp = IntRanges . RangeTyp
 
@@ -44,7 +43,8 @@ MODULE FM3Utils
 (* EXPORTED: *) 
 ; PROCEDURE PutHex ( WrT : Wr . T ; Value : INTEGER )
 
-  = BEGIN 
+  = <* FATAL Thread . Alerted , Wr. Failure *>
+    BEGIN 
       Wr.PutText
         ( WrT
         , FM3Fmt . Pad
@@ -76,9 +76,7 @@ MODULE FM3Utils
 ; <* INLINE *> PROCEDURE ContribToHashI
     ( VAR (*IN OUT*) Hash : HashTyp ; Contribution : INTEGER ) 
 
-  = VAR LResult : HashTyp
-
-  ; BEGIN
+  = BEGIN
       ContribToHashL ( Hash , VAL ( Contribution , LONGINT ) ) 
     END ContribToHashI
 
@@ -192,7 +190,7 @@ MODULE FM3Utils
 
 (*EXPORTED:*)
 ; PROCEDURE CharVarArrayToOAChar
-    ( VarArr : VarArr_Char . T ) : REF ARRAY OF CHAR
+    ( READONLY VarArr : VarArr_Char . T ) : REF ARRAY OF CHAR
 
   = VAR LResult : REF ARRAY OF CHAR 
   ; VAR LTouchedRange : IntRangeTyp 
@@ -212,7 +210,7 @@ MODULE FM3Utils
 
 (*EXPORTED:*)
 ; PROCEDURE WCharVarArrayToOAWChar
-    ( VarArr : VarArr_WChar . T ) : REF ARRAY OF WIDECHAR 
+    ( READONLY VarArr : VarArr_WChar . T ) : REF ARRAY OF WIDECHAR 
 
   = VAR LResult : REF ARRAY OF WIDECHAR 
   ; VAR LTouchedRange : IntRangeTyp 
@@ -229,6 +227,28 @@ MODULE FM3Utils
       END (*IF*) 
     ; RETURN LResult  
     END WCharVarArrayToOAWChar
+
+(*EXPORTED.*)
+; PROCEDURE TextVarToOAText ( READONLY VarArr : VarArr_Text . T )
+  : REF ARRAY OF TEXT
+
+  = VAR LResult : REF ARRAY OF TEXT  
+  ; VAR LTouchedRange : IntRangeTyp 
+  ; VAR LNumber : Word . T  
+
+  ; BEGIN 
+      LTouchedRange := VarArr_Text . TouchedRange ( VarArr ) 
+    ; IF IntRanges . RangeIsEmpty ( LTouchedRange ) 
+      THEN LResult := NEW ( REF ARRAY OF TEXT , 0 )  
+      ELSE
+        LNumber := IntRanges . NumberOfRange ( LTouchedRange ) 
+      ; LResult := NEW ( REF ARRAY OF TEXT , LNumber )
+      ; VarArr_Text . FetchSubarray ( VarArr , 0 , LResult ^ ) 
+      END (*IF*) 
+    ; RETURN LResult  
+
+
+    END TextVarToOAText
 
 (*EXPORTED*) 
 ; PROCEDURE EscapeChar ( WrT : Wr . T ; WCh : WIDECHAR ; Wide : BOOLEAN ) 
@@ -284,7 +304,8 @@ MODULE FM3Utils
 
     = VAR LWCh : WIDECHAR
 
-    ; BEGIN
+    ; <* FATAL Thread . Alerted , Wr. Failure *>
+    BEGIN
         IF BitArith . LE ( ArgL , 16_FFL ) 
            OR Wide AND BitArith . LE ( ArgL , 16_10FFFFL ) 
         THEN
@@ -305,7 +326,8 @@ MODULE FM3Utils
   = VAR LWrT : TextWr . T
   ; VAR LResult : TEXT 
 
-  ; BEGIN
+  ; <* FATAL Thread . Alerted , Wr. Failure *>
+    BEGIN
       LWrT := TextWr . New ( )
     ; Wr . PutChar ( LWrT , '\"' )
     ; FOR RI := FIRST ( CharsRef ^ ) TO LAST ( CharsRef ^ )
@@ -323,7 +345,8 @@ MODULE FM3Utils
   = VAR LWrT : TextWr . T
   ; VAR LResult : TEXT 
 
-  ; BEGIN
+  ; <* FATAL Thread . Alerted , Wr. Failure *>
+    BEGIN
       LWrT := TextWr . New ( )
     ; Wr . PutText ( LWrT , "W\"" )
     ; FOR RI := FIRST ( CharsRef ^ ) TO LAST ( CharsRef ^ )
@@ -339,7 +362,7 @@ MODULE FM3Utils
   (* Add escape sequences and string quotes. *) 
 
   = BEGIN 
-      RETURN "\"" (*& EscapeText ( String )*) & "\""  
+      RETURN "\"" (* & EscapeText ( String )*) & "\""  
     END QuoteText 
 
 (* ------------------------------------------------------------- *) 
@@ -464,7 +487,8 @@ MODULE FM3Utils
   = VAR LWrT : Wr . T
   ; VAR LResult : TEXT 
 
-  ; BEGIN (*PositionImage*)
+  ; <* FATAL Thread . Alerted , Wr. Failure *>
+    BEGIN (*PositionImage*)
       LWrT := TextWr . New ( )
     ; Wr . PutChar ( LWrT , '[') 
     ; Wr . PutText ( LWrT , FM3Fmt . Int ( Pos . Line ) ) 
@@ -481,7 +505,8 @@ MODULE FM3Utils
   = VAR LWrT : Wr . T
   ; LResult : TEXT
 
-  ; BEGIN (*SrcTokImage*)
+  ; <* FATAL Thread . Alerted , Wr. Failure *>
+    BEGIN (*SrcTokImage*)
       LWrT := TextWr . New ( )
     ; Wr . PutText ( LWrT , "SrcTok " ) 
     ; Wr . PutText ( LWrT , FM3Fmt . Int ( SrcTok ) ) 
@@ -514,7 +539,8 @@ MODULE FM3Utils
 (*EXPORTED.*)
 ; PROCEDURE PutOACharsWr ( WrT : Wr . T ; CharsRef : FM3OpenArray_Char . T ) 
 
-  = BEGIN
+  = <* FATAL Thread . Alerted , Wr. Failure *>
+    BEGIN
       IF CharsRef = NIL THEN RETURN END (*IF*)
     ; FOR RI := FIRST ( CharsRef ^ ) TO LAST ( CharsRef ^ )
       DO Wr . PutChar ( WrT , CharsRef ^ [ RI ] )
@@ -554,7 +580,8 @@ MODULE FM3Utils
   ; VAR LTextWrT : TextWr . T
   ; VAR LResult : TEXT 
 
-  ; BEGIN (*IdImageOfAtom*)
+  ; <* FATAL Thread . Alerted , Wr. Failure *>
+    BEGIN (*IdImageOfAtom*)
       IF Atom = FM3Base. AtomNull
       THEN RETURN "Id" & FM3Fmt . Int ( Atom ) & "(<AtomNull>)"
       END (*IF*)
@@ -578,7 +605,8 @@ MODULE FM3Utils
   = VAR IseArrayRef : REF ARRAY OF TEXT
   ; VAR IseElemNo : INTEGER 
 
-  ; PROCEDURE OneElem ( Elem : IntSets . ElemT )
+  ; <* FATAL ANY *>
+    PROCEDURE OneElem ( Elem : IntSets . ElemT )
     (* A callback. *)
     = BEGIN 
         IseArrayRef ^ [ IseElemNo ] := ElemImageProc ( Elem ) 
@@ -622,7 +650,8 @@ MODULE FM3Utils
   ; VAR LCt : INTEGER
   ; VAR LInFirstLine : BOOLEAN 
 
-  ; BEGIN (*ListImage*)
+  ; <* FATAL Thread . Alerted , Wr. Failure *>
+    BEGIN (*ListImage*)
       LCt := NUMBER ( Elems  )
     ; LLeft := Text . FromChar ( Delims [ 0 ] ) 
     ; LSep := Text . FromChar ( Delims [ 1 ] ) 

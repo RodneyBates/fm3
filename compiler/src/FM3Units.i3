@@ -133,7 +133,6 @@ INTERFACE FM3Units
       ; UntKind := UnitKindTyp . UkNull 
       ; UntState := UnitStateTyp . UsNull
       ; UntUnsafe : BOOLEAN := FALSE  
-      ; UntInExpImpCycle : BOOLEAN := FALSE
       ; UntHasStdUnitPragma : BOOLEAN := FALSE (* Has the FM3_STDUNIT pragma. *)
       ; UntNextDeclNo : INTEGER := 1
       END (*UnitTyp*)
@@ -240,7 +239,10 @@ INTERFACE FM3Units
           (* ^Where on the units stack this UnitTRef is. *) 
       ; UttSelfUnitNo : FM3Globals . UnitNoTyp := FM3Globals . UnitNoNull
           (* ^Self-referential. *)
+      ; Utt1stReqPosition := FM3Base . PositionNull
+      ; Utt1stReqKind := UnitReqKindTyp . UttrNull
       ; UttState := UnitTStateTyp . UttsNull
+      ; UttInExpImpCycle : BOOLEAN := FALSE
       ; UttIsUsable : BOOLEAN := FALSE 
       END (*UnitTTyp*)
 
@@ -258,8 +260,8 @@ INTERFACE FM3Units
             comments in FM3Scope.i3.
         *) 
 ; VAR UnitsAtomInitSize := 50
-; VAR UnitsTMap : VarArray_Int_Refany . T 
-    (* Only one UnitsTMap in a compile.  Maps both IdAtoms from UnitsAtomDict
+; VAR UnitTMap : VarArray_Int_Refany . T 
+    (* Only one UnitTMap in a compile.  Maps both IdAtoms from UnitsAtomDict
        and unit numbers (which the the same va;uie) directly into UnitTRefs.
     *)
 
@@ -274,7 +276,7 @@ INTERFACE FM3Units
 
 ; PROCEDURE NewUnitTRef ( ) : UnitTRefTyp
   (* Allocate a UnitTTyp (transient), initialize non-constant fields, 
-     give it a UnitNo, and put into UnitsTMap.
+     give it a UnitNo, and put into UnitTMap.
   *)
 
 ; PROCEDURE NewUnitRef ( ) : UnitRefTyp
@@ -288,7 +290,9 @@ INTERFACE FM3Units
   *) 
 
 ; PROCEDURE IdAtomText ( IdAtom : FM3Base . AtomTyp ) : TEXT
-  (* In the current unit. *) 
+  (* In the current unit. *)
+
+(* Single things relevant to the whole compiler run: *)
 
 ; VAR UnitTStackTopRef : UnitTRefTyp := NIL 
     (* One UnitStack in a run of the compiler. *)

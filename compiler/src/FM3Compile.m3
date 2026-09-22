@@ -25,13 +25,11 @@ MODULE  FM3Compile
 ; IMPORT Text 
 ; IMPORT Thread 
 ; IMPORT Time 
-; IMPORT UniEncoding 
 ; IMPORT UniRd
 ; IMPORT Wr
 
 ; IMPORT IntSets
 ; IMPORT IntRanges AS Ranges_Int 
-; IMPORT IntIntVarArray AS VarArray_Int_Int (* FM3's naming convention. *)
 
 ; IMPORT FM3Atom_OAChars 
 ; IMPORT FM3Atom_Text 
@@ -56,7 +54,6 @@ MODULE  FM3Compile
 ; IMPORT RdBackFile
 ; IMPORT VarArray_Int_Refany
 
-; TYPE Rqt = FM3Units . UnitReqKindTyp 
 ; TYPE Us = FM3Units . UnitStateTyp
 ; TYPE Uttr = FM3Units . UnitReqKindTyp
 ; TYPE Utts = FM3Units . UnitTStateTyp
@@ -83,7 +80,7 @@ MODULE  FM3Compile
              , Hash := FM3Utils . HashOfText ( LSimpleName ) 
              )
     ; LUnitTRef 
-        := VarArray_Int_Refany . Fetch ( FM3Units . UnitsTMap , LUnitNameAtom )
+        := VarArray_Int_Refany . Fetch ( FM3Units . UnitTMap , LUnitNameAtom )
       (* ^Implied NARROW *)
     ; IF LUnitTRef = NIL
       THEN
@@ -91,7 +88,7 @@ MODULE  FM3Compile
       ; LUnitTRef ^ . UttSrcFilePath := SrcFilePath 
       ; LUnitTRef ^ . UttState := Utts . UttsNew 
       ; VarArray_Int_Refany . Assign
-          ( FM3Units . UnitsTMap , LUnitNameAtom , LUnitTRef )
+          ( FM3Units . UnitTMap , LUnitNameAtom , LUnitTRef )
       END (*IF*)
     ; RETURN LUnitTRef 
     END GetUnitTRefOfFileName
@@ -106,7 +103,7 @@ MODULE  FM3Compile
     ; RETURN
         FM3Messages . NLIndent
         & "Look for source files in "
-        & FM3CLOptions . PkgDirMsg 
+        & FM3CLOptions . PkgDirAbsName 
     END SrcSearchPathOnce
 
 ; VAR GStdUnitFileNames : FM3Dict_Text_Int . FixedTyp 
@@ -201,7 +198,8 @@ MODULE  FM3Compile
   ; VAR LSaveCoord : LONGINT 
   ; VAR LRdBack : RdBackFile . T
   
-  ; BEGIN
+  ; <* FATAL Wr . Failure , Thread . Alerted *>
+    BEGIN
       LPassFileFullName
         := Pathname . Join
              ( UnitTRef ^ . UttUnitRef ^ . UntBuildDirPath
@@ -253,7 +251,8 @@ MODULE  FM3Compile
     ( <*UNUSED*> Info : DumpInfoObj ; <*UNUSED*> Ref : REFANY ; WrT : Wr . T )   
     (* Dispatched-to. *) 
 
-  = BEGIN (*DpiMethNIL*) 
+  = <* FATAL Wr . Failure , Thread . Alerted *>
+    BEGIN (*DpiMethNIL*) 
       Wr . PutText ( WrT , " is NIL " )
     ; Wr . PutText ( WrT , Wr . EOL ) 
     END DpiMethNIL
@@ -328,7 +327,8 @@ MODULE  FM3Compile
   ; VAR LWrT : Wr . T
   ; VAR LRange : Ranges_Int . RangeTyp 
   
-  ; BEGIN (*DumpMappedRecs*)
+  ; <* FATAL Wr . Failure , Thread . Alerted *>
+    BEGIN (*DumpMappedRecs*)
       LFileSuffix := Info . DpiTypeLabel & "s" 
     ; LFileFullName 
         := Pathname . Join
@@ -405,7 +405,8 @@ MODULE  FM3Compile
   ; VAR LExprMap : FM3Base . MapTyp
   ; VAR LWrT : Wr . T
   
-  ; BEGIN
+  ; <* FATAL Wr . Failure , Thread . Alerted *>
+    BEGIN
       LPassFileName
         := Pathname . Join
              ( UnitTRef ^ . UttUnitRef ^ . UntBuildDirPath
@@ -497,45 +498,21 @@ MODULE  FM3Compile
     END CleanPassFilesAndCopies
 
 (*EXPORTED*)
-; PROCEDURE CompileUnitFromSrc ( UnitTRef : FM3Units . UnitTRefTyp )
+; PROCEDURE CompileCLUnits ( PkgFileNameList : REF ARRAY OF TEXT )
+  (* Compile a list of units specified on the command line. *) 
 
-  = BEGIN (*CompileUnitFromSrc*)
-      FM3Messages . FM3LogArr
-        ( ARRAY OF REFANY
-            { "Getting dependencies of"
-            , FM3Messages . NLIndent
-            , "  " 
-            , Pathname . Join
-                ( UnitTRef ^ . UttUnitRef ^ . UntSrcFilePath
-                , UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName
-                ) 
-            , " ..."
-            }
-        )
-    ; FM3Pass1 . RunPass1 ( )
-    ; IF UnitTRef ^ . UttUnitRef ^ . UntParseResult <= 0
-      THEN FM3Pass2 . RunPass2 ( )
-      END (*IF*) 
+  = VAR LUnitTRef : FM3Units . UnitTRefTyp 
+  ; VAR LCt : INTEGER
 
-    ; RdBackFile . Close 
-        ( UnitTRef ^ . UttPass2OutRdBack , - 1L (* Leave full length. *) )
-      (* ^When the next pass is implemented, don't do this. *)
-
-    ; CleanPassFilesAndCopies ( UnitTRef ) 
-    ; FM3Messages . FM3LogArr
-        ( ARRAY OF REFANY
-            { "Finished compiling "
-            , UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName , "."
-            }
-        )
-    ; Wr . Close ( UnitTRef ^ . UttLogWrT ) 
-    END CompileUnitFromSrc
-
-(*EXPORTED*)
-; PROCEDURE CompileCLUnits ( )
-  (* Compile the units specified on the command line. *) 
-
-  = BEGIN
+  ; BEGIN
+      IF PkgFileNameList = NIL THEN RETURN END(*IF*)
+    ; LCt := NUMBER ( PkgFileNameList ^ ) 
+    ; IF LCt <= 0 THEN RETURN END(*IF*)
+    ; FOR RI := 0 TO LCt - 1
+      DO
+        LUnitTRef := GetUnitTRefOfFileName ( PkgFileNameList ^ [ RI ] )
+      ; AcquireUnit ( LUnitTRef , FM3Base . PositionNull , Uttr . UttrCL ) 
+      END (*FOR*) 
 
 (* COMPLETEME: Do the rest of the CL units. *) 
     END CompileCLUnits
@@ -613,10 +590,11 @@ MODULE  FM3Compile
 
   = VAR LUnitRef : FM3Units . UnitRefTyp
   ; VAR LSemFileFullName : TEXT
-  ; VAR LUnitWrT : Wr .T
+  ; VAR LSemWrT : Wr .T
   ; VAR LPickleWriter : Pickle . Writer 
 
-  ; BEGIN (*WriteSemFile*)
+  ; <* FATAL Wr . Failure , Thread . Alerted *>
+    BEGIN (*WriteSemFile*)
       LUnitRef := UnitTRef ^ . UttUnitRef
     ; LSemFileFullName
         := Pathname . Join
@@ -624,49 +602,42 @@ MODULE  FM3Compile
              , LUnitRef ^ . UntSrcFileSimpleName
              , FM3Globals . SemFileSuffix
              )
-    ; LUnitWrT := FileWr . Open ( LSemFileFullName )
+    ; LSemWrT := FileWr . Open ( LSemFileFullName )
     ; Wr . PutText
-        ( LUnitWrT
+        ( LSemWrT
         , FM3SharedUtils . FilePrefixT
             ( FM3SharedGlobals . FM3FileKindUnit
             , FM3SharedGlobals . FM3FileVersion0
             )
         )
-    ; LPickleWriter := NEW ( Pickle . Writer , wr := LUnitWrT )  
+    ; LPickleWriter := NEW ( Pickle . Writer , wr := LSemWrT )  
 
     (* sem file hash and src file time are copies brought out front so a
        sem file's relevance can be checked w/o unpickling the whole thing.
     *)
     
     ; PickleStubs . OutLongint ( LPickleWriter , LUnitRef ^ . UntHash ) 
-(*  ; LHashArray := FM3Utils . HashToChars ( LUnitRef ^ . UntHash )
-    ; Wr . PutString ( LUnitWrT , LHashArray )
-*)
-
     ; PickleStubs . OutLongreal ( LPickleWriter , LUnitRef . UntSrcTime ) 
-(*  ; LSrcTimeL := FM3UnsafeUtils . LongRealToLongInt ( LUnitRef . UntSrcTime )
-    ; LSrcTimeArray := FM3Utils . LongToChars ( LSrcTimeL ) 
-    ; Wr . PutString ( LUnitWrT , LSrcTimeArray )
-*) 
 
     ; LPickleWriter . write ( LUnitRef ) 
-(*  ; Pickle . Write ( LUnitWrT , LUnitRef , write16BitWidechar := FALSE )
-*)
+    ; Pickle . Write ( LSemWrT , LUnitRef , write16BitWidechar := FALSE )
 
     (* It appears one can just abandon LPickleWriter with no close actions. *) 
-    ; Wr . Close ( LUnitWrT )
+    ; Wr . Close ( LSemWrT )
     END WriteSemFile 
 
-  ; PROCEDURE LoadFailureMsg
+  ; PROCEDURE EmitSemFailureMsg
       ( FileName , Reason : TEXT
       ; Position : FM3Base . tPosition
       ; ReqKind : FM3Units . UnitReqKindTyp
       )
     (* Boy, are there a lot of things that could go wrong here. *) 
     = BEGIN
-        FM3Messages . InfoArr
+        FM3Messages . ErrorArr
           ( ARRAY OF REFANY
-              { "Unable to load sem file \" "
+              { "Unable to load ."
+              , FM3Globals . SemFileSuffix 
+              , " file \" " 
               , FileName
               , "\" (" 
               , Reason
@@ -674,9 +645,9 @@ MODULE  FM3Compile
               } 
           , Position 
           )
-      END LoadFailureMsg
+      END EmitSemFailureMsg
       
- ; PROCEDURE TryReadSemHeadInfo
+ ; PROCEDURE ReadSemHeadInfo
     ( UnitTRef : FM3Units . UnitTRefTyp
     ; SemFileT : File . T 
     ; ReqPosition : FM3Base . tPosition
@@ -696,22 +667,12 @@ MODULE  FM3Compile
   ; VAR LVersion : FM3SharedGlobals . FileVersionTyp 
   ; VAR LPrefixIsOK : BOOLEAN
 
-  ; BEGIN (*TryReadSemHeadInfo*)
-      TRY LFileRdT := NEW ( FileRd . T ) 
-      EXCEPT ELSE
-        LoadFailureMsg
-          ( UnitTRef ^ . UttSrcFilePath
-          , "NEW(FileRd.T)"
-          , ReqPosition
-          , ReqKind 
-          ) 
-      ; UnitTRef ^ . UttState := Utts . UttsNotLoadable
-      ; RETURN FALSE 
-      END (*EXCEPT*) 
+  ; BEGIN (*ReadSemHeadInfo*)
+      LFileRdT := NEW ( FileRd . T ) 
     ; TRY EVAL LFileRdT . init ( SemFileT )
 (* TODO: Close SemFileT and LfileRdT. *) 
       EXCEPT ELSE
-        LoadFailureMsg
+        EmitSemFailureMsg
           ( UnitTRef ^ . UttSrcFilePath
           , "FileRd.Init"
           , ReqPosition
@@ -731,9 +692,9 @@ MODULE  FM3Compile
     ; TRY
         FM3SharedUtils .CheckPrefix
          ( LPrefixIsOK
-         , LKind , FM3SharedGlobals . FM3FileKindUnit 
+         , LKind , FM3SharedGlobals . FM3FileKindSem
          , LVersion , FM3SharedGlobals . FM3FileVersion0
-         , "Compiled unit "
+         , "Compiled ." & FM3Globals . SemFileSuffix & " file " 
          , Pathname . Last ( UnitTRef ^ . UttSrcFilePath )
          )
       EXCEPT FM3SharedUtils . FatalError
@@ -747,17 +708,16 @@ MODULE  FM3Compile
     ; Hash := PickleStubs . InLongint ( PickleRd )
     ; Time := PickleStubs . InLongreal ( PickleRd )
     ; RETURN TRUE 
-    END TryReadSemHeadInfo
+    END ReadSemHeadInfo
 
 ; PROCEDURE ReadSemFileRemainder
     ( UnitTRef : FM3Units . UnitTRefTyp
-    ; SemFileT : File . T
     ; PickleRd : Pickle . Reader 
     ; ReqPosition : FM3Base . tPosition
     ; ReqKind : FM3Units . UnitReqKindTyp 
     )
   : BOOLEAN (* Success. *)
-  (*PRE: TryReadSemHeadInfo has happened, thus
+  (*PRE: ReadSemHeadInfo has happened successfully, thus
          SemFileT and PickleRd are open.
   *)
   (* Read the UnitTyp pickle and connect it to the UnitTTyp. *) 
@@ -768,14 +728,14 @@ MODULE  FM3Compile
   ; BEGIN (*ReadSemFileRemainder*)
       TRY LRefany := PickleRd . read ( ) 
       EXCEPT ELSE
-        LoadFailureMsg
+        EmitSemFailureMsg
           ( UnitTRef ^ . UttSrcFilePath , "unpickling" , ReqPosition , ReqKind )  
       ; UnitTRef ^ . UttState := Utts . UttsNotLoadable
       ; LResult := FALSE 
       END (*EXCEPT*) 
     ; TYPECASE LRefany OF
       | NULL
-      =>  LoadFailureMsg
+      =>  EmitSemFailureMsg
             ( UnitTRef ^ . UttSrcFilePath , "NIL pickle" , ReqPosition , ReqKind )
         ; UnitTRef ^ . UttState := Utts . UttsNotLoadable 
         ; LResult := FALSE 
@@ -786,7 +746,7 @@ MODULE  FM3Compile
         ; LResult := TRUE 
       
       ELSE
-        LoadFailureMsg
+        EmitSemFailureMsg
           ( UnitTRef ^ . UttSrcFilePath
           , "wrongly typed pickle"
           , ReqPosition
@@ -795,18 +755,24 @@ MODULE  FM3Compile
       ; UnitTRef ^ . UttState := Utts . UttsNotLoadable 
       ; LResult := FALSE 
       END (*TYPECASE*)
+    ; UnitTRef . UttState := Utts . UttsCompiled
+    (* It appears one can just abandon PickleRd with no close actions. *) 
     ; Rd . Close ( PickleRd . rd ) 
-    ; SemFileT . close ( ) 
     ; RETURN LResult  
     END ReadSemFileRemainder
 
-; PROCEDURE EnsureBuildDirectory ( UnitTRef : FM3Units . UnitTRefTyp )
+; PROCEDURE EnsureBuildDirExists
+    ( UnitTRef : FM3Units . UnitTRefTyp ; ReqPosition : FM3Base . tPosition )
+    (* PRE: UnitTRef ^ . UttUnitRef # NIL. *) 
 
-  = BEGIN (*EnsureBuildDirectory*)
-      UnitTRef ^ . UttUnitRef ^ . UntBuildDirPath
+  = VAR LBuildDirPath : TEXT
+
+  ; BEGIN (*EnsureBuildDirExists*)
+      LBuildDirPath
         := Pathname . Join
              ( FM3CLOptions . PkgDirName , FM3CLOptions . BuildDirRelPath ) 
-    ; TRY FS . CreateDirectory ( UnitTRef ^ . UttUnitRef ^ . UntBuildDirPath )
+    ; UnitTRef ^ . UttUnitRef ^ . UntBuildDirPath := LBuildDirPath 
+    ; TRY FS . CreateDirectory ( LBuildDirPath )
       EXCEPT
       | OSError . E ( EAtoms ) 
       => IF EAtoms . tail = NIL
@@ -814,35 +780,32 @@ MODULE  FM3Compile
             AND Atom . ToText ( EAtoms . head ) # NIL
             AND Text . Equal ( Atom . ToText ( EAtoms . head ) , "errno=17" )
 (* TODO: There has to be a more graceful (and almost OS-independent) way to
-         detect    this, but it looks like libm3 is letting us down here.
+         detect this, but it looks like libm3 is letting us down here.
 *) 
          THEN (* The directory already exists. We expect this sometimes. *)
            EVAL EAtoms (* Debug. *)  
          ELSE
-(* TODO: Use Messages and unit log here> *) 
-           <*FATAL Thread . Alerted , Wr . Failure *>
-           BEGIN
-             Wr . PutText
-               ( Stdio . stderr , "Unable to create build directory " ) 
-           ; Wr . PutText
-               ( Stdio . stderr , UnitTRef ^ . UttUnitRef ^ . UntBuildDirPath ) 
-           ; Wr . PutText ( Stdio . stderr , ": " ) 
-           ; Wr . PutText
-               ( Stdio . stderr , FM3Messages . AtomListToOSError ( EAtoms ) ) 
-           ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
-           ; Wr . PutText
-               ( Stdio . stderr , "Forging ahead, assuming it already exists." )
-           ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
-           ; Wr . Flush ( Stdio . stderr )
-           END (*Block.*)
-         END (*IF*) 
+           FM3Messages . ErrorArr
+             ( ARRAY OF REFANY 
+                 { "Exception trying to create build directory \"" 
+                 , LBuildDirPath  
+                 , "\": "
+                 , FM3Messages . AtomListToOSError ( EAtoms )  
+                 , FM3Messages . NLIndent 
+                 , "Forging ahead, assuming it already exists." 
+                 }
+             , ReqPosition
+             ) 
+         END (*IF*)
       END (*EXCEPT*) 
-    END EnsureBuildDirectory
+    END EnsureBuildDirExists
 
 ; PROCEDURE CompileUnit
     ( UnitTRef : FM3Units . UnitTRefTyp
     ; SrcFileT : File . T
+   (* ^PRE: This is open for read. *) 
     ; StdTok : FM3SrcToks . TokTyp 
+    ; ReqPosition : FM3Base . tPosition
     )
 
   = VAR LUnitRef : FM3Units . UnitRefTyp
@@ -850,9 +813,8 @@ MODULE  FM3Compile
   ; VAR LUnitLogSimpleName : TEXT
   ; VAR LUnitLogFullName : TEXT
   
-  ; BEGIN (*CompileUnit*)
-    (* Compare this to similar code in FM3ImpExp.Interface *)
-    
+  ; <* FATAL Wr . Failure , Thread . Alerted *>
+    BEGIN (*CompileUnit*)
       LUnitRef := FM3Units . NewUnitRef ( ) 
     ; UnitTRef ^ . UttUnitRef := LUnitRef 
     ; LUnitRef ^ . UntSrcFilePath := UnitTRef ^ . UttSrcFilePath
@@ -867,14 +829,11 @@ MODULE  FM3Compile
       ; RETURN 
       END (*IF*)
 
-    (* Create the build directory: *)
-    ; EnsureBuildDirectory ( UnitTRef ) 
-
     (* Create the unit log output file. A pure text file. *)
     ; LUnitLogFullName
         := Pathname . Join
              ( NIL 
-             , UnitTRef ^ . UttSrcFilePath 
+             , FM3SharedUtils . AbsFileName ( UnitTRef ^ . UttSrcFilePath ) 
              , FM3Globals . UnitLogSuffix 
              )
     ; IF FM3CLToks . CltUnitLog IN FM3CLOptions . OptionTokSet
@@ -890,7 +849,7 @@ MODULE  FM3Compile
            ; Wr . PutText ( Stdio . stderr , ": " ) 
            ; Wr . PutText
                ( Stdio . stderr , FM3Messages . AtomListToOSError ( EAtoms ) ) 
-           ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
+           ; Wr . PutText ( Stdio . stderr , FM3Messages . NLIndent ) 
            ; Wr . PutText ( Stdio . stderr , "Will proceed without it." ) 
            ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
            ; Wr . Flush ( Stdio . stderr )
@@ -904,10 +863,10 @@ MODULE  FM3Compile
       END (*IF*)
     ; FM3Messages . SetUnitLog ( UnitTRef ^ . UttLogWrT )
 
+    ; EnsureBuildDirExists ( UnitTRef , ReqPosition ) 
+
     ; FM3Units . PushUnitT ( UnitTRef )
     ; FM3Units . CacheTopUnitValues ( )
-
-(* Copied in from  CompileUnitFromSrc: *) 
 
     ; UnitTRef ^ . UttState := Utts . UttsExporting
 (*TODO ^ What is the right value here for cl and import units. *) 
@@ -916,10 +875,7 @@ MODULE  FM3Compile
             { "Getting dependencies of "
             , FM3Messages . NLIndent
             , "  " 
-            , Pathname . Join
-                ( UnitTRef ^ . UttUnitRef ^ . UntSrcFilePath
-                , UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName
-                ) 
+            , UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName
             , " ..."
             }
         )
@@ -938,7 +894,8 @@ MODULE  FM3Compile
     ; Wr . Close ( UnitTRef ^ . UttLogWrT ) 
 
     ; <* ASSERT FM3Units . UnitTStackTopRef = UnitTRef *>
-      FM3Files . CloseUniRd ( UnitTRef ^ . UttSrcUniRdT ) 
+      FM3Files . CloseUniRd ( UnitTRef ^ . UttSrcUniRdT )
+    ; WriteSemFile ( UnitTRef ) 
     ; EVAL FM3Units . PopUnitT ( ) 
     ; FM3Messages . SetUnitLog ( UnitTRef ^ . UttLogWrT )
       (* of the deeper, now current unit. *) 
@@ -952,31 +909,28 @@ MODULE  FM3Compile
     ; ReqPosition : FM3Base . tPosition
     ; ReqKind : FM3Units . UnitReqKindTyp 
     )
-    (* Load it, compile it, or mark it something bad. *) 
+  (* PRE: UnitTRef ^ exists. *) 
+  (* Load it, compile it, mark it something bad, whatever. *) 
     
   = VAR LSrcFileSimpleName : TEXT
+  ; VAR LSemFileSimpleName : TEXT
   ; VAR LPkgDirName : TEXT
-  ; VAR LBuildDirName : TEXT
+  ; VAR LSemPkgDirName : TEXT
   ; VAR LSemFileT : File . T 
   ; VAR LUnitHash : FM3Utils . HashTyp 
   ; VAR LUnitTime : Time . T
   ; VAR LSrcTime : Time . T
   ; VAR LPickleRd : Pickle . Reader 
-  ; VAR LSrcDirName : TEXT
+  ; VAR LSrcPkgDirName : TEXT
   ; VAR LSrcFileT : File . T 
   ; VAR LStdTok : FM3SrcToks . TokTyp 
 
   ; BEGIN (*AcquireUnit*)
-(*COMPLETEME: Move this out to call site(s) and pass LnitRef. 
-  LUnitTRef := GetUnitTRefOfFileName ( SrcFilePath )
-*) 
-
       CASE UnitTRef ^ . UttState OF
       | Utts . UttsNull
       , Utts . UttsNotFound
       , Utts . UttsNotLoadable 
       => (* Nothing can be done. *)
-(* TODO: emit Info, to not make this unit "contain errors" to its importer(s) *)
       
       | Utts . UttsCompiled
       , Utts . UttsLoaded
@@ -990,27 +944,30 @@ MODULE  FM3Compile
 (*FIXME: What to do? *) 
       
       | Utts . UttsNew (* Need to get something from file(s). *)
-      =>  (* Get info about a sem file in build dir of compile pkg. *)
-          LBuildDirName := NIL
+      =>  (* Get info about a possible sem file in build dir of compile pkg. *)
+          LSemPkgDirName := NIL
         ; LSemFileT := NIL 
         ; LUnitHash := FM3Base . HashNull
         ; LUnitTime := 0.0D0
         
         ; LSrcFileSimpleName := Pathname . Last ( UnitTRef ^ . UttSrcFilePath )
+        ; LSemFileSimpleName
+            := Pathname . Join
+                 ( NIL , LSrcFileSimpleName , FM3Globals . SemFileSuffix ) 
         ; LStdTok := StdUnitTok ( LSrcFileSimpleName )
         ; IF LStdTok # FM3Base . TokNull 
           THEN LPkgDirName := FM3CLOptions . ResourceDirName
           ELSE LPkgDirName := FM3CLOptions . PkgDirName
           END (*IF*)
-        ; IF FM3Files . FindAndOpenRdFile
-               ( ARRAY OF TEXT { LPkgDirName }  
-               , LSrcFileSimpleName
-               , (* SeekSrcFile := *) FALSE (* Want a sem file. *)   
-               , (*OUT*) LBuildDirName 
+        ; IF FM3Files . FindAndOpenRdFileT
+               ( ARRAY OF TEXT { LPkgDirName }
+               , FM3Globals . BuildDirName 
+               , LSemFileSimpleName
+               , (*OUT*) LSemPkgDirName 
                , (*OUT*) LSemFileT  
                )
-          THEN (* Found and opened sem file in comp package dir. *) 
-            EVAL TryReadSemHeadInfo
+          THEN (* Found sem file in comp pkg dir and opened LSemFileT on it. *)
+            EVAL ReadSemHeadInfo
                    ( UnitTRef
                    , LSemFileT
                    , ReqPosition 
@@ -1023,68 +980,108 @@ MODULE  FM3Compile
 
         ; IF ReqKind = Uttr . UttrCL
           THEN 
-
-            (* Get info about a source file in compile pkg dir. *) 
-            LSrcDirName := NIL
+            (* Also get info about a possible source file in compile pkg dir. *)
+            LSrcPkgDirName := NIL
           ; LSrcFileT := NIL
           ; LSrcTime := 0.0D0  
-          ; IF FM3Files . FindAndOpenRdFile
-                 ( ARRAY OF TEXT { LPkgDirName }  
+          ; IF FM3Files . FindAndOpenRdFileT
+                 ( ARRAY OF TEXT { LPkgDirName }
+                 , FM3Globals . SrcDirName 
                  , LSrcFileSimpleName
-                 , (* SeekSrcFile := *) TRUE    
-                 , (*OUT*) LSrcDirName 
+                 , (*OUT*) LSrcPkgDirName 
                  , (*OUT*) LSrcFileT
                  )
             THEN
               LSrcTime := LSrcFileT . status ( ) . modificationTime 
             END (*IF*)
 
-          (* Compile or load unit from compile package. *) 
+          (* Decide whether to compile or load unit from compile package. *) 
           ; IF LSrcFileT # NIL
-            THEN (* Source file exists in pkg. *) 
+            THEN (* Source file exists insode pkg dir. *) 
               IF FM3CLToks . CltForceCompile IN FM3CLOptions . OptionTokSet 
                  OR LSemFileT = NIL
                  OR LSrcTime > LUnitTime 
               THEN (* Compile. *)
-                CompileUnit ( UnitTRef , LSrcFileT , LStdTok ) 
-              ; LSrcFileT . close ( ) 
+                CompileUnit ( UnitTRef , LSrcFileT , LStdTok , ReqPosition ) 
               ELSE (* Use the up-to-date sem file in comp pkg. *) 
                 EVAL ReadSemFileRemainder
-                  ( UnitTRef , LSemFileT , LPickleRd , ReqPosition , ReqKind )  
+                  ( UnitTRef , LPickleRd , ReqPosition , ReqKind )  
               END (*IF*)
               
-            ELSE (* No source file in comp pkg. *) 
+            ELSE (* No source file in compile pkg. *) 
               IF LSemFileT # NIL 
-              THEN (* But a compiled sem file exists in comp pkg. *) 
+              THEN (* But a compiled sem file exists there. Use it. *) 
                 EVAL ReadSemFileRemainder 
-                  ( UnitTRef , LSemFileT , LPickleRd , ReqPosition , ReqKind )  
-                
+                       ( UnitTRef , LPickleRd , ReqPosition , ReqKind )  
               ELSE
-                (*error msg*) 
-                UnitTRef . UttState := Utts . UttsNotFound 
+                FM3Messages . ErrorArr
+                  ( ARRAY OF REFANY
+                      { "No source or compiled file for command-line request"
+                      , FM3Messages . NLIndent
+                      , "\"" 
+                      , LSrcFileSimpleName
+                      , "\" found in package directory \""
+                      , LSrcPkgDirName
+                      , "\"." 
+                      } 
+                  , ReqPosition 
+                  )
+              ; UnitTRef . UttState := Utts . UttsNotFound
               END (*IF*)
             END (*IF*)
             
-          ELSE (* Import request *)
-            IF LSemFileT # NIL 
-            THEN (* But a compiled sem file exists in comp pkg. *)
-              IF LSrcFileT # NIL
-                 AND LSrcTime > LUnitTime
-                 AND FM3CLToks . CltRecompileImports
-                     IN FM3CLOptions . OptionTokSet
-              THEN
-                CompileUnit ( UnitTRef , LSrcFileT , LStdTok )
-              ; LSrcFileT . close ( )  
-              ELSE
-                EVAL ReadSemFileRemainder 
-                  ( UnitTRef , LSemFileT , LPickleRd , ReqPosition , ReqKind ) 
-              
+          ELSE (* Export/import request *)
+            IF LSrcFileT # NIL
+               AND LSemFileT = NIL
+                   OR ( LSrcTime > LUnitTime
+                        AND FM3CLToks . CltRecompileImports
+                            IN FM3CLOptions . OptionTokSet
+                      ) 
+            THEN
+              CompileUnit ( UnitTRef , LSrcFileT , LStdTok , ReqPosition )
+            ELSIF LSemFileT # NIL
+            THEN (* Load sem file from compile pkg. *) 
+              EVAL ReadSemFileRemainder 
+                ( UnitTRef , LPickleRd , ReqPosition , ReqKind )  
+            ELSE (* Nothing found in compile pkg, try import dirs. *) 
+              IF LSemFileT # NIL THEN LSemFileT . close ( ) END (*IF*) 
+            ; IF FM3Files . FindAndOpenRdFileT
+                   ( FM3CLOptions . ImportPkgDirList ^
+                   , FM3Globals . BuildDirName 
+                   , LSemFileSimpleName
+                   , (*OUT*) LSemPkgDirName 
+                   , (*OUT*) LSemFileT  
+                   )
+              THEN (* Found and opened sem file in comp package dir load it. *) 
+                EVAL ReadSemHeadInfo
+                       ( UnitTRef
+                       , LSemFileT
+                       , ReqPosition 
+                       , ReqKind 
+                       , (*OUT*) LPickleRd 
+                       , (*OUT*) LUnitHash
+                       , (*OUT*) LUnitTime
+                       )
+              ; EVAL ReadSemFileRemainder 
+                  ( UnitTRef , LPickleRd , ReqPosition , ReqKind )  
+
+              ELSE (* Nothing found in import packages either. *) 
+                FM3Messages . ErrorArr
+                  ( ARRAY OF REFANY
+                      { "No compiled file for import/export "
+                      , "\""
+                      , FM3Messages . NLIndent
+                      , LSemFileSimpleName
+                      , "\", in compile package nor any import package."
+                      } 
+                  , ReqPosition 
+                  )
+              ; UnitTRef . UttState := Utts . UttsNotFound
               END (*IF*) 
-            ELSE
-              (* search import pkgs for object file or error*) 
-            END(*IF*) 
+            END (*IF*) 
           END (*IF*)
         ; IF LSemFileT # NIL THEN LSemFileT . close ( ) END (*IF*) 
+        ; IF LSrcFileT # NIL THEN LSrcFileT . close ( ) END (*IF*)   
       END (*CASE*) 
     END AcquireUnit
 

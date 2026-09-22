@@ -1,7 +1,7 @@
 
 %(* -----------------------------------------------------------------------1- *)
 %(* This file is part of the FM3 Modula-3 compiler.                           *)
-%(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+%(* Copyright 2023..2026  Rodney M. Bates.                                    *)
 %(* rodney.m.bates@acm.org                                                    *)
 %(* Licensed under the MIT License.                                           *)
 %(* -----------------------------------------------------------------------2- *)
@@ -17,4 +17,5 @@ module("FM3Dict_OAChars_Int")
 module("FM3Dict_OAWideChars_Int")
 interface("FM3ExpImpProxy") %For instantiating.
 module("VarArray_Int_ExpImpProxy") 
+module("VarArray_Int_Text") 
 

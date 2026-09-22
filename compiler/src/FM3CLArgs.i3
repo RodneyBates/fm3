@@ -15,10 +15,6 @@
 
 INTERFACE FM3CLArgs
 
-; IMPORT Wr
-
-; IMPORT FM3Base
-; IMPORT FM3CLToks 
 ; IMPORT FM3SharedUtils
 
 ; VAR DoKeep : BOOLEAN := FALSE

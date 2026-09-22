@@ -2377,7 +2377,7 @@ TRUE OR
       UnitTok := FM3Base . TokNull 
     ; DeclTok := FM3Base . TokNull 
     ; IF UnitNo = FM3Globals . UnitNoNull THEN RETURN END (*IF*)
-    ; LUnitTRef := VarArray_Int_Refany . Fetch ( FM3Units . UnitsTMap , UnitNo )
+    ; LUnitTRef := VarArray_Int_Refany . Fetch ( FM3Units . UnitTMap , UnitNo )
             (* ^ Implied NARROW. *) 
     ; IF LUnitTRef = NIL THEN RETURN END (*IF*)
     ; IF DeclNo = FM3Globals . DeclNoNull THEN RETURN END (*IF*)  
@@ -2481,7 +2481,7 @@ TRUE OR
 (* CHECK: ^v Which of these ways denoting unusability can happen? *) 
           ELSE
             LExpImpUnitTRef (* Implicit NARROW. *) 
-              := VarArray_Int_Refany . Fetch ( FM3Units . UnitsTMap , LUnitNo )
+              := VarArray_Int_Refany . Fetch ( FM3Units . UnitTMap , LUnitNo )
           ; LExpImpUnitRef := LExpImpUnitTRef ^ . UttUnitRef 
           ; LIsUsable := LExpImpUnitRef ^ . UntState # Ust . UsNotUsable
 (* Consistify: Two ways of denoting nonusability. *) 
@@ -2633,7 +2633,7 @@ TRUE OR
           THEN (* Lt names an imported interface with no dot selection. *)
             LIntfUnitTRef (*Implicit NARROW*) 
               := VarArray_Int_Refany . Fetch
-                   ( FM3Units . UnitsTMap , LUnitNoLt )
+                   ( FM3Units . UnitTMap , LUnitNoLt )
           ; <* ASSERT LIntfUnitTRef # NIL *>
             LIntfUnitRef := LIntfUnitTRef ^ . UttUnitRef 
           ; <* ASSERT LIntfUnitRef # NIL *>

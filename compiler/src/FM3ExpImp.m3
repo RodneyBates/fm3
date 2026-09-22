@@ -72,7 +72,7 @@ MODULE FM3ExpImp
           Wr . PutText ( LWrT , ", which at " ) 
         ; Wr . PutText ( LWrT , FM3Utils . PositionImage ( ReqPosition ) ) 
         ; Wr . PutText ( LWrT , ", imports" )
-        ; LUnitTRef ^ . UttUnitRef ^ . UntInExpImpCycle := TRUE
+        ; LUnitTRef ^ . UttInExpImpCycle := TRUE
 (* TODO ^ Use this to avoid repeat work and messages. *) 
         ; LUnitTRef := LNextUnitTRef 
         END (*IF*) 
@@ -110,12 +110,15 @@ MODULE FM3ExpImp
              , FM3Base . InterfaceFileNameSuffix
              ) 
     ; LIntfUnitTRef := FM3Compile . GetUnitTRefOfFileName ( LSrcFileName )
-    ; IF NOT LIntfUnitTRef . UttState IN FM3Units . UnitTStateSetUsable  
+    ; IF LIntfUnitTRef ^ . UttInExpImpCycle
+         OR NOT LIntfUnitTRef ^ . UttState IN FM3Units . UnitTStateSetUsable  
       THEN RETURN LIntfUnitTRef
       END (*IF*)
-      
+
+    ; LIntfUnitTRef ^ . Utt1stReqPosition := ReqPosition 
+    ; LIntfUnitTRef ^ . Utt1stReqKind := ReqKind 
     ; FM3Units . UnitTStackTopRef ^ . UttImportsUnitTRef := LIntfUnitTRef 
-      (* ^For possible cyclic-imports message. *)
+      (* ^To detect cyclicimports. *)
 
     ; FM3Units . UnitTStackTopRef ^ . UttState := Utts . UttsImporting
 
@@ -132,7 +135,7 @@ MODULE FM3ExpImp
     END GetInterface
 
 (*EXPORTED.*)
-; PROCEDURE CheckDuplicateExpImp
+; PROCEDURE VerifyNotDuplicateExpImp
     ( IntoUnitRef : FM3Units . UnitRefTyp
     ; NewIdentAtom : FM3Base . AtomTyp 
     ; ImportPosition : FM3Base . tPosition
@@ -140,7 +143,7 @@ MODULE FM3ExpImp
     ; DuplicatorKindText : TEXT   
     )
   : BOOLEAN (* Check passed. *)
-  (* Check that NewIdentAtom does not duplicate one already [ex|im]ported. *)
+  (* Check that NewIdentAtom does not duplicate one previously [ex|im]ported. *)
   (* Emit error return FALSE, if failure. *) 
 
   = VAR LPrevExpImpUnitTRef : FM3Units . UnitTRefTyp
@@ -163,7 +166,7 @@ MODULE FM3ExpImp
       END (*IF*) 
     ; LPrevExpImpUnitTRef (* Implicit NARROW. *) 
         := VarArray_Int_Refany . Fetch
-             ( FM3Units . UnitsTMap
+             ( FM3Units . UnitTMap
              , LPrevExpImpProxy . EipUnitNo 
              )
     ; LPrevExpImpUnitRef := LPrevExpImpUnitTRef ^ . UttUnitRef 
@@ -212,7 +215,7 @@ MODULE FM3ExpImp
         , ImportPosition 
         )
     ; RETURN FALSE
-    END CheckDuplicateExpImp
+    END VerifyNotDuplicateExpImp
 
 ; PROCEDURE InsertExpImp
     ( UnitRef : FM3Units . UnitRefTyp
@@ -258,7 +261,7 @@ MODULE FM3ExpImp
              )
 (*CHECK: Can we get the hash of the chars? *) 
     ; <* ASSERT LIntoIdentAtom # FM3Base . AtomNull *>  
-      IF CheckDuplicateExpImp
+      IF VerifyNotDuplicateExpImp
            ( LIntoUnitRef
            , LIntoIdentAtom
            , ExpImpPosition
@@ -406,7 +409,7 @@ MODULE FM3ExpImp
              , ASScanAttr . SaChars
              , ASScanAttr . SaHash
              )
-    ; IF CheckDuplicateExpImp
+    ; IF VerifyNotDuplicateExpImp
            ( FM3Units . UnitTStackTopRef ^ . UttUnitRef  
            , LASIdentAtom
            , ASScanAttr . Position

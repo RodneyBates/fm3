@@ -37,7 +37,7 @@ INTERFACE FM3ExpImp
     (* ^The Desired interface. *)
   (* Compile or load the interface named by IdentChars, as appropriate. *) 
 
-; PROCEDURE CheckDuplicateExpImp 
+; PROCEDURE VerifyNotDuplicateExpImp 
     ( IntoUnitRef : FM3Units . UnitRefTyp
     ; NewIdentAtom : FM3Base . AtomTyp 
     ; ImportPosition : FM3Base . tPosition 

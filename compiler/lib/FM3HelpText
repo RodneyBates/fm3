@@ -13,7 +13,7 @@ $Z Displayed to the user.
 
 FM3 arg ..
 
-Arguments beginning with "--", e.g. "--src-dir" are long-form options.
+Arguments beginning with "--", e.g. "--pkg-dir" are long-form options.
 Those beginning with "-", e.g. "-S"  are short-forms.  Those with neither
 are file names to be compiled.  All options have a long form.  Some have
 an equivalent short form.  Some options require a parameter following
@@ -59,30 +59,31 @@ Boolean options default to FALSE.
 <filename>
 -s<filename> 
 --src-file[=]<filename> 
-       Compile <filename>
-       <filename> must end in one of ".i3", ".m3", ".ig", or ".mg"
+       Compile <filename> found in <pkgdir>/src, which must end in one of
+       ".i3", ".m3", ".ig", or ".mg". Accumulates.
 
 
 -I<directory>
 --import-dir[=]<directory>
-       Search for a previously compiled unit that is exported, imported, or is a
-       generic actual of a unit being compiled, and is not found inside <pkgdir>.
-       Accumulates.  Search in the same order as multiple occurrences of this option.
-       Do not find or compile a source file. 
+       Search here for a previously compiled unit that is exported, imported, or
+       is a generic actual of a unit being compiled, and is not found inside
+       <pkgdir>.  Accumulates.  Search in the same order as the multiple
+       occurrences of this  option.  Do not find or compile a source file here. 
 
 -B<directory>
 --build-dir[=]<directory>
        Put compiled files in <directory>.  Create it if absent. Defaults
        to <pkgdir>/build,
 
---[no-]force
-       Recompile a source file even if an up-to-date compiled unit exists.
-       Does not apply to compiled units in other, library packages. Defaults
-       to FALSE.
+--[no-]force-compile 
+       [Re]compile a source file even if an up-to-date compiled unit exists.
+       Does not apply to compiled units inside directories specified by
+       --import-dir. in other, library packages. Defaults to FALSE.
 
 -- [no-]recompile-imports
-       Recompile an out-of-date unit inside <pkgdir> that is imported or
-       exported by a compiled unit. 
+       Recompile an out-of-date unit inside <pkgdir> that is not specified in
+       the command line, but imported or exported by a compiled unit.
+       Defaults to FALSE. 
 
 --resource-dir[=]<directory>
        Look in <directory> for various resource files needed by the compiler.

@@ -8,7 +8,7 @@
 
 (* Internal representation of command-line options.
    FM3CLArgs parses the command line and sets global variables herein
-   with the results.  Code anywhere that depends on options tests these
+   with its results.  Code anywhere that depends on options tests these
    global variables to decide what to do.
 *) 
 
@@ -18,14 +18,17 @@ INTERFACE FM3CLOptions
 
 ; IMPORT FM3Atom_Text 
 ; IMPORT FM3CLToks 
-; IMPORT FM3LexTable 
+; IMPORT FM3LexTable
+; IMPORT VarArray_Int_Text
 
-; VAR PkgDirMsg : TEXT 
+; VAR PkgDirAbsName : TEXT 
 ; VAR SrcFileNames : AtomList . T := NIL 
-; VAR ImportDirNames : AtomList . T := NIL 
+; VAR ImportDirNames : AtomList . T := NIL
+; VAR SrcFileIntfList : REF ARRAY OF TEXT 
+; VAR SrcFileModList : REF ARRAY OF TEXT 
+; VAR ImportPkgDirList : REF ARRAY OF TEXT 
 ; VAR SourceFileCt : INTEGER := 0 
 ; VAR ImportDirCt : INTEGER := 0
-
 
 ; VAR IsInitialized := FALSE 
 
@@ -41,6 +44,7 @@ INTERFACE FM3CLOptions
 ; VAR ResourceDirName : TEXT := "."
 
 ; VAR PkgDirName : TEXT := ""
+
 (* ------------------- Boolean options are kept in a set -------------------- *)
 
 ; TYPE OptionTokTyp = [ FM3CLToks . TkMinTok .. FM3CLToks . TkMaxTok ] 

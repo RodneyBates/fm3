@@ -62,10 +62,8 @@ INTERFACE FM3Compile
 
 ; PROCEDURE DumpDecls ( UnitRef : FM3Units . UnitRefTyp ) 
 
-; PROCEDURE CompileUnitFromSrc ( UnitTRef : FM3Units . UnitTRefTyp )
-
-; PROCEDURE CompileCLUnits ( )
-  (* Compile the units specified on the command line. *) 
+; PROCEDURE CompileCLUnits ( PkgFileNameList : REF ARRAY OF TEXT )
+  (* Compile a list of units specified on the command line. *) 
 
 ; PROCEDURE ConvertIdentAtom
     ( FromAtom : FM3Base . AtomTyp
