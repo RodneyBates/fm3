@@ -209,6 +209,7 @@ MODULE FM3CLArgs
     = VAR LVarArr : VarArray_Int_Text . T 
     ; VAR LAtom : FM3Base . AtomTyp 
     ; VAR LSuffix : FM3Files . SuffixTyp
+    ; VAR LRange : Ranges_Int . RangeTyp  
     
     ; <* FATAL VarArray_Int_Text.AllocationFailure *>
       BEGIN
@@ -251,9 +252,10 @@ MODULE FM3CLArgs
             )
         ELSE
           FilesAtomSet := IntSets . Include ( FilesAtomSet , LAtom )
+; LRange := VarArray_Int_Text . TouchedRange ( LVarArr )
         ; VarArray_Int_Text . Assign
             ( LVarArr
-            , VarArray_Int_Text . TouchedRange ( LVarArr ) . Hi + 1
+            , LRange . Hi + 1
             , FileName
             ) 
         END (*IF*) 
@@ -676,8 +678,7 @@ MODULE FM3CLArgs
             ; PaHyphenArg ( )
             END (*IF*) 
           ELSE (* No hyphens. *)
-            SrcFileName ( PaArgText ) 
-          ; PrependTextToList ( FM3CLOptions . SrcFileNames , PaArgText )
+            SrcFileName ( PaArgText )           ; PrependTextToList ( FM3CLOptions . SrcFileNames , PaArgText )
           ; INC ( FM3CLOptions . SourceFileCt ) 
           END (*IF*) 
         ; INC ( PaArgNo )
@@ -820,12 +821,16 @@ MODULE FM3CLArgs
     ; FM3CLOptions . ImportDirNames := NIL
     ; SrcFileIntfArr
         := VarArray_Int_Text . New ( NIL , Ranges_Int . RangeTyp {  0 , 20 } )
+    ; VarArray_Int_Text . Touch
+        ( SrcFileIntfArr , Ranges_Int . RangeTyp { - 1 , - 1 } )  
     ; SrcFileModArr
         := VarArray_Int_Text . New ( NIL , Ranges_Int . RangeTyp {  0 , 20 } )
+    ; VarArray_Int_Text . Touch
+        ( SrcFileModArr , Ranges_Int . RangeTyp { - 1 , - 1 } )  
     ; ImportDirArr
         := VarArray_Int_Text . New ( NIL , Ranges_Int . RangeTyp {  0 , 20 } )
     ; VarArray_Int_Text . Touch
-        ( ImportDirArr , Ranges_Int . RangeTyp {  0 , 0 } )
+        ( ImportDirArr , Ranges_Int . RangeTyp {  - 1 , 0 } )
       (* ^Leave space to insert things after we know ResourceDirName. *) 
 
     ; FM3CLOptions . SourceFileCt := 0

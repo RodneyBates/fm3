@@ -72,7 +72,9 @@ MODULE  FM3Compile
   ; VAR LUnitNameAtom : FM3Base . AtomTyp 
 
   ; BEGIN
-      LSimpleName := Pathname . Last ( SrcFilePath ) 
+      IF SrcFilePath = NIL THEN RETURN NIL END (*IF*) 
+    ; LSimpleName := Pathname . Last ( SrcFilePath )
+    ; IF Text . Length ( LSimpleName ) <= 0 THEN RETURN NIL END (*IF*)  
     ; LUnitNameAtom  
         := FM3Atom_Text . MakeAtom  
              ( FM3Units . UnitsAtomDict
@@ -887,7 +889,7 @@ MODULE  FM3Compile
     ; CleanPassFilesAndCopies ( UnitTRef ) 
     ; FM3Messages . FM3LogArr
         ( ARRAY OF REFANY
-            { "Finished compiling "
+            { "... finished compiling "
             , UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName , "."
             }
         )
@@ -926,7 +928,8 @@ MODULE  FM3Compile
   ; VAR LStdTok : FM3SrcToks . TokTyp 
 
   ; BEGIN (*AcquireUnit*)
-      CASE UnitTRef ^ . UttState OF
+      IF UnitTRef = NIL THEN RETURN END (*IF*) 
+    ; CASE UnitTRef ^ . UttState OF
       | Utts . UttsNull
       , Utts . UttsNotFound
       , Utts . UttsNotLoadable 
@@ -1014,17 +1017,17 @@ MODULE  FM3Compile
                 EVAL ReadSemFileRemainder 
                        ( UnitTRef , LPickleRd , ReqPosition , ReqKind )  
               ELSE
-                FM3Messages . ErrorArr
+                FM3Messages . FM3LogArr
                   ( ARRAY OF REFANY
-                      { "No source or compiled file for command-line request"
+                      { "No source or compiled file found in package directory \""
+                      , LPkgDirName
+                      , "\""
                       , FM3Messages . NLIndent
-                      , "\"" 
+                      , "  " 
+                      , "for command-line request \""
                       , LSrcFileSimpleName
-                      , "\" found in package directory \""
-                      , LSrcPkgDirName
                       , "\"." 
                       } 
-                  , ReqPosition 
                   )
               ; UnitTRef . UttState := Utts . UttsNotFound
               END (*IF*)
