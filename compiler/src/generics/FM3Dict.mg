@@ -122,11 +122,6 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
   = BEGIN
       IF HashVal = FM3Utils.HashNull (* Not supplied by caller. *) 
       THEN (* But internally, HashNull is reserved to denote unoccupied row . *)
-(*      IF DictGrowable . DbHashFunc # NIL
-        THEN HashVal := DictGrowable . DbHashFunc ( Key )
-        ELSE HashVal := GHashDefault
-        END (*IF*)
-*) 
         HashVal := KeyGenformal . Hash ( Key ) 
       END (*IF*)
     ; RETURN
@@ -268,12 +263,6 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
   = BEGIN
       IF HashVal = FM3Utils.HashNull (* Not supplied by caller. *) 
       THEN (* But internally, HashNull is reserved to denote unoccupied row . *)
-(*
-        IF DictGrowable . DbHashFunc # NIL
-        THEN HashVal := DictGrowable . DbHashFunc ( Key )
-        ELSE HashVal := GHashDefault
-        END (*IF*)
-*)
         HashVal := KeyGenformal . Hash ( Key ) 
       END (*IF*)
     ; RETURN HashLookup
@@ -379,12 +368,6 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
       IF HashVal = FM3Utils.HashNull (* Not supplied by caller. *) 
       THEN
         (* But internally, HashNull is reserved to denote unoccupied row . *)
-(*
-        IF DictFixed . DbHashFunc # NIL
-        THEN HashVal := DictFixed . DbHashFunc ( Key )
-        ELSE HashVal := GHashDefault
-        END (*IF*)
-*) 
         HashVal := KeyGenformal . Hash ( Key ) 
 
       END (*IF*)
@@ -575,12 +558,6 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
       END (*IF*)
     ; IF HashVal = FM3Utils.HashNull (* Not supplied by caller. *) 
       THEN (* But internally, HashNull is reserved to denote unoccupied row . *)
-(*
-        IF DictFixed . DbHashFunc # NIL
-        THEN HashVal := DictFixed . DbHashFunc ( Key )
-        ELSE HashVal := GHashDefault
-        END (*IF*)
-*) 
         HashVal := KeyGenformal . Hash ( Key ) 
         
       END (*IF*) 
