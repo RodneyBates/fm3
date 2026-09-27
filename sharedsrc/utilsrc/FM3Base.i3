@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2025  Rodney M. Bates.                                    *)
+(* Copyright 2023..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -9,6 +9,8 @@
 (* Widely used stuff for FM3. *)
 
 INTERFACE FM3Base 
+
+; IMPORT Word
 
 ; IMPORT VarArray_Int_Refany 
 
@@ -84,8 +86,9 @@ INTERFACE FM3Base
 ; CONST CmpGT = 1 
 ; CONST CmpNR = 2 (* No relation.*) 
 
-; TYPE HashTyp = LONGINT
-; CONST HashNull = 0L
+; TYPE HashTyp = Word . T 
+; CONST HashNull = 0 (* Unknown, not a real hash code. *) 
+; CONST HashConst = 37 (* For somethng constant, e.g. NIL. *) 
 
 (*FIXME: M2SHORTCARD is for compatibility with reusem3/Positions.tPosition.
          These are probably adequate, but maybe 32 bits would be better here.

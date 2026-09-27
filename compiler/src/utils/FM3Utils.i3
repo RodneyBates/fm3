@@ -9,6 +9,7 @@
 INTERFACE FM3Utils
 
 (* CM3 library: *)
+; IMPORT Long 
 ; IMPORT Wr
 
 (* Other libs:*)
@@ -34,8 +35,8 @@ INTERFACE FM3Utils
 ; CONST GroundHash : HashTyp = FM3Base . HashNull   
 
 ; PROCEDURE ContribToHashL
-    ( VAR (*IN OUT*) Hash : HashTyp ; Contribution : HashTyp ) 
-  (* A value of HashNull, altered by a series of ContribToHash
+    ( VAR (*IN OUT*) Hash : HashTyp ; Contribution : Long . T ) 
+  (* A value of HashNull, altered by a series of ContribToHash*
      calls is a hash of the contributions.  Assume the order of the
      contributions affects the hash value. *)
 
@@ -96,6 +97,8 @@ INTERFACE FM3Utils
 
 ; PROCEDURE RefanyImage ( Value : REFANY ) : TEXT
   (* All asterisks, if --no-dump-addrs. *) 
+
+; PROCEDURE HexImage ( Value : INTEGER ) : TEXT 
 
 ; PROCEDURE LongHexImage ( Value : LONGINT ) : TEXT 
 

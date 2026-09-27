@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+(* Copyright 2023..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -30,7 +30,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 
 ; TYPE RowTyp
   = RECORD
-      RowHash : FM3Base . HashTyp := FM3Utils.HashNull
+      RowHashVal : FM3Base . HashTyp := FM3Utils . HashNull
       (* Which means this row is empty. *)  
     ; RowKey : KeyTyp
     ; RowValue : ValueTyp 
@@ -42,7 +42,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
     = BRANDED BaseTypBrand 
       OBJECT
         DbTableRef : REF ARRAY OF RowTyp := NIL 
-      ; DbHashFunc : HashFuncTyp := NIL 
+      ; DbHashValBitsize : INTEGER := 0  
       ; DbOccupiedCt : INTEGER := 0 
       ; DbState := StateTyp . DsUnsorted
       END (*T*)
@@ -75,18 +75,15 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 (* Sizes are count of rows.  Any extra space needed by
    the internal data structure will be added internally. *)
 
-(* You can use a hash function of your choice, but all Hash values passed
+(* You can use a hash function of your choice, but all HashVal values passed
    to a given dictionary instance must be computed from the adjacent value
    of Key by the HashFunc supplied to New* when creating the dictionary. *)
 
 (* If the hash pseudo-value FM3Utils.HashNull is provided along with a Key,
-   the hash value will be computed internally using HashFunc. *) 
-
-; CONST GHashDefault = 13L (* Any random prime. *)
+   the hash value will be computed internally using KeyGenFormal.Hash. *) 
 
 (*EXPORTED:*)
-; PROCEDURE NewGrowable
-    ( InitKeyCt : INTEGER ; HashFunc : HashFuncTyp ) : GrowableTyp 
+; PROCEDURE NewGrowable ( InitKeyCt : INTEGER ) : GrowableTyp 
       (* InitKeyCt is an initial estimate of actual keys.  The dictionary
          will be oversized and auto-expanded as needed. *) 
 
@@ -98,7 +95,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
     ; LTableNumber := InitKeyCt + InitKeyCt DIV 3 (* Not over 3/4 full. *) 
     ; LTableNumber := FM3Primes . NextLargerOrEqualPrime ( LTableNumber )
     ; LNew . DbTableRef := NEW ( REF ARRAY OF RowTyp , LTableNumber )
-    ; LNew . DbHashFunc := HashFunc 
+    ; LNew . DbHashValBitsize := BITSIZE ( FM3Base . HashTyp )  
     ; LNew . DbOccupiedCt := 0
     ; LNew . DbState := StateTyp . DsHashed
     ; RETURN LNew 
@@ -106,9 +103,9 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 
 (*EXPORTED:*)
 ; PROCEDURE InsertGrowable 
-    ( DictHash : GrowableTyp  
+    ( DictGrowable : GrowableTyp  
     ; Key : KeyTyp  
-    ; Hash : FM3Base . HashTyp
+    ; HashVal : FM3Base . HashTyp
     ; Value : ValueTyp
     ; VAR (*OUT*) OldValue : ValueTyp
       (* ^Meaningful IFF InsertGrowable returns TRUE. *) 
@@ -123,18 +120,20 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
      in here.  *) 
 
   = BEGIN
-      IF Hash = FM3Utils.HashNull (* Not supplied by caller. *) 
+      IF HashVal = FM3Utils.HashNull (* Not supplied by caller. *) 
       THEN (* But internally, HashNull is reserved to denote unoccupied row . *)
-        IF DictHash . DbHashFunc # NIL
-        THEN Hash := DictHash . DbHashFunc ( Key )
-        ELSE Hash := GHashDefault
-        END (*IF*) 
+(*      IF DictGrowable . DbHashFunc # NIL
+        THEN HashVal := DictGrowable . DbHashFunc ( Key )
+        ELSE HashVal := GHashDefault
+        END (*IF*)
+*) 
+        HashVal := KeyGenformal . Hash ( Key ) 
       END (*IF*)
     ; RETURN
         HashInsert
-          ( NARROW ( DictHash , DictBaseTyp )
+          ( NARROW ( DictGrowable , DictBaseTyp )
           , Key
-          , Hash
+          , HashVal 
           , Value
           , (*OUT*) OldValue
           , DoUpdate
@@ -144,7 +143,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 ; PROCEDURE HashInsert
     ( DictBase : DictBaseTyp  
     ; Key : KeyTyp  
-    ; Hash : FM3Base . HashTyp
+    ; HashVal : FM3Base . HashTyp
     ; Value : ValueTyp
     ; VAR (*OUT*) OldValue : ValueTyp
       (* ^Meaningful IFF InsertGrowable returns TRUE. *) 
@@ -162,28 +161,24 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 
   ; BEGIN
       LTableNumber := NUMBER ( DictBase . DbTableRef ^ ) 
-    ; LOrigProbe
-        := VAL ( Hash MOD VAL ( LTableNumber , FM3Base . HashTyp ) , INTEGER )  
+    ; LOrigProbe := HashVal MOD LTableNumber 
       (* 0 <= LOrigProbe < LTableNumber. *) 
     ; LProbe := LOrigProbe 
-    ; LSkip
-        := VAL ( Hash MOD VAL ( LTableNumber - 1 , FM3Base . HashTyp )
-               , INTEGER
-               ) + 1
+    ; LSkip := HashVal MOD ( LTableNumber - 1 ) + 1
       (* 0 < LSkip < LTableNumber - 1,
          so LSkip MOD LTableNumber  (Which is prime) # 0 *) 
     ; LOOP
         WITH WRow = DictBase . DbTableRef ^ [ LProbe ]
-        DO IF WRow . RowHash = FM3Utils.HashNull (* A free slot. *)
+        DO IF WRow . RowHashVal = FM3Utils.HashNull (* A free slot. *)
           THEN (* Fill it. *)
-            WRow . RowHash := Hash
+            WRow . RowHashVal := HashVal
           ; WRow . RowKey := Key
           ; WRow . RowValue := Value 
           ; INC ( DictBase . DbOccupiedCt ) 
           ; GrowHash ( DictBase ) 
           ; LResult := FALSE
           ; EXIT 
-          ELSIF Hash = WRow . RowHash
+          ELSIF HashVal = WRow . RowHashVal
                 AND KeyGenformal . Compare ( WRow . RowKey , Key ) = CmpEQ
           THEN (* Found it. *)
             OldValue := WRow . RowValue 
@@ -219,13 +214,13 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 
     ; FOR RI := 0 TO LAST ( FromTableRef ^ )
       DO WITH WOldRow = FromTableRef ^ [ RI ] 
-        DO IF WOldRow . RowHash # FM3Utils.HashNull (* Row is occupied. *) 
+        DO IF WOldRow . RowHashVal # FM3Utils.HashNull (* Row is occupied. *) 
           THEN 
             LDuplicate 
               := HashInsert
                    ( DictBase 
                    , WOldRow . RowKey
-                   , WOldRow . RowHash
+                   , WOldRow . RowHashVal
                    , WOldRow . RowValue
                    , (*OUT*) LJunkValue
                    , DoUpdate := FALSE
@@ -259,9 +254,9 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 
 (*EXPORTED:*)
 ; PROCEDURE LookupGrowable 
-    ( DictHash : GrowableTyp
+    ( DictGrowable : GrowableTyp
     ; Key : KeyTyp 
-    ; Hash : FM3Base . HashTyp
+    ; HashVal : FM3Base . HashTyp
     ; VAR (*OUT*) Value : ValueTyp 
     )
   : BOOLEAN (* Was found. *)
@@ -271,26 +266,29 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
      in here.  *) 
 
   = BEGIN
-      IF Hash = FM3Utils.HashNull (* Not supplied by caller. *) 
+      IF HashVal = FM3Utils.HashNull (* Not supplied by caller. *) 
       THEN (* But internally, HashNull is reserved to denote unoccupied row . *)
-        IF DictHash . DbHashFunc # NIL
-        THEN Hash := DictHash . DbHashFunc ( Key )
-        ELSE Hash := GHashDefault
-        END (*IF*) 
+(*
+        IF DictGrowable . DbHashFunc # NIL
+        THEN HashVal := DictGrowable . DbHashFunc ( Key )
+        ELSE HashVal := GHashDefault
+        END (*IF*)
+*)
+        HashVal := KeyGenformal . Hash ( Key ) 
       END (*IF*)
     ; RETURN HashLookup
-        ( NARROW ( DictHash , DictBaseTyp ) , Key , Hash , Value ) 
+        ( NARROW ( DictGrowable , DictBaseTyp ) , Key , HashVal , Value ) 
     END LookupGrowable 
 
 ; PROCEDURE HashLookup
     ( DictBase : DictBaseTyp 
     ; Key : KeyTyp 
-    ; Hash : FM3Base . HashTyp
+    ; HashVal : FM3Base . HashTyp
     ; VAR (*OUT*) Val : ValueTyp 
     )
   : BOOLEAN (* Was found. *)
   RAISES { Error } 
-  (* PRE: Hash # FM3Utils.HashNull. *) 
+  (* PRE: HashVal # FM3Utils.HashNull. *) 
   (* This requires that DictBase actually point to a hashed dictionary, even
      though it might have been created as Fixed.  Callers must insure this. *) 
 
@@ -301,21 +299,21 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
   ; BEGIN
       LTableNumber := NUMBER ( DictBase . DbTableRef ^ ) 
     ; LOrigProbe
-        := VAL ( Hash MOD VAL ( LTableNumber , FM3Base . HashTyp ) , INTEGER ) 
+        := VAL ( HashVal MOD VAL ( LTableNumber , FM3Base . HashTyp ) , INTEGER ) 
       (* 0 <= LOrigProbe < LTableNumber. *) 
     ; LProbe := LOrigProbe 
     ; LSkip
-        := VAL ( Hash MOD VAL ( LTableNumber - 1 , FM3Base . HashTyp )
+        := VAL ( HashVal MOD VAL ( LTableNumber - 1 , FM3Base . HashTyp )
                , INTEGER
                ) + 1  
       (* 0 < LSkip < LTableNumber - 1,
          so LSkip MOD LTableNumber (Which is prime) # 0 *) 
     ; LOOP
         WITH WRow = DictBase . DbTableRef ^ [ LProbe ]
-        DO IF WRow . RowHash = FM3Utils.HashNull
+        DO IF WRow . RowHashVal = FM3Utils.HashNull
               (* A free slot, key not present. *)
           THEN RETURN FALSE 
-          ELSIF Hash = WRow . RowHash
+          ELSIF HashVal = WRow . RowHashVal
                 AND KeyGenformal . Compare ( WRow . RowKey , Key ) = CmpEQ
           THEN (* Found it. *)
             Val := WRow . RowValue 
@@ -340,8 +338,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 *) 
 
 (*EXPORTED:*)
-; PROCEDURE NewFixed
-    ( MaxKeyCt : INTEGER ; HashFunc : HashFuncTyp ) : FixedTyp 
+; PROCEDURE NewFixed ( MaxKeyCt : INTEGER ) : FixedTyp 
 
   = VAR LNew : FixedTyp
   ; VAR LTableNumber : INTEGER  
@@ -360,7 +357,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
       ; LNew . DbOccupiedCt := 0
       ; LNew . DbState := StateTyp . DsHashed  
       END (*IF*)
-    ; LNew . DbHashFunc := HashFunc 
+    ; LNew . DbHashValBitsize := BITSIZE ( FM3Base . HashTyp )   
     ; LNew . DbTableRef := NEW ( REF ARRAY OF RowTyp , LTableNumber )
     ; RETURN LNew 
     END NewFixed 
@@ -369,30 +366,34 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 ; PROCEDURE InsertFixed 
     ( DictFixed : FixedTyp  
     ; Key : KeyTyp  
-    ; Hash : FM3Base . HashTyp
+    ; HashVal : FM3Base . HashTyp
     ; Value : ValueTyp
     )
   RAISES { Error } 
-  (* PRE: Hash # FM3Utils.HashNull. *) 
+  (* PRE: HashVal # FM3Utils.HashNull. *) 
 
   = VAR LOldValue : ValueTyp
   ; VAR LFound : BOOLEAN
 
   ; BEGIN
-      IF Hash = FM3Utils.HashNull (* Not supplied by caller. *) 
+      IF HashVal = FM3Utils.HashNull (* Not supplied by caller. *) 
       THEN
         (* But internally, HashNull is reserved to denote unoccupied row . *)
+(*
         IF DictFixed . DbHashFunc # NIL
-        THEN Hash := DictFixed . DbHashFunc ( Key )
-        ELSE Hash := GHashDefault
-        END (*IF*) 
+        THEN HashVal := DictFixed . DbHashFunc ( Key )
+        ELSE HashVal := GHashDefault
+        END (*IF*)
+*) 
+        HashVal := KeyGenformal . Hash ( Key ) 
+
       END (*IF*)
     ; IF DictFixed . DbState = StateTyp . DsHashed
       THEN
         LFound := HashInsert
           ( DictFixed
           , Key
-          , Hash
+          , HashVal 
           , Value
           , (*OUT*) LOldValue
           , DoUpdate := FALSE
@@ -405,14 +406,14 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
         END (*IF*) 
       ELSIF DictFixed . DbState # StateTyp . DsUnsorted 
       THEN RAISE Error ( "Lookup in fixed dictionary after FinalizeFixed.")
-      ELSE SortedTableInsert ( DictFixed , Key , Hash , Value ) 
+      ELSE SortedTableInsert ( DictFixed , Key , HashVal , Value ) 
       END (*IF*) 
     END InsertFixed
 
 ; PROCEDURE SortedTableInsert
     ( DictFixed : FixedTyp 
     ; Key : KeyTyp  
-    ; Hash : FM3Base . HashTyp
+    ; HashVal : FM3Base . HashTyp
     ; Value : ValueTyp
     )
   RAISES { Error }
@@ -442,7 +443,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
          only 2 instead of 3 assignments.
       *)  
         LEmptySs := DictFixed . DbOccupiedCt
-      ; LOrphanRow . RowHash := Hash
+      ; LOrphanRow . RowHashVal := HashVal
       ; LOrphanRow . RowKey := Key
       ; LOrphanRow . RowValue := Value
       ; LOOP (* Bubble up. *)
@@ -559,7 +560,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
 ; PROCEDURE LookupFixed  
     ( DictFixed : FixedTyp
     ; Key : KeyTyp 
-    ; Hash : FM3Base . HashTyp
+    ; HashVal : FM3Base . HashTyp
     ; VAR (*OUT*) Val : ValueTyp 
     )
   : BOOLEAN (* Was found. *)
@@ -572,12 +573,16 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
       IF DictFixed . DbState = StateTyp . DsUnsorted 
       THEN RAISE Error ( "Lookup in fixed dictionary before FinalizeFixed." ) 
       END (*IF*)
-    ; IF Hash = FM3Utils.HashNull (* Not supplied by caller. *) 
+    ; IF HashVal = FM3Utils.HashNull (* Not supplied by caller. *) 
       THEN (* But internally, HashNull is reserved to denote unoccupied row . *)
+(*
         IF DictFixed . DbHashFunc # NIL
-        THEN Hash := DictFixed . DbHashFunc ( Key )
-        ELSE Hash := GHashDefault
-        END (*IF*) 
+        THEN HashVal := DictFixed . DbHashFunc ( Key )
+        ELSE HashVal := GHashDefault
+        END (*IF*)
+*) 
+        HashVal := KeyGenformal . Hash ( Key ) 
+        
       END (*IF*) 
 
     ; IF DictFixed . DbState = StateTyp . DsHashed 
@@ -585,7 +590,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
         RETURN HashLookup
           ( NARROW ( DictFixed , DictBaseTyp ) 
           , Key 
-          , Hash 
+          , HashVal 
           , (*OUT*) Val 
           ) 
 
@@ -626,9 +631,9 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
     ; FOR RI := 0 TO LTableNumber - 1
       DO 
         Wr . PutText ( LTextWrT , Fmt . Int ( RI ) ) 
-      ; Wr . PutText ( LTextWrT , " Hash = " ) 
+      ; Wr . PutText ( LTextWrT , " HashVal = " ) 
       ; Wr . PutText
-          ( LTextWrT , Fmt . Int ( DictBase . DbTableRef ^ [ RI ] . Hash ) )
+          ( LTextWrT , Fmt . Int ( DictBase . DbTableRef ^ [ RI ] . RowHashVal ) )
       ; Wr . PutText ( LTextWrT , " Key = " ) 
       ; Wr . PutText 
           ( LTextWrT , KeyImage ( DictBase . DbTableRef ^ [ RI ] . Key ) )
@@ -662,7 +667,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
         LRuleNo := 0 
       ; FOR RI := 0 TO LAST ( Dict . DbTableRef ^ ) 
         DO WITH WElem = Dict . DbTableRef ^ [ RI ] 
-          DO IF WElem . RowHash # FM3Utils.HashNull 
+          DO IF WElem . RowHashVal # FM3Utils.HashNull 
             THEN 
               Visit ( LRuleNo , WElem . RowKey , WElem . RowValue )   
             ; INC ( LRuleNo ) 

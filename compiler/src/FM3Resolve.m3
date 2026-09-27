@@ -35,7 +35,7 @@ MODULE FM3Resolve
 
   = BEGIN (*ResolveChild*)
       EVAL ResolveExpr ( ChildRef , ParentRef ^ . ExpKind )
-    ; FM3Utils . ContribToHashL
+    ; FM3Utils . ContribToHashI
         ( (*IN OUT*) ParentRef ^ . ExpHash , ChildRef ^ . ExpHash )
     END ResolveChild
 
@@ -81,7 +81,7 @@ MODULE FM3Resolve
       | Ekt . EkLiteral 
       =>  FM3Utils . ContribToHashL
             ( ExprRef ^ . ExpHash , ExprRef ^ . ExpScalarConstVal ) 
-        ; FM3Utils . ContribToHashL
+        ; FM3Utils . ContribToHashI
             ( ExprRef ^ . ExpHash
             , VAL ( ORD ( ExprRef ^ . ExpOpcode ) , FM3Base . HashTyp )
             ) 

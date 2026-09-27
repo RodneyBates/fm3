@@ -2780,8 +2780,7 @@ MODULE FM3Pass1
       (* Duplicate declared idents not included. *) 
       (* LDeclCt is exactly the needed dictionary size. *)
       ; ScopeRef ^ . ScpDeclDict 
-          := FM3Dict_Int_Int . NewFixed 
-               ( LDeclCt , FM3SharedUtils . IntHash )
+          := FM3Dict_Int_Int . NewFixed ( LDeclCt )
       ; SrtDeclNo := FM3Units . AllocateDeclNos ( LDeclCt )
       ; ScopeRef ^ . ScpMinDeclNo := SrtDeclNo 
       ; LExpectedToDeclNo := SrtDeclNo + LDeclCt

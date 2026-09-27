@@ -16,7 +16,6 @@ GENERIC INTERFACE FM3Atom ( DictGenformal )
 (* DictGenFormal must provide declarations for:
      TYPE KeyTyp:  Type of Keys.  Not an open array type
                    (But could be REF thereto) .
-     TYPE HashFuncTyp: PROCEDURE (Key : KeyTyp) : FM3Base.HashTyp
      CONST Brand = whatever you like.
    These can be provided by an instantiation of FM3Dict. 
 *) 
@@ -29,15 +28,12 @@ GENERIC INTERFACE FM3Atom ( DictGenformal )
 
 ; TYPE KeyTyp = DictGenformal . KeyTyp
 
-; TYPE HashFuncTyp = DictGenformal . HashFuncTyp 
-
 ; TYPE CompareProcTyp
     = PROCEDURE ( Left , Right : KeyTyp ) : FM3Base . CompareTyp 
 
 ; PROCEDURE New
     ( InitSize : CARDINAL
     ; StartAtom : INTEGER
-    ; HashFunc : HashFuncTyp
     ; DoReverseMap : BOOLEAN 
     )
   : T 
@@ -52,7 +48,7 @@ GENERIC INTERFACE FM3Atom ( DictGenformal )
 ; PROCEDURE MakeAtom
     ( Dict : T
     ; READONLY Key : KeyTyp 
-    ; Hash : FM3Base . HashTyp
+    ; HashVal : FM3Base . HashTyp
     )
   : FM3Base . AtomTyp 
   (* If Key is absent from Dict, assign a new atom value and 
@@ -64,7 +60,7 @@ GENERIC INTERFACE FM3Atom ( DictGenformal )
 ; PROCEDURE LookupKey
     ( AtomDict : T 
     ; READONLY Key : KeyTyp  
-    ; Hash : FM3Base . HashTyp
+    ; HashVal : FM3Base . HashTyp
     )
   : FM3Base . AtomTyp 
   (* The atom associated with Key. FM3Base . AtomNull if not present *)
@@ -84,7 +80,6 @@ GENERIC INTERFACE FM3Atom ( DictGenformal )
      parameter Hash as FM3Utils.HashNull and the procedure will compute it,
      using the function passed to HashFunction.
   *)
-
 
 ; END FM3Atom
 .

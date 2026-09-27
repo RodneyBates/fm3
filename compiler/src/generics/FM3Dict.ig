@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023,       Rodney M. Bates.                                    *)
+(* Copyright 2023..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -10,7 +10,8 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
 
 (* KeyGenformal declares:
      . T -- A type.
-     . Hash  -- of type FM3Base . HashTyp 
+     . Hash  -- of type HashFuncTyp.
+     . Compare -- a function.
      . Brand.
 
    ValueGenformal declares:
@@ -39,13 +40,13 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
 
 ; EXCEPTION Error ( TEXT )
 
-(* For Hash parameters, You can use a hash function of your choice, as
+(* For Hash, You can use a hash function of your choice, as
    long as it is always the same for a given Key value, consistent for all
    calls involving a single dictionary, and never produces FM3Utils.HashNull,
 
    If you don't already have it for a Key you pass in, you can leave
-   parameter Hash as FM3Utils.HashNull and the procedure will compute it,
-   using the function passed to HashFunction.
+   parameter HashVal as FM3Utils.HashNull and the procedure will compute it,
+   using kKeyGenformal.Hash.
 *)
 
 ; TYPE KeyTyp = KeyGenformal . T 
@@ -71,13 +72,12 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
   (* More keys than this, and a hash table implementation will be
      used for a fixed dictionary. *) 
 
-; PROCEDURE NewFixed
-    ( MaxKeyCt : INTEGER ; HashFunc : HashFuncTyp ) : FixedTyp 
+; PROCEDURE NewFixed ( MaxKeyCt : INTEGER ) : FixedTyp 
 
 ; PROCEDURE InsertFixed 
     ( Dict : FixedTyp  
     ; Key : KeyTyp  
-    ; Hash : FM3Base . HashTyp
+    ; HashVal : FM3Base . HashTyp
     ; Value : ValueTyp
     )
   RAISES { Error }  
@@ -87,7 +87,7 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
 ; PROCEDURE LookupFixed  
     ( Dict : FixedTyp
     ; Key : KeyTyp 
-    ; Hash : FM3Base . HashTyp
+    ; HashVal : FM3Base . HashTyp
     ; VAR (*OUT*) Val : ValueTyp 
     )
   : BOOLEAN (* Was found. *)
@@ -102,15 +102,14 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
 
 ; TYPE GrowableTyp <: T 
 
-; PROCEDURE NewGrowable
-    ( InitKeyCt : INTEGER ; HashFunc : HashFuncTyp ) : GrowableTyp 
+; PROCEDURE NewGrowable ( InitKeyCt : INTEGER ) : GrowableTyp 
       (* InitKeyCt is an initial estimate of actual keys.  The dictionary
          will oversized be and auto-expanded as needed. *) 
 
 ; PROCEDURE InsertGrowable 
-    ( Dict : GrowableTyp  
+    ( DictGrowable : GrowableTyp  
     ; Key : KeyTyp  
-    ; Hash : FM3Base . HashTyp
+    ; HashVal : FM3Base . HashTyp
     ; Value : ValueTyp
     ; VAR (*OUT*) OldValue : ValueTyp
       (* ^Meaningful IFF InsertGrowable returns TRUE. *) 
@@ -122,9 +121,9 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
   RAISES { Error } 
 
 ; PROCEDURE LookupGrowable 
-    ( Dict : GrowableTyp
+    ( DictGrowable : GrowableTyp
     ; Key : KeyTyp 
-    ; Hash : FM3Base . HashTyp
+    ; HashVal : FM3Base . HashTyp
     ; VAR (*OUT*) Val : ValueTyp 
     )
   : BOOLEAN (* Was found. *)

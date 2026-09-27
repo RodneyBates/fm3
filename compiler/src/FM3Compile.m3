@@ -79,7 +79,7 @@ MODULE  FM3Compile
         := FM3Atom_Text . MakeAtom  
              ( FM3Units . UnitsAtomDict
              , LSimpleName
-             , Hash := FM3Utils . HashOfText ( LSimpleName ) 
+             , HashVal := FM3Utils . HashOfText ( LSimpleName ) 
              )
     ; LUnitTRef 
         := VarArray_Int_Refany . Fetch ( FM3Units . UnitTMap , LUnitNameAtom )
@@ -115,15 +115,18 @@ MODULE  FM3Compile
   = VAR LUnitName : TEXT
 
   ; BEGIN (*InitStdFileNames*)
-      GStdUnitFileNames
-        := FM3Dict_Text_Int . NewFixed ( 28 , FM3Utils . HashOfText ) 
+      GStdUnitFileNames := FM3Dict_Text_Int . NewFixed ( 28 ) 
     ; FOR RTok := FM3SrcToks . StkMinStdIntf TO FM3SrcToks . StkMaxStdIntf
       DO LUnitName := FM3SrcToks . Image ( RTok )
       ; FM3Dict_Text_Int . InsertFixed
            ( GStdUnitFileNames , LUnitName & ".i3" , FM3Base . HashNull , RTok )
       ; IF RTok # FM3SrcToks . StkPdMain (* Main.m3 is not a standard unit. *) 
         THEN FM3Dict_Text_Int . InsertFixed
-               ( GStdUnitFileNames , LUnitName & ".m3" , FM3Base . HashNull , RTok )
+               ( GStdUnitFileNames
+               , LUnitName & ".m3"
+               , FM3Base . HashNull
+               , RTok
+               )
         END (*IF*) 
       END (*FOR*)
     ; FM3Dict_Text_Int . FinalizeFixed ( GStdUnitFileNames ) 
@@ -586,6 +589,56 @@ MODULE  FM3Compile
     ; RETURN LToAtom  
     END ConvertAndCreateIdentAtom
 
+; VAR GNullUnit := TRUE
+
+; PROCEDURE MakeUnitFieldsNull ( UnitRef : FM3Units .UnitRefTyp )
+(* This is for finding what is causing pickling to crash the GC. *) 
+
+  = BEGIN (*MakeUnitFieldsNull*)
+      IF NOT GNullUnit THEN RETURN END (*IF*)
+
+    ; UnitRef ^ . UntSrcFileSimpleName := NIL 
+    ; UnitRef ^ . UntSrcFilePath := NIL
+    ; UnitRef ^ . UntSrcFileTime := 0.0D0
+    ; UnitRef ^ . UntUnitFileSimpleName := NIL
+    ; UnitRef ^ . UntUnitIdent := NIL 
+    ; UnitRef ^ . UntUnitIdentPos := FM3Base . PositionNull 
+    ; UnitRef ^ . UntBuildDirPath := NIL 
+    ; UnitRef ^ . UntSrcTime := 0.0D0
+
+    ; UnitRef ^ . UntPassNosDisAsmed := FM3CLOptions . PassNoSetEmpty  
+    ; UnitRef ^ . UntPassNosDumped := FM3CLOptions . PassNoSetEmpty
+
+    ; UnitRef ^ . UntIdentAtomDict := NIL
+(*
+    ; UnitRef ^ . UntNumLitAtomDict := NIL
+*)
+    ; UnitRef ^ . UntCharsLitAtomDict := NIL
+
+    ; UnitRef ^ . UntWCharsLitAtomDict := NIL
+    ; UnitRef ^ . UntDeclMap := NIL
+    ; UnitRef ^ . UntExprMap := NIL
+    ; UnitRef ^ . UntScopeMap := NIL
+    ; UnitRef ^ . UntExpImpIdSet := NIL 
+    ; UnitRef ^ . UntExpImpMap := NIL
+    ; UnitRef ^ . UntExpImpRefSetxxx := NIL 
+    ; UnitRef ^ . UntScopeRef := NIL  
+    ; UnitRef ^ . UntHash := FM3Base . HashNull 
+    ; UnitRef ^ . UntExpImpCt := 0 
+    ; UnitRef ^ . UntScanResult := - 1  
+    ; UnitRef ^ . UntParseResult := 0
+    ; UnitRef ^ . UntPass2Result := - 1
+    ; UnitRef ^ . UntPass3Result := - 1
+    ; UnitRef ^ . UntFirstTrueDeclNo := 1 
+    ; UnitRef ^ . UntStdTok := FM3Base . TokNull
+    ; UnitRef ^ . UntKind := FM3Units . UnitKindTyp . UkNull 
+    ; UnitRef ^ . UntState := FM3Units . UnitStateTyp . UsNull
+    ; UnitRef ^ . UntUnsafe := FALSE  
+    ; UnitRef ^ . UntHasStdUnitPragma := FALSE 
+    ; UnitRef ^ . UntNextDeclNo := 0
+
+    END MakeUnitFieldsNull
+
 (*EXPORTED.*)
 ; PROCEDURE WriteSemFile ( UnitTRef : FM3Units . UnitTRefTyp )
   (* Create or overlay. *) 
@@ -616,13 +669,15 @@ MODULE  FM3Compile
 
     (* sem file hash and src file time are copies brought out front so a
        sem file's relevance can be checked w/o unpickling the whole thing.
-    *)
-    
-    ; PickleStubs . OutLongint ( LPickleWriter , LUnitRef ^ . UntHash ) 
+    *) 
+
+    ; PickleStubs . OutWord ( LPickleWriter , LUnitRef ^ . UntHash ) 
     ; PickleStubs . OutLongreal ( LPickleWriter , LUnitRef . UntSrcTime ) 
 
-    ; LPickleWriter . write ( LUnitRef ) 
-    ; Pickle . Write ( LSemWrT , LUnitRef , write16BitWidechar := FALSE )
+; MakeUnitFieldsNull ( LUnitRef ) 
+
+    ; LPickleWriter . write ( LUnitRef )   
+ (* ; Pickle . Write ( LSemWrT , LUnitRef , write16BitWidechar := FALSE ) *)
 
     (* It appears one can just abandon LPickleWriter with no close actions. *) 
     ; Wr . Close ( LSemWrT )
@@ -707,7 +762,7 @@ MODULE  FM3Compile
     (* sem file hash and src file time are copies brought out front so a
        sem file's relevence can be checked w/o unpickling the whole thing.
     *)
-    ; Hash := PickleStubs . InLongint ( PickleRd )
+    ; Hash := PickleStubs . InWord ( PickleRd )
     ; Time := PickleStubs . InLongreal ( PickleRd )
     ; RETURN TRUE 
     END ReadSemHeadInfo
@@ -1000,7 +1055,7 @@ MODULE  FM3Compile
 
           (* Decide whether to compile or load unit from compile package. *) 
           ; IF LSrcFileT # NIL
-            THEN (* Source file exists insode pkg dir. *) 
+            THEN (* Source file exists inside pkg dir. *) 
               IF FM3CLToks . CltForceCompile IN FM3CLOptions . OptionTokSet 
                  OR LSemFileT = NIL
                  OR LSrcTime > LUnitTime 

@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2025  Rodney M. Bates.                                    *)
+(* Copyright 2023..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -15,7 +15,7 @@ GENERIC MODULE FM3Atom ( DictGenformal )
 
 (* DictGenFormal must provide declarations for these things that
      an instantiation of FM3Dict will provide: 
-     GrowableTyp , NewGrowable, InsetGrowable, LookupGrowable, Brand
+     GrowableTyp , NewGrowable, InsetGrowable, LookupGrowable, Hash, Brand
 *) 
 
 ; IMPORT FM3Base 
@@ -32,7 +32,6 @@ GENERIC MODULE FM3Atom ( DictGenformal )
 ; PROCEDURE New
     ( InitSize : CARDINAL
     ; StartAtom : INTEGER
-    ; HashFunc : HashFuncTyp
     ; DoReverseMap : BOOLEAN 
     )
   : T 
@@ -48,8 +47,7 @@ GENERIC MODULE FM3Atom ( DictGenformal )
 
   ; BEGIN
       LResult := NEW ( T ) 
-    ; LResult . AtGrowableDict
-        := DictGenformal . NewGrowable ( InitSize , HashFunc )
+    ; LResult . AtGrowableDict := DictGenformal . NewGrowable ( InitSize )
     ; LResult . AtNextAtom := StartAtom
     ; IF DoReverseMap 
       THEN  
@@ -63,7 +61,7 @@ GENERIC MODULE FM3Atom ( DictGenformal )
 ; PROCEDURE MakeAtom
     ( AtomDict : T 
     ; READONLY Key : KeyTyp  
-    ; Hash : FM3Base . HashTyp
+    ; HashVal : FM3Base . HashTyp
     )
   : FM3Base . AtomTyp 
   (* If Key is absent from AtomDict, assign a new atom value and 
@@ -80,7 +78,7 @@ GENERIC MODULE FM3Atom ( DictGenformal )
     ; LFound 
         := DictGenformal. InsertGrowable 
              ( AtomDict . AtGrowableDict
-             , Key , Hash , LNewValue , (*OUT*) LOldValue
+             , Key , HashVal , LNewValue , (*OUT*) LOldValue
              , DoUpdate := FALSE 
              )
     ; IF LFound
@@ -108,7 +106,7 @@ GENERIC MODULE FM3Atom ( DictGenformal )
 ; PROCEDURE LookupKey
     ( AtomDict : T 
     ; READONLY Key : KeyTyp  
-    ; Hash : FM3Base . HashTyp
+    ; HashVal : FM3Base . HashTyp
     )
   : FM3Base . AtomTyp 
   (* The atom associated with Key. FM3Base . AtomNull if not present *)
@@ -119,7 +117,7 @@ GENERIC MODULE FM3Atom ( DictGenformal )
   ; BEGIN
       LFound 
         := DictGenformal. LookupGrowable 
-             ( AtomDict . AtGrowableDict , Key , Hash , (*OUT*) LValue )
+             ( AtomDict . AtGrowableDict , Key , HashVal , (*OUT*) LValue )
     ; IF LFound
       THEN RETURN LValue
       ELSE RETURN FM3Base . AtomNull
@@ -138,7 +136,7 @@ GENERIC MODULE FM3Atom ( DictGenformal )
     ; Value := AtomDict . AtReverseMap ^ [ Atom ] 
     ; RETURN TRUE 
     END Key
-      
+
 ; BEGIN
   END FM3Atom 
 .

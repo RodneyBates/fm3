@@ -137,6 +137,44 @@ INTERFACE FM3Units
       ; UntNextDeclNo : INTEGER := 1
       END (*UnitTyp*)
 
+; CONST UnitNull
+    = UnitTyp
+        { UntSrcFileSimpleName := NIL 
+        , UntSrcFilePath := NIL
+        , UntSrcFileTime := 0.0D0
+        , UntUnitFileSimpleName := NIL 
+        , UntUnitIdent := NIL 
+        , UntUnitIdentPos := FM3Base . PositionNull 
+        , UntBuildDirPath := NIL 
+        , UntSrcTime := 0.0D0 
+        , UntPassNosDisAsmed := FM3CLOptions . PassNoSetEmpty  
+        , UntPassNosDumped := FM3CLOptions . PassNoSetEmpty 
+        , UntIdentAtomDict := NIL
+        , UntNumLitAtomDict := NIL 
+        , UntCharsLitAtomDict := NIL 
+        , UntWCharsLitAtomDict := NIL
+        , UntDeclMap := NIL
+        , UntExprMap := NIL
+        , UntScopeMap := NIL
+        , UntExpImpIdSet := NIL 
+        , UntExpImpMap := NIL
+        , UntExpImpRefSetxxx := NIL 
+        , UntScopeRef := NIL  
+        , UntHash := 0
+        , UntExpImpCt := 0 
+        , UntScanResult := - 1  
+        , UntParseResult := 0
+        , UntPass2Result := - 1
+        , UntPass3Result := - 1
+        , UntFirstTrueDeclNo := 1 
+        , UntStdTok := FM3Base . TokNull
+        , UntKind := UnitKindTyp . UkNull 
+        , UntState := UnitStateTyp . UsNull
+        , UntUnsafe := FALSE  
+        , UntHasStdUnitPragma := FALSE 
+        , UntNextDeclNo := 0
+        }
+
 (* Transient info about a unit. Present while the unit is in compilation
    or loaded after being compiled by a prior run.
 *) 

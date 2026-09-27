@@ -54,7 +54,6 @@ MODULE FM3CLArgs
 ; VAR FilesAtomDict := FM3Atom_Text . New
         ( 60 (* CL-named src files + import dirs. *) 
         , FM3Base . AtomFirstReal
-        , HashFunc := FM3Utils . HashOfText 
         , DoReverseMap := TRUE
         )
 ; VAR FilesAtomSet := IntSets . Empty ( ) 
@@ -142,7 +141,7 @@ MODULE FM3CLArgs
         := FM3Atom_Text . MakeAtom
              ( DirsAtomDict
              , DirPath
-             , Hash := FM3Utils . HashOfText ( DirPath )
+             , HashVal := FM3Utils . HashOfText ( DirPath )
              )
     ; IF No
       THEN
@@ -167,7 +166,7 @@ MODULE FM3CLArgs
           LAtom := FM3Atom_Text . MakeAtom
                      ( FilesAtomDict
                      , DirName 
-                     , Hash := FM3Utils . HashOfText ( DirName )
+                     , HashVal := FM3Utils . HashOfText ( DirName )
                      )
         ; IF IntSets . IsElement ( LAtom , FilesAtomSet )
           THEN
@@ -239,7 +238,7 @@ MODULE FM3CLArgs
       ; LAtom := FM3Atom_Text . MakeAtom
                    ( FilesAtomDict
                    , FileName 
-                   , Hash := FM3Utils . HashOfText ( FileName )
+                   , HashVal := FM3Utils . HashOfText ( FileName )
                    )
       ; IF IntSets . IsElement ( LAtom , FilesAtomSet )
         THEN

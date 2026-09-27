@@ -210,31 +210,27 @@ MODULE FM3Units
     
     (* Non-constant field initializations. *) 
     ; LUnitRef ^ . UntIdentAtomDict 
-        := FM3Atom_OAChars . New
+        := FM3Atom_OAChars . New 
              ( FM3Globals . IdentAtomInitSize
              , FM3Base . AtomFirstReal
-             , HashFunc := FM3Utils . HashOfOAChars 
              , DoReverseMap := TRUE
              )
     ; LUnitRef ^ . UntNumLitAtomDict 
-        := FM3Atom_OAChars . New
+        := FM3Atom_OAChars . New 
              ( FM3Globals . NumberAtomInitSize
              , FM3Base . AtomFirstReal
-             , HashFunc := FM3Utils . HashOfOAChars 
              , DoReverseMap := TRUE
              )
     ; LUnitRef ^ . UntCharsLitAtomDict 
-        := FM3Atom_OAChars . New
+        := FM3Atom_OAChars . New 
              ( FM3Globals . CharsAtomInitSize
              , FM3Base . AtomFirstReal
-             , HashFunc := FM3Utils . HashOfOAChars 
              , DoReverseMap := TRUE
              )
     ; LUnitRef ^ . UntWCharsLitAtomDict 
-        := FM3Atom_OAWideChars . New
+        := FM3Atom_OAWideChars . New 
              ( FM3Globals . WideCharsAtomInitSize
              , FM3Base . AtomFirstReal
-             , HashFunc := FM3Utils . HashOfOAWChars
              , DoReverseMap := TRUE
              )
     ; LUnitRef ^ . UntScopeMap
@@ -406,7 +402,6 @@ MODULE FM3Units
       := FM3Atom_Text . New
            ( FM3Globals . InitUnitsCt 
            , FM3Base . AtomFirstReal
-           , HashFunc := FM3Utils . HashOfText 
            , DoReverseMap := TRUE (* Needed? *) 
            )
            

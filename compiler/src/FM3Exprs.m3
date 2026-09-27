@@ -442,7 +442,7 @@ RETURN ;
         Field ( "ExpStackLink" , ExprRefImage ( Expr ^ . ExpStackLink ) ) 
       ; Field ( "ExpRefConstVal" , FM3Utils . RefanyImage ( Expr ^ . ExpRefConstVal ) )  
       ; Field ( "ExpScalarConstVal" , Fmt . LongInt ( Expr ^ . ExpScalarConstVal ) )  
-      ; Field ( "ExpHash" , FM3Utils . LongHexImage ( Expr ^ . ExpHash ) )
+      ; Field ( "ExpHash" , FM3Utils . HexImage ( Expr ^ . ExpHash ) )
       ; Field ( "ExpLoTypeInfoRef"
               , "" (* LoTypeInfoRefTypImage ( Expr ^ . ExpLoTypeInfoRef ) *)
               )

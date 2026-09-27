@@ -29,13 +29,15 @@ CltNull                  "null" .
 CltVersion               "version" .
 CltHelp                  "help" .
 
-CltSrcFile               "src-file" .
 CltPkgDir                "pkg-dir" .
+CltSrcFile               "src-file" .
 CltImportDir             "import-dir" .
-CltResourceDir           "resource-dir" . 
+CltBuildDir              "build-dir" . 
 
 CltForceCompile          "force-compile" .
 CltRecompileImports      "recompile-imports" . 
+CltResourceDir           "resource-dir" . 
+
 CltDisAsmPasses          "disasm-passes" .
 CltDisAsmVerbose         "disasm-verbose" . 
 CltDisAsm                "disasm" .

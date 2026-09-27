@@ -1,4 +1,4 @@
- 
+
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2023..2026  Rodney M. Bates.                                    *)
@@ -9,7 +9,7 @@
 MODULE FM3Utils
 
 ; IMPORT Fmt AS FM3Fmt (* Why? *)  
-; IMPORT Long AS BitArith
+; IMPORT Long 
 ; IMPORT Text
 ; IMPORT TextWr
 ; IMPORT Thread 
@@ -36,9 +36,8 @@ MODULE FM3Utils
 
 ; TYPE IntRangeTyp = IntRanges . RangeTyp
 
-; VAR ShiftFactor := 7 
-  (* Don't be changing this while hash computations and their uses
-     are going on! *)
+; CONST ShiftFactorL = 7 
+; CONST ShiftFactorI = 3 
 
 (* EXPORTED: *) 
 ; PROCEDURE PutHex ( WrT : Wr . T ; Value : INTEGER )
@@ -58,26 +57,36 @@ MODULE FM3Utils
 
 (*EXPORTED:*)
 ; PROCEDURE ContribToHashL
-    ( VAR (*IN OUT*) Hash : HashTyp ; Contribution : HashTyp ) 
+    ( VAR (*IN OUT*) Hash : HashTyp ; Contribution : Long . T ) 
   (* A value of HashNull, altered by a series of ContribToHash
      calls is a hash of the contributions.  Assume the order of the
      contributions affects the hash value. *)
 
-  = VAR LResult : HashTyp
+  = VAR LUpperL , LLowerL , LXorL : Long . T 
+  ; VAR LContributionI : Word . T
+  ; VAR LResult : HashTyp
 
   ; BEGIN
-      LResult
-        := BitArith . Xor
-             ( BitArith . Shift ( Hash , ShiftFactor ) , Contribution )
+      LUpperL := Long . RightShift ( Contribution , 32 )
+    ; LLowerL := Long . And ( Contribution , 16_00000000FFFFFFFFL )
+    ; LXorL := Long . Xor ( LUpperL , LLowerL )
+    ; LContributionI := VAL ( ORD ( LXorL ) , Word . T ) 
+    ; LResult
+        := Word . Xor ( Word . Shift ( Hash , ShiftFactorI ) , LContributionI )
     ; Hash := LResult 
     END ContribToHashL
 
 (*EXPORTED:*)
 ; <* INLINE *> PROCEDURE ContribToHashI
-    ( VAR (*IN OUT*) Hash : HashTyp ; Contribution : INTEGER ) 
+    ( VAR (*IN OUT*) Hash : HashTyp ; Contribution : Word . T  ) 
 
-  = BEGIN
-      ContribToHashL ( Hash , VAL ( Contribution , LONGINT ) ) 
+  = VAR LResult : HashTyp
+
+  ; BEGIN
+      LResult 
+        := Word . Xor
+             ( Word . Shift ( Hash , ShiftFactorI ) , Contribution )
+    ; Hash := LResult 
     END ContribToHashI
 
 (*EXPORTED:*)
@@ -91,11 +100,14 @@ MODULE FM3Utils
     ; LLength := Text . Length ( Key )
     ; FOR RI := 0 TO LLength - 1
       DO
-        ContribToHashL
+        ContribToHashI
           ( (*IN OUT*) LResult
           , VAL ( ORD ( Text . GetWideChar ( Key , RI ) ) , HashTyp )
           )  
-      END (*FOR*) 
+      END (*FOR*)
+    ; IF LResult = FM3Base . HashNull
+      THEN LResult := FM3Base . HashConst
+      END (*IF*)
     ; RETURN LResult 
     END HashOfText
 
@@ -110,9 +122,12 @@ MODULE FM3Utils
     ; LLength := NUMBER ( Key ^ )
     ; FOR RI := 0 TO LLength - 1
       DO
-        ContribToHashL
+        ContribToHashI
           ( (*IN OUT*) LResult , VAL ( ORD ( Key ^ [ RI ] ) , HashTyp ) )  
       END (*FOR*) 
+    ; IF LResult = FM3Base . HashNull
+      THEN LResult := FM3Base . HashConst
+      END (*IF*) 
     ; RETURN LResult 
     END HashOfOAChars 
 
@@ -127,9 +142,12 @@ MODULE FM3Utils
     ; LLength := NUMBER ( Key ^ )
     ; FOR RI := 0 TO LLength - 1
       DO
-        ContribToHashL
+        ContribToHashI
           ( (*IN OUT*) LResult , VAL ( ORD ( Key ^ [ RI ] ) , HashTyp ) )  
-      END (*FOR*) 
+      END (*FOR*)
+    ; IF LResult = FM3Base . HashNull
+      THEN LResult := FM3Base . HashConst
+      END (*IF*) 
     ; RETURN LResult 
     END HashOfOAWChars 
 
@@ -147,9 +165,9 @@ MODULE FM3Utils
       (* Let's put these bytes in big-endian order, for simpler reconvert. *) 
     ; FOR RI := HashByteSize - 1 TO 0 BY - 1
       DO
-        LByteValL := BitArith . And ( LResidueL , 16_FFL )
+        LByteValL := Long . And ( LResidueL , 16_FFL )
       ; LResult [ RI ] := VAL ( LByteValL , CHAR )
-      ; LResidueL := BitArith . RightShift ( LResidueL , 8 ) 
+      ; LResidueL := Long . RightShift ( LResidueL , 8 ) 
       END (*FOR*) 
     ; RETURN LResult 
     END HashToChars
@@ -163,27 +181,27 @@ MODULE FM3Utils
       LResultL := 0L 
     ; FOR RI := 0 TO HashByteSize
       DO
-        LResultL := BitArith . LeftShift ( LResultL , 8 )
+        LResultL := Long . LeftShift ( LResultL , 8 )
       ; LResultL := LResultL + VAL ( ORD ( Chars [ RI ] ) , LONGINT )
       END (*FOR*)
     ; RETURN VAL ( LResultL , HashTyp ) 
     END CharsToHash
 
 (*EXPORTED.*)
-; PROCEDURE LongToChars ( Long : LONGINT ) : LongCharArrayTyp 
+; PROCEDURE LongToChars ( LongVal : LONGINT ) : LongCharArrayTyp 
 
   = VAR LResult : LongCharArrayTyp
   ; VAR LResidueL : LONGINT  
   ; VAR LByteValL : LONGINT  
 
   ; BEGIN (*LongToChars*)
-      LResidueL := Long 
+      LResidueL := LongVal 
       (* Let's put these bytes in big-endian order, for simpler reconvert. *) 
     ; FOR RI := 7  TO 0 BY - 1
       DO
-        LByteValL := BitArith . And ( LResidueL , 16_FFL )
+        LByteValL := Long . And ( LResidueL , 16_FFL )
       ; LResult [ RI ] := VAL ( LByteValL , CHAR )
-      ; LResidueL := BitArith . RightShift ( LResidueL , 8 ) 
+      ; LResidueL := Long . RightShift ( LResidueL , 8 ) 
       END (*FOR*) 
     ; RETURN LResult 
     END LongToChars
@@ -306,8 +324,8 @@ MODULE FM3Utils
 
     ; <* FATAL Thread . Alerted , Wr. Failure *>
     BEGIN
-        IF BitArith . LE ( ArgL , 16_FFL ) 
-           OR Wide AND BitArith . LE ( ArgL , 16_10FFFFL ) 
+        IF Long . LE ( ArgL , 16_FFL ) 
+           OR Wide AND Long . LE ( ArgL , 16_10FFFFL ) 
         THEN
           LWCh := VAL ( ArgL , WIDECHAR ) 
         ; EscapeChar ( WrT , LWCh , Wide )
@@ -561,6 +579,16 @@ MODULE FM3Utils
       ELSE RETURN "16_****************"
       END (*IF*) 
     END RefanyImage
+
+(*EXPORTED.*)
+; PROCEDURE HexImage ( Value : INTEGER ) : TEXT 
+
+  = BEGIN (*HexImage*)
+      RETURN 
+        "16_"
+        & FM3Fmt . Pad
+            ( FM3Fmt . Unsigned ( Value, 8 ) , 8 , padChar := '0' ) 
+    END HexImage
 
 (*EXPORTED.*)
 ; PROCEDURE LongHexImage ( Value : LONGINT ) : TEXT 
