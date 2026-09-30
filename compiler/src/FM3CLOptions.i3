@@ -37,10 +37,6 @@ INTERFACE FM3CLOptions
 
 ; VAR OptionsLexTable : FM3LexTable . T
 
-; VAR BuildDir := "" 
-; VAR BuildDirRelPath := "../build"
-      (* ^Relative to where the current unit's source file lives. *)
-
 ; VAR ResourceDirName : TEXT := "."
 
 ; VAR PkgDirName : TEXT := ""

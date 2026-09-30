@@ -590,12 +590,6 @@ MODULE FM3CLArgs
             ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs )
             ; ImportDirName ( LParam ) 
 
-          | 'B'
-          =>  PaFindParam ( )
-            ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs ) 
-            ; FM3CLOptions . BuildDir := LParam
-            ; EXIT 
-
           | 'k' (* Keep one pass. *) 
           =>  PaFindParam ( )
             ; LParam := Text . Sub ( PaArgText , PaArgSs , PaArgLen - PaArgSs )

@@ -70,11 +70,6 @@ Boolean options default to FALSE.
        <pkgdir>.  Accumulates.  Search in the same order as the multiple
        occurrences of this  option.  Do not find or compile a source file here. 
 
--B<directory>
---build-dir[=]<directory>
-       Put compiled files in <directory>.  Create it if absent. Defaults
-       to <pkgdir>/build,
-
 --[no-]force-compile 
        [Re]compile a source file even if an up-to-date compiled unit exists.
        Does not apply to compiled units inside directories specified by

@@ -133,49 +133,6 @@ MODULE FM3Pass1
     ; FinishPass1 ( LUnitTRef ) 
     END RunPass1
 
-(*
-; PROCEDURE EnsureBuildDirectory
-    ( UnitTRef : FM3Units . UnitTRefTyp ; SrcFilePath : TEXT )
-
-  = BEGIN (*EnsureBuildDirectory*)
-      UnitTRef ^ . UttUnitRef ^ . UntBuildDirPath
-        := SrcFilePath & "/" & FM3CLOptions . BuildDirRelPath
-    ; TRY
-        FS . CreateDirectory ( UnitTRef ^ . UttUnitRef ^ . UntBuildDirPath )
-      EXCEPT
-      | OSError . E ( EAtoms ) 
-      => IF EAtoms . tail = NIL
-            AND EAtoms . head # NIL
-            AND Atom . ToText ( EAtoms . head ) # NIL
-            AND Text . Equal ( Atom . ToText ( EAtoms . head ) , "errno=17" )
-(* TODO: There has to be a more graceful (and almost OS-independent) way to
-         detect    this, but it looks like libm3 is letting us down here.
-*) 
-         THEN (* The directory already exists. We expect this sometimes. *)
-           EVAL EAtoms (* Debug. *)  
-         ELSE 
-           <*FATAL Thread . Alerted , Wr . Failure *>
-           BEGIN
-             Wr . PutText
-               ( Stdio . stderr , "Unable to create build directory " ) 
-           ; Wr . PutText
-               ( Stdio . stderr , UnitTRef ^ . UttUnitRef ^ . UntBuildDirPath ) 
-           ; Wr . PutText ( Stdio . stderr , ": " ) 
-           ; Wr . PutText
-               ( Stdio . stderr , FM3Messages . AtomListToOSError ( EAtoms ) ) 
-           ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
-           ; Wr . PutText
-               ( Stdio . stderr , "Forging ahead, assuming it already exists." )
-           ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
-           ; Wr . Flush ( Stdio . stderr )
-           END (*Block.*)
-         END (*IF*) 
-      END (*EXCEPT*) 
-(* TODO: Use Pathname to construct paths, so this works in Windows too. *)  
-(* CHECK^ Or would it be better to use FS.GetAbsolutePathname? *)  
-    END EnsureBuildDirectory
-*)
-
 (*EXPORTED*) 
 ; PROCEDURE DisAsmPass1 ( UnitTRef : FM3Units . UnitTRefTyp )
   RAISES { RdBackFile . BOF }

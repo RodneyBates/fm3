@@ -68,7 +68,7 @@ MODULE FM3 EXPORTS Main
         ; IF FALSE (* Rely on EXPORTS to bring these in. *) 
              AND Clt . CltStdSources IN FM3CLOptions . OptionTokSet
           THEN 
-            LLibUnitTRef := FM3Compile . GetUnitTRefOfFileName ( "Main.m3" )
+            LLibUnitTRef := FM3Compile . GetUnitTRefOfFileName ( "Main.i3" )
           ; FM3Compile . AcquireUnit
               ( LLibUnitTRef , FM3Base . PositionNull , Uttr . UttrBuiltin ) 
 (*        

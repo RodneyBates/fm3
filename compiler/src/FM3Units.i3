@@ -80,6 +80,10 @@ INTERFACE FM3Units
     = RECORD
         UntSrcFileSimpleName : TEXT := NIL (* Simple name *) 
       ; UntSrcFilePath : TEXT := NIL
+      (* The UnitTTyp rec (below) exists before this UnitType rec, but the
+         latter outlives the former (When written out), so each needs its
+         own copy of the SrcFilePath.
+      *) 
       ; UntSrcFileTime : Time . T 
       ; UntUnitFileSimpleName : TEXT := NIL 
       ; UntUnitIdent : FM3OpenArray_Char . T := NIL 
@@ -230,6 +234,14 @@ INTERFACE FM3Units
     = RECORD
         UttStackLink : UnitTRefTyp := NIL
       ; UttSrcFilePath : TEXT 
+      (* This UnitTTyp rec exists before the UnitType rec (above), but the
+         latter outlives the former (When written out), so each needs its
+         own copy of the SrcFilePath.
+      *) 
+      (* The UnitTTyp rec exists before the UnitType rec, but the latter
+         outlives the former (When written out), so each needs its own
+         copy of the SrcFilePath.
+      *) 
       ; UttSrcFileSimpleName : TEXT 
       ; UttUnitRef : UnitRefTyp := NIL
       ; UttSrcUniRdT : UniRd . T := NIL 

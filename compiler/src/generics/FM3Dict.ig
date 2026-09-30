@@ -61,14 +61,14 @@ GENERIC INTERFACE FM3Dict ( KeyGenformal , ValueGenformal )
    and possibly faster, if you can live with them and if MaxKeyCt is not
    huge.  All calls on InsertFixed must happen before one call on
    FinalizeFixed, before any calls on LookupFixed.  Also, duplicate
-   keys will result Error's being raised, or possibly in undetected
+   keys will result Errors being raised, or possibly in undetected
    duplicate entries, with different values, and nondeterministic
    results from LookupFixed.
 *) 
 
 ; TYPE FixedTyp <: T 
 
-; VAR GMaxFixedSize := 15  
+; VAR GMaxFixedSize := 31  
   (* More keys than this, and a hash table implementation will be
      used for a fixed dictionary. *) 
 

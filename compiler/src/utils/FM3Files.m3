@@ -89,7 +89,7 @@ MODULE FM3Files
     ; LRdT := UniRd . Source ( UniRdT )  
     ; UniRd . Close ( UniRdT )
     ; IF LRdT = NIL THEN RETURN END (*IF*)
-    ; Rd . Close ( LRdT )
+    ; Rd . Close ( LRdT )  
     END CloseUniRd 
 
 (*EXPORTED*) 
