@@ -76,8 +76,9 @@ Boolean options default to FALSE.
        --import-dir. in other, library packages. Defaults to FALSE.
 
 -- [no-]recompile-imports
-       Recompile an out-of-date unit inside <pkgdir> that is not specified in
-       the command line, but imported or exported by a compiled unit.
+       Recompile an absent or out-of-date unit that is imported or exported by
+       some compiled unit and whose source code is present in the package
+       directory, but not specified in the command line.
        Defaults to FALSE. 
 
 --resource-dir[=]<directory>

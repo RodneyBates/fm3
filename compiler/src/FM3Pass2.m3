@@ -1673,11 +1673,15 @@ TRUE OR
 
   ; BEGIN
       IF IntSets . IsElement
-           ( IdAtom , FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntExpImpIdSet ) 
+           ( IdAtom
+           , FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntExpImpIdSet
+           ) 
       THEN (* It's [ex|im]ported. *) 
         LExpImpProxy
           := VarArray_Int_ExpImpProxy . Fetch
-               ( FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntExpImpMap , IdAtom )
+               ( FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntExpImpMap
+               , IdAtom
+               )
       ; UnitNo := LExpImpProxy . EipUnitNo 
       ; DeclNo := LExpImpProxy . EipDeclNo
       ; RETURN TRUE

@@ -104,7 +104,7 @@ INTERFACE FM3Units
           (* ^Wide TEXT literals. *)
       ; UntDeclMap : FM3Base . MapTyp := NIL
           (* ^DeclNo to <: of FM3Decls.DeclRefTyp.  All the decls in this
-              unit, but not erroneous duplicate decls.
+              unit, excluding erroneous duplicate decls.
           *) 
       ; UntExprMap : FM3Base . MapTyp := NIL
           (* ^ExprNo to ExprRef.  All the exprs in this unit. *) 
@@ -242,7 +242,6 @@ INTERFACE FM3Units
          outlives the former (When written out), so each needs its own
          copy of the SrcFilePath.
       *) 
-      ; UttSrcFileSimpleName : TEXT 
       ; UttUnitRef : UnitRefTyp := NIL
       ; UttSrcUniRdT : UniRd . T := NIL 
       ; UttLogWrT : Wr . T := NIL
@@ -312,8 +311,9 @@ INTERFACE FM3Units
 ; VAR UnitsAtomInitSize := 50
 ; VAR UnitTMap : VarArray_Int_Refany . T 
     (* Only one UnitTMap in a compile.  Maps both IdAtoms from UnitsAtomDict
-       and unit numbers (which the the same va;uie) directly into UnitTRefs.
+       and unit numbers (which have the same value) directly into UnitTRefs.
     *)
+    (* INVARIANT: Atom is in UnitTMap IFF in UnitsAtomDict. *) 
 
 ; CONST ExpImpProxyNull
     = FM3ExpImpProxy . T

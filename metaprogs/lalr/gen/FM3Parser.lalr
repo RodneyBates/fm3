@@ -10,7 +10,7 @@
 
 (* WARNING: Do not put a lone single quote anywhere inside brace-enclosed code,
             e.g., do not write "{ (* Don't do this. *) }".  This probably
-            applies to double quote too.  lalr will run to the end of its
+            applies to a double quote too.  lalr will run to the end of its
             internal buffer looking for the quote's mate and give an
             unclosed-string error.
 *)

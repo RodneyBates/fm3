@@ -88,7 +88,7 @@ MODULE FM3ExpImp
 ; PROCEDURE GetInterface
     ( IdentChars : FM3OpenArray_Char . T
       (* ^Interface unit name, without file name suffix. *)  
-    ; ReqPosition : FM3Base . tPosition
+    ; READONLY ReqPosition : FM3Base . tPosition
       (* ^v In the current unit of the to-be [ex/im]ported identifier. *) 
     ; ReqKind : FM3Units . UnitReqKindTyp 
     )
@@ -110,28 +110,21 @@ MODULE FM3ExpImp
              , FM3Base . InterfaceFileNameSuffix
              ) 
     ; LIntfUnitTRef := FM3Compile . GetUnitTRefOfFileName ( LSrcFileName )
-    ; IF LIntfUnitTRef ^ . UttInExpImpCycle
-         OR NOT LIntfUnitTRef ^ . UttState IN FM3Units . UnitTStateSetUsable  
-      THEN RETURN LIntfUnitTRef
-      END (*IF*)
-
-    ; LIntfUnitTRef ^ . Utt1stReqPosition := ReqPosition 
-    ; LIntfUnitTRef ^ . Utt1stReqKind := ReqKind 
-    ; FM3Units . UnitTStackTopRef ^ . UttImportsUnitTRef := LIntfUnitTRef 
-      (* ^To detect cyclicimports. *)
-
-    ; FM3Units . UnitTStackTopRef ^ . UttState := Utts . UttsImporting
-
     ; IF LIntfUnitTRef ^ . UttImportsUnitTRef # NIL 
-      THEN (* Cyclic imports/exports. *)
+      THEN (* Was set by a previous visit. Cyclic imports/exports. *)
         ReportCyclic  ( LIntfUnitTRef , ReqPosition , ReqKind )
       ; RETURN LIntfUnitTRef 
       END (*IF*)
 
+    ; FM3Units . UnitTStackTopRef ^ . UttImportsUnitTRef := LIntfUnitTRef 
+      (* ^To detect cyclic imports. *)
+    ; LIntfUnitTRef ^ . Utt1stReqPosition := ReqPosition 
+    ; LIntfUnitTRef ^ . Utt1stReqKind := ReqKind 
+    ; FM3Units . UnitTStackTopRef ^ . UttState := Utts . UttsImporting
     ; FM3Compile . AcquireUnit ( LIntfUnitTRef , ReqPosition , ReqKind )  
 
-    ; FM3Units . UnitTStackTopRef ^ . UttImportsUnitTRef := NIL 
-
+    ; FM3Units . UnitTStackTopRef ^ . UttImportsUnitTRef := NIL
+    ; RETURN LIntfUnitTRef 
     END GetInterface
 
 (*EXPORTED.*)
@@ -231,13 +224,11 @@ MODULE FM3ExpImp
         ( UnitRef ^ . UntExpImpMap , IdentAtom , Proxy )
     END InsertExpImp
 
-(*EXPORTED.*)
 ; PROCEDURE ImportDeclByNo
     ( FromUnitTRef : FM3Units . UnitTRefTyp
     ; FromUnitDeclNo : FM3Globals . DeclNoTyp
     ; ExpImpPosition : FM3Base . tPosition
-      (* ^Of the EXPORTS or IMPORT directive's interface identifier. *) 
-    ; DuplicatorKindText : TEXT 
+    ; DuplicatorKindText : TEXT  
     )
   : BOOLEAN (* Success. *)
   (* PRE: FromUnitDeclNo leads to a DeclRef in FromUnitRef^. *)
@@ -299,6 +290,7 @@ MODULE FM3ExpImp
   ; BEGIN (*ImportDeclByIdent*)
       IF FromUnitTRef = NIL THEN RETURN FALSE END (*IF*)
     ; LFromUnitRef := FromUnitTRef ^ . UttUnitRef 
+    ; IF LFromUnitRef = NIL THEN RETURN FALSE END (*IF*)
     ; IF NOT LFromUnitRef ^ . UntState IN FM3Units . UnitStateSetUsable
       THEN RETURN FALSE 
       END (*IF*) 
@@ -429,22 +421,6 @@ MODULE FM3ExpImp
     END ImportAS
 
 (*EXPORTED.*)
-; PROCEDURE CountDecls ( LFromUnitRef :  FM3Units . UnitRefTyp )
-    : INTEGER (* Number of decls in LFromUnitRef^ *) 
-
-  = BEGIN
-      IF LFromUnitRef = NIL THEN RETURN 0 END (*IF*)
-    ; IF NOT LFromUnitRef ^ . UntState IN FM3Units . UnitStateSetUsable
-      THEN RETURN 0 
-      END (*IF*) 
-    ; WITH WScopeRef = LFromUnitRef ^ . UntScopeRef
-      DO IF WScopeRef = NIL THEN RETURN 0
-        ELSE RETURN IntSets . Card ( WScopeRef ^ . ScpDeclIdSet )  
-        END (*IF*)
-      END (*WITH*) 
-    END CountDecls 
-
-(*EXPORTED.*)
 ; PROCEDURE ImportAllDecls
     ( FromUnitTRef :  FM3Units . UnitTRefTyp
     ; READONLY ExportPosition : FM3Base . tPosition
@@ -457,6 +433,7 @@ MODULE FM3ExpImp
   ; BEGIN
       IF FromUnitTRef = NIL THEN RETURN END (*IF*)
     ; LFromUnitRef := FromUnitTRef ^ . UttUnitRef 
+    ; IF LFromUnitRef = NIL THEN RETURN END (*IF*)
     ; IF NOT LFromUnitRef  ^ . UntState IN FM3Units . UnitStateSetUsable
       THEN RETURN
       END (*IF*) 

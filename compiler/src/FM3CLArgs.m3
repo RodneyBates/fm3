@@ -878,13 +878,26 @@ MODULE FM3CLArgs
 
 ; PROCEDURE ComputeDerivedInfo ( ) 
 
-  = BEGIN
-      FM3CLOptions . SrcFileIntfList
-        := FM3Utils . TextVarToOAText ( SrcFileIntfArr ) 
+  = VAR LRange : Ranges_Int . RangeTyp 
+
+  ; BEGIN
+      LRange := VarArray_Int_Text . TouchedRange ( SrcFileIntfArr )
+    ; LRange . Lo := 0 
+    ; VarArray_Int_Text . Project ( SrcFileIntfArr , LRange )
+    ; FM3CLOptions . SrcFileIntfList
+        := FM3Utils . TextVarToOAText ( SrcFileIntfArr )
+        
+    ; LRange := VarArray_Int_Text . TouchedRange ( SrcFileModArr )
+    ; LRange . Lo := 0 
+    ; VarArray_Int_Text . Project ( SrcFileModArr , LRange )
     ; FM3CLOptions . SrcFileModList
         := FM3Utils . TextVarToOAText ( SrcFileModArr )
+        
     ; VarArray_Int_Text . Assign   
         ( ImportDirArr , 0 , FM3CLOptions . ResourceDirName & "/m3core" )
+    ; LRange := VarArray_Int_Text . TouchedRange ( ImportDirArr )
+    ; LRange . Lo := 0 
+    ; VarArray_Int_Text . Project ( ImportDirArr , LRange )
     ; FM3CLOptions . ImportPkgDirList
         := FM3Utils . TextVarToOAText ( ImportDirArr )
 

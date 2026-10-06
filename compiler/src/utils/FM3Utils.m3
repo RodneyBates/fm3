@@ -688,14 +688,13 @@ MODULE FM3Utils
     ; LWrT := TextWr . New ( )
     ; LLayoutT := NEW ( Layout . T ) 
     ; EVAL Layout . Init ( LLayoutT , LWrT )
-    ; LLineTo := LineTo - Text . Length ( Prefix ) 
+    ; LLineTo := LineTo - Text . Length ( Prefix )
+      (* Assume caller will position this same as Prefix. *) 
 
     (* Unroll 1st iteration: *) 
-    ; Layout . PutText ( LLayoutT , Wr . EOL )
-    ; Layout . PutText ( LLayoutT , Prefix )
     ; Layout . PutText ( LLayoutT , LLeft ) 
     ; Layout . PutChar ( LLayoutT , ' ' )
-    ; Layout .PutText ( LLayoutT , Elems [ 0 ] )  
+    ; Layout . PutText ( LLayoutT , Elems [ 0 ] )  
     
     ; FOR RI := 1 TO LCt - 1
       DO
@@ -706,7 +705,7 @@ MODULE FM3Utils
               + Text . Length ( LElem )
               + ( 1 + Text . Length ( LRight ) ) * ORD ( LInFirstLine )
                 (* Don't put another on 1st line unless it would leave
-                   room for the right stuff.
+                   room for the righthand stuff.
                 *) 
               > LLineTo
         THEN (* Start a new line. *) 
@@ -721,7 +720,7 @@ MODULE FM3Utils
     ; IF Layout . LineNo ( LLayoutT ) = 0 (* 1st line *) 
          AND Layout . CharNo ( LLayoutT ) + 1 + Text . Length ( LRight )
             <= LLineTo
-      THEN (* Put right stuff on current line. *) 
+      THEN (* Put righthand stuff on current line. *) 
         Layout . PutChar ( LLayoutT , ' ' )
       ELSE 
         Layout . PutEol ( LLayoutT )

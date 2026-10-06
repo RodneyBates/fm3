@@ -1,7 +1,7 @@
         
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2024  Rodney M. Bates.                                    *)
+(* Copyright 2023..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -15,9 +15,15 @@ INTERFACE FM3Messages
 ; IMPORT FM3Base 
 ; IMPORT FM3SharedUtils
 
+(* Leave space for a message kind tag. *) 
 ; CONST IndentPrefix = "       "
 ; CONST IndentLen = 7 (*Text.Length(IndentPrefix)*)
 ; CONST NLIndent = Wr . EOL & IndentPrefix
+
+(* For subsequent lines of one messaege: *) 
+; CONST Indent2Prefix = "         "
+; CONST Indent2Len = 9 (*Text.Length(Indent2Prefix)*)
+; CONST NLIndent2 = Wr . EOL & Indent2Prefix
 ; CONST MsgLineLen = 80
 
 (* The Do* options and *LogFileWrT can be set by client code.  This

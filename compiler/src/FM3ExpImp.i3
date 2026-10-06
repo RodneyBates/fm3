@@ -21,7 +21,7 @@ INTERFACE FM3ExpImp
      an entire compiler run.
   *) 
 
-; UnitRefMap : FM3Base . MapTyp
+; VAR UnitRefMap : FM3Base . MapTyp
   (* Interface name atom to UnitRef.  Only one of these for
      an entire compiler run.
   *) 
@@ -29,7 +29,7 @@ INTERFACE FM3ExpImp
 ; PROCEDURE GetInterface
     ( IdentChars : FM3OpenArray_Char . T
       (* ^Interface unit name, without file name suffix. *)  
-    ; ReqPosition : FM3Base . tPosition
+    ; READONLY ReqPosition : FM3Base . tPosition
       (* ^v In the current unit of the to-be [ex/im]ported identifier. *) 
     ; ReqKind : FM3Units . UnitReqKindTyp 
     )
@@ -67,9 +67,6 @@ INTERFACE FM3ExpImp
     ( READONLY IntfScanAttr : FM3Scanner . tScanAttribute
     ; READONLY ASScanAttr : FM3Scanner . tScanAttribute
     )
-
-; PROCEDURE CountDecls ( FromUnitRef :  FM3Units . UnitRefTyp )
-    : INTEGER (* Number of decls in FromUnitRef^ *) 
 
 ; PROCEDURE ImportAllDecls
     ( FromUnitTRef :  FM3Units . UnitTRefTyp
