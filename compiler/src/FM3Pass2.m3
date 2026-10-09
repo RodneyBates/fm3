@@ -1676,7 +1676,7 @@ TRUE OR
            ( IdAtom
            , FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntExpImpIdSet
            ) 
-      THEN (* It's [ex|im]ported. *) 
+      THEN (* It's [ex|im]ported into current unit. *) 
         LExpImpProxy
           := VarArray_Int_ExpImpProxy . Fetch
                ( FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntExpImpMap
@@ -2495,7 +2495,8 @@ TRUE OR
             IF LRefDeclNo = FM3Globals . DeclNoNull
             THEN (* Interface name w/o a selection--illegal. *) 
               IF NOT FM3Atom_OAChars . Key
-                       ( FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntIdentAtomDict
+                       ( FM3Units . UnitTStackTopRef ^ . UttUnitRef
+                           ^ . UntIdentAtomDict
                        , LIdentRefAtom
 (* CHECK: Negative atom => reserved ident. *) 
                        , (*OUT*) LIntfNameChars

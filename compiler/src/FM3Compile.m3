@@ -1,4 +1,4 @@
-      
+     
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2024..2026  Rodney M. Bates.                                    *)
@@ -512,7 +512,9 @@ MODULE  FM3Compile
      Also, the existence of a copy file implies that no disassembly file was
      written during this pass, which in turn implies an existing disassembly
      file is a leftover from a previous compile.  Delete it too.
-  *) 
+  *)
+
+(*TODO: simpify this now that we don't have to make file copies. *) 
 
   = VAR LPassFileFullName : TEXT
   ; VAR LCopyFileFullName : TEXT
@@ -661,7 +663,6 @@ MODULE  FM3Compile
     ; UnitRef ^ . UntExpImpRefSetxxx := NIL 
     ; UnitRef ^ . UntScopeRef := NIL  
     ; UnitRef ^ . UntHash := FM3Base . HashNull 
-    ; UnitRef ^ . UntExpImpCt := 0 
     ; UnitRef ^ . UntScanResult := - 1  
     ; UnitRef ^ . UntParseResult := 0
     ; UnitRef ^ . UntPass2Result := - 1

@@ -11,6 +11,7 @@ MODULE FM3ExpImp
 ; IMPORT Pathname 
 ; IMPORT Text
 ; IMPORT TextWr
+; IMPORT Thread 
 ; IMPORT Wr
 
 ; IMPORT FM3ExpImpProxy  
@@ -38,7 +39,7 @@ MODULE FM3ExpImp
 ; PROCEDURE ReportCyclic
     ( UnitTRef : FM3Units . UnitTRefTyp
     ; ReqPosition : FM3Base . tPosition
-    ; ReqKind : FM3Units . UnitReqKindTyp
+    ; <*UNUSED*> ReqKind : FM3Units . UnitReqKindTyp
     )
   (* PRE: UnitTRef is both the first-visited and last-visited in the cycle.
           We have to visit it twice.
@@ -48,7 +49,8 @@ MODULE FM3ExpImp
   ; VAR LUnitTRef : FM3Units . UnitTRefTyp 
   ; VAR LNextUnitTRef : FM3Units . UnitTRefTyp
 
-  ; BEGIN
+  ; <*FATAL Thread . Alerted , Wr . Failure *>
+    BEGIN (*ReportCyclic*) 
       LWrT := TextWr . New ( )
     ; Wr . PutText ( LWrT , "Cyclic import of" )
     ; LUnitTRef := UnitTRef (* Start at bottom. *)  
@@ -73,7 +75,9 @@ MODULE FM3ExpImp
         ; Wr . PutText ( LWrT , FM3Utils . PositionImage ( ReqPosition ) ) 
         ; Wr . PutText ( LWrT , ", imports" )
         ; LUnitTRef ^ . UttInExpImpCycle := TRUE
-(* TODO ^ Use this to avoid repeat work and messages. *) 
+(* TODO ^ Use this to avoid repeat work and messages.
+          And Maybe just set not usable.
+*) 
         ; LUnitTRef := LNextUnitTRef 
         END (*IF*) 
       END (*LOOP*) 
@@ -89,7 +93,7 @@ MODULE FM3ExpImp
     ( IdentChars : FM3OpenArray_Char . T
       (* ^Interface unit name, without file name suffix. *)  
     ; READONLY ReqPosition : FM3Base . tPosition
-      (* ^v In the current unit of the to-be [ex/im]ported identifier. *) 
+      (* ^v In the current unit of the to-be [ex/im]ported interace ident. *) 
     ; ReqKind : FM3Units . UnitReqKindTyp 
     )
   : FM3Units . UnitTRefTyp
@@ -97,9 +101,10 @@ MODULE FM3ExpImp
   (* Compile or load the interface named by IdentChars, as appropriate. *) 
 
   = VAR LIntfUnitTRef : FM3Units . UnitTRefTyp 
+  ; VAR LImportingUnitTRef : FM3Units . UnitTRefTyp 
   ; VAR LSrcFileName : TEXT 
 
-  ; BEGIN
+  ; BEGIN (*GetInterface*)
     (* Convert interface unit name to source file name. *) 
       IF IdentChars = NIL THEN RETURN NIL END (*IF*)
     ; IF NUMBER ( IdentChars ^ ) = 0 THEN RETURN NIL END (*IF*)
@@ -116,14 +121,15 @@ MODULE FM3ExpImp
       ; RETURN LIntfUnitTRef 
       END (*IF*)
 
-    ; FM3Units . UnitTStackTopRef ^ . UttImportsUnitTRef := LIntfUnitTRef 
+    ; LImportingUnitTRef := FM3Units . UnitTStackTopRef 
+    ; LImportingUnitTRef ^ . UttImportsUnitTRef := LIntfUnitTRef 
       (* ^To detect cyclic imports. *)
     ; LIntfUnitTRef ^ . Utt1stReqPosition := ReqPosition 
     ; LIntfUnitTRef ^ . Utt1stReqKind := ReqKind 
-    ; FM3Units . UnitTStackTopRef ^ . UttState := Utts . UttsImporting
+    ; LImportingUnitTRef ^ . UttState := Utts . UttsImporting
     ; FM3Compile . AcquireUnit ( LIntfUnitTRef , ReqPosition , ReqKind )  
 
-    ; FM3Units . UnitTStackTopRef ^ . UttImportsUnitTRef := NIL
+    ; LImportingUnitTRef ^ . UttImportsUnitTRef := NIL
     ; RETURN LIntfUnitTRef 
     END GetInterface
 
@@ -146,7 +152,8 @@ MODULE FM3ExpImp
   ; VAR LPrevExpImpProxy : FM3ExpImpProxy . T
   ; VAR LPrevDeclPosition : FM3Base . tPosition
 
-  ; BEGIN 
+  ; <*FATAL Thread . Alerted *>
+    BEGIN (*VerifyNotDuplicateExpImp*)
       IF NOT IntSets . IsElement
                ( NewIdentAtom , IntoUnitRef ^ . UntExpImpIdSet )
       THEN RETURN TRUE
@@ -216,7 +223,8 @@ MODULE FM3ExpImp
     ; READONLY Proxy : FM3ExpImpProxy . T 
     )
 
-  = BEGIN 
+  = <* FATAL VarArray_Int_ExpImpProxy . AllocationFailure *>
+    BEGIN (*InsertExpImp*) 
       WITH WSet = UnitRef ^ . UntExpImpIdSet
       DO WSet := IntSets . Include ( WSet , IdentAtom )
       END (*WITH*) 
@@ -228,7 +236,7 @@ MODULE FM3ExpImp
     ( FromUnitTRef : FM3Units . UnitTRefTyp
     ; FromUnitDeclNo : FM3Globals . DeclNoTyp
     ; ExpImpPosition : FM3Base . tPosition
-    ; DuplicatorKindText : TEXT  
+    ; ExpImpKindText : TEXT  
     )
   : BOOLEAN (* Success. *)
   (* PRE: FromUnitDeclNo leads to a DeclRef in FromUnitRef^. *)
@@ -238,7 +246,7 @@ MODULE FM3ExpImp
   ; VAR LIntoIdentAtom : FM3Base . AtomTyp  
   ; VAR LProxy : FM3ExpImpProxy . T 
 
-  ; BEGIN (* ImportDeclByNo *) 
+  ; BEGIN (*ImportDeclByNo*) 
       LFromUnitDeclRef (* Implicit NARROW. *) 
         := VarArray_Int_Refany . Fetch
              ( FromUnitTRef ^ . UttUnitRef ^ . UntDeclMap , FromUnitDeclNo )  
@@ -256,7 +264,7 @@ MODULE FM3ExpImp
            ( LIntoUnitRef
            , LIntoIdentAtom
            , ExpImpPosition
-           , DuplicatorKindText 
+           , ExpImpKindText 
            )
       THEN (* All is legal, so do the real import. *)
         LProxy . EipUnitNo := FromUnitTRef ^ . UttSelfUnitNo 
@@ -282,12 +290,14 @@ MODULE FM3ExpImp
   ; VAR LNote : TEXT 
   ; VAR LFromAtom : FM3Base . AtomTyp
   ; VAR LFromDeclNoInt : INTEGER 
+  ; VAR LIntoUnitTRef : FM3Units . UnitTRefTyp
   ; VAR LIntoUnitRef : FM3Units . UnitRefTyp
   ; VAR LIntoIdentAtom : FM3Base . AtomTyp  
   ; VAR LProxy : FM3ExpImpProxy . T 
   ; VAR LFound : BOOLEAN 
 
-  ; BEGIN (*ImportDeclByIdent*)
+  ; <*FATAL Thread . Alerted *>
+    BEGIN (*ImportDeclByIdent*)
       IF FromUnitTRef = NIL THEN RETURN FALSE END (*IF*)
     ; LFromUnitRef := FromUnitTRef ^ . UttUnitRef 
     ; IF LFromUnitRef = NIL THEN RETURN FALSE END (*IF*)
@@ -310,13 +320,16 @@ MODULE FM3ExpImp
         LNote := NonTransitiveNote
       ; LFound := FALSE 
       ELSE
-        LFound
-          := FM3Dict_Int_Int . LookupFixed
-               ( LFromUnitRef ^ . UntScopeRef ^ . ScpDeclDict 
-               , LFromAtom
-               , FM3Base . HashNull
-               , (*OUT*) LFromDeclNoInt
-               )
+        <* FATAL FM3Dict_Int_Int . Error *>
+        BEGIN 
+          LFound
+            := FM3Dict_Int_Int . LookupFixed
+                 ( LFromUnitRef ^ . UntScopeRef ^ . ScpDeclDict 
+                 , LFromAtom
+                 , FM3Base . HashNull
+                 , (*OUT*) LFromDeclNoInt
+                 )
+        END (*Block*) 
       END (*IF*)
       
     ; IF NOT LFound
@@ -336,7 +349,8 @@ MODULE FM3ExpImp
       (* Insert an import that is not useable, but is replaceable by a
          later one, useable or not, with the same ident. 
       *)
-      ; LIntoUnitRef := FM3Units . UnitTStackTopRef ^ . UttUnitRef  
+      ; LIntoUnitTRef := FM3Units . UnitTStackTopRef 
+      ; LIntoUnitRef := LIntoUnitTRef ^ . UttUnitRef  
       (* If there's already a non-useable there, this will just overlay it,
          changing only the position, which will probably be unused anyway.
       *) 
@@ -348,8 +362,7 @@ MODULE FM3ExpImp
                )
       ; LProxy . EipUnitNo := FM3Globals . UnitNoNull
       (* ^Makes it present but not useable. *) 
-      ; LProxy . EipImportingUnitNo
-          := FM3Units . UnitTStackTopRef ^ . UttSelfUnitNo  
+      ; LProxy . EipImportingUnitNo := LIntoUnitTRef ^ . UttSelfUnitNo  
       ; LProxy . EipDeclNo := FM3Globals . DeclNoNull 
       ; LProxy . EipImportingUnitPosition := IdScanAttribute . Position
       ; InsertExpImp ( LIntoUnitRef , LIntoIdentAtom , LProxy ) 
@@ -369,9 +382,10 @@ MODULE FM3ExpImp
 ; PROCEDURE ImportAS
     ( READONLY IntfScanAttr : FM3Scanner . tScanAttribute
     ; READONLY ASScanAttr : FM3Scanner . tScanAttribute
+      (*       ^These 2 will have equal SaChars, for "IMPORT I;" *) 
     )
 
-  = VAR LUnitRef : FM3Units . UnitRefTyp
+  = VAR LIntoUnitRef : FM3Units . UnitRefTyp
   ; VAR LIntfUnitTRef : FM3Units . UnitTRefTyp
   ; VAR LASIdentAtom : FM3Base . AtomTyp
   
@@ -386,8 +400,8 @@ MODULE FM3ExpImp
       ; Elem . EipImportingUnitPosition := ASScanAttr . Position 
       END AssignProxy
  
-  ; BEGIN (* ImportAS *)
-      LUnitRef := FM3Units . UnitTStackTopRef ^ . UttUnitRef 
+  ; BEGIN (*ImportAS*)
+      LIntoUnitRef := FM3Units . UnitTStackTopRef ^ . UttUnitRef 
     ; LIntfUnitTRef
         := GetInterface
              ( IntfScanAttr . SaChars
@@ -397,7 +411,7 @@ MODULE FM3ExpImp
     ; IF LIntfUnitTRef = NIL THEN RETURN END (*IF*) 
     ; LASIdentAtom
         := FM3Atom_OAChars . MakeAtom
-             ( LUnitRef ^ . UntIdentAtomDict
+             ( LIntoUnitRef ^ . UntIdentAtomDict
              , ASScanAttr . SaChars
              , ASScanAttr . SaHash
              )
@@ -408,15 +422,16 @@ MODULE FM3ExpImp
            , "import"  
            )
       THEN (* OK, not a duplicate. *)
-        INC ( LUnitRef ^ . UntExpImpCt )
-      ; WITH WUnitIdSet = LUnitRef ^ . UntExpImpIdSet
+        WITH WUnitIdSet = LIntoUnitRef ^ . UntExpImpIdSet
         DO WUnitIdSet := IntSets . Include ( WUnitIdSet , LASIdentAtom )
         END (*WITH*) 
-      ; VarArray_Int_ExpImpProxy . CallbackWithElem
-          ( LUnitRef ^ . UntExpImpMap
-          , LASIdentAtom
-          , AssignProxy
-          ) 
+      ; <* FATAL ANY *>
+        BEGIN VarArray_Int_ExpImpProxy . CallbackWithElem
+                ( LIntoUnitRef ^ . UntExpImpMap
+                , LASIdentAtom
+                , AssignProxy
+                )
+        END (*Block*) 
       END (*IF*)
     END ImportAS
 
@@ -430,7 +445,7 @@ MODULE FM3ExpImp
   = VAR LFromUnitRef : FM3Units . UnitRefTyp
   ; VAR LDeclCt : INTEGER
 
-  ; BEGIN
+  ; BEGIN (*ImportAllDecls*)
       IF FromUnitTRef = NIL THEN RETURN END (*IF*)
     ; LFromUnitRef := FromUnitTRef ^ . UttUnitRef 
     ; IF LFromUnitRef = NIL THEN RETURN END (*IF*)
@@ -459,7 +474,8 @@ MODULE FM3ExpImp
 
   = VAR LUnitRef : FM3Units . UnitRefTyp
 
-  ; BEGIN
+  ; <* FATAL VarArray_Int_ExpImpProxy . AllocationFailure *>
+    BEGIN (*Done*) 
       LUnitRef := FM3Units . UnitTStackTopRef  ^ . UttUnitRef 
     ; VarArray_Int_ExpImpProxy . Compact ( LUnitRef ^ . UntExpImpMap )
     ; LUnitRef ^ . UntNextDeclNo

@@ -124,7 +124,6 @@ INTERFACE FM3Units
               unit's top level
           *)
       ; UntHash : FM3Utils . HashTyp := FM3Utils . HashNull 
-      ; UntExpImpCt : FM3Globals . DeclNoTyp := FM3Globals . DeclNoNull 
       ; UntScanResult : INTEGER := - 1  
       ; UntParseResult : INTEGER (* Parse error count.*) 
       ; UntPass2Result : INTEGER := - 1
@@ -165,7 +164,6 @@ INTERFACE FM3Units
         , UntExpImpRefSetxxx := NIL 
         , UntScopeRef := NIL  
         , UntHash := 0
-        , UntExpImpCt := 0 
         , UntScanResult := - 1  
         , UntParseResult := 0
         , UntPass2Result := - 1
