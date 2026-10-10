@@ -55,12 +55,8 @@ MODULE FM3Patch
 
   = BEGIN 
       WITH WSkipNoStack = FM3Globals . SkipNoStack
-      DO VarArray_Int_Int . Assign
-          ( WSkipNoStack
-          , VarArray_Int_Int . TouchedRange ( WSkipNoStack ) . Hi + 1
-          , SkipNo
-          )
-         (* ^Effectively a push, where touched Hi is stack Ss. *)
+      DO VarArray_Int_Int . Append ( WSkipNoStack , SkipNo )  
+         (* ^Effectively a push, where touched Hi is stack TOS. *)
       (* And discard the ItkSkipRt token. *)
       END (*WITH*)
     END SkipRt 
