@@ -261,7 +261,7 @@ MODULE FM3Utils
       ELSE
         LNumber := IntRanges . NumberOfRange ( LTouchedRange ) 
       ; LResult := NEW ( REF ARRAY OF TEXT , LNumber )
-      ; VarArr_Text . FetchSubarray ( VarArr , 0 , LResult ^ ) 
+      ; VarArr_Text . FetchSubarray ( VarArr , LTouchedRange . Lo , LResult ^ ) 
       END (*IF*) 
     ; RETURN LResult  
 
@@ -699,6 +699,7 @@ MODULE FM3Utils
     ; FOR RI := 1 TO LCt - 1
       DO
         LElem := Elems [ RI ]
+      ; IF LElem = NIL THEN LElem := "<NIL>" END (*IF*) 
       ; LInFirstLine := Layout . LineNo ( LLayoutT ) = 0  
       ; IF OnePerLine
            OR Layout . CharNo ( LLayoutT )

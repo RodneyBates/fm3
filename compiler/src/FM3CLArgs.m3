@@ -177,22 +177,25 @@ MODULE FM3CLArgs
                   , "\", ignored."
                   }
               )
-          ELSIF FS . Status ( DirName ) . type # FS . DirectoryFileType
-          THEN 
-            RAISE TerminateCL
-                    ( "Import directory name \"" 
-                      & DirName 
-                      & "\" does not name a directory."
-                    )
+          ELSE
+            TRY 
+              IF FS . Status ( DirName ) . type # FS . DirectoryFileType
+              THEN 
+                RAISE TerminateCL
+                        ( "File name \"" 
+                          & DirName 
+                          & "\" does not name a directory."
+                        )
 
-          ELSE 
-            FilesAtomSet := IntSets . Include ( FilesAtomSet , LAtom )
-          ; VarArray_Int_Text . Assign
-              ( ImportDirArr
-              , VarArray_Int_Text . TouchedRange
-                  ( ImportDirArr ) . Hi + 1
-              , DirName
-              ) 
+              ELSE 
+                FilesAtomSet := IntSets . Include ( FilesAtomSet , LAtom )
+              ; VarArray_Int_Text . Append ( ImportDirArr , DirName )
+              END (*IF*)
+            EXCEPT
+            | OSError . E
+            =>  RAISE TerminateCL
+                        ( " Directory \"" & DirName  & "\" not found." )
+            END (*EXCEPT*) 
           END (*IF*) 
         ELSE (* It's a Modula 3 source file name. *) 
           RAISE TerminateCL
@@ -251,12 +254,7 @@ MODULE FM3CLArgs
             )
         ELSE
           FilesAtomSet := IntSets . Include ( FilesAtomSet , LAtom )
-; LRange := VarArray_Int_Text . TouchedRange ( LVarArr )
-        ; VarArray_Int_Text . Assign
-            ( LVarArr
-            , LRange . Hi + 1
-            , FileName
-            ) 
+        ; VarArray_Int_Text . Append ( LVarArr , FileName )
         END (*IF*) 
       END SrcFileName 
 
@@ -671,7 +669,8 @@ MODULE FM3CLArgs
             ; PaHyphenArg ( )
             END (*IF*) 
           ELSE (* No hyphens. *)
-            SrcFileName ( PaArgText )           ; PrependTextToList ( FM3CLOptions . SrcFileNames , PaArgText )
+            SrcFileName ( PaArgText )
+          ; PrependTextToList ( FM3CLOptions . SrcFileNames , PaArgText )
           ; INC ( FM3CLOptions . SourceFileCt ) 
           END (*IF*) 
         ; INC ( PaArgNo )
@@ -814,17 +813,10 @@ MODULE FM3CLArgs
     ; FM3CLOptions . ImportDirNames := NIL
     ; SrcFileIntfArr
         := VarArray_Int_Text . New ( NIL , Ranges_Int . RangeTyp {  0 , 20 } )
-    ; VarArray_Int_Text . Touch
-        ( SrcFileIntfArr , Ranges_Int . RangeTyp { - 1 , - 1 } )  
     ; SrcFileModArr
         := VarArray_Int_Text . New ( NIL , Ranges_Int . RangeTyp {  0 , 20 } )
-    ; VarArray_Int_Text . Touch
-        ( SrcFileModArr , Ranges_Int . RangeTyp { - 1 , - 1 } )  
     ; ImportDirArr
         := VarArray_Int_Text . New ( NIL , Ranges_Int . RangeTyp {  0 , 20 } )
-    ; VarArray_Int_Text . Touch
-        ( ImportDirArr , Ranges_Int . RangeTyp {  - 1 , 0 } )
-      (* ^Leave space to insert things after we know ResourceDirName. *) 
 
     ; FM3CLOptions . SourceFileCt := 0
     ; FM3CLOptions . ImportDirCt := 0
@@ -881,23 +873,12 @@ MODULE FM3CLArgs
   = VAR LRange : Ranges_Int . RangeTyp 
 
   ; BEGIN
-      LRange := VarArray_Int_Text . TouchedRange ( SrcFileIntfArr )
-    ; LRange . Lo := 0 
-    ; VarArray_Int_Text . Project ( SrcFileIntfArr , LRange )
-    ; FM3CLOptions . SrcFileIntfList
+      FM3CLOptions . SrcFileIntfList
         := FM3Utils . TextVarToOAText ( SrcFileIntfArr )
-        
-    ; LRange := VarArray_Int_Text . TouchedRange ( SrcFileModArr )
-    ; LRange . Lo := 0 
-    ; VarArray_Int_Text . Project ( SrcFileModArr , LRange )
     ; FM3CLOptions . SrcFileModList
         := FM3Utils . TextVarToOAText ( SrcFileModArr )
-        
-    ; VarArray_Int_Text . Assign   
-        ( ImportDirArr , 0 , FM3CLOptions . ResourceDirName & "/m3core" )
-    ; LRange := VarArray_Int_Text . TouchedRange ( ImportDirArr )
-    ; LRange . Lo := 0 
-    ; VarArray_Int_Text . Project ( ImportDirArr , LRange )
+    ; VarArray_Int_Text . Prepend   
+        ( ImportDirArr , FM3CLOptions . ResourceDirName & "/m3core" )
     ; FM3CLOptions . ImportPkgDirList
         := FM3Utils . TextVarToOAText ( ImportDirArr )
 

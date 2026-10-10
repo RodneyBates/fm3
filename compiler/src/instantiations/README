@@ -1,5 +1,7 @@
 Including any local interfaces used to instantiate,
 as well as the actual instantiations themselves.
 
+Other instantiations of vararray are in sharedsrc/vararraysrc.
+Consistify this. 
 
 
