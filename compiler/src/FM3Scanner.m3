@@ -1,7 +1,6 @@
-
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023..2025  Rodney M. Bates.                                    *)
+(* Copyright 2023..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
@@ -398,7 +397,7 @@ MODULE FM3Scanner
     (* NOTE on identifier-like tokens, of 5 kinds.
        1) Keywords (2,8.1), sometimes called reserved words. 
           Each has a unique token code, with distinct syntactic
-          significance.  The codes are defined in FM3SrcToks.genton,
+          significance.  The codes are defined in FM3SrcToks.gentok,
           with names like StkRwBEGIN and duplicate delarations in
           FM3Parser.lalr, which must remain in sync.  Used by the parser. 
        2) Reserved identifiers (2.8.2) Each has a distinct language-
@@ -411,7 +410,7 @@ MODULE FM3Scanner
           with names like RidBOOLEAN.  Absolute values of these codes are 
           also used later as opcodes that denote their builtin meaning.
           Exceptions are StkRwROOT and StkRwUNTRACED, which behave 
-          semantically like reserved identifier, but occur in a different 
+          semantically like reserved identifiers, but occur in a different 
           set of syntactic contexts from identifiers, so they start out
           as keywords for the benefit of the parser, but are then converted 
           to reserved identifiers RidROOT and RidUNTRACEDROOT during parsing.  
@@ -434,7 +433,7 @@ MODULE FM3Scanner
           with names like PgInInline. 
     *)  
 
-    = BEGIN (* IdentSuffix *) 
+    = BEGIN (*IdentSuffix*) 
         WHILE GTopSsRef . SsCh IN IdentFollowChars 
         DO 
           ContribToFsm ( GTopSsRef . SsCh ) 
@@ -597,7 +596,7 @@ MODULE FM3Scanner
     ; BEGIN (* Number *) 
         ScHash := FM3Base . HashNull 
       ; Attribute . SaAtom := FM3Base . AtomNull (* Overlaid later? *) 
-      ; ScCharVarArr := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 40 } ) 
+      ; ScCharVarArr := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 64 } ) 
       ; ScWCharVarArr := NIL 
       ; LTok := FM3SrcToks . StkIntLit 
       ; REPEAT 
@@ -1144,7 +1143,7 @@ MODULE FM3Scanner
         END (*LOOP*) 
       END CommentSuffix 
 
-  ; BEGIN (* GetToken *) 
+  ; BEGIN (*GetToken*) 
       LOOP 
         ScAtBegOfPragma := GTopSsRef ^ . SsAtBegOfPragma (* From prev. token. *)
       ; INC ( GTopSsRef ^ . SsPragmaDepth , ORD ( ScAtBegOfPragma ) )   
@@ -1193,8 +1192,7 @@ MODULE FM3Scanner
           ELSE (* An identifier starting with w or W. *)
             Attribute . SaWCh := WNUL  
           ; ScHash := FM3Base . HashNull 
-          ; ScCharVarArr 
-              := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 160 } ) 
+          ; ScCharVarArr := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 128 } ) 
           ; ScWCharVarArr := NIL 
           ; StartIdent ( ) 
           ; ContribToFsm ( ScCh ) (* The 'w' or 'W'. *)  
@@ -1210,7 +1208,7 @@ MODULE FM3Scanner
           (* Other identifier. *) 
         => Attribute . SaWCh := WNUL  
         ; ScHash := FM3Base . HashNull 
-        ; ScCharVarArr := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 160 } ) 
+        ; ScCharVarArr := VarArr_Char . New ( NUL , IntRangeTyp { 0 , 128 } ) 
         ; ScWCharVarArr := NIL 
         ; StartIdent ( ) 
         ; IdentSuffix ( )
@@ -1380,6 +1378,9 @@ MODULE FM3Scanner
 
      (* ELSE Can't happen.  (Other values ruled out earlier). *)  
         END (* CASE *)
+        
+      ; FM3Utils . ContribToHashI
+          ( (*IN OUT*) Attribute . SaHash , Attribute . SaTok ) 
 
       ; IF Attribute . SaTok = FM3SrcToks . StkClosePragma
            AND GTopSsRef ^ . SsPragmaDepth = 0
@@ -1393,14 +1394,24 @@ MODULE FM3Scanner
         ; GTopSsRef ^ . SsAtEndOfPragma := FALSE
           (* So we won't go negative at the top of the loop. *)
         ELSIF GTopSsRef ^ . SsPragmaDepth = 0
-        THEN RETURN Attribute . SaTok
+        THEN
+          FM3Utils . ContribToHashI 
+             ( (*IN OUT*) GTopSsRef . SsUnitTRef ^ . UttUnitRef ^ . UntHash
+             , VAL ( ORD ( Attribute . SaHash ) , FM3Utils . HashTyp ) 
+             ) 
+        ; RETURN Attribute . SaTok
         ELSIF GTopSsRef ^ . SsPragmaDepth = 1
               AND ( Attribute . SaTok = FM3SrcToks . StkClosePragma 
                     OR Attribute . SaTok = FM3SrcToks . StkPragmaId
                   )
-        THEN RETURN Attribute . SaTok
+        THEN
+          FM3Utils . ContribToHashI 
+             ( (*IN OUT*) GTopSsRef . SsUnitTRef ^ . UttUnitRef ^ . UntHash
+             , VAL ( ORD ( Attribute . SaHash ) , FM3Utils . HashTyp ) 
+             ) 
+        ; RETURN Attribute . SaTok
         ELSE (* Don't deliver this token.  We are inside a top-level pragma,
-                not including its StlOpenPragma, StkPragmaId, or StkClosePragma. 
+                not including its StkOpenPragma, StkPragmaId, or StkClosePragma. 
                 This is tricky.
              *) 
         END (*IF*) 
