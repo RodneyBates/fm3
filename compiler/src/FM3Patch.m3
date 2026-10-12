@@ -10,7 +10,7 @@ MODULE FM3Patch
 
 ; IMPORT OSError 
 
-; IMPORT IntIntVarArray AS VarArray_Int_Int (* Use FM3's naming convention. *)
+; IMPORT VarArray_Int_Int (* Use FM3's naming convention. *)
 ; IMPORT IntSets
 ; IMPORT RangeUtils 
 

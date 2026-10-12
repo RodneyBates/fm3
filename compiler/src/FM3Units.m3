@@ -12,7 +12,7 @@ MODULE FM3Units
 ; IMPORT Fmt 
 
 ; IMPORT IntSets 
-; IMPORT IntIntVarArray AS VarArray_Int_Int (* FM3's naming convention. *)
+; IMPORT VarArray_Int_Int (* FM3's naming convention. *)
 
 ; IMPORT FM3Atom_OAChars 
 ; IMPORT FM3Atom_OAWideChars 
@@ -140,28 +140,28 @@ MODULE FM3Units
    END UnitTStateImage
 
 (*EXPORTED.*)
-; PROCEDURE UnitReqKindImage ( Kind : UnitReqKindTyp ) : TEXT
+; PROCEDURE UnitReqKindImage ( Kind : FM3Base . UnitReqKindTyp ) : TEXT
 
   = BEGIN (*UnitReqKindImage*) 
       CASE Kind OF
-      | UnitReqKindTyp . UttrNull => RETURN "UttrNull"
-      | UnitReqKindTyp . UttrCL => RETURN "UttrCL"  
-      | UnitReqKindTyp . UttrExport => RETURN "UttrExport"
-      | UnitReqKindTyp . UttrImport => RETURN "UttrImport" 
-      | UnitReqKindTyp . UttrGenActual => RETURN "UttrGenActual"
+      | FM3Base . UnitReqKindTyp . UttrNull => RETURN "UttrNull"
+      | FM3Base . UnitReqKindTyp . UttrCL => RETURN "UttrCL"  
+      | FM3Base . UnitReqKindTyp . UttrExport => RETURN "UttrExport"
+      | FM3Base . UnitReqKindTyp . UttrImport => RETURN "UttrImport" 
+      | FM3Base . UnitReqKindTyp . UttrGenActual => RETURN "UttrGenActual"
       END (*CASE*) 
     END UnitReqKindImage 
 
 (*EXPORTED.*)
-; PROCEDURE UnitReqKindTag ( Kind : UnitReqKindTyp ) : TEXT
+; PROCEDURE UnitReqKindTag ( Kind : FM3Base . UnitReqKindTyp ) : TEXT
 
   = BEGIN (*UnitReqKindTag*) 
       CASE Kind OF
-      | UnitReqKindTyp . UttrNull => RETURN ""
-      | UnitReqKindTyp . UttrCL => RETURN "command line"  
-      | UnitReqKindTyp . UttrExport => RETURN "export"
-      | UnitReqKindTyp . UttrImport => RETURN "import" 
-      | UnitReqKindTyp . UttrGenActual => RETURN "generic actual"
+      | FM3Base . UnitReqKindTyp . UttrNull => RETURN ""
+      | FM3Base . UnitReqKindTyp . UttrCL => RETURN "command line"  
+      | FM3Base . UnitReqKindTyp . UttrExport => RETURN "export"
+      | FM3Base . UnitReqKindTyp . UttrImport => RETURN "import" 
+      | FM3Base . UnitReqKindTyp . UttrGenActual => RETURN "generic actual"
       END (*CASE*) 
     END UnitReqKindTag 
 

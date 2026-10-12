@@ -8,7 +8,7 @@
 
 MODULE FM3Globals
 
-; IMPORT IntIntVarArray AS VarArray_Int_Int (* FM3's naming convention. *)
+; IMPORT VarArray_Int_Int (* FM3's naming convention. *)
 
 ; IMPORT Ranges_Int 
 

@@ -213,19 +213,9 @@ INTERFACE FM3Units
             , UnitTStateTyp . UttsLoaded
             } 
 
-(* What kind of request called for this unit? *) 
-; TYPE UnitReqKindTyp
-       = { UttrNull
-         , UttrBuiltin 
-         , UttrCL  
-         , UttrExport
-         , UttrImport 
-         , UttrGenActual  
-         } 
+; PROCEDURE UnitReqKindImage ( Kind : FM3Base . UnitReqKindTyp ) : TEXT 
 
-; PROCEDURE UnitReqKindImage ( Kind : UnitReqKindTyp ) : TEXT 
-
-; PROCEDURE UnitReqKindTag ( Kind : UnitReqKindTyp ) : TEXT
+; PROCEDURE UnitReqKindTag ( Kind : FM3Base . UnitReqKindTyp ) : TEXT
   (* For use in messages. *) 
 
 ; TYPE UnitTTyp
@@ -287,7 +277,7 @@ INTERFACE FM3Units
       ; UttSelfUnitNo : FM3Globals . UnitNoTyp := FM3Globals . UnitNoNull
           (* ^Self-referential. *)
       ; Utt1stReqPosition := FM3Base . PositionNull
-      ; Utt1stReqKind := UnitReqKindTyp . UttrNull
+      ; Utt1stReqKind := FM3Base . UnitReqKindTyp . UttrNull
       ; UttState := UnitTStateTyp . UttsNull
       ; UttInExpImpCycle : BOOLEAN := FALSE
       ; UttIsUsable : BOOLEAN := FALSE 
@@ -311,15 +301,17 @@ INTERFACE FM3Units
     (* Only one UnitTMap in a compile.  Maps both IdAtoms from UnitsAtomDict
        and unit numbers (which have the same value) directly into UnitTRefs.
     *)
-    (* INVARIANT: Atom is in UnitTMap IFF in UnitsAtomDict. *) 
+    (* INVARIANT: Atom is in UnitTMap IFF its in UnitsAtomDict. *) 
 
 ; CONST ExpImpProxyNull
     = FM3ExpImpProxy . T
-        { EipUnitNo := FM3Globals . UnitNoNull
+        { EipUnitFileName := "" 
+        , EipUnitNo := FM3Globals . UnitNoNull
           (* ^Null means present but not usable. *)
         , EipDeclNo := FM3Globals . DeclNoNull
         , EipImportingUnitNo := FM3Globals . UnitNoNull 
         , EipImportingUnitPosition := FM3Base . PositionNull
+        , EipReqKind := FM3Base . UnitReqKindTyp . UttrNull  
         } 
 
 ; PROCEDURE NewUnitTRef ( ) : UnitTRefTyp

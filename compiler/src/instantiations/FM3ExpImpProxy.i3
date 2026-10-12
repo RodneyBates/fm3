@@ -19,15 +19,17 @@ INTERFACE FM3ExpImpProxy
 
 ; TYPE T
     = RECORD
-        EipUnitNo : FM3Globals . UnitNoTyp (* The remote unit. *) 
-      ; EipDeclNo : FM3Globals . DeclNoTyp (* In the remote unit. *)
+        EipUnitFileName := "" (* The remote unit. *)
+      ; EipUnitNo := FM3Globals . UnitNoNull (* The remote unit. *) 
+      ; EipDeclNo := FM3Globals . DeclNoNull(* In the remote unit. *)
         (* DeclNoNull, if this is a reference to the unit itself. *)
-      ; EipImportingUnitNo : FM3Globals . UnitNoTyp
-      ; EipImportingUnitPosition : FM3Base . tPosition
+      ; EipImportingUnitNo := FM3Globals . UnitNoNull
+      ; EipImportingUnitPosition := FM3Base . PositionNull
         (* ^Of the EXPORTS or IMPORT ident that brought the decl in to
            the unit containing this record.  Its position in the remote
            unit can be found in the remote unit's Decl node for it.
-        *) 
+        *)
+      ; EipReqKind := FM3Base . UnitReqKindTyp . UttrNull 
       END
 ; END FM3ExpImpProxy 
 .

@@ -93,7 +93,7 @@ INTERFACE FM3Compile
 ; PROCEDURE AcquireUnit
     ( UnitTRef : FM3Units . UnitTRefTyp
     ; ReqPosition : FM3Base . tPosition
-    ; ReqKind : FM3Units . UnitReqKindTyp 
+    ; ReqKind : FM3Base . UnitReqKindTyp 
     )
     (* Load it, compile it, or mark it something bad. *) 
 

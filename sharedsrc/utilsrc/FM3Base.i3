@@ -116,7 +116,17 @@ INTERFACE FM3Base
 
 ; TYPE OpcodeTyp = Int32Typ (* Allow for AtomNull. *) 
 ; TYPE SizeTyp = LONGINT (* Runtime sizes. *) 
-; TYPE AlignTyp = [ 0 .. 64 ]
+; TYPE AlignTyp = [ 0 .. 64 ] 
+
+(* What kind of request called for a unit? *) 
+; TYPE UnitReqKindTyp
+       = { UttrNull
+         , UttrBuiltin 
+         , UttrCL  
+         , UttrExport
+         , UttrImport 
+         , UttrGenActual  
+         } 
 
 (* 
 

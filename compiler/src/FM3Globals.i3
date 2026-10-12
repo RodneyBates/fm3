@@ -10,7 +10,7 @@ INTERFACE FM3Globals
 ; IMPORT TextIntTbl
 
 ; IMPORT RdBackFile
-; IMPORT IntIntVarArray AS VarArray_Int_Int (* FM3's naming convention. *) 
+; IMPORT VarArray_Int_Int (* FM3's naming convention. *) 
 
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Atom_OAWideChars

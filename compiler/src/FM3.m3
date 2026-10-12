@@ -39,7 +39,7 @@ MODULE FM3 EXPORTS Main
 ; IMPORT FM3Scanner
 ; IMPORT FM3SharedUtils
 
-; TYPE Uttr = FM3Units . UnitReqKindTyp
+; TYPE Uttr = FM3Base . UnitReqKindTyp
 
 ; PROCEDURE Work ( )
   RAISES { FM3SharedUtils . FatalError , FM3SharedUtils . Terminate } 

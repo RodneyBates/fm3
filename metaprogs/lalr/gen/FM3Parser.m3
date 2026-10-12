@@ -54,7 +54,7 @@ IMPORT FM3SharedUtils;
     FROM FM3Utils IMPORT PositionImage;
 
     TYPE Bkt = BrandKindTyp ;
-    TYPE Uttr = FM3Units . UnitReqKindTyp ; 
+    TYPE Uttr = FM3Base . UnitReqKindTyp ; 
     
     PROCEDURE BrandKindImage ( Kind : BrandKindTyp ) : TEXT
 

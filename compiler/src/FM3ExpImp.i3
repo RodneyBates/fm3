@@ -31,7 +31,7 @@ INTERFACE FM3ExpImp
       (* ^Interface unit name, without file name suffix. *)  
     ; READONLY ReqPosition : FM3Base . tPosition
       (* ^v In the current unit of the to-be [ex/im]ported identifier. *) 
-    ; ReqKind : FM3Units . UnitReqKindTyp 
+    ; ReqKind : FM3Base . UnitReqKindTyp 
     )
   : FM3Units . UnitTRefTyp
     (* ^The Desired interface. *)
@@ -51,7 +51,7 @@ INTERFACE FM3ExpImp
     ( FromUnitTRef : FM3Units . UnitTRefTyp
     ; FromUnitDeclNo : FM3Globals . DeclNoTyp
     ; Position : FM3Base . tPosition
-    ; DuplicatorKindText : TEXT  
+    ; ReqKind : FM3Base . UnitReqKindTyp  
     )
   : BOOLEAN (* Success. *)
   (* PRE: FromUnitDeclNo leads to a DeclRef in FromUnitRef^. *)

@@ -19,7 +19,7 @@ MODULE FM3Pass2
 ; IMPORT Wr 
 
 ; IMPORT RangeUtils 
-; IMPORT IntIntVarArray AS VarArray_Int_Int (* Use FM3's naming convention. *) 
+; IMPORT VarArray_Int_Int (* Use FM3's naming convention. *) 
 ; IMPORT VarArray_Int_ExpImpProxy 
 ; IMPORT VarArray_Int_Refany 
 

@@ -433,7 +433,7 @@ MODULE FM3CTIntArith
 
       | Stk . StkPdTimes
       => RETURN BinTxT_T ( Lt , Rt , Long . Times , IsM3Int ) 
-
+(* Causing cm3 cg errors: *********************************************
       | Stk . StkPdDivide
       => IF Lt = 0L THEN RAISE ArithError ( "Divide by zero" ) END (*IF*) 
          (* ^Certain RT Error, check this regardless of DoCheckOvflo. *) 
@@ -485,7 +485,8 @@ MODULE FM3CTIntArith
       => RETURN BinTxT_T ( Lt , Rt , Long . Or , IsM3Int ) 
 
       | Stk . StkPdXor
-      => RETURN BinTxT_T ( Lt , Rt , Long . Xor , IsM3Int )  
+      => RETURN BinTxT_T ( Lt , Rt , Long . Xor , IsM3Int )
+*********************************************************************)      
 
       (* Shifts: *)
 

@@ -14,7 +14,8 @@ MODULE FM3ExpImp
 ; IMPORT Thread 
 ; IMPORT Wr
 
-; IMPORT FM3ExpImpProxy  
+; IMPORT VarArray_Int_ExpImpProxy  
+; IMPORT VarArray_Int_Refany  
 ; IMPORT IntSets
 
 ; IMPORT FM3Atom_OAChars
@@ -22,6 +23,7 @@ MODULE FM3ExpImp
 ; IMPORT FM3Compile
 ; IMPORT FM3Decls
 ; IMPORT FM3Dict_Int_Int 
+; IMPORT FM3ExpImpProxy  
 ; IMPORT FM3Globals 
 ; IMPORT FM3Messages
 ; IMPORT FM3OpenArray_Char
@@ -29,17 +31,15 @@ MODULE FM3ExpImp
 ; IMPORT FM3Scopes (* For Revelation of ScopeRefTyp *) 
 ; IMPORT FM3Units 
 ; IMPORT FM3Utils
-; IMPORT VarArray_Int_ExpImpProxy  
-; IMPORT VarArray_Int_Refany  
 
 ; TYPE Ust = FM3Units . UnitStateTyp
 ; TYPE Utts = FM3Units . UnitTStateTyp
-; TYPE Uttr = FM3Units . UnitReqKindTyp 
+; TYPE Uttr = FM3Base . UnitReqKindTyp 
 
 ; PROCEDURE ReportCyclic
     ( UnitTRef : FM3Units . UnitTRefTyp
     ; ReqPosition : FM3Base . tPosition
-    ; <*UNUSED*> ReqKind : FM3Units . UnitReqKindTyp
+    ; <*UNUSED*> ReqKind : FM3Base . UnitReqKindTyp
     )
   (* PRE: UnitTRef is both the first-visited and last-visited in the cycle.
           We have to visit it twice.
@@ -94,7 +94,7 @@ MODULE FM3ExpImp
       (* ^Interface unit name, without file name suffix. *)  
     ; READONLY ReqPosition : FM3Base . tPosition
       (* ^v In the current unit of the to-be [ex/im]ported interace ident. *) 
-    ; ReqKind : FM3Units . UnitReqKindTyp 
+    ; ReqKind : FM3Base . UnitReqKindTyp 
     )
   : FM3Units . UnitTRefTyp
     (* ^The Desired interface. *)
@@ -236,7 +236,7 @@ MODULE FM3ExpImp
     ( FromUnitTRef : FM3Units . UnitTRefTyp
     ; FromUnitDeclNo : FM3Globals . DeclNoTyp
     ; ExpImpPosition : FM3Base . tPosition
-    ; ExpImpKindText : TEXT  
+    ; ReqKind : FM3Base . UnitReqKindTyp  
     )
   : BOOLEAN (* Success. *)
   (* PRE: FromUnitDeclNo leads to a DeclRef in FromUnitRef^. *)
@@ -264,14 +264,17 @@ MODULE FM3ExpImp
            ( LIntoUnitRef
            , LIntoIdentAtom
            , ExpImpPosition
-           , ExpImpKindText 
+           , FM3Units . UnitReqKindTag ( ReqKind ) 
            )
       THEN (* All is legal, so do the real import. *)
-        LProxy . EipUnitNo := FromUnitTRef ^ . UttSelfUnitNo 
+        LProxy . EipUnitFileName
+          := Pathname . Last ( FromUnitTRef ^ . UttSrcFilePath ) 
+      ; LProxy . EipUnitNo := FromUnitTRef ^ . UttSelfUnitNo 
       ; LProxy . EipDeclNo  := FromUnitDeclNo
       ; LProxy . EipImportingUnitNo
           := FM3Units . UnitTStackTopRef ^ . UttSelfUnitNo 
       ; LProxy . EipImportingUnitPosition := ExpImpPosition
+      ; LProxy . EipReqKind := ReqKind 
       ; InsertExpImp ( LIntoUnitRef , LIntoIdentAtom , LProxy ) 
       ; RETURN TRUE
       ELSE RETURN FALSE 
@@ -360,11 +363,14 @@ MODULE FM3ExpImp
                , IdScanAttribute . SaChars
                , IdScanAttribute . SaHash
                )
+      ; LProxy . EipUnitFileName
+          := Pathname . Last ( FromUnitTRef ^ . UttSrcFilePath ) 
       ; LProxy . EipUnitNo := FM3Globals . UnitNoNull
       (* ^Makes it present but not useable. *) 
       ; LProxy . EipImportingUnitNo := LIntoUnitTRef ^ . UttSelfUnitNo  
       ; LProxy . EipDeclNo := FM3Globals . DeclNoNull 
       ; LProxy . EipImportingUnitPosition := IdScanAttribute . Position
+      ; LProxy . EipReqKind := Uttr . UttrImport  
       ; InsertExpImp ( LIntoUnitRef , LIntoIdentAtom , LProxy ) 
       ; RETURN FALSE 
       ELSE (* Valid imported ident. *) 
@@ -373,7 +379,7 @@ MODULE FM3ExpImp
             ( FromUnitTRef
             , LFromDeclNoInt
             , IdScanAttribute . Position
-            , "import"
+            , Uttr . UttrImport 
             ) 
       END (*IF*) 
     END ImportDeclByIdent
@@ -393,11 +399,14 @@ MODULE FM3ExpImp
       ( <*UNUSED*> Ss : INTEGER ; VAR (*READONLY*) Elem : FM3ExpImpProxy . T ) 
 
     = BEGIN
-        Elem . EipUnitNo := LIntfUnitTRef . UttSelfUnitNo
+        Elem . EipUnitFileName
+          := Pathname . Last ( LIntfUnitTRef . UttSrcFilePath ) 
+      ; Elem . EipUnitNo := LIntfUnitTRef . UttSelfUnitNo
       ; Elem . EipDeclNo := FM3Globals . DeclNoNull
       ; Elem . EipImportingUnitNo
           := FM3Units . UnitTStackTopRef ^ . UttSelfUnitNo
-      ; Elem . EipImportingUnitPosition := ASScanAttr . Position 
+      ; Elem . EipImportingUnitPosition := ASScanAttr . Position
+      ; Elem . EipReqKind := Uttr . UttrImport 
       END AssignProxy
  
   ; BEGIN (*ImportAS*)
@@ -463,7 +472,7 @@ MODULE FM3ExpImp
              ( FromUnitTRef 
              , RDeclNo 
              , ExportPosition  
-             , "export"
+             , Uttr . UttrExport
              )
         END (*FOR*)
       END (*WITH*) 

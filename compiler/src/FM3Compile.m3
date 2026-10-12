@@ -52,11 +52,12 @@ MODULE  FM3Compile
 ; IMPORT FM3Units
 ; IMPORT FM3Utils
 ; IMPORT RdBackFile
+; IMPORT VarArray_Int_ExpImpProxy 
 ; IMPORT VarArray_Int_Refany
 
 ; TYPE Sfx = FM3Files . SuffixTyp 
 ; TYPE Us = FM3Units . UnitStateTyp
-; TYPE Uttr = FM3Units . UnitReqKindTyp
+; TYPE Uttr = FM3Base . UnitReqKindTyp
 ; TYPE Utts = FM3Units . UnitTStateTyp
 
 (*EXPORTED.*)
@@ -729,7 +730,7 @@ MODULE  FM3Compile
       ( FileName : TEXT 
       ; Reason : TEXT
       ; Position : FM3Base . tPosition
-      ; ReqKind : FM3Units . UnitReqKindTyp
+      ; ReqKind : FM3Base . UnitReqKindTyp
       )
     (* Boy, are there a lot of things that could go wrong here. *) 
     = BEGIN
@@ -754,7 +755,7 @@ MODULE  FM3Compile
     ( UnitTRef : FM3Units . UnitTRefTyp
     ; SemFileT : File . T 
     ; ReqPosition : FM3Base . tPosition
-    ; ReqKind : FM3Units . UnitReqKindTyp
+    ; ReqKind : FM3Base . UnitReqKindTyp
     ; VAR (*OUT*) PickleRd : Pickle . Reader 
     ; VAR (*OUT*) Hash : FM3Utils . HashTyp
     ; VAR (*OUT*) Time : Time . T
@@ -819,7 +820,7 @@ MODULE  FM3Compile
     ( UnitTRef : FM3Units . UnitTRefTyp
     ; PickleRd : Pickle . Reader 
     ; ReqPosition : FM3Base . tPosition
-    ; ReqKind : FM3Units . UnitReqKindTyp 
+    ; ReqKind : FM3Base . UnitReqKindTyp 
     )
   : BOOLEAN (* Success. *)
   (*PRE: ReadSemHeadInfo has happened successfully, thus PickleRd is open. *)
@@ -871,6 +872,35 @@ MODULE  FM3Compile
     ; Rd . Close ( PickleRd . rd ) 
     ; RETURN LResult  
     END ReadSemFileRemainder
+
+; PROCEDURE AcquireTransUnits ( UnitTRef : FM3Units . UnitTRefTyp )
+  (* "Trans" for transitively brought in. *) 
+
+  = PROCEDURE VisitProxy
+      ( <*UNUSED*> Ss : INTEGER
+      ; VAR (*READONLY*) Elem : VarArray_Int_ExpImpProxy . ElemTyp  
+      )
+
+    = VAR LImpUnitTRef : FM3Units . UnitTRefTyp
+
+    ; BEGIN (*VisitProxy*)
+        LImpUnitTRef := GetUnitTRefOfFileName ( Elem . EipUnitFileName )
+     ; AcquireUnit
+         ( LImpUnitTRef , Elem . EipImportingUnitPosition , Elem . EipReqKind )
+      END VisitProxy
+
+  ; VAR LUnitRef : FM3Units . UnitRefTyp
+  ; VAR LExpImpMap : VarArray_Int_ExpImpProxy . T 
+
+  ; BEGIN (*AcquireTransUnits*)
+      IF UnitTRef = NIL THEN RETURN END (*IF*)
+    ; LUnitRef := UnitTRef ^ . UttUnitRef
+    ; IF LUnitRef = NIL THEN RETURN END (*IF*)
+    ; LExpImpMap := LUnitRef ^ . UntExpImpMap 
+    ; IF LExpImpMap = NIL THEN RETURN END (*IF*)
+    ; VarArray_Int_ExpImpProxy . ForAllTouchedInRange
+        ( LExpImpMap , Do := VisitProxy ) 
+    END AcquireTransUnits
 
 ; PROCEDURE EnsureBuildDirExists
     ( UnitTRef : FM3Units . UnitTRefTyp ; ReqPosition : FM3Base . tPosition )
@@ -1026,7 +1056,7 @@ MODULE  FM3Compile
 ; PROCEDURE AcquireUnit
     ( UnitTRef : FM3Units . UnitTRefTyp
     ; ReqPosition : FM3Base . tPosition
-    ; ReqKind : FM3Units . UnitReqKindTyp 
+    ; ReqKind : FM3Base . UnitReqKindTyp 
     )
   (* Load it, compile it, mark it something bad, whatever. *) 
     
@@ -1127,6 +1157,7 @@ MODULE  FM3Compile
             ELSE (* Not forced & there is an up-to-date sem file.  Load it. *)
               EVAL ReadSemFileRemainder
                 ( UnitTRef , LPickleRd , ReqPosition , ReqKind )
+            ; AcquireTransUnits ( UnitTRef ) 
             ; UnitTRef ^ . UttState := Utts . UttsLoaded
             END (*IF*)
           ELSE (* No source file. *)
@@ -1136,6 +1167,7 @@ MODULE  FM3Compile
                  *)
               EVAL ReadSemFileRemainder
                 ( UnitTRef , LPickleRd , ReqPosition , ReqKind )
+            ; AcquireTransUnits ( UnitTRef ) 
             ; UnitTRef ^ . UttState := Utts . UttsLoaded
             ELSE (* Nothing in compile package. *)
               IF ReqKind = Uttr . UttrCL
@@ -1172,7 +1204,8 @@ MODULE  FM3Compile
                          , (*OUT*) LSemTime
                          )
                 ; EVAL ReadSemFileRemainder 
-                    ( UnitTRef , LPickleRd , ReqPosition , ReqKind )  
+                    ( UnitTRef , LPickleRd , ReqPosition , ReqKind )
+                ; AcquireTransUnits ( UnitTRef ) 
                 ; UnitTRef ^ . UttState := Utts . UttsLoaded
                 ELSE (* Nothing found. *) 
                   FM3Messages . FM3LogArr
