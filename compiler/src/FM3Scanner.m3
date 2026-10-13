@@ -1159,6 +1159,7 @@ MODULE FM3Scanner
           IF GTopSsRef . SsWCh = WEOF 
           THEN 
             Attribute . SaTok := FM3SrcToks . StkEOF 
+          ; Attribute . SaHash := FM3Utils . HashNull  
           ; RETURN FM3SrcToks . StkEOF 
           ELSIF GTopSsRef . SsWCh > WLastOfChar 
           THEN 
@@ -1408,8 +1409,10 @@ MODULE FM3Scanner
           FM3Utils . ContribToHashI 
              ( (*IN OUT*) GTopSsRef . SsUnitTRef ^ . UttUnitRef ^ . UntHash
              , VAL ( ORD ( Attribute . SaHash ) , FM3Utils . HashTyp ) 
-             ) 
+             )
+        ; FM3Utils . FinalizeHash ( (*IN OUT*) Attribute . SaHash ) 
         ; RETURN Attribute . SaTok
+        ; FM3Utils . FinalizeHash ( (*IN OUT*) Attribute . SaHash ) 
         ELSE (* Don't deliver this token.  We are inside a top-level pragma,
                 not including its StkOpenPragma, StkPragmaId, or StkClosePragma. 
                 This is tricky.

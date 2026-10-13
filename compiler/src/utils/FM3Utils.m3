@@ -89,6 +89,17 @@ MODULE FM3Utils
     ; Hash := LResult 
     END ContribToHashI
 
+(*EXPORTED.*)
+; <* INLINE *>
+  PROCEDURE FinalizeHash ( VAR (*IN OUT*) HashVal : FM3Base . HashTyp )
+(* Just make sure it didn't accidentally turn out HashNull. *) 
+
+  = BEGIN (*FinalizeHash*)
+      IF HashVal = FM3Base . HashNull
+      THEN HashVal := FM3Base . HashNonNull (* Anything else. *)
+      END (*IF*) 
+    END FinalizeHash
+
 (*EXPORTED:*)
 ; PROCEDURE HashOfText ( Key : TEXT ) : HashTyp
 
@@ -108,6 +119,7 @@ MODULE FM3Utils
     ; IF LResult = FM3Base . HashNull
       THEN LResult := FM3Base . HashConst
       END (*IF*)
+    ; FinalizeHash ( LResult ) 
     ; RETURN LResult 
     END HashOfText
 
@@ -128,6 +140,7 @@ MODULE FM3Utils
     ; IF LResult = FM3Base . HashNull
       THEN LResult := FM3Base . HashConst
       END (*IF*) 
+    ; FinalizeHash ( LResult ) 
     ; RETURN LResult 
     END HashOfOAChars 
 
@@ -148,6 +161,7 @@ MODULE FM3Utils
     ; IF LResult = FM3Base . HashNull
       THEN LResult := FM3Base . HashConst
       END (*IF*) 
+    ; FinalizeHash ( LResult ) 
     ; RETURN LResult 
     END HashOfOAWChars 
 
@@ -161,7 +175,8 @@ MODULE FM3Utils
   ; VAR LByteValL : LONGINT  
 
   ; BEGIN (*HashToChars*)
-      LResidueL := VAL ( Hash , LONGINT )
+      FinalizeHash ( Hash ) 
+    ; LResidueL := VAL ( Hash , LONGINT )
       (* Let's put these bytes in big-endian order, for simpler reconvert. *) 
     ; FOR RI := HashByteSize - 1 TO 0 BY - 1
       DO

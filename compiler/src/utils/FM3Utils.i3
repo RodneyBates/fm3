@@ -43,6 +43,9 @@ INTERFACE FM3Utils
 ; <* INLINE *> PROCEDURE ContribToHashI
     ( VAR (*IN OUT*) Hash : HashTyp ; Contribution : INTEGER ) 
 
+; PROCEDURE FinalizeHash ( VAR (*IN OUT*) HashVal : FM3Base . HashTyp )
+(* Just make sure it didn't accidentally turn out HashNull. *) 
+
 ; PROCEDURE HashOfText ( Key : TEXT ) : HashTyp 
 
 ; PROCEDURE HashOfOAChars ( Key : REF ARRAY OF CHAR ) : HashTyp

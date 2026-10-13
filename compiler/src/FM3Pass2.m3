@@ -567,7 +567,8 @@ TRUE OR
           ; LExpr ^ . ExpKind := Ekt . EkLiteral
           ; LExpr ^ . ExpOpcode := LOpcode
           ; FM3Utils . ContribToHashL ( LExpr ^ . ExpHash , LLongInt ) 
-          ; FM3Utils . ContribToHashI ( LExpr ^ . ExpHash , LOpcode ) 
+          ; FM3Utils . ContribToHashI ( LExpr ^ . ExpHash , LOpcode )
+          ; FM3Utils . FinalizeHash ( (*IN OUT*) LExpr ^ . ExpHash ) 
           ; LExpr ^ . ExpRepExprNo := FM3Exprs . ExprNoNull 
           ; LExpr ^ . ExpUpKind := Ekt . EkValue 
           ; LExpr ^ . ExpIsConst := TRUE 
@@ -907,6 +908,7 @@ TRUE OR
         ; LOpcode := GetBwdAtom ( TokResult . TrRdBack )
         ; LNewExprRef ^ . ExpOpcode := LOpcode
         ; FM3Utils . ContribToHashI ( LNewExprRef ^ . ExpHash , LOpcode ) 
+        ; FM3Utils . FinalizeHash ( (*IN OUT*) LNewExprRef ^ . ExpHash ) 
         ; LNewExprRef ^ . ExpRepExprNo := FM3Exprs . RepExprNoDistinct 
         ; LNewExprRef ^ . ExpPosition := GetBwdPos ( TokResult . TrRdBack )
         ; LNewExprRef ^ . ExpReachedRefNos := IntSets . Empty ( ) 
@@ -1028,6 +1030,7 @@ TRUE OR
             ( LNewExprRef ^ . ExpHash , LScopeRef ^ . ScpSelfScopeNo  ) 
         ; FM3Utils . ContribToHashI
             ( LNewExprRef ^ . ExpHash , LPosition . Line ) 
+        ; FM3Utils . FinalizeHash ( (*IN OUT*) LNewExprRef ^ . ExpHash ) 
         ; FM3Decls . InitDeclList ( LScopeRef ^ . ScpDeclList , LCt )
         ; FM3Exprs . RegisterExpr ( LNewExprRef , Mergeable := FALSE )
         ; FM3Exprs . PushExprStack ( LNewExprRef ) 
@@ -1308,6 +1311,7 @@ TRUE OR
           ; LNewExprRef ^ . ExpType
               := FM3Builtins . BuiltinExpr ( Stk . StkRwROOT ) 
           ; FM3Utils . ContribToHashI ( LNewExprRef ^ . ExpHash , 23 ) 
+          ; FM3Utils . FinalizeHash ( (*IN OUT*) LNewExprRef ^ . ExpHash ) 
 (* FIXME: Compute ExpHash correctly. *) 
           (* NoArgs. *) 
           ; FM3Exprs . RegisterExpr ( LNewExprRef , Mergeable := FALSE ) 
@@ -2029,6 +2033,7 @@ TRUE OR
               := VAL ( DidScopeRef ^ . ScpDeclList . DlUnfilledCt , LONGINT )  
           ; LValueExprRef ^ . ExpReachedRefNos := IntSets . Empty ( ) 
           ; FM3Utils . ContribToHashI ( LValueExprRef ^ . ExpHash , DidAtom ) 
+          ; FM3Utils . FinalizeHash ( (*IN OUT*) LValueExprRef ^ . ExpHash ) 
           ; FM3Exprs . RegisterExpr ( LValueExprRef , Mergeable := FALSE )
           ; FM3Exprs . PushExprStack ( LValueExprRef ) 
 

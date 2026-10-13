@@ -88,7 +88,8 @@ INTERFACE FM3Base
 
 ; TYPE HashTyp = Word . T 
 ; CONST HashNull = 0 (* Unknown, not a real hash code. *) 
-; CONST HashConst = 37 (* For somethng constant, e.g. NIL. *) 
+; CONST HashConst = 37 (* For something constant, e.g. NIL. *)
+; CONST HashNonNull = 19 (* Anything # HashNull, hopefully unlikely. *) 
 
 (*FIXME: M2SHORTCARD is for compatibility with reusem3/Positions.tPosition.
          These are probably adequate, but maybe 32 bits would be better here.

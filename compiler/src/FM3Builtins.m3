@@ -49,6 +49,7 @@ MODULE FM3Builtins
     ; LTypeExpr ^ . ExpIsUsable := TRUE
     ; LTypeExpr ^ . ExpIsLegalRecursive := TRUE
     ; FM3Utils . ContribToHashI ( LTypeExpr ^ . ExpHash , Opcode ) 
+    ; FM3Utils . FinalizeHash ( (*IN OUT*) LTypeExpr ^ . ExpHash ) 
     ; GStaticArray [ Opcode ] := LTypeExpr  
     END InitOneTypeExpr
 
@@ -103,6 +104,7 @@ MODULE FM3Builtins
     ; LConstExpr ^ . ExpIsLegalRecursive := TRUE
     ; FM3Utils . ContribToHashI ( LConstExpr ^ . ExpHash , Opcode ) 
     ; FM3Utils . ContribToHashL ( LConstExpr ^ . ExpHash , ConstValue ) 
+    ; FM3Utils . FinalizeHash ( (*IN OUT*) LConstExpr ^ . ExpHash ) 
     ; LConstExpr ^ . ExpRepExprNo := FM3Exprs . RepExprNoSingleton
     ; LConstExpr ^ . ExpState := FM3Exprs . ExprStateTyp . EsResolved
     ; GStaticArray [ Opcode ] := LConstExpr  
@@ -431,6 +433,7 @@ MODULE FM3Builtins
       ; LResult ^ . ExpBuiltinOpRtOpndKindsAllowed
           := WProps . OpRtOpndKindsAllowed 
       ; FM3Utils . ContribToHashI ( LResult ^ . ExpHash , Opcode ) 
+      ; FM3Utils . FinalizeHash ( (*IN OUT*) LResult ^ . ExpHash ) 
       ; RETURN LResult
       END (*WITH*) 
     END NewOpExpr 
@@ -472,6 +475,7 @@ MODULE FM3Builtins
         ; FM3Utils . ContribToHashI ( LResult ^ . ExpHash , Opcode ) 
         ; FM3Utils . ContribToHashI ( LResult ^ . ExpHash , Position . Line )
         ; FM3Utils . ContribToHashI ( LResult ^ . ExpHash , Position . Column )
+        ; FM3Utils . FinalizeHash ( (*IN OUT*) LResult ^ . ExpHash ) 
 (*TODO: Maybe. If no need for the position of a specific occurence of ANY
                develops, have only one instance of this and thus can also
                have only one open array of one element of this kind.
