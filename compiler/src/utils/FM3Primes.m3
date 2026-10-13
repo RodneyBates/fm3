@@ -1,21 +1,21 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2023,       Rodney M. Bates.                                    *)
+(* Copyright 2023..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *)
 
 MODULE FM3Primes 
 
-; IMPORT IntIntVarArray
-; FROM IntIntVarArray IMPORT Assign , Fetch
+; IMPORT VarArray_Int_Int
+; FROM VarArray_Int_Int IMPORT Assign , Fetch
 ; IMPORT IntRanges 
 
 ; CONST EstimatedPrimesDensity = 5 
 
 ; TYPE PrimesSsTyp = INTEGER 
-; TYPE PrimesPtrTyp = IntIntVarArray . T 
+; TYPE PrimesPtrTyp = VarArray_Int_Int . T 
 ; TYPE DynArrayIntTyp = INTEGER 
 
 ; VAR PrimesPtr : PrimesPtrTyp 
@@ -32,7 +32,7 @@ MODULE FM3Primes
         LElemCt := Arg DIV EstimatedPrimesDensity
       ; LElemCt := MAX ( LElemCt , 11 ) 
       ; PrimesPtr
-          := IntIntVarArray . New ( 0 , IntRanges . RangeTyp { 0 , LElemCt } ) 
+          := VarArray_Int_Int . New ( 0 , IntRanges . RangeTyp { 0 , LElemCt } ) 
       ; PrimesSize := LElemCt 
       ; PrimesCt := 11 
       ; Assign ( PrimesPtr , 0 , 3 ) 
