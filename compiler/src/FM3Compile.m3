@@ -876,30 +876,63 @@ MODULE  FM3Compile
 ; PROCEDURE AcquireTransUnits ( UnitTRef : FM3Units . UnitTRefTyp )
   (* "Trans" for transitively brought in. *) 
 
-  = PROCEDURE VisitProxy
+  = VAR AtuUnitRef : FM3Units . UnitRefTyp
+  ; VAR AtuImpUnitNoSet : IntSets . T 
+  
+  ; PROCEDURE VisitProxy
       ( <*UNUSED*> Ss : INTEGER
       ; VAR (*READONLY*) Elem : VarArray_Int_ExpImpProxy . ElemTyp  
       )
 
     = VAR LImpUnitTRef : FM3Units . UnitTRefTyp
+    ; VAR LImpUnitHash : FM3Utils . HashTyp
+    ; VAR LImpUnitNo : FM3Globals . UnitNoTyp 
 
     ; BEGIN (*VisitProxy*)
         LImpUnitTRef := GetUnitTRefOfFileName ( Elem . EipUnitFileName )
-     ; AcquireUnit
-         ( LImpUnitTRef , Elem . EipImportingUnitPosition , Elem . EipReqKind )
+      ; LImpUnitNo := LImpUnitTRef . UttSelfUnitNo 
+      ; IF IntSets . IsElement ( LImpUnitNo , AtuImpUnitNoSet )
+        THEN RETURN
+        END (*IF*) 
+      ; AcquireUnit
+          ( LImpUnitTRef , Elem . EipImportingUnitPosition , Elem . EipReqKind )
+      ; LImpUnitHash := LImpUnitTRef ^ . UttUnitRef ^ . UntHash
+      ; IF LImpUnitHash # FM3Utils . HashNull
+           AND AtuUnitRef . UntHash # FM3Utils . HashNull
+           AND LImpUnitHash # AtuUnitRef . UntHash
+        THEN
+          FM3Messages . ErrorArr
+            ( ARRAY OF REFANY
+                { "Version of "
+                , FM3Units. UnitReqKindTag ( Elem . EipReqKind )
+                , "ed, previously compiled unit \""
+                , AtuUnitRef ^ . UntSrcFileSimpleName
+                , "\" is incompatible."
+                , FM3Messages . NLIndent2
+                , "Expected hash = "
+                , FM3Utils . HexImage ( AtuUnitRef . UntHash ) 
+                , "; actual hash = " 
+                , FM3Utils . HexImage ( LImpUnitHash ) 
+                } 
+            , Elem . EipImportingUnitPosition  
+            ) 
+        ; LImpUnitTRef . UttState := Utts . UttsNotUsable 
+        END (*IF*) 
+      ; AtuImpUnitNoSet := IntSets . Include ( AtuImpUnitNoSet , LImpUnitNo )
       END VisitProxy
 
-  ; VAR LUnitRef : FM3Units . UnitRefTyp
   ; VAR LExpImpMap : VarArray_Int_ExpImpProxy . T 
 
   ; BEGIN (*AcquireTransUnits*)
       IF UnitTRef = NIL THEN RETURN END (*IF*)
-    ; LUnitRef := UnitTRef ^ . UttUnitRef
-    ; IF LUnitRef = NIL THEN RETURN END (*IF*)
-    ; LExpImpMap := LUnitRef ^ . UntExpImpMap 
+    ; AtuUnitRef := UnitTRef ^ . UttUnitRef
+    ; IF AtuUnitRef = NIL THEN RETURN END (*IF*)
+    ; LExpImpMap := AtuUnitRef ^ . UntExpImpMap 
     ; IF LExpImpMap = NIL THEN RETURN END (*IF*)
+    ; AtuImpUnitNoSet := IntSets . Empty ( ) 
     ; VarArray_Int_ExpImpProxy . ForAllTouchedInRange
         ( LExpImpMap , Do := VisitProxy ) 
+    ; AtuImpUnitNoSet := NIL 
     END AcquireTransUnits
 
 ; PROCEDURE EnsureBuildDirExists
