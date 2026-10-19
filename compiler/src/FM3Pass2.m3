@@ -511,12 +511,12 @@ FALSE AND
       (* No nesting of override lists, so a single variable suffices. *) 
 
 (*EXPORTED.*)
-; PROCEDURE AssertExprKind
-    ( ExprRef : FM3ExprRefTyp ; ExpKind : Ekt , Msg : TEXT )
+; <* INLINE *>
+  PROCEDURE AssertExprKind
+    ( ExprRef : FM3Exprs . ExprRefTyp ; ExpKind : Ekt ; Msg : TEXT )
 
-  = <* INLINE *>
-    BEGIN (*AssertExprKind*)
-      IF ExprRef ^ . ExpKind # ExpKind 
+  = BEGIN (*AssertExprKind*)
+      IF ExprRef = NIL OR ExprRef ^ . ExpKind # ExpKind 
       THEN <* ASSERT FALSE , "Messsge." *>
       END (*IF*)
     END AssertExprKind
@@ -1212,9 +1212,8 @@ TRUE OR
 
       | Itk . ItkRaisesListEmpty
       =>  LExprRef := FM3Exprs . ExprStackTopObj 
-        ; IF LExprRef ^ . ExpKind # Ekt . EkSignature
-          THEN <* ASSERT FALSE , "Empty raises list in not signature." *>
-          END (*IF*)
+        ; AssertExprKind
+            ( LExprRef , Ekt . EkSignature , "Empty raises list in not signature" )
         ; FM3Patch . DiscardOperands
             ( FM3Utils . TokenOpndCt ( TokResult . TrTok )
             , TokResult . TrRdBack
@@ -1227,9 +1226,8 @@ TRUE OR
 
         ; LListElem := FM3Exprs . PopExprStack ( )  
         ; LExprRef := FM3Exprs . ExprStackTopObj   
-        ; IF LExprRef ^ . ExpKind # Ekt . EkSignature
-          THEN <* ASSERT FALSE , "Exception ref in not a signature." *>
-          END (*IF*)
+        ; AssertExprKind
+            ( LExprRef , Ekt . EkSignature , "Exception name in not signature" )
         ; FM3Exprs . PrependExprList
             ( LExprRef ^ . ExpArgList , LListElem , ExpectedArgNo := LCt + 1 )  
 
@@ -1237,9 +1235,8 @@ TRUE OR
       =>  LPosition := GetBwdPos ( TokResult . TrRdBack )
 
         ; LExprRef := FM3Exprs . ExprStackTopObj 
-        ; IF LExprRef ^ . ExpKind # Ekt . EkSignature
-          THEN <* ASSERT FALSE , "Raises list in not a signature." *>
-          END (*IF*)
+        ; AssertExprKind
+            ( LExprRef , Ekt . EkSignature , "Raises list in not signature" )
         ; FM3Exprs . FinishExprList ( LExprRef ^ . ExpArgList )
         
       | Itk . ItkSignatureLt 
@@ -1250,9 +1247,8 @@ TRUE OR
 
         ; LScopeRef := FM3Scopes . ScopeRefOfScopeNo ( LScopeNo ) 
         ; LExprRef := FM3Exprs . ExprStackTopObj 
-        ; IF LExprRef ^ . ExpKind # Ekt . EkSignature
-          THEN <* ASSERT FALSE , "ItkSignatureLt, in not a signature." *>
-          END (*IF*)
+        ; AssertExprKind
+            ( LExprRef , Ekt . EkSignature , "SignatureLt in not signature" )
         ; FM3Decls . FinishDeclList ( LScopeRef ^ . ScpDeclList ) 
         
       (* Brands: *)
@@ -1395,9 +1391,8 @@ TRUE OR
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
 
         ; LExprRef := FM3Exprs . ExprStackTopObj 
-        ; IF LExprRef ^ . ExpKind # Ekt . EkObjType
-          THEN <* ASSERT FALSE , "Override list not inside object type." *>
-          END (*IF*)
+        ; AssertExprKind
+            ( LExprRef , Ekt . EkObjType , "Override in not object type" )
         ; LScopeRef := LExprRef ^ . ExpScopeRef1
         ; FM3Decls . InitDeclList ( LScopeRef ^ . ScpDeclList , LCt ) 
 
@@ -1406,9 +1401,11 @@ TRUE OR
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
 
         ; LExprRef := FM3Exprs . ExprStackTopObj 
-        ; IF LExprRef ^ . ExpKind # Ekt . EkObjType
-          THEN <* ASSERT FALSE , "Override list not inside object type." *>
-          END (*IF*)
+        ; AssertExprKind
+            ( LExprRef
+            , Ekt . EkObjType
+            , "Override list lt in not object type"
+            )
 
       | Itk . ItkOverrideListLt
       =>  LCt := GetBwdInt ( TokResult . TrRdBack )
@@ -1423,10 +1420,11 @@ TRUE OR
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
 
         ; LExprRef := FM3Exprs . ExprStackTopObj 
-        ; IF LExprRef ^ . ExpKind # Ekt . EkObjType
-          THEN <* ASSERT FALSE , "Override not inside object type." *>
-          END (*IF*)
-          
+        ; AssertExprKind
+            ( LExprRef
+            , Ekt . EkObjType
+            , "Override list rt in not object type"
+            )
       | Itk . ItkOverrideProc 
       =>  LPosition := GetBwdPos ( TokResult . TrRdBack )
 
@@ -1438,9 +1436,11 @@ TRUE OR
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
 
         ; LExprRef := FM3Exprs . ExprStackTopObj 
-        ; IF LExprRef = NIL OR LExprRef ^ . ExpKind # Ekt . EkObjType
-          THEN <* ASSERT FALSE , "Override list not inside object type." *>
-          END (*IF*)
+        ; AssertExprKind
+            ( LExprRef
+            , Ekt . EkObjType
+            , "Override list rt in not object type"
+            )
 
       | Itk . ItkObjTypeRt 
       =>  VAR LExprRef : FM3Exprs . ExprRefTyp
