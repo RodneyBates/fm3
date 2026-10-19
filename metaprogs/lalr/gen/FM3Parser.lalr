@@ -2161,35 +2161,43 @@ END OLD
      } .
 
 (* RAISES of signature. *) 
-   Raises : StkRwRAISES StkRwANY 
-     { $$ . PaInt1 := 0 (*This does not go into a list*) ;  
+  Raises : StkRwRAISES StkRwANY 
+     { $$ . PaInt1 := 1 (*This counts. *) ;  
        FM3Pass1 . PutBwd_LP ( Itk . ItkRaisesANY , $2 . Scan . Position ) ; 
      } .
      
-   Raises : /*Empty*/
+   Raises : /*Absent.*/
      { $$ . PaInt1 := 0 ; 
        FM3Pass1 . PutBwd_LP ( Itk . ItkRaisesListEmpty , $2 . Scan . Position ) ; 
      } .
-
-   Raises
+ 
+   Raises /*Empty.*/ 
      : StkRwRAISES StkOpenBrace StkCloseBrace 
      { $$ . PaInt1 := 0 (* Ct of refs. *) ;  
        FM3Pass1 . PutBwd_LP ( Itk . ItkRaisesListEmpty , $2 . Scan . Position ) ;
      } . 
      
-   Raises
-     : StkRwRAISES StkOpenBrace ExceptRefPlusList StkCloseBrace 
-     { $$ . PaInt1 := $3 . PaInt1 (* Ct of refs. *) ; } .
-     
-   ExceptRefPlusList : IdentOrQualRef
-     { $$ . PaInt1 := 1 ;
-       FM3Pass1 . PutBwd_LC ( Itk . ItkExceptRefLt , $1 . PaPass1Coord )
+   Raises /*Plus basis.*/
+     : StkRwRAISES StkOpenBrace RaisesPlusList StkCloseBrace 
+     { $$ . PaInt1 := $3 . PaInt1 (* Total ct of raises. *) ;
+       FM3Pass1 . MakeListPos ( $$ , Itk . ItkRaisesListLt , $2 . Scan . Position , $3 ) ; 
      } .
-     
-   ExceptRefPlusList : ExceptRefPlusList StkComma IdentOrQualRef
-     { $$ . PaInt1 := $1 . PaInt1 + 1 ;
-       FM3Pass1 . PutBwd_LC ( Itk . ItkExceptRefLt , $3 . PaPass1Coord )
-     } .
+
+   RaisesPlusList : IdentOrQualRef /* Singleton. */ 
+     { $$ . PaInt1 (* Expression count *) :=  1 ;
+       (* Default PaPos. *) 
+       (* Default PaPass1Coord. *)
+     } . 
+   
+  RaisesPlusList : RaisesPlusList StkComma IdentOrQualRef
+     { $$ . PaInt1 (* ExceptionCt. *):= $1 . PaInt1 + $3 . PaInt1 ;
+       FM3Pass1 . PutBwd_ECIP (* Separator. *)
+         ( Itk . ItkRaisesListLt
+         , $2 . PaPass1Coord 
+         , $1 . PaInt1 (* Ct of exceptions to left. *) 
+         , $2 . Scan . Position
+         ) ; 
+     } . 
      
 (* ------------------------------ Procedures ------------------------------ *)
 

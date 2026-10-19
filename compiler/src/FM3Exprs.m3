@@ -9,13 +9,14 @@
 MODULE FM3Exprs
 
 ; IMPORT Fmt
-; IMPORT IntRanges
 ; IMPORT Text 
-; IMPORT TextWr 
-; IMPORT VarArray_Int_Refany
+; IMPORT TextWr
+; IMPORT Thread 
 ; IMPORT Wr
 
+; IMPORT IntRanges
 ; IMPORT IntSets 
+; IMPORT VarArray_Int_Refany
 
 ; IMPORT FM3Atom_OAChars
 ; IMPORT FM3Base
@@ -103,7 +104,8 @@ MODULE FM3Exprs
   ; VAR LResult : TEXT 
   ; VAR LCt , LNo : INTEGER
 
-  ; BEGIN 
+  ; <* FATAL Thread . Alerted , Wr . Failure *>
+    BEGIN 
       LCt := KindSetCard ( KindSet ) 
     ; IF LCt = 0 THEN RETURN "<nothing>" END (*IF*) 
     ; LWrT := TextWr . New ( )
@@ -146,7 +148,8 @@ MODULE FM3Exprs
     END NewExprRef
 
 (* EXPORTED.*) 
-; PROCEDURE RegisterExpr ( Expr : ExprRefTyp ; Mergeable : BOOLEAN )
+; PROCEDURE RegisterExpr ( Expr : ExprRefTyp ; Mergeable : BOOLEAN ) 
+  (* With all elements initialized to NIL. *) 
   (* Do not register a static builtin expression (type or constant) . *) 
 
   = VAR LUnitRef : FM3Units . UnitRefTyp
@@ -175,7 +178,6 @@ MODULE FM3Exprs
       THEN ExprList . ElListRef := NIL
       ELSE 
         ExprList . ElListRef := NEW ( ExprListElmtsTyp , Ct )
-      ; ExprList . ElUnfilledCt := Ct 
       ; FOR RI := FIRST ( ExprList . ElListRef ^ )
                TO LAST ( ExprList . ElListRef ^ )
         DO ExprList .  ElListRef ^ [ RI ] := NIL 
@@ -187,21 +189,27 @@ MODULE FM3Exprs
 ; PROCEDURE PrependExprList
     ( VAR (*IN OUT*) ExprList : ExprListTyp
     ; Elmt : ExprRefTyp
-    ; ExpectedSs : INTEGER := - 1 (* -1 means make no check. *) 
-    )
-
+    ; ExpectedArgNo : INTEGER (* Arg Nos are 1-origin. *) 
+    ) 
+ 
   = BEGIN (*PrependExprList*)
-      DEC ( ExprList . ElUnfilledCt )
-    ; IF ExpectedSs >= 0 AND ExprList . ElUnfilledCt # ExpectedSs
-      THEN <* ASSERT FALSE , "Expr list ss not as expected." *>
+      IF ExprList . ElUnfilledCt < 0
+      THEN
+        IF ExprList . ElUnfilledCt = FIRST ( INTEGER )
+        THEN <* ASSERT FALSE , " Expr list unitialized." *> 
+        ELSE <* ASSERT FALSE , "Expr list underflow." *>
+        END (*IF*) 
+      END (*IF*) 
+    ; IF ExprList . ElUnfilledCt # ExpectedArgNo
+      THEN <* ASSERT FALSE , "PrependExpr list, no arg space." *>
       END (*IF*) 
     ; WITH WElmt = ExprList . ElListRef ^ [ ExprList . ElUnfilledCt ] 
-           (* ^Will NIL-fault if list is not set up. *) 
       DO IF WElmt # NIL 
         THEN <* ASSERT FALSE , "duplicate insertion into ExprList" *>
         END (*IF*)
       ; WElmt := Elmt 
       END (*WITH*) 
+    ; DEC ( ExprList . ElUnfilledCt )
     END PrependExprList
 
 (*EXPORTED.*)
@@ -214,9 +222,38 @@ MODULE FM3Exprs
       END (*IF*) 
     END FinishExprList
 
+(*EXPORTED.*)
+; PROCEDURE ArgNoOfExprList ( List : ExprListTyp ; No : INTEGER ) : ExprRefTyp 
+
+  = VAR LElemsRef : ExprListElmtsTyp 
+  ; VAR LNumber : INTEGER
+  ; VAR LSs : INTEGER 
+
+  ; BEGIN (*ArgNoOfExprList*)
+      IF No < 0 THEN RETURN NIL END (*IF*) 
+    ; LElemsRef := List . ElListRef 
+    ; IF LElemsRef = NIL THEN RETURN NIL END (*IF*) 
+    ; LNumber := NUMBER ( LElemsRef ^ )  
+    ; IF LNumber <= 0 THEN RETURN NIL END (*IF*)
+    ; LSs := No - 1
+    ; IF LSs >= LNumber THEN RETURN NIL END (*IF*)
+    ; RETURN LElemsRef ^ [ LSs ] 
+    END ArgNoOfExprList 
+      
+(*EXPORTED.*)
+; <*INLINE*>
+  PROCEDURE ArgNoOfExpr ( Expr : ExprRefTyp ; No : INTEGER ) : ExprRefTyp 
+
+  = BEGIN (*ArgNoOfExpr*)
+      IF Expr = NIL THEN RETURN NIL END (*IF*) 
+    ; RETURN ArgNoOfExprList ( Expr . ExpArgList , No )
+(* MAYBE: move this into ArgNo, or  ^  out to call sites. *) 
+    END ArgNoOfExpr
+      
 ; PROCEDURE AppendExprListImage ( ExprList : ExprListTyp ) 
 
-  = BEGIN
+  = <* FATAL Thread . Alerted , Wr . Failure *>
+    BEGIN
       IF ExprList . ElListRef = NIL THEN RETURN END (*IF*)
     ; FOR RI := FIRST ( ExprList . ElListRef ^ )
              TO LAST ( ExprList . ElListRef ^ ) 
@@ -232,7 +269,7 @@ MODULE FM3Exprs
     END (*FOR*) 
     END AppendExprListImage
     
-; VAR GWrT : Wr . T (* Sorry for the global. *)
+; VAR GWrT : Wr . T (* Sorry for the globals.  Saves a lot of passing around. *)
 ; VAR GDepth : INTEGER
 ; VAR GExprNosDumped : IntSets . T
 ; TYPE IndentStringsTyp = ARRAY [ 0 .. 1 ] OF TEXT
@@ -258,7 +295,8 @@ MODULE FM3Exprs
   (* PRE: It's not already dumped. *)
   (* PRE: Expr header line already written. *) 
 
-  = BEGIN
+  = <* FATAL Thread . Alerted , Wr . Failure *>
+    BEGIN
       GWrT := WrT 
     ; GDepth := 0 
     ; GExprNosDumped := ExprNosDumped 
@@ -271,7 +309,8 @@ MODULE FM3Exprs
 ; PROCEDURE ExprImage ( Expr : ExprRefTyp ) : TEXT 
   (* For calling from within a debugger. *) 
 
-  = BEGIN
+  = <* FATAL Thread . Alerted , Wr . Failure *>
+    BEGIN
       GWrT := TextWr . New ( )
     ; GDepth := 0
     ; GExprNosDumped := IntSets . Empty ( ) 
@@ -282,7 +321,8 @@ MODULE FM3Exprs
 
 ; PROCEDURE SubtypeComment ( Text : TEXT ) 
 
-  = BEGIN
+  = <* FATAL Thread . Alerted , Wr . Failure *>
+    BEGIN
 
 RETURN ; 
       Wr . PutText ( GWrT , GIndentStrings [ ORD ( GDepth MOD 5 = 0 ) ] )
@@ -294,7 +334,8 @@ RETURN ;
 
 ; PROCEDURE Field ( Name : TEXT ; Value : TEXT ) 
 
-  = BEGIN
+  = <* FATAL Thread . Alerted , Wr . Failure *>
+    BEGIN
       IF Value # NIL 
       THEN 
         Wr . PutText ( GWrT , GIndentStrings [ ORD ( GDepth MOD 5 = 0 ) ] )
@@ -310,7 +351,8 @@ RETURN ;
 
   = VAR LIndentStrings : IndentStringsTyp 
 
-  ; BEGIN
+  ; <* FATAL Thread . Alerted , Wr . Failure *>
+    BEGIN
       IF Expr = NIL
       THEN 
         Wr . PutText ( GWrT , Wr . EOL )
@@ -327,7 +369,8 @@ RETURN ;
 
 ; PROCEDURE NestedField ( Name : TEXT ; Expr : ExprRefTyp ) 
 
-  = BEGIN
+  = <* FATAL Thread . Alerted , Wr . Failure *>
+    BEGIN
       Wr . PutText ( GWrT , GIndentStrings [ ORD ( GDepth MOD 5 = 0 ) ] )
     ; Wr . PutChar ( GWrT , ' ' ) 
     ; Wr . PutText ( GWrT , Name ) 
@@ -438,7 +481,8 @@ RETURN ;
     END ExprRefImage
 
 ; PROCEDURE ExprAppend ( Expr : ExprRefTyp )
-    = BEGIN
+    = <* FATAL Thread . Alerted , Wr . Failure *>
+      BEGIN
         Field ( "ExpStackLink" , ExprRefImage ( Expr ^ . ExpStackLink ) ) 
       ; Field ( "ExpRefConstVal" , FM3Utils . RefanyImage ( Expr ^ . ExpRefConstVal ) )  
       ; Field ( "ExpScalarConstVal" , Fmt . LongInt ( Expr ^ . ExpScalarConstVal ) )  
@@ -498,8 +542,6 @@ RETURN ;
       ; NestedField ( "ExpType" , Expr ^ . ExpType ) 
       ; NestedField ( "ExpOpnd1" , Expr ^ . ExpOpnd1 ) 
       ; NestedField ( "ExpOpnd2" , Expr ^ . ExpOpnd2 ) 
-      ; NestedField ( "ExpOpnd3" , Expr ^ . ExpOpnd3 ) 
-      ; NestedField ( "ExpOpnd4" , Expr ^ . ExpOpnd4 ) 
       ; NestedField ( "ExpRangeBase" , Expr ^ . ExpRangeBase ) 
       ; NestedField ( "ExpArgPrefix" , Expr ^ . ExpArgPrefix ) 
 
@@ -509,6 +551,7 @@ RETURN ;
     ( Expr : ExprRefTyp ; ExprKind : ExprKindTyp ) : ExprStateTyp
   = BEGIN
 (* COMPLETEME: *) 
+      RETURN Est . EsUnknown  
     END Resolve
 
 (* EXPORTED.*) 
@@ -540,7 +583,8 @@ RETURN ;
 ; PROCEDURE ResolveREFType ( Def : ExprRefTyp ) : BOOLEAN (* Is resolved. *)
   (* PRE : Def # NIL. *) 
 
-  = BEGIN 
+  = BEGIN
+      RETURN FALSE 
     END ResolveREFType
 
 

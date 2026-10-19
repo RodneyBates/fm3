@@ -73,12 +73,16 @@ MODULE FM3Decls
   = VAR LResult : DeclListTyp 
 
   ; BEGIN (*InitDeclList*)
-      DeclList . DlListRef := NEW ( DeclListElmtsTyp , Ct )
-    ; DeclList . DlUnfilledCt := Ct 
-    ; FOR RI := FIRST ( DeclList . DlListRef ^ )
-             TO LAST ( DeclList . DlListRef ^ )
-      DO DeclList .  DlListRef ^ [ RI ] := NIL 
-      END (*FOR*)
+      DeclList . DlUnfilledCt := Ct
+    ; IF Ct <= 0
+      THEN DeclList . DlListRef := NIL
+      ELSE 
+        DeclList . DlListRef := NEW ( DeclListElmtsTyp , Ct )
+      ; FOR RI := FIRST ( DeclList . DlListRef ^ )
+               TO LAST ( DeclList . DlListRef ^ )
+        DO DeclList .  DlListRef ^ [ RI ] := NIL 
+        END (*FOR*)
+      END (*IF*) 
     END InitDeclList
 
 (*EXPORTED.*)
@@ -89,13 +93,13 @@ MODULE FM3Decls
     )
 
   = BEGIN (*PrependDeclList*)
-      IF DeclList . DlListRef = NIL 
-      THEN <* ASSERT FALSE , "Uninitialized decl list." *>
-      END (*IF*) 
-    ; IF DeclList . DlUnfilledCt < 0
+      IF DeclList . DlUnfilledCt < 0
       THEN <* ASSERT FALSE , "Decl list underflow." *>
       END (*IF*) 
     ; DEC ( DeclList . DlUnfilledCt ) (* Underflow will bounds-fault. *) 
+    ; IF ExpectedSs >= 0 AND DeclList . DlUnfilledCt # ExpectedSs
+      THEN <* ASSERT FALSE , "Decl list ss not as expected." *>
+      END (*IF*) 
     ; IF DeclList . DlUnfilledCt # ExpectedSs
       THEN <* ASSERT FALSE , "Decl list ,mismatched ss." *>
       END (*IF*) 

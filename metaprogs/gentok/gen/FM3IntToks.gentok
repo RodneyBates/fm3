@@ -10,7 +10,7 @@
 
 (* Ater changes, rerun gentok with the following command, minus the quotes,
    in this file's directory.
-   "./gentok -T -t -c -n -o  FM3IntToks.gentok"
+   "./gentok -T -t -c -n -o FM3IntToks.gentok"
 *)
 
 UNITNAME FM3IntToks
@@ -50,17 +50,20 @@ ItkModule INT POS 3 (* UnitNo, Position. *)
         Begin INT POS 
 . 
 
-
 LONE
   ItkFormalTypeAbsent POS 2 (* Position. *) .
   ItkFormalExprAbsent POS 2 (* Position. *) .
+  ItkResultTypeAbsent POS 2 (* Position. *) . 
+  ItkIdRefAtomNotUsable IDENT POS .
+
   ItkRaisesListEmpty POS 2 (* Position. *) . 
   ItkRaisesANY POS 2 (* Position. *) .
-  ItkResultTypeAbsent POS 2 (* Position. *) . 
-  ItkIdRefAtomNotUsable IDENT POS . 
+  
+LIST
+  ItkRaisesList INT POS (* list count. Position of RAISES. *) . 
 
 FIXED
-  ItkExceptRef . 
+  ItkExceptRef INT POS (* 1-origin no of this *) .  
 
 (* Scopes and declarations within. *) 
 LONE
@@ -72,7 +75,7 @@ LONE
   ItkDuplDeclId IDENT INT POS 4 (* IdAtom, orig decl's scope no, position *) . 
   ItkDeclId INT IDENT INT POS 5 (* DeclKind, IdAtom, IdStd, position *) .
   ItkDeclNo DECL POS 3 (* DeclNo, position *) .
-  ItkRefTopExprNo INT POS (* ExprNo. *)  
+  ItkRefTopExprNo INT POS (* ExprNo. *) .  
 
 (* Identifier references. *) 
 
@@ -93,14 +96,13 @@ ItkInvalidRef POS .
 FIXED   
 ItkSignature INT INT INT POS
             (* Scope #, Formals ct, raises ct, Position. *)
-  Result POS
+  ResultType POS
   Raises POS . 
 ItkMethodDecl POS 
   Sig         POS (* Of "(" *) 
   Proc        POS (* Of ":=" *) .
 ItkFormalType POS 2 (* Position of colon. *) . 
 ItkFormalExpr POS 2 (* Position of ":=" *).
-ItkRaisesList INT POS 3 (* list count. Position of RAISES. *) . 
 ItkProcDecl   IDENT POS 3 .
 ItkProcDef    IDENT POS 3 
   Body        POS 2 (* Position of equal sign. *) .

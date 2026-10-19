@@ -1,5 +1,4 @@
-
-(* -----------------------------------------------------------------------1- *)
+ (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2024..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
@@ -22,7 +21,7 @@ INTERFACE FM3Exprs
    are expressions along with value-computing expressions, and each can contain
    one of the other.  So they are all part of what's called "expressions".
 
-   Some ExprRefTyps contain things that are not strictly expressions, but are
+   Some ExprTyps contain things that are not strictly expressions, but are
    needed as components, e.g. field lists. also data structure for them is
    defined here.
 *)
@@ -85,7 +84,7 @@ INTERFACE FM3Exprs
      , EkInvalid (* Don't apply any further semantic processing. *) 
 
 (* Fields relevant to specific expr kinds *) 
-     , EkLiteral      (* (1)ExpScalarConstVal
+     , EkLiteral      (* (1)ExpScalarConstVal or ExpRefConstVal 
                          (1)ExpLoTypeInfoRef  
                          (1)ExpOpcode 
                          (1)ExpHash 
@@ -235,7 +234,9 @@ INTERFACE FM3Exprs
 ; TYPE ExprListTyp
     = RECORD
         ElListRef : ExprListElmtsTyp := NIL 
-      ; ElUnfilledCt : INTEGER := - 1 (* Filling R2L, unfilled elmts on left. *)
+      ; ElUnfilledCt : INTEGER := FIRST ( INTEGER ) 
+        (* Filling R2L, unfilled elmts on left. *)
+        (* FIRST ( INTEGER ) means unitialized. *)
       END 
 
 ; PROCEDURE InitExprList
@@ -245,11 +246,16 @@ INTERFACE FM3Exprs
 ; PROCEDURE PrependExprList
     ( VAR (*IN OUT*) ExprList : ExprListTyp
     ; Elmt : ExprRefTyp
-    ; ExpectedSs : INTEGER := - 1 (* -1 means make no check. *)
+    ; ExpectedArgNo : INTEGER (* Arg Nos are 1-origin. *) 
     )
 
 ; PROCEDURE FinishExprList ( ExprList : ExprListTyp )
   (* Assert that it is exactly full. *) 
+
+; PROCEDURE ArgNoOfExprList ( List : ExprListTyp ; No : INTEGER ) : ExprRefTyp 
+
+; <*INLINE*>
+  PROCEDURE ArgNoOfExpr ( Expr : ExprRefTyp ; No : INTEGER ) : ExprRefTyp 
 
 ; PROCEDURE ExprRefImage ( ExprRef : REFANY ) : TEXT 
   (* ExprNo, REF, and Position. *) 
@@ -313,14 +319,16 @@ INTERFACE FM3Exprs
       ; ExpHash : FM3Utils . HashTyp := FM3Base . HashNull
       ; ExpOpnd1 : ExprRefTyp (* Left operand when binary. *)
       ; ExpOpnd2 : ExprRefTyp (* Right Operand when binary. *) 
+      ; ExpOpnd3 : ExprRefTyp 
+      ; ExpOpnd4 : ExprRefTyp 
         (* An expr rec can denote a unary operator, in which case we use this
            type with 2nd operand field just going unused.
           For an object type:  
             ExpOpnd1 is supertype, non-NIL even if defaulted. 
             ExpOpnd2 is brand, NIL if no BRANDED.
+            ExpOpnd3 
+            ExpOpnd4 
         *) 
-      ; ExpOpnd3 : ExprRefTyp 
-      ; ExpOpnd4 : ExprRefTyp
 
       ; ExpBuiltinOpLtOpndKindsAllowed := ExprKindSetTyp { } 
       ; ExpBuiltinOpRtOpndKindsAllowed := ExprKindSetTyp { }

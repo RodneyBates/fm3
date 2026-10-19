@@ -656,13 +656,13 @@ Formals ResultType Raises
                                   reduce Raises -> -Epsilon-. {StkRwRAISES} ?
                                   read   Raises -> .StkRwRAISES StkRwANY ?
                                   read   Raises -> .StkRwRAISES StkOpenBrace StkCloseBrace ?
-                                  read   Raises -> .StkRwRAISES StkOpenBrace ExceptRefPlusList StkCloseBrace ?
+                                  read   Raises -> .StkRwRAISES StkOpenBrace RaisesPlusList StkCloseBrace ?
 
 
 ignored                     P205 Raises (Reduce) -> -Epsilon-. {StkRwRAISES}
 retained                    P204 Raises (Term) -> °StkRwRAISES StkRwANY 
 retained                    P206 Raises (1684) -> °StkRwRAISES StkOpenBrace StkCloseBrace 
-retained                    P207 Raises (1684) -> °StkRwRAISES StkOpenBrace ExceptRefPlusList StkCloseBrace 
+retained                    P207 Raises (1684) -> °StkRwRAISES StkOpenBrace RaisesPlusList StkCloseBrace 
 
 
 ****** Nonterminals ******
@@ -808,7 +808,7 @@ Formal = 246
 FormalMode = 247
 FormalIds = 248
 FormalType = 249
-ExceptRefPlusList = 250
+RaisesPlusList = 250
 ProcDecl = 251
 ProcDefLt = 252
 BinOpOp = 253
@@ -3422,13 +3422,13 @@ State 297 = {
     P205 Raises (Reduce) -> -Epsilon-.
     P204 Raises (Term) -> °StkRwRAISES StkRwANY 
     P206 Raises (2) -> °StkRwRAISES StkOpenBrace StkCloseBrace 
-    P207 Raises (2) -> °StkRwRAISES StkOpenBrace ExceptRefPlusList StkCloseBrace 
+    P207 Raises (2) -> °StkRwRAISES StkOpenBrace RaisesPlusList StkCloseBrace 
  } 
 
 State 298 = { 
     P204 Raises (Term) -> StkRwRAISES°StkRwANY 
     P206 Raises (Term) -> StkRwRAISES°StkOpenBrace StkCloseBrace 
-    P207 Raises (1) -> StkRwRAISES°StkOpenBrace ExceptRefPlusList StkCloseBrace 
+    P207 Raises (1) -> StkRwRAISES°StkOpenBrace RaisesPlusList StkCloseBrace 
  } 
 
 State 299 = { 
@@ -3437,13 +3437,13 @@ State 299 = {
 
 State 300 = { 
     P206 Raises (Term) -> StkRwRAISES StkOpenBrace°StkCloseBrace 
-    P207 Raises (Nonterm) -> StkRwRAISES StkOpenBrace°ExceptRefPlusList StkCloseBrace 
-    P208 ExceptRefPlusList (Nonterm) -> °IdentOrQualRef 
+    P207 Raises (Nonterm) -> StkRwRAISES StkOpenBrace°RaisesPlusList StkCloseBrace 
+    P208 RaisesPlusList (Nonterm) -> °IdentOrQualRef 
     P60 IdentOrQualRef (Nonterm) -> °IdentRef 
     P58 IdentRef (Term) -> °StkIdent 
     P61 IdentOrQualRef (Nonterm) -> °QualIdentRef 
     P59 QualIdentRef (4) -> °StkIdent StkDot StkIdent 
-    P209 ExceptRefPlusList (1) -> °ExceptRefPlusList StkComma IdentOrQualRef 
+    P209 RaisesPlusList (1) -> °RaisesPlusList StkComma IdentOrQualRef 
  } 
 
 State 301 = { 
@@ -3451,16 +3451,16 @@ State 301 = {
  } 
 
 State 302 = { 
-    P208 ExceptRefPlusList (Reduce) -> IdentOrQualRef°
+    P208 RaisesPlusList (Reduce) -> IdentOrQualRef°
  } 
 
 State 303 = { 
-    P207 Raises (Term) -> StkRwRAISES StkOpenBrace ExceptRefPlusList°StkCloseBrace 
-    P209 ExceptRefPlusList (Term) -> ExceptRefPlusList°StkComma IdentOrQualRef 
+    P207 Raises (Term) -> StkRwRAISES StkOpenBrace RaisesPlusList°StkCloseBrace 
+    P209 RaisesPlusList (Term) -> RaisesPlusList°StkComma IdentOrQualRef 
  } 
 
 State 304 = { 
-    P209 ExceptRefPlusList (Nonterm) -> ExceptRefPlusList StkComma°IdentOrQualRef 
+    P209 RaisesPlusList (Nonterm) -> RaisesPlusList StkComma°IdentOrQualRef 
     P60 IdentOrQualRef (Nonterm) -> °IdentRef 
     P58 IdentRef (Term) -> °StkIdent 
     P61 IdentOrQualRef (Nonterm) -> °QualIdentRef 
@@ -3468,11 +3468,11 @@ State 304 = {
  } 
 
 State 305 = { 
-    P209 ExceptRefPlusList (Reduce) -> ExceptRefPlusList StkComma IdentOrQualRef°
+    P209 RaisesPlusList (Reduce) -> RaisesPlusList StkComma IdentOrQualRef°
  } 
 
 State 306 = { 
-    P207 Raises (Reduce) -> StkRwRAISES StkOpenBrace ExceptRefPlusList StkCloseBrace°
+    P207 Raises (Reduce) -> StkRwRAISES StkOpenBrace RaisesPlusList StkCloseBrace°
  } 
 
 State 307 = { 
@@ -4828,7 +4828,7 @@ State 131: (StkRwOBJECT->(A291,P183))
 State 132: (StkSemicolon->(A559,P118)) (StkCloseParen->(A559,P118)) (StkBecomes->(A110)) (OptDeclValue->(A409,P201))
 State 133: (StkRwEND->(A646,P205)) (StkRwMETHODS->(A646,P205)) (StkRwOVERRIDES->(A646,P205)) (StkRwRAISES->(A134)) (StkSemicolon->(A646,P205)) (StkEqual->(A646,P205)) (StkCloseParen->(A646,P205)) (StkBecomes->(A646,P205)) (Raises->(A415,P188))
 State 134: (StkRwANY->(A292,P204)) (StkOpenBrace->(A135))
-State 135: (StkCloseBrace->(A293,P206)) (StkIdent->(A95)) (IdentRef->(A363,P60)) (QualIdentRef->(A364,P61)) (IdentOrQualRef->(A413,P208)) (ExceptRefPlusList->(A136))
+State 135: (StkCloseBrace->(A293,P206)) (StkIdent->(A95)) (IdentRef->(A363,P60)) (QualIdentRef->(A364,P61)) (IdentOrQualRef->(A413,P208)) (RaisesPlusList->(A136))
 State 136: (StkComma->(A137)) (StkCloseBrace->(A294,P207))
 State 137: (StkIdent->(A95)) (IdentRef->(A363,P60)) (QualIdentRef->(A364,P61)) (IdentOrQualRef->(A414,P209))
 State 138: (StkRwEND->(A139))
