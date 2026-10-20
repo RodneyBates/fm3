@@ -557,7 +557,8 @@ FALSE AND
       ; LArgsExpr ^ . ExpKind := Kind
       ; LArgsExpr ^ . ExpRepExprNo := FM3Exprs . RepExprNoDistinct
       ; LArgsExpr ^ . ExpUpKind := Ekt . EkValue 
-      ; FM3Exprs . InitExprList ( LArgsExpr ^ . ExpArgList , LCt )
+      ; FM3Exprs . InitExprList
+          ( LArgsExpr ^ . ExpArgList , 1 (* Space for proc or array. *) + LCt )
       ; LArgsExpr ^ . ExpPosition := LPosition
       (* No args yet. *) 
       ; FM3Exprs . RegisterExpr ( LArgsExpr , Mergeable := TRUE )
@@ -1627,13 +1628,8 @@ TRUE OR
       , Itk . ItkSubscriptsPlusListRt 
       =>  LCt := GetBwdInt ( TokResult . TrRdBack ) (* Args count. *) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
+        (* All handled by ItkCallRt or ItkSubscriptRt. *)
         
-        ; IF LCt > 0
-          THEN 
-            LValueExprRef := FM3Exprs . ExprStackTopObj (* Call or subscript. *)
-          ; FM3Exprs . InitExprList ( LValueExprRef ^ . ExpArgList , LCt )  
-          END (*IF*)
-
       | Itk . ItkActualLt
       =>  LAtom := GetBwdAtom ( TokResult . TrRdBack ) (* Keyword. *) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
@@ -1641,20 +1637,22 @@ TRUE OR
 
       | Itk . ItkActualsListSep
       , Itk . ItkSubscriptsPlusListSep
-       => LCt := GetBwdInt ( TokResult . TrRdBack ) (* Args count. *) 
-                 (* ^Remaining # of args to left. *) 
+       => LCt := GetBwdInt ( TokResult . TrRdBack ) (* Arg #. *) 
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         
         ; LListElem := FM3Exprs . PopExprStack ( ) (* Arg to rt of sep. *) 
-        ; LValueExprRef := FM3Exprs . ExprStackTopObj 
+        ; LParentExprRef := FM3Exprs . ExprStackTopObj 
         ; FM3Exprs . PrependExprList
-            ( LValueExprRef ^ . ExpArgList , LListElem , ExpectedArgNo := LCt ) 
+            ( LParentExprRef ^ . ExpArgList
+            , LListElem
+            , ExpectedArgNo := 1 (* Space for proc or array. *) + LCt  
+            ) 
 
       | Itk . ItkActualsListLt
       , Itk . ItkSubscriptsPlusListLt
        => LCt := GetBwdInt ( TokResult . TrRdBack ) (* Total args count. *) 
                  (* # of args inlist. *) 
-        ; LPosition := GetBwdPos ( TokResult . TrRdBack )
+        ; LPosition := GetBwdPos ( TokResult . TrRdBack ) 
 
         ; IF LCt > 0
           THEN 
@@ -1675,12 +1673,12 @@ TRUE OR
         ; LPosition := GetBwdPos ( TokResult . TrRdBack )
         
         ; LPrefixExpr := FM3Exprs . PopExprStack ( ) (* Procedure or array *) 
-        ; LValueExprRef := FM3Exprs . ExprStackTopObj (* Call or subscript. *) 
-        ; <* ASSERT LPosition = LValueExprRef ^ . ExpPosition *> 
-          FM3Exprs . FinishExprList ( LValueExprRef ^ . ExpArgList ) 
-        ; LValueExprRef ^ . ExpArgPrefix := LPrefixExpr 
+        ; LParentExprRef := FM3Exprs . ExprStackTopObj (* Call or subscript. *) 
+        ; <* ASSERT LPosition = LParentExprRef ^ . ExpPosition *> 
+          FM3Exprs . FinishExprList ( LParentExprRef ^ . ExpArgList )
+(* FIXME: pass 2 output here? *) 
         ; PutBwdP2
-            ( HtPass2RdBack , VAL ( LValueExprRef ^ . ExpSelfExprNo , LONGINT ) ) 
+            ( HtPass2RdBack , VAL ( LParentExprRef ^ . ExpSelfExprNo , LONGINT ) ) 
         ; PutBwdP2 ( HtPass2RdBack , VAL ( Itk . ItkExprTyp , LONGINT ) )
 
       | Itk . ItkInterfaceRt

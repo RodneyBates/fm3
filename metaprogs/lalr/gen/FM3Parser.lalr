@@ -1615,7 +1615,7 @@ END OLD
 
 (* ------------------------------- Method Lists ----------------------------- *)
 
-   MethodDeclList : /*Empty*/
+   MethodDeclList : /*Absent*/
       { FM3Pass1 . MakeListEmpty 
           ( $$
           , Itk . ItkMethodDeclListLt
@@ -1648,7 +1648,7 @@ END OLD
        FM3Pass1 . PutBwd_ECIP (* Separator. *) 
          ( Itk . ItkMethodDeclListLt
          , $2 . PaPass1Coord 
-         , $1 . PaInt1 (* No of method decls to left. *) 
+         , $1 . PaInt1 (* Ct of method decls to left. *) 
          , $2 . Scan . Position
          ) ; 
      } . 
@@ -1683,10 +1683,10 @@ END OLD
            , $1 . PaPass1Coord 
            , $1 . Scan . Position
            
-           , $2 . PaPass1Coord 
+           , $2 . PaPass1Coord (* Sig. *) 
            , $2 . Scan . Position
            
-           , $3 . PaPass1Coord 
+           , $3 . PaPass1Coord (* Proc. *) 
            , $3 . Scan . Position
            
            , $1 . Scan . Position 

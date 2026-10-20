@@ -357,7 +357,6 @@ INTERFACE FM3Exprs
         (* ^For named access and sometimes positional. *)
       ; ExpReachedRefNos : IntSets . T := NIL
         (* Excluding those that yield legal recursive decls. *) 
-      ; ExpArgPrefix : ExprRefTyp (* Array of subscript or proc of call. *) 
 
       ; ExpIdentDeclNo : FM3Globals . DeclNoTyp
         (* ^ABS ( ExpIdentDeclNo < 0 is builtin opcode). *)

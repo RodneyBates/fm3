@@ -3834,7 +3834,7 @@ yyNonterminal := 224;
                        FM3Pass1 . PutBwd_ECIP (* Separator. *) 
                          ( Itk . ItkMethodDeclListLt
                          , yyAttributeStack^[yyStackPtr+2] . PaPass1Coord 
-                         , yyAttributeStack^[yyStackPtr+1] . PaInt1 (* No of method decls to left. *) 
+                         , yyAttributeStack^[yyStackPtr+1] . PaInt1 (* Ct of method decls to left. *) 
                          , yyAttributeStack^[yyStackPtr+2] . Scan . Position
                          ) ; 
                      
@@ -3873,10 +3873,10 @@ yyNonterminal := 228;
                            , yyAttributeStack^[yyStackPtr+1] . PaPass1Coord 
                            , yyAttributeStack^[yyStackPtr+1] . Scan . Position
                            
-                           , yyAttributeStack^[yyStackPtr+2] . PaPass1Coord 
+                           , yyAttributeStack^[yyStackPtr+2] . PaPass1Coord (* Sig. *) 
                            , yyAttributeStack^[yyStackPtr+2] . Scan . Position
                            
-                           , yyAttributeStack^[yyStackPtr+3] . PaPass1Coord 
+                           , yyAttributeStack^[yyStackPtr+3] . PaPass1Coord (* Proc. *) 
                            , yyAttributeStack^[yyStackPtr+3] . Scan . Position
                            
                            , yyAttributeStack^[yyStackPtr+1] . Scan . Position 

@@ -542,7 +542,6 @@ RETURN ;
       ; NestedField ( "ExpType" , Expr ^ . ExpType ) 
       ; NestedField ( "ExpOpnd1" , Expr ^ . ExpOpnd1 ) 
       ; NestedField ( "ExpOpnd2" , Expr ^ . ExpOpnd2 ) 
-      ; NestedField ( "ExpArgPrefix" , Expr ^ . ExpArgPrefix ) 
 
       END ExprAppend
 
