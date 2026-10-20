@@ -542,7 +542,6 @@ RETURN ;
       ; NestedField ( "ExpType" , Expr ^ . ExpType ) 
       ; NestedField ( "ExpOpnd1" , Expr ^ . ExpOpnd1 ) 
       ; NestedField ( "ExpOpnd2" , Expr ^ . ExpOpnd2 ) 
-      ; NestedField ( "ExpRangeBase" , Expr ^ . ExpRangeBase ) 
       ; NestedField ( "ExpArgPrefix" , Expr ^ . ExpArgPrefix ) 
 
       END ExprAppend
@@ -717,7 +716,8 @@ RETURN ;
       ELSE 
         CASE Expr ^ . ExpKind OF
         | Ekt . EkSubrType
-        => RETURN IsNumericType ( Expr ^ . ExpRangeBase )
+        => RETURN IsNumericType
+                    ( ArgNoOfExpr ( Expr , 1 (* Range base type. *) ) )
         | Ekt . EkBuiltin
         => CASE Expr ^ . ExpOpcode OF
            | Stk . RidCARDINAL

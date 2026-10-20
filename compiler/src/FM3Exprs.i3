@@ -1,4 +1,5 @@
- (* -----------------------------------------------------------------------1- *)
+
+(* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
 (* Copyright 2024..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
@@ -332,7 +333,7 @@ INTERFACE FM3Exprs
 
       ; ExpBuiltinOpLtOpndKindsAllowed := ExprKindSetTyp { } 
       ; ExpBuiltinOpRtOpndKindsAllowed := ExprKindSetTyp { }
-      ; ExpRangeBase : ExprRefTyp := NIL 
+      ; ExpRangeBasexxx : ExprRefTyp := NIL 
 
         (* For:
            Array type: DclDefType is an element type.

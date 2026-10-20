@@ -528,7 +528,9 @@ FALSE AND
   ; VAR HtPass1RdBack : RdBackFile . T 
   ; VAR HtPass2RdBack : RdBackFile . T
   ; VAR LExprRef , LNewExprRef , LValueExprRef , LPrefixExpr , LListElem
-        , LElemExprRef : FM3Exprs . ExprRefTyp
+        , LElemExprRef , LParentExprRef : FM3Exprs . ExprRefTyp
+  ; VAR LArgListRef : FM3Exprs . ExprListTyp 
+
   ; VAR LLongInt: LONGINT 
   ; VAR LScopeNo : FM3Globals . ScopeNoTyp
   ; VAR LOpcodeL : LONGINT
@@ -636,8 +638,8 @@ TRUE OR
         ; PutBwdP2 ( HtPass2RdBack , LLongInt )
         ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
         END (*IF*) 
-      END HtLiteral 
-
+      END HtLiteral
+      
   ; PROCEDURE HtExprRt
       ( NewExprRef : FM3Exprs . ExprRefTyp ; Mergeable : BOOLEAN )
 
@@ -648,8 +650,8 @@ TRUE OR
       END HtExprRt 
 
   ; PROCEDURE HtExprArgRt ( ArgCt : INTEGER )
-      (* PRE: TOS is RM operand, TOS-1 is parent. *) 
-      (* Reads position. *) 
+      (* PRE: TOS is RM arg; TOS-1 is parent. *) 
+      (* Reads position. *)  
     = VAR LOpnd : FM3Exprs . ExprRefTyp
     ; VAR LParentExprRef : FM3Exprs . ExprRefTyp 
     ; VAR LArgListRef : FM3Exprs . ExprListTyp 
@@ -665,7 +667,7 @@ TRUE OR
           ( LArgListRef , LOpnd , ExpectedArgNo := ArgCt ) 
       ; DefExprLt ( LParentExprRef ) 
       END HtExprArgRt
-
+      
   ; PROCEDURE HtExprArgLt ( )
       (* PRE: TOS is RM operand, TOS-1 is parent. *) 
       (* Reads position. *) 
@@ -681,7 +683,6 @@ TRUE OR
       ; LArgListRef := LParentExprRef ^ . ExpArgList 
       ; FM3Exprs . PrependExprList ( LArgListRef , LOpnd , ExpectedArgNo := 1 ) 
       ; FM3Exprs . FinishExprList ( LArgListRef )
-      ; DefExprLt ( LParentExprRef ) 
       END HtExprArgLt
 
   ; PROCEDURE HtExprArg2 ( )
@@ -718,7 +719,7 @@ TRUE OR
           , HtPass2RdBack
           ) 
       ; PutBwdP2 ( HtPass2RdBack , VAL ( TokResult . TrTok , LONGINT ) )
-      END HtPassTokenThru 
+      END HtPassTokenThru
 
   ; BEGIN (*HandleTok*) 
       LUnitTRef := FM3Units . UnitTStackTopRef 
@@ -923,7 +924,9 @@ TRUE OR
         ; LPosition := GetBwdPos ( TokResult . TrRdBack ) 
 
       | Itk . ItkMethodDeclRt 
-      =>  LScopeRef := FM3Scopes . ScopeDeclStackTopRef
+      =>  LPosition := GetBwdPos ( TokResult . TrRdBack )
+      
+        ; LScopeRef := FM3Scopes . ScopeDeclStackTopRef
         ; LScopeRef ^ . ScpCurDefExprs := ARRAY BOOLEAN OF REFANY { NIL , .. }
         ; LScopeRef ^ . ScpCurDefIsValue := TRUE 
         ; LScopeRef ^ . ScpCurDeclExprStackCt := FM3Exprs . ExprStackCt 
@@ -931,17 +934,23 @@ TRUE OR
         ; HtPassTokenThru ( )
 
       | Itk . ItkMethodDeclProc
-      =>  DeclDef
+      =>  LPosition := GetBwdPos ( TokResult . TrRdBack )
+
+        ; DeclDef
             ( IsValue := TRUE , Tag := "method default" , MustBeConst := TRUE ) 
         ; HtPassTokenThru ( )
 
       | Itk . ItkMethodDeclSig
-      =>  DeclDef ( IsValue := FALSE , Tag := "method signature" )
+      =>  LPosition := GetBwdPos ( TokResult . TrRdBack )
+
+        ; DeclDef ( IsValue := FALSE , Tag := "method signature" )
 (* TODO: Improve error messages emitted by DeclDef. *) 
         ; HtPassTokenThru ( )
 
       | Itk . ItkMethodBodyAbsent
-      =>  FM3Exprs . PushExprStack
+      =>  LPosition := GetBwdPos ( TokResult . TrRdBack )
+
+        ; FM3Exprs . PushExprStack
             ( NEW ( FM3Exprs . ExprRefTyp
                   , ExpKind := Ekt . EkAbsent 
                   , ExpIsPresent := FALSE
@@ -950,7 +959,9 @@ TRUE OR
             )
 
       | Itk . ItkMethodDeclLt
-      =>  AssertExprKind
+      =>  LPosition := GetBwdPos ( TokResult . TrRdBack )
+
+        ; AssertExprKind
             ( FM3Exprs . ExprStackTopObj
             , Ekt . EkObjType
             , "Method decl in not object type"
@@ -1541,10 +1552,20 @@ TRUE OR
             )
 
       | Itk . ItkSubrTypeEllipsis 
-      =>  HtExprArgRt ( 2 ) (* Upper bound. *) 
+      =>  HtExprArgRt ( 3 ) (* Base type, bounds. *) 
 
-      | Itk . ItkSubrTypeLt 
-      =>  HtExprArgLt ( ) (* Lower bound. *) 
+      | Itk . ItkSubrTypeLt
+      =>  LPosition := GetBwdPos ( TokResult . TrRdBack )
+        
+        ; LElemExprRef := FM3Exprs . PopExprStack ( )
+        ; LParentExprRef := FM3Exprs . ExprStackTopObj
+        ; LArgListRef := LParentExprRef ^ . ExpArgList 
+        ; FM3Exprs . PrependExprList
+            ( LArgListRef , LElemExprRef , ExpectedArgNo := 2 (* Lower bound. *) ) 
+ 
+        (* Leave a space for base type, to be computed in expr semantics. *) 
+        ; FM3Exprs . PushExprStack ( NIL )
+        ; HtExprArgLt ( ) 
 
       (* Unary operators: *) 
       | Itk . ItkUnaryOpRt 
