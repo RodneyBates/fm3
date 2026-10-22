@@ -56,17 +56,6 @@ INTERFACE FM3Units
 
 ; PROCEDURE UnitKindSectionNo ( Kind : UnitKindTyp ) : TEXT
 
-; TYPE UnitStateTyp
-         = { UsNull
-           , UsNotUsable 
-           , UsCompiled
-           , UsLoaded
-           }
-
-; CONST UnitStateSetUsable
-    = SET OF UnitStateTyp
-        { UnitStateTyp . UsCompiled , UnitStateTyp . UsLoaded }
-
 (* Persistent info about a unit. Pickled when compiled.
    Reloaded when exported or imported and exists and is current.
 *) 
@@ -134,7 +123,6 @@ INTERFACE FM3Units
       ; UntStdTok : FM3SrcToks . TokTyp := FM3Base . TokNull
         (* ^Derived from unit file name. *)
       ; UntKind := UnitKindTyp . UkNull 
-      ; UntState := UnitStateTyp . UsNull
       ; UntUnsafe : BOOLEAN := FALSE  
       ; UntHasStdUnitPragma : BOOLEAN := FALSE (* Has the FM3_STDUNIT pragma. *)
       ; UntNextDeclNo : INTEGER := 1
@@ -144,12 +132,12 @@ INTERFACE FM3Units
     = UnitTyp
         { UntSrcFileSimpleName := NIL 
         , UntSrcFilePath := NIL
-        , UntSrcFileTime := 0.0D0
+        , UntSrcFileTime := FIRST ( Time . T ) 
         , UntUnitFileSimpleName := NIL 
         , UntUnitIdent := NIL 
         , UntUnitIdentPos := FM3Base . PositionNull 
         , UntBuildDirPath := NIL 
-        , UntSrcTime := 0.0D0 
+        , UntSrcTime := FIRST ( Time . T )  
         , UntPassNosDisAsmed := FM3CLOptions . PassNoSetEmpty  
         , UntPassNosDumped := FM3CLOptions . PassNoSetEmpty 
         , UntIdentAtomDict := NIL
@@ -165,13 +153,12 @@ INTERFACE FM3Units
         , UntScopeRef := NIL  
         , UntHash := 0
         , UntScanResult := - 1  
-        , UntParseResult := 0
+        , UntParseResult := - 1 
         , UntPass2Result := - 1
         , UntPass3Result := - 1
         , UntFirstTrueDeclNo := 1 
         , UntStdTok := FM3Base . TokNull
         , UntKind := UnitKindTyp . UkNull 
-        , UntState := UnitStateTyp . UsNull
         , UntUnsafe := FALSE  
         , UntHasStdUnitPragma := FALSE 
         , UntNextDeclNo := 0
@@ -186,31 +173,31 @@ INTERFACE FM3Units
 ; TYPE UnitTRefTyp = FM3Globals . UnitTRefTyp
 (* ^Avoiding cyclic imports. *)
 
-; TYPE UnitTStateTyp
-       = { UttsNull
-         , UttsNew 
-         , UttsNotFound   
-         , UttsNotLoadable
-         , UttsNotUsable
-         , UttsExporting
-         , UttsImporting
-         , UttsCompiling 
-         , UttsLoaded
+; TYPE UnitStateTyp 
+       = { UsNull
+         , UsNew 
+         , UsNotFound   
+         , UsNotLoadable
+         , UsNotUsable
+         , UsExporting
+         , UsImporting
+         , UsCompiling 
+         , UsLoaded
              (* obj file exists, was loaded earlier in this compile run,
                 and is up to date WRC its src.
              *)
-         , UttsCompiled
+         , UsCompiled
             (* obj file exists in the compile package, was compiled earlier in
               this compile run, and is thus up to date WRT src.
             *)
-         } 
+         }
 
-; PROCEDURE UnitTStateImage ( State : UnitTStateTyp ) : TEXT
+; PROCEDURE UnitStateImage ( State : UnitStateTyp ) : TEXT
 
-; CONST UnitTStateSetUsable
-        = SET OF UnitTStateTyp
-            { UnitTStateTyp . UttsCompiled 
-            , UnitTStateTyp . UttsLoaded
+; CONST UnitStateSetUsable
+        = SET OF UnitStateTyp
+            { UnitStateTyp . UsCompiled 
+            , UnitStateTyp . UsLoaded
             } 
 
 ; PROCEDURE UnitReqKindImage ( Kind : FM3Base . UnitReqKindTyp ) : TEXT 
@@ -277,8 +264,8 @@ INTERFACE FM3Units
       ; UttSelfUnitNo : FM3Globals . UnitNoTyp := FM3Globals . UnitNoNull
           (* ^Self-referential. *)
       ; Utt1stReqPosition := FM3Base . PositionNull
-      ; Utt1stReqKind := FM3Base . UnitReqKindTyp . UttrNull
-      ; UttState := UnitTStateTyp . UttsNull
+      ; Utt1stReqKind := FM3Base . UnitReqKindTyp . UrkNull
+      ; UttState := UnitStateTyp . UsNull
       ; UttInExpImpCycle : BOOLEAN := FALSE
       ; UttIsUsable : BOOLEAN := FALSE 
       END (*UnitTTyp*)
@@ -311,7 +298,7 @@ INTERFACE FM3Units
         , EipDeclNo := FM3Globals . DeclNoNull
         , EipImportingUnitNo := FM3Globals . UnitNoNull 
         , EipImportingUnitPosition := FM3Base . PositionNull
-        , EipReqKind := FM3Base . UnitReqKindTyp . UttrNull  
+        , EipReqKind := FM3Base . UnitReqKindTyp . UrkNull  
         } 
 
 ; PROCEDURE NewUnitTRef ( ) : UnitTRefTyp

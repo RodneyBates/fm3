@@ -1,7 +1,7 @@
 
 (* -----------------------------------------------------------------------1- *)
 (* This file is part of the FM3 Modula-3 compiler.                           *)
-(* Copyright 2024..2025  Rodney M. Bates.                                    *)
+(* Copyright 2024..2026  Rodney M. Bates.                                    *)
 (* rodney.m.bates@acm.org                                                    *)
 (* Licensed under the MIT License.                                           *)
 (* -----------------------------------------------------------------------2- *) 
@@ -29,7 +29,8 @@ INTERFACE FM3ExpImpProxy
            the unit containing this record.  Its position in the remote
            unit can be found in the remote unit's Decl node for it.
         *)
-      ; EipReqKind := FM3Base . UnitReqKindTyp . UttrNull 
+      ; EipReqKind := FM3Base . UnitReqKindTyp . UrkNull
+      ; EipIsUsable := FALSE 
       END
 ; END FM3ExpImpProxy 
 .

@@ -54,7 +54,7 @@ IMPORT FM3SharedUtils;
     FROM FM3Utils IMPORT PositionImage;
 
     TYPE Bkt = BrandKindTyp ;
-    TYPE Uttr = FM3Base . UnitReqKindTyp ; 
+    TYPE Urkt = FM3Base . UnitReqKindTyp ; 
     
     PROCEDURE BrandKindImage ( Kind : BrandKindTyp ) : TEXT
 
@@ -2879,7 +2879,7 @@ yyNonterminal := 128;
                          := FM3ExpImp . GetInterface
                               ( yyAttributeStack^[yyStackPtr+2] . Scan . SaChars
                               , yyAttributeStack^[yyStackPtr+2] . Scan . Position
-                              , Uttr . UttrImport 
+                              , Urkt . UrkImport 
                               ) ; 
                      
               | 489,227 => (* P48 Import (145): FromImportLt FromImportIdPlusList StkSemicolon .*)
@@ -2920,7 +2920,7 @@ yyNonterminal := 134;
                              := FM3ExpImp . GetInterface 
                                   ( FM3Units . UnitTStackTopRef ^ . UttUnitRef ^ . UntUnitIdent
                                   , yyAttributeStack^[yyStackPtr] . PaPos 
-                                  , Uttr . UttrExport
+                                  , Urkt . UrkExport
                                   ) ;
                            FM3ExpImp . ImportAllDecls
                              ( LUnitTRef , yyAttributeStack^[yyStackPtr] . Scan . Position ) ;
@@ -2945,7 +2945,7 @@ yyNonterminal := 134;
                             := FM3ExpImp . GetInterface
                                  ( yyAttributeStack^[yyStackPtr+1] . Scan . SaChars
                                  , yyAttributeStack^[yyStackPtr+1] . Scan . Position
-                                 , Uttr . UttrExport
+                                 , Urkt . UrkExport
                                  ) ;
                          FM3ExpImp . ImportAllDecls ( LUnitTRef , yyAttributeStack^[yyStackPtr+1] . Scan . Position ) ;
                        END (* Block. *) ;  

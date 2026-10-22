@@ -63,11 +63,11 @@ MODULE FM3Pass2
 ; IMPORT FM3Utils
 ; IMPORT RdBackFile
 
-; TYPE Ekt = FM3Exprs . ExprKindTyp
+; TYPE Dkt = FM3Decls . DeclKindTyp 
 ; TYPE EkSetTyp = FM3Exprs . EkSetTyp
+; TYPE Ekt = FM3Exprs . ExprKindTyp
 ; TYPE Skt = FM3Scopes . ScopeKindTyp 
 ; TYPE Ust = FM3Units . UnitStateTyp
-; TYPE Dkt = FM3Decls . DeclKindTyp 
 
 ; PROCEDURE PutBwdP2 ( RdBack : RdBackFile . T ; ValueL : LONGINT )
   (* Wrap FM3Compress . PutBwd for pass 2 output file. 
@@ -2608,7 +2608,7 @@ TRUE OR
             LExpImpUnitTRef (* Implicit NARROW. *) 
               := VarArray_Int_Refany . Fetch ( FM3Units . UnitTMap , LUnitNo )
           ; LExpImpUnitRef := LExpImpUnitTRef ^ . UttUnitRef 
-          ; LIsUsable := LExpImpUnitRef ^ . UntState # Ust . UsNotUsable
+          ; LIsUsable := LExpImpUnitTRef ^ . UttState # Ust . UsNotUsable
 (* Consistify: Two ways of denoting nonusability. *) 
           END (*IF*)
         ; IF LIsUsable

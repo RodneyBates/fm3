@@ -165,47 +165,6 @@ MODULE FM3Pass1
 
   ; BEGIN (*InitPass1*)
   
-(* Moved to FM3Compile . Compile **
-    (* Create the build directory: *)
-      EnsureBuildDirectory
-        ( UnitTRef , UnitTRef ^ . UttUnitRef ^ . UntSrcFilePath ) 
-
-    (* Create the unit log output file. A pure text file. *)
-    ; UnitTRef ^ . UttLogSimpleName
-        := Pathname . Join
-             ( NIL
-             , UnitTRef ^ . UttUnitRef ^ . UntSrcFileSimpleName
-             , FM3Globals . UnitLogSuffix
-             ) 
-    ; LUnitLogFullName
-        := Pathname . Join
-             ( UnitTRef ^ . UttUnitRef ^ . UntSrcFilePath , UnitTRef
-               ^ . UttLogSimpleName , NIL )
-    ; IF Clt . CltUnitLog IN FM3CLOptions . OptionTokSet
-      THEN 
-        TRY UnitTRef ^ . UttLogWrT := FileWr . Open ( LUnitLogFullName ) 
-        EXCEPT
-        | OSError . E ( EAtoms )
-        => <*FATAL Thread . Alerted , Wr . Failure *>
-           BEGIN
-             Wr . PutText ( Stdio . stderr , "Unable to open unit log file " ) 
-           ; Wr . PutText ( Stdio . stderr , UnitTRef ^ . UttLogSimpleName ) 
-           ; Wr . PutText ( Stdio . stderr , ": " ) 
-           ; Wr . PutText
-               ( Stdio . stderr , FM3Messages . AtomListToOSError ( EAtoms ) ) 
-           ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
-           ; Wr . PutText ( Stdio . stderr , "Will proceed without it." ) 
-           ; Wr . PutText ( Stdio . stderr , Wr . EOL ) 
-           ; Wr . Flush ( Stdio . stderr )
-           END (*Block.*) 
-        ; UnitTRef ^ . UttLogWrT := NIL
-        ELSE (* Remove any leftover unit log file. *) 
-          FM3SharedUtils . DeleteFile ( LUnitLogFullName ) 
-        END (*IF*) 
-      END (*EXCEPT*)
-    ; FM3Messages . SetUnitLog ( UnitTRef ^ . UttLogWrT )
-** *) 
-
     (* Create build files for the pass. *) 
       UnitTRef ^ . UttPass1OutSimpleName
         := Pathname . Join

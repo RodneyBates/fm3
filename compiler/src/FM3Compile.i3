@@ -27,7 +27,7 @@ INTERFACE FM3Compile
            FM3Units . UnitTMap, whose source file simple name atom occurs in
            FM3Units . UnitsAtomDict, and has field UttSrcFilePath set.
            If it doesn't already exist, allocate the UnitTTyp and
-           set UttState := UttsNew. 
+           set UttState := UstNew. 
   *) 
 
 ; PROCEDURE MakePassFileCopy

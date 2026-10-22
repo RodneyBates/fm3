@@ -322,7 +322,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
    and possibly faster, if you can live with them and if MaxKeyCt is smallish. 
    All calls on InsertFixed must precede a call on FinalizeFixedFixed,
    before any calls on LookupFixed.  Also, duplicate keys will result in
-   Error's being raised, or possibly in undetected duplicate entries,
+   Errors being raised, or possibly in undetected duplicate entries,
    with different values, and nondeterministic results from LookupFixed.
 *) 
 
@@ -610,7 +610,7 @@ GENERIC MODULE FM3Dict ( KeyGenformal , ValueGenformal )
         Wr . PutText ( LTextWrT , Fmt . Int ( RI ) ) 
       ; Wr . PutText ( LTextWrT , " HashVal = " ) 
       ; Wr . PutText
-          ( LTextWrT , Fmt . Int ( DictBase . DbTableRef ^ [ RI ] . RowHashVal ) )
+          ( LTextWrT , Fmt . Int ( DictBase . DbTableRef ^ [ RI ] . RowHashVal )
       ; Wr . PutText ( LTextWrT , " Key = " ) 
       ; Wr . PutText 
           ( LTextWrT , KeyImage ( DictBase . DbTableRef ^ [ RI ] . Key ) )

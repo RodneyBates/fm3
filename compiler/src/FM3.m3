@@ -39,7 +39,7 @@ MODULE FM3 EXPORTS Main
 ; IMPORT FM3Scanner
 ; IMPORT FM3SharedUtils
 
-; TYPE Uttr = FM3Base . UnitReqKindTyp
+; TYPE Urkt = FM3Base . UnitReqKindTyp
 
 ; PROCEDURE Work ( )
   RAISES { FM3SharedUtils . FatalError , FM3SharedUtils . Terminate } 
@@ -70,7 +70,7 @@ MODULE FM3 EXPORTS Main
           THEN 
             LLibUnitTRef := FM3Compile . GetUnitTRefOfFileName ( "Main.i3" )
           ; FM3Compile . AcquireUnit
-              ( LLibUnitTRef , FM3Base . PositionNull , Uttr . UttrBuiltin ) 
+              ( LLibUnitTRef , FM3Base . PositionNull , Urkt . UrkBuiltin ) 
 (*        
           "Word.i3"  
           "Word.m3"

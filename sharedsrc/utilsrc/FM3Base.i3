@@ -121,12 +121,12 @@ INTERFACE FM3Base
 
 (* What kind of request called for a unit? *) 
 ; TYPE UnitReqKindTyp
-       = { UttrNull
-         , UttrBuiltin 
-         , UttrCL  
-         , UttrExport
-         , UttrImport 
-         , UttrGenActual  
+       = { UrkNull
+         , UrkBuiltin 
+         , UrkCL  
+         , UrkExport
+         , UrkImport 
+         , UrkGenActual  
          } 
 
 (* 

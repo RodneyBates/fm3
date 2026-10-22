@@ -39,7 +39,7 @@ be specified elsewhere with the --pkg-dir option.
 
 Arguments denoting source files are file system paths relative to
 <pkgdir>/src.  Compilation results are by default written into
-<pkgdir>/build, but this can be changed by the --build_dir option.
+<pkgdir>/build, but this can be changed by the --build-dir option.
 The build directory is created if absent. 
 
 Boolean options default to FALSE. 
@@ -71,9 +71,9 @@ Boolean options default to FALSE.
        occurrences of this  option.  Do not find or compile a source file here. 
 
 --[no-]force-compile 
-       [Re]compile a source file even if an up-to-date compiled unit exists.
+       Recompile a source file even if an up-to-date compiled unit exists.
        Does not apply to compiled units inside directories specified by
-       --import-dir. in other, library packages. Defaults to FALSE.
+       --import-dir.  Defaults to FALSE.
 
 -- [no-]recompile-imports
        Recompile an absent or out-of-date unit that is imported or exported by

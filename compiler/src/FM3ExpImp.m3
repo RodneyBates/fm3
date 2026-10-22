@@ -33,8 +33,7 @@ MODULE FM3ExpImp
 ; IMPORT FM3Utils
 
 ; TYPE Ust = FM3Units . UnitStateTyp
-; TYPE Utts = FM3Units . UnitTStateTyp
-; TYPE Uttr = FM3Base . UnitReqKindTyp 
+; TYPE Urkt = FM3Base . UnitReqKindTyp 
 
 ; PROCEDURE ReportCyclic
     ( UnitTRef : FM3Units . UnitTRefTyp
@@ -126,7 +125,7 @@ MODULE FM3ExpImp
       (* ^To detect cyclic imports. *)
     ; LIntfUnitTRef ^ . Utt1stReqPosition := ReqPosition 
     ; LIntfUnitTRef ^ . Utt1stReqKind := ReqKind 
-    ; LImportingUnitTRef ^ . UttState := Utts . UttsImporting
+    ; LImportingUnitTRef ^ . UttState := Ust . UsImporting
     ; FM3Compile . AcquireUnit ( LIntfUnitTRef , ReqPosition , ReqKind )  
 
     ; LImportingUnitTRef ^ . UttImportsUnitTRef := NIL
@@ -170,7 +169,7 @@ MODULE FM3ExpImp
              , LPrevExpImpProxy . EipUnitNo 
              )
     ; LPrevExpImpUnitRef := LPrevExpImpUnitTRef ^ . UttUnitRef 
-    ; IF LPrevExpImpUnitRef ^ . UntState = Ust . UsNotUsable 
+    ; IF NOT ( LPrevExpImpUnitTRef ^ . UttState IN FM3Units . UnitStateSetUsable ) 
       THEN RETURN TRUE
       END (*IF*)
       
@@ -304,7 +303,7 @@ MODULE FM3ExpImp
       IF FromUnitTRef = NIL THEN RETURN FALSE END (*IF*)
     ; LFromUnitRef := FromUnitTRef ^ . UttUnitRef 
     ; IF LFromUnitRef = NIL THEN RETURN FALSE END (*IF*)
-    ; IF NOT LFromUnitRef ^ . UntState IN FM3Units . UnitStateSetUsable
+    ; IF NOT FromUnitTRef ^ . UttState IN FM3Units . UnitStateSetUsable
       THEN RETURN FALSE 
       END (*IF*) 
     ; IF IdScanAttribute . SaChars = NIL THEN RETURN FALSE END (*IF*)
@@ -370,7 +369,7 @@ MODULE FM3ExpImp
       ; LProxy . EipImportingUnitNo := LIntoUnitTRef ^ . UttSelfUnitNo  
       ; LProxy . EipDeclNo := FM3Globals . DeclNoNull 
       ; LProxy . EipImportingUnitPosition := IdScanAttribute . Position
-      ; LProxy . EipReqKind := Uttr . UttrImport  
+      ; LProxy . EipReqKind := Urkt . UrkImport  
       ; InsertExpImp ( LIntoUnitRef , LIntoIdentAtom , LProxy ) 
       ; RETURN FALSE 
       ELSE (* Valid imported ident. *) 
@@ -379,7 +378,7 @@ MODULE FM3ExpImp
             ( FromUnitTRef
             , LFromDeclNoInt
             , IdScanAttribute . Position
-            , Uttr . UttrImport 
+            , Urkt . UrkImport 
             ) 
       END (*IF*) 
     END ImportDeclByIdent
@@ -406,7 +405,7 @@ MODULE FM3ExpImp
       ; Elem . EipImportingUnitNo
           := FM3Units . UnitTStackTopRef ^ . UttSelfUnitNo
       ; Elem . EipImportingUnitPosition := ASScanAttr . Position
-      ; Elem . EipReqKind := Uttr . UttrImport 
+      ; Elem . EipReqKind := Urkt . UrkImport 
       END AssignProxy
  
   ; BEGIN (*ImportAS*)
@@ -415,7 +414,7 @@ MODULE FM3ExpImp
         := GetInterface
              ( IntfScanAttr . SaChars
              , IntfScanAttr . Position
-             , Uttr . UttrExport 
+             , Urkt . UrkExport 
              )
     ; IF LIntfUnitTRef = NIL THEN RETURN END (*IF*) 
     ; LASIdentAtom
@@ -458,7 +457,7 @@ MODULE FM3ExpImp
       IF FromUnitTRef = NIL THEN RETURN END (*IF*)
     ; LFromUnitRef := FromUnitTRef ^ . UttUnitRef 
     ; IF LFromUnitRef = NIL THEN RETURN END (*IF*)
-    ; IF NOT LFromUnitRef  ^ . UntState IN FM3Units . UnitStateSetUsable
+    ; IF NOT FromUnitTRef  ^ . UttState IN FM3Units . UnitStateSetUsable
       THEN RETURN
       END (*IF*) 
     ; WITH WScopeRef = LFromUnitRef ^ . UntScopeRef
@@ -472,7 +471,7 @@ MODULE FM3ExpImp
              ( FromUnitTRef 
              , RDeclNo 
              , ExportPosition  
-             , Uttr . UttrExport
+             , Urkt . UrkExport
              )
         END (*FOR*)
       END (*WITH*) 

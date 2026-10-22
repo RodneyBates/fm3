@@ -126,29 +126,29 @@ MODULE FM3Units
     END UnitTRefImage
 
 (*EXPORTED.*)
-; PROCEDURE UnitTStateImage ( State : UnitTStateTyp ) : TEXT 
+; PROCEDURE UnitStateImage ( State : UnitStateTyp ) : TEXT 
 
-  = BEGIN (*UnitTStateImage*)
+  = BEGIN (*UnitStateImage*)
       CASE State OF
-      | UnitTStateTyp . UttsNull => RETURN "UttsNull" 
-      | UnitTStateTyp . UttsNew => RETURN "UttsNew" 
-      | UnitTStateTyp . UttsNotFound => RETURN "UttsNotFound" 
-      | UnitTStateTyp . UttsNotLoadable => RETURN "UttsNotLoadable" 
-      | UnitTStateTyp . UttsLoaded => RETURN "UttsLoaded" 
-      | UnitTStateTyp . UttsCompiled => RETURN "UttsCompiled" 
+      | UnitStateTyp . UsNull => RETURN "UsNull" 
+      | UnitStateTyp . UsNew => RETURN "UsNew" 
+      | UnitStateTyp . UsNotFound => RETURN "UsNotFound" 
+      | UnitStateTyp . UsNotLoadable => RETURN "UsNotLoadable" 
+      | UnitStateTyp . UsLoaded => RETURN "UsLoaded" 
+      | UnitStateTyp . UsCompiled => RETURN "UsCompiled" 
       END (*CASE*)   
-   END UnitTStateImage
+   END UnitStateImage
 
 (*EXPORTED.*)
 ; PROCEDURE UnitReqKindImage ( Kind : FM3Base . UnitReqKindTyp ) : TEXT
 
   = BEGIN (*UnitReqKindImage*) 
       CASE Kind OF
-      | FM3Base . UnitReqKindTyp . UttrNull => RETURN "UttrNull"
-      | FM3Base . UnitReqKindTyp . UttrCL => RETURN "UttrCL"  
-      | FM3Base . UnitReqKindTyp . UttrExport => RETURN "UttrExport"
-      | FM3Base . UnitReqKindTyp . UttrImport => RETURN "UttrImport" 
-      | FM3Base . UnitReqKindTyp . UttrGenActual => RETURN "UttrGenActual"
+      | FM3Base . UnitReqKindTyp . UrkNull => RETURN "UrkNull"
+      | FM3Base . UnitReqKindTyp . UrkCL => RETURN "UrkCL"  
+      | FM3Base . UnitReqKindTyp . UrkExport => RETURN "UrkExport"
+      | FM3Base . UnitReqKindTyp . UrkImport => RETURN "UrkImport" 
+      | FM3Base . UnitReqKindTyp . UrkGenActual => RETURN "UrkGenActual"
       END (*CASE*) 
     END UnitReqKindImage 
 
@@ -157,11 +157,11 @@ MODULE FM3Units
 
   = BEGIN (*UnitReqKindTag*) 
       CASE Kind OF
-      | FM3Base . UnitReqKindTyp . UttrNull => RETURN ""
-      | FM3Base . UnitReqKindTyp . UttrCL => RETURN "command line"  
-      | FM3Base . UnitReqKindTyp . UttrExport => RETURN "export"
-      | FM3Base . UnitReqKindTyp . UttrImport => RETURN "import" 
-      | FM3Base . UnitReqKindTyp . UttrGenActual => RETURN "generic actual"
+      | FM3Base . UnitReqKindTyp . UrkNull => RETURN ""
+      | FM3Base . UnitReqKindTyp . UrkCL => RETURN "command line"  
+      | FM3Base . UnitReqKindTyp . UrkExport => RETURN "export"
+      | FM3Base . UnitReqKindTyp . UrkImport => RETURN "import" 
+      | FM3Base . UnitReqKindTyp . UrkGenActual => RETURN "generic actual"
       END (*CASE*) 
     END UnitReqKindTag 
 
